@@ -17,9 +17,7 @@ label a0523:
     mom "Track again today, right?"
     mc "Yeah. Light cardio, probably. Or maybe the stupid parachute thingy."
     mc "Coach said Friday depends on whether the foot starts yelling."
-    
     ah "Does it know its rights?"
-    
     "Mom looks over her case folder without changing expression."
     mom "It can retain counsel after breakfast, now finish eating."
     "Asahina lowers her eyes back to her plate, the facetious comment flying over her head."
@@ -69,13 +67,12 @@ label a0523:
     nier "Mom leaves with an actual goodbye instead of a sticky note. Asahina remembers her lunch without being chased. I double check my bag, my alarm, and my sock situation with the caution of someone recently humbled."
     nier "Friday does indeed have the decency to start in order."
     call nier_clear from _call_nier_clear_0523_1
-    stop music fadeout 1.0
-    pause 1.0
     scene bg class_day
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with dissolve_scene_full
-    play music dailyfantasy
+    play music quiz
     "Classes move with the expected particular impatience of a few days before exams."
     "Every teacher seems to be offended with the repeat questions of concepts covered a month ago and whether or not this or that will be on the test."
     "Someone asks whether Monday's exam will be cumulative and receives that one response that knocks the air out of the room."
@@ -91,15 +88,14 @@ label a0523:
     scene bg corridor
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
+    play music schooldays
     "Asahina finds me before I can decide whether to eat alone or rendezvous with Monika or somebody else."
     show asahina neut at t11
     ah "Roof?"
-    
     mc "...No greeting?"
-    
     ah "Hi. Roof?"
-    
     "She says it like the correction cost her actual money."
     mc "Sure."
     "We join the hallway current, then break from it near the stairwell."
@@ -123,9 +119,7 @@ label a0523:
     "She looks up at the both of us. For half a second, she looks pleased."
     "Then her face realizes it has been caught doing that and tries to quietly resign."
     ts "Oh, uh...what's up?"
-    
     ah "Were you already here?"
-    
     mc "No, she teleported here."
     ts "I technically got here first, yes."
     mc "...Technically?"
@@ -135,11 +129,8 @@ label a0523:
     "She clasps both hands around her container and looks down at it with immediate regret."
     ts "Sorry if that's weird or, uh, anything."
     ah "...Dude, you're allowed to sit on a roof."
-    
     mc "It {i}is{/i} public access, even if semi-forbidden."
-    
     ah "That sounds like something you made up."
-    
     mc "Yeah, that's how naming works."
     ts "So...you're cool with it?"
     ah "Yep. Now scoot over."
@@ -153,9 +144,7 @@ label a0523:
     ts "Plantar fasciitis, right? I wouldn't wish that on my worst enemy, it's so annoying."
     ts "Healing well, though?"
     mc "More or less. At least my foot's still attached."
-    
     ah "You're always so vague with your injuries, I swear."
-    
     mc "It covers the important bits, so it works, right?"
     mc "Also, wait, who told you I was injured?"
     ts "Charlie."
@@ -170,9 +159,7 @@ label a0523:
     ts "So what events do you run?"
     mc "Sixteen hundred and up. Sometimes the gauntlet all in the same meet."
     mc "Which that all means I specialize in making bad decisions slowly."
-    
     ah "Accurate."
-    
     "She says it without teeth. A gentle hit instead of a punch."
     ts "I could never do that."
     ts "Running one lap in gym class already feels like torture."
@@ -181,7 +168,7 @@ label a0523:
     ah "You were right about the poster, by the way."
     ts "Oh yeah?"
     ah "Yeah, seriously!"
-    ah "Some people also said it was really nice. I'm almost blushing from all the glazing."
+    ah "Some people also said it was really nice. I'm almost blushing from all the hype."
     ts "Oh, uh...I'm glad it worked out, then."
     "Asahina stares up, grinning."
     ah "Not that I was fishing."
@@ -193,16 +180,14 @@ label a0523:
     "Her chopsticks stay lifted over her bento for a second."
     "She seems to notice only after the rice starts sliding loose, and she lowers them carefully like she has been caught holding something fragile."
     mc "...And how do we talk?"
-    
-    ah "Badly?"
-    
+    ah "Badly? Goodly?"
     "Tsubaki smiles, but it arrives a little late."
     ts "No, I mean..."
     ts "You don't sound like you're checking every sentence before you're allowed to say it."
     "The wind pulls at the edge of her notebook."
     "She presses one palm over it and keeps her eyes there."
     ts "You just...say things. And then the other person is still there."
-    "That lands too softly to be dramatic."
+    "That comes out too softly to be dramatic."
     "It still makes Asahina put her drink down."
     ah "I mean, he's my brother. He's kind of legally required to be there."
     mc "Also maybe bribed by leftovers without a name."
@@ -214,6 +199,7 @@ label a0523:
     mc "Completely up to you."
     "Tsubaki's next bite waits untouched while she decides whether that means she has been accepted."
     "By the time she eats it, lunch has started feeling like something with an ending."
+    stop music fadeout 1.0
     "That is when the rooftop door opens again."
     "{i}That God-forsaken...{/i}"
     play sound moddooropen
@@ -222,7 +208,8 @@ label a0523:
     show matsuda neut at t33
     "Matsuda steps through with one hand lifted near her face and a folded sheet of paper pinched between two gloved fingers."
     "She looks pleased with the entrance before she has checked whether the room she entered is ready for one."
-    ma "Kareda! Consider your mission utterly completed!"
+    play music enterm
+    ma "Kareda! Consider your mission utterly completed!" # she takes on a chuuni persona in this scene
     ma "Your sentence has been commuted. The faculty archive resisted at first, but mercy prevailed with a little persuasion."
     "All she receives is stares."
     "Tsubaki closes her eyes with the practiced patience of someone who has translated this language before breakfast."
@@ -276,6 +263,7 @@ label a0523:
     ma "Then the next lunch period, i.e. tomorrow, will have to suffice. Now ta-ta!"
     show matsuda at thide
     hide matsuda
+    stop music fadeout 1.0
     play sound moddoorclose
     "She disappears through the door with the rice cracker tucked carefully in her hand."
     "The roof feels a little larger after she leaves, like the air needs time to settle back into place."
@@ -284,6 +272,7 @@ label a0523:
     "Asahina looks at the door, then at Tsubaki."
     mc "...So how stressed was she there?"
     "My sister puzzledly points at the roof door."
+    play music dailyfantasy
     ah "Wait, she knew you were up here?"
     "Tsubaki presses her lips together."
     ts "She probably guessed."
@@ -303,9 +292,7 @@ label a0523:
     "Tsubaki looks relieved enough that the sentence seems heavier than Asahina meant it to be."
     "Then the warning bell rings below us, thin and distant."
     mc "We should go before the staircase turns into a traffic jam."
-    
     ah "Practical. Suspicious."
-    
     ts "Maybe the roof has phases too."
     mc "Oh my lord..."
     "Asahina laughs, not because the line is sharp, but because Tsubaki actually offered it."
@@ -320,11 +307,10 @@ label a0523:
     nier "By the time the final bell rings, every subject has reminded us that Monday is approaching with paperwork."
     nier "I change for practice with the mild dread of someone who knows his body is about to discover how much a week can take from a stride."
     call nier_clear from _call_nier_clear_0523_2
-    stop music fadeout 1.0
-    pause 1.0
     scene bg track_day
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music daily
     "The track has held onto the afternoon sun."
@@ -392,10 +378,10 @@ label a0523:
     track_coach "Stretch, hydrate, and get out of here."
     track_coach "Do not turn tonight or tomorrow night into extra training because you feel behind."
     track_coach "We got an invitational soon. Can't have you becoming the team cripple."
-    "That lands closer to the bone than the form notes."
+    "That cuts closer to the bone than the form notes."
     mc "...Got it."
     track_coach "Good."
-    track_coach "Monday, we reassess after exams."
+    track_coach "Once exams are done, we reassess."
     track_coach "Academic stress makes athletes stupid in creative ways, and I would like you to avoid contributing to the data."
     mc "I'll do my best to protect the sample."
     track_coach "Hydrate, hydrate, hydrate. I cannot stress that enough. Hotter weather means more water."
@@ -407,17 +393,16 @@ label a0523:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Practice ends clean."
-    nier "I pass by the club room on the way out to see if anyody is there, but the lights are already off with no bags in sight."
+    nier "I pass by the club room on the way out to see if anybody is there, but the lights are already off with no bags in sight."
     nier "On the way home, I pick up a newspaper for my mom since I know she likes to catch up on things over the weekend."
     nier "Why she doesn't use her phone for that is a mystery, but I don't ask."
     call nier_clear from _call_nier_clear_0523_4
-    stop music fadeout 1.0
-    pause 1.0
     scene bg kitchen
     $ show_calendar()
     show mood_evening zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
-    play music fantasyserenity
+    play music dailyleisure
     "Home smells like clean laundry and dinner that has already happened."
     "A covered plate waits on the counter with my name on a sticky note."
     "A second note is stuck to the top."
@@ -435,7 +420,9 @@ label a0523:
     scene bg living_room_night
     $ show_calendar()
     show mood_home zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
+    play music fantasyserenity
     "Mom is in the living room when I come downstairs."
     "The coffee table has been cleared except for her tablet, a notebook, two pens, and a rather vocal empty space that says 'please have a discussion around me.'"
     "Asahina is nowhere in sight."
@@ -455,7 +442,7 @@ label a0523:
     mom "Not making a verdict, not committing your life, not picking the name that goes on every future holiday conversation cause God knows neither of us need that."
     mom "I meant it when I said you could come to me when you were ready."
     mom "I also know deadlines don't wait for a perfect mood, and next week is mostly going to be midterms eating everyone inside."
-    "It is less dramatic than I expected, which that makes it harder to push away."
+    "It is less dramatic than I expected, which makes it harder to push away."
     mom "So tonight, we look."
     mom "We write down questions, think of any other routes we want to explore."
     mom "We close the laptop before we get psyched out by tuition rates and a whole bunch of other numbers."
@@ -470,8 +457,7 @@ label a0523:
     mc "Then you found a real place with buildings and deadlines and a page that probably says welcome in a clean font."
     mc "Now it feels like I said something too loudly and the world started taking notes."
     mom "That sounds like consequences, yes."
-    "She writes the date at the top of the notebook, then underlines it once."
-    "Just enough to make me realize that this is really something I have to worry about."
+    "She writes the date at the top of the notebook, then underlines it once -- just enough to make me realize this is really something I have to worry about."
     mom "To reiterate, you are graduating in less than a year."
     mom "Applications do not care whether you feel ready."
     mom "Entrance exams do not care whether track is in your schedule."
@@ -504,8 +490,7 @@ label a0523:
     mc "Then no promises."
     mom "When you imagine leaving, what do you feel first?"
     "I look at her."
-    "The obvious answers line up."
-    "Excitement. Fear. Guilt. Relief."
+    "The obvious answers line up: excitement, fear, guilt, relief."
     "They all feel true, which makes none of them useful alone."
     mc "I don't know."
     mc "Space, I guess."
@@ -560,7 +545,6 @@ label a0523:
     mc "...Okay."
     mc "Let's look, and I'll be completely honest if I don't like it."
     mom "After you, then."
-    # LEAVE OFF HERE, TAKING BREAK NOW
     "She slides the note toward me."
     "The university name is written neatly, followed by three smaller bullets underneath."
     # change this degree program since we're setting up the idea that in season 3 when MC is out of college his profession is a detective with STEM research on the side
@@ -590,7 +574,7 @@ label a0523:
     mc "No I didn't."
     mom "Oh yes you did."
     mc "I had to adjust the font. It got smaller."
-    mom "You're really trying to lie to me?"
+    mom "...You're really trying to lie to me?"
     "I give up and read the course list properly."
     mc "...This part looks good."
     mom "Yes."
@@ -665,7 +649,7 @@ label a0523:
     call phone_text_conversation("Matsuda Akai", _phone_messages, append=True) from _call_phone_text_conversation_0523_1
     "The room goes quiet."
     "Not actually quiet, because the air conditioner is doing its uneven little rattle and someone outside is dragging a trash bin over concrete."
-    "But the phone goes quiet. at least for half a minute."
+    "But the phone goes quiet, at least for half a minute."
     "I stare at the screen longer than I should."
     "{i}Too harsh?{/i}"
     "{i}No. Direct is not automatically cruel.{/i}"

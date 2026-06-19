@@ -3,6 +3,7 @@
 label start:
 
     # Initialize variables for tracking game state
+    $ exam_guard_reset_for_new_game()
     $ anticheat = persistent.anticheat     # Anti-cheat tracking variable
     $ chapter = 0                          # Current chapter counter
     $ _dismiss_pause = config.developer    # Allow skipping pauses in developer mode

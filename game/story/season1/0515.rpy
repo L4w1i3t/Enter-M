@@ -11,8 +11,7 @@ label a0515:
     show monika 1b at t11
     m "...Of course, see you then!"
     window hide
-    pause 1.0
-    pause 1.0
+    pause 2.0
     window auto
     m "...Ah. Inappropriate flyer here..."
     m 1n "Why am I always cleaning up others' messes...?"
@@ -22,8 +21,7 @@ label a0515:
     m "Aaaaand...of course he left this thing here."
     m "Come on, you're better than this..."
     window hide
-    pause 2.0
-    pause 2.0
+    pause 4.0
     window auto
     m "...What?"
     window hide(None)
@@ -37,18 +35,19 @@ label a0515:
     play music dailyfantasy
     window auto
     # Perspective shift immediately onto MC
-    # CRITIQUE: The observational opening is confident, but it assumes the reader already understands MC and Monika's rhythm. Give one tiny emotional register from MC before the shoulder-tap bit so the familiarity feels earned instead of merely clever.
+    # CRITIQUE (ADDRESSED): Added one quiet emotional register from MC (the club is the one room where his head goes quiet) before the shoulder-tap, so the familiarity with Monika reads as earned rather than merely clever. Doubles as present-tense weight for the club, which the story needs before it can become a loss.
     "My pen rolls between my fingers, taps once against the desk, and becomes the loudest thing in the club room."
     "When the room gets this quiet, the small details start volunteering themselves:"
     "...the closet door left at a perfect right angle, a speck of pencil lead on someone else's desk, the thin line of afternoon light caught along the window frame."
+    "It's the one room in my day where the noise in my head agrees to sit down for a while. I stopped asking why a long time ago. I just show up for it."
     "I roll my shoulders to loosen the tension in my neck, and a fingertip taps the right one before I can settle back down."
-    "{i}Same shoulder. Same timing. She is getting predictable.{/i}"
+    "{i}Same shoulder, same timing. She's getting predictable.{/i}"
     $ player = "?"
     mc "...Monika."
     "She pivots seamlessly into my line of sight."
     show monika 1n at t11
     m "You knew it was me."
-    mc "You always tap the right shoulder. At some point it stops being a surprise and starts being a signature."
+    mc "You always go for the right shoulder. Do it enough times and it stops being a surprise and just becomes your signature."
     m "A signature sounds more sophisticated than a habit, so I'll take it."
     "I lean back, giving her room to step into my line of sight."
     mc "So, what did I do this time?"
@@ -88,17 +87,29 @@ label a0515:
     mc "That's what people say when they own red pens."
     "I pull the pages from my bag before I can change my mind."
     mc "Just don't make the margins bleed too much."
+    "Monika takes the pages and reads the way she always does: lips slightly parted, pen capped but held ready, like the cap is the only thing keeping her professional."
+    "I already know which lines she'll stop on. I wrote them to be stopped on, then pretended I hadn't."
+    "{i}Here a braver poem would say something true about the light. [[Bracket left open for later.]{/i}"
+    "{i}The desk is just a desk. [[It is not standing in for anything. I checked twice.]{/i}"
+    "{i}I keep the good pens in the bag I never open. [[No reason. Don't look at me.]{/i}"
+    "She uncaps the pen after all, writes something small in the margin, and hands the page back before I can lean over to see it."
+    mc "That bad?"
+    m "Opposite problem."
+    "Next to the brackets, in her neat slanted hand:"
+    "{i}The brackets are the poem. You just haven't admitted it yet.{/i}"
+    "{i}...Noted. Filed. Not saying it out loud.{/i}"
+    mc "I'll take it under advisement."
+    m "You'll take it under a pile and forget it."
+    mc "That too."
     show monika at thide
     hide monika
     $ hide_calendar()
     scene black with wipeleft_scene
-    # CRITIQUE: You skip the first actual literature-club activity after setting it up. Since Monika is supposed to be MC's crutch and the club matters long-term, show one concrete workshop note or poem exchange instead of summarizing the routine.
-    nier "My routine after-school club activities are often mundane. Same old writing, same old presentations, same old friends..."
-    nier "I don't hate it though. Monotonous, yes, but it's a different kind of monotony, if that makes sense."
-    nier "Everyone needs a go-to place to just be themselves, after all."
+    # CRITIQUE (ADDRESSED): Replaced the "same old writing" summary with an actual workshop beat -- MC's bracket-heavy draft and Monika's margin note ("the brackets are the poem") -- so the club's creative intimacy is shown, not told. Also seeds MC's habit of hiding inside his own hedges (the unreliable-narrator thread) and sets up the May 24 poem exchange.
+    nier "The rest of the session is the comfortable kind of uneventful. Drafts traded, two read aloud, one unresolved argument about whether a sunset can be 'smug.'"
+    nier "It's a different kind of monotony than the rest of my day. The kind I show up for on purpose."
     call nier_clear from _call_nier_clear_0515_1
-    nier "Today's activities carried on without much incident."
-    nier "Come dinnertime, all members had already shuffled out, leaving just Monika and me to lock up."
+    nier "By dinnertime the other members had shuffled out, leaving just Monika and me to lock up."
     call nier_clear from _call_nier_clear_0515_2
     scene bg club_day
     show mood_evening zorder 3 
@@ -143,15 +154,14 @@ label a0515:
     ah "...Yeah, what about it?"
     mc "I'm starting to think they put your name on a stool in there."
     ah "And your point is?"
-    mc "Nothing. I'm just saying the cashier probably starts the order when he sees you cross the street."
-    ah "Yeah, well, I have money, practice burns it off, and the cashier does not know my name."
-    # CRITIQUE (ADDRESSED): The sibling bite is clear, but "fatass" and "bagged obesity" are harsher than the surrounding affection supports. This risks making MC read cruel instead of merely teasing.
-    mc "Whatever you say, fatass."
-    "Before I can even smile at my own comment, a fry hits me on the cheek."
-    ah "Okay, listen here you little--!"
-    "I then find the moment to snicker."
-    "{i}It's always too easy with her...{/i}"
-    mc "Anyway, I'm heading in. Enjoy your bagged obesity."
+    mc "Nothing. I'm just saying the cashier probably starts your order the second he sees you cross the street."
+    ah "Yeah, well, I've got money, practice burns it off, and that cashier doesn't even know my name."
+    # CRITIQUE (ADDRESSED): Swapped the body-weight insults ("fatass," "bagged obesity") for sibling bite that doesn't target her body. With the food/eating thread running underneath Asahina, MC casually weight-shaming her undercut both the warmth and the later arc; this keeps the needling without the cruelty.
+    mc "Whatever you say, gremlin."
+    "Before I can even smile at my own comment, a fry bounces off my cheek."
+    ah "Okay, listen here, you little--!"
+    "I find the moment to snicker. {i}It's always too easy with her.{/i}"
+    mc "Anyway, I'm heading in. Try to leave some of the menu for the paying customers."
     ah "Screw you too."
     show asahina at thide
     hide asahina
@@ -174,7 +184,7 @@ label a0515:
     mom "Oh, wait, question: katsudon sound good for dinner? I'm trying to find an excuse to use these pork loins before they expire."
     # CRITIQUE (ADDRESSED): Proofreading nit: "porkloins" should probably be "pork loin" or "pork loins"; the food detail is grounded, so the compound-word error stands out.
     mc "Yeah, fine by me. Anyway, off I go."
-    "I give mom a gesture towards my room upstairs and subtly lift my bag from my shoulder to express my intent."
+    "I tip my head toward the stairs and shift my bag on my shoulder so she gets the idea."
     show mom at thide
     hide mom
     scene bg bedroom with wipeleft_scene
@@ -220,23 +230,24 @@ label a0515:
     $ show_calendar()
     show mood_home zorder 3 
     with wipeleft_scene
-    "Once we have the meat in the pan, we both almost simultaneously take a deep breath."
+    "Once the meat's in the pan, we both take a deep breath at almost the same time."
     mc "So...you wanted to run something by me?"
-    mom "Yes! So, I was digging around earlier today..."
-    mom "Found a university that I think would be a good fit for you..."
-    # CRITIQUE: The college conversation is important but list-shaped. One specific program detail, brochure image, commute number, or MC physical reaction would make the future feel concrete instead of like exposition.
+    "She wipes her hands and slides a folded printout across the counter, still warm from the printer. A campus photo on the front: all glass and a courtyard with grass too green to be real."
+    mom "I was digging around earlier and found a university I think would actually fit you."
+    # CRITIQUE (ADDRESSED): Gave the future one concrete anchor (a warm-from-the-printer campus printout with a line already highlighted) and an MC physical reaction (his hands going still on the pan), so the college thread reads as a real object on the counter rather than a list of categories. Specifics like field and commute are kept light here so the May 23 talk can land the hard numbers.
+    "There's a line near the bottom she's already gone over in yellow highlighter. A program name. The exact one I'd have circled myself, if I were brave enough to admit I'd already looked it up."
+    "My hands stop moving on the pan."
     mc "...Already, huh?"
-    mom "Oh, don't be like that. If anything, we're a little late to the party."
-    mom "You're graduating in literally less than a year. I don't wanna be that kind of overbearing parent who nags, but it's time to start thinking about what comes next."
-    "I widen my eyes and slowly nod."
-    mc "...When you put it that way..."
-    mc "True, I know of at least a few classmates who have already made it clear what they're wanting to do."
-    "{i}Monika probably already has this figured out...{/i}"
-    mc "Anyway, I'm still listening."
-    mom "The one I looked at, it has a lot of boxes checked off."
-    mom "It has a {i}very{/i} strong program in what you seem to be enthusiastic about, so that's already a plus."
-    mom "Not to mention great reputation, and a decent distance from home. I know you said recently that you want to go and see the world, so..."
-    mom "You think we could do more digging together sometime soon? Completely up to you, I won't force you."
+    mom "Oh, don't be like that. If anything, we're late to the party."
+    mom "You graduate in less than a year. I don't want to be the parent who nags, but it's time to start thinking about what comes after."
+    "I make myself nod."
+    mc "...When you put it that way."
+    mc "I know a few classmates who already have the whole thing mapped. Major, city, the exact dorm they want."
+    "{i}Monika's probably had this figured out since the day she walked in.{/i}"
+    mc "I'm listening."
+    mom "It checks a lot of boxes. Strong program in the thing you light up about, whether or not you'll admit out loud that you light up about anything."
+    mom "Good reputation. Far enough from home to count as 'seeing the world,' close enough that I can still threaten you by train."
+    mom "Could we do more digging together this week? Only if you want. I won't push."
     mc "I, uh..."
     mc "...Yeah, I mean, sure. I'm down."
     "{i}Surely I'm not behind the curve...right?{/i}"
@@ -273,15 +284,16 @@ label a0515:
     mom "And fast food isn't exactly a balanced diet, either."
     mc "Wait... so that's where my snacks have been going?!"
     mc "...You owe me."
-    "Asahina pauses for a second before picking up her chopsticks and nudging the pork slightly."
-    ah "Yeah, I guess..."
-    "She takes a small bite, like she's expecting the fork to stab back."
+    "Asahina pauses before picking up her chopsticks and nudging the pork slightly."
+    ah "Yeah, I guess."
+    "She takes a small bite, careful, like she's expecting the food to argue back."
     "{i}Not that she'd admit she already ate, knowing mom was cooking.{/i}"
-    "Mom watches for a moment before letting it go."
-    # CRITIQUE: This is a major warning light if Asahina's later side story involves food scrutiny. Do not let the narration wave it away as "nothing" unless that denial is clearly MC's blind spot.
-    "{i}Same old, same old.{/i}"
-    "{i}It's always something with Asa.{/i}"
-    "{i}Nothing worth making a fuss over, though.{/i}"
+    "Mom watches a beat longer than the moment needs, then makes herself look at her own plate. The chopsticks in her hand don't move for a while."
+    # CRITIQUE (ADDRESSED): Reframed so the dismissal is legibly MC's blind spot rather than the author's. The scene now shows Mom is still worried (her chopsticks stall) while MC files the whole thing under "nothing" -- his narration waving it off is contradicted by what the room is doing, which is the behavioral-unreliability seed the slow burn needs.
+    "{i}Same old, same old. It's always something with Asa.{/i}"
+    "I catch myself cataloguing it the way I catalogue everything: noted, weighed, decided it isn't mine to carry."
+    "{i}Nothing worth making a fuss over.{/i}"
+    "I go back to my katsudon. Mom still isn't eating."
     show mom at thide
     hide mom
     show asahina at thide
@@ -290,19 +302,18 @@ label a0515:
     scene black with wipeleft_scene
     nier "Dinner ends with plates cleared, lights dimmed, and everyone drifting back into their usual routines."
     nier "On my end, I spend my time cranking out whatever homework I have in five minutes flat--or at least that's what it feels like."
-    nier "With nothing else to do, I fall back on the usual. A poem for Monika's club, the occasional book, gaming via going through a JRPG with about fifteen self-imposed restrictions, the works."
+    nier "With nothing else to do, I fall back on the usual. A poem for Monika's club, the occasional book, grinding through a JRPG with about fifteen self-imposed restrictions, the works."
     nier "Time passes without much resistance..."
     call nier_clear from _call_nier_clear_0515_7
     stop music fadeout 2.0
-    pause 1.0
     scene bg doornight
     $ show_calendar()
     show mood_night zorder 3 
     with wipeleft_scene
     play music fantasypassion
-    # CRITIQUE: "Stygian embrace" is much too purple for a glue-fetch scene unless the melodrama is deliberately being mocked. The prose and the errand are fighting each other.
-    "Night has enveloped the world with its stygian embrace."
-    "The house is quieter than other days. Usually someone's up to some sort of hijinks."
+    # CRITIQUE (ADDRESSED): Cut the purple "stygian embrace" for plain night description that fits the low-stakes domestic errand instead of fighting it. The "windows go mirror" image also quietly seeds the reflection motif the May 24 bus-seat poem pays off.
+    "It's full dark out now, dark enough to turn the windows to mirrors."
+    "The house is quieter than most nights. Usually someone's mid-hijink."
     "Today we have mom flipping the pages of her book in the living room, and Asahina on the floor tapping away at her handheld."
     "As for me, I decide to wrap things up early. My previous night of doomscrolling random wiki articles is to thank."
     "Before clocking out, I take a couple drinks of water, take my medication, and--"

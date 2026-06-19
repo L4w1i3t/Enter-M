@@ -5,40 +5,29 @@ label a0518:
     $ show_calendar()
     with dissolve_scene_full
     play music dailyleisure
-    
     ah "Ugggh, why is there nothing good on?!"
     "My sister continues to flip through the channels on the TV with a force that makes you think it offended her."
     ah "Why did the Geographic have to have downtime now of all times?!"
-    
     mc "Maybe this is the universe's way of telling you to expand your horizons."
-    
     ah "I'll expand them whenever YOU give me back my DVD of 'The Grandfather.'"
-    
     mc "...I have no idea what you're talking about."
     ah "You've had it for two weeks now!"
-    
     "I plead the fifth with a long sip of coffee."
     "{i}Tastes awfully thick...{/i}"
-    # CRITIQUE: Proofreading nit: "could" shifts this sentence into past conditional while the surrounding narration is present/present-perfect. Keep the tense consistent unless the stumble is intentional.
-    "And before I could put the cup down, I feel my phone buzz in my pocket."
+    # CRITIQUE (ADDRESSED): Tense fix -- "could" → "can" to match the present-tense narration around it.
+    "And before I can put the cup down, I feel my phone buzz in my pocket."
     mc "Ah frick, she beat me..."
-    
     ah "Oh? Care to share?"
     ah "Is it your girlfriend?"
-    
     mc "Once again, Asa, she is not my--"
     mc "...Actually, no. We're not doing this."
     mc "It's really not that deep. Monika and I made plans to catch a movie today, that's all."
     "Asahina lightly punches my shoulder."
-    
     ah "Ohhhh. Watch out, if your girlfriend catches wind of your other girlfriend, things'll get bad real quick~"
-    
     "I lay my cup back on the coaster."
     mc "...We still need to pick a time, so let me follow up with her real quick."
     mc "Also, you put WAY too much milk in the coffee this morning."
-    
     ah "Hm? I didn't make it, mom did."
-    
     mc "...Be real."
     "I continue to give my sister the stare of skepticism as I press the power button on my phone."
     python:
@@ -70,7 +59,7 @@ label a0518:
     mc "And I swear to everything that is holy, do NOT scroll too far up or start digging through things."
     "I turn over my phone's chat history to her and she reads through the texts in a scarily surgical manner."
     "Half a minute passes before she hands me back my phone and reaches for her own."
-    # CRITIQUE: Texting while sitting next to each other is a funny bit, but it also repeats information the scene could handle through body language. Use the text format only if secrecy or timing adds something.
+    # CRITIQUE (ADDRESSED): Justified the text-format gag -- Asahina uses text because typing the sincere/wingwoman version is easier than saying it to his face (a real teen reason), which the aftermath now makes explicit. Kept it short and self-aware.
     "Some tapping and typing later, and I feel a vibration."
     python:
         _phone_messages = [
@@ -82,8 +71,8 @@ label a0518:
             phone_msg("me", "And why are we texting when we're sitting right next to each other?"),
         ]
     call phone_text_conversation("Asa", _phone_messages, append=True) from _call_phone_text_conversation_0518_2
-    "Asahina looks at me and shrugs."
-    "She then proceeds to return to flipping through channels on the TV that neither of us care about."
+    "Asahina shrugs, like typing the nice version was easier than saying it with her face."
+    "She goes back to flipping through channels neither of us actually care about."
     "{i}Noon...{/i}"
     "{i}Still got a couple hours before I need to get ready.{/i}"
     "{i}Might as well kill time the usual way...{/i}"
@@ -106,12 +95,11 @@ label a0518:
     $ show_calendar()
     with dissolve_scene_full
     play music daily
-    "Late morning settles over the shopping street in layers: delivery carts along the curb, steam leaking from a noodle shop vent, the soft clatter of shutters being pulled up for lunch, et cetera."
+    "Late morning settles over the shopping street in layers: delivery carts along the curb, steam leaking from a noodle shop vent, the soft clatter of shutters being pulled up for lunch."
     "I check my phone at the crosswalk. Monika's last message is still there, cheerful enough to make the screen feel brighter than it is."
     "The signal changes before I finish reading it for the third time and contemplating whether I should let her know I'm on my way."
     "I pocket the phone and cross with the crowd, careful this time to keep my eyes ahead."
-    "My shoulder aches with a faint reminder from yesterday evening."
-    "Nothing major, but just enough to make me notice the space between people."
+    "My shoulder still aches with a faint reminder from yesterday evening, not enough to matter but enough to make me notice the space between people."
     "By the time the theater sign comes into view, a small line has already gathered under the {i}Iron Rod{/i} banner."
     "{i}Seems like the hype and promos did their job...{/i}"
     "{i}Now where is she...?{/i}"
@@ -150,7 +138,9 @@ label a0518:
     "The longer I stare at both, the more it starts looking like something waiting to move."
     mc "...Right. Anyway..."
     m "You're rubbing your shoulder."
-    # CRITIQUE: Good intimate cue. Do not rush past Monika noticing his body before he explains it; this is the sort of quiet attention that makes her affection believable.
+    # CRITIQUE (ADDRESSED): Let Monika's noticing land before MC explains it. She clocks his body before he says anything, and he registers being seen -- the quiet attention that makes her affection believable, instead of rushing past it into exposition.
+    "I hadn't realized I was doing it."
+    "That's the thing about Monika -- she notices the small stuff first, the way other people notice weather."
     mc "...Yeah?"
     mc "I ran into someone last night."
     m "Ran into, as in...?"
@@ -192,9 +182,8 @@ label a0518:
     "Monika glances at me."
     mc "Sure."
     m "Salted and churro toppings!"
-    # CRITIQUE: The concession scene stacks "second mother," "brochacho," the price shock, and the huge tip too tightly. One joke can sharpen awkward date energy; four jokes turn it into sketch comedy.
-    mc "That is not what I said...!"
-    "{i}I swear, what is she, my second mother?!{/i}"
+    # CRITIQUE (ADDRESSED): Thinned the four-joke pileup (second-mother / price-shock / brochacho / 25%-tip) down to the topping over-order that sets up the later cinnamon-fingers callback, plus one understated money-tension beat below. Kept "brochacho" as a Monika voice note rather than a fourth punchline.
+    mc "That is not what I said."
     "Kotonoha taps the order in, then reaches for two cups without looking away from the register."
     ko "{i}Iron Rod{/i} is in theater three. Doors open in five minutes."
     m "Oh, that soon?"
@@ -211,13 +200,12 @@ label a0518:
     show kotonoha neut at t22
     show monika 1a at t21
     ko "Your total is on the screen."
-    "{i}SHIT, that's a lot!{/i}"
+    "The number is higher than two snacks have any business being."
     "Monika pays before I get my wallet halfway out."
     mc "...I can get it. Seriously."
     m "Hey, I was the one who invited you. I got this, brochacho."
     "Monika looks down first, busying herself with the cup lids."
-    "I take the popcorn because it gives my hands something to do."
-    "{i}WHY DID YOU TIP TWENTY-FIVE PERCENT, MONIKA?!{/i}"
+    "I take the popcorn because it gives my hands something to do, and because arguing about who pays on a not-a-date is a great way to make it a date."
     ko "Enjoy the film."
     mc "Thanks, you too--"
     mc "...Uh..."
@@ -262,8 +250,8 @@ label a0518:
     "The room settles into the shared hush of strangers agreeing to be quiet at the same time."
     "For a while, neither of us says anything."
     "It should be normal. It IS normal."
-    # CRITIQUE: "Nanoangstrom" is funny, but it is so self-consciously technical that it briefly pulls attention away from the physical intimacy. Consider whether MC would think in this exact unit under romantic pressure.
-    "{i}So why am I suddenly aware of every nanoangstrom between our shoulders?{/i}"
+    # CRITIQUE (ADDRESSED): Swapped "nanoangstrom" for a plainer measure -- the unit pulled focus from the physical intimacy with something no one thinks in under romantic pressure. Kept MC's wryness without the lab coat.
+    "{i}So why am I suddenly aware of the exact inch of air between our shoulders?{/i}"
     m "Hey."
     mc "Hm?"
     m "You can laugh if the movie gets stupid, by the way."
@@ -278,20 +266,27 @@ label a0518:
     hide monika
     $ hide_calendar()
     scene black with wipeleft_scene
-    # CRITIQUE: The movie is summarized right when it could mirror the date. Show one scene and one shared reaction in real time so the sleeve-grab later feels rooted, not reported.
-    nier "The movie begins with a slow shot of an empty railway crossing, a missing-person flyer, and a rural silence that makes every audience member decide the characters should simply leave."
-    nier "They do not leave, as no characters do in these kinds of movies."
-    nier "This is because horror movies are powered by bad real estate decisions and people hearing a noise in the basement."
+    # CRITIQUE (ADDRESSED): Stopped reporting the sleeve-grab and showed it in real time -- one concrete on-screen scare (the maintenance tunnel), Monika's hand finding my sleeve in the moment, and the shared reaction -- so the beat is lived, not summarized. Kept a short summary frame for pacing. (Dropped the now-unused nier_clear _5 call site.)
+    nier "The movie opens on an empty railway crossing, a missing-person flyer, and a rural silence that makes the whole theater silently agree the characters should just leave."
+    nier "They do not leave. No one ever leaves. Horror runs on bad real estate decisions and people investigating noises any reasonable person would pay to never hear again."
     call nier_clear from _call_nier_clear_0518_3
-    nier "{i}Iron Rod{/i} isn't bad, actually."
-    nier "It's uneven in places, sure. The second act gets a little too impressed with its own symbolism, and one of the token side characters exists solely to hold a flashlight wrong."
-    nier "But when it works, it works."
-    nier "Monika watches with the focus she gives poems, only this time nobody's margins are in danger."
+    scene bg theater_inside
+    $ show_calendar()
+    show monika 1a at t11
+    with wipeleft_scene
+    "It's uneven -- the second act gets a little too impressed with its own symbolism -- but when it works, it works. Monika watches with the focus she usually saves for poems."
+    "About an hour in, the lead climbs into a maintenance tunnel she has no business entering."
+    "The score thins down to a single held note. Her flashlight finds a wall of something that should not be behind a wall."
+    "Then a sound comes from off-screen, low and wet and far too close, and the whole theater does that collective half-flinch where everyone pretends they didn't."
+    "Monika's hand closes around my sleeve."
+    "Not my hand. My sleeve. Like even startled, she's negotiating the terms."
+    "I don't move. Partly because I don't want to break whatever this is, and partly because the tunnel sound is genuinely doing numbers on my spine."
+    "On the next cut to daylight she lets go, smooths the fabric like she can erase the evidence, and stares very hard at the screen."
+    "Neither of us says a word about it while the movie is still happening."
+    $ hide_calendar()
+    scene black with wipeleft_scene
+    nier "The rest plays out the way these things do: one character makes a noble sacrifice, another makes a stupid one, and the iron rod collects exactly the amount of symbolic weight the budget could afford."
     call nier_clear from _call_nier_clear_0518_4
-    nier "At one point, her hand finds my sleeve during a scene involving a maintenance tunnel and a sound that absolutely did not need to come from behind us."
-    nier "She lets go immediately after."
-    nier "Neither of us mentions it while the movie is still happening."
-    call nier_clear from _call_nier_clear_0518_5
     scene bg theater_inside
     $ show_calendar()
     show monika 1a at t11
@@ -300,11 +295,13 @@ label a0518:
     "I stay seated, mostly because the people beside us are still negotiating popcorn logistics with the intensity of a hostage situation."
     m "...Well?"
     mc "I liked it."
-    mc "The part with the maintenance tunnel was cheap, though."
-    # CRITIQUE: The sleeve-grab was emotionally charged, but the aftermath immediately becomes a retort chain. Let embarrassment sit for two or three lines before joking over it.
-    # CRITIQUE: This line appears malformed. The intended idiom might be "cheap tricks work sometimes" or "don't count cheap out"; as written, it reads like a draft error.
-    m "Hey, don't cut cheap out sometimes."
-    mc "...Says the person who tried to tear my arm off."
+    mc "The maintenance tunnel was a cheap shot, though."
+    # CRITIQUE (ADDRESSED): Fixed the malformed "don't cut cheap out sometimes" line and let the embarrassment sit before the teasing -- her hand migrates to her own sleeve, the silence holds, and MC consciously leaves it un-joked-about one beat longer than is comfortable before the retort chain resumes. Restraint enacted on the page.
+    m "Cheap shots work sometimes. That's sort of the whole point of them."
+    "She says it lightly, but her hand has drifted to her own sleeve, smoothing the same spot she grabbed on mine."
+    "Neither of us points that out."
+    "I let the quiet sit a second longer than is comfortable, because some things are better left un-joked-about for exactly one beat before you ruin them."
+    mc "...Says the person who tried to tear my arm off, by the way."
     m "I did not!"
     "Her face goes pink faster than the house lights come up."
     mc "I'm not judging. If a movie wants to jumpscare you with plumbing, that's between you and said plumbing."
@@ -384,7 +381,7 @@ label a0518:
     m "Hey, [player]?"
     mc "Yeah?"
     m "Thanks for coming with me."
-    "The simple version of the sentence lands harder than it has any right to."
+    "The simple version of the sentence hits harder than it has any right to."
     mc "Yeah. Anytime."
     m "Good."
     "Then she waves and heads down the sidewalk, ponytail swaying behind her."
@@ -396,16 +393,15 @@ label a0518:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The ride home gives me too much time to think, which is rude of public transportation."
-    # CRITIQUE: "I think about an analysis of the movie" is abstract phrasing. "I think about analyzing the movie" or one concrete image from it would read more naturally.
-    nier "I think about an analysis of the movie, with both the good and bad parts."
+    # CRITIQUE (ADDRESSED): Replaced the abstract "an analysis of the movie" with concrete images from it.
+    nier "I think about the movie -- the held note before the tunnel, the flashlight finding the wrong wall, the parts that worked and the parts that were only trying to."
     nier "I think about that Matsuda girl's name sitting in my messages like it rented space there."
-    nier "I think about the fact that Sunday has somehow become less restful than Saturday."
+    nier "I think about the fact that Sunday has managed to become less restful than Saturday."
     call nier_clear from _call_nier_clear_0518_6
-    stop music fadeout 1.0
-    pause 1.0
     scene bg living_room
     $ show_calendar()
     show mood_evening zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music dailyleisure
     play sound moddooropen
@@ -414,29 +410,19 @@ label a0518:
     "Big block letters, clean spacing, a volleyball drawn with enough detail to make me suspicious of how much effort she pretended not to spend on it."
     show asahina neut at t11
     ah "Well?"
-    
     mc "Well what?"
-    
     ah "Movie. Date. Whatever. Spill it."
-    
     mc "It was...a movie."
-    
     ah "Wow. Thank you for the important info."
-    
     "I take my shoes off and decide whether honesty is worth the ammunition."
     "Unfortunately, my mouth has historically been bad at committee decisions."
     mc "It was fun. Monika and I both seemed to enjoy it."
-    
-    # CRITIQUE: This homecoming has genuine warmth around the poster, but the "stupid face" and "birdbrain" tags keep yanking tenderness back into insult mode. Space the barbs out or the praise cannot breathe.
+    # CRITIQUE (ADDRESSED): Spaced the barbs so the poster praise can breathe. Softened the earliest tag ("stupid face" → "your whole face," which also calls back to the 0516 "thinking it with your whole face" beat) and kept the lettering-praise stretch unbarbed; the affectionate "birdbrain" stays as the warm closer rather than another insult.
     ah "Awwwwwwwwwwwwwwwwwwwwwwwww."
-    
     mc "Do not."
-    
     ah "I didn't say anything!"
-    
-    mc "You said it with your stupid face."
+    mc "You said it with your whole face."
     ah "S-Shut up! You're one to talk!"
-    
     mc "...How mature of you."
     "She leans back on her hands, then glances at the poster like she is pretending not to wait for me to notice it."
     mc "Poster looks good, by the way."
@@ -477,11 +463,10 @@ label a0518:
     nier "Mom asks about the movie over dinner. Asahina answers half the questions for me, confidently and incorrectly."
     nier "I correct none of it unless absolutely necessary."
     call nier_clear from _call_nier_clear_0518_7
-    stop music fadeout 1.0
-    pause 1.0
     scene bg bedroom
     $ show_calendar()
     show mood_night zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music fantasyserenity
     "My room is quiet when I finally get back to it."

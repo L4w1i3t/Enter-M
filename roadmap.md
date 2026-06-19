@@ -430,7 +430,7 @@ All background images defined in the project:
 | `roster_place` | mod_assets/bgm/roster_place.ogg | Archive menu, general scenes |
 | `hopeless` | mod_assets/bgm/hopeless.ogg | Tsubaki's deterioration, Sam encounter |
 | `twelveam` | mod_assets/bgm/twelveam.ogg | Monika disbands club scene |
-| `map003` | mod_assets/bgm/map003.ogg | Main menu |
+| `canyoufeel` | mod_assets/bgm/canyoufeel.ogg | Main menu |
 | `hotr` | mod_assets/bgm/hotr.ogg | "Dead Fantasy" character story |
 | `flight` | mod_assets/bgm/flight.ogg | -- |
 | `devoted` | mod_assets/bgm/devoted.ogg | -- |
@@ -532,7 +532,7 @@ Rambling notes:
 - over the course of the story as well, there should be very subtle hints that things about matsuda herself are a bit weird. for example: - oddly immodest around MC (exhibit A, she is awfully calm about MC seeing her in a swimsuit during summertime, especially since matsuda knows what she has as far as her body goes) - complete clown in class but somehow still has extremely high grades (enough to rival monika's) - sometimes lukewarm reactions to things that happen in the world, when extreme emotions and tension would be high kind of like, instead of being self-aware and having an ego death, she KNOWS she's a character and she's more than willing to play the part as best as she can, but she still has gaps in her acting
 - the reason i chose MC having an excuse instead of some profound realization is because most teenagers who are in toxic relationships often stay in them because they justify it in their head to some degree. when something happens that puts the relationship in jeopardy, that's when someone goes "this is my chance to unbuckle and escape"
 
-- MC's classes during the day so I don't forget:
+- MC's classes during the day (in the given order) so I don't forget:
     1. Phys Ed
     2. Civics (Senior Social Studies)
     3. Japanese L.A.

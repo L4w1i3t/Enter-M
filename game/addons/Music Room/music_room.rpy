@@ -33,7 +33,7 @@ init python:
             MusicTrack(
                 "Can You Feel",
                 "Torchkas",
-                "mod_assets/bgm/map003.ogg"
+                "mod_assets/bgm/canyoufeel.ogg"
             ),
             MusicTrack(
                 "Hymn of the Righteous",

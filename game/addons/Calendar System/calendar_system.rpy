@@ -179,17 +179,21 @@ transform calendar_change_panel:
     yoffset 24
     easeout_quad 0.25 alpha 1.0 yoffset 0
 
-transform calendar_change_old:
+transform calendar_rotary_old:
     alpha 1.0
-    xoffset 0
-    pause 0.55
-    easein_quad 0.35 alpha 0.0 xoffset -120
+    yoffset 0
+    yzoom 1.0
+    pause 0.92
+    easein_quad 0.28 alpha 0.55 yoffset -48 yzoom 0.72
+    easeout_quad 0.38 alpha 0.0 yoffset -118 yzoom 0.42
 
-transform calendar_change_new:
+transform calendar_rotary_new:
     alpha 0.0
-    xoffset 120
-    pause 0.75
-    easeout_quad 0.35 alpha 1.0 xoffset 0
+    yoffset 118
+    yzoom 0.42
+    pause 0.92
+    easeout_quad 0.38 alpha 0.65 yoffset 48 yzoom 0.74
+    easeout_quad 0.32 alpha 1.0 yoffset 0 yzoom 1.0
 
 transform cal_content_fade(delay=0.0):
     alpha 0.0
@@ -292,7 +296,7 @@ screen calendar_day_change(old_date, new_date):
     frame:
         xalign 0.5
         yalign 0.5
-        xysize (620, 250)
+        xysize (620, 290)
         background Solid("#090b10f2")
         padding (32, 26, 32, 26)
         at calendar_change_panel
@@ -308,46 +312,104 @@ screen calendar_day_change(old_date, new_date):
                 xalign 0.5
                 ypos 0
 
-            hbox:
+            frame:
                 xalign 0.5
                 ypos 76
-                spacing 42
+                xysize (390, 156)
+                background Solid("#05070cf5")
+                padding (0, 0)
 
                 fixed:
-                    xysize (214, 116)
-                    at calendar_change_old
-
-                    text old_date["month_short"] style "cal_change_month":
-                        xalign 0.5
+                    viewport:
+                        xpos 0
                         ypos 0
-                    text old_date["day_padded"] style "cal_change_day":
-                        xalign 0.5
-                        ypos 26
-                    text old_date["dow_short"] style "cal_change_dow":
-                        xalign 0.5
-                        ypos 86
+                        xysize (390, 156)
+                        draggable False
+                        mousewheel False
 
-                text ">" style "cal_change_arrow":
-                    yalign 0.5
+                        fixed:
+                            xysize (390, 156)
 
-                fixed:
-                    xysize (214, 116)
-                    at calendar_change_new
+                            fixed:
+                                xysize (300, 124)
+                                xalign 0.5
+                                yalign 0.5
+                                at calendar_rotary_old
 
-                    text new_date["month_short"] style "cal_change_month":
-                        xalign 0.5
+                                text old_date["month_short"] style "cal_change_month":
+                                    xalign 0.5
+                                    ypos 0
+                                text old_date["day_padded"] style "cal_change_day":
+                                    xalign 0.5
+                                    ypos 26
+                                text old_date["dow_short"] style "cal_change_dow":
+                                    xalign 0.5
+                                    ypos 88
+
+                            fixed:
+                                xysize (300, 124)
+                                xalign 0.5
+                                yalign 0.5
+                                at calendar_rotary_new
+
+                                text new_date["month_short"] style "cal_change_month":
+                                    xalign 0.5
+                                    ypos 0
+                                text new_date["day_padded"] style "cal_change_day":
+                                    xalign 0.5
+                                    ypos 26
+                                text new_date["dow_short"] style "cal_change_dow":
+                                    xalign 0.5
+                                    ypos 88
+
+                    add Solid("#ffffff10"):
+                        xpos 0
                         ypos 0
-                    text new_date["day_padded"] style "cal_change_day":
-                        xalign 0.5
-                        ypos 26
-                    text new_date["dow_short"] style "cal_change_dow":
-                        xalign 0.5
-                        ypos 86
+                        xsize 390
+                        ysize 1
 
-    timer 0.75 action Play("sound", audio.calendar_tick)
-    timer 1.65 action Return()
+                    add Solid("#00000055"):
+                        xpos 0
+                        ypos 0
+                        xsize 390
+                        ysize 38
+
+                    add Solid("#00000055"):
+                        xpos 0
+                        ypos 118
+                        xsize 390
+                        ysize 38
+
+                    add Solid("#ffffff24"):
+                        xpos 20
+                        ypos 77
+                        xsize 350
+                        ysize 1
+
+                    add Solid("#ffffff16"):
+                        xpos 18
+                        ypos 34
+                        xsize 354
+                        ysize 1
+
+                    add Solid("#ffffff16"):
+                        xpos 18
+                        ypos 121
+                        xsize 354
+                        ysize 1
+
+            hbox:
+                xalign 0.5
+                ypos 246
+                spacing 14
+
+                text old_date["persona"] style "cal_change_small_date"
+                text ">" style "cal_change_small_arrow"
+                text new_date["persona"] style "cal_change_small_date"
+
+    timer 0.9 action Play("sound", audio.calendar_tick)
+    timer 3.35 action Return()
     key "dismiss" action Return()
-
 
 screen calendar_menu():
     tag menu
@@ -544,6 +606,18 @@ style cal_change_arrow:
     font gui.name_font
     size 42
     color "#ffffff66"
+    outlines []
+
+style cal_change_small_date:
+    font gui.interface_font
+    size 18
+    color "#a8adb7"
+    outlines []
+
+style cal_change_small_arrow:
+    font gui.interface_font
+    size 18
+    color "#ffffff55"
     outlines []
 
 style cal_menu_banner_label:

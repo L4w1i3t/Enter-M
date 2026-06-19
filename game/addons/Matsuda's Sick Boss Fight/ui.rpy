@@ -2402,142 +2402,183 @@ screen msbf_battle_screen(battle):
 
     # Party and command deck.
     $ _party_compact = len(battle.party) > 4
+    $ _deck_x = 24
+    $ _deck_w = 1232
+    $ _deck_y = 480 if _party_compact else 502
+    $ _deck_pad_x = 12
+    $ _deck_pad_y = 8 if _party_compact else 10
+    $ _deck_inner_w = _deck_w - (_deck_pad_x * 2)
+    $ _party_frame_h = 232 if _party_compact else 184
     $ _party_grid_cols = 3 if _party_compact else 2
     $ _party_grid_rows = 3 if _party_compact else 2
-    $ _party_grid_spacing = 5 if _party_compact else 7
-    $ _party_card_w = 138 if _party_compact else 215
-    $ _party_card_h = 48 if _party_compact else 61
-    $ _party_frame_h = 198 if _party_compact else 184
-    $ _party_sep_h = 174 if _party_compact else 160
+    $ _party_grid_spacing = 4 if _party_compact else 8
+    $ _party_panel_w = 480 if _party_compact else 456
+    $ _command_panel_w = _deck_inner_w - _party_panel_w - 25
+    $ _command_panel_x = _deck_pad_x + _party_panel_w + 25
+    $ _party_card_w = int((_party_panel_w - ((_party_grid_cols - 1) * _party_grid_spacing)) / _party_grid_cols)
+    $ _party_card_h = 62
+    $ _party_sep_h = _party_frame_h - (_deck_pad_y * 2) - 4
+    $ _party_divider_y = 34 if _party_compact else 39
+    $ _command_divider_y = 62 if _party_compact else 48
+    $ _deck_accent_soft = "#ff386866" if battle.phase == 3 else ("#ffcf6666" if battle.phase >= 2 else "#55ddff66")
+    $ _deck_accent_faint = "#ff386824" if battle.phase == 3 else ("#ffcf6624" if battle.phase >= 2 else "#55ddff24")
+    $ _deck_secondary_faint = "#a66bff30" if battle.phase == 3 else "#ff38682a"
 
     frame:
-        xpos 40
-        ypos 502
-        xsize 1198
+        xpos _deck_x
+        ypos _deck_y
+        xsize _deck_w
         ysize _party_frame_h
-        background Solid("#07111ef2")
-        padding (12, 10)
+        background Solid("#050b14f4")
+        padding (0, 0)
         at msbf_panel_enter(0.10), msbf_final_victory_rumble(1.0 if battle.final_victory_active else 0.0)
 
-        hbox:
-            spacing 12
+        fixed:
+            xysize (_deck_w, _party_frame_h)
 
-            vbox:
-                xsize 438
-                spacing 7
+            add Solid("#07111ef2") xysize (_deck_w, _party_frame_h)
+            add Solid(_deck_accent_soft) xysize (_deck_w, 2)
+            add Solid(_deck_accent_faint) xysize (_deck_w, 1):
+                ypos 2
+            add Solid(_deck_secondary_faint) xysize (320, 2):
+                xpos _deck_w - 320
+                ypos _party_frame_h - 2
+            add Solid("#ffffff12") xysize (_deck_w - 28, 1):
+                xpos 14
+                ypos _party_frame_h - 23
+            add Solid("#02060cc8") xysize (_party_panel_w + 20, _party_frame_h - 20):
+                xpos 8
+                ypos 10
+            add Solid("#02060cc8") xysize (_command_panel_w + 18, _party_frame_h - 20):
+                xpos _command_panel_x - 8
+                ypos 10
+            add Solid(_deck_accent_faint) xysize (_party_panel_w + 20, 1):
+                xpos 8
+                ypos _party_divider_y
+            add Solid(_deck_accent_faint) xysize (_command_panel_w + 18, 1):
+                xpos _command_panel_x - 8
+                ypos _command_divider_y
 
-                hbox:
-                    xfill True
-                    text "PARTY" style "msbf_panel_label"
+            hbox:
+                xpos _deck_pad_x
+                ypos _deck_pad_y
+                spacing 12
 
-                grid _party_grid_cols _party_grid_rows:
-                    spacing _party_grid_spacing
+                vbox:
+                    xsize _party_panel_w
+                    spacing 7
 
-                    for member in battle.party:
-                        $ _active = _actor is not None and member.id == _actor.id
-                        $ _targeting = pending_skill is not None
-                        $ _targetable = _targeting and battle.can_target(pending_skill, member)
-                        if _targeting:
-                            button:
-                                style "msbf_party_target_button"
-                                xsize _party_card_w
-                                ysize _party_card_h
-                                sensitive _targetable
-                                hover_sound MSBF_UI_SFX["hover"]
-                                activate_sound MSBF_UI_SFX["accept"]
-                                action [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None), Function(battle.player_use_skill, pending_skill, member)]
-
-                                use msbf_party_card(member, _active, _targetable, _party_compact)
-                        else:
-                            use msbf_party_card(member, _active, False, _party_compact)
-
-                    for _i in range(max(0, (_party_grid_cols * _party_grid_rows) - len(battle.party))):
-                        null xsize _party_card_w ysize _party_card_h
-
-            add Solid("#55ddff3a") xysize (1, _party_sep_h)
-
-            vbox:
-                xsize 701
-                spacing 8
-
-                if _actor:
                     hbox:
                         xfill True
-                        vbox:
-                            spacing 0
-                            text "ACT: [_actor.name]" style "msbf_command_actor"
-                            text "HP [_actor.hp]/[_actor.max_hp]   MP [_actor.mp]/[_actor.max_mp]" style "msbf_command_stats"
 
-                        null xfill True
+                    grid _party_grid_cols _party_grid_rows:
+                        spacing _party_grid_spacing
 
-                        if pending_skill:
-                            button:
-                                style "msbf_pass_button"
-                                hover_sound MSBF_UI_SFX["hover"]
-                                activate_sound MSBF_UI_SFX["denied"]
-                                action [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None)]
-                                yalign 0.5
-                                at msbf_button_focus
+                        for member in battle.party:
+                            $ _active = _actor is not None and member.id == _actor.id
+                            $ _targeting = pending_skill is not None
+                            $ _targetable = _targeting and battle.can_target(pending_skill, member)
+                            if _targeting:
+                                button:
+                                    style "msbf_party_target_button"
+                                    xsize _party_card_w
+                                    ysize _party_card_h
+                                    sensitive _targetable
+                                    hover_sound MSBF_UI_SFX["hover"]
+                                    activate_sound MSBF_UI_SFX["accept"]
+                                    action [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None), Function(battle.player_use_skill, pending_skill, member)]
 
-                                text "CANCEL" style "msbf_pass_button_text"
-                        else:
-                            button:
-                                style "msbf_pass_button"
-                                hover_sound MSBF_UI_SFX["hover"]
-                                action [SetScreenVariable("hovered_skill", None), Function(battle.player_pass)]
-                                yalign 0.5
-                                at msbf_button_focus
+                                    use msbf_party_card(member, _active, _targetable, _party_compact, _party_card_w, _party_card_h)
+                            else:
+                                use msbf_party_card(member, _active, False, _party_compact, _party_card_w, _party_card_h)
 
-                                text "PASS" style "msbf_pass_button_text"
+                        for _i in range(max(0, (_party_grid_cols * _party_grid_rows) - len(battle.party))):
+                            null xsize _party_card_w ysize _party_card_h
 
-                    grid 4 2:
-                        spacing 7
-                        xfill True
+                add Solid(_deck_accent_faint) xysize (1, _party_sep_h)
 
-                        for skill in _actor.skills:
-                            $ _enabled = battle.can_use(skill)
+                vbox:
+                    xsize _command_panel_w
+                    spacing 8
 
-                            button:
-                                style "msbf_skill_button"
-                                sensitive _enabled
-                                hover_sound MSBF_UI_SFX["hover"]
-                                activate_sound MSBF_UI_SFX["accept"]
-                                hovered SetScreenVariable("hovered_skill", skill)
-                                unhovered SetScreenVariable("hovered_skill", None)
-                                if pending_skill is skill:
-                                    background Solid("#1d5c82ee")
-                                if battle.skill_needs_ally_target(skill):
-                                    action [SetScreenVariable("hovered_skill", skill), SetScreenVariable("pending_skill", skill)]
-                                else:
-                                    action [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), Function(battle.player_use_skill, skill)]
-                                at msbf_button_focus
+                    if _actor:
+                        hbox:
+                            xfill True
+                            vbox:
+                                spacing 0
+                                text "ACT: [_actor.name]" style "msbf_command_actor"
+                                text "HP [_actor.hp]/[_actor.max_hp]   MP [_actor.mp]/[_actor.max_mp]" style "msbf_command_stats"
 
-                                hbox:
-                                    spacing 6
-                                    xfill True
+                            null xfill True
+
+                            if pending_skill:
+                                button:
+                                    style "msbf_pass_button"
+                                    hover_sound MSBF_UI_SFX["hover"]
+                                    activate_sound MSBF_UI_SFX["denied"]
+                                    action [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None)]
                                     yalign 0.5
-                                    text skill.name style ("msbf_skill_name" if _enabled else "msbf_skill_name_disabled"):
-                                        xmaximum 116
-                                        yalign 0.5
-                                    text "[skill.cost]MP" style ("msbf_skill_cost" if _enabled else "msbf_skill_cost_disabled"):
-                                        xalign 1.0
-                                        yalign 0.5
+                                    at msbf_button_focus
 
-                        for _i in range(max(0, 8 - len(_actor.skills))):
-                            null xsize 170 ysize 38
+                                    text "CANCEL" style "msbf_pass_button_text"
+                            else:
+                                button:
+                                    style "msbf_pass_button"
+                                    hover_sound MSBF_UI_SFX["hover"]
+                                    action [SetScreenVariable("hovered_skill", None), Function(battle.player_pass)]
+                                    yalign 0.5
+                                    at msbf_button_focus
 
-                    if pending_skill and not battle.result:
-                        text "Choose a target for [pending_skill.name]." style "msbf_tooltip":
-                            xmaximum 700
-                    elif hovered_skill and not battle.result:
-                        text hovered_skill.description style "msbf_tooltip":
-                            xmaximum 700
+                                    text "PASS" style "msbf_pass_button_text"
+
+                        grid 4 2:
+                            spacing 7
+                            xfill True
+
+                            for skill in _actor.skills:
+                                $ _enabled = battle.can_use(skill)
+
+                                button:
+                                    style "msbf_skill_button"
+                                    sensitive _enabled
+                                    hover_sound MSBF_UI_SFX["hover"]
+                                    activate_sound MSBF_UI_SFX["accept"]
+                                    hovered SetScreenVariable("hovered_skill", skill)
+                                    unhovered SetScreenVariable("hovered_skill", None)
+                                    if pending_skill is skill:
+                                        background Solid("#1d5c82ee")
+                                    if battle.skill_needs_ally_target(skill):
+                                        action [SetScreenVariable("hovered_skill", skill), SetScreenVariable("pending_skill", skill)]
+                                    else:
+                                        action [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), Function(battle.player_use_skill, skill)]
+                                    at msbf_button_focus
+
+                                    hbox:
+                                        spacing 6
+                                        xfill True
+                                        yalign 0.5
+                                        text skill.name style ("msbf_skill_name" if _enabled else "msbf_skill_name_disabled"):
+                                            xmaximum 116
+                                            yalign 0.5
+                                        text "[skill.cost]MP" style ("msbf_skill_cost" if _enabled else "msbf_skill_cost_disabled"):
+                                            xalign 1.0
+                                            yalign 0.5
+
+                            for _i in range(max(0, 8 - len(_actor.skills))):
+                                null xsize 170 ysize 38
+
+                        if pending_skill and not battle.result:
+                            text "Choose a target for [pending_skill.name]." style "msbf_tooltip":
+                                xmaximum _command_panel_w
+                        elif hovered_skill and not battle.result:
+                            text hovered_skill.description style "msbf_tooltip":
+                                xmaximum _command_panel_w
+                        else:
+                            text "Pass spends half a turn. Haste can steal one half-turn before Matsuda changes rhythm." style "msbf_hint":
+                                xmaximum _command_panel_w
+
                     else:
-                        text "Pass spends half a turn. Haste can steal one half-turn before Matsuda changes rhythm." style "msbf_hint":
-                            xmaximum 700
-
-                else:
-                    text "Resolving..." style "msbf_command_actor"
+                        text "Resolving..." style "msbf_command_actor"
 
     if battle.phase >= 2:
         add Solid("#ffcf6630") xysize (392, 2) at msbf_phase2_scanline_burst(0.12):
@@ -2546,12 +2587,12 @@ screen msbf_battle_screen(battle):
         add Solid("#ff38682c") xysize (392, 2) at msbf_phase2_scanline_burst(0.56):
             xpos 40
             ypos 486
-        add Solid("#55ddff30") xysize (1198, 2) at msbf_phase2_scanline_burst(0.28):
-            xpos 40
-            ypos 504
-        add Solid("#ffcf6628") xysize (1198, 2) at msbf_phase2_scanline_burst(0.74):
-            xpos 40
-            ypos 684
+        add Solid("#55ddff30") xysize (_deck_w, 2) at msbf_phase2_scanline_burst(0.28):
+            xpos _deck_x
+            ypos _deck_y + 12
+        add Solid("#ffcf6628") xysize (_deck_w, 2) at msbf_phase2_scanline_burst(0.74):
+            xpos _deck_x
+            ypos _deck_y + _party_frame_h - 16
         add Solid("#ffffff20") xysize (420, 3) at msbf_phase2_stage_fault(-8.0, 0.20, 0.28):
             xcenter 230
             ycenter 352
@@ -2559,18 +2600,18 @@ screen msbf_battle_screen(battle):
             xcenter 842
             ycenter 594
         add Solid("#55ddff20") xysize (4, 170) at msbf_phase2_stage_lance(0.36, 0.24):
-            xpos 452
+            xpos _deck_x + _command_panel_x - 65
             ypos 506
         add Solid("#ffcf6624") xysize (4, 170) at msbf_phase2_stage_lance(0.62, 0.22):
-            xpos 1236
+            xpos _deck_x + _deck_w - 4
             ypos 506
         if battle.phase == 3:
-            add Solid("#ff386840") xysize (1198, 3) at msbf_phase3_static_slice(0.04, 0.34, 1.0):
-                xpos 40
-                ypos 512
-            add Solid("#ffffff24") xysize (1198, 2) at msbf_phase3_static_slice(0.26, 0.26, -1.0):
-                xpos 40
-                ypos 692
+            add Solid("#ff386840") xysize (_deck_w, 3) at msbf_phase3_static_slice(0.04, 0.34, 1.0):
+                xpos _deck_x
+                ypos _deck_y + 20
+            add Solid("#ffffff24") xysize (_deck_w, 2) at msbf_phase3_static_slice(0.26, 0.26, -1.0):
+                xpos _deck_x
+                ypos _deck_y + _party_frame_h - 8
             add Solid("#a66bff20") xysize (392, 3) at msbf_phase3_fault_line(-8.0, 0.12, 0.24, 1.0):
                 xcenter 236
                 ycenter 486
@@ -2651,27 +2692,37 @@ screen msbf_meter(value, max_value, width, height, fill_color, empty_color):
         background Solid(empty_color)
         add Solid(fill_color) xysize (msbf_bar_width(value, max_value, width), height)
 
-screen msbf_party_card(member, active=False, targetable=False, compact=False):
-    $ _card_w = 138 if compact else 215
-    $ _card_h = 48 if compact else 61
+screen msbf_party_card(member, active=False, targetable=False, compact=False, card_w=None, card_h=None):
+    $ _card_w = card_w if card_w is not None else (138 if compact else 215)
+    $ _card_h = card_h if card_h is not None else (48 if compact else 61)
     $ _inner_w = _card_w - 14
     $ _inner_h = _card_h - 12
     $ _bar_w = _inner_w - 21
-    $ _name_max = 72 if compact else 118
-    $ _bar_y = 19 if compact else 22
-    $ _stat_y = 26 if compact else 31
-    $ _note_y = 36 if compact else 41
+    $ _name_max = max(82, _inner_w - 58) if compact else max(118, _inner_w - 76)
+    $ _bar_y = 23 if compact else 22
+    $ _stat_y = 32 if compact else 31
+    $ _note_y = 42 if compact else 41
+    $ _rail_w = 4 if compact else 5
 
     frame:
         xsize _card_w
         ysize _card_h
-        background Solid("#1f5c83f0" if targetable else ("#153f5ef0" if active else "#091523e4"))
+        background Solid("#173a35f4" if targetable else ("#153f5ef2" if active else "#091523e8"))
         padding (7, 6)
 
         fixed:
             xysize (_inner_w, _inner_h)
 
-            add Solid("#66e08a" if targetable else ("#55ddff" if active else ("#ffcf66" if member.row == "front" else "#4d6f85"))) xysize (4 if compact else 5, _inner_h)
+            add Solid("#ffffff10") xysize (_inner_w, 1)
+            add Solid("#02060c72") xysize (_inner_w - 10, 1):
+                xpos 10
+                ypos _inner_h - 1
+            if targetable:
+                add Solid("#66e08a20") xysize (_inner_w, _inner_h)
+            elif active:
+                add Solid("#55ddff18") xysize (_inner_w, _inner_h)
+
+            add Solid("#66e08a" if targetable else ("#55ddff" if active else ("#ffcf66" if member.row == "front" else "#4d6f85"))) xysize (_rail_w, _inner_h)
 
             text member.name style (("msbf_party_name_compact" if member.alive else "msbf_party_name_down_compact") if compact else ("msbf_party_name" if member.alive else "msbf_party_name_down")):
                 xpos 14
@@ -2967,6 +3018,12 @@ style msbf_panel_label:
     bold True
     outlines [(1, "#02040b", 0, 0)]
 
+style msbf_party_deck_count:
+    size 9
+    color "#8fb1c0"
+    bold True
+    outlines [(1, "#02040b", 0, 0)]
+
 style msbf_log_hint:
     size 9
     color "#7fa6b7"
@@ -2999,13 +3056,13 @@ style msbf_party_name_down:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_party_name_compact:
-    size 12
+    size 13
     color "#f5fbff"
     bold True
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_party_name_down_compact:
-    size 12
+    size 13
     color "#6b727a"
     bold True
     outlines [(1, "#02040b", 0, 0)]
@@ -3016,7 +3073,7 @@ style msbf_party_role:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_party_role_compact:
-    size 7
+    size 8
     color "#8fb1c0"
     outlines [(1, "#02040b", 0, 0)]
 
@@ -3027,7 +3084,7 @@ style msbf_party_row_tag:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_party_row_tag_compact:
-    size 7
+    size 8
     color "#ffcf66"
     bold True
     outlines [(1, "#02040b", 0, 0)]
@@ -3038,7 +3095,7 @@ style msbf_party_stat:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_party_stat_compact:
-    size 7
+    size 8
     color "#c5d8e4"
     outlines [(1, "#02040b", 0, 0)]
 
@@ -3067,7 +3124,7 @@ style msbf_guard_tag:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_guard_tag_compact:
-    size 7
+    size 8
     color "#66e08a"
     bold True
     outlines [(1, "#02040b", 0, 0)]
@@ -3079,7 +3136,7 @@ style msbf_focus_tag:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_focus_tag_compact:
-    size 7
+    size 8
     color "#ffcf66"
     bold True
     outlines [(1, "#02040b", 0, 0)]
@@ -3091,7 +3148,7 @@ style msbf_down_text:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_down_text_compact:
-    size 7
+    size 8
     color "#ff3868"
     bold True
     outlines [(1, "#02040b", 0, 0)]

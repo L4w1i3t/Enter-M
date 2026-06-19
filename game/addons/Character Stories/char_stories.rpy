@@ -77,7 +77,7 @@ init python:
             "Mom",
             "mom neut",
             [
-                CharacterStoryEntry("Coming Soon", "This story hasn't been written yet.", "cs_mom_01", "cs_mom_01_unlocked"),
+                CharacterStoryEntry("Continuance", "A case file with no verdict.", "cs_mom_01", "cs_mom_01_unlocked"),
             ],
         ),
         CharacterStoryCatalog(

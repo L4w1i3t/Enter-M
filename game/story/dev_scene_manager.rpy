@@ -1035,7 +1035,7 @@ label dev_mom_cancer_reveal:
     scene bg living_room_night
     show mood_night zorder 3
     with dissolve_scene_full
-    play music family fadein 2.0
+    play music family
 
     "The house is too quiet for a Thursday."
     "No television from the living room. No Asahina yelling into her phone. No Mom humming from the kitchen while pretending she does not hum."

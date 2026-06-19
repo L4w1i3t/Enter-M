@@ -4,7 +4,7 @@ label a0516:
     $ show_calendar()
     show mood_home zorder 3 
     with dissolve_scene_full
-    play music dailyfantasy
+    play music dailyleisure
     window auto
     "The next morning starts before I feel ready to participate in it."
     "My phone buzzes itself toward the edge of the desk, I nearly kick the corner of the bed, and downstairs the toaster announces that the rest of the house has already accepted reality."
@@ -15,10 +15,8 @@ label a0516:
     mc "Morning."
     mom "Morning, [player]."
     mom "Eggs are almost done, so don't disappear upstairs again."
-    
     ah "He just got here, mom."
-    
-    mc "Past behavior casts a long shadow."
+    mc "...Okay, fair. I do have a record."
     mom "Exactly."
     "I take my seat and reach for the glass of water in front of me."
     "Asahina finally notices me watching her sleeve and narrows her eyes before I can say anything."
@@ -45,10 +43,10 @@ label a0516:
     show mood_home zorder 3 
     with wipeleft_scene
     "I finish the last of my toast and push my plate forward."
-    # CRITIQUE: The continuity from the glue errand is useful, but this exchange escalates to a suicide joke over a poster. For low-stakes sibling banter, that is cheap heat and makes the family tone wobble.
+    # CRITIQUE (ADDRESSED): Cut the "I'd rather kill myself" beat. Kept the family gang-up comedy (MC fleeing, Mom siding against him) but swapped the suicide line for a mock-escape bit so the low-stakes banter doesn't lean on self-harm for a laugh.
     mc "You're still expecting glue tomorrow, right?"
     
-    ah "Yes. I have been accused of many things, but not forgetting favors that benefit me."
+    ah "Obviously. I forget a lot of things, but never a favor that's got something in it for me."
     
     mc "That's almost self-awareness."
     mom "And what is the glue for again?"
@@ -60,12 +58,12 @@ label a0516:
     
     ah "...Yeah. The same poster I was absolutely, totally, one-hundred-percent starting tonight."
     
-    mc "So it has moved from concept to threat."
+    mc "So it's gone from idea to actual threat."
     
     ah "Keep talking and I'm making you pose for it."
     
-    mc "I'd rather kill myself."
-    mom "I'd frame it."
+    mc "You'd have to catch me first. I've got a head start and longer legs."
+    mom "I'd still frame the attempt."
     mc "...Really, mom? You too...?"
     "{i}At least the eggs are good.{/i}"
     show mom at thide
@@ -78,15 +76,17 @@ label a0516:
     nier "Asahina leaves first, still pretending she isn't rushing."
     nier "I follow after double-checking my bag, my lanyard, and the loose collection of small obligations that apparently make up a human life."
     call nier_clear from _call_nier_clear_0516_2
+    stop music fadeout 1.0
     scene bg class_day
     $ show_calendar()
     show mood_afternoon zorder 3 
     with dissolve_scene_full
-    # CRITIQUE: The algebra scene is cleanly staged, but it is isolated from MC's actual pressures. If school scenes recur, they need either theme, character pressure, or plot utility beyond "teacher asks question."
-    # CRITIQUE: Worldbuilding check: "college-level algebra," "honor students," and later "ma'am" push the school toward an American register despite the Japanese-calendar framing. If this is a hybrid setting, establish that deliberately; if not, localize the academic/social terms.
+    play music quiz
+    # CRITIQUE (ADDRESSED): Tied the lesson to the story's themes -- "domain restrictions" (where a function is allowed to exist) mirrors the boundaries/agency thread MC is being set up to confront, so the class now carries thematic utility instead of being an isolated "teacher asks question" beat. See the answer1done note below.
+    # CRITIQUE (ADDRESSED): The mixed register is deliberate -- this is a DDLC mod and follows the source's localized convention (Japanese school calendar, Western academic/social terms). "College Algebra" is also an intended class name per the project's class list, so the terms stay.
     "By late morning, I'm sitting through college-level algebra, which is the part of the school day that exists to remind honor students that the word \"honor\" is mostly a threat."
     "On a transcript, the class probably looks clean and impressive. In person, it immediately starts swinging a chair the second you sit down."
-    "Our teacher writes a function on the board with such clean handwriting that it somehow makes the problem look more insulting."
+    "Our teacher writes a function on the board with such clean handwriting that it makes the problem look even more insulting."
     show math_teacher neut at t11
     math_teacher "All right, everyone. Last time we covered transformations of logarithmic functions."
     math_teacher "Today, we're combining that with domain restrictions."
@@ -132,20 +132,23 @@ label a0516:
         "A few students murmur and write the correction down."
         jump answer1done
     label answer1done:
-        pass
+        "{i}Domain restrictions. Where the function is allowed to exist, not just where it happens to look clean.{/i}"
+        "{i}That one sticks, for some reason. Math usually doesn't.{/i}"
     show math_teacher at thide
     hide math_teacher
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The rest of class passes through the usual academic soup."
-    nier "Equations, graph sketches, one student asking whether this will be on the exam, and the teacher answering with the kind of smile that says absolutely."
+    nier "Equations, graph sketches, one student asking whether this will be on the exam, and the teacher answering with a smile that says absolutely."
     nier "By lunch, my notebook has more arrows than actual words."
-    nier "By the final bell, the arrows have somehow become my emotional state."
+    nier "By the final bell, the arrows have basically become my emotional state."
     call nier_clear from _call_nier_clear_0516_3
+    stop music fadeout 1.0
     scene bg club_day
     $ show_calendar()
     show mood_afternoon zorder 3 
     with wipeleft_scene
+    play music dailyfantasy
     "After school, I make my way to the club room."
     "For a second, I almost expect a full room: rows of desks, a handful of voices, and someone arguing with way too much confidence about whether a poem can be too purple."
     "Instead, I get the quiet version of reality."
@@ -156,7 +159,7 @@ label a0516:
     m "Rough day?"
     mc "Algebra noticed me looking alive and decided to correct that."
     m "Did you at least survive with your dignity?"
-    mc "I gave an answer and received no applause, so dignity is still under review."
+    mc "I gave an answer, got zero applause, so my dignity's still under review."
     m "Wow. This school really is falling apart..."
     "I take my usual seat and drop my bag beside the desk."
     "Monika closes her notebook halfway, keeping one finger between the pages."
@@ -172,11 +175,8 @@ label a0516:
     hide monika
     $ hide_calendar()
     scene black with wipeleft_scene
-    # CRITIQUE: Again, the writing workshop is summarized at the exact point it could define Monika and MC's creative intimacy. Show the "especially fair" note so the hurt has substance.
-    nier "Club time passes quietly."
-    nier "Monika reads through my writing with the focused little frown she gets when she's trying not to rewrite an entire paragraph in her head."
-    nier "I pretend not to notice."
-    nier "She gives me a few notes, most of which are fair, and one of which hurts because it is especially fair."
+    # CRITIQUE (ADDRESSED): Stopped summarizing the workshop at the exact point it defines MC and Monika. The "especially fair" note is now shown on the page in the evening beat below ("you describe how things look so you don't have to say how they feel"), giving the hurt substance and extending the Day-1 brackets thread.
+    nier "Club time passes quietly. Monika reads with the focused little frown she gets when she's trying not to rewrite an entire paragraph in her head. I pretend not to notice."
     call nier_clear from _call_nier_clear_0516_4
     scene bg club_day
     $ show_calendar()
@@ -186,8 +186,14 @@ label a0516:
     "By the time the room starts to darken around the windows, Monika stacks her notebook on top of mine."
     m "There. Nothing too brutal, right?"
     mc "You stayed within club-approved damage."
-    m "Good. I try to leave people functional."
-    "I slip the papers back into my bag."
+    m "I try to leave people functional. Mostly."
+    "She turns my second page around. Near a line I'd buried three brackets deep, she's written something in that neat slant of hers:"
+    "{i}You describe how things look so you don't have to say how they feel. It works. It's also a wall.{/i}"
+    "I read it twice."
+    "It's the kind of note that's irritating precisely because there's no counterargument to reach for."
+    mc "...That one wasn't club-approved."
+    m "That one was free."
+    "I slip the papers back into my bag before the sentence can follow me home."
     mc "Anything I need to remember for tomorrow?"
     m "Tomorrow? Survive classes, first of all."
     mc "I'll...pencil that in."
@@ -222,7 +228,7 @@ label a0516:
     "I slow down near the corner store when I notice someone standing by the curb with a neatly folded umbrella tucked under one arm."
     show kotonoha neut at t11
     "It's Kotonoha, who is technically in my year, though most people know her by sight before they know anything else."
-    "She is always either coming from somewhere or going somewhere, and somehow that has become one of the school's accepted facts."
+    "She is always either coming from somewhere or going somewhere, and that has quietly become one of the school's accepted facts."
     mc "Oh. Hey, Kotonoha."
     ko "Good afternoon, [player]."
     "Her voice is polite, even, and completely unbothered by the late bus or the people walking around us."
@@ -253,14 +259,14 @@ label a0516:
     "The bus finally groans around the corner in the distance."
     ko "Oh, that's mine."
     mc "Yeah. Guess I'll see you around."
-    ko "You will."
-    # CRITIQUE: "You will" has a nice eerie snap, but it risks sounding like forced mystique. Anchor Kotonoha's strangeness in behavior, as the car-splash dodge does, and use cryptic lines sparingly.
+    ko "Probably. We keep ending up in the same five minutes."
+    # CRITIQUE (ADDRESSED): Rationed the cryptic capstones. Kept the precision beat ("Most people watch where cars were") as the scene's single uncanny note and replaced the prophetic "You will" -- plus MC narrating its mystique afterward -- with a flatter, observational line that's strange because it's accurate, not ominous.
     "She gives a small bow, then steps toward the curb as the bus pulls in."
     show kotonoha at thide
     hide kotonoha
     "I stand there for an extra second after she leaves."
-    "{i}You will.{/i}"
-    "{i}She says it like a schedule, not a guess.{/i}"
+    "{i}The same five minutes. She's not wrong.{/i}"
+    "{i}I never noticed. She clearly did.{/i}"
     $ mark_character_met("kotonoha")
     $ hide_calendar()
     scene black with wipeleft_scene
@@ -286,10 +292,10 @@ label a0516:
     show sam neut at t33
     show mood_home zorder 3 
     with wipeleft_scene
-    # CRITIQUE: Sam's smoothness is the point, but the scene nearly turns him into a sitcom guest everyone riffs around. Let MC's unease linger longer before the handshake/profile jokes absorb it.
+    # CRITIQUE (ADDRESSED): Let MC's unease linger instead of being instantly absorbed into jokes -- he now sits with "I keep waiting for the seam, and there isn't one" before the riffing resumes, so the discomfort registers from the page rather than being riffed away.
     "Asahina is standing near the couch with an expression that tries to be casual and fails by trying too hard."
     "Beside her is a guy I recognize mostly from context clues."
-    "He's tall, relaxed, and has the kind of smile that looks like it has been tested in multiple social environments."
+    "He's tall, relaxed, and has a smile that looks like it's been tested in multiple social environments."
     "{i}So this is him, huh?{/i}"
     ah "This is Sam."
     "{i}Look at me, solving mysteries in my own living room.{/i}"
@@ -325,8 +331,8 @@ label a0516:
     mc "Incredible. The brother has been cut from the mailing list."
     sa "If it helps, I didn't get the mailing list either."
     "His delivery is smooth enough that I almost miss how quickly he turns the awkwardness into a shared joke."
-    "{i}He's good at this.{/i}"
-    "{i}Not necessarily a bad thing, but definitely a thing.{/i}"
+    "{i}He's good at this. Not necessarily a bad thing, but definitely a thing.{/i}"
+    "I can't tell if I'm being unfair. He's been nothing but friendly. That's sort of the problem, actually: I keep waiting for the seam, and there isn't one."
     show mom neut at t32
     mom "Ah, you're home!"
     mom "Sam, this is my son, [player]. [player], this is Sam."
@@ -340,9 +346,10 @@ label a0516:
     mom "Homework comes before movies."
     "She then pans her fingers around each of us."
     mom "And if anyone gets hungry, there are leftovers."
+    "Sam's eyes flick to Asahina for half a second before he answers, the way you check a gauge only you can read."
     sa "Understood, ma'am."
-    # CRITIQUE: Sam clears every social test a little too cleanly here. One faintly wrong note--a pause that lasts too long, an over-specific answer, a glance toward Asahina before "ma'am"--would seed the later danger without spoiling him.
-    "The \"ma'am\" lands perfectly: respectful without sounding like he's auditioning for a manners seminar."
+    # CRITIQUE (ADDRESSED): Planted Sam's faint wrong note -- a glance to Asahina to check her reaction before he answers Mom. MC doesn't clock it; the reader does. Deniable in the moment, legible in hindsight, paired with the kitchen "eating better" beat so distrust comes from the page, not genre instinct.
+    "The \"ma'am\" is pitched perfectly: respectful without sounding like he's auditioning for a manners seminar."
     "Mom seems to approve, which is horrifying because it means he cleared the first boss fight."
     mom "Good answer."
     
@@ -401,10 +408,12 @@ label a0516:
     "Sam dries his hands and glances toward the living room."
     sa "She's been working hard, you know."
     mc "At volleyball?"
-    # CRITIQUE: "Trying to be a better person" is too vague for a line that is supposed to reveal Sam's insight. Give him one specific thing he noticed, or it reads like thematic placeholder dialogue.
+    # CRITIQUE (ADDRESSED): Replaced the vague "trying to be a better person" with one specific, private detail -- he knows Asahina is trying to eat better and cut the fast food, something she barely admits to Mom. It reads as a supportive boyfriend on the surface, but the specificity (and MC's quiet "did she even tell him that?") is the real wrong note: concern functioning as surveillance. Ties Sam straight into the food/body thread.
     sa "That too, but she's, ah..."
-    sa "...trying to be a better person? Is that the right words?"
-    "He leaves it there."
+    sa "She's been trying really hard lately. Eating better, mostly. Said she wants to cut back on the fast food."
+    "He says it lightly, the way you mention something you find endearing."
+    "{i}...Did Asa tell him that? She barely admits it to mom.{/i}"
+    sa "I want to support that. However I can."
     mc "Yeah. She does that."
     sa "I noticed."
     "Mom looks between us for a second, then goes back to the containers."
@@ -422,13 +431,12 @@ label a0516:
     nier "Nobody comments on it."
     nier "Technically, that's mercy."
     call nier_clear from _call_nier_clear_0516_8
-    stop music fadeout 2.0
-    pause 1.0
+    stop music fadeout 1.0
     scene bg bedroom
     $ show_calendar()
     show mood_night zorder 3 
     with wipeleft_scene
-    play music fantasypassion
+    play music fantasyserenity
     "By night, I am back in my room with my phone in one hand and my planner open on my desk."
     "I don't usually use the planner unless things have reached the point where memory alone feels like a terrible idea."
     "This not-quite-weekend qualifies, mostly because Saturday still has school attached to it like a punishment with better branding."

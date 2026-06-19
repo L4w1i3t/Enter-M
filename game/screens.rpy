@@ -138,7 +138,7 @@ screen say(who, what):
     window:
         id "window"
 
-        text what id "what"
+        text what id "what" size enter_m_auto_say_text_size(what)
 
         if who is not None:
 
@@ -251,7 +251,7 @@ screen choice(items):
 
     vbox:
         for i in items:
-            textbutton i.caption action i.action at choice_button_hover
+            textbutton i.caption action exam_guard_choice_action(i.action) at choice_button_hover
 
 style choice_vbox is vbox
 style choice_button is button
@@ -296,7 +296,7 @@ screen rigged_choice(items):
 
     vbox:
         for i in items:
-            textbutton i.caption action i.action at choice_button_hover
+            textbutton i.caption action exam_guard_choice_action(i.action) at choice_button_hover
 
     timer 1.0/30.0 repeat True action Function(RigMouse)
 

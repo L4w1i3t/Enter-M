@@ -448,6 +448,13 @@ label splashscreen:
 
 label after_load:
     $ enter_m_cleanup_unpickleable_store_values()
+    if exam_guard_rejects_restart_load():
+        jump exam_guard_bad_ending_locked_load
+    if exam_guard_requires_exam_restart():
+        $ exam_guard_accept_restart_load()
+    $ exam_guard_prepare_after_load()
+    if exam_guard_has_mismatch():
+        jump expression exam_guard_caught_label()
     if persistent.playthrough == 0:
         $ restore_all_characters()
     $ config.allow_skipping = allow_skipping
@@ -544,7 +551,7 @@ label autoload_yurikill:
 
 label before_main_menu:
     $ persistent.ghost_menu = False
-    $ config.main_menu_music = audio.map003
+    $ config.main_menu_music = audio.canyoufeel
     $ renpy.music.play(config.main_menu_music)
     return
 

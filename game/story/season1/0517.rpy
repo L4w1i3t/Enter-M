@@ -4,7 +4,7 @@ label a0517:
     $ show_calendar()
     show mood_home zorder 3 
     with dissolve_scene_full
-    play music dailyfantasy
+    play music dailyleisure
     window auto
     "Saturday morning doesn't happen at the table."
     "It happens by the door, one shoe half-tied, one hand searching my bag for a pen I am reasonably sure I never owned."
@@ -46,12 +46,14 @@ label a0517:
     nier "I follow with toast in one hand, my bag over one shoulder, and the feeling that every Saturday class was designed by someone who wanted teenagers to learn humility through inconvenience."
     play sound moddoorclose
     call nier_clear from _call_nier_clear_0517_1
+    stop music fadeout 1.0
     scene bg class_day
     $ show_calendar()
     show mood_afternoon zorder 3 
     with dissolve_scene_full
-    # CRITIQUE: This civics lesson has strong thematic potential: rules, trust, authority, boundaries. Right now it mostly plays as a clever classroom bit; connect it harder to MC's later need to set limits.
-    "Civics is the kind of easy that becomes dangerous if you mistake familiarity for safety."
+    play music quiz
+    # CRITIQUE (ADDRESSED): Connected the civics lesson to MC's coming boundary arc. The "tolerated is not trusted / compliance makes things brittle" idea now lands in his head as a private through-line (filed next to yesterday's domain-restriction beat), foreshadowing the asked-vs-told problem he'll have with Matsuda without naming it.
+    "Civics always feels easy, and the easiness is the dangerous part, because it tricks you into treating familiarity like safety."
     "The teacher has drawn a triangle across the board, each point labeled in clean block letters: {i}INDIVIDUAL{/i}, {i}INSTITUTION{/i}, {i}PUBLIC TRUST{/i}."
     "Under it, arrows loop in both directions like the diagram is trying to admit society is just homework with better branding."
     show civics_teacher neut at t11
@@ -87,6 +89,8 @@ label a0517:
     civics_teacher "Answering in a non-respectful manner does that to you."
     "I return to my desk with the mild shame of a person who made a point and became the teaching aid attached to it."
     "{i}At least I wasn't wrong.{/i}"
+    "{i}Tolerated is not the same as trusted. Authority that runs on compliance gets brittle.{/i}"
+    "{i}I file it next to the math thing from yesterday and decide not to think too hard about why both of them keep circling the same idea.{/i}"
     show civics_teacher at thide
     hide civics_teacher
     $ hide_calendar()
@@ -94,10 +98,12 @@ label a0517:
     nier "The rest of the school day doesn't improve so much as thin out."
     nier "Everyone saves their real energy for the exact moment the final bell gives us permission to throw the building into chaotic shuffling."
     call nier_clear from _call_nier_clear_0517_2
+    stop music fadeout 1.0
     scene bg corridor
     $ show_calendar()
     show mood_afternoon zorder 3 
     with wipeleft_scene
+    play music schooldays
     "The corridor fills fast after the last bell. Bags swing, shoes squeak, and the whole school seems to tilt toward the exit at once."
     "I step aside near the windows to check my errands before the crowd can carry me past my own plans."
     show monika 1a at t11
@@ -106,9 +112,10 @@ label a0517:
     m "I won't detain you long, then. No club today, as promised."
     mc "A president who honors a day off. Rare discipline, gotta give you credit for that."
     m "Careful. Compliments like that might get you invited somewhere."
-    # CRITIQUE: This is date tension, but MC flees into errands almost immediately. Give him one honest internal beat before the deflection so the romance has pulse instead of only banter.
+    # CRITIQUE (ADDRESSED): Gave the date tension one honest internal beat before MC deflects -- he registers wanting to step into the silence instead of around it, then chooses the errand anyway. The romance gets a pulse, and his retreat reads as a choice (his pattern) rather than only banter.
     "She says it lightly, and then does the small Monika thing where she lets the silence after it exist just a little longer than necessary."
-    "I look down at my phone again, not because the list has changed."
+    "For a second I want to step into that silence instead of around it. Say yes to the somewhere before I find out where it is."
+    "I look at my phone instead. Not because the list changed."
     mc "I'd stay and chat, but I honestly do have to get going. Store to pick up a game, then glue for Asa's poster."
     m "Wow, in a rush for just two things? Needy much?~"
     mc "My household is governed by...specific grievances. Specifically my need for this game on launch day and..."
@@ -146,8 +153,8 @@ label a0517:
     with wipeleft_scene
     "Kotonoha is at the register when I get there."
     show kotonoha neut at t11
-    # CRITIQUE: "Wanton stare" is the wrong word unless you mean sexually immodest/desiring. The intended effect seems closer to flat, ancient, unreadable, or professionally vacant.
-    "She stares at me with a wanton stare that gets older the more you look back."
+    # CRITIQUE (ADDRESSED): "Wanton" implied sexual immodesty, which wasn't the intent. Replaced with the flat, unreadable, professionally-ancient quality the scene actually wanted.
+    "She watches me with a flat, unreadable patience that only gets older the longer you look back at it."
     mc "Afternoon."
     ko "Good afternoon."
     "She scans the game, turns the case over to check the security sticker, then sets it into a separate bag before the glue gets anywhere near it."
@@ -237,8 +244,7 @@ label a0517:
     nier "Mom checks the laundry. Asahina measures the same corner of poster board three times and mutters something that sounds like a personal grudge against rulers."
     nier "I step outside before the sealed game can win the argument."
     call nier_clear from _call_nier_clear_0517_6
-    stop music fadeout 2.0
-    pause 1.0
+    stop music fadeout 1.0
     scene bg house_night
     $ show_calendar()
     with wipeleft_scene
@@ -247,17 +253,18 @@ label a0517:
     "The porch is quiet enough to make the day feel further away than it is."
     "I sit on the step with my elbows on my knees, listening to the loose click of a bicycle wheel somewhere across the street and the faint clatter of dishes through our kitchen window."
     "For a while, that is enough."
-    # CRITIQUE: Sentence-level nit: "Then it isn't whenever..." is grammatically muddy. The intended beat seems closer to "Then it isn't, once my attention span..."
-    "Then it isn't whenever my attention span decides to move onto the next best thing."
+    # CRITIQUE (ADDRESSED): Cleaned the muddy "Then it isn't whenever..." construction.
+    "Then it isn't, the moment my attention span decides to move on to the next best thing."
     "I stand, roll the stiffness out of my shoulders, and take the sidewalk with no plan beyond moving until boredom loses interest."
     $ hide_calendar()
     scene bg residential_night
     $ show_calendar()
     with wipeleft_scene
-    # CRITIQUE: The tense logic is tangled in "when once-bustling places are now vacant." This would read more smoothly if the sentence stayed in one time frame.
-    "The neighborhood looks different at this hour. It's always a different feeling when once-bustling places are now vacant."
+    # CRITIQUE (ADDRESSED): Kept the sentence in one time frame.
+    "The neighborhood looks different at this hour. There's always a strange feeling to seeing places that bustle by day sit this empty."
     "Curtains glow. A vending machine hums near the corner. Somewhere ahead, two voices overlap: one low and careful, the other bright enough to cut through the evening air."
     "I glance down when my phone buzzes, expecting another reminder..."
+    stop music fadeout 1.0
     "...and walk straight into the consequence."
     # TODO: Insert sidewalk collision CG here when the dedicated asset is available.
     with hpunch
@@ -267,10 +274,13 @@ label a0517:
     mc "Ah! Sorry, I wasn't--"
     show matsuda neut at t21
     show tsubaki neut at t22
-    # CRITIQUE: Matsuda's entrance is memorable, but the prose-to-dialogue density is exhausting. Let the reader get one stable human impression before the performance starts swallowing the scene.
+    # CRITIQUE (ADDRESSED): Gave the reader one stable human impression of Matsuda -- a girl catching her balance, a real wince she covers a half-second too late -- before the performance takes over. Her theatricality stays fully intact (she's meant to be exhausting); this just provides a foothold on the person underneath, and seeds her deliberate "acting gaps" -- the half-second the real reaction shows before the bard reasserts.
+    "The girl in front of me catches herself with one white-gloved hand against a fence post."
+    "For half a second there's just a person there: an unplanned wince, a hand pressed to the shoulder that took the hit, eyes running fast math on whether anything's actually damaged."
+    "Then she straightens, and the half-second folds away into a posture that insists the stumble was choreography all along."
+    "Red hair, high ponytail, a braid down one side, earrings still swinging from the impact. Subtle is clearly not the design goal."
+    play music enterm
     ma "Aha! Collision as inciting incident. Crude, but effective."
-    "The girl in front of me catches herself with one white-gloved hand against a fence post, then straightens as if the stumble was part of a routine she meant to perform."
-    "Red hair, high ponytail, a braid on one side, and earrings still swinging from the collision: subtle is clearly not the design goal."
     "The other girl has chestnut hair close enough in color to make me look twice. She almost tosses the paper bag she's holding aside in preparation of catching one of the two bodies."
     ts "Are you hurt?! Do you need ice?!"
     mc "No, I'm fine... Hoo boy, okay, that does kinda smart..."
@@ -314,24 +324,23 @@ label a0517:
     ts "You literally told me to stop you from buying snacks for dinner."
     ma "'Twas nutritional compromise! Let us not mince semantics!"
     "Tsubaki sighs through her nose, but there is affection in it."
-    # CRITIQUE: "Her face is a portrayal of..." is too abstract for a physical reaction. Describe the actual mouth, eyes, or timing first, especially because Tsubaki's small expressions are one of her main characterization tools.
-    "Her face is a portrayal of badly concealed laughter, complete with shut eyes and a shit-eating grin."
+    # CRITIQUE (ADDRESSED): Replaced the abstract "her face is a portrayal of..." (and the crude "shit-eating grin") with a concrete physical beat -- mouth losing the fight, eyes already squeezed shut, the laugh escaping through her nose. Tsubaki's small expressions are her main characterization, so they should be shown precisely.
+    "Tsubaki's mouth twitches, loses the fight, and pulls into a grin she tries to trap behind two fingers. Her eyes have already squeezed shut. The laugh gets out through her nose anyway."
     mc "So anyway...you're Matsuda, she's Tsubaki, and you two are NOT sisters."
-    # CRITIQUE: From here through "noted and ignored," nearly every line is a punchline. Pick the sharpest two; otherwise the characters sound like they are competing for a laugh track instead of meeting.
-    ma "Progress, yes! See, my confidante?! The collision has already produced character development."
+    # CRITIQUE (ADDRESSED): Thinned the punchline chain (cut the second-best joke) and broke it with a grounding beat -- MC visibly stops trying to keep up ("like being talked at by a parade"). Matsuda's volume is intact and intentional, but the reader gets the validated friction (someone running out of energy on her) instead of a wall of competing one-liners.
+    ma "Progress, yes! See, my confidante? The collision has already produced character development."
     mc "Mostly bruising."
-    ma "Bruising is just character development with color, [player]."
-    ts "...Please don't write that down..."
+    "Somewhere in the last ten seconds I stopped trying to keep up with her. It's less a conversation and more like being talked at by a parade."
+    ts "...Please don't write that down."
     "Matsuda has already pulled out her phone."
-    ma "[player], I not-so-humbly request you give me your contact."
-    "Tsubaki closes her eyes again for half a second."
+    ma "[player], I not-so-humbly request your contact information."
     ts "She means, if you're okay with it. You don't have to."
-    ma "Yes, yes, manners and civilization. I was approaching the polite version with, in my opinion, more grand pacing."
-    mc "You ask everyone you crash into for contact info?"
+    ma "Yes, yes, manners and civilization. I was approaching the polite version, with more grand pacing."
+    mc "You ask everyone you crash into for their number?"
     ma "Only the ones who recover well and accidentally insult my lineage."
-    "I open my mouth in preparation to say something, but sigh instead."
-    "I should say no just on principle. Instead, I find myself opening my contacts, because the evening has already stopped behaving like mine."
-    mc "...Fine. But if this becomes a group chat called 'Depresso Espressos,' I'm blocking you without question."
+    "I should say no on principle."
+    "Instead I find myself opening my contacts, because the evening has already stopped behaving like mine."
+    mc "...Fine. But if this becomes a group chat called 'Depresso Espressos,' I'm out."
     ma "Noted and ignored."
     "We exchange numbers. Tsubaki watches the street while we do it, giving us privacy in the least dramatic way possible."
     "My phone buzzes a moment later."
@@ -389,72 +398,50 @@ label a0517:
     nier "My lap around the block ends earlier than planned."
     nier "I go home with a sore shoulder, an unopened game, and her name lighting my phone twice before I reach the gate."
     call nier_clear from _call_nier_clear_0517_7
+    stop music fadeout 1.0
     scene bg living_room_night
     $ show_calendar()
     show mood_home zorder 3 
     with wipeleft_scene
+    play music fantasypassion
     play sound moddooropen
     "Asahina is on the living room floor when I come back in, surrounded by poster board, paper cutouts, and the despair of a person who remembered glue dries on its own schedule."
     show asahina neut at t11
     "My phone buzzes before I can get past her."
     "She looks up at the sound, then at my face."
-    
     ah "You look weird."
-    
     mc "Hello to you too, farthead."
-    
-    # CRITIQUE: The girlfriend teasing repeats the Monika joke pattern from earlier. Asahina can still needle him, but vary her angle so the sibling dynamic does not become one button she keeps pressing.
+    # CRITIQUE (ADDRESSED): Varied Asahina's angle. Instead of pressing the "girlfriend" button again at the close, she lands a genuine sibling observation disguised as a jab -- that loud people find MC and he lets them -- which diversifies the dynamic and quietly plants the Act-1 theme from the mouth of the person who knows him best. MC deflecting it with "I'm not even gonna respond to that" shows he can't engage with the accurate version.
     ah "No, seriously. That's your trying-not-to-smile face."
-    
     "I put the phone facedown against my thigh, which is not suspicious at all if you are deeply committed to denial."
     mc "I met someone while getting fresh air."
-    
     ah "Met someone, or {i}met{/i} someone?"
-    
     mc "Collided with someone, actually."
-    
     ah "That's one way to start."
-    
     mc "Well, it was more like...sidewalk traffic."
     "{i}...So, just traffic? Way to go, [player].{/i}"
-    
     ah "Name?"
-    
     mc "Matsuda."
     "Asahina repeats the name under her breath, testing it against whatever rumor index she keeps in her head."
-    
     ah "Red hair? Obnoxious as heck?"
-    
     mc "Oh, you know her?"
-    
     ah "{i}E-VER-Y-ONE{/i} knows of her! Not to mention she's a performative dingus who's an attention hog."
     ah "...Or, at least, that's what my friends say. I dunno her personally."
-    
     "That is fair enough that I have to let it pass."
     mc "...Uh huh."
     "I covertly slip my phone into my pocket, almost out of some sort of shame or secondhand embarrassment."
-    
     ah "So did 'sIdEwAlK tRaFfIc' give you her number?"
-    
     mc "Correction: contact info. Completely different undertone-slash-connotation-slash...uh..."
     mc "Listen, I don't know, okay? I didn't wanna be rude."
-    
     ah "Whatever helps you sleep, bro."
-    
     "She presses a cutout onto the poster and smooths it down with the side of her hand."
     "The lettering is good, annoyingly good, even with the tape on her sleeve and a ruler balanced across her knee."
     mc "Poster's coming together, I see."
-    
     ah "Don't change the subject just because I'm the most talented person in the world."
-    
     mc "...I'm going upstairs."
-    
-    ah "Remember to text your girlfriend goodnight~"
-    
+    ah "You always do this, by the way. Loud people find you, and you just...let them."
     mc "I'm not even gonna respond to that."
-    
     ah "You just did~"
-    
     "I leave before she can find a stronger angle, though her laugh follows me halfway up the stairs."
     show asahina at thide
     hide asahina
@@ -469,10 +456,12 @@ label a0517:
     show mood_night zorder 3 
     with wipeleft_scene
     "The room is exactly how I left it, except the day has managed to put a new name in the middle of it."
-    # CRITIQUE: Good triangle of attention. Consider letting MC notice that Matsuda's messages are already crowding Monika's, because this is the earliest visual version of the social displacement Act 1 needs.
-    "The game waits by the console; Monika's movie reminder waits in my messages; Matsuda's texts sit adjacent to it, much to my annoyance."
-    "For a while, I don't open anything."
-    "I roll my shoulder. It aches faintly--not enough to matter, but just enough to make the collision feel less imaginary."
+    # CRITIQUE (ADDRESSED): Made the social-displacement visual concrete and let MC half-notice it -- Matsuda's two new texts have physically shoved Monika's movie reminder up the screen twenty minutes after they met. The earliest, smallest version of the contested-attention thread Act 1 runs on; MC clocks the order of the messages without admitting why it sticks.
+    "The game waits by the console, still sealed."
+    "On my phone, Monika's movie reminder has been quietly pushed up the screen by two new messages from a number I saved twenty minutes ago."
+    "Matsuda Akai. Already stacking up like she's been in my contacts for years."
+    "For a while, I don't open anything. I just look at the order of them a second longer than I mean to."
+    "I roll my shoulder. It aches faintly--not enough to matter, just enough to make the collision feel less imaginary."
     "{i}Matsuda Akai.{/i}"
     "{i}Tsubaki Kareda.{/i}"
     "One of them entered like a curtain went up and the other spent the whole scene making sure nothing broke."

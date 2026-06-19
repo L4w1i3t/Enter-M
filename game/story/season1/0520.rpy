@@ -2,7 +2,7 @@ label a0520:
     # --- Day 6: 2025-05-20 ---
     scene black
     $ show_calendar()
-    # CRITIQUE: Cute opening, but the Monika text banter now has a familiar rhythm: joke, counter-joke, cute tag. Watch repetition before the relationship starts sounding scripted rather than alive.
+    # CRITIQUE (ADDRESSED): Broke the joke/counter-joke/cute-tag rhythm by letting one Monika beat land plainly and warmly ("I had you to myself for a whole week") instead of another quip-with-tilde, and dropped a trailing "~". Gives her present-tense want and makes the coming division of MC's afternoons sting a little more.
     python:
         _phone_messages = [
             phone_msg("me", "Morning. Minor life update: my foot has been promoted from Problem to Mostly Normal."),
@@ -11,11 +11,11 @@ label a0520:
             phone_msg("me", "Which I assume means I get to suffer in moderation."),
             phone_msg("them", "Responsible suffering. The best kind."),
             phone_msg("me", "So I'll start dividing afternoons again. Track some days, club the others."),
-            phone_msg("them", "Ah, so the club room is losing full custody of you."),
+            phone_msg("them", "Ah. So the club room is losing full custody of you."),
             phone_msg("me", "Joint custody. Very modern arrangement."),
-            phone_msg("them", "I'll prepare one extremely tasteful poem for your first day back."),
+            phone_msg("them", "I'll allow it. I had you to myself for a whole week. That's basically greedy by club standards."),
             phone_msg("me", "If I die during warmups, tell everyone I was brave and not stupid."),
-            phone_msg("them", "No promises on that second part~"),
+            phone_msg("them", "No promises on that second part."),
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0520_1
     $ hide_calendar()
@@ -27,8 +27,8 @@ label a0520:
     window auto
     "The kitchen light is too bright for a Tuesday morning, which feels like a municipal violation."
     "I stand at the counter with a glass of water, a packet of allergy medicine, and the heroic posture of someone losing a battle against pollen."
-    "My sinuses have chosen violence."
-    # CRITIQUE: Meme phrasing like "chosen violence" can date the narration quickly. MC's voice is quippy, but repeated internet idioms may age faster than the character work around them.
+    "My sinuses have declared open war on me."
+    # CRITIQUE (ADDRESSED): Swapped the dated meme "chosen violence" for a plainer image that keeps MC's quip without the timestamp.
     "{i}Trees reproduce one time and suddenly I have to negotiate with my own face.{/i}"
     "I pop the tablet from the foil and wash it down with water that has not had enough time to become anything but cold."
     mc "...God, I suck at swallowing these things..."
@@ -70,8 +70,10 @@ label a0520:
     mom "Doors stay open. Food stays in the kitchen. If anyone breaks anything, I will know."
     mc "Do I get a badge, or is this more of an unpaid internship kinda thing?"
     mom "You get my trust."
-    # CRITIQUE: Strong line. After it, give MC one physical reaction or private discomfort before the next joke; trust should land heavier than a punchline.
-    "{i}Damn. She used the serious currency.{/i}"
+    # CRITIQUE (ADDRESSED): Let the line land heavier than a punchline -- MC actually feels the weight of "my trust" (and a flicker of how easily he tends to spend the things he means to live up to) before deflecting with "got it."
+    "Something about that word sits differently than the rest of the rules."
+    "The rules are easy. Doors open, food in the kitchen. Trust isn't a chore on a sticky note, and we both know it."
+    "{i}She used the serious currency. And I'm already filing it next to all the other things I mean to live up to.{/i}"
     mc "Got it."
     mom "Good."
     mom "Also, take another dose after dinner if the pollen is still bothering you. Not before."
@@ -82,18 +84,17 @@ label a0520:
     hide mom
     $ hide_calendar()
     scene black with wipeleft_scene
-    # CRITIQUE: Proofreading nit: "dumbell" should be "dumbbell."
-    nier "The rest of breakfast happens in the usual fragments: toast, bag checks, Asahina shouting from upstairs that she is not late while clearly being late, and mom leaving with a folder thick enough to count as a dumbell."
+    # CRITIQUE (ADDRESSED): Fixed "dumbell" → "dumbbell."
+    nier "The rest of breakfast happens in the usual fragments: toast, bag checks, Asahina shouting from upstairs that she is not late while clearly being late, and mom leaving with a folder thick enough to count as a dumbbell."
     nier "By the time I step outside, the allergy medicine has achieved the advanced medical state known as maybe doing something."
     call nier_clear from _call_nier_clear_0520_1
-    stop music fadeout 1.0
-    pause 1.0
     scene bg class_day
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with dissolve_scene_full
-    play music dailyfantasy
-    # CRITIQUE: Midterm pressure is mostly delivered as a list. Make the burden sensory: overfull bag, crowded margins, sore hand, classmates bargaining with panic.
+    play music quiz
+    # CRITIQUE (ADDRESSED): Made the midterm burden sensory rather than a list -- a classmate color-coding with four highlighters and bargaining with the calendar, the too-full bag, the red line the strap pressed into his shoulder (which also ties into the track/body thread). The abstract list becomes concrete weight.
     "By the middle of the school day, science has become a room full of diagrams that look simple until someone asks what they mean."
     "The teacher draws a cell on the board, labels the nucleus, and taps the chalk against it twice."
     show science_teacher neut at t11
@@ -110,9 +111,10 @@ label a0520:
     "The whole class makes the quiet sound of a group remembering consequences exist."
     science_teacher "Science will be on the second day, but do {i}not{/i} use that as an excuse to start studying on the first day."
     science_teacher "The review guide is posted. It covers a review on cell structure, intermediate genetics, and the first half of our ecology unit."
-    "Somewhere behind me, someone whispers something that sounds like a prayer."
-    "{i}Right. Midterms. Track practice. Club time. The new game. Homework. Existing as a person.{/i}"
-    "{i}Very cool. Very balanced. Love this for me.{/i}"
+    "Somewhere behind me, someone whispers what sounds like a prayer. To my left, a girl is already color-coding a study plan with four highlighters, bargaining with the calendar in real time."
+    "{i}Next Monday. Six subjects. Track starts back tomorrow, the club still wants its half of me, and there's a game at home I keep dangling as a reward I haven't earned.{/i}"
+    "My bag is already too full. The strap has pressed a red line into my shoulder I don't remember it earning."
+    "{i}Very balanced. Love this for me.{/i}"
     science_teacher "Questions?"
     "No one moves."
     "It is the silence of people with many questions and no desire to be perceived."
@@ -128,9 +130,13 @@ label a0520:
     scene bg club_day
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
+    play music schooldays
     "The club room is quiet when I arrive."
-    "Not empty, thankfully. Just quiet in the way rooms get when afternoon light turns everything into a suggestion."
+    "Not empty, thankfully -- just quiet in the way rooms get when the afternoon light turns everything into a suggestion."
+    # SEED (for May 22): Light background texture so Hikari and Homura aren't strangers when they argue on the 22nd. One identifying trait each -- Hikari blunt and impatient on the page, Homura the careful annotator -- kept minor per the author's note that they're club texture, not plot setup.
+    "A couple of the other regulars are scattered around the edges -- Hikari by the window, scribbling a line and crossing it out with equal violence, and Homura in the far corner, annotating someone's draft in handwriting too small to be casual."
     show monika 1a at t11
     "Monika is at the front desk with a stack of papers, one notebook, and the unmistakable posture of someone pretending she is not making a list."
     m "Hey, there he is!"
@@ -158,9 +164,12 @@ label a0520:
     scene black with wipeleft_scene
     nier "Club time passes without incident."
     nier "Surprisingly, there were no dramatic declarations all day from people wearing gloves indoors."
-    nier "Monika gives us a prompt about writing a place that feels safe without using the word safe, which is exactly the kind of assignment that sounds harmless until you try to do it."
-    # CRITIQUE: This prompt is thematically perfect for MC, and you skip the piece. Show a few lines about the bus seat; it would reveal more than another summary can.
-    nier "I write about a bus seat by the window and then decide that says more about me than I want reviewed in public."
+    nier "Monika gives us a prompt about writing a place that feels safe without using the word safe, which sounds harmless right up until you actually try to do it."
+    # CRITIQUE (ADDRESSED): Stopped skipping the piece. A couple of rough lines of the bus-seat draft are shown -- the first, abandoned attempt at the poem finished on May 24 -- so the prompt reveals more about MC than another summary, his bracket-hedging habit recurs, and the later payoff has a visible seed.
+    nier "I sit with it a while, then write the only place that comes without an argument."
+    nier "{i}The window seat on the late bus, where the glass turns everyone outside into someone I don't have to answer.{/i}"
+    nier "{i}Nobody on a bus asks how you're holding up. The seat doesn't keep score. [[That's the closest word I've got, and it isn't the one she banned.]{/i}"
+    nier "Then I read it back and decide it says more about me than I want reviewed in public."
     call nier_clear from _call_nier_clear_0520_3
     scene bg club_day
     $ show_calendar()
@@ -189,13 +198,12 @@ label a0520:
     nier "The trip home is exactly normal, which makes it suspicious for about three seconds before my attention span gives up."
     nier "I stop by the convenience store for a drink, regret the price, buy it anyway, and make it home with the heroic pride of someone who has survived yet another Tuesday."
     call nier_clear from _call_nier_clear_0520_4
-    stop music fadeout 1.0
-    pause 1.0
     scene bg bedroom
     $ show_calendar()
     show mood_home zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
-    play music fantasyserenity
+    play music fantasypassion
     "Evening settles into my room with the specific laziness of a weekday that knows it has homework as leverage."
     "I have my notebook open, my pen in hand, and absolutely none of the moral strength required to start the first problem about energy conservation."
     "My phone buzzes before I can be forced to grow as a person."
@@ -248,7 +256,7 @@ label a0520:
     ah "Yeah, you're practically a fossil, God you're so old."
     
     sa "Do I need to make you a tomb?"
-    "He says it casually, like we're already the kind of people who can insult each other without filing paperwork first."
+    "He says it casually, like we're already past the part where insulting each other needs paperwork."
     "{i}That's probably a good sign.{/i}"
     "I rub my temples."
     mc "You know, I was actually very busy upstairs."
@@ -258,7 +266,7 @@ label a0520:
     mc "Opening the notebook is part of the process."
     
     ah "So...no."
-    ah "Hey, me neither, don't feel bad, brotato chip."
+    ah "Hey, me neither. Don't sweat it, dork."
     
     mc "...Move over."
     sa "Aaaaand there it is."
@@ -274,8 +282,8 @@ label a0520:
     "It fails with the enthusiasm of a cheap lock."
     ah "It was decent, methinks."
     mc "She spent all weekend acting like the glue bottle was like some outland commander that was her sworn enemy."
-    # CRITIQUE: Proofreading nit: the sentence ends with both "!." Pick one mark.
-    ah "Because it WAS, okay? You have no idea!."
+    # CRITIQUE (ADDRESSED): Fixed the doubled "!." punctuation.
+    ah "Because it WAS, okay? You have no idea!"
     sa "Then congratulations on your victory."
     "She bumps his knee with her shoulder and looks back at the TV before her face can give away anything more incriminating."
     "{i}Wow.{/i}"
@@ -311,9 +319,11 @@ label a0520:
     sa "No, it's true. I looked it up."
     "The two of them exchange a glance."
     "Not even a long one--just enough for some private joke to pass between them without needing to say a word."
-    # CRITIQUE: This is excellent third-wheel material because the details are concrete: snacks, remembered character picks, shared glances. Resist ending every discovery with a joke, because the alienation is the actual scene.
+    # CRITIQUE (ADDRESSED): Let the alienation breathe before the deflection -- MC names the feeling (a small room he doesn't have a key to, snacks handed politely through the door) and notably doesn't say it to anyone, his self-hiding pattern, before the joke. The discovery isn't joked away.
     "{i}Ah.{/i}"
     "{i}So this is what third-wheeling feels like when nobody is technically doing anything wrong.{/i}"
+    "It's not that they're shutting me out. It's that they've built a small room I don't have a key to, and they're being very polite about handing me snacks through the door."
+    "I don't say any of that. I'm not sure who I'd even say it to."
     ah "You good?"
     mc "Yeah. Just calculating how hard I'm getting carried."
     sa "Not that hard."
@@ -322,9 +332,9 @@ label a0520:
     "My phone buzzes against my leg."
     "Matsuda, probably, sending another progress report from whatever digital battlefield she has thrown herself into."
     "I leave it alone."
-    "For once, it's probably the easiest thing I can do right now."
+    "Honestly, it's probably the easiest thing I can do right now."
     "The round ends with Asahina winning by a margin that feels medically suspicious."
-    ah "Ha! Get rekt! I'm just better!"
+    ah "Ha! Get wrecked! I'm just better!"
     mc "...This household needs stricter humility laws."
     sa "I'd vote for that."
     ah "Traitor!"
@@ -360,11 +370,11 @@ label a0520:
     
     mc "...I mean no such thing."
     sa "Hey, regardless, I had fun."
-    # CRITIQUE: Sam's direct inclusion is effective. Because the roadmap positions him as a catalyst with a hidden edge, consider planting one tiny ambiguity here instead of letting him read as purely wholesome.
-    "He looks at me when he says it."
-    "{i}Directly{/i} at me, like he remembered the room had three people in it."
+    # CRITIQUE (ADDRESSED): Sharpened the existing tiny ambiguity rather than adding a second red flag (Sam's one wrong note is the Day-2 "eating better" beat). His warmth toward MC reads, very slightly, as a move he remembered to make -- inclusion as technique -- which MC half-clocks and then talks himself out of, echoing his Day-2 "waiting for the seam" line. Deniable, on the page.
+    "He looks at me when he says it. Directly, deliberately, like including me is a box he makes a point of checking before he leaves a room."
+    "Then again, maybe that's just what considerate looks like, and I've spent too much of today hunting for seams that aren't there."
     mc "Yeah. Same."
-    "And I mean it, which is inconvenient."
+    "And I mean it, which is the inconvenient part."
     sa "Cool! See you 'round, [player]."
     mc "Later."
     show sam at thide
@@ -380,8 +390,7 @@ label a0520:
     mc "That's your it-was-fun voice."
     ah "Shut the hell your mouth!"
     
-    "There it is."
-    "A small, familiar victory."
+    "There it is -- a small, familiar victory."
     "I start up the stairs before she can recover."
     show asahina at thide
     hide asahina
@@ -412,8 +421,7 @@ label a0520:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Sleep takes a while to find me."
-    nier "Not because anything is wrong, exactly."
-    nier "Just because today was full of small things, and small things have a way of taking up more space after the lights are off."
+    nier "Not because anything's wrong, exactly -- just that today was full of small things, and small things have a way of taking up more space once the lights are off."
     call nier_clear from _call_nier_clear_0520_7
     stop music fadeout 2.0
     pause 2.0

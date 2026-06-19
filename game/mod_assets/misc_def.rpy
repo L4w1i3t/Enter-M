@@ -71,10 +71,22 @@ image purg_girl_yukata = Transform("mod_assets/extra_sprites/purg_girl_yukata.pn
 # MUSIC DEFINITIONS
 ##########################################################################################################
 
-define audio.roster_place = "mod_assets/bgm/roster_place.ogg"
-define audio.hopeless = "mod_assets/bgm/13am.ogg"
-define audio.twelveam = "mod_assets/bgm/12am.ogg"
-define audio.map003 = "mod_assets/bgm/map003.ogg"
+define audio.canyoufeel = "mod_assets/bgm/canyoufeel.ogg" # main menu music
+define audio.roster_place = "mod_assets/bgm/roster_place.ogg" # archive music
+define audio.hopeless = "mod_assets/bgm/13am.ogg" # darker, more hopeless music
+define audio.twelveam = "mod_assets/bgm/12am.ogg" # music for being alone with your thoughts. should be used sparingly in the early game
+define audio.holdmusic = "mod_assets/bgm/holdmusic.ogg" # used for dream sequences
+define audio.dailyfantasy = "mod_assets/bgm/dailyfantasy.ogg" # daily music. more upbeat
+define audio.fantasypassion = "mod_assets/bgm/fantasypassion.ogg" # night music. more serious
+define audio.fantasyserenity = "mod_assets/bgm/fantasyserenity.ogg" # night music. calmer, generally used at school
+define audio.dailyleisure = "mod_assets/bgm/dailyleisure.ogg" # daily music. calmer, generally used at home
+define audio.daily = "mod_assets/bgm/daily.ogg" # daily music. more bustling/busy, generally used whilst in public
+define audio.safety = "mod_assets/bgm/safety.ogg" # "you screwed up" music
+define audio.quiz = "mod_assets/bgm/quiz.ogg" # quiz/exam music
+define audio.schooldays = "mod_assets/bgm/schooldays.ogg" # school music. cheerful/whimsical
+define audio.enterm = "mod_assets/bgm/enterm.ogg" # matsuda's theme.
+# -----
+# side story exclusive
 define audio.hotr = "mod_assets/bgm/hotr.ogg"
 define audio.flight = "mod_assets/bgm/flight.ogg"
 define audio.devoted = "mod_assets/bgm/devoted.ogg"
@@ -94,14 +106,9 @@ define audio.automatons = "mod_assets/bgm/automatons.mp3"
 define audio.popola = "mod_assets/bgm/popola.mp3"
 define audio.blubird = "mod_assets/bgm/blubird.mp3"
 define audio.hollow = "mod_assets/bgm/hollow.mp3"
-define audio.dailyfantasy = "mod_assets/bgm/dailyfantasy.ogg"
-define audio.holdmusic = "mod_assets/bgm/holdmusic.ogg"
-define audio.fantasypassion = "mod_assets/bgm/fantasypassion.ogg"
-define audio.fantasyserenity = "mod_assets/bgm/fantasyserenity.ogg"
-define audio.dailyleisure = "mod_assets/bgm/dailyleisure.ogg"
-define audio.daily = "mod_assets/bgm/daily.ogg"
 define audio.epicbattlephase1 = "mod_assets/bgm/epicbattlephase1.ogg"
 define audio.epicbattlephase2 = "mod_assets/bgm/epicbattlephase2.ogg"
+# -----
 
 ##########################################################################################################
 # SFX DEFINITIONS

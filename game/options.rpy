@@ -16,7 +16,7 @@ define build.name = "ENTER-M"
 define config.has_sound = True
 define config.has_music = True
 define config.has_voice = False
-define config.main_menu_music = audio.map003   # Set this to whatever you want the main menu music to be
+define config.main_menu_music = audio.canyoufeel   # Set this to whatever you want the main menu music to be
 
 # These settings control transitions between scenes
 define config.enter_transition = Dissolve(.45)

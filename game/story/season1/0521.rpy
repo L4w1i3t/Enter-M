@@ -4,18 +4,14 @@ label a0521:
     $ show_calendar()
     show mood_afternoon zorder 3 
     with dissolve_scene_full
-    play music dailyfantasy
+    play music quiz
     window auto
-    # CRITIQUE: The lesson on omitted agency is a terrific mirror for the story's own evasions. The problem is the opening has too many narrator quips before the idea can breathe.
+    # CRITIQUE (ADDRESSED): Thinned the narrator quips at the open (and consolidated the three single-word italic lines) so the omitted-agency idea -- a direct mirror of the story's own evasions, and of MC's narration -- gets room to breathe before the lesson begins.
     "Wednesday begins in language arts, which feels a little unfair."
-    "There are subjects where being half-awake is survivable. You can copy a diagram, solve the problem in front of you, or wait for a date to appear on the board like a warning label."
-    "Literature does not work that way."
-    "Literature notices when your brain is operating at seventy percent and decides that is the perfect moment to ask whether a comma is morally implicated."
-    "Our teacher has already filled half the board before the bell finishes surrendering."
-    "{i}Narrative distance.{/i}"
-    "{i}Focalization.{/i}"
-    "{i}Agency through ellipsis.{/i}"
-    "{i}Great. Today we are making grammar testify under oath.{/i}"
+    "Some subjects let you survive half-awake. You copy a diagram, solve the problem in front of you, wait for a date to appear on the board like a warning label."
+    "Literature is not one of them. It notices your brain running at seventy percent and decides that's the perfect moment to ask whether a comma is morally implicated."
+    "The teacher has already filled half the board before the bell finishes surrendering."
+    "{i}Narrative distance. Focalization. Agency through ellipsis.{/i}"
     show japanese_teacher neut at t11
     japanese_teacher "For the midterm, assume definitions are the floor, not the answer."
     japanese_teacher "If you write that focalization is merely who sees the scene, or that ellipsis is merely something left out, you have described the tool without explaining the work it performs."
@@ -31,7 +27,7 @@ label a0521:
     japanese_teacher "When a passage repeatedly refuses to identify who acts, the omission does not only create ambiguity. It can redistribute guilt."
     "My pen moves because my survival instincts still have administrative skills."
     "{i}Ellipsis as evasion. Agency blurred. Reader forced to assign culpability.{/i}"
-    "{i}This is the kind of note that looks impressive until future me has to explain it with a functioning brain.{/i}"
+    "{i}A note that looks impressive right up until future me has to explain it with a functioning brain.{/i}"
     japanese_teacher "Now, consider the passage on the handout."
     "Pages rustle across the classroom."
     "The excerpt is short, which is usually how teachers hide knives."
@@ -102,7 +98,9 @@ label a0521:
     scene bg rooftop
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
+    play music schooldays
     "The rooftop is not exactly secret."
     "It is one of those places students call secret because teachers don't bother correcting the myth unless someone starts throwing things."
     "A warm breeze moves over the fence and turns the plastic around my lunch into something loud enough to qualify as percussion."
@@ -114,7 +112,7 @@ label a0521:
     $ show_calendar()
     show mood_afternoon zorder 3 
     with wipeleft_scene
-    # CRITIQUE: Asahina's poster can start the connection, but do not let it become Tsubaki's defining link to her. Tsubaki's actual issue is wanting permission to take up space; keep the poster secondary.
+    # CRITIQUE (ADDRESSED): Kept the poster as the occasion, not the basis. Asahina's protectiveness now keys on Tsubaki's space-anxiety (she said the nice thing and immediately looked terrified she'd overstepped), and the dinner beat reinforces it ("she looked like she wanted permission to sit down in an open area"). The poster stays secondary to Tsubaki's real issue.
     show asahina neut at t11
     ah "There you are."
     
@@ -193,14 +191,16 @@ label a0521:
     ts "I'm still very sorry about that."
     mc "You weren't even the one I ran into, why are {i}you{/i} apologizing?"
     ts "I still feel kinda responsible..."
-    # CRITIQUE: This is a funny phrase, but it risks making MC sound contemptuous of Tsubaki before the story asks us to care about her insecurity. If this is a blind spot, sharpen it as one; if not, soften the judgment.
-    "{i}That is an impressive radius of self-pity.{/i}"
+    # CRITIQUE (ADDRESSED): Reframed MC's contempt as a blind spot he corrects in real time. His first read ("self-pity") is uncharitable; the scene immediately shows it's something else -- a person braced to be told she's in the way -- and he registers the misread. Keeps his sharp eye without sneering at the character we're meant to come to care about.
+    "{i}That's a lot of apologizing for a crime she didn't commit.{/i}"
+    "{i}For half a second I file it under self-pity. Then I notice how she's holding the bag -- braced, like she's waiting to be told she's in the way.{/i}"
+    "{i}...Not self-pity, then. Something with worse footing.{/i}"
     ah "You apologized for...being a witness?"
     ts "Only a little."
     "Asahina looks at me, then back at Tsubaki."
     ah "I'm Asahina, by the way. I'm this idiot's superior sister."
     "Tsubaki's fingers tighten around the paper bag."
-    "Not enough to crumple it. Just enough for the sound to answer before she does."
+    "Not enough to crumple it, just enough for the sound to answer before she does."
     ts "Asahina..."
     ts "From the volleyball poster, right?"
     
@@ -243,12 +243,14 @@ label a0521:
     ts "Matsuda was worried for almost seven minutes at the vending machine after you left."
     mc "...Almost seven?"
     ts "Believe it or not, that's rather long for her when the worry is not disguised as a speech."
-    "That sentence lands with the casual accuracy of someone who has spent a lot of time translating a friend for public use."
+    "That sentence comes out with the casual accuracy of someone who has spent a lot of time translating a friend for public use."
     ah "So tell me, how much of the rumors are true? She always that much?"
     ts "She's kinda like...how to put it..."
-    # CRITIQUE: Good translator dynamic, but "anxiety levels and depth of performance are directly proportional" sounds like author diagnosis. Let Tsubaki explain with a specific anecdote instead.
-    ts "You know how comedians say that once they stop talking, they start worrying? It's something like that."
-    ts "At the very least, that's my theory. She's never explained it to me, and I'm not a therapist."
+    # CRITIQUE (ADDRESSED): Swapped the general theory for a specific anecdote that shows the same thing -- Matsuda filling a dead-silent homeroom with a fake acceptance speech while her hands shook. Tsubaki reveals Matsuda (and her own role as translator) through a concrete memory instead of stating a character model.
+    ts "Okay, so -- first week of school, our homeroom went dead silent during attendance. Painfully silent."
+    ts "Most people would just wait it out. Matsuda stood up and gave a two-minute acceptance speech thanking the alphabet for seating her near the front."
+    ts "Everyone laughed. But I was right next to her, and her hands were shaking the whole time."
+    ts "The louder she gets, the more she's covering for. ...That's just my read, though. She's never explained it to me, and I'm not a therapist."
     mc "...So that was when she was nervous?"
     ts "A wee bit, yeah."
     mc "How nervous are we talking?"
@@ -303,8 +305,8 @@ label a0521:
     "I close my lunch container."
     mc "Be decent."
     
-    ah "I {i}am{/i} being decent."
-    ah "She complimented my poster, so she's under my protection now."
+    ah "I {i}am{/i} being decent!"
+    ah "She said the one nice thing and then looked terrified she'd said too much. So she's under my protection now."
     
     mc "Powerful alliance, shiver me timbers."
     
@@ -325,16 +327,15 @@ label a0521:
     nier "Chemistry reviews ions. Algebra assigns more problems. English reminds us that vocabulary will, somehow, also be on the midterm."
     nier "By the final bell, my brain has started filing every subject under the same folder."
     call nier_clear from _call_nier_clear_0521_2
-    stop music fadeout 1.0
-    pause 1.0
     scene bg track_day
     $ show_calendar()
     show mood_afternoon zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music daily
-    # CRITIQUE: The physical running details are strong when they stay physical. The courtroom/legal jokes keep intruding on a scene that could use breath, rhythm, pain, and restraint.
+    # CRITIQUE (ADDRESSED): Thinned the legal/courtroom jokes that intruded on the running so the physicality can breathe -- the stride beats now stay with breath, foot, and lungs instead of "filing a formal objection." Kept one framing joke and the Coach banter, since those are MC's voice rather than intrusions.
     "The track looks exactly how I remember it."
-    "Red lanes. White lines. Afternoon heat lifting off the surface in thin, restless waves."
+    "Red lanes, white lines, afternoon heat lifting off the surface in thin, restless waves."
     "A few team members are already jogging the curve, their shoes landing in that even rhythm that makes running look less hostile than it is."
     "{i}I have not done this since school started back up.{/i}"
     "{i}A month is not long enough to forget how to run, but it is apparently long enough for my brain to start treating the track like a courtroom where my foot is on trial.{/i}"
@@ -360,7 +361,7 @@ label a0521:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Warmups become drills. Drills become the particular humiliation of dynamic stretching in public."
-    nier "High knees, skips, lunges, and the kind of leg swings that make everyone look like they are negotiating with invisible furniture."
+    nier "High knees, skips, lunges, and leg swings that make everyone look like they're negotiating with invisible furniture."
     nier "Coach watches with the attention of a man who believes bad form is a moral failing."
     call nier_clear from _call_nier_clear_0521_3
     scene bg track_day
@@ -370,11 +371,11 @@ label a0521:
     "The first stride starts at the curve."
     "Seventy percent sounds gentle until your body remembers that percentages are lies invented by coaches to sell more practice."
     "I push off anyway."
-    "For three seconds, I'm waiting for the foot to complain."
-    "For five seconds, I'm waiting for my lungs to file a formal objection."
-    "By ten seconds, I realize I'm moving faster than I expected."
+    "For three seconds, I'm braced for the foot to complain."
+    "For five, I'm braced for my lungs to give out."
+    "By ten, I notice I'm moving faster than I meant to, and nothing has gone wrong yet."
     "{i}Oh.{/i}"
-    "{i}So the body kept receipts.{/i}"
+    "{i}So the body remembered. It just didn't bother telling me first.{/i}"
     "I coast down before the end of the straightaway and walk out onto the grass, hands on my hips."
     "My breath is rough, but not wrecked. My foot is present, but not angry."
     track_coach "Again."
@@ -388,7 +389,7 @@ label a0521:
     mc "Hey, I don't know math, okay?"
     track_coach "Then use your lungs. Play it by ear instead of metric."
     "I walk back to the start."
-    "{i}Fair enough. Lungs are currently submitting detailed feedback.{/i}"
+    "{i}Fair enough. My lungs are giving me plenty to go on.{/i}"
     "The second stride feels better because I stop waiting for disaster to RSVP."
     "The third feels worse because confidence is an idiot and tries to add speed."
     track_coach "Easy now..."
@@ -432,11 +433,10 @@ label a0521:
     nier "The walk to the station is slower than usual, but not pathetic enough to count as a medical event."
     nier "My bag thumps against my hip, my clothes faintly like rubber, and the evening has the nerve to look peaceful while my calves begin drafting tomorrow's complaint."
     call nier_clear from _call_nier_clear_0521_5
-    stop music fadeout 1.0
-    pause 1.0
     scene bg kitchen
     $ show_calendar()
     show mood_home zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music dailyleisure
     "Dinner becomes spaghetti because we are long overdue for a grocery haul."
@@ -460,7 +460,7 @@ label a0521:
     
     "My phone buzzes on the counter before the argument can become constitutional."
     "The screen lights up with mom's name."
-    # CRITIQUE: Mom's absence is being treated mostly as logistics. If her workload and later illness are meant to matter, start letting the home feel a little thinner when she is gone.
+    # CRITIQUE (ADDRESSED): Let the house feel thinner when Mom's gone instead of treating her absence as pure logistics -- the kitchen is too quiet without the noise she usually fills it with, "just two people and a pot." Gives her later illness arc some lived-in texture to land on. (The default third place setting, covered and waiting, stays as the other half of this.)
     python:
         _phone_messages = [
             phone_msg("them", "Court ran long and the file is still fighting back."),
@@ -472,7 +472,9 @@ label a0521:
             phone_msg("them", "Proud of you."),
         ]
     call phone_text_conversation("Mom", _phone_messages, append=True) from _call_phone_text_conversation_0521_1
-    "I set the phone down and pray that Asahina doesn't get any ideas."
+    "I set the phone down and hope Asahina doesn't get any ideas."
+    "The house is quieter than it should be at this hour. Mom's the one who fills the kitchen with noise -- the radio, the running commentary, the pot lid she never quite sets back on straight."
+    "Without her, dinner is just two people and a pot."
     ah "Late again?"
     mc "Yeah. She says it should lighten up after a couple days if the schedule behaves."
     ah "Yeah, sure, schedules behave on their own."
@@ -512,18 +514,17 @@ label a0521:
     mc "That is...weirdly accurate."
     ah "I have eyes, you know."
     mc "Pfft, debatable."
-    # CRITIQUE: The boiling-water threat is much harsher than the surrounding sibling rhythm. Because the script is already tracking food/body stress and family safety, casual violence jokes need stricter filtering.
-    ah "Don't make me throw a pot of boiling water at you!"
-    
+    # CRITIQUE (ADDRESSED): Swapped the boiling-water threat for a non-violent, messier one (wearing the spaghetti). With the script tracking food/body stress and family safety, a casual scalding joke read harsher than the sibling rhythm supports; the pun chain survives intact.
+    ah "Keep talking and you're wearing the rest of the spaghetti!"
+
     mc "Sorry, already strained and down the drain."
-    
-    ah "I can create more."
-    
+
+    ah "I'll make more. I've got noodles and a grudge."
+
     "That is not a threat worth testing."
     mc "She's Matsuda's friend, and, like she said, the other girl I met the other night."
     ah "Yeah, I got that."
-    ah "That must be tiring as hell, en-gee-el."
-    "{i}You seriously just said 'ngl' out loud...?{/i}"
+    ah "That must be exhausting, honestly."
     "I think of Tsubaki saying Matsuda was worried for almost seven minutes."
     "Then I think of Matsuda stopping mid-performance in the hallway because I asked her to."
     mc "Probably."
@@ -551,11 +552,10 @@ label a0521:
     nier "Asahina helps by standing nearby and offering commentary, which she claims is emotional support."
     nier "Mom's plate goes into the fridge with a note on top."
     call nier_clear from _call_nier_clear_0521_7
-    stop music fadeout 1.0
-    pause 1.0
     scene bg bedroom
     $ show_calendar()
     show mood_night zorder 3 
+    stop music fadeout 1.0
     with wipeleft_scene
     play music fantasyserenity
     "Night finds me at my desk with one notebook open, one leg stretched under the chair, and one ice pack balanced near my ankle like a tiny medical accusation."
@@ -563,7 +563,7 @@ label a0521:
     "I finish half a page of chemistry notes and one matrix problem before my phone starts buzzing."
     "{i}Why am I not surprised it's you?{/i}"
     call phone_call("Monika", status="Incoming Call", can_decline=False) from _call_phone_call_0521_1
-    # CRITIQUE: This call is charming but far too long for what it accomplishes. The cup conspiracy and salad debate are both funny; using both delays the emotional point that Monika is trying to make him sound less tired.
+    # CRITIQUE (ADDRESSED): Cut the second-best bit (the salad debate) to get to the emotional point -- Monika quietly working to make MC sound less tired -- sooner. Kept the cup conspiracy because it calls back to the day's omitted-agency lesson and carries the "you undersell yourself" beat. Also fixed the "for"→"For" cap and softened a crude aside.
     python:
         _phone_call_lines = [
             phone_call_line("me", "Welcome to Jake's pizzeria and crematorium, where yesterday's loss is today's sauce. How can I help?"),
@@ -583,8 +583,7 @@ label a0521:
             phone_call_line("me", "And there it is."),
             phone_call_line("them", "Hey, both things can be true, you know."),
             phone_call_line("me", "Can they, now?"),
-            # CRITIQUE: Proofreading nit: capitalize "For" after the exclamation point unless the lowercase is meant to mimic rushed speech.
-            phone_call_line("them", "Obviously! for example, I am currently looking at my literature notes."),
+            phone_call_line("them", "Obviously! For example, I am currently looking at my literature notes."),
             phone_call_line("me", "In the same way someone looks at a locked door?"),
             phone_call_line("them", "Exactly! Very observant, you are."),
             phone_call_line("me", "Did you also get the handout with the cup and the ominous door?"),
@@ -596,7 +595,7 @@ label a0521:
             phone_call_line("them", "Well, there was that little blurb implying abandonment issues, so I'm leading with that."),
             phone_call_line("me", "...Did you call to just discuss our handouts?"),
             phone_call_line("them", "Nah, we're discussing literature."),
-            phone_call_line("me", "...Literally the same thing, shitass."),
+            phone_call_line("me", "...Literally the same thing, doofus."),
             phone_call_line("me", "You are figuratively accusing a cup of a petty crime."),
             phone_call_line("them", "You should read between the lines more, there's more evidence, I believe."),
             phone_call_line("me", "Name ONE."),
@@ -619,35 +618,6 @@ label a0521:
             phone_call_line("them", "You really undersell yourself. Seriously, you come up with some profound stuff sometimes!"),
             phone_call_line("me", "Only sometimes? Damn, I see how it is."),
             phone_call_line("them", "Hahahaha~"),
-            phone_call_line("them", "Okay, new question."),
-            phone_call_line("me", "Oh boy..."),
-            phone_call_line("them", "Is spaghetti a salad?"),
-            phone_call_line("me", "...Absolutely not."),
-            phone_call_line("them", "Why?"),
-            phone_call_line("me", "Because I made spaghetti tonight and I refuse to have cooked a salad."),
-            phone_call_line("them", "Appeal to emotion."),
-            phone_call_line("me", "Appeal to shut your mouth!"),
-            phone_call_line("them", "It has mixed ingredients, not to mention the cube rule of food, soooo..."),
-            phone_call_line("me", "Concrete has mixed ingredients, is IT a salad?"),
-            phone_call_line("them", "...You don't eat concrete, my guy."),
-            phone_call_line("me", "Not with that attitude."),
-            phone_call_line("them", player + "."),
-            phone_call_line("me", "Monika."),
-            phone_call_line("them", "...Okay, fine. Not a salad, since you're all stubborn..."),
-            phone_call_line("me", "Thank you."),
-            phone_call_line("them", "'Tis a noodle situation."),
-            phone_call_line("me", "On the right track, but somehow worse."),
-            phone_call_line("them", "A pasta event, then."),
-            phone_call_line("me", "I'll allow that one."),
-            phone_call_line("them", "Great. Please list pasta event in your food diary for our club meeting tomorrow~"),
-            phone_call_line("me", "...Food diary? I don't have one and wouldn't, even if that was a thing."),
-            phone_call_line("them", "Then start one. First entry: Wednesday, pasta event, bell pepper pandemonium."),
-            phone_call_line("me", "...You know I added bell peppers to the sauce?"),
-            phone_call_line("them", "Yeah! You just told me."),
-            phone_call_line("me", "...No I didn't."),
-            phone_call_line("them", "You radiate pepper energy right now, so that's how."),
-            phone_call_line("me", "...I want you to know that makes zero sense."),
-            phone_call_line("them", "And yet..."),
             phone_call_line("me", "Don't we have studying to wrap up? We've devolved into meaninglessness."),
             phone_call_line("them", "Good. That means it's working."),
             phone_call_line("me", "Working toward...what?"),

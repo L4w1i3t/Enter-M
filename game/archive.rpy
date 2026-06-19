@@ -28,7 +28,7 @@ init python:
 
     def archive_return_action():
         """Shared action for leaving the archive back to the main menu."""
-        renpy.music.play("mod_assets/bgm/map003.ogg")
+        renpy.music.play("mod_assets/bgm/canyoufeel.ogg")
         renpy.hide_screen("archive")
         renpy.return_statement()
 
@@ -105,8 +105,8 @@ screen archive():
 
     use archive_backdrop
 
-    key "game_menu" action [Play("music", "mod_assets/bgm/map003.ogg"), Return()]
-    key "K_ESCAPE" action [Play("music", "mod_assets/bgm/map003.ogg"), Return()]
+    key "game_menu" action [Play("music", "mod_assets/bgm/canyoufeel.ogg"), Return()]
+    key "K_ESCAPE" action [Play("music", "mod_assets/bgm/canyoufeel.ogg"), Return()]
 
     frame:
         style "archive_frame"
@@ -117,7 +117,7 @@ screen archive():
             yalign 0.5
             spacing 14
 
-            use archive_header("ARCHIVE", [Play("music", "mod_assets/bgm/map003.ogg"), Return()])
+            use archive_header("ARCHIVE", [Play("music", "mod_assets/bgm/canyoufeel.ogg"), Return()])
 
             add Solid("#56d7ff66"):
                 xsize 1100
