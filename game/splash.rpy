@@ -1,18 +1,6 @@
 init python:
     menu_trans_time = 1
-    splash_message_default = "This game is not suitable for children\nor those who are easily disturbed."
-    splash_messages = [
-    "Some memories arrive out of order.",
-    "Signal found.",
-    "The archive remembers.",
-    "It's just a story, mostly.",
-    "This game is not suitable for children\nor those who are easily disturbed?",
-    "connection-lost",
-    "null",
-    "The room is waiting.",
-    "You were only partially awake.",
-    "This game is not suitable for children\nor those who are easily disturbed."
-    ]
+    splash_message_default = "This game is not suitable for the faint\nof heart or the sensitive."
 
     def enter_m_cleanup_unpickleable_store_values():
         leaked_file = globals().get("f", None)
@@ -28,7 +16,40 @@ init python:
         except Exception:
             pass
 
+    def splash_hold(mark):
+        """
+        Hold the cold open until `mark` seconds after `starttime`.
+
+        The cold open is scheduled against absolute wall-clock marks rather than
+        relative waits, so a machine that stalls on one beat rejoins the
+        schedule on the next instead of pushing every later beat back. A mark
+        that has already gone past is simply not waited on.
+        """
+
+        remaining = mark - (datetime.datetime.now() - store.starttime).total_seconds()
+
+        if remaining > 0:
+            renpy.pause(remaining)
+
+    def enter_m_fresh_run():
+        """
+        True when Matsu'Py launched this run as a brand new install.
+
+        The install marker lives in the game directory rather than the save
+        directory, and deliberately so: it is what distinguishes a reinstall
+        from a save wipe, which is the whole point of the prompt below. That
+        also puts it out of reach of a throwaway save directory, so the
+        launcher signals its intent with MATSU_FRESH_RUN and this game honours
+        it. Nothing sets the variable for a player.
+        """
+
+        return bool(os.environ.get("MATSU_FRESH_RUN"))
+
     def enter_m_read_firstrun():
+        # A fresh run has never been installed, by definition.
+        if enter_m_fresh_run():
+            return ""
+
         try:
             return renpy.file("firstrun").read(1)
         except Exception:
@@ -37,8 +58,16 @@ init python:
             return ""
 
     def enter_m_write_firstrun():
+        # ...and it must not leave a mark on the real install on the way out.
+        if enter_m_fresh_run():
+            return
+
         with open(config.basedir + "/game/firstrun", "w") as firstrun_file:
             firstrun_file.write("1")
+
+# Set by the `splashscreen` label; splash_hold() schedules the cold open
+# against it. Defaulted so it exists before the label ever runs.
+default starttime = None
 
 image splash_warning = ParameterizedText(style="splash_text", xalign=0.5, yalign=0.5)
 
@@ -52,56 +81,9 @@ image game_menu_bg:
     "mod_assets/gui/menu_bg.png"
     menu_bg_drift
 
-image menu_fade:
-    "white"
-    menu_fadeout
-
-image menu_art_y = Null()
-image menu_art_n = Null()
-image menu_art_s = Null()
-image menu_art_m = Null()
-image menu_art_y_ghost = Null()
-image menu_art_n_ghost = Null()
-image menu_art_s_ghost = Null()
-image menu_art_m_ghost = Null()
-image menu_art_s_glitch = Null()
-
 image menu_nav:
     #"gui/overlay/main_menu.png"
     #menu_nav_move
-
-image menu_logo:
-    "mod_assets/gui/logo.png"
-    subpixel True
-    xcenter 640
-    ycenter 360
-    zoom 0.60
-    menu_logo_idle
-
-image menu_particles = Null()
-
-transform particle_fadeout:
-    easeout 1.5 alpha 0
-
-transform menu_bg_move:
-    subpixel True
-    topleft
-    parallel:
-        xoffset 0 yoffset 0
-        linear 3.0 xoffset -100 yoffset -100
-        repeat
-    parallel:
-        ypos 0
-        time 0.65
-        ease_cubic 2.5 ypos -500
-
-transform menu_bg_loop:
-    subpixel True
-    topleft
-    parallel:
-        xoffset 0 yoffset 0
-        linear 3.0 xoffset -100 yoffset -100
-        repeat
 
 transform menu_bg_drift:
     subpixel True
@@ -113,18 +95,11 @@ transform menu_bg_drift:
         ease 16.0 xoffset 14 yoffset -8
         repeat
 
-transform menu_logo_idle:
-    subpixel True
-    block:
-        ease 4.5 yoffset -5
-        ease 4.5 yoffset 5
-        repeat
-
 transform menu_logo_reveal:
     subpixel True
-    xcenter 858
-    ycenter 322
-    zoom 0.56
+    xcenter 984
+    ycenter 284
+    zoom 0.54
     alpha 0.0
     yoffset 24
     pause 0.10
@@ -180,28 +155,171 @@ transform splash_bg_push:
         ease 10.0 xoffset 10 yoffset -6
         repeat
 
-transform splash_icon_reveal(xc=640, z=0.32, delay=0.0):
+# =============================================================================
+# THE COLD OPEN  --  presenter logos, then the content warning, then the OP
+# -----------------------------------------------------------------------------
+# WHAT THIS IS
+#   The first eight seconds of the game. Two plates: the presenter logos, and
+#   the content warning. Neither of them fades. Both are BROADCAST HARDWARE
+#   doing something -- a tube hunting for a signal, locking it, holding it, and
+#   dropping it -- because that is the vocabulary the rest of the interface is
+#   written in (see menu_transitions.rpy, which powers menus off the same idea).
+#
+# THE ONE STRUCTURAL RULE: EACH PLATE ANIMATES ITSELF, IN AND OUT.
+#   These used to be static screens pushed on and pulled off with Dissolve(),
+#   which is why the whole cold open read as "three things faded at me". Now the
+#   label shows and hides them with NO transition at all and every frame of
+#   movement -- entrance, hold and exit -- lives in the screen's own ATL. That
+#   also means the timings are readable as a storyboard rather than smeared
+#   across a stack of `with Dissolve(max(0, ...))` calls.
+#
+#   The cost of that rule is that the ATL below and the deadlines in the
+#   `splashscreen` label have to agree. THE TIMELINE IS THE CONTRACT:
+#
+#     LOGO PLATE                          WARNING PLATE
+#       0.00  rails slam, tube ignites      0.00  red wash, alert rails drive in
+#       0.30  logo A slams + blooms         0.20  panel wipes open from its axis
+#       0.62  logo B slams + blooms         0.38  heading converges out of RGB
+#       0.95  divider + underlines snap     0.62  message snaps in under a sweep
+#       1.20  caption converges out of RGB  0.85  hold, rails breathing
+#       1.45  hold, scanlines + grain       2.98  signal skids
+#       2.60  signal drops (glitch burst)   3.05  shutter blades slam shut
+#       2.80  picture collapses to a line   3.20  picture collapses to a line
+#       3.05  gone                          3.45  gone
+#
+#   The label shows each plate, waits out its whole run, and cuts. A plate's
+#   `st` starts on its first RENDER, which is a frame or so after the label
+#   shows it, so the label's marks carry ~0.15s of slack past "gone" -- see
+#   splash_hold() and the marks in `label splashscreen`.
+#
+#   Change a number here and change its partner in the label. Nothing else in
+#   the game reads these.
+#
+# WHY THERE IS STILL NO SHADER IN HERE
+#   This runs at COLD START, before any shader-bearing scene has been loaded and
+#   while the loader is still warming up. Everything below is ATL over Solids
+#   and Text -- no matrixcolor, no register_shader, nothing that compiles a GPU
+#   program on the first frame the player ever sees. The chromatic separation is
+#   done the honest way, by drawing the same text three times in three colours
+#   and sliding the copies together; the logo bloom is an additive copy of the
+#   logo itself. Both are free. Keep it that way.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SHARED PARTS
+# -----------------------------------------------------------------------------
+
+# Matsu'Py's `easeout_*` warpers ACCELERATE (slow start, fast finish) and the
+# `easein_*` ones DECELERATE -- the suffixes are inverted from the CSS
+# convention (renpy/common/000atl.rpy says so in as many words). So every slam
+# below is `easein_expo`: full speed on frame one, dead stop on the mark.
+
+# The hot line that ignites the tube: snaps on, blooms open, is gone.
+transform splash_ignite:
     subpixel True
-    xcenter xc
-    ycenter 360
-    zoom z * 0.95
+    additive 1.0
+    xysize (1280, 3)
+    xalign 0.5
+    yalign 0.5
     alpha 0.0
-    yoffset 16
+    linear 0.04 alpha 1.0
+    parallel:
+        easeout_expo 0.30 yzoom 260.0
+    parallel:
+        pause 0.08
+        linear 0.24 alpha 0.0
+
+# A full-frame hit of light. Up in two frames, gone in four -- any longer or any
+# brighter and it stops reading as an impact and starts washing the logo out,
+# which is the opposite of what an impact is for.
+transform splash_impact(delay=0.0, peak=0.34):
+    subpixel True
+    alpha 0.0
     pause delay
-    parallel:
-        easeout 0.55 alpha 1.0 yoffset 0
-    parallel:
-        easeout 0.55 zoom z
-    pause 1.55
-    easein 0.35 alpha 0.0 yoffset -10
+    linear 0.02 alpha peak
+    easeout_quad 0.12 alpha 0.0
 
-transform splash_panel_reveal:
+# Torn sync: a band of picture that skids to the wrong place for a frame at a
+# time. Deliberately UNWARPED -- every step is an instant set followed by a
+# pause, because a glitch that eases is not a glitch.
+transform splash_tear(y0=180, delay=0.0, h=10):
+    subpixel True
+    additive 1.0
+    xysize (1280, h)
+    xpos 0
+    ypos y0
+    alpha 0.0
+    pause delay
+    alpha 0.55
+    pause 0.035
+    ypos y0 + 130
+    alpha 0.28
+    pause 0.030
+    ypos y0 - 80
+    alpha 0.50
+    pause 0.035
+    ypos y0 + 240
+    alpha 0.20
+    pause 0.030
+    alpha 0.0
+
+# The chromatic split. `dx` is which side this copy comes in from (-1 red,
+# +1 cyan, 0 the white master), and it lands two pixels short of home so a
+# fringe survives the convergence.
+transform splash_split(dx=0.0, delay=0.0, spread=18):
     subpixel True
     alpha 0.0
-    yoffset 22
-    pause 0.15
-    easeout 0.55 alpha 1.0 yoffset 0
+    xoffset dx * spread
+    pause delay
+    linear 0.04 alpha 1.0
+    easein_expo 0.26 xoffset dx * 2.0
 
+# A status light: holds off until its beat, then breathes. The plain
+# console_blink is alive from frame one, which put "SIGNAL LOCKED" on screen
+# before the tube it is reporting on had ignited.
+transform splash_micro_blink(delay=0.0):
+    subpixel True
+    alpha 0.0
+    pause delay
+    linear 0.04 alpha 1.0
+    block:
+        easeout 0.75 alpha 0.25
+        easein 0.75 alpha 1.0
+        repeat
+
+# Hard snap into place from below. No fade -- the alpha step is four hundredths
+# of a second, which reads as a cut.
+transform splash_snap_in(delay=0.0, rise=16):
+    subpixel True
+    alpha 0.0
+    yoffset rise
+    pause delay
+    linear 0.04 alpha 1.0
+    easein_expo 0.22 yoffset 0
+
+# A bright bar that crosses the frame once, left to right, and does not return.
+transform splash_sweep_once(delay=0.0, y=0, h=2, travel=0.34):
+    subpixel True
+    additive 1.0
+    xysize (1280, h)
+    ypos y
+    xpos -1300
+    alpha 0.0
+    pause delay
+    linear 0.03 alpha 0.9
+    parallel:
+        easein_expo travel xpos 1300
+    parallel:
+        pause travel
+        linear 0.06 alpha 0.0
+
+# Faint rolling grain, kept low so the logos stay crisp.
+transform splash_grain:
+    subpixel True
+    alpha 0.0
+    easeout 0.7 alpha 0.05
+
+# Scanline sweeps, one each way, for layered motion during the holds.
 transform splash_sweep:
     subpixel True
     ypos -16
@@ -216,64 +334,396 @@ transform splash_sweep:
         pause 0.7
         repeat
 
+transform splash_sweep2:
+    subpixel True
+    ypos 760
+    alpha 0.0
+    pause 0.55
+    block:
+        alpha 0.0
+        ypos 760
+        linear 0.1 alpha 0.55
+        linear 2.4 ypos -20
+        linear 0.15 alpha 0.0
+        pause 1.1
+        repeat
+
+# -----------------------------------------------------------------------------
+# PLATE 1: THE PRESENTER LOGOS
+# -----------------------------------------------------------------------------
+
+# Letterbox rails. They slam the frame shut to a cinema crop, hold for a beat,
+# then withdraw to a hairline that stays as chrome for the rest of the plate.
+transform splash_rail_top:
+    subpixel True
+    xysize (1280, 96)
+    xpos 0
+    ypos -96
+    easein_expo 0.20 ypos 0
+    pause 0.24
+    easein_cubic 0.28 ypos -90
+
+transform splash_rail_bottom:
+    subpixel True
+    xysize (1280, 96)
+    xpos 0
+    ypos 720
+    easein_expo 0.20 ypos 624
+    pause 0.24
+    easein_cubic 0.28 ypos 714
+
+# The logo slam: in from three times its size at full speed, a dead stop just
+# under the mark, then a spring out to it. `easein_back` overshoots on arrival
+# and settles, which is the recoil.
+transform splash_logo_slam(xc=640, yc=320, z=0.30, delay=0.0):
+    subpixel True
+    xcenter xc
+    ycenter yc
+    zoom z * 3.2
+    alpha 0.0
+    pause delay
+    parallel:
+        easein_expo 0.22 zoom z * 0.955
+    parallel:
+        linear 0.05 alpha 1.0
+    easein_back 0.18 zoom z
+    # Locked. A slow idle float so the plate is never actually still.
+    block:
+        ease 3.4 yoffset -5
+        ease 3.4 yoffset 5
+        repeat
+
+# The bloom that lands with it: the same logo, additive, still expanding as it
+# burns off. This is the whole reason the slam has weight.
+transform splash_logo_bloom(xc=640, yc=320, z=0.30, delay=0.0):
+    subpixel True
+    additive 1.0
+    xcenter xc
+    ycenter yc
+    zoom z * 3.2
+    alpha 0.0
+    pause delay
+    linear 0.04 alpha 0.7
+    parallel:
+        easein_expo 0.30 zoom z * 1.16
+    parallel:
+        pause 0.06
+        linear 0.26 alpha 0.0
+
+# Accent underline that snaps out from its centre beneath a logo, then dims.
+transform splash_underline(xc=640, yc=452, delay=0.0):
+    subpixel True
+    xcenter xc
+    ycenter yc
+    xanchor 0.5
+    xzoom 0.0
+    alpha 0.0
+    pause delay
+    parallel:
+        easein_expo 0.20 xzoom 1.0
+    parallel:
+        linear 0.05 alpha 1.0
+    pause 0.7
+    linear 1.6 alpha 0.4
+
+# Central hairline divider, punched out from its midpoint.
+transform splash_divider(delay=0.95):
+    subpixel True
+    yzoom 0.0
+    alpha 0.0
+    pause delay
+    parallel:
+        easein_circ 0.18 yzoom 1.0
+    parallel:
+        linear 0.05 alpha 1.0
+
+# Corner brackets, snapped in rather than faded up.
+transform splash_bracket_snap(delay=0.0):
+    subpixel True
+    xalign 0.5
+    yalign 0.5
+    zoom 1.06
+    alpha 0.0
+    pause delay
+    linear 0.04 alpha 1.0
+    easein_expo 0.24 zoom 1.0
+
+# THE PLATE ITSELF, and how it dies: at 3.15 the signal starts to go -- the
+# picture skids sideways a few times -- and then the tube gives up, squashing
+# to a hairline and pinching out. Same power-off the pause menu uses on the way
+# back to a scene, which is not a coincidence.
+transform splash_signal_drop:
+    subpixel True
+    xalign 0.5
+    yalign 0.5
+    pause 2.60
+    linear 0.03 xoffset 14
+    linear 0.03 xoffset -10
+    linear 0.03 xoffset 6
+    linear 0.03 xoffset -4
+    linear 0.03 xoffset 0
+    pause 0.04
+    easein_expo 0.16 yzoom 0.012
+    parallel:
+        easein_expo 0.09 xzoom 0.0
+    parallel:
+        linear 0.09 alpha 0.0
+
 screen enter_m_splash_intro():
-    add Solid("#02040b")
-    add "mod_assets/gui/menu_bg.png" at splash_bg_push
-    add Solid("#00000099")
-    add Solid("#75f7ff35") xysize (1280, 2) at splash_sweep
-    add "mod_assets/gui/TS_SF_splash.png" at splash_icon_reveal(420, 0.30, 0.10)
-    add "mod_assets/gui/TRM_splash.png" at splash_icon_reveal(860, 0.34, 0.10)
+
+    fixed:
+        at splash_signal_drop
+
+        add Solid("#02040b")
+        add "mod_assets/gui/menu_bg.png" at splash_bg_push
+        add Solid("#000000aa")
+        add "vignette":
+            alpha 0.5
+        add "noise" at splash_grain
+
+        # Layered scanline sweeps -- motion without a heavy per-line field.
+        add Solid("#75f7ff30") xysize (1280, 2) at splash_sweep
+        add Solid("#ff2f5f18") xysize (1280, 1) at splash_sweep2
+
+        # Cinema crop, slammed shut and withdrawn.
+        add Solid("#02040b") at splash_rail_top
+        add Solid("#02040b") at splash_rail_bottom
+
+        # Ignition, and the torn sync it drags in with it.
+        add Solid("#bdf6ff") at splash_ignite
+        add Solid("#56d7ff") at splash_tear(196, 0.20, 12)
+        add Solid("#ff315b") at splash_tear(408, 0.24, 7)
+
+        # THE PRESENTER TRIANGLE -- two marks up top, one centred beneath them.
+        # Each lands on its own beat with its own bloom, impact and tear, read
+        # left-to-right across the top row and then down onto the anchor.
+        #
+        # Zooms are chosen so all three render to roughly the same 310px width
+        # despite very different source sizes, and so the whole group clears the
+        # console bracket at (160, 116)-(1120, 542):
+        #     TRM       1200x600   @0.225 -> 270 x 135
+        #     MATSU'PY  1920x1080  @0.141 -> 271 x 152 (art is a 2.17:1 band
+        #               inside a 16:9 canvas, so zoom against the CANVAS width)
+        #     TS_SF     1280x720   @0.211 -> 270 x 152
+        #
+        # Vertically the group runs 174..506 between the caption (y=150) and the
+        # bracket floor (y=542), with the two underline bands at 338 and 520.
+        # Everything must be landed before splash_signal_drop starts collapsing
+        # the plate at 2.60s; the last beat here is the third underline at 1.42.
+
+        # Hairline between the top pair only -- the bottom mark is the apex and
+        # is not divided from anything.
+        add Solid("#56d7ff3a") xysize (2, 130) xcenter 640 ycenter 250 at splash_divider(1.26)
+
+        add "mod_assets/gui/TRM_splash.png" at splash_logo_bloom(430, 250, 0.225, 0.30)
+        add "mod_assets/gui/TRM_splash.png" at splash_logo_slam(430, 250, 0.225, 0.30)
+        add Solid("#bdf6ff") at splash_impact(0.52, 0.42)
+        add Solid("#ff315b") at splash_tear(268, 0.52, 6)
+
+        add "mod_assets/gui/matsupy_splash.png" at splash_logo_bloom(850, 250, 0.141, 0.62)
+        add "mod_assets/gui/matsupy_splash.png" at splash_logo_slam(850, 250, 0.141, 0.62)
+        add Solid("#bdf6ff") at splash_impact(0.84, 0.42)
+        add Solid("#56d7ff") at splash_tear(300, 0.84, 9)
+
+        add "mod_assets/gui/TS_SF_splash.png" at splash_logo_bloom(640, 430, 0.211, 0.94)
+        add "mod_assets/gui/TS_SF_splash.png" at splash_logo_slam(640, 430, 0.211, 0.94)
+        add Solid("#bdf6ff") at splash_impact(1.16, 0.42)
+        add Solid("#ff315b") at splash_tear(214, 1.16, 8)
+
+        # Underline accents that snap out beneath each mark. The bottom one sits
+        # at y=520 between SIGNAL LOCKED and BUILD, which are pinned to the left
+        # and right edges, so it passes cleanly between them.
+        add Solid("#56d7ff") xysize (230, 2) at splash_underline(430, 338, 1.30)
+        add Solid("#56d7ff") xysize (230, 2) at splash_underline(850, 338, 1.36)
+        add Solid("#56d7ff") xysize (230, 2) at splash_underline(640, 520, 1.42)
+
+        # The presenter caption, converged out of an RGB separation: red and
+        # cyan ghosts drive in from either side and land two pixels off the
+        # white master, so the fringe survives.
+        text "N O W   P R E S E N T I N G":
+            style "splash_boot_caption"
+            color "#ff315b"
+            xalign 0.5
+            ypos 150
+            at splash_split(-1, 1.20, 22)
+
+        text "N O W   P R E S E N T I N G":
+            style "splash_boot_caption"
+            color "#56d7ff"
+            xalign 0.5
+            ypos 150
+            at splash_split(1, 1.20, 22)
+
+        text "N O W   P R E S E N T I N G":
+            style "splash_boot_caption"
+            xalign 0.5
+            ypos 150
+            at splash_split(0, 1.20, 22)
+
+        # One bright pass across the caption as it lands.
+        add Solid("#bdf6ff") at splash_sweep_once(1.24, 148, 3, 0.30)
+
+        # Console microtext, snapped rather than faded.
+        text "ENTER-M // SYSTEM BOOT 0x4D":
+            style "splash_boot_micro"
+            xpos 168
+            ypos 132
+            at splash_snap_in(1.34, 10)
+
+        text "SIGNAL LOCKED":
+            style "splash_boot_micro"
+            xpos 168
+            ypos 522
+            at splash_micro_blink(1.40)
+
+        text "BUILD [config.version]":
+            style "splash_boot_micro"
+            xanchor 1.0
+            xpos 1112
+            ypos 522
+            at splash_snap_in(1.44, 10)
+
+        # Console brackets framing the presentation, matching the game-wide HUD.
+        fixed:
+            at splash_bracket_snap(1.10)
+            use console_brackets(160, 116, 960, 426, "#56d7ff6e", 26, 2)
+
+# -----------------------------------------------------------------------------
+# PLATE 2: THE CONTENT WARNING
+# -----------------------------------------------------------------------------
+# Same hardware, different mood: this one is an ALERT, so it arrives red and
+# horizontal and it closes like a shutter rather than drifting away.
+
+# The wash that announces it -- one hit of red across the whole frame.
+transform splash_alert_wash:
+    subpixel True
+    alpha 0.0
+    linear 0.03 alpha 0.38
+    easeout_quad 0.30 alpha 0.0
+
+# Alert rails: driven in from off-frame, then left breathing for the hold.
+transform splash_alert_rail(y=196, xstart=-1300, delay=0.0, h=5):
+    subpixel True
+    xysize (1280, h)
+    ypos y
+    xpos xstart
+    alpha 0.0
+    pause delay
+    linear 0.03 alpha 0.9
+    easein_expo 0.26 xpos 0
+    block:
+        easeout 0.8 alpha 0.42
+        easein 0.8 alpha 0.9
+        repeat
+
+# The panel does not fade up: it is wiped open along its own horizontal axis,
+# which squashes the text inside it for a fifth of a second. That squash is the
+# effect -- it is what a picture tube opening looks like.
+transform splash_alert_open(delay=0.20):
+    subpixel True
+    yzoom 0.0
+    pause delay
+    easein_circ 0.24 yzoom 1.0
+
+# The shutter that closes the plate: two blades meeting in the middle.
+transform splash_shutter_top(delay=3.05):
+    subpixel True
+    xysize (1280, 362)
+    xpos 0
+    ypos -362
+    pause delay
+    easein_expo 0.20 ypos 0
+
+transform splash_shutter_bottom(delay=3.05):
+    subpixel True
+    xysize (1280, 362)
+    xpos 0
+    ypos 720
+    pause delay
+    easein_expo 0.20 ypos 358
+
+# THE PLATE, and how it dies: the shutter lands at 3.25, and the tube pinches
+# out from under it.
+transform splash_alert_shutdown:
+    subpixel True
+    xalign 0.5
+    yalign 0.5
+    pause 2.98
+    linear 0.03 xoffset -12
+    linear 0.03 xoffset 9
+    linear 0.03 xoffset -5
+    linear 0.03 xoffset 0
+    pause 0.17
+    easein_expo 0.16 yzoom 0.010
+    parallel:
+        easein_expo 0.09 xzoom 0.0
+    parallel:
+        linear 0.09 alpha 0.0
 
 screen enter_m_splash_warning(message):
-    add Solid("#02040b")
-    add "mod_assets/gui/menu_bg.png" at splash_bg_push
-    add Solid("#000000cc")
-    add Solid("#ff2f5f33") xysize (1280, 2) at splash_sweep
 
-    frame:
-        style "splash_warning_panel"
-        at splash_panel_reveal
+    fixed:
+        at splash_alert_shutdown
 
-        vbox:
+        add Solid("#02040b")
+        add "mod_assets/gui/menu_bg.png" at splash_bg_push
+        add Solid("#000000cc")
+        add Solid("#ff2f5f18") xysize (1280, 1) at splash_sweep2
+
+        # The hit of red that announces the plate.
+        add Solid("#ff2f5f") at splash_alert_wash
+
+        # Rails above and below the panel, driving in from opposite sides.
+        add Solid("#ff4968") at splash_alert_rail(214, -1300, 0.02, 5)
+        add Solid("#ff4968") at splash_alert_rail(500, 1300, 0.08, 5)
+        add Solid("#ff315b") at splash_alert_rail(222, -1300, 0.02, 1)
+
+        frame:
+            style "splash_warning_panel"
+            at splash_alert_open(0.20)
+
+            vbox:
+                xalign 0.5
+                yalign 0.5
+                spacing 18
+
+                null height 4
+
+                text message:
+                    style "splash_text"
+                    at splash_snap_in(0.62, 18)
+
+        # The heading rides OVER the panel so the panel's wipe does not squash
+        # it, converged out of the same RGB separation the logo plate uses.
+        text "CONTENT WARNING":
+            style "splash_warning_heading"
+            color "#ff0040"
             xalign 0.5
-            yalign 0.5
-            spacing 18
+            ypos 262
+            at splash_split(-1, 0.38, 26)
 
-            text "CONTENT WARNING":
-                style "splash_warning_heading"
+        text "CONTENT WARNING":
+            style "splash_warning_heading"
+            color "#56d7ff"
+            xalign 0.5
+            ypos 262
+            at splash_split(1, 0.38, 26)
 
-            text message:
-                style "splash_text"
+        text "CONTENT WARNING":
+            style "splash_warning_heading"
+            xalign 0.5
+            ypos 262
+            at splash_split(0, 0.38, 26)
 
-transform menu_logo_move:
-    subpixel True
-    yoffset -300
-    time 1.925
-    easein_bounce 1.5 yoffset 0
+        # One pass of light across the plate as the message snaps in. It rides
+        # ABOVE the text, not through it -- crossing the words at their own
+        # height reads as a strike-through rather than a scan.
+        add Solid("#ffd8e2") at splash_sweep_once(0.64, 306, 2, 0.32)
 
-transform menu_nav_move:
-    subpixel True
-    xoffset -500
-    time 1.5
-    easein_quint 1 xoffset 0
-
-transform menu_fadeout:
-    easeout 0.75 alpha 0
-    time 2.481
-    alpha 0.4
-    linear 0.5 alpha 0
-
-transform menu_art_move(z, x, z2):
-    subpixel True
-    yoffset 0 + (1200 * z)
-    xoffset (740 - x) * z * 0.5
-    zoom z2 * 0.75
-    time 1.0
-    parallel:
-        ease 1.75 yoffset 0
-    parallel:
-        pause 0.75
-        ease 1.5 zoom z2 xoffset 0
+        # The shutter, and the flash of its blades meeting.
+        add Solid("#02040b") at splash_shutter_top(3.05)
+        add Solid("#02040b") at splash_shutter_bottom(3.05)
+        add Solid("#ffe6ec") at splash_impact(3.24, 0.45)
 
 image intro:
     truecenter
@@ -300,26 +750,9 @@ label splashscreen:
     $ enter_m_cleanup_unpickleable_store_values()
 
     python:
-        process_list = []
-        currentuser = ""
-        if renpy.windows:
-            try:
-                process_list = subprocess.check_output("wmic process get Description", shell=True).lower().replace("\r", "").replace(" ", "").split("\n")
-            except:
-                pass
-            try:
-                for name in ('LOGNAME', 'USER', 'LNAME', 'USERNAME'):
-                    user = os.environ.get(name)
-                    if user:
-                        currentuser = user
-            except:
-                pass
-
-
-    python:
         firstrun = enter_m_read_firstrun()
     if not firstrun:
-        if persistent.first_run and (config.version == persistent.oldversion or persistent.autoload == "postcredits_loop"):
+        if persistent.first_run and config.version == persistent.oldversion:
             $ quick_menu = False
             scene black
             menu:
@@ -332,7 +765,7 @@ label splashscreen:
                         renpy.persistent.should_save_persistent = False
                         renpy.utter_restart()
                 "No, continue where I left off.":
-                    $ restore_relevant_characters()
+                    $ restore_all_characters()
 
         python:
             if not firstrun:
@@ -342,13 +775,12 @@ label splashscreen:
                     renpy.jump("readonly")
 
     if config.version != persistent.oldversion:
-        $ restore_relevant_characters()
+        $ restore_all_characters()
         $ persistent.oldversion = config.version
         $ renpy.save_persistent()
 
     if not persistent.first_run:
-        python:
-            restore_all_characters()
+        $ restore_all_characters()
         $ quick_menu = False
         scene white
         pause 0.5
@@ -364,20 +796,11 @@ label splashscreen:
         "This build contains placeholder art, temporary audio, unfinished systems, and experimental scenes."
         "Some presentation, story flow, and archive features may change before a later release."
         "{b}Personal note: some placeholder artwork in this demo was created using Stable Diffusion (with my own trained AI models).{/b}"
-        "{b}They're PLACEHOLDERS. This game is being developed by one person who's a talentless hack and also can't afford an artist.{/b}"
-        "{b}Please direct all complaints about AI usage to your nearest brick wall.{/b}"
+        "{b}They're PLACEHOLDERS. This game is being developed by one person who's a talentless hack and can't draw worth anything.{/b}"
+        "{b}But hey, I am always looking to collaborate with anyone who can help make my ideas a reality.{/b}"
+        "{b}Also the same placeholder sprites and expressions may ruin immersion, but that's not my problem. Use something called your imagination.{/b}"
         "{b}Anyway...{/b}"
-        "The full story is planned to include mature topics, including but not limited to:"
-        "Self-harm."
-        "Self-destruction."
-        "Sexual Harrassment."
-        "Sexual and emotional manipulation."
-        "Eating disorders."
-        "Medical trauma."
-        "Graphic injury."
-        "Mental illness."
-        "Ego death."
-        "Other potential distressing material."
+        "The full story is planned to include mature topics."
         "By playing this game, you agree that you are of sufficient age and mental state to handle the contents within."
         $ persistent.first_run = True
         scene tos2
@@ -387,35 +810,13 @@ label splashscreen:
 
     python:
         s_kill_early = None
-        if persistent.playthrough == 0:
-            try: renpy.file("../characters/sayori.chr")
-            except: s_kill_early = True
+        try: renpy.file("../characters/sayori.chr")
+        except: s_kill_early = True
         if not s_kill_early:
-            if persistent.playthrough <= 2 and persistent.playthrough != 0:
-                try: renpy.file("../characters/monika.chr")
-                except: open(config.basedir + "/characters/monika.chr", "wb").write(renpy.file("monika.chr").read())
-            if persistent.playthrough <= 1 or persistent.playthrough == 4:
-                try: renpy.file("../characters/natsuki.chr")
-                except: open(config.basedir + "/characters/natsuki.chr", "wb").write(renpy.file("natsuki.chr").read())
-                try: renpy.file("../characters/yuri.chr")
-                except: open(config.basedir + "/characters/yuri.chr", "wb").write(renpy.file("yuri.chr").read())
-            if persistent.playthrough == 4:
-                try: renpy.file("../characters/sayori.chr")
-                except: open(config.basedir + "/characters/sayori.chr", "wb").write(renpy.file("sayori.chr").read())
-
-    if not persistent.special_poems:
-        python hide:
-            persistent.special_poems = [0,0,0]
-            a = range(1,12)
-            for i in range(3):
-                b = renpy.random.choice(a)
-                persistent.special_poems[i] = b
-                a.remove(b)
-
-    $ basedir = config.basedir.replace('\\', '/')
-
-    if persistent.autoload:
-        jump autoload
+            try: renpy.file("../characters/natsuki.chr")
+            except: open(config.basedir + "/characters/natsuki.chr", "wb").write(renpy.file("natsuki.chr").read())
+            try: renpy.file("../characters/yuri.chr")
+            except: open(config.basedir + "/characters/yuri.chr", "wb").write(renpy.file("yuri.chr").read())
 
     $ config.allow_skipping = False
 
@@ -428,21 +829,27 @@ label splashscreen:
         $ renpy.quit()
 
 
+    # THE COLD OPEN. Every mark below is wall-clock seconds from `starttime`, and
+    # every one of them is a HARD CUT: each plate performs its own entrance and
+    # its own exit (see the timeline contract at the top of this file), so a
+    # transition here would only smear an animation that has already finished.
+    # The marks are absolute rather than relative so a slow machine that spends
+    # too long on one beat catches up on the next instead of drifting; `pause`
+    # is floored at zero for the same reason.
     scene black
-    $ persistent.ghost_menu = False
-    $ splash_message = splash_message_default
     $ starttime = datetime.datetime.now()
-    show screen enter_m_splash_intro with Dissolve(0.5, alpha=True)
-    $ pause(2.80 - (datetime.datetime.now() - starttime).total_seconds())
-    hide screen enter_m_splash_intro with Dissolve(max(0, 3.15 - (datetime.datetime.now() - starttime).total_seconds()), alpha=True)
-    if persistent.playthrough == 2 and renpy.random.randint(0, 3) == 0:
-        $ splash_message = renpy.random.choice(splash_messages)
-    show screen enter_m_splash_warning(splash_message) with Dissolve(max(0, 3.50 - (datetime.datetime.now() - starttime).total_seconds()), alpha=True)
-    $ pause(5.50 - (datetime.datetime.now() - starttime).total_seconds())
-    hide screen enter_m_splash_warning with Dissolve(max(0, 6.00 - (datetime.datetime.now() - starttime).total_seconds()), alpha=True)
-    $ pause(6.00 - (datetime.datetime.now() - starttime).total_seconds())
+
+    show screen enter_m_splash_intro
+    $ splash_hold(3.25)             # plate has collapsed and gone by ~3.15
+    hide screen enter_m_splash_intro
+
+    show screen enter_m_splash_warning(splash_message_default)
+    $ splash_hold(6.95)             # plate has collapsed and gone by ~6.85
+    hide screen enter_m_splash_warning
+
+    $ splash_hold(7.10)             # one black beat before the OP hits
     scene black
-    call enter_m_sick_ass_anime_op
+    call enter_m_sick_ass_anime_op from _call_enter_m_sick_ass_anime_op_1
     $ config.allow_skipping = True
     return
 
@@ -459,38 +866,15 @@ label after_load:
         $ restore_all_characters()
     $ config.allow_skipping = allow_skipping
     $ _dismiss_pause = config.developer
-    $ persistent.ghost_menu = False
 
-    if persistent.yuri_kill > 0 and persistent.autoload == "yuri_kill_2":
-        if persistent.yuri_kill >= 1380:
-            $ persistent.yuri_kill = 1440
-        elif persistent.yuri_kill >= 1180:
-            $ persistent.yuri_kill = 1380
-        elif persistent.yuri_kill >= 1120:
-            $ persistent.yuri_kill = 1180
-        elif persistent.yuri_kill >= 920:
-            $ persistent.yuri_kill = 1120
-        elif persistent.yuri_kill >= 720:
-            $ persistent.yuri_kill = 920
-        elif persistent.yuri_kill >= 660:
-            $ persistent.yuri_kill = 720
-        elif persistent.yuri_kill >= 460:
-            $ persistent.yuri_kill = 660
-        elif persistent.yuri_kill >= 260:
-            $ persistent.yuri_kill = 460
-        elif persistent.yuri_kill >= 200:
-            $ persistent.yuri_kill = 260
-        else:
-            $ persistent.yuri_kill = 200
-        jump expression persistent.autoload
-
-    elif anticheat != persistent.anticheat:
+    if anticheat != persistent.anticheat:
         stop music
+        $ atmos_clear()
         scene black
         "The save file could not be loaded."
         "Are you trying to cheat?"
         $ m_name = "Monika"
-        show monika 1 at t11
+        show monika forward uniform happ cm oe nobl rdown ldown at t11
         if persistent.playername == "":
             m "You're so funny."
         else:
@@ -502,60 +886,23 @@ label after_load:
             call screen dialog("Hint: You can use the \"Skip\" button to\nfast-forward through text you've already read.", ok_action=Return())
     return
 
-label autoload:
-    python:
-
-        if "_old_game_menu_screen" in globals():
-            _game_menu_screen = _old_game_menu_screen
-            del _old_game_menu_screen
-        if "_old_history" in globals():
-            _history = _old_history
-            del _old_history
-        renpy.block_rollback()
-
-
-        renpy.context()._menu = False
-        renpy.context()._main_menu = False
-        main_menu = False
-        _in_replay = None
-
-    if persistent.yuri_kill > 0 and persistent.autoload == "yuri_kill_2":
-        $ persistent.yuri_kill += 200
-
-    if renpy.get_return_stack():
-        $ renpy.pop_call()
-    jump expression persistent.autoload
-
-label autoload_yurikill:
-    if persistent.yuri_kill >= 1380:
-        $ persistent.yuri_kill = 1440
-    elif persistent.yuri_kill >= 1180:
-        $ persistent.yuri_kill = 1380
-    elif persistent.yuri_kill >= 1120:
-        $ persistent.yuri_kill = 1180
-    elif persistent.yuri_kill >= 920:
-        $ persistent.yuri_kill = 1120
-    elif persistent.yuri_kill >= 720:
-        $ persistent.yuri_kill = 920
-    elif persistent.yuri_kill >= 660:
-        $ persistent.yuri_kill = 720
-    elif persistent.yuri_kill >= 460:
-        $ persistent.yuri_kill = 660
-    elif persistent.yuri_kill >= 260:
-        $ persistent.yuri_kill = 460
-    elif persistent.yuri_kill >= 200:
-        $ persistent.yuri_kill = 260
-    else:
-        $ persistent.yuri_kill = 200
-    jump expression persistent.autoload
-
+# Matsu'Py runs this EVERY time the title screen is reached, not just once: the
+# engine's own `label _return` (00gamemenu.rpy) queues config.game_main_transition
+# and then jumps to `_main_menu_screen`, which calls this label -- so it fires on
+# the way back from Archive, Arcade, Credits, Settings, Save and Load alike.
+#
+# It used to answer that with a bare `renpy.music.play(...)`: no if_changed, no
+# fade, i.e. an unconditional teardown of the stream and a cold start of 9.4 MB
+# of canyoufeel.ogg, in the very interaction that had just started the 0.42s move
+# home. That is the stutter -- and the reason it was worst coming back from the
+# Archive and the Arcade, the only two screens that ALSO have a real track change
+# in flight at that moment, whose fade this then tore up.
+#
+# enter_m_menu_music() is a no-op when the track is already playing and a fade
+# when it is not, so the common case now costs nothing at all.
 label before_main_menu:
-    $ persistent.ghost_menu = False
     $ config.main_menu_music = audio.canyoufeel
-    $ renpy.music.play(config.main_menu_music)
-    return
-
-label quit:
+    $ enter_m_menu_music(config.main_menu_music)
     return
 
 label readonly:
@@ -564,4 +911,3 @@ label readonly:
     "Please move ENTER-M to your desktop or another writable location and try again."
     $ renpy.quit()
     return
-# Decompiled by unrpyc: https://github.com/CensoredUsername/unrpyc

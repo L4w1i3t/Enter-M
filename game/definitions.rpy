@@ -18,10 +18,6 @@ init python:
     def delete_all_saves():
         for savegame in renpy.list_saved_games(fast=True):
             renpy.unlink_save(savegame)
-    def delete_character(name):
-        import os
-        try: os.remove(config.basedir + "/characters/" + name + ".chr")
-        except: pass
     def restore_all_characters():
         try: renpy.file("../characters/monika.chr")
         except: open(config.basedir + "/characters/monika.chr", "wb").write(renpy.file("monika.chr").read())
@@ -31,16 +27,6 @@ init python:
         except: open(config.basedir + "/characters/yuri.chr", "wb").write(renpy.file("yuri.chr").read())
         try: renpy.file("../characters/sayori.chr")
         except: open(config.basedir + "/characters/sayori.chr", "wb").write(renpy.file("sayori.chr").read())
-    def restore_relevant_characters():
-        restore_all_characters()
-        if persistent.playthrough == 1 or persistent.playthrough == 2:
-            delete_character("sayori")
-        elif persistent.playthrough == 3:
-            delete_character("sayori")
-            delete_character("natsuki")
-            delete_character("yuri")
-        elif persistent.playthrough == 4:
-            delete_character("monika")
     def pause(time=None):
         global _windows_hidden
         if not time:
@@ -55,44 +41,27 @@ init python:
         _windows_hidden = False
 
 #Definitions for Audio BGM and noises.
-define audio.t1 = "<loop 22.073>bgm/1.ogg"
-define audio.t2 = "<loop 4.499>bgm/2.ogg"
-define audio.t2g = "bgm/2g.ogg"
-define audio.t2g2 = "<from 4.499 loop 4.499>bgm/2.ogg"
-define audio.t2g3 = "<loop 4.492>bgm/2g2.ogg"
-define audio.t3 = "<loop 4.618>bgm/3.ogg"
-define audio.t3g = "<to 15.255>bgm/3g.ogg"
-define audio.t3g2 = "<from 15.255 loop 4.618>bgm/3.ogg"
-define audio.t3g3 = "<loop 4.618>bgm/3g2.ogg"
-define audio.t3m = "<loop 4.618>bgm/3.ogg"
-define audio.t4 = "<loop 19.451>bgm/4.ogg"
-define audio.t4g = "<loop 1.000>bgm/4g.ogg"
-define audio.t5 = "<loop 4.444>bgm/5.ogg"
-define audio.t5b = "<loop 4.444>bgm/5.ogg"
-define audio.t5c = "<loop 4.444>bgm/5.ogg"
-define audio.t6 = "<loop 10.893>bgm/6.ogg"
-define audio.t6g = "<loop 10.893>bgm/6g.ogg"
-define audio.t6r = "<to 39.817 loop 0>bgm/6r.ogg"
-define audio.t6s = "<loop 43.572>bgm/6s.ogg"
-define audio.t7 = "<loop 2.291>bgm/7.ogg"
-define audio.t7a = "<loop 4.316 to 12.453>bgm/7.ogg"
-define audio.t7g = "<loop 31.880>bgm/7g.ogg"
-define audio.t8 = "<loop 9.938>bgm/8.ogg"
-define audio.t9 = "<loop 3.172>bgm/9.ogg"
-define audio.t9g = "<loop 1.532>bgm/9g.ogg"
-define audio.t10 = "<loop 5.861>bgm/10.ogg"
-define audio.t10y = "<loop 0>bgm/10-yuri.ogg"
-define audio.td = "<loop 36.782>bgm/d.ogg"
-define audio.m1 = "<loop 0>bgm/m1.ogg"
-define audio.mend = "<loop 6.424>bgm/monika-end.ogg"
-define audio.ghostmenu = "<loop 0>bgm/ghostmenu.ogg"
-define audio.g1 = "<loop 0>bgm/g1.ogg"
-define audio.g2 = "<loop 0>bgm/g2.ogg"
-define audio.hb = "<loop 0>bgm/heartbeat.ogg"
-define audio.closet_open = "sfx/closet-open.ogg"
-define audio.closet_close = "sfx/closet-close.ogg"
-define audio.page_turn = "sfx/pageflip.ogg"
-define audio.fall = "sfx/fall.ogg"
+define -50 audio.t1 = "<loop 22.073>bgm/1.ogg"
+define -50 audio.t2 = "<loop 4.499>bgm/2.ogg"
+define -50 audio.t3 = "<loop 4.618>bgm/3.ogg"
+define -50 audio.t4 = "<loop 19.451>bgm/4.ogg"
+define -50 audio.t5 = "<loop 4.444>bgm/5.ogg"
+define -50 audio.t6 = "<loop 10.893>bgm/6.ogg"
+define -50 audio.t7 = "<loop 2.291>bgm/7.ogg"
+define -50 audio.t8 = "<loop 9.938>bgm/8.ogg"
+define -50 audio.t9 = "<loop 3.172>bgm/9.ogg"
+define -50 audio.t9g = "<loop 1.532>bgm/9g.ogg"
+define -50 audio.t10 = "<loop 5.861>bgm/10.ogg"
+define -50 audio.td = "<loop 36.782>bgm/d.ogg"
+define -50 audio.m1 = "<loop 0>bgm/m1.ogg"
+define -50 audio.ghostmenu = "<loop 0>bgm/ghostmenu.ogg"
+define -50 audio.g1 = "<loop 0>bgm/g1.ogg"
+define -50 audio.g2 = "<loop 0>bgm/g2.ogg"
+define -50 audio.hb = "<loop 0>bgm/heartbeat.ogg"
+define -50 audio.closet_open = "sfx/closet-open.ogg"
+define -50 audio.closet_close = "sfx/closet-close.ogg"
+define -50 audio.page_turn = "sfx/pageflip.ogg"
+define -50 audio.fall = "sfx/fall.ogg"
 
 #Definitions for flashing still images, scene transition images.
 image black = "#000000"
@@ -761,65 +730,6 @@ image natsuki 3 = im.Composite((960, 960), (0, 0), "natsuki/2l.png", (0, 0), "na
 image natsuki 4 = im.Composite((960, 960), (0, 0), "natsuki/2l.png", (0, 0), "natsuki/2r.png", (0, 0), "natsuki/1t.png")
 image natsuki 5 = im.Composite((960, 960), (18, 22), "natsuki/1t.png", (0, 0), "natsuki/3.png")
 
-image natsuki mouth = LiveComposite((960, 960), (0, 0), "natsuki/0.png", (390, 340), "n_rects_mouth", (480, 334), "n_rects_mouth")
-
-image n_rects_mouth:
-    RectCluster(Solid("#000"), 4, 15, 5).sm
-    size (20, 25)
-
-image n_moving_mouth:
-    "images/natsuki/mouth.png"
-    pos (615, 305)
-    xanchor 0.5 yanchor 0.5
-    parallel:
-        choice:
-            ease 0.10 yzoom 0.2
-        choice:
-            ease 0.05 yzoom 0.2
-        choice:
-            ease 0.075 yzoom 0.2
-        pass
-        choice:
-            0.02
-        choice:
-            0.04
-        choice:
-            0.06
-        choice:
-            0.08
-        pass
-        choice:
-            ease 0.10 yzoom 1
-        choice:
-            ease 0.05 yzoom 1
-        choice:
-            ease 0.075 yzoom 1
-        pass
-        choice:
-            0.02
-        choice:
-            0.04
-        choice:
-            0.06
-        choice:
-            0.08
-        repeat
-    parallel:
-        choice:
-            0.2
-        choice:
-            0.4
-        choice:
-            0.6
-        ease 0.2 xzoom 0.4
-        ease 0.2 xzoom 0.8
-        repeat
-
-image natsuki_ghost_blood:
-    "#00000000"
-    "natsuki/ghost_blood.png" with ImageDissolve("images/menu/wipedown.png", 80.0, ramplen=4, alpha=True)
-    pos (620,320) zoom 0.80
-
 image natsuki ghost_base:
     "natsuki/ghost1.png"
 
@@ -854,9 +764,6 @@ image natsuki glitch1:
 
 image natsuki scream = im.Composite((960, 960), (0, 0), "natsuki/1l.png", (0, 0), "natsuki/1r.png", (0, 0), "natsuki/scream.png")
 image natsuki vomit = "natsuki/vomit.png"
-
-image n_blackeyes = "images/natsuki/blackeyes.png"
-image n_eye = "images/natsuki/eye.png"
 
 #Definitions for Yuri's sprite.
 image yuri 1 = im.Composite((960, 960), (0, 0), "yuri/1l.png", (0, 0), "yuri/1r.png", (0, 0), "yuri/a.png")
@@ -1043,17 +950,6 @@ image yuri 4bb = im.Composite((960, 960), (0, 0), "yuri/b2.png", (0, 0), "yuri/3
 image yuri 4bc = im.Composite((960, 960), (0, 0), "yuri/c2.png", (0, 0), "yuri/3b.png")
 image yuri 4bd = im.Composite((960, 960), (0, 0), "yuri/d2.png", (0, 0), "yuri/3b.png")
 image yuri 4be = im.Composite((960, 960), (0, 0), "yuri/e2.png", (0, 0), "yuri/3b.png")
-
-image y_glitch_head:
-    "images/yuri/za.png"
-    0.15
-    "images/yuri/zb.png"
-    0.15
-    "images/yuri/zc.png"
-    0.15
-    "images/yuri/zd.png"
-    0.15
-    repeat
 
 image yuri stab_1 = "yuri/stab/1.png"
 image yuri stab_2 = "yuri/stab/2.png"
@@ -1285,7 +1181,7 @@ image monika g2:
 
 #### Definitions of Character and Narrations (the current speaker in the name textbox)
 define narrator = Character(ctc="ctc", ctc_position="fixed")
-define mc = DynamicCharacter('player', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
+define mc = DynamicCharacter('player', image='mc', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
 define s = DynamicCharacter('s_name', image='sayori', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
 define m = DynamicCharacter('m_name', image='monika', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
 define n = DynamicCharacter('n_name', image='natsuki', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
@@ -1293,55 +1189,12 @@ define y = DynamicCharacter('y_name', image='yuri', what_prefix='"', what_suffix
 define ny = Character('Nat & Yuri', what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
 
 #### Defaults, Defines, and Persistents pertaining to the checks found inside of DDLC. ####
-default persistent.yuri_kill = 0
-default persistent.seen_eyes = None
-default persistent.seen_sticker = None
-default persistent.ghost_menu = None
-default persistent.seen_ghost_menu = None
-default seen_eyes_this_chapter = False
-default persistent.special_poems = None
 default persistent.anticheat = 0
-default persistent.menu_bg_m = None
 default persistent.first_poem = None
-default persistent.seen_colors_poem = None
-default persistent.monika_back = None
-default in_sayori_kill = None
-default in_yuri_kill = None
 default anticheat = 0
 define config.mouse = None
-default basedir = config.basedir
 default chapter = 0
-default currentpos = 0
-default faint_effect = None
 default s_name = "Sayori"
 default m_name = "Monika"
 default n_name = "Natsuki"
 default y_name = "Yuri"
-default n_poemappeal = [0, 0, 0]
-default s_poemappeal = [0, 0, 0]
-default y_poemappeal = [0, 0, 0]
-default m_poemappeal = [0, 0, 0]
-default poemwinner = ['sayori', 'sayori', 'sayori']
-default s_readpoem = False
-default n_readpoem = False
-default y_readpoem = False
-default m_readpoem = False
-default n_read3 = False
-default y_read3 = False
-default n_poemearly = False
-default poemsread = 0
-default n_appeal = 0
-default s_appeal = 0
-default y_appeal = 0
-default m_appeal = 0
-default n_exclusivewatched = False
-default y_exclusivewatched = False
-default y_gave = False
-default y_ranaway = False
-default ch1_choice = "sayori"
-default help_sayori = None
-default help_monika = None
-default ch4_scene = "yuri"
-default ch4_name = "Yuri"
-default sayori_confess = True
-default natsuki_23 = None

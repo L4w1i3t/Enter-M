@@ -1,0 +1,2553 @@
+{
+  "builder": "tools/build_kotonoha_sprites.py",
+  "builder_sha256": "af28ab440294f007c8b4680eb67e5038265c05c88c129a071ff5b3b44504c046",
+  "canonical_inputs": {
+    "casual": {
+      "alpha_bbox": [
+        183,
+        66,
+        879,
+        1537
+      ],
+      "path": "game/mod_assets/char_sprites/kotonoha/neutral.png",
+      "sha256": "3cc12dcd7bd018724a7232fe8aeaef505e312f7117b80f284c1b4719ba6a866b"
+    },
+    "work": {
+      "alpha_bbox": [
+        182,
+        60,
+        878,
+        1537
+      ],
+      "path": "game/mod_assets/char_sprites/kotonoha/work.png",
+      "sha256": "72bc79cc551f8895ae66e94aacd551f01dfd7d6e74d35c59863132c0841d889c"
+    }
+  },
+  "canvas": [
+    1023,
+    1537
+  ],
+  "expressions": {
+    "afraid": {
+      "background_anchor_rgb": [
+        250.0,
+        3.0,
+        194.0
+      ],
+      "background_fraction": 0.5534006,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_afraid.png",
+      "master_sha256": "2cf1b3535be49c813d1f45c9c82a79b67c53e317ef7d31b7e2993037b94042b4",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 2,
+          "matrix_master_to_outfit": [
+            [
+              1.0034597243,
+              0.0017041178,
+              -1.0668896881
+            ],
+            [
+              -0.0017041178,
+              1.0034597243,
+              -2.0456885365
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            2.0
+          ],
+          "skin_samples": 7021
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 7,
+          "matrix_master_to_outfit": [
+            [
+              1.0031726979,
+              0.0033651996,
+              -1.953061093
+            ],
+            [
+              -0.0033651996,
+              1.0031726979,
+              -0.4430029558
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            3.0
+          ],
+          "skin_samples": 7051
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 206,
+        "inlier_rmse_pixels": 1.160501,
+        "inliers": 152,
+        "matrix": [
+          [
+            1.0034597243,
+            0.0017041178,
+            -1.0668896881
+          ],
+          [
+            -0.0017041178,
+            1.0034597243,
+            -2.0456885365
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.097302,
+        "scale": 1.003461171,
+        "source_keypoints": 870,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          -1.0668897,
+          -2.0456885
+        ]
+      }
+    },
+    "angry": {
+      "background_anchor_rgb": [
+        222.0,
+        3.0,
+        129.0
+      ],
+      "background_fraction": 0.5523188,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_angry.png",
+      "master_sha256": "97c9effaf2d5df08cd12881f87e888fb238c02337a44305126b49c9fb8f1a41c",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0022157026,
+              -0.0003950439,
+              -0.1415780084
+            ],
+            [
+              0.0003950439,
+              1.0022157026,
+              -1.1683792407
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_samples": 6916
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0019325045,
+              0.0012645725,
+              -1.0265588044
+            ],
+            [
+              -0.0012645725,
+              1.0019325045,
+              0.4325257002
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            0.0
+          ],
+          "skin_samples": 7097
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 203,
+        "inlier_rmse_pixels": 1.059588,
+        "inliers": 154,
+        "matrix": [
+          [
+            1.0022157026,
+            -0.0003950439,
+            -0.1415780084
+          ],
+          [
+            0.0003950439,
+            1.0022157026,
+            -1.1683792407
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0225843,
+        "scale": 1.002215781,
+        "source_keypoints": 788,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          -0.141578,
+          -1.1683792
+        ]
+      }
+    },
+    "annoyed": {
+      "background_anchor_rgb": [
+        213.0,
+        2.0,
+        141.0
+      ],
+      "background_fraction": 0.5517731,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_annoyed.png",
+      "master_sha256": "d8eb1eb836f3a4dc1e0ea72651da8063410c4f48197994ce6011c9b5b85e7284",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0008907819,
+              0.0004849971,
+              0.2419256908
+            ],
+            [
+              -0.0004849971,
+              1.0008907819,
+              -0.1505460654
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "skin_samples": 7033
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0006065018,
+              0.0021421705,
+              -0.6414783584
+            ],
+            [
+              -0.0021421705,
+              1.0006065018,
+              1.4494355809
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            1.0
+          ],
+          "skin_samples": 7165
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 245,
+        "inlier_rmse_pixels": 1.07753,
+        "inliers": 197,
+        "matrix": [
+          [
+            1.0008907819,
+            0.0004849971,
+            0.2419256908
+          ],
+          [
+            -0.0004849971,
+            1.0008907819,
+            -0.1505460654
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0277636,
+        "scale": 1.000890899,
+        "source_keypoints": 903,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.2419257,
+          -0.1505461
+        ]
+      }
+    },
+    "crying": {
+      "background_anchor_rgb": [
+        246.0,
+        3.0,
+        194.0
+      ],
+      "background_fraction": 0.5536353,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_crying.png",
+      "master_sha256": "6c41b1d54ea892e9bf6511fdb451505a88ba43eb50598f1707b67a30350bdbda",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 30,
+          "matrix_master_to_outfit": [
+            [
+              1.0008117465,
+              -0.0003225234,
+              0.6548310009
+            ],
+            [
+              0.0003225234,
+              1.0008117465,
+              -0.5142921972
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7003
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 26,
+          "matrix_master_to_outfit": [
+            [
+              1.0005288258,
+              0.0013347477,
+              -0.2292922971
+            ],
+            [
+              -0.0013347477,
+              1.0005288258,
+              1.0851087677
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            1.0
+          ],
+          "skin_samples": 7195
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 217,
+        "inlier_rmse_pixels": 1.114512,
+        "inliers": 155,
+        "matrix": [
+          [
+            1.0008117465,
+            -0.0003225234,
+            0.6548310009
+          ],
+          [
+            0.0003225234,
+            1.0008117465,
+            -0.5142921972
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0184642,
+        "scale": 1.000811798,
+        "source_keypoints": 844,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.654831,
+          -0.5142922
+        ]
+      }
+    },
+    "curious": {
+      "background_anchor_rgb": [
+        249.0,
+        2.0,
+        159.0
+      ],
+      "background_fraction": 0.5515187,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_curious.png",
+      "master_sha256": "7aa0168476d89b9964b7b71971aa8c322ab568677984283e476ae197f2ca2b3a",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.9997475562,
+              -0.0004554071,
+              1.2044142441
+            ],
+            [
+              0.0004554071,
+              0.9997475562,
+              -0.4057450674
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7045
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.999465157,
+              0.0012001396,
+              0.3203150266
+            ],
+            [
+              -0.0012001396,
+              0.999465157,
+              1.1927151347
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7165
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 234,
+        "inlier_rmse_pixels": 1.099671,
+        "inliers": 187,
+        "matrix": [
+          [
+            0.9997475562,
+            -0.0004554071,
+            1.2044142441
+          ],
+          [
+            0.0004554071,
+            0.9997475562,
+            -0.4057450674
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0260995,
+        "scale": 0.99974766,
+        "source_keypoints": 834,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          1.2044142,
+          -0.4057451
+        ]
+      }
+    },
+    "determined": {
+      "background_anchor_rgb": [
+        180.0,
+        2.0,
+        130.0
+      ],
+      "background_fraction": 0.5530286,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_determined.png",
+      "master_sha256": "69185396c5a0c8c36cbf8261b1be75b21f1e80d780f78baa5c61593eb207debe",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 2,
+          "matrix_master_to_outfit": [
+            [
+              1.0007527203,
+              0.0002240182,
+              0.4402448828
+            ],
+            [
+              -0.0002240182,
+              1.0007527203,
+              -0.2611471997
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7024
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 1,
+          "matrix_master_to_outfit": [
+            [
+              1.0004689114,
+              0.0018810369,
+              -0.4433984727
+            ],
+            [
+              -0.0018810369,
+              1.0004689114,
+              1.3385373876
+            ]
+          ],
+          "skin_offset_rgb": [
+            -1.0,
+            -2.0,
+            0.0
+          ],
+          "skin_samples": 7153
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 248,
+        "inlier_rmse_pixels": 1.08209,
+        "inliers": 202,
+        "matrix": [
+          [
+            1.0007527203,
+            0.0002240182,
+            0.4402448828
+          ],
+          [
+            -0.0002240182,
+            1.0007527203,
+            -0.2611471997
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0128256,
+        "scale": 1.000752745,
+        "source_keypoints": 931,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.4402449,
+          -0.2611472
+        ]
+      }
+    },
+    "disgusted": {
+      "background_anchor_rgb": [
+        251.0,
+        2.0,
+        157.0
+      ],
+      "background_fraction": 0.5515887,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_disgusted.png",
+      "master_sha256": "8e1a102706b3f879c2fb3ac15343b6204850cc8c5b29a071802f093af8a33223",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 1,
+          "matrix_master_to_outfit": [
+            [
+              1.0003120843,
+              -0.0001635884,
+              0.800728454
+            ],
+            [
+              0.0001635884,
+              1.0003120843,
+              -0.183320202
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "skin_samples": 6995
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 1,
+          "matrix_master_to_outfit": [
+            [
+              1.000029042,
+              0.0014928104,
+              -0.0828881307
+            ],
+            [
+              -0.0014928104,
+              1.000029042,
+              1.4157454412
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7173
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 232,
+        "inlier_rmse_pixels": 1.122083,
+        "inliers": 185,
+        "matrix": [
+          [
+            1.0003120843,
+            -0.0001635884,
+            0.800728454
+          ],
+          [
+            0.0001635884,
+            1.0003120843,
+            -0.183320202
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.00937,
+        "scale": 1.000312098,
+        "source_keypoints": 814,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.8007285,
+          -0.1833202
+        ]
+      }
+    },
+    "embarrassed": {
+      "background_anchor_rgb": [
+        238.0,
+        4.0,
+        136.0
+      ],
+      "background_fraction": 0.5512821,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_embarrassed.png",
+      "master_sha256": "ab1733f4e8d48bc01bd9b4474e994014d66f8e990ce6e03f46337af80b431516",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0022357803,
+              -3.13888e-05,
+              0.0030055793
+            ],
+            [
+              3.13888e-05,
+              1.0022357803,
+              -1.8579525929
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "skin_samples": 7008
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0019519743,
+              0.0016281579,
+              -0.8831579865
+            ],
+            [
+              -0.0016281579,
+              1.0019519743,
+              -0.2570917544
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            -1.0
+          ],
+          "skin_samples": 7116
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 261,
+        "inlier_rmse_pixels": 1.001467,
+        "inliers": 203,
+        "matrix": [
+          [
+            1.0022357803,
+            -3.13888e-05,
+            0.0030055793
+          ],
+          [
+            3.13888e-05,
+            1.0022357803,
+            -1.8579525929
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0017944,
+        "scale": 1.002235781,
+        "source_keypoints": 1068,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.0030056,
+          -1.8579526
+        ]
+      }
+    },
+    "empty": {
+      "background_anchor_rgb": [
+        248.0,
+        3.0,
+        180.0
+      ],
+      "background_fraction": 0.5520345,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_empty.png",
+      "master_sha256": "c1b20f9ab925b9e4a3a02d2706c80e5691af69d82cdad2b06c959a5249dca45f",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.000610827,
+              -0.000236711,
+              0.8159736842
+            ],
+            [
+              0.000236711,
+              1.000610827,
+              -0.5232337453
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7012
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0003278211,
+              0.0014202032,
+              -0.0682100592
+            ],
+            [
+              -0.0014202032,
+              1.0003278211,
+              1.0759029262
+            ]
+          ],
+          "skin_offset_rgb": [
+            -1.0,
+            -5.0,
+            0.0
+          ],
+          "skin_samples": 7140
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 208,
+        "inlier_rmse_pixels": 1.035672,
+        "inliers": 153,
+        "matrix": [
+          [
+            1.000610827,
+            -0.000236711,
+            0.8159736842
+          ],
+          [
+            0.000236711,
+            1.000610827,
+            -0.5232337453
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0135543,
+        "scale": 1.000610855,
+        "source_keypoints": 785,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.8159737,
+          -0.5232337
+        ]
+      }
+    },
+    "frustrated": {
+      "background_anchor_rgb": [
+        212.0,
+        5.0,
+        124.0
+      ],
+      "background_fraction": 0.5539908,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_frustrated.png",
+      "master_sha256": "b5b5fa79e509e99d11a23d9b9c0e43ff551d79a57cd7360310a169f1215dbb4b",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0016785552,
+              0.0003914775,
+              -0.3212272853
+            ],
+            [
+              -0.0003914775,
+              1.0016785552,
+              -0.4441731523
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "skin_samples": 7050
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0013942068,
+              0.0020499817,
+              -1.2049580339
+            ],
+            [
+              -0.0020499817,
+              1.0013942068,
+              1.1568241452
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -1.0,
+            1.0
+          ],
+          "skin_samples": 7138
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 274,
+        "inlier_rmse_pixels": 1.037895,
+        "inliers": 209,
+        "matrix": [
+          [
+            1.0016785552,
+            0.0003914775,
+            -0.3212272853
+          ],
+          [
+            -0.0003914775,
+            1.0016785552,
+            -0.4441731523
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0223924,
+        "scale": 1.001678632,
+        "source_keypoints": 1035,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          -0.3212273,
+          -0.4441732
+        ]
+      }
+    },
+    "happy": {
+      "background_anchor_rgb": [
+        246.0,
+        3.0,
+        172.0
+      ],
+      "background_fraction": 0.5520479,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_happy.png",
+      "master_sha256": "1cf2459a6ad8a82fba6df46863ae07d7e9518f343638ec7ef702512996a957f3",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0004005049,
+              0.0009259542,
+              0.0133562673
+            ],
+            [
+              -0.0009259542,
+              1.0004005049,
+              -0.0216666879
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7066
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 2,
+          "matrix_master_to_outfit": [
+            [
+              1.0001156335,
+              0.0025821908,
+              -0.8697696423
+            ],
+            [
+              -0.0025821908,
+              1.0001156335,
+              1.57865693
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7143
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 235,
+        "inlier_rmse_pixels": 1.111629,
+        "inliers": 173,
+        "matrix": [
+          [
+            1.0004005049,
+            0.0009259542,
+            0.0133562673
+          ],
+          [
+            -0.0009259542,
+            1.0004005049,
+            -0.0216666879
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.053032,
+        "scale": 1.000400933,
+        "source_keypoints": 883,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.0133563,
+          -0.0216667
+        ]
+      }
+    },
+    "nervous": {
+      "background_anchor_rgb": [
+        233.0,
+        5.0,
+        168.0
+      ],
+      "background_fraction": 0.5532899,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_nervous.png",
+      "master_sha256": "493d2f461b1c97fd049982ada66b8c1e197f1a7b74cdfed08e4ce004d19014bf",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0016041804,
+              9.77874e-05,
+              0.1237013741
+            ],
+            [
+              -9.77874e-05,
+              1.0016041804,
+              -0.7763621869
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -2.0,
+            -1.0
+          ],
+          "skin_samples": 7050
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0013203393,
+              0.0017562517,
+              -0.7607054398
+            ],
+            [
+              -0.0017562517,
+              1.0013203393,
+              0.8239924661
+            ]
+          ],
+          "skin_offset_rgb": [
+            -1.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7174
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 244,
+        "inlier_rmse_pixels": 1.064952,
+        "inliers": 202,
+        "matrix": [
+          [
+            1.0016041804,
+            9.77874e-05,
+            0.1237013741
+          ],
+          [
+            -9.77874e-05,
+            1.0016041804,
+            -0.7763621869
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0055938,
+        "scale": 1.001604185,
+        "source_keypoints": 871,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.1237014,
+          -0.7763622
+        ]
+      }
+    },
+    "panicked": {
+      "background_anchor_rgb": [
+        233.0,
+        2.0,
+        151.0
+      ],
+      "background_fraction": 0.5521051,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_panicked.png",
+      "master_sha256": "cdf20965973b6504eaf09060f12f6904cb2a5f8f01a628f691694230fc27d5d2",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0005117018,
+              6.35365e-05,
+              0.765024391
+            ],
+            [
+              -6.35365e-05,
+              1.0005117018,
+              -0.3158573094
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "skin_samples": 6944
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0002282269,
+              0.0017202015,
+              -0.118801541
+            ],
+            [
+              -0.0017202015,
+              1.0002282269,
+              1.2833049916
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            1.0
+          ],
+          "skin_samples": 7137
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 231,
+        "inlier_rmse_pixels": 1.126404,
+        "inliers": 186,
+        "matrix": [
+          [
+            1.0005117018,
+            6.35365e-05,
+            0.765024391
+          ],
+          [
+            -6.35365e-05,
+            1.0005117018,
+            -0.3158573094
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0036385,
+        "scale": 1.000511704,
+        "source_keypoints": 842,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.7650244,
+          -0.3158573
+        ]
+      }
+    },
+    "sad": {
+      "background_anchor_rgb": [
+        247.0,
+        3.0,
+        156.0
+      ],
+      "background_fraction": 0.552846,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_sad.png",
+      "master_sha256": "bbfc5c6d075a8919678babc1f908dbe12ab94d15d9ec8ff524e599d634d973f7",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 1,
+          "matrix_master_to_outfit": [
+            [
+              1.0009129889,
+              0.0003291184,
+              0.4354398652
+            ],
+            [
+              -0.0003291184,
+              1.0009129889,
+              -0.4885474945
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -2.0,
+            0.0
+          ],
+          "skin_samples": 7066
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 2,
+          "matrix_master_to_outfit": [
+            [
+              1.0006289606,
+              0.0019863726,
+              -0.4485786668
+            ],
+            [
+              -0.0019863726,
+              1.0006289606,
+              1.1112094545
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7195
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 203,
+        "inlier_rmse_pixels": 1.017232,
+        "inliers": 150,
+        "matrix": [
+          [
+            1.0009129889,
+            0.0003291184,
+            0.4354398652
+          ],
+          [
+            -0.0003291184,
+            1.0009129889,
+            -0.4885474945
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0188399,
+        "scale": 1.000913043,
+        "source_keypoints": 795,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.4354399,
+          -0.4885475
+        ]
+      }
+    },
+    "shocked": {
+      "background_anchor_rgb": [
+        247.0,
+        3.0,
+        145.0
+      ],
+      "background_fraction": 0.5526368,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_shocked.png",
+      "master_sha256": "4a744eea6c0364482574b4110c0041fa274ea5420db5ad2d471ca1afde036b2b",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.998535345,
+              0.0007553134,
+              1.5315334696
+            ],
+            [
+              -0.0007553134,
+              0.998535345,
+              0.2766063711
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "skin_samples": 6932
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.9982512844,
+              0.0024085099,
+              0.6484714657
+            ],
+            [
+              -0.0024085099,
+              0.9982512844,
+              1.8743316586
+            ]
+          ],
+          "skin_offset_rgb": [
+            -1.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7113
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 209,
+        "inlier_rmse_pixels": 1.155359,
+        "inliers": 141,
+        "matrix": [
+          [
+            0.998535345,
+            0.0007553134,
+            1.5315334696
+          ],
+          [
+            -0.0007553134,
+            0.998535345,
+            0.2766063711
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0433397,
+        "scale": 0.998535631,
+        "source_keypoints": 773,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          1.5315335,
+          0.2766064
+        ]
+      }
+    },
+    "smug": {
+      "background_anchor_rgb": [
+        235.0,
+        6.0,
+        171.0
+      ],
+      "background_fraction": 0.5524708,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_smug.png",
+      "master_sha256": "59ac574fe8a4d20094ae55f80aea2c28a11eb5a60a2f88ae812788c409ce90ff",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 3,
+          "matrix_master_to_outfit": [
+            [
+              1.000956972,
+              0.0004632146,
+              0.1517554228
+            ],
+            [
+              -0.0004632146,
+              1.000956972,
+              -0.2467871481
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7054
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 3,
+          "matrix_master_to_outfit": [
+            [
+              1.0006727092,
+              0.0021205037,
+              -0.7317824474
+            ],
+            [
+              -0.0021205037,
+              1.0006727092,
+              1.3533710632
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -3.0,
+            1.0
+          ],
+          "skin_samples": 7188
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 233,
+        "inlier_rmse_pixels": 1.110467,
+        "inliers": 169,
+        "matrix": [
+          [
+            1.000956972,
+            0.0004632146,
+            0.1517554228
+          ],
+          [
+            -0.0004632146,
+            1.000956972,
+            -0.2467871481
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0265149,
+        "scale": 1.000957079,
+        "source_keypoints": 869,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.1517554,
+          -0.2467871
+        ]
+      }
+    },
+    "teasing": {
+      "background_anchor_rgb": [
+        242.0,
+        3.0,
+        133.0
+      ],
+      "background_fraction": 0.5541021,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_teasing.png",
+      "master_sha256": "a807b2968aa91e2f1f220c7183e0f4c3564bf06300449daafd82e282eb12ca0a",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0017948252,
+              -0.000471121,
+              0.2527070741
+            ],
+            [
+              0.000471121,
+              1.0017948252,
+              -0.7982080987
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7020
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0015118722,
+              0.00118782,
+              -0.6317724506
+            ],
+            [
+              -0.00118782,
+              1.0015118722,
+              0.8019391292
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            0.0
+          ],
+          "skin_samples": 7143
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 213,
+        "inlier_rmse_pixels": 1.103681,
+        "inliers": 167,
+        "matrix": [
+          [
+            1.0017948252,
+            -0.000471121,
+            0.2527070741
+          ],
+          [
+            0.000471121,
+            1.0017948252,
+            -0.7982080987
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.0269449,
+        "scale": 1.001794936,
+        "source_keypoints": 804,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.2527071,
+          -0.7982081
+        ]
+      }
+    },
+    "thinking": {
+      "background_anchor_rgb": [
+        230.0,
+        2.0,
+        137.0
+      ],
+      "background_fraction": 0.5525236,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_thinking.png",
+      "master_sha256": "88173058f1f7de65b1ea703559643754668e6a4dd4f6567e3005bc5dc1951037",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.9998318278,
+              0.0003207707,
+              0.9735424645
+            ],
+            [
+              -0.0003207707,
+              0.9998318278,
+              -0.0747010958
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          "skin_samples": 7034
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              0.9995481195,
+              0.0019762371,
+              0.09005679
+            ],
+            [
+              -0.0019762371,
+              0.9995481195,
+              1.5240476321
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            0.0
+          ],
+          "skin_samples": 7145
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 224,
+        "inlier_rmse_pixels": 1.124035,
+        "inliers": 181,
+        "matrix": [
+          [
+            0.9998318278,
+            0.0003207707,
+            0.9735424645
+          ],
+          [
+            -0.0003207707,
+            0.9998318278,
+            -0.0747010958
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0183819,
+        "scale": 0.999831879,
+        "source_keypoints": 853,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.9735425,
+          -0.0747011
+        ]
+      }
+    },
+    "unamused": {
+      "background_anchor_rgb": [
+        211.0,
+        2.0,
+        131.0
+      ],
+      "background_fraction": 0.5526323,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_unamused.png",
+      "master_sha256": "6b9afbaef9f15baea016cf038fd4c3d466311af668de7c6170844eb60f4ec32d",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0004947743,
+              0.0003253067,
+              0.5981178373
+            ],
+            [
+              -0.0003253067,
+              1.0004947743,
+              -0.3691866138
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            0.0,
+            1.0
+          ],
+          "skin_samples": 7060
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0002108708,
+              0.0019818695,
+              -0.2857491272
+            ],
+            [
+              -0.0019818695,
+              1.0002108708,
+              1.2302671612
+            ]
+          ],
+          "skin_offset_rgb": [
+            0.0,
+            -2.0,
+            1.0
+          ],
+          "skin_samples": 7163
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 250,
+        "inlier_rmse_pixels": 1.090267,
+        "inliers": 201,
+        "matrix": [
+          [
+            1.0004947743,
+            0.0003253067,
+            0.5981178373
+          ],
+          [
+            -0.0003253067,
+            1.0004947743,
+            -0.3691866138
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": -0.0186295,
+        "scale": 1.000494827,
+        "source_keypoints": 912,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.5981178,
+          -0.3691866
+        ]
+      }
+    },
+    "worried": {
+      "background_anchor_rgb": [
+        233.0,
+        2.0,
+        151.0
+      ],
+      "background_fraction": 0.5521146,
+      "master": "tmp/kotonoha_sprite_build/masters/expression_worried.png",
+      "master_sha256": "fa507783b449ed233edde2550ee27c120ed113e4a3c47b5645ad59d46521b1c9",
+      "outfits": {
+        "casual": {
+          "canonical_detail_pixels_preserved": 43285,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0012097615,
+              -0.0003162526,
+              0.432983836
+            ],
+            [
+              0.0003162526,
+              1.0012097615,
+              -0.5994603877
+            ]
+          ],
+          "skin_offset_rgb": [
+            1.0,
+            -2.0,
+            -1.0
+          ],
+          "skin_samples": 7013
+        },
+        "work": {
+          "canonical_detail_pixels_preserved": 43420,
+          "magenta_pixels_repaired": 0,
+          "matrix_master_to_outfit": [
+            [
+              1.0009267177,
+              0.0013416758,
+              -0.451217654
+            ],
+            [
+              -0.0013416758,
+              1.0009267177,
+              1.0003320413
+            ]
+          ],
+          "skin_offset_rgb": [
+            -1.0,
+            -3.0,
+            0.0
+          ],
+          "skin_samples": 7164
+        }
+      },
+      "registration_to_casual": {
+        "good_matches": 258,
+        "inlier_rmse_pixels": 1.080634,
+        "inliers": 214,
+        "matrix": [
+          [
+            1.0012097615,
+            -0.0003162526,
+            0.432983836
+          ],
+          [
+            0.0003162526,
+            1.0012097615,
+            -0.5994603877
+          ]
+        ],
+        "method": "lavender_hair_sift_ransac",
+        "rotation_degrees": 0.018098,
+        "scale": 1.001209811,
+        "source_keypoints": 942,
+        "target_keypoints": 981,
+        "translation_pixels": [
+          0.4329838,
+          -0.5994604
+        ]
+      }
+    }
+  },
+  "face_masks": {
+    "casual": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "opaque_pixels": 52982,
+      "partial_alpha_pixels": 17836,
+      "unique_alpha_levels": 256,
+      "visible_pixels": 70818
+    },
+    "work": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "opaque_pixels": 52900,
+      "partial_alpha_pixels": 18050,
+      "unique_alpha_levels": 256,
+      "visible_pixels": 70950
+    }
+  },
+  "face_outputs": {
+    "face_afraid_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "e370940066f5ed8c2a6eebf562419b67cb73fb179b45de91f351c01635b875e8",
+      "visible_pixels": 70818
+    },
+    "face_afraid_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "d572513142d23cb1257918d5d071ceabd77dda76baa690decd9ce53c11100e01",
+      "visible_pixels": 70950
+    },
+    "face_angry_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "e0d6e93137f6330a05e310e161f734963cb383355c4c68cd3a6a7ce4c492428a",
+      "visible_pixels": 70818
+    },
+    "face_angry_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "4256fcb5e3890e33049cb8e08631efc76c2e52c9f21d1d306272f2ebe786dda7",
+      "visible_pixels": 70950
+    },
+    "face_annoyed_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "1d1f5dfc7950ccf457ab6879c286ed0b2b1ea7b5b48c66a01f28a045a5ce9ee6",
+      "visible_pixels": 70818
+    },
+    "face_annoyed_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "27854a96a6be62a1da237cc76756d6b0d8b7d74aa2c3a86c27cf78321bbac3d2",
+      "visible_pixels": 70950
+    },
+    "face_crying_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "4129326827248b859f0d66462fb80c11e601099f9081b0e02248905448194564",
+      "visible_pixels": 70818
+    },
+    "face_crying_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "4bc21a2a8d34851c380d0b0ee4fcdfd068182e88aa15ae7e7f03317c17103a4b",
+      "visible_pixels": 70950
+    },
+    "face_curious_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "b4e578e7d3b457aca0ae70b3c200badc95982154b5d5f405862537954acf56a2",
+      "visible_pixels": 70818
+    },
+    "face_curious_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "540916290ffdd024aca3630e0d1fa391797175263680bb89f82238a67f9022f2",
+      "visible_pixels": 70950
+    },
+    "face_determined_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "64b0c7f8864c8451f1f186b3bed29e139e9d43e9e08419cc183fb2aea0fa0524",
+      "visible_pixels": 70818
+    },
+    "face_determined_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "04980f97c2237ade97eccc732758716392faf31629428396378121144bc384be",
+      "visible_pixels": 70950
+    },
+    "face_disgusted_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "5f41eab72dd113a2dd6d678f928c49d39b5265eb5547c4ca45ac210c211dcefa",
+      "visible_pixels": 70818
+    },
+    "face_disgusted_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "a51972c17292189f1d1575c9cf2de91a3f447caf89094a8e6ee28c386d82c65e",
+      "visible_pixels": 70950
+    },
+    "face_embarrassed_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "5268073574fb828ebab63f12df38ceeeb57f913c1b2f67b8e0f096ba69d92fc2",
+      "visible_pixels": 70818
+    },
+    "face_embarrassed_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "0f133ad2eb5fc6d99ae233f947647cb86590a9770e82bab3da196161c39b744e",
+      "visible_pixels": 70950
+    },
+    "face_empty_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "98e812c917b09c890c68018dd1dcdf398dcaeb79dfe4f2282444ebbb2fc005f7",
+      "visible_pixels": 70818
+    },
+    "face_empty_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "fe384e722164315dcab829c4a02a07a227722339a9ac7095be7ba82dbf4ff522",
+      "visible_pixels": 70950
+    },
+    "face_frustrated_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "e72184325ea9450484b086a9767a0bfddbc0c9b322f27c7bca9767956af8253e",
+      "visible_pixels": 70818
+    },
+    "face_frustrated_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "ba0ae58f6d24ab9f928ca409be752a4cb8fe2fc1cc9b58fa15507771c823c387",
+      "visible_pixels": 70950
+    },
+    "face_happy_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "8ef1e44c9a9688c897891e608becabf857f5be543968935c5cb901b98c2302cf",
+      "visible_pixels": 70818
+    },
+    "face_happy_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "ed196e2e1e2a3b33d15b1a60a64211f3e00ee036fe221ed6a72873a867355988",
+      "visible_pixels": 70950
+    },
+    "face_nervous_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "14eb8e24f0b2164821816c462038e525861b4cebd086a2d9f44e6ee0bae975f6",
+      "visible_pixels": 70818
+    },
+    "face_nervous_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "f74102797d177f655ea2ad2712c14849db343c2d45bc039ec4c39e95f520683f",
+      "visible_pixels": 70950
+    },
+    "face_neut_casual.png": {
+      "alpha_bbox": null,
+      "partial_alpha_pixels": 0,
+      "sha256": "f4857bf4f9b93145db14a25b9406d3c76b5d48f6ea171aadf2e7778c0fcb5e6c",
+      "visible_pixels": 0
+    },
+    "face_neut_work.png": {
+      "alpha_bbox": null,
+      "partial_alpha_pixels": 0,
+      "sha256": "f4857bf4f9b93145db14a25b9406d3c76b5d48f6ea171aadf2e7778c0fcb5e6c",
+      "visible_pixels": 0
+    },
+    "face_panicked_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "f34aaae53c5eb6e6d3839c759e3fd63fad5f1511392f61c9e98a3e8f40052cf0",
+      "visible_pixels": 70818
+    },
+    "face_panicked_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "9e41f017ef2ed01b7670865633b7e756ff46b349475535529ebcb899afe4475e",
+      "visible_pixels": 70950
+    },
+    "face_sad_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "8f9930796b349cfbc0324c02bb4c8f8b146a775f593db890c1bb1d3b090304e1",
+      "visible_pixels": 70818
+    },
+    "face_sad_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "9cf392f40cb4ac13ed4acd1f36bbff30383fa00a3deba20a9be6d52bf1e20a3c",
+      "visible_pixels": 70950
+    },
+    "face_shocked_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "cf61f91d0b75ce934ce7c759ae84aab10c3b66d535ff63d48ff66fad1a2d30b9",
+      "visible_pixels": 70818
+    },
+    "face_shocked_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "c1bf2cb718fb24669bb1036a19370d0c11ba327a6593975d454ee5de24c18129",
+      "visible_pixels": 70950
+    },
+    "face_smug_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "181d02b691006aa9ac4ece9ef3ef0d4402c39ece89bf66e6eea8cb75a09e8713",
+      "visible_pixels": 70818
+    },
+    "face_smug_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "9369e4de8eb2e6c1896c3e910f4374010cd69a301a1aff443169139c29e2a94d",
+      "visible_pixels": 70950
+    },
+    "face_teasing_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "3e946a43868b92d2baa2c5a8ae189cd44b6b7934be0c70c36c50a4dfc9feefae",
+      "visible_pixels": 70818
+    },
+    "face_teasing_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "af820ead9ffdb5383c683b4e35e1c130c7b8a2c45c461665fa415c6bd68a81cf",
+      "visible_pixels": 70950
+    },
+    "face_thinking_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "58d419a012fdaeac17c3adc88bccef56466b1a8ac24cce15f60c716e2e7fbe5f",
+      "visible_pixels": 70818
+    },
+    "face_thinking_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "b8ccd62ca910d931278b7434a4d9dfcc1f4961bd2e454dc2c9a399d2b110a450",
+      "visible_pixels": 70950
+    },
+    "face_unamused_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "c1c85f735e31a77c37c749f8ff018de0a135db5ad099f2d42e09a5b17841b8fb",
+      "visible_pixels": 70818
+    },
+    "face_unamused_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "3b183a0b428106192e9b58e011a30d04a9d600bdc77c04fc095531230f43a600",
+      "visible_pixels": 70950
+    },
+    "face_worried_casual.png": {
+      "alpha_bbox": [
+        351,
+        186,
+        657,
+        487
+      ],
+      "partial_alpha_pixels": 17836,
+      "sha256": "852e1b9f68e2d00ff06bb9c9aa230f9bdbfdf05d5ee976824a09a41b3bf6f57f",
+      "visible_pixels": 70818
+    },
+    "face_worried_work.png": {
+      "alpha_bbox": [
+        350,
+        187,
+        657,
+        488
+      ],
+      "partial_alpha_pixels": 18050,
+      "sha256": "b359950bfff4dc460b055875523b434f0e4457450dcda61ede55707e90717ced",
+      "visible_pixels": 70950
+    }
+  },
+  "generated_at_utc": "2026-08-25T04:27:43.765602+00:00",
+  "installed_runtime_names": [
+    "face_afraid_casual.png",
+    "face_afraid_work.png",
+    "face_angry_casual.png",
+    "face_angry_work.png",
+    "face_annoyed_casual.png",
+    "face_annoyed_work.png",
+    "face_crying_casual.png",
+    "face_crying_work.png",
+    "face_curious_casual.png",
+    "face_curious_work.png",
+    "face_determined_casual.png",
+    "face_determined_work.png",
+    "face_disgusted_casual.png",
+    "face_disgusted_work.png",
+    "face_embarrassed_casual.png",
+    "face_embarrassed_work.png",
+    "face_empty_casual.png",
+    "face_empty_work.png",
+    "face_frustrated_casual.png",
+    "face_frustrated_work.png",
+    "face_happy_casual.png",
+    "face_happy_work.png",
+    "face_nervous_casual.png",
+    "face_nervous_work.png",
+    "face_neut_casual.png",
+    "face_neut_work.png",
+    "face_panicked_casual.png",
+    "face_panicked_work.png",
+    "face_sad_casual.png",
+    "face_sad_work.png",
+    "face_shocked_casual.png",
+    "face_shocked_work.png",
+    "face_smug_casual.png",
+    "face_smug_work.png",
+    "face_teasing_casual.png",
+    "face_teasing_work.png",
+    "face_thinking_casual.png",
+    "face_thinking_work.png",
+    "face_unamused_casual.png",
+    "face_unamused_work.png",
+    "face_worried_casual.png",
+    "face_worried_work.png",
+    "pose_exact_fold_work.png",
+    "pose_open_hands_casual.png",
+    "pose_watching_casual.png"
+  ],
+  "outfit_registration": {
+    "good_matches": 129,
+    "inlier_rmse_pixels": 1.292018,
+    "inliers": 72,
+    "matrix": [
+      [
+        0.9997167752,
+        0.0016558357,
+        -0.8830862503
+      ],
+      [
+        -0.0016558357,
+        0.9997167752,
+        1.6003395971
+      ]
+    ],
+    "method": "lavender_hair_sift_ransac",
+    "rotation_degrees": -0.0948992,
+    "scale": 0.999718147,
+    "source_keypoints": 946,
+    "target_keypoints": 623,
+    "translation_pixels": [
+      -0.8830863,
+      1.6003396
+    ]
+  },
+  "policy": {
+    "canonical_sources_only": [
+      "game/mod_assets/char_sprites/kotonoha/neutral.png",
+      "game/mod_assets/char_sprites/kotonoha/work.png"
+    ],
+    "clean_room": true,
+    "existing_face_or_pose_assets_opened": false,
+    "installed": true,
+    "legacy_kotonoha_art_opened": false,
+    "mid_thigh_pose_framing": true
+  },
+  "poses": {
+    "pose_exact_fold_work.png": {
+      "alpha_bbox": [
+        161,
+        57,
+        877,
+        1537
+      ],
+      "bottom_contact_pixels": 305,
+      "chroma_key": {
+        "background_key": {
+          "background_core_threshold": 239.1,
+          "foreground_core_threshold": 24.0,
+          "sample_rgb_median": [
+            250.0,
+            3.0,
+            246.0
+          ],
+          "score_median": 243.1,
+          "support_threshold": 195.1
+        },
+        "component_cleanup": {
+          "seed_components_kept": 2,
+          "seed_components_removed": 0,
+          "seed_components_total": 2,
+          "seed_pixels_removed": 0,
+          "soft_seed_components_kept": 18,
+          "soft_seed_components_removed": 15,
+          "soft_seed_components_total": 33,
+          "soft_seed_pixels_removed": 15
+        }
+      },
+      "component_cleanup": {
+        "components_after": 2,
+        "components_before": 271,
+        "components_removed": 269,
+        "kept_component_pixel_counts": [
+          673598,
+          64
+        ],
+        "minimum_component_pixels": 32,
+        "pixels_removed": 1288
+      },
+      "edge_residue_cleanup": {
+        "cyan_green_pixels_replaced": 253,
+        "edge_radius_pixels": 24.0,
+        "magenta_pixels_replaced": 2104,
+        "total_pixels_replaced": 2753,
+        "white_pixels_replaced": 396
+      },
+      "fringe_cleanup": {
+        "partial_alpha_rgb_replaced_from_nearest_safe_core": 29215,
+        "screen_like_pixels_before": 149,
+        "screen_like_pixels_replaced_after_fringe": 136
+      },
+      "master": "tmp/kotonoha_sprite_build/masters/pose_exact_fold_work.png",
+      "master_sha256": "9559ccd91d0ddc6961e5c0d7c5f232dacf628c36dff343972186709b3a387c12",
+      "matrix": [
+        [
+          1.5580421945,
+          0.0191377504,
+          -298.8253867174
+        ],
+        [
+          -0.0191377504,
+          1.5580421945,
+          12.6128334332
+        ]
+      ],
+      "outfit": "work",
+      "output_sha256": "0e68606a88daddaa2b572d6ba6431d37e0d1152edf9b64c6f7736c8ae450b2ba",
+      "rotation_degrees": -0.70374,
+      "scale": 1.55815973,
+      "source_iris_centers": [
+        [
+          473.27376,
+          198.69962
+        ],
+        [
+          547.66667,
+          190.62593
+        ]
+      ],
+      "target_iris_centers": [
+        [
+          442.35777,
+          313.13783
+        ],
+        [
+          558.11054,
+          299.13496
+        ]
+      ],
+      "translation_pixels": [
+        -298.825387,
+        12.612833
+      ],
+      "visible_pixels": 673662
+    },
+    "pose_open_hands_casual.png": {
+      "alpha_bbox": [
+        154,
+        64,
+        885,
+        1537
+      ],
+      "bottom_contact_pixels": 298,
+      "chroma_key": {
+        "background_key": {
+          "background_core_threshold": 227.74,
+          "foreground_core_threshold": 24.0,
+          "sample_rgb_median": [
+            247.0,
+            8.0,
+            241.0
+          ],
+          "score_median": 231.92,
+          "support_threshold": 183.92
+        },
+        "component_cleanup": {
+          "seed_components_kept": 3,
+          "seed_components_removed": 0,
+          "seed_components_total": 3,
+          "seed_pixels_removed": 0,
+          "soft_seed_components_kept": 10,
+          "soft_seed_components_removed": 2,
+          "soft_seed_components_total": 12,
+          "soft_seed_pixels_removed": 2
+        }
+      },
+      "component_cleanup": {
+        "components_after": 1,
+        "components_before": 81,
+        "components_removed": 80,
+        "kept_component_pixel_counts": [
+          716833
+        ],
+        "minimum_component_pixels": 32,
+        "pixels_removed": 197
+      },
+      "edge_residue_cleanup": {
+        "cyan_green_pixels_replaced": 170,
+        "edge_radius_pixels": 24.0,
+        "magenta_pixels_replaced": 1106,
+        "total_pixels_replaced": 1350,
+        "white_pixels_replaced": 74
+      },
+      "fringe_cleanup": {
+        "partial_alpha_rgb_replaced_from_nearest_safe_core": 20608,
+        "screen_like_pixels_before": 92,
+        "screen_like_pixels_replaced_after_fringe": 82
+      },
+      "master": "tmp/kotonoha_sprite_build/masters/pose_open_hands_casual.png",
+      "master_sha256": "1b416479caa1993bff334f661474633f04d83fa8ebe92a998f3df5298a07f205",
+      "matrix": [
+        [
+          1.0016834888,
+          0.0080926242,
+          -2.3440269999
+        ],
+        [
+          -0.0080926242,
+          1.0016834888,
+          2.7446568199
+        ]
+      ],
+      "outfit": "casual",
+      "output_sha256": "8da3a351013f0be024e6427cef0d06d22165515be81968f0a30e2bb8637d81dd",
+      "rotation_degrees": -0.462884,
+      "scale": 1.00171618,
+      "source_iris_centers": [
+        [
+          441.438,
+          312.73913
+        ],
+        [
+          557.61994,
+          300.63295
+        ]
+      ],
+      "target_iris_centers": [
+        [
+          442.36801,
+          312.43789
+        ],
+        [
+          558.64757,
+          299.37111
+        ]
+      ],
+      "translation_pixels": [
+        -2.344027,
+        2.744657
+      ],
+      "visible_pixels": 716833
+    },
+    "pose_watching_casual.png": {
+      "alpha_bbox": [
+        164,
+        62,
+        900,
+        1537
+      ],
+      "bottom_contact_pixels": 537,
+      "chroma_key": {
+        "background_key": {
+          "background_core_threshold": 240.28,
+          "foreground_core_threshold": 24.0,
+          "sample_rgb_median": [
+            251.0,
+            3.0,
+            248.0
+          ],
+          "score_median": 244.46,
+          "support_threshold": 196.46
+        },
+        "component_cleanup": {
+          "seed_components_kept": 1,
+          "seed_components_removed": 0,
+          "seed_components_total": 1,
+          "seed_pixels_removed": 0,
+          "soft_seed_components_kept": 16,
+          "soft_seed_components_removed": 18,
+          "soft_seed_components_total": 34,
+          "soft_seed_pixels_removed": 18
+        }
+      },
+      "component_cleanup": {
+        "components_after": 2,
+        "components_before": 252,
+        "components_removed": 250,
+        "kept_component_pixel_counts": [
+          750733,
+          59
+        ],
+        "minimum_component_pixels": 32,
+        "pixels_removed": 830
+      },
+      "edge_residue_cleanup": {
+        "cyan_green_pixels_replaced": 745,
+        "edge_radius_pixels": 24.0,
+        "magenta_pixels_replaced": 2601,
+        "total_pixels_replaced": 3762,
+        "white_pixels_replaced": 416
+      },
+      "fringe_cleanup": {
+        "partial_alpha_rgb_replaced_from_nearest_safe_core": 31508,
+        "screen_like_pixels_before": 193,
+        "screen_like_pixels_replaced_after_fringe": 139
+      },
+      "master": "tmp/kotonoha_sprite_build/masters/pose_watching_casual.png",
+      "master_sha256": "04eb2c320603fcc41389a1ba8bddc317e1a21b1d225b29e7c5bf097fbe365e8d",
+      "matrix": [
+        [
+          1.7041992029,
+          -0.04942341,
+          -325.0655152694
+        ],
+        [
+          0.04942341,
+          1.7041992029,
+          -28.0639711481
+        ]
+      ],
+      "outfit": "casual",
+      "output_sha256": "cb1cb2ddc4a2b3ef0f22b975b0b2f84fcc4ca76f6e53ad0738a67f1bc6536beb",
+      "rotation_degrees": 1.661167,
+      "scale": 1.70491572,
+      "source_iris_centers": [
+        [
+          455.73029,
+          186.58506
+        ],
+        [
+          523.68198,
+          176.947
+        ]
+      ],
+      "target_iris_centers": [
+        [
+          442.36801,
+          312.43789
+        ],
+        [
+          558.64757,
+          299.37111
+        ]
+      ],
+      "translation_pixels": [
+        -325.065515,
+        -28.063971
+      ],
+      "visible_pixels": 750792
+    }
+  },
+  "reviews": {
+    "directory": "tmp/kotonoha_sprite_build/review",
+    "sha256": {
+      "expressions_checker.png": "dd2e82232592b56331d626643f28573bc5c254446f940ec257151f4b6fcc3aa9",
+      "expressions_dark.png": "d8bdb7371245ef4faaa3822a03ea0fe445caf78f980bca7ef6a7fc4595928281",
+      "expressions_gray.png": "f94cffb1d518bb3eb10c357dbdd59f5a40f5cd906b57f01f7ef9c846961e3a33",
+      "expressions_green.png": "c9eabb5ceb903025db2d646c54f9b122d8c08d58c924c4e6076d81d8258504f2",
+      "expressions_light.png": "4d2035b17a71a12a3b1a1fced2275ff6502696a05a6df837eafb78289ae27fe0",
+      "heads_checker.png": "4223410cf948ff53b2c76b0bd12ddd6dfe9de5f1618c523ddf5aa912561b456a",
+      "heads_dark.png": "d0b914d6ccee625d5578fa0c4f49c1e728ccf65f7defa3e356f23afdc0b35620",
+      "heads_gray.png": "c1fca17870ff75e80f56da0bdee1f4154ff9c3d3fe2ab04632421f5692d81352",
+      "heads_green.png": "9d4b7b3591a250c5f21f8db4d8f801c5581b157873a3827c5e9b7890789e672e",
+      "heads_light.png": "54dbccdb8d1a9f204cf32f042674b251073966bcf045a40b2d9c4c3c61d00b1a",
+      "poses_checker.png": "20956fccd44bc14473d514df45ab823b2958b669d5b45a747ce8e94f4cf222c7",
+      "poses_dark.png": "a3d1de0819e2b464b0c3ed5539dc7216ef0d8d3d39df0cb31243a00ad2417452",
+      "poses_gray.png": "db7fe35d82356155066c7e61a1042656a571c84f2e2178bb006f7fbf553d9c88",
+      "poses_green.png": "893f39012a47c733ebeceb442d54e7c41d49b35b0c0063a254b64deef453442a",
+      "poses_light.png": "b10c696239305977bbfc41f33f0ea7a78a1e15ceb9a2433aa4cb9e687809b701"
+    }
+  },
+  "schema_version": 1
+}

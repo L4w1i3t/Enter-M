@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "input": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\arms_reserved_uniform_raw.png",
+  "source_canvas": [
+    1024,
+    1536
+  ],
+  "target_canvas": [
+    1024,
+    1536
+  ],
+  "scale": 0.7,
+  "source_anchor": [
+    512.0,
+    665.0
+  ],
+  "target_anchor": [
+    512.0,
+    810.0
+  ],
+  "translate_x": 153.6,
+  "translate_y": 344.5,
+  "placed_foreground_bbox": [
+    344,
+    808,
+    679,
+    1322
+  ],
+  "hidden_rgb_values_under_zero_alpha": 0,
+  "matte": {
+    "checker_palette_rgb": [
+      [
+        254.0,
+        254.0,
+        254.0
+      ],
+      [
+        249.0,
+        249.0,
+        249.0
+      ]
+    ],
+    "checker_minimum_channel_threshold": 235,
+    "checker_chroma_threshold": 20,
+    "checker_palette_tolerance": 17.0,
+    "neutral_frame_fraction": 1.0,
+    "edge_checker_fraction": 1.0,
+    "canvas_checker_pixels": 1458089,
+    "enclosed_checker_pixels": 0,
+    "neutral_fringe_pixels_removed": 309,
+    "hard_foreground_pixels": 114466,
+    "hard_foreground_fraction": 0.072776,
+    "checker_dark_luminance": 249.8615,
+    "checker_light_luminance": 253.6171,
+    "checker_phase_frame_accuracy": 0.856988,
+    "candidate_component_count": 8,
+    "canvas_checker_components": 1,
+    "enclosed_checker_components": 0,
+    "phase_matched_checker_components": 0,
+    "large_enclosed_gap_components": 0,
+    "top_hair_checker_components": 0,
+    "small_skin_gap_checker_components": 0,
+    "protected_pale_components": 2,
+    "largest_protected_pale_components": [
+      {
+        "bbox": [
+          407,
+          1149,
+          465,
+          1197
+        ],
+        "area": 913,
+        "palette_match_fraction": 0.924425,
+        "neutral_fraction": 0.998905,
+        "checker_phase_fraction": 0.324206,
+        "mean_luminance_error": 6.80335
+      },
+      {
+        "bbox": [
+          510,
+          1140,
+          555,
+          1189
+        ],
+        "area": 787,
+        "palette_match_fraction": 0.983482,
+        "neutral_fraction": 1.0,
+        "checker_phase_fraction": 0.7446,
+        "mean_luminance_error": 4.618882
+      }
+    ],
+    "foreground_component_count_before_cleanup": 1,
+    "foreground_component_count_retained": 1,
+    "foreground_component_count_dropped": 0,
+    "disconnected_pixels_dropped": 0,
+    "soft_alpha_pixels": 5413,
+    "decontaminated_transition_pixels": 5413,
+    "transparent_pixels": 1455695,
+    "nonzero_rgb_values_under_zero_alpha": 0
+  },
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_parts\\forward_uniform_arms_reserved.png"
+}

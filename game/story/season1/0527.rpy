@@ -1,8 +1,9 @@
 label a0527:
     # --- Day 13: 2025-05-27 --
+    pause 2.0
     scene bg class_day
     $ show_calendar()
-    show mood_afternoon zorder 3
+    $ atmos("afternoon")
     with dissolve_scene_full
     play music quiz
     window auto
@@ -10,15 +11,16 @@ label a0527:
     $ exam_guard_checkpoint_or_jump("biology", "exam_start", "a0527_biology_save_scum")
     "Second day of exams."
     if persistent.did_save_scum_civics or persistent.did_save_scum_la:
-        "Morning arrives without giving yesterday the decency to become past tense."
+        "Yesterday has declined to become past tense."
         "My bag is the same weight, but the straps bite harder."
         "Somewhere inside the building is a folder, an email, a note, or whatever administrative shape cheating takes when adults make it real."
         "{i}Mom knows. The office knows. Monika still does not know. That does not make it better. That makes it unevenly distributed.{/i}"
     else:
-        "Morning arrives with less mystery than yesterday and more resentment."
+        "Less mystery than yesterday, and considerably more resentment."
         "My bag is the same weight, but it feels personally heavier now that two completed exams have no interest in leaving my head."
     "{i}Let's see what we have this time.{/i}"
     "To nobody's surprise, it's biology."
+    # SFX SUGGESTION: A thick exam packet settling onto the desk with a soft paper slap.
     "The paper starts with cell structure, then genetics, then ecology."
     "{i}Tiny systems, inherited problems, and communities changing when one piece disappears.{/i}"
     "{i}Biology has range, unfortunately.{/i}"
@@ -28,87 +30,72 @@ label a0527:
     show science_teacher at thide
     hide science_teacher
     $ exam_guard_checkpoint_or_jump("biology", "q1_open", "a0527_biology_save_scum")
-    "{i}Question 1. Which organelle modifies, sorts, and packages proteins for transport out of the cell?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    "{i}Question 1a. Which organelle modifies, sorts, and packages proteins for transport out of the cell?{/i}"
+    $ atmos_pressure()
     with dissolve
     menu:
         "Mitochondrion.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Mitochondria make ATP."
-            "That is energy, not packaging."
-            "{i}The powerhouse of the cell cannot do every job just because the phrase is famous.{/i}"
+            "I mark it."
         "Golgi apparatus.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "Golgi apparatus."
             "The cell's shipping department."
             "{i}A useful organelle. Respectfully employed.{/i}"
         "Nucleus.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "The nucleus supervises the genetic information."
-            "It is less shipping desk and more office nobody is allowed to enter without a reason."
-            "{i}Golgi apparatus. I can almost hear the review guide judging me.{/i}"
+            "I mark it and move on."
     $ exam_guard_checkpoint_or_jump("biology", "q1_answered", "a0527_biology_save_scum")
     "The next page moves into heredity."
     "Punnett squares stare up at me with the smugness of boxes that know they are about to ruin somebody's morning."
     $ exam_guard_checkpoint_or_jump("biology", "q2_open", "a0527_biology_save_scum")
-    "{i}Question 2. During meiosis, which two processes most directly increase genetic variation among gametes?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    "{i}Question 2a. During meiosis, which two processes most directly increase genetic variation among gametes?{/i}"
+    $ atmos_pressure()
     with dissolve
     menu:
         "Crossing over and independent assortment.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "Crossing over and independent assortment."
             "Chromosomes trade pieces, then line up in different combinations."
             "{i}Messy process, useful outcome.{/i}"
         "Binary fission and budding.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "That belongs closer to asexual reproduction than meiosis."
-            "Useful concepts, wrong process."
-            "{i}Crossing over and independent assortment. Stay with meiosis.{/i}"
+            "The pencil goes down before I can talk myself back out of it."
         "Diffusion and osmosis.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Transport across membranes does not explain why gametes differ genetically."
-            "Good for water, bad for this question."
-            "{i}The answer is crossing over and independent assortment. Correction made.{/i}"
+            "It looks right enough at this speed."
     $ exam_guard_checkpoint_or_jump("biology", "q2_answered", "a0527_biology_save_scum")
     "Ecology waits at the back like it is pretending not to be the part everyone reviewed last."
     $ exam_guard_checkpoint_or_jump("biology", "q3_open", "a0527_biology_save_scum")
-    "{i}Question 3. Removing a keystone species from an ecosystem is most likely to cause what result?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    "{i}Question 3b. Removing a keystone species from an ecosystem is most likely to cause what result?{/i}"
+    $ atmos_pressure()
     with dissolve
     menu:
         "No change unless the species was the largest predator.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Size is not the point."
-            "A keystone species matters because of its role in the system, not because it won the physical intimidation contest."
-            "{i}Cascade of changes. Role beats volume.{/i}"
+            "I circle it and keep going."
         "Immediate primary succession from bare rock.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Primary succession starts where soil basically does not exist yet."
-            "Removing one species from an existing ecosystem is not the same disaster category."
-            "{i}A cascade, then. Ecology keeps its nuance.{/i}"
+            "Good enough. Next question."
         "A cascade of changes across the community.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "A cascade of changes across the community."
             "One species leaves, and the whole arrangement has to admit it was less stable than it looked."
@@ -128,9 +115,10 @@ label a0527_after_biology:
         nier "It just folds itself into lunch and sits there beside me while I eat."
         nier "Several people attempt to diagnose the genetics section out loud. I move two seats away in defense of my central nervous system."
     call nier_clear from _call_nier_clear_0527_1
+    pause 2.0
     scene bg corridor
     $ show_calendar()
-    show mood_afternoon zorder 3
+    $ atmos("afternoon")
     stop music fadeout 1.0
     with wipeleft_scene
     if persistent.did_save_scum_biology:
@@ -149,7 +137,7 @@ label a0527_after_biology:
     else:
         "The corridor has less energy today."
         "Yesterday's panic had novelty. Today's panic has office hours."
-        "I refill my water bottle, buy a snack I do not strictly need, and watch a classmate flip through chemistry notes with absolute concentration."
+        "I refill my water bottle and buy a snack I do not strictly need. A classmate two seats down flips through chemistry notes with absolute concentration."
         "{i}Chemistry in the afternoon.{/i}"
         "{i}One more paper before the day lets go.{/i}"
     $ hide_calendar()
@@ -161,105 +149,92 @@ label a0527_after_biology:
         nier "Lunch disappears through the usual administrative loopholes."
         nier "One bell later, we are back at our desks with a fresh paper and the posture of people who have been sitting too long."
     call nier_clear from _call_nier_clear_0527_2
+    pause 2.0
     scene bg class_day
     $ show_calendar()
-    show mood_afternoon zorder 3
+    $ atmos("afternoon")
     stop music fadeout 1.0
     with wipeleft_scene
     play music quiz
     $ exam_guard_checkpoint_or_jump("chemistry", "exam_start", "a0527_chemistry_save_scum")
     show science_teacher neut at t11
     science_teacher "Chemistry section. Calculators are permitted. Talking is not."
+    # SFX SUGGESTION: Several calculator power buttons clicking in quick succession.
     "A few calculators click awake around the room."
     science_teacher "Begin."
     show science_teacher at thide
     hide science_teacher
     $ exam_guard_checkpoint_or_jump("chemistry", "q1_open", "a0527_chemistry_save_scum")
     "{i}Question 1. For the reaction N2 plus 3H2 reversibly forms 2NH3, what happens if more H2 is added at equilibrium?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    $ atmos_pressure()
     with dissolve
     menu:
         "The equilibrium shifts toward N2 and H2.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "That would make more reactants after adding a reactant, which is not how the stress gets reduced."
-            "The system should consume added hydrogen by shifting toward ammonia."
-            "{i}Le Chatelier, not wishful thinking.{/i}"
+            "I mark it."
         "The equilibrium shifts toward NH3.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "The equilibrium shifts toward ammonia."
             "Le Chatelier's principle: add stress, system moves to reduce it."
             "{i}Chemistry is conflict management in miniature.{/i}"
         "The equilibrium constant changes immediately.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Concentrations change, but the equilibrium constant stays tied to temperature."
-            "Adding hydrogen shifts the position, not the value of K."
-            "{i}Toward NH3. The constant stays constant.{/i}"
+            "I mark it and move on."
     $ exam_guard_checkpoint_or_jump("chemistry", "q1_answered", "a0527_chemistry_save_scum")
-    "A calculation question follows, then another, then one with enough units to slow the room down."
+    "A calculation question follows, then another, then one carrying so many units that the whole room slows down."
     $ exam_guard_checkpoint_or_jump("chemistry", "q2_open", "a0527_chemistry_save_scum")
     "{i}Question 2. How does a solution with pH 3 compare to a solution with pH 4?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    $ atmos_pressure()
     with dissolve
     menu:
         "It is twice as acidic.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Twice would be too merciful."
-            "Each pH step changes hydrogen ion concentration by a factor of ten."
-            "{i}pH 3 is ten times more acidic than pH 4.{/i}"
+            "The pencil goes down before I can talk myself back out of it."
         "It is ten times more basic.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Lower pH means more acidic, not more basic."
-            "A pH of 3 is on the acidic side."
-            "{i}Ten times more acidic. The scale is strict.{/i}"
+            "It looks right enough at this speed."
         "It is ten times more acidic.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "Ten times more acidic."
             "The pH scale is logarithmic."
             "{i}One number, tenfold concentration.{/i}"
     $ exam_guard_checkpoint_or_jump("chemistry", "q2_answered", "a0527_chemistry_save_scum")
     "The limiting reagent problem waits near the end."
-    "It is exactly the kind of question that punishes rushing."
+    "It is exactly the sort of question that punishes rushing."
     $ exam_guard_checkpoint_or_jump("chemistry", "q3_open", "a0527_chemistry_save_scum")
     "{i}Question 3. For 2H2 plus O2 yields 2H2O, if you have 5 moles of H2 and 2 moles of O2, which reactant limits the reaction?{/i}"
-    show mood_pressure zorder 4
-    show vignette zorder 5 at ambient_vignette(0.24)
+    $ atmos_pressure()
     with dissolve
     menu:
         "O2.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(True)
             with dissolve
             "Oxygen limits it."
             "Two moles of O2 need four moles of H2. I have five, so hydrogen remains extra."
             "{i}Oxygen is the bottleneck. Stoichiometry holds still for once.{/i}"
         "H2.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Hydrogen looks suspicious because there are more moles of it, but the coefficient matters."
-            "Two moles of O2 only need four moles of H2, and I have five."
-            "{i}Oxygen limits. Hydrogen remains in excess.{/i}"
+            "I circle it and keep going."
         "Neither; they are exactly balanced.":
-            hide mood_pressure
-            hide vignette
+            $ atmos_pressure_clear()
+            $ s1_exam_mark(False)
             with dissolve
-            "Exactly balanced would require four moles of H2 for two moles of O2."
-            "Five moles of H2 leaves one mole unreacted."
-            "{i}O2 is limiting. The amounts do not balance exactly.{/i}"
+            "Good enough. Next question."
     $ exam_guard_checkpoint_or_jump("chemistry", "q3_answered", "a0527_chemistry_save_scum")
     "The last few problems blur into sig figs, reaction types, and one final multiple choice that asks me to respect solubility rules."
     "I do, barely."
@@ -290,18 +265,20 @@ label a0527_after_chemistry:
     if exam_guard_should_bad_end():
         jump exam_guard_bad_ending
     if persistent.exam_save_scum_subjects:
+        pause 2.0
         scene bg living_room_night
         $ show_calendar()
-        show mood_home zorder 3
+        $ atmos("home_night")
         stop music fadeout 1.0
         with wipeleft_scene
         play music hopeless
         "The laptop stays downstairs."
-        "That is the first rule I touch when I come home, because it is physical enough to obey without having to translate it."
+        "That is the first rule I touch when I come home, because it is physical, and I can obey it without translating it first."
         "Mom sits at the end of the coffee table with her work notes on one side and my algebra sheet on the other."
         show mom neut at t11
         mom "Science?"
         mc "I took it clean."
+        show mom thinking
         "She looks at me."
         "Not long enough to punish the sentence."
         "Long enough to make sure I hear myself."
@@ -314,7 +291,7 @@ label a0527_after_chemistry:
         "Less room for drama. More room for the answer to either be honest or wrong."
         "Asahina passes through once with a glass of water."
         show mom neut at t21
-        show asahina neut at t22
+        show asahina curious at t22
         "She slows near the couch."
         ah "Math tomorrow?"
         mc "Yeah."
@@ -322,6 +299,7 @@ label a0527_after_chemistry:
         mc "...Domain restrictions?"
         ah "Sure."
         "She sets the water near me, not quite beside my hand."
+        show asahina neut
         ah "Good luck with the x thing."
         show asahina at thide
         hide asahina
@@ -330,17 +308,16 @@ label a0527_after_chemistry:
         "Neither do I."
         "The page waits."
         "I keep working."
-        show mom at thide
-        hide mom
         $ hide_calendar()
         scene black with wipeleft_scene
         nier "Tuesday night does not soften the consequence."
         nier "It gives it a table, a lamp, and enough quiet to do the next problem without pretending the week is fixed."
         call nier_clear from _call_nier_clear_0527_4_scum
     else:
+        pause 2.0
         scene bg track_day
         $ show_calendar()
-        show mood_evening zorder 3
+        $ atmos("evening")
         stop music fadeout 1.0
         with wipeleft_scene
         play music daily
@@ -353,7 +330,7 @@ label a0527_after_chemistry:
         track_coach "Science done?"
         mc "Done."
         track_coach "Then we do not celebrate by being stupid."
-        mc "I was not planning to."
+        mc "I wasn't planning to."
         track_coach "Good. Twenty minutes easy. If the foot talks, you listen before it raises its voice."
         mc "Twenty easy."
         track_coach "And hydrate."
@@ -361,10 +338,11 @@ label a0527_after_chemistry:
         track_coach "There it will remain."
         show track_coach at thide
         hide track_coach
+        # SFX SUGGESTION: Shoe strikes on rubber track settling into a steady jogging rhythm.
         "I start in the outside lane."
         "The first lap is stiff, not from pain but from two days of sitting in rooms where every movement felt like it might cost focus."
         "By the second lap, my shoulders remember how to drop."
-        "By the third, breathing becomes something I can count without turning it into math."
+        "By the third, breathing becomes something I can count instead of something I have to solve."
         "A few sprinters are doing starts near the straightaway."
         "Someone laughs after a false start, short and harmless."
         "The sound carries across the infield and disappears into the evening."
@@ -379,7 +357,7 @@ label a0527_after_chemistry:
         mc "That's all?"
         track_coach "That is plenty."
         track_coach "Stretch and go home before your exam brain decides it earned extra work."
-        mc "Exam brain is not in charge."
+        mc "Exam brain isn't in charge."
         track_coach "I admire the ambition of that statement."
         show track_coach at thide
         hide track_coach
@@ -389,54 +367,61 @@ label a0527_after_chemistry:
         "It is still good to see."
         $ hide_calendar()
         scene black with wipeleft_scene
-        nier "I leave practice with my foot quiet, my shirt damp, and tomorrow's algebra still waiting."
+        nier "I leave practice with my foot quiet and tomorrow's algebra still waiting."
         nier "The day has not become lighter."
         nier "It has at least remembered how to have air in it."
         call nier_clear from _call_nier_clear_0527_4
-        scene bg kitchen
+        pause 2.0
+        scene bg dining_table_night
         $ show_calendar()
-        show mood_home zorder 3
+        $ atmos("home_night")
         stop music fadeout 1.0
         with wipeleft_scene
         play music dailyleisure
-        "At home, the kitchen table has become a small academic triage center."
+        "At home, the dining table has become a small academic triage center."
         "My algebra sheet is on one end."
         "Asahina's history notes are on the other."
         "A bowl of cut fruit sits between them like Mom is trying to bribe several subjects at once."
-        show mom neut at t31
-        show asahina neut at t32
+        show mom determined at t31
+        show asahina teasing at t32
         mom "Eat first. Panic second."
         ah "Can I schedule panic for after fruit?"
+        show mom smug
         mom "That was the instruction, yes."
         mc "Efficient household."
+        show mom neut
         mom "Tired household."
         "That is more accurate, so nobody corrects her."
+        # SFX SUGGESTION: A page flip and a light pen tap against the margin.
+        show asahina smug
         "Asahina flips one page over and points her pen at the margin."
         ah "If I write 'causes were complicated' for every history answer, does that count as mature nuance?"
+        show mom teasing
         mom "It counts as your teacher calling me."
         ah "Mature nuance rejected."
+        show asahina unamused
         "She eats a slice of apple with the expression of someone accepting a temporary ceasefire."
         "I take one too."
         "For a few minutes, the table is only paper, fruit, and the little rhythm of people trying to get through the same week in different grades."
+        show mom neut
         "Mom reaches over and turns my water bottle so the cap faces me."
         "She says nothing."
         "She does not have to."
         mc "I know."
         mom "Good."
+        show asahina curious
         "Asahina looks between us."
         ah "Hydration agenda."
-        mc "You are next."
+        mc "You're next."
         ah "I refuse recruitment."
+        show mom determined
         mom "Drink water."
+        show asahina unamused
         ah "...Fine."
         "She drinks."
         "The victory is small, domestic, and not worth celebrating out loud."
         "Naturally, I celebrate it by not saying anything."
-        show mom at thide
-        hide mom
-        show asahina at thide
-        hide asahina
-        $ update_character_thought("mom", "Mom has started communicating through water bottles, which is somehow one of her clearer parenting methods.")
+        $ update_character_thought("mom", "Mom has started communicating through water bottles, which is one of her clearer parenting methods.")
         $ hide_calendar()
         scene black with wipeleft_scene
         nier "Tuesday ends in fragments: algebra reviewed, English grammar circled, history dates muttered through the floorboards."
@@ -454,9 +439,10 @@ label a0527_biology_save_scum:
     $ calendar.set_date(2025, 5, 27)
     $ hide_calendar()
     scene black with dissolve_scene_full
+    pause 2.0
     scene bg class_day
     $ show_calendar()
-    show mood_pressure zorder 3
+    $ atmos("pressure")
     stop music fadeout 0.5
     with dissolve_scene_full
     play music safety
@@ -496,9 +482,10 @@ label a0527_chemistry_save_scum:
     $ calendar.set_date(2025, 5, 27)
     $ hide_calendar()
     scene black with dissolve_scene_full
+    pause 2.0
     scene bg class_day
     $ show_calendar()
-    show mood_pressure zorder 3
+    $ atmos("pressure")
     stop music fadeout 0.5
     with dissolve_scene_full
     play music safety

@@ -40,50 +40,6 @@ label updateconsole(text="", history=""):
     $ pause(0.5)                           # Brief pause before continuing
     return
 
-# Alternative version that clears the console instead of updating it
-label updateconsole_clearall(text="", history=""):
-    $ pause(len(text) / 30.0 + 0.5)        # Simulate typing time
-    $ pause(0.5)                           # Brief pause
-    return
-
-# Legacy version of the console update function with character-by-character animation
-label updateconsole_old(text="", history=""):
-    $ starttime = datetime.datetime.now()  # Record start time for timing calculations
-    $ textlength = len(text)               # Get the total length of text
-    $ textcount = 0                        # Initialize character counter
-    show console_bg zorder 100             # Show console background
-    show console_caret zorder 100          # Show command prompt
-    show console_text "_" as ctext zorder 100  # Show initial cursor
-    
-    # Loop to display text character by character
-    label updateconsole_loop:
-        $ currenttext = text[:textcount]   # Get the current portion of text to display
-        call drawconsole (drawtext=currenttext) from _call_drawconsole  # Draw the current text state
-        
-        # Calculate pause time to maintain consistent typing speed
-        $ pause_duration = 0.08 - (datetime.datetime.now() - starttime).microseconds / 1000.0 / 1000.0
-        $ starttime = datetime.datetime.now()  # Reset timer
-        
-        # Ensure pause is not negative
-        if pause_duration > 0:
-            $ pause(pause_duration / 2)
-        
-        $ textcount += 1                   # Move to the next character
-        if textcount <= textlength:        # Continue if there's more text
-            jump updateconsole_loop
-
-    $ pause(0.5)                           # Brief pause when done typing
-    hide ctext                             # Hide the text
-    show console_text "_" as ctext zorder 100  # Show cursor
-    call updateconsolehistory (history) from _call_updateconsolehistory_1    # Update history
-    $ pause(0.5)                           # Final pause
-    return
-
-# Helper function to draw console text with cursor
-label drawconsole(drawtext=""):
-    show console_text "[drawtext]_" as ctext zorder 100  # Show text with cursor
-    return
-
 # Function to update the command history section
 label updateconsolehistory(text=""):
     if text:

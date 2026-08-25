@@ -8,9 +8,8 @@ init python:
     gui.init(1280, 720)
 
 # Sound effects for UI interactions
-define gui.hover_sound = "mod_assets/sfx/hover.ogg"          # Sound when hovering over buttons
-define gui.activate_sound = "mod_assets/sfx/select.ogg"      # Sound when selecting buttons
-define gui.activate_sound_glitch = "mod_assets/sfx/select.ogg"  # Alternate selection sound
+define gui.hover_sound = audio.uihover          # Sound when hovering over buttons
+define gui.activate_sound = audio.uiselect      # Sound when selecting buttons
 
 # Color scheme for the interface
 define gui.accent_color = '#56d7ff'                   # Primary accent color
@@ -25,6 +24,29 @@ define gui.text_color = '#eef7f4'                     # Default text color
 define gui.interface_text_color = '#eaf8ff'           # Color for interface text
 
 # Fonts used throughout the game
+# -----------------------------------------------------------------------------
+# GLYPH COVERAGE -- READ THIS BEFORE TYPING A NON-ASCII CHARACTER INTO A `text`
+#
+# These three fonts are display faces, not text faces. Measured from their cmap
+# tables (2026-08-05): Myanmar has 197 codepoints, SF Automaton 224, NovaSquare
+# 418. Matsu'Py does NOT fall back to another font -- a missing glyph is drawn as
+# an empty rectangle, on screen, in the shipped game.
+#
+#   SAFE EVERYWHERE  ASCII, and the prose punctuation the writing actually uses:
+#                    em dash (which config.replace_text generates from every
+#                    "--" in dialogue -- see options.rpy), curly quotes, bullet.
+#   INTERFACE ONLY   the advance/choice arrow is U+2023 TRIANGULAR BULLET and it
+#                    only draws in gui.interface_font. Every U+25Bx arrow
+#                    (25B6 25B8 25BA 25B7) is a box in ALL THREE fonts, as is
+#                    the ellipsis U+2026 outside the interface font.
+#   NOT IN ANY OF    geometric shapes, stars, hearts, technical symbols. If a
+#   THEM             screen needs those it must name a font that has them --
+#                    "DejaVuSans.ttf" (~5900 codepoints, and what Hina's World
+#                    already uses via hw_font). Even DejaVu lacks U+23FB.
+#
+# When in doubt draw the icon out of rects the way the phone's hang-up handset
+# is drawn (addons/Phone System/call.rpy), or fall back to ASCII.
+# -----------------------------------------------------------------------------
 define gui.default_font = "mod_assets/fonts/Myanmar.otf"     # Default dialogue font
 define gui.name_font = "mod_assets/fonts/SF Automaton Extended.ttf" # Font for character names
 define gui.interface_font = "mod_assets/fonts/NovaSquare-Regular.ttf"   # Font for UI elements
@@ -197,7 +219,7 @@ init python:
 
     # Small screens get larger text and adjusted UI elements
     if renpy.variant("small"):
-        
+
         gui.text_size = 30
         gui.say_text_size = 28
         gui.name_text_size = 36
@@ -205,23 +227,23 @@ init python:
         gui.interface_text_size = 36
         gui.button_text_size = 34
         gui.label_text_size = 36
-        
+
         gui.textbox_height = 240
         gui.name_xpos = 80
         gui.text_xpos = 90
         gui.text_width = 1100
-        
+
         gui.choice_button_width = 1240
-        
+
         gui.navigation_spacing = 20
         gui.pref_button_spacing = 10
-        
+
         gui.history_height = 190
         gui.history_text_width = 690
-        
+
         gui.file_slot_cols = 2
         gui.file_slot_rows = 2
-        
+
         gui.nvl_height = 170
         gui.nvl_name_width = 305
         gui.nvl_name_xpos = 325
@@ -232,5 +254,5 @@ init python:
         gui.nvl_thought_xpos = 20
         gui.nvl_button_width = 1240
         gui.nvl_button_xpos = 20
-        
+
         gui.quick_button_text_size = 20

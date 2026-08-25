@@ -1,9 +1,36 @@
 init python:
+    import weakref as _fx_weakref
+
     # Surface cache lives on the renpy module itself, which is never
     # serialized by the save/rollback system.  This keeps raw pygame
-    # Surfaces completely out of any dict that Ren'Py might pickle.
+    # Surfaces completely out of any dict that Matsu'Py might pickle.
+    #
+    # IT IS KEYED BY THE DISPLAYABLE, NOT BY id(). The original keyed on
+    # id(self) against a plain dict, which is wrong twice over:
+    #
+    #   * NOTHING EVER REMOVED AN ENTRY. Each Invert/Tear holds a full
+    #     screenshot at *drawable* resolution -- 1920x1080x4 is 8MB, and a
+    #     fullscreen 4K panel is 33MB -- so every glitch beat leaked one of
+    #     those for the rest of the session. A scene that tears a dozen times
+    #     was carrying a hundred megabytes of dead pygame Surfaces.
+    #   * id() IS REUSED. CPython hands a freed object's address to the next
+    #     allocation of the same size, so a new Tear could be born already
+    #     "cached" -- holding the *previous* effect's screenshot, which is a
+    #     stale frame of a scene the player has already left.
+    #
+    # A WeakKeyDictionary fixes both: the entry dies with the displayable that
+    # owns it, and identity is the object rather than a recycled integer.
+    # Displayable defines only __ne__ (renpy/display/core.py), so it keeps the
+    # default identity hash and is both hashable and weak-referenceable.
     if not hasattr(renpy, '_effect_srf_cache'):
-        renpy._effect_srf_cache = {}
+        renpy._effect_srf_cache = _fx_weakref.WeakKeyDictionary()
+
+    # Tear's per-piece slices, kept here for the same reason and on the same
+    # terms as the screenshots above: they are Surface VIEWS, so holding one on
+    # the displayable would put a Surface back inside a picklable object and
+    # undo the invariant this cache exists to maintain.
+    if not hasattr(renpy, '_effect_slice_cache'):
+        renpy._effect_slice_cache = _fx_weakref.WeakKeyDictionary()
 
     def screenshot_srf():
         srf = renpy.display.draw.screenshot(None)
@@ -19,16 +46,19 @@ init python:
     class Invert(renpy.Displayable):
         def __init__(self, delay=0.0, screenshot_delay=0.0):
             super(Invert, self).__init__()
-            self.width, self.height = renpy.get_physical_size()
-            self.height = self.width * 9 / 16
-            renpy._effect_srf_cache[id(self)] = invert()
+            width, height = renpy.get_physical_size()
+            # `//`, not `/`. Under Python 3 this was true division, so both
+            # dimensions reached renpy.Render() as floats.
+            self.width = int(width)
+            self.height = int(width) * 9 // 16
+            renpy._effect_srf_cache[self] = invert()
             self.delay = delay
 
         def render(self, width, height, st, at):
-            srf = renpy._effect_srf_cache.get(id(self))
+            srf = renpy._effect_srf_cache.get(self)
             if srf is None:
                 srf = invert()
-                renpy._effect_srf_cache[id(self)] = srf
+                renpy._effect_srf_cache[self] = srf
             render = renpy.Render(self.width, self.height)
             if st >= self.delay:
                 render.blit(srf, (0, 0))
@@ -41,7 +71,7 @@ init python:
 screen invert(length, delay=0.0):
     add Invert(delay) size (1280, 720)
     timer delay action PauseAudio("music")
-    timer delay action Play("sound", "sfx/glitch1.ogg")
+    timer delay action Play("sound", audio.glitch1)
     timer length + delay action Hide("invert")
     on "show" action Function(hide_windows_enabled, enabled=False)
     on "hide" action PauseAudio("music", False)
@@ -58,7 +88,7 @@ init python:
             self.offset = 0
             self.offsetMin = offsetMin
             self.offsetMax = offsetMax
-        
+
         def update(self, st):
             st = st % (self.offTime + self.onTime)
             if st > self.offTime and self.offset == 0:
@@ -69,16 +99,25 @@ init python:
     class Tear(renpy.Displayable):
         def __init__(self, number, offtimeMult, ontimeMult, offsetMin, offsetMax, srf=None):
             super(Tear, self).__init__()
-            self.width, self.height = renpy.get_physical_size()
-            if float(self.width) / float(self.height) > 16.0/9.0:
-                self.width = self.height * 16 / 9
+            width, height = renpy.get_physical_size()
+            # Integer floor division throughout. Under Python 3 `/` is true
+            # division, so height came out a float and then
+            # random.randint(10, self.height - 10) raised
+            # "non-integer arg 1 for randrange()" -- this effect could not run
+            # at all on Matsu'Py 8 until now.
+            if float(width) / float(height) > 16.0 / 9.0:
+                self.width = int(height) * 16 // 9
+                self.height = int(height)
             else:
-                self.height = self.width * 9 / 16
+                self.width = int(width)
+                self.height = int(width) * 9 // 16
             self.number = number
-            if not srf:
-                renpy._effect_srf_cache[id(self)] = screenshot_srf()
-            else:
-                renpy._effect_srf_cache[id(self)] = srf
+            renpy._effect_srf_cache[self] = srf if srf else screenshot_srf()
+            # Slice geometry is fixed for the life of the effect, so the
+            # subsurfaces are cut once and memoized instead of being re-cut per
+            # piece per frame. Only `offset` moves, and that is a blit
+            # coordinate.
+            renpy._effect_slice_cache.pop(self, None)
             self.pieces = []
             tearpoints = [0, self.height]
             for i in range(number):
@@ -87,17 +126,35 @@ init python:
             for i in range(number+1):
                 self.pieces.append(TearPiece(tearpoints[i], tearpoints[i+1], offtimeMult, ontimeMult, offsetMin, offsetMax))
 
+        def _slices_for(self, srf):
+            """One subsurface per piece off `srf`, cut once and memoized."""
+            entry = renpy._effect_slice_cache.get(self)
+            if entry is not None and entry[0] is srf:
+                return entry[1]
+
+            slices = []
+            for piece in self.pieces:
+                top = max(0, piece.startY - 1)
+                rows = max(0, min(piece.endY, self.height) - piece.startY)
+                slices.append(
+                    srf.subsurface((0, top, self.width, rows)) if rows > 0 else None)
+
+            renpy._effect_slice_cache[self] = (srf, slices)
+            return slices
+
         def render(self, width, height, st, at):
-            srf = renpy._effect_srf_cache.get(id(self))
+            srf = renpy._effect_srf_cache.get(self)
             if srf is None:
                 srf = screenshot_srf()
-                renpy._effect_srf_cache[id(self)] = srf
+                renpy._effect_srf_cache[self] = srf
+                renpy._effect_slice_cache.pop(self, None)
             render = renpy.Render(self.width, self.height)
             render.blit(srf, (0,0))
-            for piece in self.pieces:
+            slices = self._slices_for(srf)
+            for piece, subsrf in zip(self.pieces, slices):
                 piece.update(st)
-                subsrf = srf.subsurface((0, max(0, piece.startY - 1), self.width, max(0, piece.endY - piece.startY)))
-                render.blit(subsrf, (piece.offset, piece.startY))
+                if subsrf is not None:
+                    render.blit(subsrf, (piece.offset, piece.startY))
             renpy.redraw(self, 0)
             return render
 
@@ -109,50 +166,12 @@ screen tear(number=10, offtimeMult=1, ontimeMult=1, offsetMin=0, offsetMax=50):
     on "show" action Function(hide_windows_enabled, enabled=False)
     on "hide" action Function(hide_windows_enabled, enabled=True)
 
-image m_rectstatic:
-    RectStatic(Solid("#000"), 32, 32, 32).sm
-    pos (0, 0)
-    size (32, 32)
-image m_rectstatic2:
-    RectStatic(im.FactorScale(im.Crop("mod_assets/gui/logo.png", (100, 100, 128, 128)), 0.25), 2, 32, 32).sm
-image m_rectstatic3:
-    RectStatic(im.FactorScale(im.Crop("mod_assets/gui/logo.png", (100, 100, 64, 64)), 0.5), 2, 32, 32).sm
-
 init python:
     import math
-    class RectStatic(object):
-        def __init__(self, theDisplayable, numRects=12, rectWidth = 30, rectHeight = 30):
-            self.sm = SpriteManager(update=self.update)
-            self.rects = [ ]
-            self.timers = [ ]
-            self.displayable = theDisplayable
-            self.numRects = numRects
-            self.rectWidth = rectWidth
-            self.rectHeight = rectHeight
-            
-            for i in range(self.numRects):
-                self.add(self.displayable)
-                self.timers.append(random.random() * 0.4 + 0.1)
-        
-        def add(self, d):
-            s = self.sm.create(d)
-            s.x = random.randint(0, 40) * 32
-            s.y = random.randint(0, 23) * 32
-            s.width = self.rectWidth
-            s.height = self.rectHeight
-            self.rects.append(s)
-        
-        def update(self, st):
-            for i, s in enumerate(self.rects):
-                if st >= self.timers[i]:
-                    s.x = random.randint(0, 40) * 32
-                    s.y = random.randint(0, 23) * 32
-                    self.timers[i] = st + random.random() * 0.4 + 0.1
-            return 0
     class ParticleBurst(object):
         def __init__(self, theDisplayable, explodeTime=0, numParticles=20, particleTime = 0.500, particleXSpeed = 3, particleYSpeed = 5):
             self.sm = SpriteManager(update=self.update)
-            
+
             self.stars = [ ]
             self.displayable = theDisplayable
             self.explodeTime = explodeTime
@@ -162,10 +181,10 @@ init python:
             self.particleYSpeed = particleYSpeed
             self.gravity = 240
             self.timePassed = 0
-            
+
             for i in range(self.numParticles):
                 self.add(self.displayable, 1)
-        
+
         def add(self, d, speed):
             s = self.sm.create(d)
             speed = random.random()
@@ -176,18 +195,30 @@ init python:
             s.y = ySpeed * 24
             pTime = self.particleTime
             self.stars.append((s, ySpeed, xSpeed, pTime))
-        
+
         def update(self, st):
-            sindex=0
+            # REBUILT, NOT POPPED. The original walked self.stars with a
+            # separate counter and popped from the same list mid-iteration:
+            # every removal shifted the tail down one while the counter kept
+            # advancing, so the particle after a dead one was skipped -- it was
+            # never updated and never destroyed again on that pass. The burst
+            # therefore left a residue of frozen sprites behind, and
+            # `self.stars.pop(sindex)` was removing whatever had slid into that
+            # slot rather than the star just destroyed.
+            #
+            # A burst is small and short-lived, so rebuilding the survivor list
+            # is cheaper than the index bookkeeping and cannot go wrong.
+            alive = []
             for s, ySpeed, xSpeed, particleTime in self.stars:
-                if (st < particleTime):
+                if st < particleTime:
                     s.x = xSpeed * 120 * (st + .20)
                     s.y = (ySpeed * 120 * (st + .20) + (self.gravity * st * st))
+                    alive.append((s, ySpeed, xSpeed, particleTime))
                 else:
                     s.destroy()
-                    self.stars.pop(sindex)
-                sindex += 1
-            return 0
+            self.stars = alive
+            # Nothing left to move: stop asking SpriteManager for frames.
+            return 0 if alive else None
 
     class Blood(object):
         def __init__(self, theDisplayable, density=120.0, particleTime=1.0, dripChance=0.05, dripSpeedX=0.0, dripSpeedY=120.0, dripTime=180.0, burstSize=100, burstSpeedX=200.0, burstSpeedY=400.0, numSquirts=4, squirtPower=400, squirtTime=0.25):
@@ -207,41 +238,45 @@ init python:
             self.burstSpeedY = burstSpeedY
             self.lastUpdate = 0
             self.delta = 0.0
-            
+
             for i in range(burstSize): self.add_burst(theDisplayable, 0)
             for i in range(numSquirts): self.add_squirt(squirtPower, squirtTime)
-        
+
         def add_squirt(self, squirtPower, squirtTime):
             angle = random.random() * 6.283
             xSpeed = squirtPower * math.cos(angle)
             ySpeed = squirtPower * math.sin(angle)
             self.squirts.append([xSpeed, ySpeed, squirtTime])
-        
+
         def add_burst(self, d, startTime):
             s = self.sm.create(d)
             xSpeed = (random.random() - 0.5) * self.burstSpeedX + 20
             ySpeed = (random.random() - 0.75) * self.burstSpeedY + 20
             pTime = self.particleTime
             self.drops.append([s, xSpeed, ySpeed, pTime, startTime])
-        
+
         def add_drip(self, d, startTime):
             s = self.sm.create(d)
             xSpeed = (random.random() - 0.5) * self.dripSpeedX + 20
             ySpeed = random.random() * self.dripSpeedY + 20
             pTime = self.particleTime
             self.drops.append([s, xSpeed, ySpeed, pTime, startTime])
-        
+
         def update(self, st):
             delta = st - self.lastUpdate
             self.delta += st - self.lastUpdate
             self.lastUpdate = st
-            
-            sindex = 0
-            for xSpeed, ySpeed, squirtTime in self.squirts:
-                if st > squirtTime: self.squirts.pop(sindex)
-                sindex += 1
-            
-            pindex = 0
+
+            # Same pop-while-iterating fault as ParticleBurst, and far more
+            # damaging here because this field is a FOUNTAIN, not a one-shot:
+            # `density` drops are spawned every second for `dripTime` seconds
+            # (120/s for 180s by default). Skipping every other expiry on each
+            # pass meant the survivor list grew faster than it drained, so the
+            # sprite count -- and the per-frame cost of walking it -- climbed
+            # for as long as the effect was on screen. Both lists are now
+            # rebuilt from their survivors.
+            self.squirts = [q for q in self.squirts if st <= q[2]]
+
             if st < self.dripTime:
                 while self.delta * self.density >= 1.0:
                     self.delta -= (1.0 / self.density)
@@ -251,24 +286,29 @@ init python:
                         s.x += (random.random() - 0.5) * 5
                         s.y += (random.random() - 0.5) * 5
                         self.drops.append([s, xSpeed + (random.random() - 0.5) * 20, ySpeed + (random.random() - 0.5) * 20, self.particleTime, st])
-            for s, xSpeed, ySpeed, particleTime, startTime in self.drops:
-                if (st - startTime < particleTime):
+
+            alive = []
+            for drop in self.drops:
+                s, xSpeed, ySpeed, particleTime, startTime = drop
+                if (st - startTime) < particleTime:
                     s.x += xSpeed * delta
                     s.y += ySpeed * delta
-                    self.drops[pindex][2] += self.gravity * delta
+                    drop[2] += self.gravity * delta
+                    alive.append(drop)
                 else:
                     s.destroy()
-                    self.drops.pop(pindex)
-                pindex += 1
-            return 0
+            self.drops = alive
+
+            # Spent AND past the spawning window: stop requesting frames.
+            return 0 if (alive or st < self.dripTime) else None
 
 init python:
     import math
     class AnimatedMask(renpy.Displayable):
-        
+
         def __init__(self, child, mask, maskb, oc, op, moving=True, speed=1.0, frequency=1.0, amount=0.5, **properties):
             super(AnimatedMask, self).__init__(**properties)
-            
+
             self.child = renpy.displayable(child)
             self.mask = renpy.displayable(mask)
             self.maskb = renpy.displayable(maskb)
@@ -280,62 +320,58 @@ init python:
             self.speed = speed
             self.amount = amount
             self.frequency = frequency
-        
+
         def render(self, width, height, st, at):
-            
+
             cr = renpy.render(self.child, width, height, st, at)
             mr = renpy.render(self.mask, width, height, st, at)
             mb = renpy.Render(width, height)
-            
-            
+
+
             if self.moving:
                 mb.place(self.mask, ((-st * 50) % (width * 2)) - (width * 2), 0)
                 mb.place(self.maskb, -width / 2, 0)
             else:
                 mb.place(self.mask, 0, 0)
                 mb.place(self.maskb, 0, 0)
-            
-            
-            
+
+
+
             cw, ch = cr.get_size()
             mw, mh = mr.get_size()
-            
+
             w = min(cw, mw)
             h = min(ch, mh)
             size = (w, h)
-            
-            if self.size != size:
+
+            # The guard never armed: `self.size` was compared but never
+            # assigned, so it stayed None and a fresh Null was allocated on
+            # EVERY frame of a permanently-redrawing displayable. Recording the
+            # size is the whole fix -- the Null is now built once per size
+            # change, which for a full-screen mask means once.
+            if self.size != size or self.null is None:
                 self.null = Null(w, h)
-            
+                self.size = size
+
             nr = renpy.render(self.null, width, height, st, at)
 
-            import sys
-            RENPY_8_PLUS = sys.version_info[0] >= 3
-            if RENPY_8_PLUS:
-                rv = renpy.Render(w, h) # opaque parameter removed in Ren'Py 8+
-            else:
-                rv = renpy.Render(w, h, opaque=False)
-            
+            # `import sys` and a version test used to run here, per frame, to
+            # decide whether renpy.Render still took `opaque`. imports.rpy
+            # already imports sys at init, and this file only ever loads under
+            # Matsu'Py 8 (Python 3), where the parameter is gone. Straight call.
+            rv = renpy.Render(w, h)
+
             rv.operation = renpy.display.render.IMAGEDISSOLVE
             rv.operation_alpha = 1.0
             rv.operation_complete = self.oc + math.pow(math.sin(st * self.speed / 8), 64 * self.frequency) * self.amount
             rv.operation_parameter = self.op
-            
+
             rv.blit(mb, (0, 0), focus=False, main=False)
             rv.blit(nr, (0, 0), focus=False, main=False)
             rv.blit(cr, (0, 0))
-            
+
             renpy.redraw(self, 0)
             return rv
-
-    def monika_alpha(trans, st, at):
-        trans.alpha = math.pow(math.sin(st / 8), 64) * 1.4
-        return 0
-
-image blood_particle_drip:
-    "gui/blood_drop.png"
-    yzoom 0 yanchor 0.2 subpixel True
-    linear 10 yzoom 8
 
 image blood_particle:
     subpixel True
@@ -355,16 +391,6 @@ image blood:
     size (1, 1)
     truecenter
     Blood("blood_particle").sm
-
-image blood_eye:
-    size (1, 1)
-    truecenter
-    Blood("blood_particle", dripChance=0.5, numSquirts=0).sm
-
-image blood_eye2:
-    size (1, 1)
-    truecenter
-    Blood("blood_particle", dripChance=0.005, numSquirts=0, burstSize=0).sm
 
 image bsod_1:
     "images/bg/bsod.png"
@@ -417,4 +443,4 @@ image veins:
             xoffset -2
         repeat
 
-# Decompiled by unrpyc: https://github.com/CensoredUsername/unrpyc
+

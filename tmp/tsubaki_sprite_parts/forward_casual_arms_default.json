@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "input": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\arms_default_casual_raw.png",
+  "source_canvas": [
+    1024,
+    1536
+  ],
+  "target_canvas": [
+    1024,
+    1536
+  ],
+  "scale": 0.68,
+  "source_anchor": [
+    512.0,
+    304.0
+  ],
+  "target_anchor": [
+    512.0,
+    815.0
+  ],
+  "translate_x": 163.84,
+  "translate_y": 608.28,
+  "placed_foreground_bbox": [
+    292,
+    814,
+    725,
+    1491
+  ],
+  "hidden_rgb_values_under_zero_alpha": 0,
+  "matte": {
+    "checker_palette_rgb": [
+      [
+        254.0,
+        254.0,
+        254.0
+      ],
+      [
+        248.0,
+        248.0,
+        248.0
+      ]
+    ],
+    "checker_minimum_channel_threshold": 235,
+    "checker_chroma_threshold": 20,
+    "checker_palette_tolerance": 17.0,
+    "neutral_frame_fraction": 1.0,
+    "edge_checker_fraction": 1.0,
+    "canvas_checker_pixels": 1345977,
+    "enclosed_checker_pixels": 0,
+    "neutral_fringe_pixels_removed": 432,
+    "hard_foreground_pixels": 226455,
+    "hard_foreground_fraction": 0.143976,
+    "checker_dark_luminance": 247.789,
+    "checker_light_luminance": 253.9449,
+    "checker_phase_frame_accuracy": 0.967913,
+    "candidate_component_count": 4,
+    "canvas_checker_components": 1,
+    "enclosed_checker_components": 0,
+    "phase_matched_checker_components": 0,
+    "large_enclosed_gap_components": 0,
+    "top_hair_checker_components": 0,
+    "small_skin_gap_checker_components": 0,
+    "protected_pale_components": 1,
+    "largest_protected_pale_components": [
+      {
+        "bbox": [
+          475,
+          1189,
+          478,
+          1195
+        ],
+        "area": 8,
+        "palette_match_fraction": 1.0,
+        "neutral_fraction": 1.0,
+        "checker_phase_fraction": 0.375,
+        "mean_luminance_error": 6.719759
+      }
+    ],
+    "foreground_component_count_before_cleanup": 1,
+    "foreground_component_count_retained": 1,
+    "foreground_component_count_dropped": 0,
+    "disconnected_pixels_dropped": 0,
+    "soft_alpha_pixels": 8162,
+    "decontaminated_transition_pixels": 8162,
+    "transparent_pixels": 1342348,
+    "nonzero_rgb_values_under_zero_alpha": 0
+  },
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_parts\\forward_casual_arms_default.png"
+}

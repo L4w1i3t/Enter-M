@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\pose_stifled_laugh_casual_raw.png",
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_parts\\forward_special_stifled_laugh.png",
+  "registration": {
+    "method": "sift_similarity",
+    "keypoint_matches": 51,
+    "inliers": 39,
+    "inlier_rms": 1.3461945056915283,
+    "scale": 1.0009222780328764,
+    "rotation_degrees": 0.9874680187313294,
+    "translate_x": 8.227189064025879,
+    "translate_y": -0.43711286783218384
+  },
+  "raw_layer": {
+    "visible_pixels": 2678,
+    "opaque_pixels": 2004,
+    "partial_pixels": 674,
+    "hidden_rgb_pixels": 0,
+    "outside_allowed_pixels": 0,
+    "blush_pixels": 0,
+    "bounding_box": [
+      416,
+      560,
+      600,
+      714
+    ],
+    "bounding_box_fill_ratio": 0.09450875211744778
+  },
+  "normalization_for_mask_only": {
+    "samples": 7592,
+    "gains": [
+      0.88,
+      0.88,
+      0.88
+    ],
+    "offsets": [
+      24.0,
+      24.0,
+      24.0
+    ],
+    "mean_absolute_residual": 14.14395679662803,
+    "p95_absolute_residual": 21.439999999999998
+  },
+  "laugh_ink_pixels": 2120,
+  "repair_pixels": 20667,
+  "visible_pixels": 20667,
+  "hidden_rgb_pixels": 0
+}

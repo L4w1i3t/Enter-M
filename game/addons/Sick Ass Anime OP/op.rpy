@@ -1,12 +1,61 @@
-define audio.enter_m_op = "addons/Sick Ass Anime OP/opsong.ogg"
+# =============================================================================
+# op.rpy  --  "SICK ASS ANIME OP" (the opening movie)
+# =============================================================================
+#
+# WHAT THIS FILE IS
+#   A fully hand-choreographed, beat-locked opening sequence set to opsong.ogg.
+#   It's essentially a music video assembled from scene/show/pause statements,
+#   with a large supporting library of timing constants, transforms, and FX
+#   screens. The "real" GPU effects (shaders + particles) live in op_fx.rpy and
+#   are layered on top via a few `show screen` hooks here.
+#
+# ENTRY POINTS
+#   label enter_m_sick_ass_anime_op       -> plays the whole OP (line ~1242).
+#   label enter_m_sick_ass_anime_op_skip  -> the SKIP target: stop music, run
+#                                            cleanup, fade out, restore quick_menu.
+#   enter_m_op_cleanup_screens()          -> hides every OP screen (call this
+#                                            AFTER the label returns; archive.rpy
+#                                            and the skip label both use it).
+#
+# WHO PLAYS IT (callers)
+#   - game/splash.rpy : the OP on first boot / intro.
+#   - game/archive.rpy: the "Replay OP" button (label enter_m_archive_replay_op).
+#
+# HOW THE TIMING WORKS
+#   The song is 130 BPM. enter_m_op_beat/bar/etc. (below) convert beats->seconds
+#   so every `renpy.pause(...)` and transform duration lands on the music. The
+#   label's inline "0.00s - 14.50s" style comments mark where each section sits.
+#
+# FILE LAYOUT (top to bottom)
+#   1. image aliases (enter_m_op_*)            -> all art/Solids used by the OP.
+#   2. timing constants (beat/bar math) + tunables.
+#   3. ENTER_M_OP_ACTIVE_SCREENS + cleanup     -> the screen registry teardown.
+#   4. styles (title/credit/skip button).
+#   5. the TRANSFORM LIBRARY (Ken-Burns BG moves, per-CG "stage" treatments,
+#      cut/flash transitions, sweep/spark/line accents). This is most of the file.
+#   6. FX SCREENS (overlay, signal bursts, stage flair, per-CG polish, BG cards,
+#      cut FX, skip) -- the reusable visual building blocks the label `show`s.
+#   7. the main label (the actual timeline) + the skip label.
+#
+# RELATED: op_fx.rpy registers enter_m_op_post_fx / _ambient_particles /
+#   _spark_burst / _impact / etc. (also listed in ENTER_M_OP_ACTIVE_SCREENS so
+#   cleanup catches them). ENTER_M_OP_SHADERS (set in op_fx.rpy) gates the
+#   shader-based post-process.
+# =============================================================================
 
+define -50 audio.enter_m_op = "mod_assets/bgm/opsong.ogg"
+
+# --- 1. IMAGE ALIASES -------------------------------------------------------
+# Short names for every Solid/CG/background the OP uses, so the timeline below
+# reads cleanly (e.g. `scene enter_m_op_mom_work`). enter_m_op_bg_* are the
+# "dump"-folder location plates panned behind sprites.
 image enter_m_op_blue = Solid("#75f7ff")
 image enter_m_op_red = Solid("#d05f77")
 image enter_m_op_amber = Solid("#d39a55")
 image enter_m_op_dark = Solid("#02040b")
 image enter_m_op_white = Solid("#ffffff")
-image enter_m_op_warning_gray = "mod_assets/gui/warning.png"
-image enter_m_op_warning_color = "mod_assets/gui/warning2.png"
+image enter_m_op_warning_gray = "addons/Sick Ass Anime OP/warning.png"
+image enter_m_op_warning_color = "addons/Sick Ass Anime OP/warning2.png"
 image enter_m_op_console_tsubaki = "addons/Sick Ass Anime OP/consoletsubaki.png"
 image enter_m_op_icecream = "addons/Sick Ass Anime OP/tsubakimatsudaicecream.png"
 image enter_m_op_arguing = "addons/Sick Ass Anime OP/arguing.png"
@@ -26,41 +75,40 @@ image enter_m_op_sam_villain = "addons/Sick Ass Anime OP/samvillain.png"
 image enter_m_op_turmoil = "addons/Sick Ass Anime OP/turmoil.png"
 image enter_m_op_title_drop = "addons/Sick Ass Anime OP/titledropalt.png"
 image enter_m_op_bg_arcade = "mod_assets/dump/arcade.png"
-image enter_m_op_bg_bridge = "mod_assets/dump/bridge.png"
 image enter_m_op_bg_cafe = "mod_assets/dump/cafe.png"
-image enter_m_op_bg_class2 = "mod_assets/dump/class2.png"
-image enter_m_op_bg_corridor_reverse = "mod_assets/dump/corridor_reverse.png"
 image enter_m_op_bg_bookstore = "mod_assets/dump/bookstore.png"
-image enter_m_op_bg_city_evening = "mod_assets/dump/city_evening.png"
 image enter_m_op_bg_courtyard = "mod_assets/dump/courtyard.png"
-image enter_m_op_bg_door_night = "mod_assets/dump/door_night.png"
 image enter_m_op_bg_house_evening = "mod_assets/dump/house_evening.png"
-image enter_m_op_bg_kitchen2 = "mod_assets/dump/kitchen2.png"
 image enter_m_op_bg_library = "mod_assets/dump/library.png"
-image enter_m_op_bg_lightclub = "mod_assets/dump/lightclub.png"
 image enter_m_op_bg_lightcorridor = "mod_assets/dump/lightcorridor.png"
-image enter_m_op_bg_lightlockers = "mod_assets/dump/lightlockers.png"
 image enter_m_op_bg_lightresidential = "mod_assets/dump/lightresidential.png"
-image enter_m_op_bg_lockers = "mod_assets/dump/lockers.png"
-image enter_m_op_bg_mc_livingroom = "mod_assets/dump/mc_livingroom.png"
+image enter_m_op_bg_kitchen = "mod_assets/dump/kitchen2.png"
 image enter_m_op_bg_musicroom = "mod_assets/dump/musicroom.png"
 image enter_m_op_bg_stairs = "mod_assets/dump/stairs.png"
-image enter_m_op_bg_store = "mod_assets/dump/store.png"
 image enter_m_op_bg_street = "mod_assets/dump/street.png"
 image enter_m_op_bg_vending = "mod_assets/dump/vendingmachine.png"
 
+# --- 2. TIMING CONSTANTS ----------------------------------------------------
+# Song = 130 BPM. beat = seconds per beat; bar = 4 beats; the fractions are
+# common subdivisions used as pause/transform durations so visuals hit on-beat.
+# audio_delay compensates for the gap before the track audibly starts; the
+# monika_* constants are one-off framing tunables for her shot.
 define enter_m_op_beat = 60.0 / 130.0
 define enter_m_op_bar = enter_m_op_beat * 4.0
 define enter_m_op_half_bar = enter_m_op_bar * 0.5
 define enter_m_op_quarter_bar = enter_m_op_bar * 0.25
 define enter_m_op_eighth_bar = enter_m_op_bar * 0.125
-define enter_m_op_turmoil_pan_hold = enter_m_op_beat - 0.08
 define enter_m_op_audio_delay = enter_m_op_beat * 0.2
 define enter_m_op_monika_zoom = 0.62
 define enter_m_op_monika_y = 852
 
+# Saved quick_menu flag, restored when the OP ends/skips (the OP hides the quick menu).
 default enter_m_op_prev_quick_menu = True
 
+# --- 3. SCREEN REGISTRY + CLEANUP -------------------------------------------
+# Every screen the OP can leave on-screen, in one tuple, so enter_m_op_cleanup_screens()
+# can tear them ALL down in one call regardless of which shot was active. The
+# second group (post_fx, particles, etc.) is registered in op_fx.rpy.
 init python:
     ENTER_M_OP_ACTIVE_SCREENS = (
         "enter_m_op_overlay",
@@ -80,6 +128,21 @@ init python:
         "enter_m_op_bg_step_card",
         "enter_m_op_bg_shadow_card",
         "enter_m_op_cut_fx",
+        # FX upgrade layer (see op_fx.rpy)
+        "enter_m_op_post_fx",
+        "enter_m_op_ambient_particles",
+        "enter_m_op_spark_burst",
+        "enter_m_op_impact",
+        "enter_m_op_meta_lineup",
+        "enter_m_op_meta_monika",
+        "enter_m_op_psyche_break",
+        "enter_m_op_sludge_card",
+        "enter_m_op_bg_impact_card",
+        "enter_m_op_rays",
+        "enter_m_op_freeze_frame",
+        "enter_m_op_split_card",
+        "enter_m_op_kinetic_credit",
+        "enter_m_op_name_card",
     )
 
     def enter_m_op_cleanup_screens():
@@ -89,6 +152,7 @@ init python:
             except Exception:
                 pass
 
+# --- 4. STYLES (title card, credit lines, skip button) ----------------------
 style enter_m_op_title is gui_text:
     font "mod_assets/fonts/NovaSquare-Regular.ttf"
     size 88
@@ -116,6 +180,18 @@ style enter_m_op_skip_button_text is gui_text:
     hover_color "#ffffff"
     outlines [(1, "#03060b", 0, 0)]
 
+# --- 5. TRANSFORM LIBRARY ---------------------------------------------------
+# The bulk of the file. Reusable, parameterised motion presets the timeline
+# applies with `at`. Rough families:
+#   * enter_m_op_bg_*        : Ken-Burns-style background pans/zooms (push, sweep,
+#                              snap_pan, breathe, oblique) for the location plates.
+#   * *_stage / *_backplate  : per-CG "treatments" (color grade + handheld shake +
+#                              zoom path) named after the shot they dress (e.g.
+#                              sam_villain, monika_club, turmoil, redshift...).
+#   * enter_m_op_cut_*       : quick transition flashes/fades/wipes between shots.
+#   * sweep / spark / line / band / beam / glint: thin animated accent shapes
+#                              (drawn as Solids) for idol-flair, speed lines, etc.
+# Durations frequently reference the beat/bar constants above to stay on-tempo.
 transform enter_m_op_bg_push(duration=4.0, start_zoom=1.04, end_zoom=1.12, xstart=0.5, xend=0.5, ystart=0.5, yend=0.5):
     subpixel True
     zoom start_zoom
@@ -238,32 +314,6 @@ transform enter_m_op_confetti_fall(x=640, y=360, delay=0.0, direction=1, rot=0, 
     linear 1.10 xoffset 260 * direction yoffset 210 rotate rot + 190 * direction
     linear 0.08 alpha 0.0
 
-transform enter_m_op_memory_hit:
-    subpixel True
-    zoom 1.13
-    xalign 0.46
-    yalign 0.50
-    alpha 1.0
-    easeout 0.08 alpha 1.0 zoom 1.08
-    parallel:
-        linear 1.12 zoom 1.02 xalign 0.52 yalign 0.48
-    parallel:
-        block:
-            linear 0.04 xoffset -7 yoffset 2
-            linear 0.04 xoffset 6 yoffset -2
-            linear 0.04 xoffset 0 yoffset 0
-            pause 0.38
-            repeat
-
-transform enter_m_op_warm_memory:
-    subpixel True
-    zoom 1.05
-    xalign 0.54
-    yalign 0.50
-    alpha 1.0
-    easeout 0.10 alpha 1.0 zoom 1.02
-    linear 1.70 zoom 1.07 xalign 0.48 yalign 0.48
-
 transform enter_m_op_title_plate:
     subpixel True
     zoom 1.02
@@ -280,15 +330,6 @@ transform enter_m_op_title_plate:
             linear 0.05 xoffset 0
             pause 1.25
             repeat
-
-transform enter_m_op_cg_push(duration=3.0, start_zoom=1.00, end_zoom=1.08, xstart=0.5, xend=0.5, ystart=0.5, yend=0.5):
-    subpixel True
-    zoom start_zoom
-    xalign xstart
-    yalign ystart
-    alpha 1.0
-    easeout 0.16 alpha 1.0
-    linear duration zoom end_zoom xalign xend yalign yend
 
 transform enter_m_op_cg_drift(duration=2.0, start_zoom=1.04, end_zoom=1.10, xstart=0.5, xend=0.5, ystart=0.5, yend=0.5):
     subpixel True
@@ -353,39 +394,6 @@ transform enter_m_op_puppet_stage(duration=3.23):
             linear 0.05 xoffset 9 yoffset -3 rotate 0.16
             linear 0.08 xoffset 0 yoffset 0 rotate 0.0
             pause 0.28
-            repeat
-
-transform enter_m_op_turmoil_stage(duration=2.6):
-    subpixel True
-    zoom 1.07
-    xalign 0.50
-    yalign 0.48
-    alpha 1.0
-    rotate 0
-    matrixcolor BrightnessMatrix(-0.10) * SaturationMatrix(0.32)
-    easeout 0.12 alpha 1.0 zoom 1.09
-    parallel:
-        linear enter_m_op_bar zoom 1.15 xalign 0.50 yalign 0.46
-        linear enter_m_op_bar zoom 1.29 xalign 0.50 yalign 0.40
-    parallel:
-        block:
-            linear 0.035 xoffset -3 yoffset 1
-            linear 0.035 xoffset 2 yoffset -1
-            linear 0.045 xoffset 0 yoffset 0
-            pause 0.065
-            repeat
-    parallel:
-        block:
-            matrixcolor BrightnessMatrix(-0.11) * SaturationMatrix(0.30)
-            pause enter_m_op_bar * 0.62
-            matrixcolor BrightnessMatrix(-0.20) * SaturationMatrix(0.20)
-            pause 0.18
-            matrixcolor BrightnessMatrix(-0.06) * SaturationMatrix(0.38)
-            pause 0.06
-            matrixcolor BrightnessMatrix(-0.24) * SaturationMatrix(0.16)
-            pause 0.22
-            matrixcolor BrightnessMatrix(-0.13) * SaturationMatrix(0.24)
-            pause 0.10
             repeat
 
 transform enter_m_op_turmoil_backplate(duration=3.7):
@@ -613,25 +621,6 @@ transform enter_m_op_missing_stage(duration=2.3):
             pause 0.05
             repeat
 
-transform enter_m_op_cg_snap(duration=1.2, start_zoom=1.14, end_zoom=1.03, xstart=0.5, xend=0.5, ystart=0.5, yend=0.5):
-    subpixel True
-    zoom start_zoom
-    xalign xstart
-    yalign ystart
-    alpha 1.0
-    linear 0.04 alpha 1.0
-    parallel:
-        easeout 0.12 zoom start_zoom + 0.04
-        ease 0.16 zoom start_zoom - 0.02
-        linear duration zoom end_zoom xalign xend yalign yend
-    parallel:
-        block:
-            linear 0.04 xoffset -10 yoffset 3
-            linear 0.04 xoffset 9 yoffset -2
-            linear 0.04 xoffset 0 yoffset 0
-            pause 0.24
-            repeat
-
 transform enter_m_op_reminisce_stage(duration=3.0):
     subpixel True
     zoom 1.015
@@ -702,47 +691,18 @@ transform enter_m_op_cut_wipe(strength=0.42, duration=0.22, start=-1280, end=128
     alpha strength
     linear duration xoffset end alpha 0.0
 
-transform enter_m_op_stutter:
+# Diagonal slash wipe (90s-OP scene change): a wide rotated band sweeping
+# corner-to-corner.
+transform enter_m_op_cut_diag(strength=0.5, duration=0.26, direction=1):
     subpixel True
-    block:
-        linear 0.04 xoffset -9
-        linear 0.04 xoffset 7
-        linear 0.04 xoffset 0
-        pause 0.28
-        repeat
-
-transform enter_m_op_aftershock_bg(duration=2.17):
-    subpixel True
-    zoom 1.10
-    xalign 0.50
-    yalign 0.50
-    alpha 1.0
-    linear 0.05 alpha 1.0 zoom 1.06
-    parallel:
-        easeout 0.23 zoom 1.16 xalign 0.54 yalign 0.49
-        ease 0.23 zoom 1.10 xalign 0.48 yalign 0.50
-        easeout 0.23 zoom 1.15 xalign 0.51 yalign 0.48
-        linear duration zoom 1.20 xalign 0.54 yalign 0.45
-    parallel:
-        block:
-            linear 0.04 xoffset -9 yoffset 2
-            linear 0.04 xoffset 8 yoffset -2
-            linear 0.06 xoffset 0 yoffset 0
-            pause 0.32
-            repeat
-
-transform enter_m_op_title_in:
-    subpixel True
-    xalign 0.5
-    yalign 0.46
+    xysize (560, 2200)
+    anchor (0.5, 0.5)
+    ypos 360
+    rotate (24 * direction)
+    alpha strength
+    xpos (-700 if direction > 0 else 1980)
+    linear duration xpos (1980 if direction > 0 else -700)
     alpha 0.0
-    zoom 0.88
-    yoffset 28
-    easeout 0.42 alpha 1.0 zoom 1.0 yoffset 0
-    block:
-        ease 1.9 yoffset -4
-        ease 1.9 yoffset 4
-        repeat
 
 transform enter_m_op_credit_in:
     subpixel True
@@ -754,37 +714,26 @@ transform enter_m_op_credit_in:
     pause 0.72
     easein 0.20 alpha 0.0 yoffset -8
 
+# Letterbox bars slide in, then breathe on the 130 BPM grid -- the frame itself
+# pumps with the song. The bars are 68px tall but rest 4px past the screen edge,
+# so the pump squeezes INWARD and never exposes a sliver of scene at the edges.
 transform enter_m_op_letterbox_top:
-    ypos -64
-    easeout 0.35 ypos 0
+    ypos -68
+    easeout 0.35 ypos -4
+    block:
+        easeout (enter_m_op_beat * 0.22) yoffset 4
+        easein (enter_m_op_beat * 0.78) yoffset 0
+        pause enter_m_op_beat
+        repeat
 
 transform enter_m_op_letterbox_bottom:
     ypos 720
     easeout 0.35 ypos 656
-
-transform enter_m_op_logo_mark:
-    subpixel True
-    xcenter 640
-    ycenter 318
-    zoom 0.45
-    alpha 0.0
-    rotate -6
-    easeout 0.42 alpha 1.0 zoom 0.52 rotate 0
     block:
-        ease 2.2 yoffset -5
-        ease 2.2 yoffset 5
+        easeout (enter_m_op_beat * 0.22) yoffset -4
+        easein (enter_m_op_beat * 0.78) yoffset 0
+        pause enter_m_op_beat
         repeat
-
-transform enter_m_op_red_line:
-    subpixel True
-    alpha 0.0
-    rotate -11
-    xcenter -140
-    ycenter 380
-    xysize (1600, 14)
-    linear 0.07 alpha 0.85
-    linear 0.42 xcenter 1430
-    linear 0.07 alpha 0.0
 
 transform enter_m_op_chroma_layer(xshift=6, yshift=0, tint="#75f7ff", strength=0.12, duration=1.0):
     subpixel True
@@ -818,34 +767,11 @@ transform enter_m_op_cg_glint(x=640, y=360, w=760, h=18, rot=-10, delay=0.0, col
     linear enter_m_op_half_bar xoffset 1180 * direction
     linear 0.08 alpha 0.0
 
-transform enter_m_op_turmoil_phrase(x=640, y=360, w=220, rot=0, delay=0.0, color_alpha=0.18):
-    subpixel True
-    xcenter x
-    ycenter y
-    xysize (w, 6)
-    rotate rot
-    alpha 0.0
-    xoffset -18
-    pause delay
-    easeout 0.12 alpha color_alpha xoffset 0
-    pause enter_m_op_beat * 0.42
-    easein 0.22 alpha 0.0 xoffset 34
-
 transform enter_m_op_turmoil_shadow(delay=0.0, strength=0.28):
     alpha 0.0
     pause delay
     linear 0.08 alpha strength
     linear enter_m_op_beat * 0.64 alpha 0.0
-
-transform enter_m_op_turmoil_pinlight(x=640, y=360, delay=0.0):
-    subpixel True
-    xcenter x
-    ycenter y
-    xysize (24, 24)
-    alpha 0.0
-    pause delay
-    easeout 0.08 alpha 0.22 zoom 1.25
-    easein 0.26 alpha 0.0 zoom 2.10
 
 transform enter_m_op_choke_rect(x0=0, y0=0, x1=0, y1=0, w=1280, h=180, duration=3.7, alpha_end=0.64):
     subpixel True
@@ -997,12 +923,18 @@ transform enter_m_op_stage_beam(x=0, color_delay=0.0, rot=0):
         ease 1.1 xoffset -52 rotate rot - 3
         repeat
 
+# --- 6. FX SCREENS ----------------------------------------------------------
+# The reusable visual building blocks the timeline `show screen`s. enter_m_op_overlay
+# is the constant frame (letterbox + scanline); the *_card screens compose a BG
+# plate + sprite(s) + accent sweeps for a single shot; enter_m_op_cut_fx draws an
+# inter-shot transition; enter_m_op_cg_polish dresses a CG with glints/chroma.
+# (The shader/particle screens with matching names are defined in op_fx.rpy.)
 screen enter_m_op_overlay():
     zorder 90
     add Solid("#0000000c")
     add Solid("#75f7ff26") xysize (1280, 2) at enter_m_op_scanline
-    add Solid("#070a0d") xysize (1280, 64) at enter_m_op_letterbox_top
-    add Solid("#070a0d") xysize (1280, 64) at enter_m_op_letterbox_bottom
+    add Solid("#070a0d") xysize (1280, 68) at enter_m_op_letterbox_top
+    add Solid("#070a0d") xysize (1280, 68) at enter_m_op_letterbox_bottom
 
 screen enter_m_op_signal_burst():
     zorder 92
@@ -1048,6 +980,10 @@ screen enter_m_op_matsuda_stage_flair(duration=3.5):
 
 screen enter_m_op_cg_polish(cg_image, strength=0.12, duration=1.0, color_a="#75f7ff", color_b="#d05f77", glint=True):
     zorder 89
+    # FX upgrade: genuine GPU chromatic aberration on top of the legacy
+    # tinted-overlay chroma. Decays from a hard split into a faint fringe.
+    if ENTER_M_OP_SHADERS:
+        add cg_image at enter_m_op_cg_aberr(strength, duration)
     add cg_image at enter_m_op_chroma_layer(-7, -1, color_a, strength, duration)
     add cg_image at enter_m_op_chroma_layer(7, 1, color_b, strength * 0.82, duration)
     if glint:
@@ -1099,7 +1035,7 @@ screen enter_m_op_memory_loss(duration=1.4):
     timer duration action Hide("enter_m_op_memory_loss")
 
 screen enter_m_op_bg_plate(bg_image, overlay="#ffffff24", panel="#75f7ff", accent="#d39a55", duration=1.0, xstart=0.48, xend=0.52):
-    add bg_image at enter_m_op_bg_push(duration, 1.025, 1.105, xstart, xend, 0.51, 0.47)
+    add enter_m_op_celbg(bg_image, enter_m_op_bg_push(duration, 1.025, 1.105, xstart, xend, 0.51, 0.47))
     add Solid(overlay)
     add Solid(panel) at enter_m_op_panel_sweep(260, 0.00, 1, -11, 0.16)
     add Solid(accent) at enter_m_op_panel_sweep(720, enter_m_op_quarter_bar, -1, 9, 0.11)
@@ -1110,15 +1046,23 @@ screen enter_m_op_bg_plate(bg_image, overlay="#ffffff24", panel="#75f7ff", accen
 screen enter_m_op_bg_motion_card(bg_image, sprite, overlay="#ffffff24", panel="#75f7ff", accent="#d39a55", start=-150, end=640, z=0.58, y=742, rot=-4, direction=1, duration=1.0, motion_style="dash"):
     zorder 80
     if motion_style == "arc":
-        add bg_image at enter_m_op_bg_oblique(duration, 0.57 if direction < 0 else 0.43, 0.43 if direction < 0 else 0.57, 0.54, 0.45, 0.28 * direction)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_oblique(duration, 0.57 if direction < 0 else 0.43, 0.43 if direction < 0 else 0.57, 0.54, 0.45, 0.28 * direction))
     elif motion_style == "float":
-        add bg_image at enter_m_op_bg_breathe(duration, 0.54 if direction < 0 else 0.46, 0.48 if direction < 0 else 0.52, 0.53, 0.45)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_breathe(duration, 0.54 if direction < 0 else 0.46, 0.48 if direction < 0 else 0.52, 0.53, 0.45))
     else:
-        add bg_image at enter_m_op_bg_snap_pan(duration, 0.45 if direction > 0 else 0.55, 0.58 if direction > 0 else 0.42, 0.50, 0.52, 0.46, 0.49)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_snap_pan(duration, 0.45 if direction > 0 else 0.55, 0.58 if direction > 0 else 0.42, 0.50, 0.52, 0.46, 0.49))
     add Solid(overlay)
+    # 90s-OP double exposure: a giant duotone bust of the same character
+    # looming on the opposite side of the frame.
+    $ _gz = z * 3.3
+    $ _gy = int(960 * _gz) - 40
+    add sprite at enter_m_op_ghost_echo(640 - 430 * direction, _gz, _gy, panel, duration, direction)
     add Solid(panel) at enter_m_op_panel_sweep(220 if direction > 0 else 960, 0.00, direction, -12 * direction, 0.18)
     add Solid(accent) at enter_m_op_motion_band(870 if direction > 0 else 320, 214, 720, 18, -7 * direction, enter_m_op_eighth_bar, direction, 0.20)
     add Solid("#ffffff66") at enter_m_op_motion_band(330 if direction > 0 else 940, 548, 580, 11, 5 * direction, enter_m_op_quarter_bar, -direction, 0.14)
+    add sprite at enter_m_op_stage_tf(motion_style, start, end, y, z, rot, duration, direction), enter_m_op_sprite_shadow_mod
+    add sprite at enter_m_op_stage_tf(motion_style, start, end, y, z, rot, duration, direction)
+    add sprite at enter_m_op_stage_tf(motion_style, start, end, y, z, rot, duration, direction), enter_m_op_sprite_flash_mod(duration * 0.34)
     add Solid("#00000024")
     add "noise":
         alpha 0.014
@@ -1126,14 +1070,20 @@ screen enter_m_op_bg_motion_card(bg_image, sprite, overlay="#ffffff24", panel="#
 screen enter_m_op_bg_pair_card(bg_image, left_sprite, right_sprite, overlay="#ffffff24", panel="#75f7ff", accent="#d39a55", left_start=-150, left_end=430, right_start=1430, right_end=850, left_z=0.56, right_z=0.58, duration=1.0, left_y=742, right_y=742, left_style="dash", right_style="dash"):
     zorder 80
     if left_style == "arc" or right_style == "arc":
-        add bg_image at enter_m_op_bg_oblique(duration, 0.43, 0.57, 0.53, 0.45, -0.22)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_oblique(duration, 0.43, 0.57, 0.53, 0.45, -0.22))
     else:
-        add bg_image at enter_m_op_bg_breathe(duration, 0.43, 0.57, 0.51, 0.47)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_breathe(duration, 0.43, 0.57, 0.51, 0.47))
     add Solid(overlay)
     add Solid(panel) at enter_m_op_panel_sweep(190, 0.00, 1, -14, 0.16)
     add Solid(accent) at enter_m_op_panel_sweep(1010, enter_m_op_eighth_bar, -1, 12, 0.14)
     add Solid("#ffffff66") at enter_m_op_motion_band(640, 170, 860, 12, -4, enter_m_op_quarter_bar, 1, 0.13)
     add Solid(accent) at enter_m_op_motion_band(640, 560, 760, 16, 6, enter_m_op_half_bar, -1, 0.15)
+    add left_sprite at enter_m_op_stage_tf(left_style, left_start, left_end, left_y, left_z, -3.0, duration, 1), enter_m_op_sprite_shadow_mod
+    add right_sprite at enter_m_op_stage_tf(right_style, right_start, right_end, right_y, right_z, 3.0, duration, -1), enter_m_op_sprite_shadow_mod
+    add left_sprite at enter_m_op_stage_tf(left_style, left_start, left_end, left_y, left_z, -3.0, duration, 1)
+    add right_sprite at enter_m_op_stage_tf(right_style, right_start, right_end, right_y, right_z, 3.0, duration, -1)
+    add left_sprite at enter_m_op_stage_tf(left_style, left_start, left_end, left_y, left_z, -3.0, duration, 1), enter_m_op_sprite_flash_mod(duration * 0.34)
+    add right_sprite at enter_m_op_stage_tf(right_style, right_start, right_end, right_y, right_z, 3.0, duration, -1), enter_m_op_sprite_flash_mod(duration * 0.40)
     add Solid("#00000026")
     add "noise":
         alpha 0.014
@@ -1141,37 +1091,57 @@ screen enter_m_op_bg_pair_card(bg_image, left_sprite, right_sprite, overlay="#ff
 screen enter_m_op_bg_hold_card(bg_image, sprite, overlay="#ffffff24", panel="#ffffff", accent="#75f7ff", x=640, z=0.56, y=742, rot=0, duration=1.0, motion_style="hold", side=1):
     zorder 80
     if motion_style == "arc":
-        add bg_image at enter_m_op_bg_oblique(duration, 0.50 - 0.05 * side, 0.50 + 0.06 * side, 0.53, 0.46, 0.18 * side)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_oblique(duration, 0.50 - 0.05 * side, 0.50 + 0.06 * side, 0.53, 0.46, 0.18 * side))
     else:
-        add bg_image at enter_m_op_bg_breathe(duration, 0.50 - 0.035 * side, 0.50 + 0.035 * side, 0.52, 0.47)
+        add enter_m_op_celbg(bg_image, enter_m_op_bg_breathe(duration, 0.50 - 0.035 * side, 0.50 + 0.035 * side, 0.52, 0.47))
     add Solid(overlay)
+    $ _gz = z * 3.3
+    $ _gy = int(960 * _gz) - 40
+    add sprite at enter_m_op_ghost_echo(640 - 430 * side, _gz, _gy, accent, duration, side)
     add Solid(panel) at enter_m_op_motion_band(640, 356, 1080, 24, -4 * side, 0.00, side, 0.16)
     add Solid(accent) at enter_m_op_panel_sweep(450 if side > 0 else 830, enter_m_op_eighth_bar, -side, 7 * side, 0.12)
     add Solid("#ffffff5c") at enter_m_op_motion_band(730 if side > 0 else 550, 188, 520, 9, 6 * side, enter_m_op_quarter_bar, -side, 0.12)
+    add sprite at enter_m_op_sprite_hold(x, y, z, rot, duration, side), enter_m_op_sprite_shadow_mod
+    add sprite at enter_m_op_sprite_hold(x, y, z, rot, duration, side)
+    add sprite at enter_m_op_sprite_hold(x, y, z, rot, duration, side), enter_m_op_sprite_flash_mod(0.22)
     add Solid("#00000022")
     add "noise":
         alpha 0.012
 
 screen enter_m_op_bg_step_card(bg_image, sprite, overlay="#ffffff24", panel="#d39a55", accent="#75f7ff", x1=340, x2=470, x3=610, z=0.56, y=742, rot=-4, duration=1.0, motion_style="step"):
     zorder 80
-    add bg_image at enter_m_op_bg_snap_pan(duration, 0.42 if x3 > x1 else 0.58, 0.56 if x3 > x1 else 0.44, 0.50, 0.53, 0.46, 0.49)
+    add enter_m_op_celbg(bg_image, enter_m_op_bg_snap_pan(duration, 0.42 if x3 > x1 else 0.58, 0.56 if x3 > x1 else 0.44, 0.50, 0.53, 0.46, 0.49))
     add Solid(overlay)
+    $ _step_dir = 1 if x3 > x1 else -1
+    $ _gz = z * 3.3
+    $ _gy = int(960 * _gz) - 40
+    add sprite at enter_m_op_ghost_echo(640 - 430 * _step_dir, _gz, _gy, panel, duration, _step_dir)
     add Solid(panel) at enter_m_op_motion_band(260, 214, 580, 14, -9, 0.00, 1, 0.16)
     add Solid(accent) at enter_m_op_motion_band(980, 386, 620, 18, 7, enter_m_op_eighth_bar, -1, 0.18)
     add Solid("#ffffff66") at enter_m_op_panel_sweep(630, enter_m_op_quarter_bar, 1 if x3 > x1 else -1, -8, 0.10)
+    add sprite at enter_m_op_sprite_step(x1, x2, x3, y, z, rot, duration), enter_m_op_sprite_shadow_mod
+    add sprite at enter_m_op_sprite_step(x1, x2, x3, y, z, rot, duration)
+    add sprite at enter_m_op_sprite_step(x1, x2, x3, y, z, rot, duration), enter_m_op_sprite_flash_mod(duration * 0.62)
     add Solid("#00000024")
     add "noise":
         alpha 0.014
 
 screen enter_m_op_bg_shadow_card(bg_image, fg_sprite, shadow_sprite, overlay="#ffffff20", panel="#75f7ff", accent="#d05f77", fg_start=-130, fg_end=430, shadow_start=1420, shadow_end=850, fg_z=0.56, shadow_z=0.62, duration=1.0, fg_style="arc", shadow_style="float"):
     zorder 80
-    add bg_image at enter_m_op_bg_oblique(duration, 0.44, 0.56, 0.54, 0.45, -0.30)
+    add enter_m_op_celbg(bg_image, enter_m_op_bg_oblique(duration, 0.44, 0.56, 0.54, 0.45, -0.30))
     add Solid(overlay)
     add Solid("#00000030")
     add Solid(panel) at enter_m_op_panel_sweep(160, 0.00, 1, -16, 0.13)
     add Solid(accent) at enter_m_op_panel_sweep(960, enter_m_op_eighth_bar, -1, 13, 0.18)
     add Solid("#ffffff58") at enter_m_op_motion_band(420, 220, 620, 11, -8, enter_m_op_quarter_bar, 1, 0.12)
+    # Both characters rendered normally -- the moody bg/lighting carries the
+    # drama. (Previously the rear sprite was a dark silhouette, which read as
+    # "looming villain" and telegraphed Sam's role; that's gone now.)
+    add shadow_sprite at enter_m_op_stage_tf(shadow_style, shadow_start, shadow_end, 742, shadow_z, 3.0, duration, -1), enter_m_op_sprite_shadow_mod
+    add shadow_sprite at enter_m_op_stage_tf(shadow_style, shadow_start, shadow_end, 742, shadow_z, 3.0, duration, -1)
     add Solid(accent) at enter_m_op_motion_band(850, 506, 780, 20, 8, enter_m_op_half_bar, -1, 0.16)
+    add fg_sprite at enter_m_op_stage_tf(fg_style, fg_start, fg_end, 742, fg_z, -3.0, duration, 1), enter_m_op_sprite_shadow_mod
+    add fg_sprite at enter_m_op_stage_tf(fg_style, fg_start, fg_end, 742, fg_z, -3.0, duration, 1)
     add "noise":
         alpha 0.014
 
@@ -1190,11 +1160,19 @@ screen enter_m_op_cut_fx(kind="dark", strength=0.38):
         add Solid("#d05f77") at enter_m_op_cut_wipe(strength, 0.22, -1280, 1280)
     elif kind == "wipe_blue":
         add Solid("#75f7ff") at enter_m_op_cut_wipe(strength, 0.22, 1280, -1280)
+    elif kind == "wipe_diag":
+        add Solid("#ffffff") at enter_m_op_cut_diag(strength, 0.26, 1)
+    elif kind == "wipe_diag_blue":
+        add Solid("#75f7ff") at enter_m_op_cut_diag(strength, 0.26, -1)
+    elif kind == "wipe_diag_red":
+        add Solid("#d05f77") at enter_m_op_cut_diag(strength, 0.26, 1)
     else:
         add Solid("#17202a") at enter_m_op_cut_fade(strength, 0.24)
 
     timer 0.34 action Hide("enter_m_op_cut_fx")
 
+# The persistent SKIP affordance: a corner button + Esc/Space/Enter all jump to
+# the skip label (which cleans up and returns). Shown for the whole OP.
 screen enter_m_op_skip():
     zorder 100
     key "K_ESCAPE" action Jump("enter_m_sick_ass_anime_op_skip")
@@ -1208,6 +1186,18 @@ screen enter_m_op_skip():
         yalign 0.025
         action Jump("enter_m_sick_ass_anime_op_skip")
 
+# =============================================================================
+# --- 7. THE TIMELINE (main label) ------------------------------------------
+# The actual choreographed sequence. Pattern repeated for each "shot":
+#   scene <bg/cg> at <some _stage/_drift transform>
+#   show screen <cut_fx / cg_polish / bg_*_card>     # dress the shot
+#   $ renpy.pause(<beat-derived seconds>, hard=True) # hold on-beat
+#   hide screen ...                                  # tear the shot down
+# Inline "0.00s - 14.50s" comments mark section boundaries against the song.
+# On entry it saves+disables quick_menu and shows the persistent overlay/skip/
+# post-fx; the CALLER is responsible for enter_m_op_cleanup_screens() afterward
+# (the skip label does it itself). ENTER_M_OP_SHADERS gates the GPU post-process.
+# =============================================================================
 label enter_m_sick_ass_anime_op:
     $ enter_m_op_prev_quick_menu = quick_menu
     $ quick_menu = False
@@ -1215,11 +1205,16 @@ label enter_m_sick_ass_anime_op:
     scene black
     show screen enter_m_op_overlay
     show screen enter_m_op_skip
+    # FX upgrade: global grain/vignette/scanline post-process + ambient dust,
+    # held for the entire OP (cleaned up with the other OP screens).
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_post_fx
+    show screen enter_m_op_ambient_particles("dust")
 
     # 0.00s - 14.50s: quiet setup before the first drop.
     scene enter_m_op_dark
     show image "mod_assets/dump/finalbg.png" at enter_m_op_bg_push(1.5, 1.00, 1.07, 0.48, 0.53)
-    show expression Text("Yo check out this edit", style="enter_m_op_credit") as enter_m_op_production at enter_m_op_credit_in
+    show expression Text("Yo check out this edit (this won't be in the full release lmao)", style="enter_m_op_credit") as enter_m_op_production at enter_m_op_credit_in
     $ renpy.pause(enter_m_op_audio_delay, hard=True)
     play music enter_m_op noloop
     $ renpy.pause(1.5 - enter_m_op_audio_delay, hard=True)
@@ -1231,12 +1226,18 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_bg_pair_card
 
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_blue", 0.32)
+    show screen enter_m_op_cut_fx("wipe_diag_blue", 0.40)
     show screen enter_m_op_bg_shadow_card("enter_m_op_bg_street", "asahina neut", "sam neut", "#ffffff34", "#75f7ff", "#d05f77", -140, 420, 1420, 850, 0.56, 0.62, 1.5)
     $ renpy.pause(1.5, hard=True)
     hide screen enter_m_op_bg_shadow_card
 
+    # Every CG shot in this montage is also a CG Gallery entry, and the `$
+    # cg_unlock(...)` under each one is what puts it there -- the gallery's
+    # "Opening" act fills in as the OP plays, in the order the OP plays it. The
+    # unlock sits AFTER the scene rather than before so a CG only counts once it
+    # is actually on screen. See cg_unlock in CG View/cg_gallery.rpy.
     scene enter_m_op_mom_work at enter_m_op_cg_drift(1.2, 1.02, 1.06, 0.52, 0.49, 0.50, 0.49)
+    $ cg_unlock("Mom at Work")
     show screen enter_m_op_cg_polish("enter_m_op_mom_work", 0.075, 1.2, "#d39a55", "#75f7ff")
     show screen enter_m_op_cut_fx("amber", 0.24)
     show noise:
@@ -1248,43 +1249,51 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.2, hard=True)
 
     scene enter_m_op_storekoto at enter_m_op_cg_drift(1.2, 1.02, 1.06, 0.46, 0.48, 0.50, 0.49)
+    $ cg_unlock("Cashier Kotonoha")
     show screen enter_m_op_cg_polish("enter_m_op_storekoto", 0.08, 1.2, "#75f7ff", "#d39a55")
     show screen enter_m_op_cut_fx("white", 0.22)
+    show screen enter_m_op_kinetic_credit("CREATED & WRITTEN BY", "LAWLIET", 170, 132, "#75f7ff", 1.15, 1)
     $ renpy.pause(1.2, hard=True)
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("dark", 0.32)
     show screen enter_m_op_bg_hold_card("enter_m_op_bg_library", "monika 2c", "#ffffff2e", "#ffffff", "#75f7ff", 604, enter_m_op_monika_zoom, enter_m_op_monika_y, -2, 1.0, motion_style="float", side=-1)
+    show screen enter_m_op_name_card("MONIKA", 1110, 552, "#75f7ff", 0.95, -1)
     $ renpy.pause(1.0, hard=True)
     hide screen enter_m_op_bg_hold_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("wipe_red", 0.28)
     show screen enter_m_op_bg_pair_card("enter_m_op_bg_cafe", "matsuda neut", "tsubaki neut", "#ffffff28", "#d39a55", "#75f7ff", -150, 430, 1430, 850, 0.60, 0.56, 2.0, left_style="float", right_style="arc")
+    show screen enter_m_op_kinetic_credit("SPECIAL THANKS", "MODCEN", 1110, 540, "#d39a55", 1.9, -1)
     $ renpy.pause(2.0, hard=True)
     hide screen enter_m_op_bg_pair_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("blue", 0.26)
-    show screen enter_m_op_bg_step_card("enter_m_op_bg_mc_livingroom", "asahina neut", "#ffffff2a", "#75f7ff", "#ffffff", 330, 486, 640, 0.56, 742, -5, 0.7, motion_style="float")
+    show screen enter_m_op_bg_step_card("enter_m_op_bg_kitchen", "asahina neut", "#ffffff2a", "#75f7ff", "#ffffff", 330, 486, 640, 0.56, 742, -5, 0.7, motion_style="float")
+    show screen enter_m_op_name_card("ASAHINA", 170, 552, "#75f7ff", 0.68, 1)
     $ renpy.pause(0.7, hard=True)
     hide screen enter_m_op_bg_step_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("amber", 0.22)
     show screen enter_m_op_bg_motion_card("enter_m_op_bg_lightresidential", "sam neut", "#ffffff22", "#d39a55", "#d05f77", 1430, 710, 0.58, 742, 4, -1, 0.7, motion_style="arc")
+    show screen enter_m_op_name_card("SAM", 170, 552, "#d05f77", 0.68, 1)
     $ renpy.pause(0.7, hard=True)
     hide screen enter_m_op_bg_motion_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("dark", 0.22)
     show screen enter_m_op_bg_hold_card("enter_m_op_bg_stairs", "tsubaki neut", "#ffffff1e", "#ffffff", "#d05f77", 642, 0.56, 742, -3, 0.8, motion_style="float", side=-1)
+    show screen enter_m_op_name_card("TSUBAKI", 1110, 552, "#d05f77", 0.78, -1)
     $ renpy.pause(0.8, hard=True)
     hide screen enter_m_op_bg_hold_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("wipe_blue", 0.30)
     show screen enter_m_op_bg_pair_card("enter_m_op_bg_courtyard", "mc neut", "monika 1p", "#ffffff30", "#75f7ff", "#ffffff", -150, 424, 1430, 846, 0.56, enter_m_op_monika_zoom, 1.3, 742, enter_m_op_monika_y, left_style="arc", right_style="float")
+    show screen enter_m_op_kinetic_credit("ORIGINAL WORK", "DOKI DOKI LITERATURE CLUB", 170, 132, "#ffffff", 1.25, 1)
     $ renpy.pause(1.3, hard=True)
     hide screen enter_m_op_bg_pair_card
 
@@ -1296,12 +1305,19 @@ label enter_m_sick_ass_anime_op:
 
     # 14.50s first drop.
     scene enter_m_op_warning_color at enter_m_op_stage_hit
+    $ cg_unlock("Matsuda Performing")
     show screen enter_m_op_cg_polish("enter_m_op_warning_color", 0.105, 3.5, "#75f7ff", "#ff4fb8")
     show screen enter_m_op_cut_fx("white", 0.52)
     show enter_m_op_white at enter_m_op_flash(0.58)
     show screen enter_m_op_signal_burst
     show screen enter_m_op_stage_fx
     show screen enter_m_op_matsuda_stage_flair(3.5)
+    # FX upgrade: shockwave ripple + real spark burst slammed onto the drop,
+    # with rotating god rays sweeping the whole hold.
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_impact("enter_m_op_warning_color", "shock", 0.62, z=1.12)
+        show screen enter_m_op_rays(0.5, 0.46, (1.0, 0.78, 0.86), 22.0, 0.8, 0.22, 3.5)
+    show screen enter_m_op_spark_burst(640, 358, 60, 0.85, 11.0, 13.0)
     $ renpy.pause(3.5, hard=True)
     hide screen enter_m_op_signal_burst
     hide screen enter_m_op_stage_fx
@@ -1309,6 +1325,7 @@ label enter_m_sick_ass_anime_op:
 
     # 18.00s - 44.00s: ensemble montage between drops.
     scene enter_m_op_monika_club at enter_m_op_monika_club_stage(2.4)
+    $ cg_unlock("Club President")
     show screen enter_m_op_cg_polish("enter_m_op_monika_club", 0.06, 2.4, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("amber", 0.30)
     show noise:
@@ -1317,21 +1334,26 @@ label enter_m_sick_ass_anime_op:
         alpha 0.0
         linear 0.34 alpha 0.14
         linear 1.20 alpha 0.0
+    show screen enter_m_op_kinetic_credit("DIRECTION", "LAWLIET", 170, 128, "#75f7ff", 2.3, 1)
     $ renpy.pause(2.4, hard=True)
 
+    # Split-screen ensemble panel (was a samey pair card): three crops of the
+    # bookstore, three characters, alternating slide directions.
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_blue", 0.28)
-    show screen enter_m_op_bg_pair_card("enter_m_op_bg_bookstore", "monika 2g", "matsuda neut", "#ffffff28", "#75f7ff", "#d05f77", -150, 418, 1430, 852, enter_m_op_monika_zoom, 0.58, 1.8, enter_m_op_monika_y, 742, left_style="float", right_style="arc")
+    show screen enter_m_op_cut_fx("wipe_diag", 0.36)
+    show screen enter_m_op_split_card("enter_m_op_bg_bookstore", "matsuda neut", "monika 2g", "kotonoha neut", y1=742, z1=0.58, y2=enter_m_op_monika_y, z2=enter_m_op_monika_zoom, y3=742, z3=0.54, accent="#75f7ff", accent2="#d05f77", duration=1.8)
     $ renpy.pause(1.8, hard=True)
-    hide screen enter_m_op_bg_pair_card
+    hide screen enter_m_op_split_card
 
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("dark", 0.22)
     show screen enter_m_op_bg_hold_card("enter_m_op_bg_house_evening", "mc neut", "#ffffff20", "#ffffff", "#75f7ff", 610, 0.56, 742, -2, 1.8, motion_style="arc", side=-1)
+    show screen enter_m_op_kinetic_credit("STORYBOARDS & ANIMATICS", "MATSUDA AKAI", 170, 540, "#75f7ff", 1.7, 1)
     $ renpy.pause(1.8, hard=True)
     hide screen enter_m_op_bg_hold_card
 
     scene enter_m_op_arguing at enter_m_op_cg_impact(2.8, 1.06, 1.11, 0.50, 0.48, 0.50, 0.49)
+    $ cg_unlock("Argue")
     show screen enter_m_op_cg_polish("enter_m_op_arguing", 0.12, 2.8, "#d05f77", "#75f7ff")
     show screen enter_m_op_cut_fx("red", 0.34)
     show screen enter_m_op_pressure_marks
@@ -1345,6 +1367,7 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_bg_shadow_card
 
     scene enter_m_op_sam_bus at enter_m_op_cg_drift(2.2, 1.03, 1.08, 0.52, 0.49, 0.50, 0.48)
+    $ cg_unlock("Sam Bus")
     show screen enter_m_op_cg_polish("enter_m_op_sam_bus", 0.07, 2.2, "#d39a55", "#ffffff")
     show screen enter_m_op_cut_fx("white", 0.22)
     show enter_m_op_amber:
@@ -1354,6 +1377,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(2.2, hard=True)
 
     scene enter_m_op_asahina_poster at enter_m_op_asahina_poster_stage(2.0)
+    $ cg_unlock("Poster Session")
     show screen enter_m_op_cg_polish("enter_m_op_asahina_poster", 0.08, 2.0, "#d39a55", "#75f7ff")
     show screen enter_m_op_cut_fx("amber", 0.30)
     show noise:
@@ -1364,16 +1388,21 @@ label enter_m_sick_ass_anime_op:
         linear 0.72 alpha 0.0
     $ renpy.pause(2.0, hard=True)
 
+    # Manga freeze frame (was another step card): Asahina snaps through three
+    # halftone poses on amber paper, then melts back to colour.
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_red", 0.30)
-    show screen enter_m_op_bg_step_card("enter_m_op_bg_class2", "asahina neut", "#ffffff18", "#d05f77", "#d39a55", 1140, 930, 700, 0.56, 742, 4, 1.4, motion_style="arc")
+    show screen enter_m_op_cut_fx("wipe_diag_red", 0.38)
+    show screen enter_m_op_freeze_frame("asahina neut", paper="#f4e8cf", ink="#2a1a10", accent="#d39a55", x=640, y=742, z=0.82, rot=-2.0, duration=1.4)
     $ renpy.pause(1.4, hard=True)
-    hide screen enter_m_op_bg_step_card
+    hide screen enter_m_op_freeze_frame
 
     scene enter_m_op_matsuda_wistful at enter_m_op_reminisce_stage(3.0)
+    $ cg_unlock("Matsuda Wistful")
     show screen enter_m_op_cg_polish("enter_m_op_matsuda_wistful", 0.040, 3.0, "#d39a55", "#ffffff", glint=False)
     show screen enter_m_op_memory_glow(3.0, 0.070)
     show screen enter_m_op_cut_fx("amber", 0.24)
+    # Played straight: the in-lore animator gets her credit on her own shot.
+    show screen enter_m_op_kinetic_credit("OPENING ANIMATION", "MATSUDA AKAI", 170, 540, "#d39a55", 2.8, 1)
     show enter_m_op_amber:
         alpha 0.0
         linear 0.46 alpha 0.12
@@ -1381,6 +1410,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(3.0, hard=True)
 
     scene enter_m_op_icecream at enter_m_op_icecream_memory_stage(1.8)
+    $ cg_unlock("Ice Cream")
     show screen enter_m_op_cg_polish("enter_m_op_icecream", 0.040, 1.8, "#ffffff", "#d39a55", glint=False)
     show screen enter_m_op_memory_glow(1.8, 0.155)
     show screen enter_m_op_cut_fx("white", 0.28)
@@ -1393,6 +1423,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.8, hard=True)
 
     scene enter_m_op_console_tsubaki at enter_m_op_consolation_stage(1.4)
+    $ cg_unlock("Consoling Tsubaki")
     show screen enter_m_op_cg_polish("enter_m_op_console_tsubaki", 0.070, 1.4, "#75f7ff", "#ffffff", glint=False)
     show screen enter_m_op_memory_loss(1.4)
     show screen enter_m_op_cut_fx("blue", 0.34)
@@ -1405,6 +1436,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.4, hard=True)
 
     scene enter_m_op_redshift at enter_m_op_redshift_stage(2.0)
+    $ cg_unlock("Redshift")
     show screen enter_m_op_cg_polish("enter_m_op_redshift", 0.10, 2.0, "#d05f77", "#ffffff")
     show screen enter_m_op_cut_fx("red", 0.36)
     show noise:
@@ -1419,6 +1451,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(2.0, hard=True)
 
     scene enter_m_op_blueshift at enter_m_op_blueshift_stage(1.2)
+    $ cg_unlock("Blueshift")
     show screen enter_m_op_cg_polish("enter_m_op_blueshift", 0.12, 1.2, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("wipe_blue", 0.46)
     show noise:
@@ -1436,17 +1469,23 @@ label enter_m_sick_ass_anime_op:
 
     # 44.00s second drop. The post-drop montage locks to 4-beat bars.
     scene enter_m_op_puppet at enter_m_op_puppet_stage(enter_m_op_bar)
+    $ cg_unlock("Puppet")
     show screen enter_m_op_cg_polish("enter_m_op_puppet", 0.10, enter_m_op_bar, "#ffffff", "#d05f77")
     show screen enter_m_op_cut_fx("white", 0.48)
     show noise:
         alpha 0.035
     show enter_m_op_white at enter_m_op_flash(0.62)
     show screen enter_m_op_signal_burst
+    # FX upgrade: zoom-blur punch-in + spark burst on the second drop.
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_impact("enter_m_op_puppet", "zoom", enter_m_op_half_bar, z=1.10)
+    show screen enter_m_op_spark_burst(640, 360, 54, 0.8, 12.0, 13.0)
     $ renpy.pause(enter_m_op_bar, hard=True)
     hide screen enter_m_op_signal_burst
 
     scene enter_m_op_asahina_world_broken at enter_m_op_world_crumble_stage(enter_m_op_bar):
         zoom 1.50
+    $ cg_unlock("World Broken")
     show screen enter_m_op_cg_polish("enter_m_op_asahina_world_broken", 0.09, enter_m_op_bar, "#d05f77", "#75f7ff")
     show screen enter_m_op_cut_fx("wipe_red", 0.36)
     show noise:
@@ -1461,6 +1500,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(enter_m_op_bar, hard=True)
 
     scene enter_m_op_no_marks at enter_m_op_no_marks_stage(enter_m_op_bar)
+    $ cg_unlock("No Marks")
     show screen enter_m_op_cg_polish("enter_m_op_no_marks", 0.075, enter_m_op_bar, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("wipe_blue", 0.30)
     show noise:
@@ -1477,21 +1517,34 @@ label enter_m_sick_ass_anime_op:
 
     scene enter_m_op_dark
     show enter_m_op_turmoil as enter_m_op_turmoil_back at enter_m_op_turmoil_backplate(enter_m_op_bar * 2.0)
-    show enter_m_op_turmoil as enter_m_op_turmoil_front at enter_m_op_turmoil_stage(enter_m_op_bar * 2.0)
-    show screen enter_m_op_cut_fx("red", 0.50)
+    show enter_m_op_turmoil as enter_m_op_turmoil_front at enter_m_op_turmoil_chaos(enter_m_op_bar * 2.0)
+    $ cg_unlock("Turmoil")
+    show screen enter_m_op_cut_fx("red", 0.55)
     show screen enter_m_op_turmoil_fx(enter_m_op_bar * 2.0)
+    # FX upgrade: MC's psyche fracturing -- sustained datamosh + chromatic tear,
+    # with off-beat strobes so the whole break feels unstable.
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_psyche_break("enter_m_op_turmoil", enter_m_op_bar * 2.0)
     show noise:
-        alpha 0.055
+        alpha 0.075
     show enter_m_op_dark:
         alpha 0.0
-        linear enter_m_op_bar alpha 0.12
-    show enter_m_op_amber:
-        alpha 0.0
-        linear enter_m_op_beat * 0.18 alpha 0.08
-        linear enter_m_op_beat * 0.62 alpha 0.0
-    $ renpy.pause(enter_m_op_bar, hard=True)
-    $ renpy.pause(enter_m_op_bar, hard=True)
+        linear enter_m_op_bar alpha 0.14
+    $ renpy.pause(enter_m_op_beat, hard=True)
+    show screen enter_m_op_cut_fx("white", 0.42)
+    $ renpy.pause(enter_m_op_beat * 0.5, hard=True)
+    show screen enter_m_op_cut_fx("red", 0.40)
+    $ renpy.pause(enter_m_op_beat * 1.5, hard=True)
+    show screen enter_m_op_cut_fx("wipe_red", 0.46)
+    $ renpy.pause(enter_m_op_beat, hard=True)
+    show screen enter_m_op_cut_fx("white", 0.30)
+    $ renpy.pause(enter_m_op_beat * 0.5, hard=True)
+    show screen enter_m_op_cut_fx("blue", 0.34)
+    $ renpy.pause(enter_m_op_beat * 1.5, hard=True)
+    show screen enter_m_op_cut_fx("white", 0.50)
+    $ renpy.pause(enter_m_op_beat * 2.0, hard=True)
     hide screen enter_m_op_turmoil_fx
+    hide screen enter_m_op_psyche_break
 
     # Bars 5-10: half-bar character motion fragments, locked to the 130 BPM grid.
     scene enter_m_op_dark
@@ -1500,26 +1553,30 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(enter_m_op_half_bar, hard=True)
     hide screen enter_m_op_bg_hold_card
 
+    # Impact frame instead of another pan: Matsuda punched in over a red limbo.
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_red", 0.22)
-    show screen enter_m_op_bg_motion_card("enter_m_op_bg_lockers", "matsuda neut", "#ffffff18", "#d05f77", "#75f7ff", -150, 674, 0.58, 742, 3, 1, enter_m_op_half_bar, motion_style="arc")
+    show screen enter_m_op_cut_fx("wipe_red", 0.34)
+    show screen enter_m_op_bg_impact_card("matsuda neut", "#241016", (1.0, 0.62, 0.74), "#d05f77", 640, 0.74, 742, -2, enter_m_op_half_bar, 0.5)
+    show screen enter_m_op_name_card("MATSUDA", 1110, 552, "#d05f77", enter_m_op_half_bar - 0.05, -1)
     $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_motion_card
+    hide screen enter_m_op_bg_impact_card
 
+    # Freeze frame on the half-bar grid: Monika in cyan halftone.
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("blue", 0.24)
-    show screen enter_m_op_bg_step_card("enter_m_op_bg_lightlockers", "monika 1p", "#ffffff20", "#75f7ff", "#ffffff", 1020, 820, 604, enter_m_op_monika_zoom, enter_m_op_monika_y, -2, enter_m_op_half_bar, motion_style="float")
+    show screen enter_m_op_freeze_frame("monika 1p", paper="#e8f6fa", ink="#0d1c26", accent="#75f7ff", x=640, y=enter_m_op_monika_y, z=0.66, rot=2.0, duration=enter_m_op_half_bar)
     $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_step_card
+    hide screen enter_m_op_freeze_frame
+
+    # Impact frame: Asahina punched in over an amber limbo.
+    scene enter_m_op_dark
+    show screen enter_m_op_cut_fx("amber", 0.30)
+    show screen enter_m_op_bg_impact_card("asahina neut", "#1a1208", (1.0, 0.85, 0.5), "#d39a55", 640, 0.74, 742, 2, enter_m_op_half_bar, 0.5)
+    $ renpy.pause(enter_m_op_half_bar, hard=True)
+    hide screen enter_m_op_bg_impact_card
 
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("amber", 0.20)
-    show screen enter_m_op_bg_motion_card("enter_m_op_bg_kitchen2", "asahina neut", "#ffffff16", "#d39a55", "#d05f77", 1420, 666, 0.56, 742, 4, -1, enter_m_op_half_bar, motion_style="float")
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_motion_card
-
-    scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_blue", 0.32)
+    show screen enter_m_op_cut_fx("wipe_diag_blue", 0.38)
     show screen enter_m_op_bg_hold_card("enter_m_op_bg_arcade", "tsubaki neut", "#ffffff16", "#ffffff", "#75f7ff", 630, 0.56, 742, -3, enter_m_op_half_bar, motion_style="arc", side=-1)
     $ renpy.pause(enter_m_op_half_bar, hard=True)
     hide screen enter_m_op_bg_hold_card
@@ -1527,48 +1584,31 @@ label enter_m_sick_ass_anime_op:
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("white", 0.22)
     show screen enter_m_op_bg_step_card("enter_m_op_bg_vending", "kotonoha neut", "#ffffff1a", "#d39a55", "#75f7ff", 1120, 900, 670, 0.54, 742, 3, enter_m_op_half_bar)
+    show screen enter_m_op_name_card("KOTONOHA", 170, 552, "#d39a55", enter_m_op_half_bar - 0.05, 1)
     $ renpy.pause(enter_m_op_half_bar, hard=True)
     hide screen enter_m_op_bg_step_card
 
+    # Meta-commentary beat (replaces the back half of the character montage --
+    # six samey cards): the whole original cast lined up under "is this even a
+    # DDLC mod?", then everyone but Monika vanishes for the deadpan "barely."
+    # Total duration = bar * 3, exactly the six half-bar cards it stands in for,
+    # so the title drop still lands on the grid.
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_blue", 0.26)
-    show screen enter_m_op_bg_pair_card("mod_assets/dump/musicroom_dark.png", "mc neut", "matsuda neut", "#ffffff16", "#75f7ff", "#d05f77", -140, 418, 1420, 850, 0.54, 0.58, enter_m_op_half_bar, left_style="arc", right_style="float")
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_pair_card
+    show screen enter_m_op_cut_fx("white", 0.40)
+    show screen enter_m_op_meta_lineup(enter_m_op_bar * 1.5)
+    $ renpy.pause(enter_m_op_bar * 1.5, hard=True)
+    hide screen enter_m_op_meta_lineup
 
     scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_red", 0.24)
-    show screen enter_m_op_bg_shadow_card("enter_m_op_bg_bridge", "asahina neut", "sam neut", "#ffffff16", "#d05f77", "#ffffff", -140, 408, 1420, 846, 0.54, 0.62, enter_m_op_half_bar, fg_style="float", shadow_style="dash")
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_shadow_card
-
-    scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("red", 0.24)
-    show screen enter_m_op_bg_shadow_card("enter_m_op_bg_door_night", "tsubaki neut", "sam neut", "#ffffff12", "#d05f77", "#75f7ff", -140, 404, 1420, 844, 0.54, 0.62, enter_m_op_half_bar)
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_shadow_card
-
-    scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("blue", 0.26)
-    show screen enter_m_op_bg_pair_card("enter_m_op_bg_city_evening", "mc neut", "monika 1p", "#ffffff18", "#75f7ff", "#ffffff", -140, 428, 1420, 846, 0.54, enter_m_op_monika_zoom, enter_m_op_half_bar, 742, enter_m_op_monika_y, left_style="float", right_style="arc")
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_pair_card
-
-    scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("dark", 0.20)
-    show screen enter_m_op_bg_hold_card("enter_m_op_bg_store", "kotonoha neut", "#ffffff14", "#ffffff", "#d39a55", 646, 0.54, 742, 2, enter_m_op_half_bar, motion_style="float", side=1)
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_hold_card
-
-    scene enter_m_op_dark
-    show screen enter_m_op_cut_fx("wipe_red", 0.22)
-    show screen enter_m_op_bg_motion_card("mod_assets/dump/mainbg.png", "sam neut", "#ffffff12", "#d05f77", "#d39a55", 1420, 682, 0.58, 742, 4, -1, enter_m_op_half_bar, motion_style="arc")
-    $ renpy.pause(enter_m_op_half_bar, hard=True)
-    hide screen enter_m_op_bg_motion_card
+    show screen enter_m_op_cut_fx("dark", 0.34)
+    show screen enter_m_op_meta_monika(enter_m_op_bar * 1.5)
+    $ renpy.pause(enter_m_op_bar * 1.5, hard=True)
+    hide screen enter_m_op_meta_monika
 
     scene enter_m_op_dark
     show enter_m_op_sam_villain as enter_m_op_sam_villain_back at enter_m_op_sam_villain_backplate(enter_m_op_bar * 2.0)
     show enter_m_op_sam_villain as enter_m_op_sam_villain_front at enter_m_op_sam_villain_stage(enter_m_op_bar * 2.0)
+    $ cg_unlock("Smug Sam")
     show screen enter_m_op_cut_fx("amber", 0.34)
     show noise:
         alpha 0.045
@@ -1601,13 +1641,22 @@ label enter_m_sick_ass_anime_op:
     show screen enter_m_op_cut_fx("dark", 0.26)
     $ renpy.pause(enter_m_op_beat, hard=True)
 
+    # Primordial chaotic sludge -- no sprites, just churning muck before the
+    # "missing" beat. Falls back to a dark, sprite-less plate without shaders.
     scene enter_m_op_dark
     show screen enter_m_op_cut_fx("dark", 0.22)
-    show screen enter_m_op_bg_pair_card("mod_assets/dump/finalbg.png", "asahina neut", "tsubaki neut", "#ffffff12", "#d05f77", "#75f7ff", -150, 412, 1430, 846, 0.54, 0.56, enter_m_op_bar, left_style="float", right_style="arc")
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_sludge_card(enter_m_op_bar)
+    else:
+        show screen enter_m_op_bg_plate("mod_assets/dump/finalbg.png", "#0a0f06cc", "#3a3210", "#16240a", enter_m_op_bar, 0.46, 0.54)
     $ renpy.pause(enter_m_op_bar, hard=True)
-    hide screen enter_m_op_bg_pair_card
+    if ENTER_M_OP_SHADERS:
+        hide screen enter_m_op_sludge_card
+    else:
+        hide screen enter_m_op_bg_plate
 
     scene enter_m_op_missing at enter_m_op_missing_stage(enter_m_op_bar * 2.0)
+    $ cg_unlock("Next Line Missing")
     show screen enter_m_op_cg_polish("enter_m_op_missing", 0.13, enter_m_op_bar * 2.0, "#75f7ff", "#d05f77")
     show screen enter_m_op_cut_fx("white", 0.42)
     show noise:
@@ -1631,18 +1680,28 @@ label enter_m_sick_ass_anime_op:
 
     # 73.54s title drop, sixteen 4-beat bars after the second drop.
     scene enter_m_op_title_drop at enter_m_op_title_plate
+    $ cg_unlock("Title Drop")
     show screen enter_m_op_cg_polish("enter_m_op_title_drop", 0.08, 6.8, "#ffffff", "#75f7ff")
     show screen enter_m_op_cut_fx("white", 0.58)
     show noise:
         alpha 0.045
     show screen enter_m_op_signal_burst
-    show expression Text("ENTER_M", style="enter_m_op_title") as enter_m_op_title:
-        xalign 0.5
-        yalign 0.80
-        alpha 0.0
-        yoffset 24
-        pause 0.30
-        easeout 0.45 alpha 1.0 yoffset 0
+    # FX upgrade: logo shockwave, spark burst, petal fall, and an aberration-
+    # pulsed kinetic title. Falls back to the plain fade without shaders.
+    show screen enter_m_op_ambient_particles("petal")
+    show screen enter_m_op_spark_burst(640, 300, 72, 1.0, 12.0, 14.0)
+    if ENTER_M_OP_SHADERS:
+        show screen enter_m_op_impact("enter_m_op_title_drop", "shock", 0.7, z=1.05)
+        show screen enter_m_op_rays(0.5, 0.44, (0.65, 0.93, 1.0), 26.0, 0.45, 0.30, 7.0)
+        show expression Text("ENTER_M", style="enter_m_op_title") as enter_m_op_title at enter_m_op_title_glitch(7.0)
+    else:
+        show expression Text("ENTER_M", style="enter_m_op_title") as enter_m_op_title:
+            xalign 0.5
+            yalign 0.80
+            alpha 0.0
+            yoffset 24
+            pause 0.30
+            easeout 0.45 alpha 1.0 yoffset 0
     $ renpy.pause(7.0, hard=True)
     hide screen enter_m_op_signal_burst
 
@@ -1653,6 +1712,8 @@ label enter_m_sick_ass_anime_op:
     $ quick_menu = enter_m_op_prev_quick_menu
     return
 
+# SKIP target (jumped to from the skip screen). Stop music, tear down all OP
+# screens, fade to black, restore the saved quick_menu, and return to the caller.
 label enter_m_sick_ass_anime_op_skip:
     $ quick_menu = False
     stop music fadeout 0.25

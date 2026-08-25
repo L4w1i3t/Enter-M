@@ -1,0 +1,1 @@
+This is a folder of all files that are independent of the engine/template itself. These are great for references.

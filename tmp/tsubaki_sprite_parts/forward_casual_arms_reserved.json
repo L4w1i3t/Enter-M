@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "input": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\arms_reserved_casual_raw.png",
+  "source_canvas": [
+    1024,
+    1536
+  ],
+  "target_canvas": [
+    1024,
+    1536
+  ],
+  "scale": 0.58,
+  "source_anchor": [
+    512.0,
+    355.0
+  ],
+  "target_anchor": [
+    512.0,
+    835.0
+  ],
+  "translate_x": 215.04,
+  "translate_y": 629.1,
+  "placed_foreground_bbox": [
+    323,
+    833,
+    699,
+    1411
+  ],
+  "hidden_rgb_values_under_zero_alpha": 0,
+  "matte": {
+    "checker_palette_rgb": [
+      [
+        254.0,
+        254.0,
+        254.0
+      ],
+      [
+        247.0,
+        247.0,
+        247.0
+      ]
+    ],
+    "checker_minimum_channel_threshold": 234,
+    "checker_chroma_threshold": 20,
+    "checker_palette_tolerance": 17.0,
+    "neutral_frame_fraction": 1.0,
+    "edge_checker_fraction": 1.0,
+    "canvas_checker_pixels": 1366225,
+    "enclosed_checker_pixels": 0,
+    "neutral_fringe_pixels_removed": 346,
+    "hard_foreground_pixels": 206293,
+    "hard_foreground_fraction": 0.131158,
+    "checker_dark_luminance": 247.1122,
+    "checker_light_luminance": 253.5364,
+    "checker_phase_frame_accuracy": 0.893245,
+    "candidate_component_count": 2,
+    "canvas_checker_components": 1,
+    "enclosed_checker_components": 0,
+    "phase_matched_checker_components": 0,
+    "large_enclosed_gap_components": 0,
+    "top_hair_checker_components": 0,
+    "small_skin_gap_checker_components": 0,
+    "protected_pale_components": 0,
+    "largest_protected_pale_components": [],
+    "foreground_component_count_before_cleanup": 1,
+    "foreground_component_count_retained": 1,
+    "foreground_component_count_dropped": 0,
+    "disconnected_pixels_dropped": 0,
+    "soft_alpha_pixels": 7542,
+    "decontaminated_transition_pixels": 7542,
+    "transparent_pixels": 1362805,
+    "nonzero_rgb_values_under_zero_alpha": 0
+  },
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_parts\\forward_casual_arms_reserved.png"
+}

@@ -1,0 +1,1223 @@
+{
+  "schema_version": 1,
+  "canvas": [
+    1024,
+    1536
+  ],
+  "master_dir": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters",
+  "output_dir": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_processed",
+  "processed_expressions": [
+    "neut",
+    "happy",
+    "smug",
+    "teasing",
+    "thinking",
+    "curious",
+    "unamused",
+    "annoyed",
+    "frustrated",
+    "angry",
+    "sad",
+    "crying",
+    "embarrassed",
+    "nervous",
+    "worried",
+    "shocked",
+    "afraid",
+    "panicked",
+    "determined",
+    "empty",
+    "disgusted"
+  ],
+  "missing_expressions": [],
+  "production_matrix": [
+    [
+      0.5199999809265137,
+      0.0,
+      245.75999450683594
+    ],
+    [
+      0.0,
+      0.5199999809265137,
+      263.0
+    ]
+  ],
+  "layers": {
+    "neut": {
+      "donor": "expression_neut.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 327,
+        "inliers": 270,
+        "inlier_rms": 1.298997163772583,
+        "scale": 0.9985721036686006,
+        "rotation_degrees": 0.04295966615267618,
+        "translate_x": 1.449060320854187,
+        "translate_y": -1.3153047561645508
+      },
+      "raw": {
+        "visible_pixels": 15588,
+        "opaque_pixels": 13963,
+        "partial_pixels": 1625,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          331,
+          571,
+          680,
+          821
+        ],
+        "bounding_box_fill_ratio": 0.1786590257879656
+      },
+      "normalization_for_mask_only": {
+        "samples": 32349,
+        "gains": [
+          0.9237284178668211,
+          0.971664949394383,
+          0.9224343509537173
+        ],
+        "offsets": [
+          19.37298186182744,
+          7.488726588686291,
+          17.443917597811947
+        ],
+        "mean_absolute_residual": 1.4884140259801375,
+        "p95_absolute_residual": 4.943329898788761
+      },
+      "production": {
+        "visible_pixels": 4743,
+        "opaque_pixels": 3161,
+        "partial_pixels": 1582,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          691
+        ]
+      }
+    },
+    "happy": {
+      "donor": "expression_happy_v2.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 273,
+        "inliers": 210,
+        "inlier_rms": 1.5431084632873535,
+        "scale": 1.0020052253596214,
+        "rotation_degrees": 0.0479047096353121,
+        "translate_x": -0.03676549345254898,
+        "translate_y": -4.04613733291626
+      },
+      "raw": {
+        "visible_pixels": 15962,
+        "opaque_pixels": 14256,
+        "partial_pixels": 1706,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          837
+        ],
+        "bounding_box_fill_ratio": 0.1714500537056928
+      },
+      "normalization_for_mask_only": {
+        "samples": 31970,
+        "gains": [
+          0.88,
+          0.9791451465782851,
+          0.9731618691172681
+        ],
+        "offsets": [
+          24.0,
+          7.775761433572711,
+          8.914872530209408
+        ],
+        "mean_absolute_residual": 3.9414037386977707,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 4818,
+        "opaque_pixels": 3281,
+        "partial_pixels": 1537,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          699
+        ]
+      }
+    },
+    "smug": {
+      "donor": "expression_smug.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 301,
+        "inliers": 221,
+        "inlier_rms": 1.3298938274383545,
+        "scale": 1.0001049295689297,
+        "rotation_degrees": -0.014341067263553973,
+        "translate_x": 0.4835975766181946,
+        "translate_y": -1.6285651922225952
+      },
+      "raw": {
+        "visible_pixels": 13004,
+        "opaque_pixels": 11378,
+        "partial_pixels": 1626,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          331,
+          571,
+          679,
+          822
+        ],
+        "bounding_box_fill_ratio": 0.148875761322526
+      },
+      "normalization_for_mask_only": {
+        "samples": 32230,
+        "gains": [
+          0.9400745512684444,
+          0.9245883627721864,
+          0.9231611201370549
+        ],
+        "offsets": [
+          15.221063977815106,
+          18.693853287941508,
+          18.366681410807303
+        ],
+        "mean_absolute_residual": 1.6808917164357058,
+        "p95_absolute_residual": 5.690120706532468
+      },
+      "production": {
+        "visible_pixels": 4068,
+        "opaque_pixels": 2488,
+        "partial_pixels": 1580,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          599,
+          691
+        ]
+      }
+    },
+    "teasing": {
+      "donor": "expression_teasing.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 280,
+        "inliers": 218,
+        "inlier_rms": 1.494968056678772,
+        "scale": 0.9998216670009554,
+        "rotation_degrees": 0.01743028144224127,
+        "translate_x": 0.8026204705238342,
+        "translate_y": -2.7335422039031982
+      },
+      "raw": {
+        "visible_pixels": 13967,
+        "opaque_pixels": 12187,
+        "partial_pixels": 1780,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          332,
+          571,
+          680,
+          818
+        ],
+        "bounding_box_fill_ratio": 0.16249011121969378
+      },
+      "normalization_for_mask_only": {
+        "samples": 32246,
+        "gains": [
+          0.9460492568909096,
+          0.9668034725661063,
+          0.9690501981992091
+        ],
+        "offsets": [
+          13.703488749708981,
+          11.568808254927745,
+          12.437558774564508
+        ],
+        "mean_absolute_residual": 1.7348337439276955,
+        "p95_absolute_residual": 6.030949801800801
+      },
+      "production": {
+        "visible_pixels": 4298,
+        "opaque_pixels": 2716,
+        "partial_pixels": 1582,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          689
+        ]
+      }
+    },
+    "thinking": {
+      "donor": "expression_thinking.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 253,
+        "inliers": 208,
+        "inlier_rms": 1.3834562301635742,
+        "scale": 0.988183429885144,
+        "rotation_degrees": -0.07678209167567476,
+        "translate_x": -7.893946647644043,
+        "translate_y": -0.4511967897415161
+      },
+      "raw": {
+        "visible_pixels": 15639,
+        "opaque_pixels": 14190,
+        "partial_pixels": 1449,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          332,
+          572,
+          680,
+          823
+        ],
+        "bounding_box_fill_ratio": 0.17904245088611073
+      },
+      "normalization_for_mask_only": {
+        "samples": 32168,
+        "gains": [
+          0.8857391528963134,
+          0.9918435078673914,
+          0.9734186379167281
+        ],
+        "offsets": [
+          24.0,
+          3.8841496826325965,
+          9.555504675403824
+        ],
+        "mean_absolute_residual": 3.2672119076124155,
+        "p95_absolute_residual": 6.907994317232692
+      },
+      "production": {
+        "visible_pixels": 4667,
+        "opaque_pixels": 3269,
+        "partial_pixels": 1398,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          561,
+          601,
+          692
+        ]
+      }
+    },
+    "curious": {
+      "donor": "expression_curious.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 276,
+        "inliers": 225,
+        "inlier_rms": 1.442545771598816,
+        "scale": 0.9829338001756792,
+        "rotation_degrees": -0.05506687955558756,
+        "translate_x": -5.143476963043213,
+        "translate_y": 0.9329249858856201
+      },
+      "raw": {
+        "visible_pixels": 15821,
+        "opaque_pixels": 14283,
+        "partial_pixels": 1538,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          331,
+          571,
+          680,
+          834
+        ],
+        "bounding_box_fill_ratio": 0.1723664571235578
+      },
+      "normalization_for_mask_only": {
+        "samples": 32028,
+        "gains": [
+          0.88,
+          0.9965335440889004,
+          0.9977160674341324
+        ],
+        "offsets": [
+          24.0,
+          3.793818403641808,
+          4.484193703963911
+        ],
+        "mean_absolute_residual": 3.8559548588017276,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 4736,
+        "opaque_pixels": 3357,
+        "partial_pixels": 1379,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          698
+        ]
+      }
+    },
+    "unamused": {
+      "donor": "expression_unamused.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 282,
+        "inliers": 212,
+        "inlier_rms": 1.3757911920547485,
+        "scale": 1.0001688512546776,
+        "rotation_degrees": 0.04875903056518446,
+        "translate_x": 1.1014325618743896,
+        "translate_y": -3.3413069248199463
+      },
+      "raw": {
+        "visible_pixels": 11458,
+        "opaque_pixels": 9683,
+        "partial_pixels": 1775,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          572,
+          680,
+          821
+        ],
+        "bounding_box_fill_ratio": 0.1314744693057946
+      },
+      "normalization_for_mask_only": {
+        "samples": 32266,
+        "gains": [
+          0.88,
+          0.914545647392468,
+          0.9077524406813852
+        ],
+        "offsets": [
+          24.0,
+          21.569046747124816,
+          21.648730134864962
+        ],
+        "mean_absolute_residual": 3.5978850369100304,
+        "p95_absolute_residual": 8.240000000000009
+      },
+      "production": {
+        "visible_pixels": 3545,
+        "opaque_pixels": 2073,
+        "partial_pixels": 1472,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          561,
+          601,
+          691
+        ]
+      }
+    },
+    "annoyed": {
+      "donor": "expression_annoyed.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 281,
+        "inliers": 197,
+        "inlier_rms": 1.2567135095596313,
+        "scale": 0.991854453145163,
+        "rotation_degrees": -0.12312046366663384,
+        "translate_x": -8.255997657775879,
+        "translate_y": -2.3937180042266846
+      },
+      "raw": {
+        "visible_pixels": 13610,
+        "opaque_pixels": 11987,
+        "partial_pixels": 1623,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          332,
+          572,
+          680,
+          828
+        ],
+        "bounding_box_fill_ratio": 0.1527702945402299
+      },
+      "normalization_for_mask_only": {
+        "samples": 32481,
+        "gains": [
+          0.9371993205663789,
+          0.9679535039577272,
+          0.9175052233831192
+        ],
+        "offsets": [
+          15.951372576139761,
+          8.434787081807286,
+          18.241408312928087
+        ],
+        "mean_absolute_residual": 1.6470962015964983,
+        "p95_absolute_residual": 5.743628031661814
+      },
+      "production": {
+        "visible_pixels": 4228,
+        "opaque_pixels": 2628,
+        "partial_pixels": 1600,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          561,
+          601,
+          695
+        ]
+      }
+    },
+    "frustrated": {
+      "donor": "expression_frustrated.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 272,
+        "inliers": 204,
+        "inlier_rms": 1.3848369121551514,
+        "scale": 0.999385705106816,
+        "rotation_degrees": 0.025176761574303454,
+        "translate_x": 0.9496603608131409,
+        "translate_y": -1.7148184776306152
+      },
+      "raw": {
+        "visible_pixels": 13222,
+        "opaque_pixels": 11517,
+        "partial_pixels": 1705,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          331,
+          571,
+          680,
+          825
+        ],
+        "bounding_box_fill_ratio": 0.1491550662184419
+      },
+      "normalization_for_mask_only": {
+        "samples": 32196,
+        "gains": [
+          0.9691387268688157,
+          0.9510572598455773,
+          0.9496409070418403
+        ],
+        "offsets": [
+          7.838763375320809,
+          12.30577297567163,
+          11.877564078962479
+        ],
+        "mean_absolute_residual": 1.7169493277729306,
+        "p95_absolute_residual": 5.75528629922789
+      },
+      "production": {
+        "visible_pixels": 4133,
+        "opaque_pixels": 2496,
+        "partial_pixels": 1637,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          692
+        ]
+      }
+    },
+    "angry": {
+      "donor": "expression_angry.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 270,
+        "inliers": 205,
+        "inlier_rms": 1.3826675415039062,
+        "scale": 0.9771247857170802,
+        "rotation_degrees": -0.05840755420479736,
+        "translate_x": -2.9822587966918945,
+        "translate_y": 8.305903434753418
+      },
+      "raw": {
+        "visible_pixels": 14422,
+        "opaque_pixels": 12812,
+        "partial_pixels": 1610,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          332,
+          571,
+          680,
+          829
+        ],
+        "bounding_box_fill_ratio": 0.16062995633965962
+      },
+      "normalization_for_mask_only": {
+        "samples": 32066,
+        "gains": [
+          0.8985202132882513,
+          0.9557379421846439,
+          0.9549896565543187
+        ],
+        "offsets": [
+          24.0,
+          12.224535355347257,
+          13.362151436701708
+        ],
+        "mean_absolute_residual": 2.2003918239432276,
+        "p95_absolute_residual": 5.4714264646489426
+      },
+      "production": {
+        "visible_pixels": 4419,
+        "opaque_pixels": 2829,
+        "partial_pixels": 1590,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          695
+        ]
+      }
+    },
+    "sad": {
+      "donor": "expression_sad.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 281,
+        "inliers": 210,
+        "inlier_rms": 1.4066271781921387,
+        "scale": 1.000141201699807,
+        "rotation_degrees": 0.04071831423581004,
+        "translate_x": 0.9514365196228027,
+        "translate_y": -2.5636887550354004
+      },
+      "raw": {
+        "visible_pixels": 14282,
+        "opaque_pixels": 12602,
+        "partial_pixels": 1680,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          679,
+          825
+        ],
+        "bounding_box_fill_ratio": 0.16111274056359
+      },
+      "normalization_for_mask_only": {
+        "samples": 32183,
+        "gains": [
+          0.9112294827932624,
+          0.9634754475144338,
+          0.9821288019958727
+        ],
+        "offsets": [
+          22.547711370511337,
+          11.254548861737959,
+          8.717209184858461
+        ],
+        "mean_absolute_residual": 1.7758664979988263,
+        "p95_absolute_residual": 5.9269508950288525
+      },
+      "production": {
+        "visible_pixels": 4414,
+        "opaque_pixels": 2841,
+        "partial_pixels": 1573,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          599,
+          692
+        ]
+      }
+    },
+    "crying": {
+      "donor": "expression_crying.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 290,
+        "inliers": 229,
+        "inlier_rms": 1.5372986793518066,
+        "scale": 0.998929099838299,
+        "rotation_degrees": -0.015005527010416138,
+        "translate_x": 0.7984033226966858,
+        "translate_y": -1.5164546966552734
+      },
+      "raw": {
+        "visible_pixels": 22104,
+        "opaque_pixels": 15215,
+        "partial_pixels": 6889,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 4463,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          855
+        ],
+        "bounding_box_fill_ratio": 0.22237424547283702
+      },
+      "normalization_for_mask_only": {
+        "samples": 32122,
+        "gains": [
+          0.9237969484837449,
+          0.9516362043541913,
+          0.9550228335847089
+        ],
+        "offsets": [
+          19.355575085128777,
+          13.172036794181821,
+          13.40022778079586
+        ],
+        "mean_absolute_residual": 1.9191920754283873,
+        "p95_absolute_residual": 6.775114167923533
+      },
+      "production": {
+        "visible_pixels": 6669,
+        "opaque_pixels": 3194,
+        "partial_pixels": 3475,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          707
+        ]
+      }
+    },
+    "embarrassed": {
+      "donor": "expression_embarrassed.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 281,
+        "inliers": 206,
+        "inlier_rms": 1.4388549327850342,
+        "scale": 0.9990174616564973,
+        "rotation_degrees": -0.024811948989940536,
+        "translate_x": 0.8512738943099976,
+        "translate_y": -1.2768690586090088
+      },
+      "raw": {
+        "visible_pixels": 19838,
+        "opaque_pixels": 12926,
+        "partial_pixels": 6912,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 5316,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          820
+        ],
+        "bounding_box_fill_ratio": 0.2276305220883534
+      },
+      "normalization_for_mask_only": {
+        "samples": 32202,
+        "gains": [
+          0.9184478088253548,
+          0.9036967415274081,
+          0.8884207978704953
+        ],
+        "offsets": [
+          20.714256558359864,
+          23.34235596564133,
+          24.0
+        ],
+        "mean_absolute_residual": 2.291595758368055,
+        "p95_absolute_residual": 8.208474042936984
+      },
+      "production": {
+        "visible_pixels": 5881,
+        "opaque_pixels": 2913,
+        "partial_pixels": 2968,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          690
+        ]
+      }
+    },
+    "nervous": {
+      "donor": "expression_nervous.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 269,
+        "inliers": 165,
+        "inlier_rms": 1.3475412130355835,
+        "scale": 1.0000000250418477,
+        "rotation_degrees": 0.15932696615746747,
+        "translate_x": 2.2136664390563965,
+        "translate_y": 1.4765888452529907
+      },
+      "raw": {
+        "visible_pixels": 17579,
+        "opaque_pixels": 13458,
+        "partial_pixels": 4121,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 2278,
+        "bounding_box": [
+          331,
+          571,
+          680,
+          822
+        ],
+        "bounding_box_fill_ratio": 0.2006758068014475
+      },
+      "normalization_for_mask_only": {
+        "samples": 32119,
+        "gains": [
+          0.88,
+          0.9515015937664489,
+          0.9879195559276113
+        ],
+        "offsets": [
+          24.0,
+          15.106135027483191,
+          9.500651922984474
+        ],
+        "mean_absolute_residual": 3.8208241936345995,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 5316,
+        "opaque_pixels": 2993,
+        "partial_pixels": 2323,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          691
+        ]
+      }
+    },
+    "worried": {
+      "donor": "expression_worried.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 280,
+        "inliers": 222,
+        "inlier_rms": 1.4385826587677002,
+        "scale": 0.9999271201165216,
+        "rotation_degrees": 0.012747712980365653,
+        "translate_x": 0.8069310188293457,
+        "translate_y": -2.6976125240325928
+      },
+      "raw": {
+        "visible_pixels": 18767,
+        "opaque_pixels": 14080,
+        "partial_pixels": 4687,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 2983,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          827
+        ],
+        "bounding_box_fill_ratio": 0.209453125
+      },
+      "normalization_for_mask_only": {
+        "samples": 32202,
+        "gains": [
+          0.9650043476557696,
+          0.9766022940177321,
+          1.0003540721475097
+        ],
+        "offsets": [
+          8.888895695434513,
+          8.381472375921618,
+          4.925998921170475
+        ],
+        "mean_absolute_residual": 1.6993800361748597,
+        "p95_absolute_residual": 5.859613764106399
+      },
+      "production": {
+        "visible_pixels": 5626,
+        "opaque_pixels": 3206,
+        "partial_pixels": 2420,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          694
+        ]
+      }
+    },
+    "shocked": {
+      "donor": "expression_shocked.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 283,
+        "inliers": 213,
+        "inlier_rms": 1.507712483406067,
+        "scale": 1.0036021766379746,
+        "rotation_degrees": 0.0635664495354374,
+        "translate_x": 0.03372006490826607,
+        "translate_y": -5.510594367980957
+      },
+      "raw": {
+        "visible_pixels": 18637,
+        "opaque_pixels": 17304,
+        "partial_pixels": 1333,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          847
+        ],
+        "bounding_box_fill_ratio": 0.1929296066252588
+      },
+      "normalization_for_mask_only": {
+        "samples": 32151,
+        "gains": [
+          0.88,
+          0.9710059387549137,
+          0.9796555230901637
+        ],
+        "offsets": [
+          24.0,
+          9.668634086369849,
+          8.292684627975461
+        ],
+        "mean_absolute_residual": 3.7507818176788628,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 5452,
+        "opaque_pixels": 4171,
+        "partial_pixels": 1281,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          704
+        ]
+      }
+    },
+    "afraid": {
+      "donor": "expression_afraid.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 272,
+        "inliers": 183,
+        "inlier_rms": 1.4627162218093872,
+        "scale": 1.0016535758394942,
+        "rotation_degrees": 0.02810802829995519,
+        "translate_x": -0.5829572081565857,
+        "translate_y": -3.6349036693573
+      },
+      "raw": {
+        "visible_pixels": 17158,
+        "opaque_pixels": 15492,
+        "partial_pixels": 1666,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          828
+        ],
+        "bounding_box_fill_ratio": 0.19075041689827682
+      },
+      "normalization_for_mask_only": {
+        "samples": 32043,
+        "gains": [
+          0.88,
+          0.9773869849351505,
+          0.9601406175841526
+        ],
+        "offsets": [
+          24.0,
+          7.246219495045068,
+          11.450189072159645
+        ],
+        "mean_absolute_residual": 3.9054163710293617,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 5122,
+        "opaque_pixels": 3585,
+        "partial_pixels": 1537,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          695
+        ]
+      }
+    },
+    "panicked": {
+      "donor": "expression_panicked.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 282,
+        "inliers": 212,
+        "inlier_rms": 1.421271562576294,
+        "scale": 1.0018732122287504,
+        "rotation_degrees": 0.025650365720228344,
+        "translate_x": 0.3366762697696686,
+        "translate_y": -2.864523410797119
+      },
+      "raw": {
+        "visible_pixels": 25685,
+        "opaque_pixels": 20283,
+        "partial_pixels": 5402,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 3642,
+        "bounding_box": [
+          331,
+          571,
+          680,
+          850
+        ],
+        "bounding_box_fill_ratio": 0.2637849051565661
+      },
+      "normalization_for_mask_only": {
+        "samples": 31984,
+        "gains": [
+          0.88,
+          0.9712788744685926,
+          0.9605854014622166
+        ],
+        "offsets": [
+          24.0,
+          9.548416621160868,
+          12.158821897321161
+        ],
+        "mean_absolute_residual": 4.1763764880710035,
+        "p95_absolute_residual": 8.879999999999995
+      },
+      "production": {
+        "visible_pixels": 7509,
+        "opaque_pixels": 4811,
+        "partial_pixels": 2698,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          417,
+          560,
+          601,
+          705
+        ]
+      }
+    },
+    "determined": {
+      "donor": "expression_determined.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 259,
+        "inliers": 182,
+        "inlier_rms": 1.548698902130127,
+        "scale": 1.0035115081446517,
+        "rotation_degrees": 0.04127700332695028,
+        "translate_x": -1.4450756311416626,
+        "translate_y": -5.289987087249756
+      },
+      "raw": {
+        "visible_pixels": 15252,
+        "opaque_pixels": 13543,
+        "partial_pixels": 1709,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          822
+        ],
+        "bounding_box_fill_ratio": 0.17361411496869664
+      },
+      "normalization_for_mask_only": {
+        "samples": 32229,
+        "gains": [
+          0.9627615538148003,
+          0.9529968213298552,
+          0.9406137229409661
+        ],
+        "offsets": [
+          9.458565331040717,
+          12.763727915463164,
+          14.589890736515173
+        ],
+        "mean_absolute_residual": 1.6196925831440578,
+        "p95_absolute_residual": 5.059386277059019
+      },
+      "production": {
+        "visible_pixels": 4657,
+        "opaque_pixels": 2999,
+        "partial_pixels": 1658,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          691
+        ]
+      }
+    },
+    "empty": {
+      "donor": "expression_empty.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 292,
+        "inliers": 199,
+        "inlier_rms": 1.4505645036697388,
+        "scale": 1.002288170105272,
+        "rotation_degrees": 0.032423717501347475,
+        "translate_x": -0.2122659832239151,
+        "translate_y": -5.154914379119873
+      },
+      "raw": {
+        "visible_pixels": 10331,
+        "opaque_pixels": 8766,
+        "partial_pixels": 1565,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          824
+        ],
+        "bounding_box_fill_ratio": 0.11666854884246189
+      },
+      "normalization_for_mask_only": {
+        "samples": 32193,
+        "gains": [
+          0.88,
+          0.9470336570237692,
+          0.9617232825976086
+        ],
+        "offsets": [
+          24.0,
+          14.235225227509318,
+          11.076387371904588
+        ],
+        "mean_absolute_residual": 3.675443823661162,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 3333,
+        "opaque_pixels": 1901,
+        "partial_pixels": 1432,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          692
+        ]
+      }
+    },
+    "disgusted": {
+      "donor": "expression_disgusted.png",
+      "registration": {
+        "method": "sift_similarity",
+        "keypoint_matches": 277,
+        "inliers": 218,
+        "inlier_rms": 1.5702046155929565,
+        "scale": 1.003190782250239,
+        "rotation_degrees": 0.04730607182032779,
+        "translate_x": -1.2501968145370483,
+        "translate_y": -4.448629856109619
+      },
+      "raw": {
+        "visible_pixels": 10699,
+        "opaque_pixels": 8968,
+        "partial_pixels": 1731,
+        "hidden_rgb_pixels": 0,
+        "outside_allowed_pixels": 0,
+        "blush_pixels": 0,
+        "bounding_box": [
+          330,
+          571,
+          680,
+          822
+        ],
+        "bounding_box_fill_ratio": 0.12178713716562323
+      },
+      "normalization_for_mask_only": {
+        "samples": 32114,
+        "gains": [
+          0.88,
+          0.956622388285488,
+          0.9510077235528426
+        ],
+        "offsets": [
+          24.0,
+          12.890095470908733,
+          13.386362606797377
+        ],
+        "mean_absolute_residual": 3.804576549005726,
+        "p95_absolute_residual": 8.359999999999985
+      },
+      "production": {
+        "visible_pixels": 3400,
+        "opaque_pixels": 1901,
+        "partial_pixels": 1499,
+        "outside_allowed_pixels": 0,
+        "hidden_rgb_pixels": 0,
+        "bbox": [
+          416,
+          560,
+          601,
+          691
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1106 @@
+# =============================================================================
+# DEV DATE JUMP
+# Development-only New Game router for starting directly at a dated story label.
+#
+# Date labels follow the project's `aMMDD` convention (for example, `a0523`).
+# The router discovers those labels at runtime, so newly added days become
+# available without maintaining a second list here. `DISC` preserves the normal
+# disclaimer -> May 15 opening.
+#
+# The menu validates live while you type (dev_date_jump_preview drives the
+# readout + border colour + BEGIN sensitivity), and every discovered route is
+# also a clickable chip that launches it directly.
+#
+# ALL SIDE CONTENT is this project's "unlock everything" switch, and since the
+# Archive gained per-item gating it is the ONLY one -- there is no longer an
+# init-time hook anywhere that force-unlocks a catalog behind your back (the old
+# one in char_stories.rpy is retired; read the note there). It covers the Archive
+# module flags, every side story, every CG, every outfit, every soundtrack entry
+# and every roster slot, all read live from their owning catalogs, and it toggles
+# both ways so a locked-state pass is one click away.
+# =============================================================================
+
+init python:
+    import datetime as _dev_date_jump_datetime
+    import renpy.store as _dev_date_jump_store
+
+    # Add future, chronologically unplaced scenes here. Each entry is:
+    #     ("MMDD", "Scene title", "Short context note", "scene_label")
+    #
+    # Scenes listed here live in game/story/out_of_context/ and are written to
+    # shipping quality, so an entry can be moved into its real day file
+    # unchanged once the timeline reaches it. The rough, unplaced scratch scenes
+    # in story/dev_scene_manager.rpy stay in their original, separate manager.
+    dev_out_of_context_scene_catalog = (
+        (
+            "1030",
+            "Uh Oh",
+            "Chapter 4, lunchtime. Six of them, one table, and a knockoff card game. Asahina gets a text she does not read out loud, and Matsuda thinks it is a bit.",
+            "ooc_1030_uhoh",
+        ),
+        (
+            "1030",
+            "Nothing to Add",
+            "Chapter 4, the night before Halloween. Mom finds out where Asahina's missing afternoons went. MC knows the worse half of it and is asked directly.",
+            "ooc_1030_nothing_to_add",
+        ),
+        (
+            "1224",
+            "Closing Exercises",
+            "Chapter 4, last day of second term. Tsubaki turns up out of uniform and out of reach, Matsuda handles it the way she handles everything, and MC watches himself agree.",
+            "ooc_1224_closing_exercises",
+        ),
+        (
+            "1224",
+            "Unasked",
+            "HIDDEN ROUTE, same night, different world. The route that helped Tsubaki after the festival arrives at Christmas Eve with fifty-nine days skipped and nothing left of her to save. MC never speaks outside the menus.",
+            "ooc_1224_unasked",
+        ),
+        (
+            "0101",
+            "This Year Too",
+            "Chapter 5, New Year's Day. The style reference for the chapter: near-monochrome, ambient, and quiet. MC tries to have New Year's with his family, runs into Monika, and gets nothing out of any of it.",
+            "ooc_0101_this_year_too",
+        ),
+        (
+            "1026",
+            "Passed Out",
+            "MC and Asahina return late after a long day at the culture fest and an after-celebration with friends.",
+            "ooc_1026_passed_out",
+        ),
+        (
+            "0604",
+            "Out of Ten",
+            "Chapter 1, lunch in the west corridor. MC keeps turning up at his own hiding place now that Matsuda has found it. A third-year asks her out, and she takes the request apart in front of the entire hallway.",
+            "ooc_0604_out_of_ten",
+        ),
+        (
+            "0612",
+            "Reception",
+            "Mom video-calls home from an overnight work trip on a hotel connection that can't keep up. Seeds nothing on purpose -- it is the shipping-quality proof-out of the FaceTime screen, which the main story does not use yet.",
+            "ooc_0612_reception",
+        ),
+        # ("0615", "Example Scene", "Why this scene is being previewed.", "dev_ooc_example"),
+    )
+
+    def dev_out_of_context_scenes_in_order():
+        """Return the catalog sorted by where each scene falls in the story year."""
+        dated = []
+        undated = []
+
+        for entry in dev_out_of_context_scene_catalog:
+            story_date, _date_error = dev_date_jump_parse_story_date(entry[0])
+
+            if story_date is None:
+                undated.append(entry)
+            else:
+                dated.append((story_date, entry))
+
+        # Sorting on the date alone keeps same-day scenes in authoring order.
+        dated.sort(key=lambda pair: pair[0])
+
+        return tuple([entry for _story_date, entry in dated] + undated)
+
+    _dev_date_jump_side_content_key_cache = None
+
+    def dev_date_jump_available_codes():
+        """Return every four-digit code backed by an aMMDD story label."""
+        return tuple(sorted(
+            label_name[1:]
+            for label_name in renpy.get_all_labels()
+            if (
+                len(label_name) == 5
+                and label_name.startswith("a")
+                and label_name[1:].isdigit()
+            )
+        ))
+
+    def dev_date_jump_parse_story_date(raw_code):
+        """Resolve an MMDD code to its date in the May 2025-March 2026 story year."""
+        code = (raw_code or "").strip()
+
+        if len(code) != 4 or not code.isdigit():
+            return (None, "Enter exactly four digits.")
+
+        month = int(code[:2])
+        day = int(code[2:])
+        year = 2025 if month >= 5 else 2026
+
+        try:
+            return (_dev_date_jump_datetime.date(year, month, day), None)
+        except ValueError:
+            return (None, "{} is not a real calendar date.".format(code))
+
+    def dev_date_jump_resolve(raw_code):
+        """
+        Validate a developer route code.
+
+        Returns (label_name, story_date, error_message). January through April
+        belong to the year after the story's May 2025 opening.
+        """
+        code = (raw_code or "").strip().upper()
+
+        if code == "DISC":
+            return ("disclaimer", None, None)
+
+        if len(code) != 4 or not code.isdigit():
+            return (None, None, "Enter exactly four digits, or DISC for the full opening.")
+
+        story_date, date_error = dev_date_jump_parse_story_date(code)
+        if date_error:
+            return (None, None, date_error)
+
+        label_name = "a" + code
+        if not renpy.has_label(label_name):
+            return (None, None, "No story entry exists for {}.".format(code))
+
+        return (label_name, story_date, None)
+
+    def dev_date_jump_resolve_out_of_context(date_code, label_name):
+        """Validate one catalog route without requiring a matching aMMDD label."""
+        story_date, date_error = dev_date_jump_parse_story_date(date_code)
+        if date_error:
+            return (None, None, date_error)
+
+        label_name = (label_name or "").strip()
+        if not label_name:
+            return (None, None, "The out-of-context scene has no label.")
+        if not renpy.has_label(label_name):
+            return (None, None, "Scene label '{}' does not exist.".format(label_name))
+
+        return (label_name, story_date, None)
+
+    def dev_date_jump_is_invasion(selection):
+        """True for the ("invasion", slug, start_open) token the Archivist
+        Invasions catalog returns. Those are CALLED and come back here rather
+        than being jumped to like a story route."""
+        return (
+            isinstance(selection, tuple)
+            and len(selection) == 3
+            and selection[0] == "invasion"
+        )
+
+    def dev_date_jump_resolve_selection(selection):
+        """Resolve either a normal date-menu value or an OOC catalog token."""
+        if (
+            isinstance(selection, tuple)
+            and len(selection) == 3
+            and selection[0] == "ooc"
+        ):
+            return dev_date_jump_resolve_out_of_context(selection[1], selection[2])
+
+        return dev_date_jump_resolve(selection)
+
+    def _dev_date_jump_read(name):
+        """Call a catalog's key-list function if its file has loaded, else ()."""
+        fn = getattr(_dev_date_jump_store, name, None)
+        return tuple(fn()) if fn else ()
+
+    def dev_date_jump_side_content_keys():
+        """
+        Return every persistent BOOL controlled by the all-content switch.
+
+        Every catalog is READ, never copied: a CG, an outfit, a track or a story
+        added later is covered by this switch the moment it exists. The roster's
+        met-set is the one thing that is not a bool and so is handled separately
+        (see dev_date_jump_set_all_side_content).
+        """
+        global _dev_date_jump_side_content_key_cache
+
+        if _dev_date_jump_side_content_key_cache is None:
+            # The Archive's own module flags (which, since the shell opened up,
+            # is really just the Music Room).
+            keys = list(_dev_date_jump_read("archive_unlock_keys"))
+
+            for category in getattr(_dev_date_jump_store, "character_story_catalog", ()):
+                for story in category.stories:
+                    if story.persistent_key:
+                        keys.append(story.persistent_key)
+
+            keys.extend(_dev_date_jump_read("cg_all_keys"))        # CG View
+            keys.extend(_dev_date_jump_read("roster_outfit_keys")) # Roster View
+            keys.extend(_dev_date_jump_read("music_all_keys"))     # Music Room
+
+            # Catalogs can share a key. Preserve order while applying each flag
+            # only once so status checks and writes stay inexpensive.
+            _dev_date_jump_side_content_key_cache = tuple(dict.fromkeys(keys))
+
+        return _dev_date_jump_side_content_key_cache
+
+    def dev_date_jump_side_content_state():
+        """Return ENABLED, DISABLED, or PARTIAL for everything the switch controls."""
+        values = [
+            bool(getattr(persistent, key, False))
+            for key in dev_date_jump_side_content_keys()
+        ]
+
+        # The roster is a set of met ids, not a flag per subject, so its state is
+        # folded in as one more value per gated slot.
+        met = getattr(persistent, "roster_met_ids", None) or set()
+        values.extend(rid in met for rid in _dev_date_jump_read("roster_gated_ids"))
+
+        if all(values):
+            return "ENABLED"
+        if any(values):
+            return "PARTIAL"
+        return "DISABLED"
+
+    def dev_date_jump_set_all_side_content(enabled):
+        """Flip every Archive collection at once and persist immediately."""
+        enabled = bool(enabled)
+        for key in dev_date_jump_side_content_keys():
+            setattr(persistent, key, enabled)
+
+        # Roster identification. Only the GATED ids are touched -- an ungated
+        # profile (the player) has no id and is never in the set to begin with.
+        gated = set(_dev_date_jump_read("roster_gated_ids"))
+        met = set(getattr(persistent, "roster_met_ids", None) or ())
+        persistent.roster_met_ids = (met | gated) if enabled else (met - gated)
+
+        renpy.save_persistent()
+        renpy.notify("All side content {}.".format("enabled" if enabled else "disabled"))
+        renpy.restart_interaction()
+
+    def dev_date_jump_toggle_all_side_content():
+        """Disable a fully enabled catalog; otherwise bring every flag online."""
+        dev_date_jump_set_all_side_content(
+            dev_date_jump_side_content_state() != "ENABLED"
+        )
+
+    def dev_date_jump_preview(raw_code):
+        """
+        Live routing readout for the menu, updated per keystroke.
+
+        Returns (state, text) where state is "idle" (still typing), "ok"
+        (submittable), or "bad" (will never resolve).
+        """
+        code = (raw_code or "").strip().upper()
+
+        if not code:
+            return ("idle", "FORMAT // MMDD OR DISC")
+
+        if code == "DISC":
+            return ("ok", "FULL OPENING // DISCLAIMER -> MAY 15")
+
+        if "DISC".startswith(code):
+            return ("idle", "AWAITING INPUT // D-I-S-C")
+
+        if not code.isdigit():
+            return ("bad", "DIGITS ONLY (OR DISC)")
+
+        if len(code) < 4:
+            remaining = 4 - len(code)
+            return ("idle", "AWAITING {} MORE DIGIT{}".format(remaining, "" if remaining == 1 else "S"))
+
+        label_name, story_date, error_message = dev_date_jump_resolve(code)
+        if error_message:
+            return ("bad", error_message.upper())
+
+        return ("ok", "{}  ->  {}".format(story_date.strftime("%A // %B %d %Y").upper(), label_name))
+
+
+label dev_date_jump:
+    # Defensive fallback if this label is reached explicitly in a release build.
+    if not config.developer:
+        jump disclaimer
+
+    $ _dev_date_jump_error = None
+    $ _dev_date_jump_input = ""
+
+    while True:
+        call screen dev_date_jump_menu(
+            error_message=_dev_date_jump_error,
+            initial_code=_dev_date_jump_input
+        )
+
+        $ _dev_date_jump_selection = _return
+
+        # An invasion is not a route: it is CALLED, plays out, and drops the
+        # developer back on this menu with the story untouched.
+        if dev_date_jump_is_invasion(_dev_date_jump_selection):
+            $ _dev_date_jump_error = None
+            $ _dev_date_jump_input = ""
+            call archivist_invasion_dev(_dev_date_jump_selection[1], _dev_date_jump_selection[2]) from _call_archivist_invasion_dev
+
+        else:
+            $ _dev_date_jump_input = _return.strip().upper() if isinstance(_return, str) else ""
+            $ _dev_date_jump_label, _dev_date_jump_story_date, _dev_date_jump_error = dev_date_jump_resolve_selection(_dev_date_jump_selection)
+
+            if _dev_date_jump_error is None:
+                if _dev_date_jump_label == "disclaimer":
+                    jump disclaimer
+
+                # Later dates normally inherit these values from preceding days.
+                # A direct developer launch instead begins with a clean store and a
+                # usable name, while the chosen label continues to build state normally.
+                $ player = (persistent.playername or "").strip() or "Dev"
+                $ calendar.current_date = _dev_date_jump_story_date
+                $ calendar_view.reset_to_current()
+                $ hide_calendar()
+                jump expression _dev_date_jump_label
+
+
+# --- ANIMATION LIBRARY -------------------------------------------------------
+transform dev_date_jump_bg_drift:
+    subpixel True
+    zoom 1.06
+    block:
+        ease 12.0 xoffset -14 yoffset -6
+        ease 12.0 xoffset 0 yoffset 0
+        repeat
+
+# Faint CRT band slowly rolling down the whole screen.
+transform dev_date_jump_crt_sweep:
+    block:
+        ypos -100
+        linear 7.0 ypos 720
+        pause 2.5
+        repeat
+
+# Structural accent lines draw themselves in (horizontal from left, vertical from top).
+transform dev_date_jump_line_h(delay=0.0):
+    xzoom 0.0
+    pause delay
+    easeout_quad 0.40 xzoom 1.0
+
+transform dev_date_jump_line_v(delay=0.0):
+    yzoom 0.0
+    pause delay
+    easeout_quad 0.40 yzoom 1.0
+
+transform dev_date_jump_panel_in:
+    subpixel True
+    alpha 0.0
+    yoffset 26
+    easeout_quad 0.35 alpha 1.0 yoffset 0
+
+# Staggered row reveal inside the panel.
+transform dev_date_jump_row(delay=0.0):
+    alpha 0.0
+    xoffset -18
+    pause delay
+    easeout_quad 0.30 alpha 1.0 xoffset 0
+
+# Route chips pop in one after another.
+transform dev_date_jump_chip_in(delay=0.0):
+    alpha 0.0
+    yoffset 8
+    pause delay
+    easeout_quad 0.22 alpha 1.0 yoffset 0
+
+# Input border shakes when the previous submit bounced.
+transform dev_date_jump_shake:
+    xoffset 0
+    linear 0.04 xoffset -12
+    linear 0.05 xoffset 10
+    linear 0.04 xoffset -6
+    linear 0.04 xoffset 3
+    linear 0.03 xoffset 0
+
+# Green halo behind the input while the code is launchable.
+transform dev_date_jump_glow_pulse:
+    alpha 0.0
+    easeout_quad 0.25 alpha 0.5
+    block:
+        linear 0.7 alpha 0.28
+        linear 0.7 alpha 0.55
+        repeat
+
+# Terminal cursor block + live readout fade.
+transform dev_date_jump_blink:
+    block:
+        alpha 1.0
+        pause 0.55
+        alpha 0.0
+        pause 0.45
+        repeat
+
+transform dev_date_jump_soft_in:
+    alpha 0.0
+    linear 0.12 alpha 1.0
+
+# No-op stand-in so `at` conditionals always have a transform to fall back on.
+transform dev_date_jump_still:
+    alpha 1.0
+
+transform dev_date_jump_footer_pulse:
+    block:
+        linear 1.4 alpha 0.45
+        linear 1.4 alpha 1.0
+        repeat
+
+
+screen dev_date_jump_menu(error_message=None, initial_code=""):
+    modal True
+    zorder 300
+
+    default date_code = initial_code
+
+    $ normalized_code = date_code.strip().upper()
+    $ preview_state, preview_text = dev_date_jump_preview(normalized_code)
+    $ can_submit = (preview_state == "ok")
+    $ available_codes = dev_date_jump_available_codes()
+    $ route_count = len(available_codes)
+    $ side_content_state = dev_date_jump_side_content_state()
+    $ side_content_color = {"ENABLED": "#37e08a", "PARTIAL": "#ffd166"}.get(side_content_state, "#ff6680")
+    $ side_content_action = "DISABLE" if side_content_state == "ENABLED" else "ENABLE"
+    $ submit_action = If(can_submit, Return(normalized_code), NullAction())
+    $ _border_color = "#37e08a" if can_submit else ("#ff315b" if preview_state == "bad" else "#56d7ff")
+    $ _preview_color = {"ok": "#37e08a", "bad": "#ff6680"}.get(preview_state, "#75838d")
+
+    key "K_ESCAPE" action MainMenu(confirm=False)
+    key "K_RETURN" action submit_action
+    key "K_KP_ENTER" action submit_action
+
+    add "menu_bg" at dev_date_jump_bg_drift
+    add Solid("#02050aee")
+    add Solid("#56d7ff10") xysize (1280, 90) at dev_date_jump_crt_sweep
+
+    # Structural accents keep this visibly separate from the normal title menu.
+    add Solid("#56d7ff45") xysize (1280, 2) ypos 54 at dev_date_jump_line_h(0.05)
+    add Solid("#56d7ff30") xysize (1280, 2) ypos 666 at dev_date_jump_line_h(0.15)
+    add Solid("#ff315b55") xysize (3, 612) xpos 102 ypos 54 at dev_date_jump_line_v(0.10)
+    add Solid("#56d7ff30") xysize (3, 612) xpos 1175 ypos 54 at dev_date_jump_line_v(0.20)
+
+    frame:
+        style "dev_date_jump_panel"
+        at dev_date_jump_panel_in
+
+        vbox:
+            xfill True
+            spacing 8
+
+            # yfit rather than a hand-measured ysize: a fixed reports the height
+            # it was given and does not clip, so an undersized row silently
+            # overlaps whatever follows it.
+            fixed:
+                xfill True
+                yfit True
+                text "DEVELOPER ROUTING":
+                    style "dev_date_jump_kicker"
+                    at dev_date_jump_row(0.02)
+                text "ROUTES ONLINE // [route_count]":
+                    style "dev_date_jump_section"
+                    xalign 1.0
+                    ypos 1
+                    at dev_date_jump_row(0.06)
+
+            hbox:
+                spacing 12
+                at dev_date_jump_row(0.06)
+                text "SELECT STORY DATE":
+                    style "dev_date_jump_title"
+                add Solid("#56d7ff"):
+                    xysize (16, 34)
+                    yoffset 8
+                    at dev_date_jump_blink
+
+            text "MMDD launches a clean session at that day's opening label. DISC runs the full opening. Click a route below to launch it directly.":
+                style "dev_date_jump_body"
+                at dev_date_jump_row(0.10)
+
+            fixed:
+                xfill True
+                ysize 96
+                at dev_date_jump_row(0.14)
+
+                if can_submit:
+                    add Solid("#37e08a"):
+                        xysize (438, 94)
+                        xalign 0.5
+                        yalign 0.5
+                        blur 18
+                        at dev_date_jump_glow_pulse
+
+                frame:
+                    style "dev_date_jump_input_border"
+                    background Solid(_border_color)
+                    yalign 0.5
+                    at (dev_date_jump_shake if error_message else dev_date_jump_still)
+
+                    frame:
+                        style "dev_date_jump_input_frame"
+
+                        input:
+                            value ScreenVariableInputValue("date_code", default=True)
+                            style "dev_date_jump_input"
+                            length 4
+                            allow "0123456789dDiIsScC"
+                            copypaste True
+
+            fixed:
+                xfill True
+                ysize 24
+
+                if error_message:
+                    text error_message:
+                        style "dev_date_jump_error"
+                        at dev_date_jump_soft_in
+                else:
+                    text preview_text:
+                        style "dev_date_jump_hint"
+                        color _preview_color
+                        at dev_date_jump_soft_in
+
+            text "AVAILABLE ROUTES":
+                style "dev_date_jump_section"
+                at dev_date_jump_row(0.18)
+
+            $ _codes = list(available_codes) + ["DISC"]
+            $ _cols = 8
+            $ _pad = (-len(_codes)) % _cols
+            $ _rows = (len(_codes) + _pad) // _cols
+
+            viewport:
+                style_prefix "dev_dj"
+                xfill True
+                ysize 106
+                mousewheel True
+                scrollbars "vertical"
+                at dev_date_jump_row(0.22)
+
+                grid _cols _rows:
+                    spacing 8
+
+                    for _i, _code in enumerate(_codes):
+                        textbutton _code:
+                            style ("dev_date_jump_chip_disc" if _code == "DISC" else "dev_date_jump_chip")
+                            action Return(_code)
+                            at dev_date_jump_chip_in(0.22 + _i * 0.015)
+
+                    for _ in range(_pad):
+                        null
+
+            fixed:
+                xfill True
+                yfit True
+                at dev_date_jump_row(0.25)
+
+                text "OUT OF CONTEXT SCENES":
+                    style "dev_date_jump_section"
+
+                text "ALL SIDE CONTENT // [side_content_state]":
+                    style "dev_date_jump_section"
+                    color side_content_color
+                    xalign 1.0
+
+            hbox:
+                xalign 0.5
+                spacing 18
+                at dev_date_jump_row(0.27)
+
+                textbutton "OPEN SCENE CATALOG":
+                    style "dev_date_jump_button"
+                    action Show("dev_out_of_context_scenes_menu")
+
+                textbutton "ARCHIVIST INVASIONS":
+                    style "dev_date_jump_button"
+                    action Show("dev_archivist_invasions_menu")
+
+                textbutton "[side_content_action] ALL SIDE CONTENT":
+                    style "dev_date_jump_button"
+                    action Function(dev_date_jump_toggle_all_side_content)
+
+            hbox:
+                xalign 0.5
+                spacing 18
+                at dev_date_jump_row(0.30)
+
+                textbutton "BEGIN AT DATE":
+                    style "dev_date_jump_button"
+                    action submit_action
+                    sensitive can_submit
+
+                textbutton "BACK TO TITLE":
+                    style "dev_date_jump_button"
+                    action MainMenu(confirm=False)
+
+    text "DEV MODE ONLY  //  ENTER: LAUNCH  //  ESC: BACK":
+        style "dev_date_jump_footer"
+        at dev_date_jump_footer_pulse
+
+
+screen dev_out_of_context_scenes_menu():
+    modal True
+    zorder 310
+
+    $ scene_count = len(dev_out_of_context_scene_catalog)
+
+    key "game_menu" action Hide("dev_out_of_context_scenes_menu")
+    key "K_ESCAPE" action Hide("dev_out_of_context_scenes_menu")
+
+    add "menu_bg" at dev_date_jump_bg_drift
+    add Solid("#02050aee")
+    add Solid("#56d7ff10") xysize (1280, 90) at dev_date_jump_crt_sweep
+
+    add Solid("#56d7ff45") xysize (1280, 2) ypos 54 at dev_date_jump_line_h(0.05)
+    add Solid("#56d7ff30") xysize (1280, 2) ypos 666 at dev_date_jump_line_h(0.15)
+    add Solid("#ff315b55") xysize (3, 612) xpos 102 ypos 54 at dev_date_jump_line_v(0.10)
+    add Solid("#56d7ff30") xysize (3, 612) xpos 1175 ypos 54 at dev_date_jump_line_v(0.20)
+
+    frame:
+        style "dev_date_jump_panel"
+        at dev_date_jump_panel_in
+
+        vbox:
+            xfill True
+            spacing 12
+
+            fixed:
+                xfill True
+                yfit True
+
+                text "DEVELOPER ROUTING":
+                    style "dev_date_jump_kicker"
+
+                text "SCENES CATALOGED // [scene_count]":
+                    style "dev_date_jump_section"
+                    xalign 1.0
+                    ypos 1
+
+            text "OUT OF CONTEXT SCENES":
+                style "dev_date_jump_title"
+
+            text "Future scenes with a known story date live here until the main narrative catches up. This catalog is intentionally separate from the older dev scene manager.":
+                style "dev_date_jump_body"
+
+            add Solid("#56d7ff45") xysize (812, 2)
+
+            if dev_out_of_context_scene_catalog:
+                viewport:
+                    style_prefix "dev_dj"
+                    xfill True
+                    ysize 330
+                    mousewheel True
+                    scrollbars "vertical"
+
+                    vbox:
+                        xfill True
+                        spacing 12
+
+                        for _ooc_scene in dev_out_of_context_scenes_in_order():
+                            $ _ooc_date, _ooc_title, _ooc_note, _ooc_label = _ooc_scene
+                            $ _ooc_route_label, _ooc_story_date, _ooc_error = dev_date_jump_resolve_out_of_context(_ooc_date, _ooc_label)
+                            $ _ooc_live = (_ooc_error is None)
+
+                            button:
+                                style "dev_date_jump_ooc_card"
+                                sensitive _ooc_live
+                                action [
+                                    Hide("dev_out_of_context_scenes_menu"),
+                                    Return(("ooc", _ooc_date, _ooc_label)),
+                                ]
+
+                                vbox:
+                                    xfill True
+                                    spacing 6
+
+                                    # The card grows with its note, so this row
+                                    # must fit its own content rather than be
+                                    # pinned to a guessed height.
+                                    fixed:
+                                        xfill True
+                                        yfit True
+
+                                        text _ooc_title:
+                                            style "dev_date_jump_ooc_title"
+                                            color ("#f4fbff" if _ooc_live else "#8a7079")
+
+                                        text (_ooc_story_date.strftime("%A // %B %d %Y").upper() if _ooc_story_date else "INVALID ROUTE"):
+                                            style "dev_date_jump_section"
+                                            color ("#56d7ff" if _ooc_live else "#ff6680")
+                                            xalign 1.0
+                                            ypos 6
+
+                                    text _ooc_note:
+                                        style "dev_date_jump_ooc_note"
+                                        color ("#b8c7cf" if _ooc_live else "#7b6a71")
+
+                                    text (("LABEL // " + _ooc_label) if _ooc_live else _ooc_error.upper()):
+                                        style "dev_date_jump_ooc_meta"
+                                        color ("#75838d" if _ooc_live else "#ff6680")
+            else:
+                frame:
+                    style "dev_date_jump_ooc_empty"
+
+                    vbox:
+                        xalign 0.5
+                        yalign 0.5
+                        spacing 12
+
+                        text "NO SCENES CATALOGED":
+                            style "dev_date_jump_ooc_empty_title"
+
+                        text "Nothing has been added here yet. Add dated scene routes to dev_out_of_context_scene_catalog when they are written.":
+                            style "dev_date_jump_ooc_empty_text"
+
+            textbutton "BACK":
+                style "dev_date_jump_button"
+                xalign 0.5
+                action Hide("dev_out_of_context_scenes_menu")
+
+    text "DEV MODE ONLY  //  ESC: BACK":
+        style "dev_date_jump_footer"
+        at dev_date_jump_footer_pulse
+
+
+# -----------------------------------------------------------------------------
+# ARCHIVIST INVASIONS CATALOG
+# -----------------------------------------------------------------------------
+# The seven, their build status, and the persistent fend record. An Archivist
+# whose fight does not exist yet is SHOWN (so the shape of the set stays
+# visible while it is being designed) and REFUSED -- the card is insensitive
+# and says why. Playable ones launch straight into the fight and come back
+# here afterwards; the secondary button skips the opening act and starts in the
+# corruptive state, which is the half that needs the most retuning.
+#
+# The invasions themselves are on the drawing board narratively: nothing in the
+# story rolls for them yet. See the DRAWING BOARD block in invasions.rpy.
+# -----------------------------------------------------------------------------
+screen dev_archivist_invasions_menu():
+    modal True
+    zorder 310
+
+    $ _inv_roster = INV_ARCHIVISTS
+    $ _inv_fended = inv_fended()
+    $ _inv_losses = getattr(persistent, "inv_losses", None) or {}
+    $ _inv_built = len([_a for _a in _inv_roster if inv_is_playable(_a["slug"])])
+    $ _inv_done = len([_a for _a in _inv_roster if _a["slug"] in _inv_fended])
+    $ _inv_god = inv_godmode_on()
+
+    key "game_menu" action Hide("dev_archivist_invasions_menu")
+    key "K_ESCAPE" action Hide("dev_archivist_invasions_menu")
+
+    add "menu_bg" at dev_date_jump_bg_drift
+    add Solid("#02050aee")
+    add Solid("#56d7ff10") xysize (1280, 90) at dev_date_jump_crt_sweep
+
+    add Solid("#56d7ff45") xysize (1280, 2) ypos 54 at dev_date_jump_line_h(0.05)
+    add Solid("#56d7ff30") xysize (1280, 2) ypos 666 at dev_date_jump_line_h(0.15)
+    add Solid("#ff315b55") xysize (3, 612) xpos 102 ypos 54 at dev_date_jump_line_v(0.10)
+    add Solid("#56d7ff30") xysize (3, 612) xpos 1175 ypos 54 at dev_date_jump_line_v(0.20)
+
+    frame:
+        style "dev_date_jump_panel"
+        at dev_date_jump_panel_in
+
+        vbox:
+            xfill True
+            spacing 10
+
+            fixed:
+                xfill True
+                yfit True
+
+                text "DEVELOPER ROUTING":
+                    style "dev_date_jump_kicker"
+
+                text "BUILT // [_inv_built] OF 7      FENDED // [_inv_done] OF 7":
+                    style "dev_date_jump_section"
+                    xalign 1.0
+                    ypos 1
+
+            fixed:
+                xfill True
+                yfit True
+
+                text "ARCHIVIST INVASIONS":
+                    style "dev_date_jump_title"
+
+                if _inv_god:
+                    text "GODMODE ARMED":
+                        style "dev_date_jump_section"
+                        color "#ffd166"
+                        xalign 1.0
+                        ypos 18
+
+            text "Seven forces, one built. Nothing in the story rolls for these yet -- this menu is the only way in. Launching one does not touch the day you were on; it plays and returns here.":
+                style "dev_date_jump_body"
+
+            add Solid("#56d7ff45") xysize (812, 2)
+
+            viewport:
+                style_prefix "dev_dj"
+                xfill True
+                ysize 372
+                mousewheel True
+                scrollbars "vertical"
+
+                vbox:
+                    xfill True
+                    spacing 10
+
+                    for _inv in _inv_roster:
+                        $ _inv_slug = _inv["slug"]
+                        $ _inv_live = inv_is_playable(_inv_slug)
+                        $ _inv_won = _inv_slug in _inv_fended
+                        $ _inv_lost = int(_inv_losses.get(_inv_slug, 0))
+                        $ _inv_state = "PLAYABLE" if _inv_live else "DRAWING BOARD"
+                        $ _inv_state_col = "#37e08a" if _inv_live else "#ffd166"
+                        $ _inv_record = "FENDED OFF" if _inv_won else ("LOST x" + str(_inv_lost) if _inv_lost else "OUTSTANDING")
+
+                        vbox:
+                            xfill True
+                            spacing 4
+
+                            button:
+                                style "dev_date_jump_ooc_card"
+                                sensitive _inv_live
+                                action [
+                                    Hide("dev_archivist_invasions_menu"),
+                                    Return(("invasion", _inv_slug, False)),
+                                ]
+
+                                vbox:
+                                    xfill True
+                                    spacing 6
+
+                                    fixed:
+                                        xfill True
+                                        yfit True
+
+                                        text _inv["name"]:
+                                            style "dev_date_jump_ooc_title"
+                                            color ("#f4fbff" if _inv_live else "#8a7079")
+
+                                        text _inv_state:
+                                            style "dev_date_jump_section"
+                                            color _inv_state_col
+                                            xalign 1.0
+                                            ypos 6
+
+                                    text _inv["form"]:
+                                        style "dev_date_jump_ooc_note"
+                                        color ("#b8c7cf" if _inv_live else "#7b6a71")
+
+                                    text ("CORRUPTIVE STATE // " + _inv["corruptive"]):
+                                        style "dev_date_jump_ooc_note"
+                                        color ("#8fb4c4" if _inv_live else "#6d5f66")
+
+                                    text (("RECORD // " + _inv_record) if _inv_live else "NOT BUILT -- NO FIGHT TO LAUNCH"):
+                                        style "dev_date_jump_ooc_meta"
+                                        color ("#75838d" if _inv_live else "#ff6680")
+
+                            if _inv_live:
+                                textbutton "START IN CORRUPTIVE STATE":
+                                    style "dev_date_jump_chip"
+                                    xalign 1.0
+                                    action [
+                                        Hide("dev_archivist_invasions_menu"),
+                                        Return(("invasion", _inv_slug, True)),
+                                    ]
+
+            hbox:
+                xalign 0.5
+                spacing 18
+
+                # Infinite health, and nothing else: hits still land, sound,
+                # shake and print the damage they would have done, so the
+                # patterns can be sat in and read properly. Also togglable
+                # mid-fight with G.
+                textbutton ("GODMODE // ON" if _inv_god else "GODMODE // OFF"):
+                    style "dev_date_jump_button"
+                    action Function(inv_toggle_godmode)
+
+                textbutton "CLEAR INVASION RECORD":
+                    style "dev_date_jump_button"
+                    action Function(inv_clear_record)
+
+                textbutton "BACK":
+                    style "dev_date_jump_button"
+                    action Hide("dev_archivist_invasions_menu")
+
+    text "DEV MODE ONLY  //  ESC: BACK":
+        style "dev_date_jump_footer"
+        at dev_date_jump_footer_pulse
+
+
+style dev_date_jump_panel is empty:
+    background Solid("#06101bf4")
+    foreground Solid("#56d7ff24")
+    xalign 0.5
+    yalign 0.5
+    xsize 920
+    ysize 648
+    padding (54, 36)
+
+style dev_date_jump_kicker is gui_text:
+    font gui.interface_font
+    size 15
+    color "#ff315b"
+    bold True
+    kerning 3
+
+style dev_date_jump_title is gui_text:
+    font gui.interface_font
+    size 38
+    color "#f4fbff"
+    outlines [(2, "#02050a", 0, 1)]
+
+style dev_date_jump_body is gui_text:
+    font gui.interface_font
+    size 18
+    color "#b8c7cf"
+    line_spacing 5
+
+style dev_date_jump_input_border is empty:
+    background Solid("#56d7ff")
+    xalign 0.5
+    xsize 430
+    ysize 88
+    padding (2, 2)
+
+style dev_date_jump_input_frame is empty:
+    background Solid("#02050af7")
+    xfill True
+    yfill True
+    padding (20, 12)
+
+style dev_date_jump_input is input:
+    font gui.interface_font
+    size 50
+    color "#f4fbff"
+    caret Solid("#ff315b")
+    xalign 0.5
+    text_align 0.5
+    outlines [(2, "#02050a", 0, 1)]
+
+style dev_date_jump_hint is gui_text:
+    font gui.interface_font
+    size 14
+    color "#75838d"
+    xalign 0.5
+    kerning 1
+
+style dev_date_jump_error is dev_date_jump_hint:
+    color "#ff6680"
+
+style dev_date_jump_section is gui_text:
+    font gui.interface_font
+    size 14
+    color "#56d7ff"
+    bold True
+    kerning 2
+
+style dev_date_jump_chip is button:
+    background Solid("#0a1d29")
+    hover_background Solid("#17394a")
+    xsize 88
+    ysize 30
+    padding (6, 4)
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style dev_date_jump_chip_text is button_text:
+    font gui.interface_font
+    size 14
+    color "#9fd8ec"
+    hover_color "#ffffff"
+    xalign 0.5
+    text_align 0.5
+
+style dev_date_jump_chip_disc is dev_date_jump_chip:
+    background Solid("#2a0e18")
+    hover_background Solid("#47172a")
+
+style dev_date_jump_chip_disc_text is dev_date_jump_chip_text:
+    color "#ff9db1"
+
+style dev_date_jump_button is button:
+    background Solid("#102633")
+    hover_background Solid("#17394a")
+    insensitive_background Solid("#0a151c")
+    xsize 250
+    ysize 48
+    padding (14, 10)
+
+style dev_date_jump_button_text is button_text:
+    font gui.interface_font
+    size 17
+    color "#d6e6ee"
+    hover_color "#ff6680"
+    insensitive_color "#53616a"
+    xalign 0.5
+    text_align 0.5
+
+# `is button` inherits gui.button_properties("button"), whose ysize pins BOTH
+# yminimum and ymaximum to gui.button_height (40). config.enforce_window_max_size
+# then clamps this card to 40px tall while its child still draws its full height,
+# so every row in the catalog overlapped the next one. Every other button style
+# here happens to set its own ysize; this one must grow, so it clears the
+# inherited maxima instead.
+style dev_date_jump_ooc_card is button:
+    background Solid("#0a1d29")
+    hover_background Solid("#17394a")
+    insensitive_background Solid("#1b1016")
+    xfill True
+    xmaximum None
+    ymaximum None
+    yminimum 104
+    padding (20, 16)
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style dev_date_jump_ooc_title is gui_text:
+    font gui.interface_font
+    size 20
+    color "#f4fbff"
+    bold True
+
+# Wraps at whatever width the card offers, so it can never disagree with the
+# right-aligned status above it.
+style dev_date_jump_ooc_note is gui_text:
+    font gui.interface_font
+    size 16
+    color "#b8c7cf"
+    line_spacing 3
+
+style dev_date_jump_ooc_meta is gui_text:
+    font gui.interface_font
+    size 14
+    color "#75838d"
+    kerning 1
+
+style dev_date_jump_ooc_empty is empty:
+    background Solid("#02050af0")
+    xfill True
+    ysize 330
+    padding (54, 44)
+
+style dev_date_jump_ooc_empty_title is gui_text:
+    font gui.interface_font
+    size 24
+    color "#75838d"
+    bold True
+    kerning 2
+    xalign 0.5
+    text_align 0.5
+
+style dev_date_jump_ooc_empty_text is gui_text:
+    font gui.interface_font
+    size 17
+    color "#75838d"
+    line_spacing 5
+    xmaximum 620
+    xalign 0.5
+    text_align 0.5
+
+style dev_date_jump_footer is gui_text:
+    font gui.interface_font
+    size 13
+    color "#75838d"
+    xalign 0.5
+    ypos 706
+    yanchor 1.0
+    kerning 2
+
+# Both viewports carry style_prefix "dev_dj"; anything not defined here is
+# auto-created from the matching base style (dev_dj_viewport -> viewport).
+style dev_dj_vscrollbar is vscrollbar:
+    xsize 10
+    base_bar Solid("#08161f")
+    thumb Solid("#2b6c86")
+    hover_thumb Solid("#56d7ff")
+
+style dev_dj_side is side:
+    spacing 8

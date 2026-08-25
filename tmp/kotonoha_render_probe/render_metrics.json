@@ -1,0 +1,2223 @@
+{
+  "schema_version": 1,
+  "raw_screenshots": 135,
+  "unique_expressions": 42,
+  "unique_poses": 3,
+  "backgrounds": [
+    "light",
+    "dark",
+    "checker"
+  ],
+  "renderer": "gl2",
+  "verified_asset_hashes": 47,
+  "verified_background_samples_per_screenshot": 30,
+  "review_sheets": [
+    {
+      "filename": "review_expressions_mid_thigh_light.png",
+      "bytes": 352556,
+      "sha256": "e5c89bbe664184c57d4db9aa8ef9d886070015444c55b44a2720bea58b5b0f31"
+    },
+    {
+      "filename": "review_expressions_head_light.png",
+      "bytes": 1034636,
+      "sha256": "565a9ff2e558b83e372cdfe36944e711637fe40c63733227f0014018250cb4b7"
+    },
+    {
+      "filename": "review_poses_mid_thigh_light.png",
+      "bytes": 153652,
+      "sha256": "82e8c59d06a02b8f7544631db3f166c80a7ccecf3a4cf0107921f7a8ebba3b0d"
+    },
+    {
+      "filename": "review_expressions_mid_thigh_dark.png",
+      "bytes": 356068,
+      "sha256": "19e1fd02bfafeae9e0b13033bd3d958c11e3ec29c60ef08e0783342725c9bd9f"
+    },
+    {
+      "filename": "review_expressions_head_dark.png",
+      "bytes": 1039365,
+      "sha256": "4b7b8fe66e1b933d8e1a0351a2aace94b96bb24ccb7deda1aae5ce0d278d00b5"
+    },
+    {
+      "filename": "review_poses_mid_thigh_dark.png",
+      "bytes": 156878,
+      "sha256": "732f30a26efd52fe9f5871ceb9e9dc0d2097dc076304dc5311aaed5ba3ea79af"
+    },
+    {
+      "filename": "review_expressions_mid_thigh_checker.png",
+      "bytes": 369299,
+      "sha256": "5712ace924f9af6988213212d6a8d5560521e66ef55e82bb6b8bccf8fc2d44a6"
+    },
+    {
+      "filename": "review_expressions_head_checker.png",
+      "bytes": 1043871,
+      "sha256": "c6314fc068f59ddb4d062c9f50de23666be50788145a2eb0f6e146848ef1b225"
+    },
+    {
+      "filename": "review_poses_mid_thigh_checker.png",
+      "bytes": 165433,
+      "sha256": "7238cd0818cfd011c13b06b145011c53c9de7bed0749ae4d3d1593dbd26f6433"
+    }
+  ],
+  "screenshots": [
+    {
+      "relative_path": "light/expressions/01_casual_neut.png",
+      "bytes": 487605,
+      "sha256": "da163ffc96ef182690f6f7d1564492402aa48b2af180c7205b17b6f3792953fc",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "neut"
+    },
+    {
+      "relative_path": "light/expressions/02_casual_happy.png",
+      "bytes": 487602,
+      "sha256": "68209ee7e4de0d91f589e3cc99460b9efd17452447c623c6507bd9463b88d769",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "happy"
+    },
+    {
+      "relative_path": "light/expressions/03_casual_smug.png",
+      "bytes": 487502,
+      "sha256": "e6467b24626ae95f653273a3223fa1afc8b4439745af084e1ad25e27d96b6250",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "smug"
+    },
+    {
+      "relative_path": "light/expressions/04_casual_teasing.png",
+      "bytes": 487761,
+      "sha256": "5edce886752b75f94bd97e8dd8e7094638f8fb3890b6745a44a411b943dab483",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "light/expressions/05_casual_thinking.png",
+      "bytes": 487954,
+      "sha256": "e97859016a1c6adee3aaf5b8ac010dd6006e3134b65dc5b9b39e141ecac181ff",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "light/expressions/06_casual_curious.png",
+      "bytes": 487840,
+      "sha256": "5ecc7a851b883cf1c33f341b9649b5a6ce6eb065e7501cbd94e2e508d8d0223a",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "curious"
+    },
+    {
+      "relative_path": "light/expressions/07_casual_unamused.png",
+      "bytes": 486779,
+      "sha256": "3c448cb7986e5ffd6a83e4c15f1e6c6e7e60d1454d975d16f4df02a65cb3978e",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "light/expressions/08_casual_annoyed.png",
+      "bytes": 487780,
+      "sha256": "d010abda7742657c3f07310bd7036fae4e3dbd0126892e0782d583538765cdd5",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "light/expressions/09_casual_frustrated.png",
+      "bytes": 487805,
+      "sha256": "366657ffa2f238cba7791818b2ce49727aa1585e3909b165d098abc0dcabd719",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "light/expressions/10_casual_angry.png",
+      "bytes": 487845,
+      "sha256": "fe26e2883b5ad76d020f8c8846e4415ac2d9d2addc9643eeb6880ef436f4f29f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "angry"
+    },
+    {
+      "relative_path": "light/expressions/11_casual_sad.png",
+      "bytes": 487645,
+      "sha256": "ec5925484212b51bbe9c71a39c31c94ab4a5d99a52c0127c18b35fcf0054e917",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "sad"
+    },
+    {
+      "relative_path": "light/expressions/12_casual_crying.png",
+      "bytes": 488685,
+      "sha256": "e00c6ff139094add1816cda53c3e09ce7d76bebe702211e082f2b6e83e0fefcb",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "crying"
+    },
+    {
+      "relative_path": "light/expressions/13_casual_embarrassed.png",
+      "bytes": 488009,
+      "sha256": "b79953bb136709f7404f9877a1f5e694d2d3e834c661a0b6c7e92d01512aea93",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "light/expressions/14_casual_nervous.png",
+      "bytes": 487568,
+      "sha256": "9c82bbc09720fd3e594b70782506c68a4c634b01ec13424d964c470d4d62421b",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "light/expressions/15_casual_worried.png",
+      "bytes": 487948,
+      "sha256": "11aafdc5b43d4b5e0181fd4cf79815d59c25ea5cb3a0b9a532d7a81100619a01",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "worried"
+    },
+    {
+      "relative_path": "light/expressions/16_casual_shocked.png",
+      "bytes": 488200,
+      "sha256": "e66b1041bc9187bd76200e10405643d408792318dd3d3cd8135b3eae9a2bf138",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "light/expressions/17_casual_afraid.png",
+      "bytes": 488192,
+      "sha256": "34c6ba209f154ffeef469e7321255f3c66ac6f5bc6b3ff878f80a4a28a83d839",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "light/expressions/18_casual_panicked.png",
+      "bytes": 489047,
+      "sha256": "5d913fd38b57c3a0757c33011bc6ee6860b83362776db5b820b5d852642a9740",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "light/expressions/19_casual_determined.png",
+      "bytes": 488230,
+      "sha256": "86519270a5df81c9b88a0a960256de9df635e3593ed7f5436ab53fb3058ef242",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "determined"
+    },
+    {
+      "relative_path": "light/expressions/20_casual_empty.png",
+      "bytes": 486522,
+      "sha256": "83e59bf3b6a2f1f831c4fdac2f381fec95e662038c62c09d542ebae4598f5204",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "empty"
+    },
+    {
+      "relative_path": "light/expressions/21_casual_disgusted.png",
+      "bytes": 487548,
+      "sha256": "0a24375d975079234208ed5e914a2ff08486b8626406b46fb41a81474e0ccdf3",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277302,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "light/expressions/22_work_neut.png",
+      "bytes": 483869,
+      "sha256": "73ab2d7e29f9539b0ad0b24a52f739e2f4f3f52d502da0e42aaeece2af60b5cb",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "neut"
+    },
+    {
+      "relative_path": "light/expressions/23_work_happy.png",
+      "bytes": 483626,
+      "sha256": "762c01f42eb11c48dae81f6eae7716e7c5f459eed9bb75f26655da35d1dcfd98",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "happy"
+    },
+    {
+      "relative_path": "light/expressions/24_work_smug.png",
+      "bytes": 482856,
+      "sha256": "f0c036eddaeb25c2e3060a389f08b71d94d28836c09865392534dbdc645d350c",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "smug"
+    },
+    {
+      "relative_path": "light/expressions/25_work_teasing.png",
+      "bytes": 483001,
+      "sha256": "b8ee9bd1f58dcbd7d2804df1582620aaf2c2a9496300be63db2e785d371f50cc",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "light/expressions/26_work_thinking.png",
+      "bytes": 483304,
+      "sha256": "fb50d75229dfc5b9197edd7ff3956764d14864d86a56ab83529724996bde3c12",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "light/expressions/27_work_curious.png",
+      "bytes": 483160,
+      "sha256": "89ed8db183e29df60400fb140aa22a89965865ea103854e040f30dc68ace2423",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "curious"
+    },
+    {
+      "relative_path": "light/expressions/28_work_unamused.png",
+      "bytes": 482131,
+      "sha256": "be177c461c13356e402901fb30ae2096d66ac1f0f889e52caa1a09fec65dee96",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "light/expressions/29_work_annoyed.png",
+      "bytes": 482986,
+      "sha256": "f420da9fc12286f7ec49bbee831e0d8146fde866014ca64c1a568ed272b0039d",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "light/expressions/30_work_frustrated.png",
+      "bytes": 483403,
+      "sha256": "27128140828d2ed0366e640f41e39be506164348cb3ef67658255f1fa817ff0e",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "light/expressions/31_work_angry.png",
+      "bytes": 483192,
+      "sha256": "4accc6fe47a30bfa731017bece4dab9b4d0bd4a6b1b6108781ece8676d691bd9",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "angry"
+    },
+    {
+      "relative_path": "light/expressions/32_work_sad.png",
+      "bytes": 482974,
+      "sha256": "293a00597e36447c4920c5bf2431879ef96d0ab93678c8ac531583374707ff77",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "sad"
+    },
+    {
+      "relative_path": "light/expressions/33_work_crying.png",
+      "bytes": 483573,
+      "sha256": "05093a15667f8e8d0861ac8fd75f9edc6d8a33bf08f067e325f09ab67b6ff356",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "crying"
+    },
+    {
+      "relative_path": "light/expressions/34_work_embarrassed.png",
+      "bytes": 483365,
+      "sha256": "c6f44667bfa773a6f0684a72fc9467c4d3985ac888ef92535ec59ad62bf6ba6f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "light/expressions/35_work_nervous.png",
+      "bytes": 482891,
+      "sha256": "6ea5d07e87f9a212dc5ceaed69520496357b17f93a4026193cc0bb2ca5505933",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "light/expressions/36_work_worried.png",
+      "bytes": 483129,
+      "sha256": "1c79def0085dc522ae2522d273d9e493e88f794e4e73ed4c02d2750d0cdac0e2",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "worried"
+    },
+    {
+      "relative_path": "light/expressions/37_work_shocked.png",
+      "bytes": 483865,
+      "sha256": "5edcbf6749469413c772177936d4aff24f0d690aa7ae2d077939a19e1d018286",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "light/expressions/38_work_afraid.png",
+      "bytes": 483938,
+      "sha256": "d5bf1f2e567116c58bba6aacd08b1de5ca9f2701586a44949b995556e61614c0",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "light/expressions/39_work_panicked.png",
+      "bytes": 484259,
+      "sha256": "463d732f7b50abb7f8c29a325fc2556d8bc05bda4f2c929ddc3c06bdea27b25d",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "light/expressions/40_work_determined.png",
+      "bytes": 483244,
+      "sha256": "453f4290397bc4b92c03f2982b71bba0259a580a8cc12db246a8d490c52aa077",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "determined"
+    },
+    {
+      "relative_path": "light/expressions/41_work_empty.png",
+      "bytes": 481782,
+      "sha256": "f29ee0894aab781846da38e2a289e0b93a66a84fdea7aa5fe8bf9346c3984e1b",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "empty"
+    },
+    {
+      "relative_path": "light/expressions/42_work_disgusted.png",
+      "bytes": 482674,
+      "sha256": "cc23a3f0b9ffc138880efc35177055f5ae1ba06b35e5e0fd211a229ea777e20e",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269984,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "light/poses/01_work_pose_exact_fold.png",
+      "bytes": 496654,
+      "sha256": "f2660d59da4857e2bdce1efe23363cf3f81c89c1633fc51eac0c7d7a6f89af4f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        420,
+        35,
+        867,
+        960
+      ],
+      "foreground_pixels": 263973,
+      "kind": "pose",
+      "outfit": "work",
+      "token": "pose_exact_fold"
+    },
+    {
+      "relative_path": "light/poses/02_casual_pose_watching.png",
+      "bytes": 516616,
+      "sha256": "a29a523827cb4e1486a8cb98a195f87fa958fffdb4b8db84309bfe71dcf0d6b4",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        422,
+        39,
+        882,
+        960
+      ],
+      "foreground_pixels": 293746,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_watching"
+    },
+    {
+      "relative_path": "light/poses/03_casual_pose_open_hands.png",
+      "bytes": 502469,
+      "sha256": "6f656f5a22da0797ec05534f5106870150f76499930ff11069b6ca33f2078268",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        416,
+        40,
+        873,
+        960
+      ],
+      "foreground_pixels": 280737,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_open_hands"
+    },
+    {
+      "relative_path": "dark/expressions/01_casual_neut.png",
+      "bytes": 488727,
+      "sha256": "eb4750a76fc85291940a2f99bb89801786c2f6b5e4c961293f578f5acad100a9",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "neut"
+    },
+    {
+      "relative_path": "dark/expressions/02_casual_happy.png",
+      "bytes": 488761,
+      "sha256": "4828bba93cfc45dacdc2c1459f2a21e7add0f0dfbad1424acb57fff678ca68ad",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "happy"
+    },
+    {
+      "relative_path": "dark/expressions/03_casual_smug.png",
+      "bytes": 488678,
+      "sha256": "14e467229aa5b7a0574f7924d5637581ef11fd9229d28f6c0a77a8f467c90a61",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "smug"
+    },
+    {
+      "relative_path": "dark/expressions/04_casual_teasing.png",
+      "bytes": 488866,
+      "sha256": "b1b6ae7c5a1391dd1e75ffb05890b469ecf6d2f8e2ee2b9f789d86d2332c60ce",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "dark/expressions/05_casual_thinking.png",
+      "bytes": 489078,
+      "sha256": "52cc58a717c27c46b501164f69b01c4c302cad5c493eb19a06ebb8ae0fa94628",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "dark/expressions/06_casual_curious.png",
+      "bytes": 488999,
+      "sha256": "a0f628f6f632a77eaee1e627bb37090e6b058732e1a88683cdc40a893cc60552",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "curious"
+    },
+    {
+      "relative_path": "dark/expressions/07_casual_unamused.png",
+      "bytes": 487963,
+      "sha256": "08198263c954404cf680a7155c1a6e3608d79484b01cb41e819fa0a9f004cf5e",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "dark/expressions/08_casual_annoyed.png",
+      "bytes": 488923,
+      "sha256": "53648b19bbc74ce0d6442aa4916a1caeb734d1a6eb7274cfda331d9e7c57cc84",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "dark/expressions/09_casual_frustrated.png",
+      "bytes": 488951,
+      "sha256": "9235da581b2740d5ae54d750ee1b0b552ca572a357a81223703205098ffda5dd",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "dark/expressions/10_casual_angry.png",
+      "bytes": 488943,
+      "sha256": "e7e20ada4cdc7e1929f54c978fa8f680065d963d7d20d2fb04c9dd45412a5849",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "angry"
+    },
+    {
+      "relative_path": "dark/expressions/11_casual_sad.png",
+      "bytes": 488737,
+      "sha256": "473b0326da2de585c26f26c154dc9d6d316f650f4bebba422acb755f9102c379",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "sad"
+    },
+    {
+      "relative_path": "dark/expressions/12_casual_crying.png",
+      "bytes": 489875,
+      "sha256": "d011d4f70a4331cdf4a97a59fe640c7934c7dfcf623a89812783e45361875eab",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "crying"
+    },
+    {
+      "relative_path": "dark/expressions/13_casual_embarrassed.png",
+      "bytes": 489205,
+      "sha256": "ca9fd7191dc462082c060cd0f6bc6c99476eb8da6b66ade5520277841806c81b",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "dark/expressions/14_casual_nervous.png",
+      "bytes": 488697,
+      "sha256": "c9c97d6e7e58d494743dca98746be26ca56942dae3954d89acc0862c3ede3f08",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "dark/expressions/15_casual_worried.png",
+      "bytes": 489059,
+      "sha256": "3ec8ed22e181a193732b537f3160130dc7fadd93bfe9daa02c109dbb3e719d09",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "worried"
+    },
+    {
+      "relative_path": "dark/expressions/16_casual_shocked.png",
+      "bytes": 489265,
+      "sha256": "38991d2f482efea414caed957d5dedf9ee355772cb44da7b5af0f57e81fe2120",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "dark/expressions/17_casual_afraid.png",
+      "bytes": 489338,
+      "sha256": "1dcaf37fb0dc7895b12ec4e4dc595d52187ff397b67ae171b06b1044114f9c2b",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "dark/expressions/18_casual_panicked.png",
+      "bytes": 490165,
+      "sha256": "13e92d4ff41e6bd42c20e1fe641cabb9b25310ceb26fd7e4a403384bfc947dae",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "dark/expressions/19_casual_determined.png",
+      "bytes": 489273,
+      "sha256": "9f83b9257af3d525e16fdf1511b0421917f3e915abab7de6f5980c7360a78651",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "determined"
+    },
+    {
+      "relative_path": "dark/expressions/20_casual_empty.png",
+      "bytes": 487672,
+      "sha256": "7433950d6944e1e3f6d80accc1f1f49771fd6efb71b6eceb43c47ba84743b0ca",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "empty"
+    },
+    {
+      "relative_path": "dark/expressions/21_casual_disgusted.png",
+      "bytes": 488727,
+      "sha256": "77c94f16d56f5c7e4d6e249b63ae6294a25e279a19abdcf6c9316d2fc9276ea1",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 276630,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "dark/expressions/22_work_neut.png",
+      "bytes": 485267,
+      "sha256": "ec36062658936154376eafbed1329ba1a4b9b1df521f297bf1ee832c07bbee82",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "neut"
+    },
+    {
+      "relative_path": "dark/expressions/23_work_happy.png",
+      "bytes": 485034,
+      "sha256": "fba56f6c3aa473c2156eb8ea3e621bb7f09b00715749faa4133288cefe34b213",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "happy"
+    },
+    {
+      "relative_path": "dark/expressions/24_work_smug.png",
+      "bytes": 484261,
+      "sha256": "2ce3786f1833bc1bf77a083093ea9c77d4b136ad3e2d192c39e47c6d6e2792af",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "smug"
+    },
+    {
+      "relative_path": "dark/expressions/25_work_teasing.png",
+      "bytes": 484411,
+      "sha256": "3e102b1681e45fcde981f72dba0d998ed25f89c134e8552c33141f95be620656",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "dark/expressions/26_work_thinking.png",
+      "bytes": 484691,
+      "sha256": "d34f919546336c439f1f2861ea49f689d2a9fcdef54b4640d2926a9d8cfbf0dc",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "dark/expressions/27_work_curious.png",
+      "bytes": 484580,
+      "sha256": "028e625fc2fd5e711882199a2d19ebae37b1e586dabffa075b6484b50021116c",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "curious"
+    },
+    {
+      "relative_path": "dark/expressions/28_work_unamused.png",
+      "bytes": 483484,
+      "sha256": "03e11da0fbf14176e6b50f9600af543ee2b50659731df735e8347a21b53fadab",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "dark/expressions/29_work_annoyed.png",
+      "bytes": 484354,
+      "sha256": "a071256e0e665febee84fa2278498b9466017e72c6d7e7d699a4c794dc615507",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "dark/expressions/30_work_frustrated.png",
+      "bytes": 484815,
+      "sha256": "715885644319e0b9b540d6fd637aecb72de6d82ba6056ebbe4651c763d1f4e87",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "dark/expressions/31_work_angry.png",
+      "bytes": 484502,
+      "sha256": "87ad737eed8692c2a835934a00f7f1840c4e996ce79653b5f3e75e5b16a50fbf",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "angry"
+    },
+    {
+      "relative_path": "dark/expressions/32_work_sad.png",
+      "bytes": 484375,
+      "sha256": "987964a76b0754db355bd9b8fc6c1ae21f86e5c651a2e6b354d7f7d7e5004f92",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "sad"
+    },
+    {
+      "relative_path": "dark/expressions/33_work_crying.png",
+      "bytes": 484961,
+      "sha256": "d92949238a1518acbc5e99759f3e19400488505c1d858bafa8e772ec42cb0a7f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "crying"
+    },
+    {
+      "relative_path": "dark/expressions/34_work_embarrassed.png",
+      "bytes": 484742,
+      "sha256": "85abdee69df47f1ae2359107889decd506bd3532cd74b2b6dba5346eb2efe8ca",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "dark/expressions/35_work_nervous.png",
+      "bytes": 484289,
+      "sha256": "3d22cda3e0663c452e37ed7ad30435e2b249fdfa3f57ebf11969aa56a6c517fa",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "dark/expressions/36_work_worried.png",
+      "bytes": 484439,
+      "sha256": "13f8a6e5fcd2890e7a8f2a3831c3df07eec11357bcd6c2e4b7c2359fef82d65c",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "worried"
+    },
+    {
+      "relative_path": "dark/expressions/37_work_shocked.png",
+      "bytes": 485282,
+      "sha256": "1475734eef754d0491dd58db6387bed9aa599ba9bb98bc775968c9a673390952",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "dark/expressions/38_work_afraid.png",
+      "bytes": 485245,
+      "sha256": "ca57894a87d00af011fbcb75ade1e4523a5ede5a6b1d5d5c7ed98dba22a821ec",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "dark/expressions/39_work_panicked.png",
+      "bytes": 485577,
+      "sha256": "0626fac47a70d5e6820e32ab717c908cc52cb8888ccf5b4fddc40f87993eedd9",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "dark/expressions/40_work_determined.png",
+      "bytes": 484617,
+      "sha256": "6bbb810640f41cbb9cc93d4c649259e9f8a8544aa346369d84deffd9322c395a",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "determined"
+    },
+    {
+      "relative_path": "dark/expressions/41_work_empty.png",
+      "bytes": 483145,
+      "sha256": "33a4a61f670975593452696a3a6a03cb2944fdaf67d76ec3a7a615551ca10b39",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "empty"
+    },
+    {
+      "relative_path": "dark/expressions/42_work_disgusted.png",
+      "bytes": 484034,
+      "sha256": "121da3d6304f415ef713f1e3e89ce6a895e9469832f7a68abb359d1ee31ef96e",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269869,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "dark/poses/01_work_pose_exact_fold.png",
+      "bytes": 497914,
+      "sha256": "241615252aedfa883085b08df4c6676c1e69ecce310e62d96972c71e3c3a4d77",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        420,
+        35,
+        868,
+        960
+      ],
+      "foreground_pixels": 263808,
+      "kind": "pose",
+      "outfit": "work",
+      "token": "pose_exact_fold"
+    },
+    {
+      "relative_path": "dark/poses/02_casual_pose_watching.png",
+      "bytes": 523210,
+      "sha256": "093f37e72e623f0d2a972e3c76dd763b071e92da23568fa6255cb5ec8525e954",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        422,
+        39,
+        882,
+        960
+      ],
+      "foreground_pixels": 293932,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_watching"
+    },
+    {
+      "relative_path": "dark/poses/03_casual_pose_open_hands.png",
+      "bytes": 510868,
+      "sha256": "7273a93326429fdf46d0cd1fc010cbe0eed00d1b5f0ba4b592d8e62b0f43e7c5",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        416,
+        40,
+        873,
+        960
+      ],
+      "foreground_pixels": 280896,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_open_hands"
+    },
+    {
+      "relative_path": "checker/expressions/01_casual_neut.png",
+      "bytes": 489757,
+      "sha256": "49d68f307f1c50e84d1b61be9642a1a648f773545770b92364577c88d078a8f8",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "neut"
+    },
+    {
+      "relative_path": "checker/expressions/02_casual_happy.png",
+      "bytes": 489709,
+      "sha256": "3c52667f73fdf9ff759c132fd0728402f3aadfd5ed468d8aef093f70a24b8e05",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "happy"
+    },
+    {
+      "relative_path": "checker/expressions/03_casual_smug.png",
+      "bytes": 489593,
+      "sha256": "1654fd035f04e6c45d99c89190b7eb16b8655ce637ca3f1dbc06f7baa6cfdfa2",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "smug"
+    },
+    {
+      "relative_path": "checker/expressions/04_casual_teasing.png",
+      "bytes": 489799,
+      "sha256": "9f6ba905fb666327e282b4ffd98dd792cb7f16f46be7f489df68cf2369aa22b9",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "checker/expressions/05_casual_thinking.png",
+      "bytes": 490070,
+      "sha256": "c3a8ff4a85699232b508a2b3cc2c40d0d570584895523e531979832f6c7f3cd8",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "checker/expressions/06_casual_curious.png",
+      "bytes": 490002,
+      "sha256": "97285e92190c4d3c01c92862b9380b8ba696a484542fa837845ce937bbd48fdc",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "curious"
+    },
+    {
+      "relative_path": "checker/expressions/07_casual_unamused.png",
+      "bytes": 488816,
+      "sha256": "c6de3c2e21fc4cc0beefae0e8fb7530293e645b1a8dcc458e2e42c5785c54fc4",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "checker/expressions/08_casual_annoyed.png",
+      "bytes": 489870,
+      "sha256": "c7cf03b443c9bbddec55b9c8e57dd3b1c23545619fdc2225163f8f5eec917c0b",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "checker/expressions/09_casual_frustrated.png",
+      "bytes": 489910,
+      "sha256": "51f520029dcbef30b5f56586e92ea43da80142965933b88dfbc94c0663816bed",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "checker/expressions/10_casual_angry.png",
+      "bytes": 489922,
+      "sha256": "9d594a1c304c8bfca811e7e4db8721eddb7e2f9c43af33a6280fcf5596fbfed6",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "angry"
+    },
+    {
+      "relative_path": "checker/expressions/11_casual_sad.png",
+      "bytes": 489694,
+      "sha256": "2de0f30484d1fa21882634c19d0641cac59e94cc79e14ea7f474422589bbe3a6",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "sad"
+    },
+    {
+      "relative_path": "checker/expressions/12_casual_crying.png",
+      "bytes": 490826,
+      "sha256": "cc92902e2ead0c930ac9fa1212a09c5ad27401b9769f2abf7dc2e2aac9bf8b3c",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "crying"
+    },
+    {
+      "relative_path": "checker/expressions/13_casual_embarrassed.png",
+      "bytes": 490147,
+      "sha256": "d87503c43f8cfb8351141d471e56d4dffc6196b643b9273f09724fffd2dfbd16",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "checker/expressions/14_casual_nervous.png",
+      "bytes": 489699,
+      "sha256": "5ff7804ba877c12c0eb396a3d78b51e6411c692d6cc64be73c38fb1f2bd7f401",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "checker/expressions/15_casual_worried.png",
+      "bytes": 490132,
+      "sha256": "c130305c9a1b2f1b1b5d0521583ccdc5cbab6e02a173ce51400ae579893bc170",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "worried"
+    },
+    {
+      "relative_path": "checker/expressions/16_casual_shocked.png",
+      "bytes": 490309,
+      "sha256": "11bfcc2db1bd8ed4a751254add88f3387498672acf8cf350188984ec041756a8",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "checker/expressions/17_casual_afraid.png",
+      "bytes": 490354,
+      "sha256": "67979483e3cb5cf0ced62ae81ed3fc961aaf372c529b4743512c4151caf2fd83",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "checker/expressions/18_casual_panicked.png",
+      "bytes": 491117,
+      "sha256": "6980b6072db41dc67207c5a8fc39ad9a27946d6885c98c9fafaedb7bca5b3b02",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "checker/expressions/19_casual_determined.png",
+      "bytes": 490263,
+      "sha256": "4019b7c48b83bf312f62cd5f63769cc121c1900d8b1fd60fa445ff6094999fa1",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "determined"
+    },
+    {
+      "relative_path": "checker/expressions/20_casual_empty.png",
+      "bytes": 488520,
+      "sha256": "bb24313e13194f265a1407fc764c10f24d7c8bd4b440927a30b367c48e9ab88a",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "empty"
+    },
+    {
+      "relative_path": "checker/expressions/21_casual_disgusted.png",
+      "bytes": 489660,
+      "sha256": "1e074c922bb99da93e2cc4b802a50521e9ad99cd29138b9e4ccc9ba0141b1312",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        434,
+        41,
+        869,
+        960
+      ],
+      "foreground_pixels": 277291,
+      "kind": "expression",
+      "outfit": "casual",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "checker/expressions/22_work_neut.png",
+      "bytes": 485434,
+      "sha256": "9ee076f4577f40a93d783830e1b6c264e7a8db01b5b5824966122e5e1a7ee1c7",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "neut"
+    },
+    {
+      "relative_path": "checker/expressions/23_work_happy.png",
+      "bytes": 485155,
+      "sha256": "7a8fd2a11a9c684c89ecc8f658efd3b88200abdb0d2e32a6728df062538b5e37",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "happy"
+    },
+    {
+      "relative_path": "checker/expressions/24_work_smug.png",
+      "bytes": 484321,
+      "sha256": "bb78b585196ee6e663341281ecf11de37032234f467881e384314d2cc69f65eb",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "smug"
+    },
+    {
+      "relative_path": "checker/expressions/25_work_teasing.png",
+      "bytes": 484535,
+      "sha256": "7ad277061bf1f9a0f16115412093d981248c3f0acbaf2fb9f82fe783eb720f32",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "teasing"
+    },
+    {
+      "relative_path": "checker/expressions/26_work_thinking.png",
+      "bytes": 484865,
+      "sha256": "c5bd38b36b693c138b3c0a1b7b7983e810caf9e31cc49bcf4e93fa8dceb044d6",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "thinking"
+    },
+    {
+      "relative_path": "checker/expressions/27_work_curious.png",
+      "bytes": 484651,
+      "sha256": "e6e2a01695ab9e234b6100f04e52c79a54bc8ebdcad0c839b138bc48240c6c62",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "curious"
+    },
+    {
+      "relative_path": "checker/expressions/28_work_unamused.png",
+      "bytes": 483627,
+      "sha256": "9bb7608249b515876b4bff648ba978a3805411c5b158fea6164a6e8013ef0db6",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "unamused"
+    },
+    {
+      "relative_path": "checker/expressions/29_work_annoyed.png",
+      "bytes": 484528,
+      "sha256": "9b837d0f546b4bf42d351b011d4fce8a8ebb1f208b63e595ba5024eddcf1e86a",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "annoyed"
+    },
+    {
+      "relative_path": "checker/expressions/30_work_frustrated.png",
+      "bytes": 484892,
+      "sha256": "e0f52f8e277d926c7f60c36ea97efac9cd0e48d4ae56817515168c6e54b78659",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "frustrated"
+    },
+    {
+      "relative_path": "checker/expressions/31_work_angry.png",
+      "bytes": 484722,
+      "sha256": "ceb6641852772e322418cf39562a14170e7961d001454588ef75c5919bc3f5eb",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "angry"
+    },
+    {
+      "relative_path": "checker/expressions/32_work_sad.png",
+      "bytes": 484527,
+      "sha256": "066d515b7a83795bcd5f82a9213750c07ff74f7377bf2273ba0c21049e2992fa",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "sad"
+    },
+    {
+      "relative_path": "checker/expressions/33_work_crying.png",
+      "bytes": 485130,
+      "sha256": "93ee976cac774ecda5460646f608e879c9a9787fb1d8486e2abee6734d74b2de",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "crying"
+    },
+    {
+      "relative_path": "checker/expressions/34_work_embarrassed.png",
+      "bytes": 484937,
+      "sha256": "928c8855ccd9d1501dddc55f06b8154619c2fc97dfddabcaa69551271622ac0d",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "embarrassed"
+    },
+    {
+      "relative_path": "checker/expressions/35_work_nervous.png",
+      "bytes": 484411,
+      "sha256": "74549df358fd82ba40aa4ceb5ee8b965bd7005cd8b294c8f404c30cc02ff30ec",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "nervous"
+    },
+    {
+      "relative_path": "checker/expressions/36_work_worried.png",
+      "bytes": 484672,
+      "sha256": "ff4e128dd2d235c6cfe505c4d0dc0d0b013ff91e8e82d7d1d3f37c1e10a8585f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "worried"
+    },
+    {
+      "relative_path": "checker/expressions/37_work_shocked.png",
+      "bytes": 485407,
+      "sha256": "74ddf65c7bddb5e307258920aa9e50c9deaecc1ebb9fb62f35306761884cd2af",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "shocked"
+    },
+    {
+      "relative_path": "checker/expressions/38_work_afraid.png",
+      "bytes": 485484,
+      "sha256": "95b8d39e0ceb236fbf09d3f29eb6ebc451bb79467d4a95a616e8716448072d7c",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "afraid"
+    },
+    {
+      "relative_path": "checker/expressions/39_work_panicked.png",
+      "bytes": 485817,
+      "sha256": "7c376abaf7e4656784a1f65ca5d156bae09f1f945ce38e18ad5eb065a8fdd442",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "panicked"
+    },
+    {
+      "relative_path": "checker/expressions/40_work_determined.png",
+      "bytes": 484794,
+      "sha256": "0e772de064389c539f2ceaa61e18c5ad220411f37ad923e83ec81cc2d976d898",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "determined"
+    },
+    {
+      "relative_path": "checker/expressions/41_work_empty.png",
+      "bytes": 483299,
+      "sha256": "59f7298a4cf633f4a72d8d4d29f8acd56717fb0f533e5f156294f4a2dbce58ba",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "empty"
+    },
+    {
+      "relative_path": "checker/expressions/42_work_disgusted.png",
+      "bytes": 484208,
+      "sha256": "37b21b7d4404ff880e4ab4782430e5f2935395675aee7bb046b03e469f03cfd3",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        433,
+        37,
+        869,
+        960
+      ],
+      "foreground_pixels": 269960,
+      "kind": "expression",
+      "outfit": "work",
+      "token": "disgusted"
+    },
+    {
+      "relative_path": "checker/poses/01_work_pose_exact_fold.png",
+      "bytes": 497654,
+      "sha256": "2e0964e3d3a7f16fa82562b9aa17e825f9dd564733bf08ffa887a419593a139f",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        420,
+        35,
+        867,
+        960
+      ],
+      "foreground_pixels": 263960,
+      "kind": "pose",
+      "outfit": "work",
+      "token": "pose_exact_fold"
+    },
+    {
+      "relative_path": "checker/poses/02_casual_pose_watching.png",
+      "bytes": 518132,
+      "sha256": "6c8636cc9861e125e7133d3e7d198ee27ce341a2a7bde6703d60dbe3465164a4",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        422,
+        39,
+        882,
+        960
+      ],
+      "foreground_pixels": 293696,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_watching"
+    },
+    {
+      "relative_path": "checker/poses/03_casual_pose_open_hands.png",
+      "bytes": 504606,
+      "sha256": "1cfb9cf52a6545c72258b5f397dd10ed8d93e075e9484ba9f27e088c597382e7",
+      "background_samples_verified": 30,
+      "foreground_bbox_xyxy_exclusive": [
+        416,
+        40,
+        873,
+        960
+      ],
+      "foreground_pixels": 280735,
+      "kind": "pose",
+      "outfit": "casual",
+      "token": "pose_open_hands"
+    }
+  ]
+}

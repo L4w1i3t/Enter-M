@@ -1,9 +1,11 @@
-# Nier Replicant Text Adventure Format
-# =====================================
+# =============================================================================
+# nier_text_adventure.rpy  --  NIER REPLICANT-STYLE PROSE TEXT ADVENTURE
+# =============================================================================
+#
 # Prose-style text adventure on a black background, built on NVL mode.
 # Text accumulates on screen. The player clicks to advance and picks choices.
 #
-# --- Usage ---
+# USAGE
 #
 #   call nier_enter                  -- fade to black, activate mode
 #   nier "Prose text."               -- text (accumulates)
@@ -15,16 +17,35 @@
 #       "Option B":
 #           ...
 #   call nier_exit                   -- fade out, deactivate
+#
+# WHO USES THIS
+#   game/addons/Character Stories/cs_kotonoha_01.rpy ("The Girl with Every Face")
+#   game/addons/Character Stories/cs_kotonoha_02.rpy ("The Void Hunter")
+#   Both run their whole story inside this mode and use `menu (screen=
+#   "nier_nvl_choice")` for the attention-check questions.
+#
+# WHAT THIS FILE EXPOSES
+#   Character : `nier`                  -- the NVL narrator (routes to nier_nvl).
+#   Screens   : nier_nvl (the prose),   nier_nvl_choice (menu choices),
+#               nier_section_display (a title card).
+#   Labels    : nier_enter / nier_exit / nier_section(title) / nier_clear.
+#   State     : nier_ta_active (is the mode on?), nier_ta_prev_quick_menu (saved
+#               quick_menu flag, restored on exit).
+#
+# GOTCHA (FROM THE CHEATSHEET)
+#   Always `call nier_exit` before returning to normal ADV scenes, and restore
+#   `window auto` if ADV dialogue follows immediately.
+# =============================================================================
 
 
-# Flag so other scripts can check whether the mode is active.
+# Flag so other scripts can check whether the mode is active (+ saved quick_menu).
 default nier_ta_active = False
 default nier_ta_prev_quick_menu = True
 
 
-# =====================================================================
+# =============================================================================
 #  CHARACTERS
-# =====================================================================
+# =============================================================================
 
 # Unattributed narrator (NVL-based, routed to our custom screen).
 define nier = Character(
@@ -36,15 +57,19 @@ define nier = Character(
 )
 
 
-# =====================================================================
+# =============================================================================
 #  NVL SCREEN -- Nier variant
-# =====================================================================
+# =============================================================================
 # Prose-style accumulating text, top-left, on black.
 
+# The NVL display the `nier` character renders into: a scrolling, bottom-anchored
+# vpgrid of accumulated prose `window`s on black. If a menu is shown with this
+# screen, its choices render inline at the bottom (the `items` block).
 screen nier_nvl(dialogue, items=None):
 
     add "#000000"
 
+    # Belt-and-suspenders: keep the quick menu hidden while prose is on screen.
     on "show" action SetVariable("quick_menu", False)
     on "replace" action SetVariable("quick_menu", False)
 
@@ -72,15 +97,15 @@ screen nier_nvl(dialogue, items=None):
                 hbox:
                     spacing 8
                     xoffset 32
-                    text "\u25B8" color "#ffffff66" size 22 yalign 0.5 outlines [] font gui.default_font
+                    text "\u2023" color "#ffffff66" size 22 yalign 0.5 outlines [] font gui.interface_font
                     textbutton i.caption:
                         style "nier_nvl_choice_button"
                         action i.action
 
 
-# =====================================================================
+# =============================================================================
 #  NVL CHOICE SCREEN -- for `menu (screen="nier_nvl_choice"):`
-# =====================================================================
+# =============================================================================
 
 screen nier_nvl_choice(items):
     modal True
@@ -95,15 +120,15 @@ screen nier_nvl_choice(items):
         for i in items:
             hbox:
                 spacing 8
-                text "\u25B8" color "#ffffff66" size 22 yalign 0.5 outlines [] font gui.default_font
+                text "\u2023" color "#ffffff66" size 22 yalign 0.5 outlines [] font gui.interface_font
                 textbutton i.caption:
                     style "nier_nvl_choice_button"
                     action i.action
 
 
-# =====================================================================
+# =============================================================================
 #  SECTION TITLE SCREEN
-# =====================================================================
+# =============================================================================
 
 screen nier_section_display(title):
     modal True
@@ -123,9 +148,9 @@ screen nier_section_display(title):
     key "dismiss" action Return()
 
 
-# =====================================================================
+# =============================================================================
 #  STYLES
-# =====================================================================
+# =============================================================================
 
 # -- Individual NVL entry (reset all NVL positioning) --
 style nier_nvl_entry is default:
@@ -162,16 +187,17 @@ style nier_nvl_choice_button_text:
     outlines []
 
 
-# =====================================================================
+# =============================================================================
 #  TRANSITIONS
-# =====================================================================
+# =============================================================================
 
 
-# =====================================================================
+# =============================================================================
 #  HELPER LABELS
-# =====================================================================
+# =============================================================================
 
-# Activate mode: fade to black, clear NVL history.
+# Activate mode: save+disable quick_menu, set the active flag, fade to black,
+# and beat. (Text isn't cleared here -- use nier_clear / nier_section for that.)
 label nier_enter:
     $ nier_ta_prev_quick_menu = quick_menu
     $ nier_ta_active = True

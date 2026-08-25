@@ -1,0 +1,734 @@
+# =============================================================================
+# matsucoin.rpy  --  MATSUCOINS: the currency core
+# =============================================================================
+#
+# WHAT THIS FILE IS
+#   The wallet and every way a coin gets into it. It owns no UI beyond a coin
+#   glyph, a balance chip and an earn toast; the machine that SPENDS coins is
+#   mc_gacha.rpy (Arcade lobby) and the binder that displays what they bought is
+#   mc_collection.rpy (Archive module 7). Card data lives in mc_cards.rpy.
+#
+# THE TWO FAUCETS, AND WHY THEY ARE BUILT DIFFERENTLY
+#   * DERIVED (mc_sync)  -- everything the game ALREADY persists: achievements
+#       earned, side stories read, CGs recovered, outfits worn, roster slots
+#       identified, Archivists fended off. These pay out by walking the owning
+#       catalogs and crediting anything not yet in persistent.mc_paid_keys. No
+#       story file is edited, nothing has to be remembered when content is
+#       added, and a profile that earned all of it before this feature existed
+#       gets paid retroactively the first time mc_sync runs.
+#       This is the same reasoning achievements.rpy gives for reading catalogs
+#       lazily instead of keeping hand-written copies -- a copied list goes
+#       stale the moment content is added, and here a stale list is money the
+#       player silently never receives.
+#   * VOLATILE (mc_award) -- score. An arcade run's payout is a fact about a run
+#       that nothing persists, so the cabinets and the fight result labels call
+#       mc_award directly as they finish. This is the REPEATABLE faucet: the
+#       derived pool is finite and a player who has done everything must still
+#       be able to earn, or the machine stops being usable exactly when the
+#       collection is closest to complete.
+#
+# THE ONE-TIME LEDGER
+#   persistent.mc_paid_keys is a set of strings that have already been paid for.
+#   Every derived payout and every "first clear" bonus goes through it, so a
+#   payout can never be collected twice -- and because it is keyed by STRING,
+#   not by index, reordering or renaming content only ever risks paying once
+#   more, never double-paying silently.
+#
+# ADDING A NEW EARN SOURCE
+#   Repeatable  -> call mc_award(n, "WHAT IT WAS") at the moment it happens.
+#   Once only   -> call mc_award(n, "WHAT IT WAS", key="unique_string").
+#   Derived     -> add a rule to MC_DERIVED_RULES below; mc_sync does the rest.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# PERSISTENT STATE
+# balance  : coins on hand right now (spent by the gacha).
+# lifetime : every coin ever credited. Never decreases; it is what the machine's
+#            "TOTAL EARNED" readout reports, and it is the honest number for a
+#            player who has spent everything.
+# spent    : counterpart to lifetime, for the same readout.
+# paid_keys: the one-time ledger described above.
+# -----------------------------------------------------------------------------
+default persistent.mc_balance = 0
+default persistent.mc_lifetime = 0
+default persistent.mc_spent = 0
+default persistent.mc_paid_keys = set()
+
+init -5 python:
+
+    # -------------------------------------------------------------------------
+    # PAYOUT TABLE
+    # One place for every number, because balancing a currency means moving
+    # these against each other and that is impossible if they are scattered
+    # across five files. A pull is 100 and a ten-pull 1000 (mc_gacha.rpy), so
+    # read every value below as a fraction of one pull.
+    # -------------------------------------------------------------------------
+
+    # Hard ceiling on the wallet. Coins that do not fit are simply not credited
+    # -- and a ONE-TIME payout that does not fit is not marked collected either,
+    # so a full wallet DEFERS a reward instead of destroying it. Spend some and
+    # the next sync pays it.
+    MC_BALANCE_CAP = 99999
+
+    # -- derived, one-time --
+    MC_PAY_ACH = {                 # per achievement, by tier
+        "bronze":   60,
+        "silver":   120,
+        "gold":     250,
+        "platinum": 1200,
+    }
+    MC_PAY_SIDE_UNLOCKED  = 40     # a side story becoming available
+    MC_PAY_SIDE_COMPLETED = 120    # ...and actually being read to the end
+    MC_PAY_CG             = 25     # per CG recovered
+    MC_PAY_OUTFIT         = 20     # per wardrobe entry seen
+    MC_PAY_ROSTER         = 15     # per roster slot identified
+    MC_PAY_ARCHIVIST      = 200    # per Archivist fended off
+    MC_PAY_CAMPAIGN       = 300    # clearing the campaign (Chapter 0.5 for now)
+
+    # -- volatile, per arcade run --
+    MC_PAY_RUN_BASE    = 15        # finishing any Arcade Original run
+    MC_PAY_RUN_QUIT    = 5         # ...or bailing out of one
+    MC_PAY_RUN_CAP     = 60        # most a single run's SCORE can be worth
+    MC_PAY_RECORD      = 75        # beating your own best on a cabinet
+    MC_PAY_FIRST_PLAY  = 100       # one-time, per cabinet
+    MC_PAY_WIN         = 150       # clearing a story game mode from the Arcade
+    MC_PAY_LOSS        = 30        # ...or losing one
+    MC_PAY_FIRST_CLEAR = 250       # one-time, per game mode
+
+    # Score -> coins. A run is worth score/divisor, capped at MC_PAY_RUN_CAP, so
+    # every cabinet pays roughly the same for a roughly-as-good run despite
+    # scores that differ by three orders of magnitude between them. The cap is
+    # what stops one enormous snake run from buying the whole collection.
+    # A cabinet missing from the table uses the default -- a new game pays
+    # something sane on day one rather than paying nothing until somebody
+    # remembers this table exists.
+    MC_SCORE_DIVISOR = {
+        "snake":  120,
+        "brick":  200,
+        "intake": 400,
+        "sweep":  90,
+        "chess":  40,
+    }
+    MC_SCORE_DIVISOR_DEFAULT = 150
+
+    # -------------------------------------------------------------------------
+    # RUNTIME (never saved, never rolled back)
+    # The earn-toast queue, in the same shape and for the same reasons as
+    # achievements.rpy's _AchRuntime: a `default` store variable would be rolled
+    # back with the game (a rollback could vaporize or duplicate a pending
+    # toast) and would be pickled into every save.
+    # -------------------------------------------------------------------------
+    class _McRuntime(NoRollback):
+        def __init__(self):
+            self.queue = []      # FIFO of (amount, label) still to toast
+            self.started = None  # wall clock of the current toast; None = unrendered
+
+    _mc_rt = _McRuntime()
+
+    import time as _mc_time
+
+    MC_TOAST_IN    = 0.30
+    MC_TOAST_HOLD  = 2.2
+    MC_TOAST_OUT   = 0.40
+    MC_TOAST_TOTAL = MC_TOAST_IN + MC_TOAST_HOLD + MC_TOAST_OUT
+    # A sync that pays out more than this at once is a reconciliation (a profile
+    # that predates the feature, a dev unlock-everything), not a moment. It
+    # credits silently -- 40 toasts in a row is not a reward, it is a hostage
+    # situation. Same threshold reasoning as ACH_TOAST_BATCH_MAX.
+    MC_TOAST_BATCH_MAX = 3
+
+    # -------------------------------------------------------------------------
+    # WALLET
+    # -------------------------------------------------------------------------
+    def _mc_ensure_store():
+        """Coerce the persistent state into the right types. Guards profiles
+        written before this feature existed (every field reads None there) and
+        profiles merged between two machines."""
+        if not isinstance(getattr(persistent, "mc_paid_keys", None), set):
+            persistent.mc_paid_keys = set(getattr(persistent, "mc_paid_keys", None) or [])
+        for _field in ("mc_balance", "mc_lifetime", "mc_spent"):
+            if not isinstance(getattr(persistent, _field, None), int):
+                try:
+                    setattr(persistent, _field, int(getattr(persistent, _field, 0) or 0))
+                except (TypeError, ValueError):
+                    setattr(persistent, _field, 0)
+
+    def mc_balance():
+        _mc_ensure_store()
+        return persistent.mc_balance
+
+    def mc_can_afford(cost):
+        return mc_balance() >= int(cost)
+
+    def mc_is_paid(key):
+        """Has this one-time payout already been collected?"""
+        _mc_ensure_store()
+        return bool(key) and key in persistent.mc_paid_keys
+
+    def mc_award(amount, label=None, key=None, toast=True, save=True):
+        """Credit coins. Returns what was actually credited (0 if nothing was).
+
+        amount : coins. Non-positive amounts are a no-op, so a caller doing its
+                own arithmetic can pass a computed 0 without a guard.
+        label  : what the player did, for the toast ("OUROBOROS PROTOCOL").
+        key    : ONE-TIME. With a key set, the payout happens at most once ever
+                and the key is remembered in persistent.mc_paid_keys.
+        """
+        _mc_ensure_store()
+        amount = int(amount or 0)
+        if amount <= 0:
+            return 0
+        if key and key in persistent.mc_paid_keys:
+            return 0
+
+        # CAP. A one-time payout is all-or-nothing: half-crediting it and then
+        # marking it collected would quietly destroy the rest, so if it does not
+        # fit it is left unpaid AND unmarked, and comes back on the next sync
+        # once there is room. A repeatable payout just tops the wallet up.
+        room = MC_BALANCE_CAP - persistent.mc_balance
+        if room <= 0:
+            return 0
+        if key:
+            if amount > room:
+                return 0
+        else:
+            amount = min(amount, room)
+
+        if key:
+            persistent.mc_paid_keys.add(key)
+
+        persistent.mc_balance += amount
+        persistent.mc_lifetime += amount
+
+        if toast:
+            mc_push_toast(amount, label)
+        if save:
+            _mc_save()
+        return amount
+
+    def mc_spend(amount):
+        """Debit coins for a pull. Returns whether the balance covered it."""
+        _mc_ensure_store()
+        amount = int(amount or 0)
+        if amount <= 0 or persistent.mc_balance < amount:
+            return False
+        persistent.mc_balance -= amount
+        persistent.mc_spent += amount
+        _mc_save()
+        return True
+
+    def _mc_save():
+        try:
+            renpy.save_persistent()
+        except Exception:
+            pass
+
+    # -------------------------------------------------------------------------
+    # DERIVED PAYOUTS
+    #
+    # Each rule is (key_prefix, coins, reader, label_fn). `reader` returns the
+    # list of THINGS CURRENTLY TRUE -- ids or persistent flag names -- and every
+    # one of them not yet in the ledger is paid for. Readers are functions and
+    # are resolved lazily for the same reason achievements.rpy's flag groups
+    # are: this file may init before the catalogs it reads.
+    #
+    # Every reader is wrapped in a try/except by _mc_read: a catalog that has
+    # not loaded (or a module that was cut) must cost the player nothing but
+    # that rule's coins, not blow up the sync and silently stop every LATER
+    # rule from paying out too.
+    # -------------------------------------------------------------------------
+    def _mc_read(fn):
+        try:
+            return tuple(fn() or ())
+        except Exception:
+            return ()
+
+    def _mc_flags_true(flags):
+        """Filter a list of persistent flag NAMES down to the set ones."""
+        return tuple(f for f in flags if getattr(persistent, f, False))
+
+    # -- readers, one per content type ---------------------------------------
+    def _mc_earned_achievements():
+        earned = getattr(persistent, "ach_earned", None) or ()
+        catalog = globals().get("ACH_BY_ID") or {}
+        return tuple(aid for aid in earned if aid in catalog)
+
+    def _mc_side_unlocked():
+        fn = globals().get("cs_all_unlock_keys", None)
+        keys = _mc_read(fn) if fn else ()
+        return _mc_flags_true(keys)
+
+    def _mc_side_completed():
+        fn = globals().get("cs_all_completed_keys", None)
+        keys = _mc_read(fn) if fn else ()
+        return _mc_flags_true(keys)
+
+    def _mc_cgs():
+        fn = globals().get("cg_all_keys", None)
+        return _mc_flags_true(_mc_read(fn)) if fn else ()
+
+    def _mc_outfits():
+        fn = globals().get("roster_outfit_keys", None)
+        return _mc_flags_true(_mc_read(fn)) if fn else ()
+
+    def _mc_roster():
+        fn = globals().get("roster_gated_ids", None)
+        ids = _mc_read(fn) if fn else ()
+        met = getattr(persistent, "roster_met_ids", None) or ()
+        return tuple(i for i in ids if i in met)
+
+    def _mc_archivists():
+        # inv_fended() is the accessor that coerces the persistent value to a
+        # real set (it guards profiles written before the invasions shipped);
+        # fall back to the raw attribute if that file has not loaded.
+        fn = globals().get("inv_fended", None)
+        if fn:
+            return _mc_read(fn)
+        return tuple(getattr(persistent, "inv_fended", None) or ())
+
+    def _mc_campaign():
+        # The campaign's clear signal is the Music Room unlock -- see the note
+        # at the end of game/story/season1/0531.rpy. When Season 1 proper ships
+        # and that line moves to its real ending, this follows it for free.
+        return ("chapter05",) if getattr(persistent, "archive_unlocked_music", False) else ()
+
+    def _mc_ach_coins(aid):
+        """An achievement's payout is set by its TIER, so the rule needs a
+        per-item amount rather than one flat number."""
+        catalog = globals().get("ACH_BY_ID") or {}
+        entry = catalog.get(aid)
+        tier = getattr(entry, "tier", "bronze") if entry else "bronze"
+        return MC_PAY_ACH.get(tier, MC_PAY_ACH["bronze"])
+
+    def _mc_ach_label(aid):
+        catalog = globals().get("ACH_BY_ID") or {}
+        entry = catalog.get(aid)
+        return ("ACHIEVEMENT: %s" % entry.title) if entry else "ACHIEVEMENT"
+
+    # -- the rule table -------------------------------------------------------
+    # (ledger prefix, coins-or-callable, reader, toast label-or-callable)
+    MC_DERIVED_RULES = (
+        ("ach",      _mc_ach_coins,         _mc_earned_achievements, _mc_ach_label),
+        ("side_get", MC_PAY_SIDE_UNLOCKED,  _mc_side_unlocked,       "SIDE STORY RECOVERED"),
+        ("side_end", MC_PAY_SIDE_COMPLETED, _mc_side_completed,      "SIDE STORY READ"),
+        ("cg",       MC_PAY_CG,             _mc_cgs,                 "CG RECOVERED"),
+        ("fit",      MC_PAY_OUTFIT,         _mc_outfits,             "WARDROBE ENTRY"),
+        ("who",      MC_PAY_ROSTER,         _mc_roster,              "ROSTER SLOT IDENTIFIED"),
+        ("inv",      MC_PAY_ARCHIVIST,      _mc_archivists,          "ARCHIVIST FENDED OFF"),
+        ("camp",     MC_PAY_CAMPAIGN,       _mc_campaign,            "CAMPAIGN CLEARED"),
+    )
+
+    def mc_sync(notify=True):
+        """Pay out for every qualifying thing not yet in the ledger.
+
+        Safe and cheap to call as often as you like -- it is a set-difference
+        against persistent.mc_paid_keys, and once a profile is settled it credits
+        nothing. Hooked to the same places ach_sync is (see the bottom of this
+        file), so returning to a hub after a fight or a side story pays for it.
+        Returns total coins credited."""
+        _mc_ensure_store()
+        total = 0
+        events = []
+
+        for prefix, coins, reader, label in MC_DERIVED_RULES:
+            for item in _mc_read(reader):
+                key = "%s:%s" % (prefix, item)
+                if key in persistent.mc_paid_keys:
+                    continue
+                amount = coins(item) if callable(coins) else coins
+                text = label(item) if callable(label) else label
+                # toast=False: the batch is judged as a whole below, because a
+                # first sync on an established profile can settle dozens of
+                # these at once.
+                got = mc_award(amount, text, key=key, toast=False, save=False)
+                if got:
+                    total += got
+                    events.append((got, text))
+
+        if total:
+            _mc_save()
+            if notify and len(events) <= MC_TOAST_BATCH_MAX:
+                for amount, text in events:
+                    mc_push_toast(amount, text)
+            elif notify:
+                # Reconciliation: one summary line instead of a parade.
+                mc_push_toast(total, "BACK PAY")
+        return total
+
+    def mc_refresh():
+        """VOID wrapper for screen `on "show"` handlers. A screen EVENT action
+        that returns non-None ends the interaction and bubbles the value up like
+        Return() -- which is what closed the Archive the instant it opened when
+        ach_refresh was first written. Never return a value from here."""
+        mc_sync()
+        return None
+
+    # -------------------------------------------------------------------------
+    # ARCADE PAYOUTS (the volatile faucet)
+    # -------------------------------------------------------------------------
+    def mc_award_run(kind, title, score, outcome, new_record=False):
+        """One finished Arcade Original run. Called from AGGame.finish().
+
+        kind    : cabinet key ("snake"), used for the divisor and the ledger.
+        outcome : the AGGame finish kind -- "quit" means bailed out.
+        Returns the total credited, which the results card then reports."""
+        total = 0
+        quit_out = (outcome == "quit")
+
+        total += mc_award(MC_PAY_RUN_QUIT if quit_out else MC_PAY_RUN_BASE,
+                        title, toast=False, save=False)
+
+        if not quit_out and score:
+            div = MC_SCORE_DIVISOR.get(kind, MC_SCORE_DIVISOR_DEFAULT)
+            total += mc_award(min(int(int(score) / max(div, 1)), MC_PAY_RUN_CAP),
+                            title, toast=False, save=False)
+
+        if new_record:
+            total += mc_award(MC_PAY_RECORD, title, toast=False, save=False)
+
+        if not quit_out:
+            total += mc_award(MC_PAY_FIRST_PLAY, title,
+                            key="first_play:%s" % kind, toast=False, save=False)
+
+        if total:
+            _mc_save()
+        return total
+
+    def mc_award_mode(slug, title, won, first_clear_key=None):
+        """One finished story game mode launched from the Arcade (the boss
+        fights). Flat outcome money plus a one-time first-clear bonus, because
+        those modes have no comparable score to scale against each other."""
+        total = mc_award(MC_PAY_WIN if won else MC_PAY_LOSS, title,
+                        toast=False, save=False)
+        if won:
+            total += mc_award(MC_PAY_FIRST_CLEAR, title,
+                            key=(first_clear_key or ("first_clear:%s" % slug)),
+                            toast=False, save=False)
+        if total:
+            _mc_save()
+        return total
+
+    # -------------------------------------------------------------------------
+    # STORY BEATS
+    # The hand-placed API, for a moment in the script worth paying for that no
+    # flag already records. Drop `$ mc_story_award("0523_notebook", 120)` at the
+    # beat. The key is what makes it first-time-only, so it must be unique and
+    # must never be recycled for a different beat.
+    # -------------------------------------------------------------------------
+    def mc_story_award(key, amount, label="STORY"):
+        return mc_award(amount, label, key="story:%s" % key)
+
+    # -------------------------------------------------------------------------
+    # THE COIN GLYPH
+    # matsucoin.png is a 15x16 pixel-art coin, so it is scaled with nearest
+    # sampling -- a smoothed 15px sprite blown up to 32px is mush. Cached per
+    # size because these are built inside screens, which rebuild constantly.
+    # -------------------------------------------------------------------------
+    MC_COIN_PATH = "addons/Matsucoin Currency and Gacha/matsucoin.png"
+    MC_COIN_W, MC_COIN_H = 15, 16
+    _MC_COIN_CACHE = {}
+
+    def MatsucoinIcon(height=16):
+        """The coin at a given pixel HEIGHT, aspect preserved, nearest-scaled."""
+        h = max(4, int(height))
+        hit = _MC_COIN_CACHE.get(h)
+        if hit is None:
+            zoom = float(h) / MC_COIN_H
+            hit = Transform(MC_COIN_PATH, zoom=zoom, nearest=True)
+            _MC_COIN_CACHE[h] = hit
+        return hit
+
+    def mc_num(n):
+        """Thousands-separated balance string (matches the arcade's ag_num)."""
+        try:
+            return format(int(n), ",")
+        except (TypeError, ValueError):
+            return str(n)
+
+    # -------------------------------------------------------------------------
+    # SFX
+    # Cue-with-volume entries, NOT `audio.` aliases -- the same shape the game
+    # modes use (AG_SFX in ag_core.rpy, KT_SFX in kototouhou.rpy), because these
+    # are played through renpy.sound.play with a per-cue level rather than by a
+    # `play` statement, which is what the alias rule governs.
+    #
+    # "coin" is se_item00, the ZUN point-item collect -- the sound of picking
+    # money up, and already this project's "pickup" cue in the Arcade Originals.
+    # It replaces audio.beep, which is the CENSOR BLEEP and reads as one.
+    # -------------------------------------------------------------------------
+    MC_SE_DIR = "mod_assets/sfx/touhou/"
+    MC_SFX = {
+        "coin": (MC_SE_DIR + "se_item00.wav", 0.75),   # coins credited
+        "r":    (MC_SE_DIR + "se_kira00.wav", 0.50),   # common card lands
+        "sr":   (MC_SE_DIR + "se_nice.wav",   0.75),   # SR lands
+        "ssr":  (MC_SE_DIR + "se_cardget.wav", 0.90),  # SSR -- the card-capture cue
+    }
+
+    # A POOL, not the shared "sound" channel. A ten-pull lands a card every
+    # 0.16s and each one rings its rarity sting; on one channel every sting cut
+    # the one before it, so nine of the ten were inaudible and the tier cues
+    # sounded like they were not per-card at all. Six channels is more than the
+    # reveal can ever have in flight at once.
+    #
+    # Allocation goes through msbf_pick_pool_channel (battle_logic.rpy), which
+    # takes an IDLE channel rather than blindly rotating onto a live cue -- the
+    # same helper the boss fight and the Arcade Originals use.
+    MC_SFX_POOL = ["mc_sfx_%d" % i for i in range(6)]
+    for _mc_ch in MC_SFX_POOL:
+        if not renpy.music.channel_defined(_mc_ch):
+            renpy.music.register_channel(_mc_ch, mixer="sfx", loop=False)
+
+    def mc_se(name, volume_scale=1.0):
+        """Play one Matsucoin cue. Unknown names are silently ignored, so a cue
+        can be named before it has been given a file without crashing a pull."""
+        entry = MC_SFX.get(name)
+        if not entry:
+            return
+        try:
+            # Resolved lazily and by name: this file inits before
+            # battle_logic.rpy. Degrading to the shared "sound" channel is
+            # deliberately NOT silence -- a missing helper should cost cue
+            # separation, not the cue.
+            picker = globals().get("msbf_pick_pool_channel", None)
+            channel = picker(MC_SFX_POOL, "cursor", mc_se) if picker else "sound"
+            if channel is None:
+                return
+            renpy.sound.play(entry[0], channel=channel,
+                            relative_volume=entry[1] * volume_scale)
+        except Exception:
+            pass
+    mc_se.cursor = 0
+
+    # -------------------------------------------------------------------------
+    # TOAST QUEUE
+    # -------------------------------------------------------------------------
+    def mc_push_toast(amount, label=None):
+        _mc_rt.queue.append((int(amount), label or "MATSUCOINS"))
+        # The always-shown screen only re-evaluates on an interaction restart;
+        # force one so a toast pushed mid-interaction appears immediately.
+        renpy.restart_interaction()
+
+    def _mc_toast_anim(trans, st, at):
+        """ATL driver on the toast card, one call per frame while it is up.
+        Wall-clock, so skip mode cannot compress it and an interaction restart
+        cannot re-zero it -- and the clock only starts once the card actually
+        RENDERS, so a coin awarded mid-transition still gets its full dwell."""
+        if renpy.predicting():
+            return 0
+        if not _mc_rt.queue:
+            trans.alpha = 0.0
+            return 0
+        now = _mc_time.time()
+        if _mc_rt.started is None:
+            _mc_rt.started = now
+            mc_se("coin")
+        el = now - _mc_rt.started
+
+        if el < MC_TOAST_IN:
+            p = el / MC_TOAST_IN
+            q = p - 1.0
+            ease = 1.0 + 2.70158 * q * q * q + 1.70158 * q * q   # easeOutBack
+            trans.alpha = min(1.0, p * 2.0)
+            trans.xoffset = 60.0 * (1.0 - ease)
+        elif el < MC_TOAST_IN + MC_TOAST_HOLD:
+            trans.alpha = 1.0
+            trans.xoffset = 0.0
+        elif el < MC_TOAST_TOTAL:
+            p = (el - MC_TOAST_IN - MC_TOAST_HOLD) / MC_TOAST_OUT
+            trans.alpha = 1.0 - p * p
+            trans.xoffset = 40.0 * p * p
+        else:
+            _mc_rt.queue.pop(0)
+            _mc_rt.started = None
+            trans.alpha = 0.0
+            renpy.restart_interaction()
+        return 0
+
+    # -------------------------------------------------------------------------
+    # DEV
+    # There is a DEV pill on the prize machine (developer builds only) that
+    # opens screen mc_dev_shop; everything below is also callable straight from
+    # the Matsu'Py console with Shift+O:
+    #     mc_dev_give(5000)     mc_dev_fill()     mc_dev_reset()
+    # -------------------------------------------------------------------------
+    def mc_dev_set(amount):
+        """Set the wallet to an exact figure, clamped to [0, MC_BALANCE_CAP].
+        Goes straight to the balance rather than through mc_award, because a
+        dev grant is not earnings -- routing it through the wallet's income
+        would inflate TOTAL EARNED and break the lifetime == balance + spent
+        invariant the payout tests check."""
+        _mc_ensure_store()
+        persistent.mc_balance = max(0, min(int(amount), MC_BALANCE_CAP))
+        _mc_save()
+        renpy.restart_interaction()
+        return None
+
+    def mc_dev_give(amount=1000):
+        """Add coins on top of what is there, capped."""
+        _mc_ensure_store()
+        return mc_dev_set(persistent.mc_balance + int(amount))
+
+    def mc_dev_fill():
+        """Straight to the cap."""
+        return mc_dev_set(MC_BALANCE_CAP)
+
+    def mc_dev_reset(keep_ledger=True):
+        """Zero the wallet. keep_ledger=True (the default) leaves the one-time
+        payouts marked collected, so a reset does not hand the whole derived
+        pool straight back on the next sync -- which is what you want when
+        testing the MACHINE, and not what you want when testing the PAYOUTS."""
+        _mc_ensure_store()
+        persistent.mc_balance = 0
+        persistent.mc_lifetime = 0
+        persistent.mc_spent = 0
+        if not keep_ledger:
+            persistent.mc_paid_keys = set()
+        _mc_save()
+        renpy.restart_interaction()
+        return None
+
+
+# -----------------------------------------------------------------------------
+# TOAST SCREEN
+# Hosted by config.always_shown_screens (registered at the bottom of this file),
+# so it is present in EVERY context -- story, the menu contexts, the fights --
+# even while overlays are suppressed. Renders nothing while the queue is empty.
+# Never show or hide it by hand.
+# -----------------------------------------------------------------------------
+transform mc_toast_drive:
+    subpixel True
+    alpha 0.0
+    function _mc_toast_anim
+
+screen matsucoin_toaster():
+    # Just under the achievement toaster (400) so that if both fire for the same
+    # act -- and they routinely do, since achievements PAY -- the achievement
+    # reads as the headline and the coins as its receipt.
+    zorder 399
+
+    if _mc_rt.queue:
+        $ _mc_amount, _mc_label = _mc_rt.queue[0]
+
+        frame:
+            style "mc_toast_frame"
+            anchor (1.0, 1.0)
+            # The achievement toast owns the bottom-right corner and is 62px
+            # tall. When one is up, this sits on top of it instead of under it.
+            pos (0.988, 0.965)
+            yoffset (-70 if _ach_rt.queue else 0)
+            ysize 54
+            at mc_toast_drive
+
+            hbox:
+                spacing 0
+
+                add Solid("#ffb454") xysize (5, 54)
+                null width 13
+
+                hbox:
+                    yalign 0.5
+                    spacing 9
+
+                    add MatsucoinIcon(22) yalign 0.5
+
+                    vbox:
+                        spacing 1
+                        yalign 0.5
+                        text ("+%s" % mc_num(_mc_amount)) style "mc_toast_amount"
+                        text _mc_label style "mc_toast_label" layout "nobreak"
+
+                null width 16
+
+
+# -----------------------------------------------------------------------------
+# SHARED BALANCE CHIP
+# The wallet readout, reused by the Arcade hub, the machine and the binder so
+# the number looks the same everywhere it appears.
+#   size  : text size; the coin scales with it.
+#   light : True on the Archive's cyan panels, False on the Arcade's indigo.
+# -----------------------------------------------------------------------------
+screen mc_balance_chip(size=20, light=False):
+    hbox:
+        spacing 8
+        add MatsucoinIcon(int(size * 1.05)) yalign 0.5
+        text mc_num(mc_balance()):
+            style "mc_chip_amount"
+            size size
+            color ("#dff8ff" if light else "#ffd98a")
+            yalign 0.5
+
+
+# =============================================================================
+# STYLES
+# The coin is the Arcade's amber (#ffb454) wherever it appears, INCLUDING on the
+# Archive's cyan panels. That is deliberate: Matsucoins are an arcade object, and
+# a currency that recolors itself per room stops reading as one thing.
+# =============================================================================
+style mc_toast_frame:
+    background Solid("#181030f2")
+    padding (0, 0)
+
+style mc_toast_amount:
+    font gui.interface_font
+    color "#ffd98a"
+    size 21
+    bold True
+    outlines [(2, "#02040b", 0, 0)]
+
+style mc_toast_label is gui_text:
+    font gui.interface_font
+    color "#c9c0dc"
+    size 11
+    kerning 1.0
+    outlines [(1, "#02040b", 0, 0)]
+
+style mc_chip_amount:
+    font gui.interface_font
+    bold True
+    outlines [(2, "#02040b", 0, 0)]
+
+
+# -----------------------------------------------------------------------------
+# HOOKS
+# Sync on load, and once per launch at the title screen, so a profile that
+# earned things before this feature shipped is paid without having to go
+# anywhere specific. The hub screens sync on show as well (see their on "show"
+# handlers) to catch anything earned during a run.
+# -----------------------------------------------------------------------------
+init 60 python:
+    if "matsucoin_toaster" not in config.always_shown_screens:
+        config.always_shown_screens.append("matsucoin_toaster")
+
+    def _mc_after_load():
+        mc_sync()
+
+    if _mc_after_load not in config.after_load_callbacks:
+        config.after_load_callbacks.append(_mc_after_load)
+
+    # SETTLE EVERY INTERACTION.
+    #
+    # This used to fire once per launch, gated on the main menu, with the hub
+    # screens re-syncing on show. That paid correctly but paid LATE: earning an
+    # achievement mid-chapter credited nothing until the player next opened the
+    # Arcade or the Archive, so the coins arrived detached from the thing that
+    # earned them and the toast was a mystery. Coins should land -- and say so --
+    # at the moment the deed is done.
+    #
+    # Running the whole sweep per interaction is affordable: it is ~130 getattr
+    # lookups and a few list comprehensions against catalogs that are already in
+    # memory, and it short-circuits to nothing once a profile is settled, which
+    # is the state it is in for all but a handful of interactions in a session.
+    # Nothing here touches disk unless a payout actually happens.
+    #
+    # It must stay exception-safe: this runs before EVERY interaction in the
+    # game, so an exception escaping it would take the whole game down rather
+    # than merely cost the player some coins. mc_sync guards each catalog reader
+    # individually (_mc_read); this is the outer belt.
+    def _mc_interact_sync():
+        try:
+            mc_sync()
+        except Exception:
+            pass
+
+    if _mc_interact_sync not in config.interact_callbacks:
+        config.interact_callbacks.append(_mc_interact_sync)

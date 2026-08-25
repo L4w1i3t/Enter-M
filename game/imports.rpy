@@ -15,4 +15,4 @@ init python:
     import hashlib              # Used for hash functions, like in Easter eggs
     import shutil               # File operations beyond what os provides
     import traceback            # For detailed error reporting
-    import renpy.store as store # Access to Ren'Py's store variables
+    import renpy.store as store # Access to Matsu'Py's store variables

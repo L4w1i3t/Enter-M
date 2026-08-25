@@ -1,10 +1,271 @@
+# =============================================================================
+# battle_logic.rpy  --  MATSUDA'S SICK BOSS FIGHT :: RULES + STATE ENGINE
+# =============================================================================
+#
+# WHAT THIS FILE IS
+#   The complete, UI-free combat engine for the boss fight: an SMT/Persona-style
+#   "press-turn" battle with three phases, plus a Touhou-style bullet-hell
+#   ("shmup") segment in phase three. All combat math, AI, audio, and the battle
+#   state machine live here. The SCREENS that draw/drive it (party select +
+#   battle screen) are in ui.rpy; the shader/particle polish is in fx.rpy.
+#
+# WHO DRIVES IT (the public surface used by the story front-end)
+#   game/addons/Character Stories/cs_matsuda_02.rpy calls:
+#     msbf_clear_battle_watch()                 -> reset global battle vars
+#     call screen msbf_party_select             -> (ui.rpy) returns party id list
+#     msbf_new_battle(party_ids, id_mode=)      -> build an MSBFBattleState
+#     call screen msbf_battle_screen(state)     -> (ui.rpy) run the fight; returns
+#                                                   "victory" / other
+#     msbf_stop_battle_music(fade)              -> stop all battle channels
+#   The battle SCREEN (ui.rpy) calls MSBFBattleState methods every interaction:
+#   player_use_skill / player_pass / start_enemy_phase / update_shmup_segment, etc.
+#
+# GLOBALS (module-level `default`s)
+#   msbf_battle_state       : the live MSBFBattleState (or None between fights).
+#   msbf_battle_menu_locked  : when True + a battle is live, saving/loading is
+#                              blocked (see msbf_save_load_locked()).
+#
+# THE STATE MACHINE (MSBFBattleState.turn_phase)
+#   "setup" -> "player" -> "enemy" -> back to "player", with detours to
+#   "phase_transition" (between phases), "shmup_segment" (the bullet-hell cast),
+#   and "victory_sequence". Press-turn economy: a full icon = 2 actions, a half =
+#   1; hitting weaknesses/crits converts/grants turns, resists/misses cost them.
+#
+# PHASES (see _configure_phase_two / _configure_phase_three)
+#   1: fixed weak/resist set, drawn from MSBF_PHASE1_AFFINITY_SETS.
+#   2: shuffling affinities that ADAPT after repeated weakness hits.
+#   3: "Id Mode" superboss layer -- adds the shmup, layered vocal music, more.
+#   DEBUG NOTE: msbf_make_boss() sets max_hp = 40 on purpose. Phases 1 & 2 are
+#   one-shot test bars; only phase 3's real HP (set in _configure_phase_three)
+#   matters. This is intentional per the project owner -- do not "fix" it.
+#
+# CROSS-FILE FEEDS (consumed by ui.rpy / fx.rpy)
+#   set_fx()/fx_event + fx_serial : one-shot screen FX cue (hit/weak/crit/phase).
+#   emit_float()/float_events     : the floating damage/heal number feed.
+#   press_turn_*_fx               : per-icon press-turn animations.
+#   These are plain data the screens poll by serial number each redraw.
+# =============================================================================
+
+# Live battle state object + the save/load lock flag (see header).
 default msbf_battle_state = None
 default msbf_battle_menu_locked = False
 
+# Achievements feed ("Genre Savvy"): which phase-3 genre shifts ("shmup" /
+# "typing" / "quiz") have EVER been won, across all runs. Plain string list.
+default persistent.msbf_micro_wins = []
+
+# --- MSBF SFX CHANNEL POOL ---------------------------------------------------
+# Matsu'Py audio channels are MONOPHONIC: playing a new sound on a channel stops
+# whatever was on it. Routing every cue through one channel therefore chops the tail
+# off the previous cue -- jarring during fast keyboard nav, or when an action's
+# resolve cue is immediately followed by the turn-change cue. (These channels also
+# aren't Matsu'Py defaults -- only sound/music/voice/numbered exist -- and config
+# version 0.1.0 forces play_channel="sound", so the mouse's button SFX use "sound".)
+# So MSBF round-robins ALL its one-shots -- combat hits + their layers, danmaku
+# fire/hit, keyboard UI blips -- across a small POOL of channels: consecutive cues
+# land on different channels and overlap naturally instead of cutting each other off.
+# All on the sfx mixer so the SFX slider governs them; channel_defined guards a
+# hot-reload from re-registering.
+init python:
+    import time
+
+    # FIXED pool, registered ONCE (channel_defined guard) and reused forever -- the
+    # channels are NOT created per-play, so nothing leaks or accumulates across casts,
+    # battles, or hot-reloads; re-running this init just re-confirms the same names.
+    # Twelve rather than eight: Tsubaki mode routes its whole 60Hz cue stream
+    # through here (volley + glint + throw + release can all land on one tick), and
+    # the extra headroom means the allocator below almost never has to evict.
+    MSBF_SFX_POOL = ["msbf_sfx_%d" % i for i in range(12)]
+    for _msbf_pool_ch in MSBF_SFX_POOL:
+        if not renpy.music.channel_defined(_msbf_pool_ch):
+            renpy.music.register_channel(_msbf_pool_ch, mixer="sfx", loop=False)
+
+    # --- POOL ALLOCATION: pick an IDLE channel, not merely the next one --------
+    # A blind cursor rotation guarantees only that consecutive cues differ; it says
+    # nothing about whether the channel it lands on is FREE. Once the cue rate is
+    # high enough for the cursor to lap the pool -- trivially reached in Kotonoha
+    # and Tsubaki mode, where a single tick can fire volley + hit + graze -- the
+    # rotation starts landing on channels that are still mid-cue, and Matsu'Py
+    # channels being monophonic, the new sound stops the old one dead. That is the
+    # "sounds get cut off early even though it's round-robin" symptom: the pool was
+    # rotating, it just wasn't LOOKING before it wrote.
+    #
+    # So ask first. Scan forward from the cursor for a channel that is playing
+    # nothing and take it -- normally a hit on the first probe, so this costs one
+    # cheap query per cue. Only when the pool is genuinely saturated do we fall
+    # back to evicting, and then we evict the LEAST RECENTLY STARTED channel (the
+    # one furthest into its cue and so with the least tail left to lose) rather
+    # than whatever the cursor happened to be pointing at.
+    _msbf_pool_started = {}     # channel name -> time.time() of its last cue
+
+    def _msbf_channel_idle(channel):
+        try:
+            return renpy.music.get_playing(channel=channel) is None
+        except Exception:
+            return True
+
+    def msbf_pick_pool_channel(pool, cursor_key="cursor", owner=None):
+        # The cursor lives on a FUNCTION OBJECT (not a store var), so it is immune
+        # to rollback/save churn and always advances monotonically -- a store cursor
+        # could be snapped back by a rollback and pile every cue onto one channel
+        # again (the exact monophonic cut-off we're avoiding).
+        owner = owner or msbf_pick_pool_channel
+        size = len(pool)
+
+        if not size:
+            return None
+
+        cursor = getattr(owner, cursor_key, 0) % size
+        chosen = None
+
+        for offset in range(size):
+            candidate = pool[(cursor + offset) % size]
+
+            if _msbf_channel_idle(candidate):
+                chosen = candidate
+                setattr(owner, cursor_key, (cursor + offset + 1) % size)
+                break
+
+        if chosen is None:
+            # Everything is busy: sacrifice the oldest cue, which has had the most
+            # time to be heard. Channels never started this session sort first
+            # (0.0), so a cold pool still fills before anything is interrupted.
+            chosen = min(pool, key=lambda ch: _msbf_pool_started.get(ch, 0.0))
+            setattr(owner, cursor_key, (pool.index(chosen) + 1) % size)
+
+        _msbf_pool_started[chosen] = time.time()
+        return chosen
+
+    def msbf_play_pooled_sfx(path, volume=None):
+        # Play a one-shot on a FREE pool channel so it never cuts off a live cue.
+        if not path:
+            return
+        channel = msbf_pick_pool_channel(MSBF_SFX_POOL, "cursor", msbf_play_pooled_sfx)
+        if channel is None:
+            return
+        try:
+            # Use the relative_volume PARAM, not a "<volume ..>path" string tag. The
+            # tag branch was the only path every volume-scaled cue took (i.e. the whole
+            # shmup), and it was the suspect for the shmup going silent; the param is the
+            # documented, path-agnostic way to scale a one-shot and removes all doubt.
+            renpy.sound.play(path, channel=channel, relative_volume=(1.0 if volume is None else volume))
+        except Exception:
+            pass
+    msbf_play_pooled_sfx.cursor = 0
+
+    def msbf_stop_pooled_sfx(fadeout=0.0):
+        # Graceful teardown: silence every pool channel (called on battle end) so no
+        # cue is left ringing after the fight. Never unregisters -- the channels are
+        # reused next battle -- so there is nothing to leak.
+        for channel in MSBF_SFX_POOL:
+            try:
+                renpy.music.stop(channel=channel, fadeout=fadeout)
+            except Exception:
+                pass
+
+
+# =============================================================================
+# SHARED KEY LATCH  --  the "stuck direction" guard for the 60Hz game modes
+# =============================================================================
+# Kotonoha, Tsubaki mode, and the phase-three Id shmup all read the keyboard by
+# POLLING SDL state (pygame.key.get_pressed()) once per simulation tick/frame,
+# rather than by handling Matsu'Py key events. That is the right call for a realtime
+# action game -- "which way is held THIS tick" is a state question, and an event
+# callback answers a different one -- but it inherits SDL's one failure mode: the
+# state array only changes when a key event actually reaches the process. If a
+# release never arrives (the window losing focus mid-press, the OS eating the
+# key-up during an alt-tab or a long hitch), that key reads as held forever and
+# the player keeps sliding in one direction with nothing pressed. Rare, and
+# exactly the reported bug.
+#
+# The fix does not replace polling -- it supervises it. Matsu'Py still delivers the
+# real KEYUP to the stage displayable's event() method, so feeding those events
+# in here latches the offending key OFF. The latch is released the moment polling
+# agrees the key is up (we are back in sync), or instantly on a fresh KEYDOWN.
+# That asymmetry is the safety property: this can only ever END a stuck key, and
+# can never invent one, because any genuine press clears the latch before it is
+# read. A lost window focus also blanks the whole keyboard, so a mode can never
+# keep moving while the player is in another window.
+# =============================================================================
+init python:
+    try:
+        import pygame_sdl2 as _msbf_pg
+    except Exception:
+        _msbf_pg = None
+
+    class MSBFKeyLatch(object):
+        def __init__(self):
+            # Keycodes Matsu'Py reported as released whose polled state has not yet
+            # caught up. Plain ints, so this pickles with the game state fine.
+            self.stuck = set()
+
+        def handle_event(self, ev):
+            # Called from the stage displayable's event(). Cheap and total: every
+            # event type that is not a key event falls straight through.
+            if _msbf_pg is None:
+                return
+
+            try:
+                etype = ev.type
+            except Exception:
+                return
+
+            if etype == _msbf_pg.KEYUP:
+                try:
+                    self.stuck.add(ev.key)
+                except Exception:
+                    pass
+            elif etype == _msbf_pg.KEYDOWN:
+                try:
+                    self.stuck.discard(ev.key)
+                except Exception:
+                    pass
+
+        def focused(self):
+            # False while another window owns the keyboard. Callers zero their
+            # input for the frame rather than coasting on a stale state array.
+            if _msbf_pg is None:
+                return True
+
+            try:
+                return bool(_msbf_pg.key.get_focused())
+            except Exception:
+                return True
+
+        def pressed(self, keys, *keycodes):
+            # True if ANY of `keycodes` is genuinely held right now. A latched key
+            # reads as up until polling confirms the release, at which point the
+            # latch drops and SDL is trusted again.
+            held = False
+
+            for code in keycodes:
+                try:
+                    down = bool(keys[code])
+                except Exception:
+                    continue
+
+                if code in self.stuck:
+                    if not down:
+                        self.stuck.discard(code)
+                    continue
+
+                if down:
+                    held = True
+
+            return held
+
+        def clear(self):
+            self.stuck.clear()
+
+# init -1 so all the data tables/classes exist before any screen references them.
 init -1 python:
     import random
     import math
 
+    # --- AFFINITY / PHASE TUNING ---------------------------------------------
+    # Element ids -> display names. The PHASE1_AFFINITY_SETS are (weaknesses,
+    # resists) pairs the boss randomly draws from in phase 1; the PHASE2/3_*
+    # counts/ADAPT constants control how phase 2-3 reshuffle and adapt affinities.
     MSBF_AFFINITY_NAMES = {
         "slash": "Slash",
         "pierce": "Pierce",
@@ -34,32 +295,196 @@ init -1 python:
     MSBF_PHASE2_RESIST_COUNT = 3
     MSBF_PHASE2_ADAPT_WEAK_HITS = 3
     MSBF_PHASE3_WEAKNESS_COUNT = 2
-    MSBF_PHASE3_RESIST_COUNT = 4
-    MSBF_PHASE3_ADAPT_WEAK_HITS = 2
-    MSBF_IDMODE_PHASE3_MUSIC_INST = "addons/Matsuda's Sick Boss Fight/idmode/embracedbytheflameinst.ogg"
-    MSBF_IDMODE_PHASE3_MUSIC_VOCAL = "addons/Matsuda's Sick Boss Fight/idmode/embracedbytheflamevocal.ogg"
+    # Rebalanced: 3 resists (was 4) leaves weak 2 / resist 3 / neutral 2 so the
+    # party's offence can actually land against 7600 HP, and the boss adapts a
+    # beat slower (3 weakness hits, was 2) before nulling an exploited element.
+    MSBF_PHASE3_RESIST_COUNT = 3
+    MSBF_PHASE3_ADAPT_WEAK_HITS = 3
+    MSBF_IDMODE_PHASE3_MUSIC_INST = audio.embracedflame_inst
+    MSBF_IDMODE_PHASE3_MUSIC_VOCAL = audio.embracedflame_vocal
+    MSBF_IDMODE_PHASE3_HEARTBEAT = audio.heartbeat_ominous
     MSBF_IDMODE_PHASE3_INST_CHANNEL = "track1"
     MSBF_IDMODE_PHASE3_VOCAL_CHANNEL = "track2"
+    MSBF_IDMODE_PHASE3_HEARTBEAT_CHANNEL = "track3"
     MSBF_IDMODE_PHASE3_CROSSFADE = 1.45
     MSBF_IDMODE_PHASE3_VOCAL_FADEIN = 0.55
     MSBF_IDMODE_PHASE3_INST_BED = 0.18
-    MSBF_SHMUP_STAGE_X = 452
-    MSBF_SHMUP_STAGE_Y = 30
+    # --- PHASE-1 ENTRANCE CINEMATIC ------------------------------------------
+    # Audio for the pre-battle dramatic entrance (screen msbf_battle_intro). The
+    # heartbeat + wind loop on their own channels while the boss looms in (started
+    # and stopped by cs_matsuda_02_battle so the phase-1 music only kicks in AFTER
+    # the intro); the boom + thunder are one-shots fired at the name-slam climax.
+    MSBF_INTRO_HEARTBEAT = audio.heartbeat_ominous
+    MSBF_INTRO_WIND = audio.wind
+    MSBF_INTRO_BOOM = audio.hollowboom
+    MSBF_INTRO_THUNDER = audio.sfx_thunder
+    MSBF_INTRO_HEARTBEAT_CHANNEL = "track3"
+    MSBF_INTRO_WIND_CHANNEL = "track4"
+    # --- PHASE-3 MICROGAME ("genre shift") WIN/LOSS --------------------------
+    # Shared across all three genre-shift minigames (bullet-hell, typing, quiz).
+    # Win: chip 3-5% of the boss's CURRENT HP (so a microgame can never kill it).
+    # Loss: single-target games take 30% of ONE member's max HP; party-wide games
+    # take 7% off every member. Microgame losses are non-lethal (floored at 1 HP)
+    # so a genre shift can't directly wipe the party -- but they hit hard enough
+    # that a microgame is a real threat, not a safe break from the superboss.
+    MSBF_MICROGAME_WIN_CHIP_MIN = 0.03
+    MSBF_MICROGAME_WIN_CHIP_MAX = 0.05
+    MSBF_MICROGAME_LOSS_SINGLE = 0.30
+    MSBF_MICROGAME_LOSS_PARTY = 0.07
+
+    # --- PHASE-3 MICROGAME PROC RATE ----------------------------------------
+    # How often Imago Rupta detours a boss ACTION (one of its 3-4 per enemy phase,
+    # NOT the whole phase) into a genre shift. Two guards keep shifts "common but
+    # never all you fight," so a player can't cheese the superboss by coasting on
+    # winnable minigames:
+    #   1) At most ONE shift per enemy phase (phase3_last_microgame_enemy_action).
+    #   2) A cross-phase COOLDOWN: a fired shift suppresses RANDOM shifts for the
+    #      next ~2 enemy phases (~one random shift per three phases), so they can
+    #      never streak back-to-back. The one GUARANTEED shift on the vocal
+    #      (<=50% HP) beat ignores the cooldown, so every run still sees at least
+    #      one no matter how the dice fall.
+    # Per eligible phase the chance ramps with the boss's missing HP (desperation).
+    # All six are tunable starting points -- raise COOLDOWN to make shifts rarer,
+    # or the chances to make eligible phases more reliably produce one.
+    MSBF_PHASE3_MICROGAME_BASE_CHANCE = 0.04
+    MSBF_PHASE3_MICROGAME_HP_SCALE = 0.28
+    MSBF_PHASE3_MICROGAME_VOCAL_BONUS = 0.06
+    MSBF_PHASE3_MICROGAME_LOW_HP_BONUS = 0.05
+    MSBF_PHASE3_MICROGAME_CHANCE_CAP = 0.38
+    MSBF_PHASE3_MICROGAME_COOLDOWN = 3
+
+    # Typing QTE word bank ("the script demands a word"). Time limit scales with
+    # length (see _start_phase_three_typing). Themed to the fight's meta.
+    MSBF_TYPING_WORDS = [
+        "REWRITE", "IMAGO", "RUPTURE", "DELETE", "GENRE", "SCRIPT", "REVISION",
+        "REDACT", "NARRATIVE", "IDENTITY", "DRAFT", "EDIT", "ROLE", "MATSUDA",
+        "ANTAGONIST", "PROTAGONIST", "CURTAIN", "REFUSE", "ASAHINA", "INUGAMI",
+        "HIMEKO", "TSUBAKI", "GIASFELFEBREHBER", "FREEDOM", "CHAOS"
+    ]
+    # Typing time = a flat read/react buffer + a per-character typing allowance, so
+    # a 4-letter word ("ROLE") and the 16-letter joke word ("GIASFELFEBREHBER") get
+    # very different clocks. PER_CHAR ~0.36s is ~2.8 chars/sec -- tight but doable as
+    # a copy-type (the word is shown), a real speed test without being unfair. MIN is
+    # a floor so the shortest words can't drop below fair. Tune PER_CHAR up to soften.
+    MSBF_TYPING_TIME_BASE = 1.3
+    MSBF_TYPING_TIME_PER_CHAR = 0.36
+    MSBF_TYPING_TIME_MIN = 2.4
+    MSBF_QUIZ_TIME_LIMIT = 6.0
+
+    # Quiz QTE bank (modeled on the Monika-mode timed choice, but self-contained).
+    # Each entry: prompt, the one correct answer, and the wrong options. The
+    # correct answer is the on-theme / lucid one so a player who has been paying
+    # attention to the fight can reason it out -- a real test, not a coin flip.
+    MSBF_QUIZ_BANK = [
+        {
+            "q": "She keeps switching genres. Why?",
+            "correct": "It is desperate and has no real form left.",
+            "wrong": ["It thinks the party will enjoy the variety.", "It is following a strict rehearsed script."],
+        },
+        {
+            "q": "Her image is shattered. What is Matsuda actually hiding behind now?",
+            "correct": "Nothing.",
+            "wrong": ["A brand-new, stronger form.", "A perfect final draft."],
+        },
+        {
+            "q": "Identity Null burns the role labels off the party. What does it punish?",
+            "correct": "Being over-buffed.", "wrong": ["Guarding.", "Attacking with weapons."],
+        },
+        {
+            "q": "What is the one honest thing left in this fight?",
+            "correct": "The party's refusal to play along.",
+            "wrong": ["Her next genre.", "The narrator's promises."],
+        },
+        {
+            "q": "The script offers you a role. The right move is to:",
+            "correct": "Refuse the role.", "wrong": ["Accept the lead.", "Ask for a rewrite."],
+        },
+        {
+            "q": "Curtain Script threw danmaku at you. What genre was that?",
+            "correct": "A bullet-hell shooter.", "wrong": ["A cooking show.", "A courtroom drama."],
+        },
+        {
+            "q": "How does a genre-shift move actually end?",
+            "correct": "Win it and the boss chips; lose it and the party pays.",
+            "wrong": ["It always kills a party member.", "It can end the whole fight instantly."],
+        },
+        {
+            "q": "What is (5 + 6 - 78 * 8525 + 9 / 3 - 3 % 9 + 2222222222 * 1337) * 0?",
+            "correct": "0",
+            "wrong": ["42", "127"],
+        },
+        {
+            "q": "What is (5 + 6 - 78 * 8525 + 9 / 3 - 3 % 9 + 2222222222 * 1337) / 0?",
+            "correct": "Undefined",
+            "wrong": ["0", "127"],
+        },
+    ]
+
+    # --- SHMUP (phase-3 bullet-hell) TUNING ----------------------------------
+    # The dodge minigame's stage rect, player hitbox, duration, bullet cap,
+    # movement speeds, and the named "spell card" patterns. One card per cast,
+    # cycled so each is memorizable. Ticks run at TICK_SECONDS each; a full cast
+    # is MSBF_SHMUP_DURATION_TICKS ticks (~15s). Rewards use the microgame rules.
+    # Centred in the frame. These used to be (452, 30) -- the exact box the boss
+    # stage occupied back when the fight was three panels, because the bullet
+    # hell replaced that panel in place. The stage box is gone, so holding those
+    # numbers just parked the playfield hard against the right edge with 450px
+    # of dead space beside it. The field's own coordinates are stage-local, so
+    # only the frame's origin moves.
+    MSBF_SHMUP_STAGE_X = 247
+    MSBF_SHMUP_STAGE_Y = 112
     MSBF_SHMUP_STAGE_WIDTH = 786
     MSBF_SHMUP_STAGE_HEIGHT = 458
-    MSBF_SHMUP_DURATION_TICKS = 168
-    MSBF_SHMUP_PLAYER_RADIUS = 6
-    MSBF_SHMUP_SUCCESS_DAMAGE = 900
-    MSBF_SHMUP_FAILURE_DAMAGE = 140
     MSBF_SHMUP_TICK_SECONDS = 0.033
-    MSBF_SHMUP_MAX_BULLETS = 220
-    MSBF_SHMUP_GRACE_TICKS = 24
+    # ~15 seconds per cast (TODO: "lasts 15 seconds").
+    MSBF_SHMUP_DURATION_TICKS = int(round(15.0 / 0.033))
+    MSBF_SHMUP_PLAYER_RADIUS = 6
+    MSBF_SHMUP_MAX_BULLETS = 300
+    MSBF_SHMUP_MAX_SPARKS = 90
+    MSBF_SHMUP_GRACE_TICKS = 18
     MSBF_SHMUP_HIT_LIMIT = 3
+    # Invulnerability window after a clip. Getting hit now only deletes the ONE
+    # pellet that struck you (Undertale/Deltarune style -- no panic-clear of the
+    # surrounding pattern), so the iframes are a touch longer to keep a hit in a
+    # dense wall fair: the marker flickers for this many ticks (~0.8s) and can't be
+    # clipped again until it ends.
     MSBF_SHMUP_HIT_INVULN_TICKS = 24
-    MSBF_SHMUP_PANIC_CLEAR_RADIUS = 118
+    # How fast the player marker blinks on/off during those iframes (ticks per
+    # half-cycle); smaller = faster flicker.
+    MSBF_SHMUP_IFRAME_BLINK_TICKS = 2
+    # Keyboard-only player movement (px per 0.033s tick). Hold Shift to focus.
+    MSBF_SHMUP_MOVE_SPEED = 6.6
+    MSBF_SHMUP_FOCUS_SPEED = 2.8
+    # Named spell-cards, one per cast, cycled in order so each is memorizable.
+    MSBF_SHMUP_PATTERNS = ["spiral", "aimed", "walls"]
+    MSBF_SHMUP_PATTERN_NAMES = {
+        "spiral": "SPIRAL SCRIPTURE",
+        "aimed": "REVISION SALVO",
+        "walls": "MARGIN COLLAPSE",
+    }
+    # Needle rotation is bucketed so the bullet-field displayable (ui.rpy,
+    # MSBFShmupField) can cache ONE rotated texture per (colour, size, bucket)
+    # instead of rebuilding a rotate transform for every needle every tick.
+    MSBF_SHMUP_ROT_BUCKETS = 48
+    MSBF_SHMUP_ROT_BUCKET_DEG = 360.0 / 48
 
-    MSBF_SFX_DIR = "addons/Matsuda's Sick Boss Fight/sfx/"
-    MSBF_TOUHOU_SFX_DIR = "addons/Matsuda's Sick Boss Fight/sfx_touhou/"
+    def msbf_shmup_gate(frac):
+        """Tick at `frac` of the way through one cast (0.0 = open, 1.0 = end).
+
+        Every escalation gate in the spell cards goes through here. They used to
+        be bare tick literals sized for the original 168-tick cast; when the cast
+        grew to ~455 ticks, every "back half" ramp started firing inside the first
+        third and each card played as one flat wall of maximum density for ten
+        seconds. Stated as fractions, the cards keep their shape whatever the
+        duration does next.
+        """
+        return int(MSBF_SHMUP_DURATION_TICKS * frac)
+
+    MSBF_SFX_DIR = "mod_assets/sfx/msbf/"
+    MSBF_FINAL_VICTORY_EXPLODE_DELAY = 0.84
+    # explode.ogg is ~4.01s. The battle screen Returns 0.5s after result, then
+    # cs_matsuda_02 clears pooled SFX, so the result delay must leave the tail room.
+    MSBF_FINAL_VICTORY_RESULT_DELAY = 4.55
     MSBF_DAMAGE_VARIANCE_STDEV = 0.055
     MSBF_DAMAGE_VARIANCE_MIN = 0.88
     MSBF_DAMAGE_VARIANCE_MAX = 1.12
@@ -71,11 +496,9 @@ init -1 python:
     MSBF_PRESS_TURN_SLOT_SPACING = 4
     MSBF_PRESS_TURN_ROW_X = 7
 
+    # --- SFX PATH HELPERS + SMALL MATH ---------------------------------------
     def msbf_sfx(filename):
         return MSBF_SFX_DIR + filename
-
-    def msbf_touhou_sfx(filename):
-        return MSBF_TOUHOU_SFX_DIR + filename
 
     def msbf_clamp(value, lower, upper):
         return max(lower, min(upper, value))
@@ -83,6 +506,9 @@ init -1 python:
     def msbf_gaussian_variance(stdev, lower, upper):
         return msbf_clamp(random.gauss(1.0, stdev), lower, upper)
 
+    # --- BATTLE-WATCH / SAVE-LOCK HELPERS ------------------------------------
+    # Is a battle running? Should save/load be blocked? And the teardown that
+    # clears the global state + persistent battle token between fights.
     def msbf_battle_is_live():
         battle = globals().get("msbf_battle_state", None)
         return bool(battle is not None and getattr(battle, "result", None) is None)
@@ -93,6 +519,9 @@ init -1 python:
     def msbf_clear_battle_watch():
         global msbf_battle_state
         global msbf_battle_menu_locked
+        # Silence any pool cue still ringing (e.g. a danmaku hit as the fight ends) so
+        # nothing bleeds into the story; the channels stay registered for next time.
+        msbf_stop_pooled_sfx(0.2)
         msbf_battle_state = None
         msbf_battle_menu_locked = False
         try:
@@ -102,12 +531,21 @@ init -1 python:
             pass
 
     def msbf_stop_battle_music(fadeout=0.35):
-        for channel_name in ("music", MSBF_IDMODE_PHASE3_INST_CHANNEL, MSBF_IDMODE_PHASE3_VOCAL_CHANNEL):
+        for channel_name in (
+            "music",
+            MSBF_IDMODE_PHASE3_INST_CHANNEL,
+            MSBF_IDMODE_PHASE3_VOCAL_CHANNEL,
+            MSBF_IDMODE_PHASE3_HEARTBEAT_CHANNEL,
+        ):
             try:
                 renpy.music.stop(channel=channel_name, fadeout=fadeout)
             except Exception:
                 pass
 
+    # --- SOUND TABLES --------------------------------------------------------
+    # MSBF_UI_SFX: menu sounds. MSBF_SFX: every combat cue (incl. Touhou-segment
+    # shot/graze/etc.). MSBF_SFX_LAYERS: extra one-shots layered UNDER a cue at a
+    # given volume (e.g. "weak" also plays a quieter "hit" + "shuffle") for punch.
     MSBF_UI_SFX = {
         "hover": msbf_sfx("ui_hover.wav"),
         "accept": msbf_sfx("ui_accept.wav"),
@@ -134,22 +572,22 @@ init -1 python:
         "enemy": msbf_sfx("enemy.wav"),
         "shuffle": msbf_sfx("shuffle.wav"),
         "phase": msbf_sfx("phase.wav"),
-        "explode": "addons/Matsuda's Sick Boss Fight/explode.ogg",
+        "explode": msbf_sfx("explode.ogg"),
         "recover": msbf_sfx("recover.wav"),
         "down": msbf_sfx("down.wav"),
         "victory": msbf_sfx("victory.wav"),
-        "touhou_start": msbf_touhou_sfx("powerup.wav"),
-        "touhou_shot": msbf_touhou_sfx("tan00.wav"),
-        "touhou_shot_alt": msbf_touhou_sfx("tan01.wav"),
-        "touhou_needle": msbf_touhou_sfx("enep00.wav"),
-        "touhou_burst": msbf_touhou_sfx("kira00.wav"),
-        "touhou_burst_alt": msbf_touhou_sfx("kira01.wav"),
-        "touhou_laser": msbf_touhou_sfx("lazer00.wav"),
-        "touhou_graze": msbf_touhou_sfx("graze.wav"),
-        "touhou_hit": msbf_touhou_sfx("damage00.wav"),
-        "touhou_down": msbf_touhou_sfx("pldead00.wav"),
-        "touhou_clear": msbf_touhou_sfx("extend.wav"),
-        "touhou_warning": msbf_touhou_sfx("timeout.wav"),
+        "shmup_declare": msbf_sfx("phase.wav"),
+        "shmup_shot": msbf_sfx("bullet01.ogg"),
+        "shmup_burst": msbf_sfx("bullet02.ogg"),
+        "shmup_hit": msbf_sfx("hit.wav"),
+        "shmup_clear": msbf_sfx("recover.wav"),
+        "shmup_fail": msbf_sfx("down.wav"),
+        "type_key": msbf_sfx("ui_hover.wav"),
+        "type_good": msbf_sfx("weak.wav"),
+        "type_bad": msbf_sfx("ui_denied.wav"),
+        "quiz_tick": msbf_sfx("ui_hover.wav"),
+        "quiz_good": msbf_sfx("weak.wav"),
+        "quiz_bad": msbf_sfx("ui_denied.wav"),
     }
 
     MSBF_SFX_LAYERS = {
@@ -166,6 +604,10 @@ init -1 python:
         "down": [("debuff", 0.32)],
     }
 
+    # --- DATA CLASSES --------------------------------------------------------
+    # MSBFSkill: one move (cost/kind/element/power/target/accuracy/crit/...).
+    # `kind` is a behaviour tag the resolver switches on (damage, heal, focus,
+    # guard, blue_*, phase3_*, etc.). Instances are stored once in MSBF_SKILLS.
     class MSBFSkill(object):
         def __init__(
                 self,
@@ -194,6 +636,10 @@ init -1 python:
             self.recoil = recoil
             self.description = description
 
+    # MSBFCombatant: one fighter (party member OR the boss). Holds stats, current
+    # hp/mp, affinities, transient battle flags (guard/focus/taunt/row), buff
+    # stages, and phase/adaptation bookkeeping. .skills resolves skill_ids -> the
+    # shared MSBFSkill objects; .clamp() keeps values in range.
     class MSBFCombatant(object):
         def __init__(
                 self,
@@ -213,6 +659,10 @@ init -1 python:
             self.name = name
             self.max_hp = max_hp
             self.hp = max_hp
+            # Last HP the animated bar has "settled" to. The UI diffs hp vs bar_hp
+            # (via MSBFBattleState._sync_bars) to spawn a draining damage-trail chip
+            # so the bar reads as animating instead of snapping. See emit_bar.
+            self.bar_hp = max_hp
             self.max_mp = max_mp
             self.mp = max_mp
             self.offense = offense
@@ -246,12 +696,6 @@ init -1 python:
             return max(0.0, min(1.0, float(self.hp) / float(self.max_hp)))
 
         @property
-        def mp_ratio(self):
-            if self.max_mp <= 0:
-                return 0.0
-            return max(0.0, min(1.0, float(self.mp) / float(self.max_mp)))
-
-        @property
         def skills(self):
             return [MSBF_SKILLS[skill_id] for skill_id in self.skill_ids]
 
@@ -262,6 +706,10 @@ init -1 python:
             self.def_stage = max(-2, min(2, self.def_stage))
             self.agi_stage = max(-2, min(2, self.agi_stage))
 
+    # --- SKILL TABLE ---------------------------------------------------------
+    # The master move dictionary, keyed by id. Party skills, "enemy/blue" skills
+    # (learnable flavor on Kotonoha), and the boss_*/phase3_* moves all live here.
+    # Combatants reference these by id (see MSBF_ROSTER skills lists / msbf_make_boss).
     MSBF_SKILLS = {
         "attack": MSBFSkill(
             "attack",
@@ -350,9 +798,9 @@ init -1 python:
             crit=0.08,
             description="Wind true damage that ignores defense, but still checks affinities."
         ),
-        "flare": MSBFSkill(
-            "flare",
-            "Flare",
+        "firaga": MSBFSkill(
+            "firaga",
+            "Firaga",
             cost=22,
             kind="damage",
             element="fire",
@@ -369,6 +817,18 @@ init -1 python:
             kind="analyze",
             element="support",
             description="Reveals affinities in phase 1. In phase 2, reads Matsuda's moveset instead."
+        ),
+        # DEV ONLY: swapped onto Seeker in place of Scan when config.developer is
+        # on (see msbf_make_party), so phases can be blasted through without
+        # editing HP. Always removes 50% of the boss's CURRENT max HP.
+        "cleave": MSBFSkill(
+            "cleave",
+            "Cleave",
+            cost=0,
+            kind="dev_cleave",
+            element="almighty",
+            accuracy=1.0,
+            description="DEV: always deals 50% of Matsuda's max HP."
         ),
         "aqua_breath": MSBFSkill(
             "aqua_breath",
@@ -628,7 +1088,7 @@ init -1 python:
             cost=0,
             kind="damage",
             element="fire",
-            power=130,
+            power=116,
             stat="magic",
             accuracy=0.95,
             crit=0.05
@@ -639,7 +1099,7 @@ init -1 python:
             cost=0,
             kind="damage",
             element="ice",
-            power=130,
+            power=116,
             stat="magic",
             accuracy=0.95,
             crit=0.05
@@ -650,7 +1110,7 @@ init -1 python:
             cost=0,
             kind="damage",
             element="lightning",
-            power=130,
+            power=116,
             stat="magic",
             accuracy=0.95,
             crit=0.05
@@ -661,7 +1121,7 @@ init -1 python:
             cost=0,
             kind="damage",
             element="wind",
-            power=84,
+            power=66,
             target="all",
             stat="magic",
             accuracy=0.91,
@@ -672,7 +1132,7 @@ init -1 python:
             "Redline Sweep",
             kind="damage",
             element="wind",
-            power=62,
+            power=52,
             target="all",
             stat="magic",
             accuracy=0.88,
@@ -699,6 +1159,11 @@ init -1 python:
             power=240,
             target="self"
         ),
+        # Genre-shift moves: each detours phase 3 into a real-time minigame
+        # (bullet-hell / typing / quiz). Picked by the desperation-escalation
+        # logic in _choose_phase_three_skill; resolved via _resolve_phase_three_*.
+        # power/element/etc. are cosmetic here -- the reward/penalty is the fixed
+        # microgame win/loss, not this skill's damage.
         "boss_curtain_script": MSBFSkill(
             "boss_curtain_script",
             "Curtain Script",
@@ -710,12 +1175,28 @@ init -1 python:
             accuracy=0.93,
             crit=0.04
         ),
+        "boss_rewrite_order": MSBFSkill(
+            "boss_rewrite_order",
+            "Rewrite Order",
+            kind="phase3_typing",
+            element="psychic",
+            target="all",
+            stat="magic"
+        ),
+        "boss_multiple_choice": MSBFSkill(
+            "boss_multiple_choice",
+            "Multiple Choice Interrupt",
+            kind="phase3_quiz",
+            element="psychic",
+            target="all",
+            stat="magic"
+        ),
         "boss_black_box_waltz": MSBFSkill(
             "boss_black_box_waltz",
             "Black Box Waltz",
             kind="phase3_black_box",
             element="psychic",
-            power=46,
+            power=40,
             target="all",
             stat="magic",
             accuracy=0.96,
@@ -726,7 +1207,7 @@ init -1 python:
             "Reticle Nightmare",
             kind="phase3_reticle",
             element="pierce",
-            power=142,
+            power=120,
             accuracy=0.96,
             crit=0.18
         ),
@@ -735,7 +1216,7 @@ init -1 python:
             "Identity Null",
             kind="phase3_null",
             element="almighty",
-            power=76,
+            power=60,
             target="all",
             stat="magic",
             accuracy=1.0,
@@ -743,6 +1224,10 @@ init -1 python:
         ),
     }
 
+    # --- PLAYABLE ROSTER -----------------------------------------------------
+    # The seven recruitable fighters (stats + affinities + skill loadout). The
+    # party-select screen (ui.rpy) lets the player pick 4. MSBF_ROSTER_BY_ID /
+    # MSBF_ALL_MEMBER_IDS are lookups built from this list just below.
     MSBF_ROSTER = [
         {
             "id": "seeker",
@@ -774,13 +1259,13 @@ init -1 python:
             "attack_element": "slash",
             "weaknesses": ["pierce", "wind"],
             "resists": ["fire"],
-            "skills": ["attack", "scan", "fire", "blizzard", "thunder", "flare", "hexline", "guard"],
+            "skills": ["attack", "scan", "fire", "blizzard", "thunder", "firaga", "hexline", "guard"],
         },
         {
             "id": "kotonoha",
             "name": "Kotonoha",
             "role": "Blue Mage",
-            "summary": "Enemy skills and light utility.",
+            "summary": "Unique skills and light utility.",
             "max_hp": 500,
             "max_mp": 82,
             "offense": 42,
@@ -861,6 +1346,20 @@ init -1 python:
     MSBF_ROSTER_BY_ID = dict((entry["id"], entry) for entry in MSBF_ROSTER)
     MSBF_ALL_MEMBER_IDS = [entry["id"] for entry in MSBF_ROSTER]
 
+    # --- PARTY-SELECT + UI HELPER FUNCTIONS ----------------------------------
+    # Used by the party-select screen (ui.rpy) and HP/MP bars: pixel-width of a
+    # bar, scroll-to-bottom, affinity/row labels, and the pick/row toggle logic
+    # (max 4 members, default first two front row, can_begin requires 4 picks).
+    def msbf_record_micro_win(kind):
+        # Achievements feed ("Genre Savvy"): remember that this genre shift kind
+        # has been won at least once. Persistent-only on purpose -- no ach_sync
+        # from inside the battle sim; the victory hook in cs_matsuda_02 (or the
+        # next Archive open) runs the sync and pops the toast.
+        wins = list(getattr(persistent, "msbf_micro_wins", None) or [])
+        if kind not in wins:
+            wins.append(kind)
+            persistent.msbf_micro_wins = wins
+
     def msbf_bar_width(value, max_value, width):
         if max_value <= 0:
             return 0
@@ -927,11 +1426,19 @@ init -1 python:
             "rows": dict(rows),
         }
 
+    # --- BATTLE CONSTRUCTION -------------------------------------------------
+    # make_party: instantiate MSBFCombatants from the chosen ids + row layout.
+    # make_boss: build Matsuda (NOTE the debug max_hp=40 -- see file header).
+    # new_battle: the public factory the story calls -> returns an MSBFBattleState.
     def msbf_make_party(member_ids, rows=None):
         rows = rows or msbf_default_rows(member_ids)
         party = []
         for member_id in member_ids:
             entry = MSBF_ROSTER_BY_ID[member_id]
+            member_skills = entry["skills"]
+            # DEV ONLY: give Seeker the Cleave test move in place of Scan.
+            if config.developer and entry["id"] == "seeker":
+                member_skills = ["cleave" if skill_id == "scan" else skill_id for skill_id in member_skills]
             combatant = MSBFCombatant(
                 entry["id"],
                 entry["name"],
@@ -944,7 +1451,7 @@ init -1 python:
                 attack_element=entry["attack_element"],
                 weaknesses=entry["weaknesses"],
                 resists=entry["resists"],
-                skills=entry["skills"]
+                skills=member_skills
             )
             combatant.role = entry["role"]
             combatant.row = rows.get(member_id, "front")
@@ -955,7 +1462,7 @@ init -1 python:
         return MSBFCombatant(
             "matsuda",
             "Matsuda, Crimson-Azure",
-            40,
+            5200,
             999,
             68,
             70,
@@ -970,7 +1477,49 @@ init -1 python:
     def msbf_new_battle(member_config, id_mode=False):
         return MSBFBattleState(member_config, id_mode=id_mode)
 
+    # =========================================================================
+    # MSBFBattleState -- THE BATTLE BRAIN
+    # Owns the party + boss combatants and ALL run-time state: turn phase, press-
+    # turn icons, per-phase affinity bookkeeping, the log, the FX/float feeds, and
+    # the shmup sub-state. The ui.rpy screen reads its properties to draw and calls
+    # its methods to act. Roughly grouped (top->bottom): __init__ + display
+    # properties -> log/FX/float/audio helpers -> turn economy -> player actions &
+    # damage -> phase transitions -> enemy AI -> the phase-3 shmup simulation.
+    # =========================================================================
     class MSBFBattleState(object):
+        # Class-level defaults for fields added in the phase-3 microgame / HP-bar
+        # pass, so a state built by older code (a mid-battle reload or an old save)
+        # still resolves them instead of raising AttributeError. __init__ overrides
+        # all of these with per-instance values for a fresh battle.
+        #
+        # THE LIST FIELDS ARE None HERE ON PURPOSE. A mutable class default is
+        # shared by every state object that ever falls through to it -- which is
+        # exactly the legacy path these defaults exist for -- so an .append()
+        # would write hit rings and sparks into a list that outlives the battle
+        # and bleeds into the next one. The three _list() accessors below install
+        # a real per-instance list on first touch instead.
+        bar_events = None
+        bar_serial = 0
+        shmup_sparks = None
+        shmup_hit_fx = None
+        typing_serial = 0
+        typing_word = ""
+        typing_input = ""
+        typing_time_limit = MSBF_TYPING_TIME_MIN
+        quiz_serial = 0
+        quiz_prompt = ""
+        quiz_options = ()
+        quiz_cursor = 0
+        quiz_time_limit = MSBF_QUIZ_TIME_LIMIT
+        phase3_vocal_genre_done = False
+        phase3_last_microgame_enemy_action = -99
+        phase3_microgame_cooldown = 0
+        party_downs = 0
+        handover_to = None
+        handover_delay = 1.15
+        handover_serial = 0
+        handover_mp_restored = False
+
         def __init__(self, member_config, id_mode=False):
             if isinstance(member_config, dict):
                 member_ids = list(member_config.get("members", []))
@@ -1006,14 +1555,28 @@ init -1 python:
             self.log_serial = 0
             self.fx_event = None
             self.fx_serial = 0
+            self.float_events = []
+            self.float_serial = 0
             self.fx_clear_delay = 0.70
             self.final_victory_whiteout = False
+            self.final_victory_explode_played = False
+            self.defeat_blackout = False
             self.phase_transition_delay = 0.18
             self.player_element_history = []
             self.heal_actions = 0
             self.last_player_action = None
             self.last_turn_bonus_converted = False
             self.last_enemy_target_id = None
+            # Presentation feeds (read by ui.rpy each redraw): the last party
+            # member to act + the element they cast (drives caster wind-up FX and
+            # the element-tinted boss impact), and a serial-polled death feed that
+            # fires a one-shot KO animation the instant a combatant drops.
+            self.last_actor_index = None
+            self.last_cast_element = None
+            self.death_events = []
+            self.death_serial = 0
+            self.bar_events = []
+            self.bar_serial = 0
             self.phase2_scan_insight_bag = []
             self.phase1_affinity_bag = []
             self.phase1_affinity_index = self._draw_phase_one_affinity_index(None)
@@ -1026,6 +1589,12 @@ init -1 python:
             self.phase2_transition_reveal_started = False
             self.phase3_started = False
             self.phase3_vocal_started = False
+            self.phase3_vocal_genre_done = False
+            self.phase3_last_microgame_enemy_action = -99
+            self.phase3_microgame_cooldown = 0
+            # Whole-fight KO tally (never reset by phase transitions) -- feeds the
+            # "No One Gets Written Out" achievement check in cs_matsuda_02_victory.
+            self.party_downs = 0
             self.phase3_scan_insight_bag = []
             self.phase3_genre_shift_count = 0
             self.phase3_reinforcements_added = 0
@@ -1038,8 +1607,30 @@ init -1 python:
             self.shmup_bullets = []
             self.shmup_source_skill_id = None
             self.shmup_sfx_cooldowns = {}
+            self.shmup_focus = False
+            self.shmup_poll_ok = False
+            self.shmup_pattern = "spiral"
+            self.shmup_source_x = MSBF_SHMUP_STAGE_WIDTH * 0.5
+            self.shmup_source_y = 62.0
+            self.shmup_sparks = []
+            self.shmup_hit_fx = []
+            # Typing / quiz QTE state (phase-3 genre-shift minigames). The live
+            # inputs (typed text + quiz cursor) live HERE, not in screen vars,
+            # because the overlays are `use`d inside msbf_battle_screen and screen-
+            # variable scope lookups resolve against the parent screen there.
+            self.typing_serial = 0
+            self.typing_word = ""
+            self.typing_input = ""
+            self.typing_time_limit = MSBF_TYPING_TIME_MIN
+            self.quiz_serial = 0
+            self.quiz_prompt = ""
+            self.quiz_options = []
+            self.quiz_cursor = 0
+            self.quiz_time_limit = MSBF_QUIZ_TIME_LIMIT
             self.phase_transition_title = "THE STAGE BEGINS ANEW"
             self.phase_transition_subtitle = "A WINGED ANGEL REWRITES THE SCRIPT"
+            self.defeat_title = "THE STAGE GOES DARK"
+            self.defeat_subtitle = "THE PARTY FALLS"
             self._reset_phase_two_player_read()
             if self.id_mode:
                 self._configure_phase_two(restore_party=True)
@@ -1103,10 +1694,6 @@ init -1 python:
                 return "Tempo spent"
             return "Matsuda has tempo"
 
-        @property
-        def press_turns(self):
-            return sum(2 if icon == "full" else 1 for icon in self.press_turn_icons_state)
-
         def _press_turn_fx_x(self, index):
             return MSBF_PRESS_TURN_ROW_X + (index * (MSBF_PRESS_TURN_SLOT_WIDTH + MSBF_PRESS_TURN_SLOT_SPACING))
 
@@ -1152,12 +1739,42 @@ init -1 python:
             return self.turn_phase == "shmup_segment" and not self.result
 
         @property
+        def handover_active(self):
+            """Between sides: the last action has landed, nobody acts yet.
+
+            The tempo used to change on the SAME call that resolved the final
+            action of a phase, so the enemy banner and the whole HUD swap landed
+            on top of an impact that was still playing -- the hit was cut off by
+            its own consequence. This state holds the frame for a beat so the
+            action finishes, the handover reads as a deliberate beat, and only
+            then does the other side get the tempo.
+            """
+            return self.turn_phase == "handover" and not self.result
+
+        @property
+        def typing_segment_active(self):
+            return self.turn_phase == "typing_segment" and not self.result
+
+        @property
+        def quiz_segment_active(self):
+            return self.turn_phase == "quiz_segment" and not self.result
+
+        @property
+        def microgame_active(self):
+            # Any phase-3 "genre shift" minigame currently running as an overlay.
+            return self.turn_phase in ("shmup_segment", "typing_segment", "quiz_segment") and not self.result
+
+        @property
         def phase_transition_active(self):
             return self.turn_phase == "phase_transition" and not self.result
 
         @property
         def final_victory_active(self):
             return self.turn_phase == "victory_sequence" and not self.result
+
+        @property
+        def defeat_sequence_active(self):
+            return self.turn_phase == "defeat_sequence" and not self.result
 
         @property
         def phase2_reveal_started(self):
@@ -1194,6 +1811,97 @@ init -1 python:
             self.fx_event = None
             self.fx_clear_delay = 0.70
 
+        def emit_float(self, amount, kind="dmg", anchor="boss"):
+            # Feed for floating combat numbers. anchor is "boss" or a party index.
+            self.float_serial += 1
+            self.float_events.append({
+                "serial": self.float_serial,
+                "amount": amount,
+                "kind": kind,
+                "anchor": anchor,
+            })
+            if len(self.float_events) > 10:
+                self.float_events = self.float_events[-10:]
+
+        def clear_float_events(self):
+            self.float_events = []
+
+        def emit_death(self, anchor):
+            # One-shot KO cue. anchor is a party index (int) or "boss"; the screen
+            # polls death_serial and plays a death burst at that combatant.
+            # Every party KO funnels through here (enemy damage + recoil), so this
+            # is also where the "No One Gets Written Out" achievement counts downs.
+            if anchor != "boss":
+                self.party_downs += 1
+            self.death_serial += 1
+            self.death_events.append({
+                "serial": self.death_serial,
+                "anchor": anchor,
+            })
+            if len(self.death_events) > 8:
+                self.death_events = self.death_events[-8:]
+
+        def clear_death_events(self):
+            self.death_events = []
+
+        # ----- HP-BAR DAMAGE TRAIL -------------------------------------------
+        # A serial-polled feed (same shape as float/death events) that lets the UI
+        # animate HP bars instead of snapping. _sync_bars is called once after each
+        # resolved action; it diffs every combatant's hp against its settled bar_hp
+        # and emits one chip event per changed bar (frm/to are 0..1 fractions).
+        def _own_list(self, name):
+            # Returns the INSTANCE's list for one of the None-defaulted fields at
+            # the top of the class, creating it on first touch. Anything that
+            # appends must go through here: on the legacy path those fields
+            # resolve to the class attribute, so appending to `self.<name>`
+            # directly would mutate a list every battle state shares.
+            value = self.__dict__.get(name, None)
+            if value is None:
+                value = []
+                setattr(self, name, value)
+            return value
+
+        def emit_bar(self, anchor, frm, to):
+            self.bar_serial += 1
+            events = self._own_list("bar_events")
+            events.append({
+                "serial": self.bar_serial,
+                "anchor": anchor,
+                "frm": frm,
+                "to": to,
+                "gain": to > frm,
+            })
+            if len(events) > 12:
+                self.bar_events = events[-12:]
+
+        def clear_bar_events(self):
+            self.bar_events = []
+
+        def _sync_one_bar(self, combatant, anchor):
+            prev = getattr(combatant, "bar_hp", combatant.hp)
+            if combatant.max_hp <= 0 or prev == combatant.hp:
+                combatant.bar_hp = combatant.hp
+                return
+            frm = max(0.0, min(1.0, float(prev) / float(combatant.max_hp)))
+            to = max(0.0, min(1.0, float(combatant.hp) / float(combatant.max_hp)))
+            combatant.bar_hp = combatant.hp
+            if abs(frm - to) < 0.002:
+                return
+            self.emit_bar(anchor, frm, to)
+
+        def _sync_bars(self):
+            self._sync_one_bar(self.boss, "boss")
+            for idx, member in enumerate(self.party):
+                self._sync_one_bar(member, idx)
+
+        def _settle_bars(self):
+            # Snap the bar trackers to current HP without emitting chips. Used when
+            # HP is set directly (phase transitions / full restores) so those jumps
+            # never animate as damage/heal trails.
+            self.boss.bar_hp = self.boss.hp
+            for member in self.party:
+                member.bar_hp = member.hp
+
         def set_fx(self, event_name, sfx_name=None, duration=None):
             self.fx_event = event_name
             self.fx_serial += 1
@@ -1207,19 +1915,26 @@ init -1 python:
             path = MSBF_SFX.get(sfx_name)
             if not path:
                 return
-            try:
-                renpy.sound.play(path, channel="sound")
-                for layer_name, volume in MSBF_SFX_LAYERS.get(sfx_name, []):
-                    layer_path = MSBF_SFX.get(layer_name)
-                    if layer_path:
-                        renpy.music.play("<volume %.2f>%s" % (volume, layer_path), channel="audio", loop=False)
-            except Exception:
-                pass
+            # Pooled so this cue AND the turn-change cue that often follows it both
+            # ring out (they used to serialize on one channel and cut each other).
+            msbf_play_pooled_sfx(path)
+            for layer_name, volume in MSBF_SFX_LAYERS.get(sfx_name, []):
+                layer_path = MSBF_SFX.get(layer_name)
+                if layer_path:
+                    msbf_play_pooled_sfx(layer_path, volume)
+
+        def play_final_victory_explosion(self):
+            if self.result or self.turn_phase != "victory_sequence":
+                return
+            if getattr(self, "final_victory_explode_played", False):
+                return
+            self.final_victory_explode_played = True
+            self._play_sfx("explode")
 
         def _play_phase_two_music(self):
             try:
                 renpy.music.play(
-                    "mod_assets/bgm/epicbattlephase2.ogg",
+                    audio.epicbattlephase2,
                     channel="music",
                     loop=True,
                     fadeout=1.0,
@@ -1250,6 +1965,14 @@ init -1 python:
                 renpy.music.play(
                     MSBF_IDMODE_PHASE3_MUSIC_VOCAL,
                     channel=MSBF_IDMODE_PHASE3_VOCAL_CHANNEL,
+                    loop=True,
+                    fadeout=0.0,
+                    fadein=0.0,
+                    synchro_start=True
+                )
+                renpy.music.play(
+                    MSBF_IDMODE_PHASE3_HEARTBEAT,
+                    channel=MSBF_IDMODE_PHASE3_HEARTBEAT_CHANNEL,
                     loop=True,
                     fadeout=0.0,
                     fadein=0.0,
@@ -1289,6 +2012,9 @@ init -1 python:
             self._play_sfx("phase")
             renpy.restart_interaction()
 
+        # ----- TURN FLOW: start of the player's turn -------------------------
+        # Refill press-turn icons (one per alive member), reset per-turn flags,
+        # tick down boss adaptation, and log the round start.
         def start_player_turn(self, initial=False):
             if self.result:
                 return
@@ -1324,7 +2050,6 @@ init -1 python:
                     self.add_log("Matsuda steps onto the setpiece.")
             else:
                 self.add_log("Round %d Start." % (self.round_number))
-                self._play_sfx("turn")
 
         def _first_alive_index(self):
             for idx, member in enumerate(self.party):
@@ -1456,7 +2181,48 @@ init -1 python:
 
         def _finish_player_phase(self):
             self._restore_party_mp()
-            self.start_enemy_phase()
+            self.begin_handover("enemy")
+
+        def begin_handover(self, to_side):
+            """Hand the tempo over after a beat, instead of on this frame."""
+            if self.result:
+                return
+            # NOTE: the press-turn FX are deliberately NOT cleared here. This
+            # runs on the same frame as the action that ended the phase, so
+            # clearing them cancelled the spend-flash on the very last pip --
+            # the one moment the player most wants to see it. The battle
+            # screen's own 0.58s timer retires them, and start_player_turn /
+            # start_enemy_phase both clear on the way in anyway.
+            self.turn_phase = "handover"
+            self.handover_to = to_side
+            # The tempo cue is NOT played here either. begin_handover runs on
+            # the same frame as whatever ended the phase, so a cue raised here
+            # lands on top of that action's own sound -- and fires early
+            # whenever the phase ends on an affinity shuffle. msbf_turnover_sweep plays
+            # it instead, because that screen only exists once fx_event has
+            # cleared, which is the actual start of the handover beat.
+            # The serial is what the tempo card keys off. It CANNOT key off the
+            # round number: start_player_turn increments that, so a card keyed
+            # to the round fired once for the handover and then a second time
+            # the instant the new turn began, with a different number on it.
+            self.handover_serial += 1
+            # The clock does not start here. The screen only begins counting
+            # once fx_event has cleared, so this is the length of the handover
+            # BEAT, not of the beat plus whatever impact preceded it.
+            self.handover_delay = 1.15
+            renpy.restart_interaction()
+
+        def finish_handover(self):
+            if self.result or self.turn_phase != "handover":
+                return
+            to_side = self.handover_to or "enemy"
+            self.handover_to = None
+            self.handover_mp_restored = False
+            if to_side == "player":
+                self.start_player_turn()
+            else:
+                self.start_enemy_phase()
+            renpy.restart_interaction()
 
         def _restore_member_mp(self, member, ratio):
             if member.max_mp <= 0 or member.mp >= member.max_mp:
@@ -1472,7 +2238,17 @@ init -1 python:
                 total_restored += self._restore_member_mp(member, 0.10)
             if total_restored > 0:
                 self.add_log("The party catches its breath and recovers 10% MP.")
-                self.set_fx("recover_mp", "recover")
+                # NO set_fx HERE. This runs inside _finish_player_phase, on the
+                # same frame as the action that ended the phase -- so setting
+                # the FX slot overwrote that action's own cue ("hit") with
+                # "recover_mp" the instant it was raised. The boss's recoil
+                # stopped (msbf_boss_smear_for saw no hit), the camera punch and
+                # deck shockwave never fired (recover_mp has no impact weight),
+                # and the recover sound cut the hit sound. The entire last
+                # player action of every phase was being erased one frame in.
+                #
+                # It is a HANDOVER event, not an impact, so the sweep shows it.
+                self.handover_mp_restored = True
 
         def _restore_party_for_phase_two(self):
             for member in self.party:
@@ -1501,11 +2277,23 @@ init -1 python:
             return self.phase in (2, 3) and self.turn_phase in ("enemy", "shmup_segment") and bool(getattr(self, "phase2_opening_immunity", False))
 
         def _apply_enemy_damage_to_member(self, target, damage):
+            old_hp = target.hp
             if self._phase_two_opening_immunity_active() and target.hp > 0 and target.hp - damage <= 0:
                 target.hp = 1
             else:
                 target.hp -= damage
                 target.clamp()
+            dealt = max(0, old_hp - target.hp)
+            try:
+                _idx = self.party.index(target)
+            except ValueError:
+                _idx = "boss"
+            self.emit_float(dealt, "enemy", _idx)
+            if old_hp > 0 and target.hp <= 0 and _idx != "boss":
+                self.emit_death(_idx)
+            # Opening immunity can reduce lethal damage to the HP delta above;
+            # callers use that exact amount for combat-log totals.
+            return dealt
 
         def _reset_phase_two_player_read(self):
             self.phase2_player_actions_observed = 0
@@ -1662,6 +2450,31 @@ init -1 python:
             self.result = "victory"
             renpy.restart_interaction()
 
+        # ----- DEFEAT SEQUENCE -----------------------------------------------
+        # A party wipe no longer flips result instantly (which the screen would
+        # bounce to a 0.5s Return). Instead it enters a "defeat_sequence" phase
+        # that the screen plays as a cinematic (drain -> loom -> verdict -> dark)
+        # before finish_defeat() finally sets result. All six wipe sites funnel
+        # through _trigger_defeat (idempotent).
+        def _trigger_defeat(self):
+            if self.result or self.turn_phase == "defeat_sequence":
+                return
+            self.turn_phase = "defeat_sequence"
+            self.press_turn_icons_state = []
+            self.enemy_press_turn_icons_state = []
+            self.clear_press_turn_fx()
+            self.shmup_bullets = []
+            self._fade_out_phase_music()
+            self.set_fx("final_defeat", "down", 3.4)
+
+        def finish_defeat(self):
+            if self.result or self.turn_phase != "defeat_sequence":
+                return
+            self.defeat_blackout = True
+            self.clear_fx()
+            self.result = "defeat"
+            renpy.restart_interaction()
+
         def player_pass(self):
             if self.result or self.turn_phase != "player":
                 return
@@ -1680,6 +2493,13 @@ init -1 python:
                 self._finish_player_phase()
             renpy.restart_interaction()
 
+        # ----- PLAYER ACTIONS + DAMAGE ---------------------------------------
+        # player_use_skill is the entry point the battle screen calls when the
+        # current actor commits a move; it spends MP, resolves the effect via
+        # _resolve_player_skill, applies press-turn cost (weak/crit grant tempo,
+        # resist/miss lose it), and advances to the next actor or the enemy phase.
+        # The _damage_boss / _true_damage_boss / _fixed_damage_boss helpers do the
+        # actual number-crunching against the boss's current affinities.
         def player_use_skill(self, skill, target=None):
             if self.result or self.turn_phase != "player":
                 return
@@ -1701,7 +2521,13 @@ init -1 python:
             actor.clamp()
             self.pending_half_turn = False
             boss_hp_before = self.boss.hp
+            try:
+                self.last_actor_index = self.party.index(actor)
+            except ValueError:
+                self.last_actor_index = None
+            self.last_cast_element = self._actual_element(actor, skill) if skill.kind in ("damage", "true_damage") else skill.element
             outcome = self._resolve_player_skill(actor, skill, target)
+            self._sync_bars()
             self._record_phase_two_player_action(actor, skill, outcome, max(0, boss_hp_before - self.boss.hp))
             self._apply_player_turn_cost(outcome)
             if self.pending_half_turn:
@@ -1729,9 +2555,7 @@ init -1 python:
                     return
 
             if not self.alive_party():
-                self.result = "defeat"
-                self.set_fx("defeat", "down")
-                self.add_log("The party is down.")
+                self._trigger_defeat()
                 renpy.restart_interaction()
                 return
 
@@ -1744,6 +2568,15 @@ init -1 python:
             renpy.restart_interaction()
 
         def _resolve_player_skill(self, actor, skill, target=None):
+            if skill.kind == "dev_cleave":
+                damage = max(1, int(self.boss.max_hp * 0.5))
+                self.boss.hp -= damage
+                self.boss.clamp()
+                self.add_log("%s uses %s and carves away half of %s." % (actor.name, skill.name, self.boss.name))
+                self.set_fx("crit", "crit")
+                self.emit_float(damage, "crit", "boss")
+                return "normal"
+
             if skill.kind == "guard":
                 actor.guard = True
                 recovered = self._restore_member_mp(actor, 0.10)
@@ -1782,18 +2615,25 @@ init -1 python:
                 if target is None:
                     target = self._lowest_wounded_ally()
                 amount = self._healing_amount(actor, skill)
+                old_hp = target.hp
                 target.hp += amount
                 target.clamp()
                 self.heal_actions += 1
                 self.add_log("%s casts %s. %s recovers %d HP." % (actor.name, skill.name, target.name, amount))
                 self.set_fx("heal", "heal")
+                try:
+                    self.emit_float(max(0, target.hp - old_hp), "heal", self.party.index(target))
+                except ValueError:
+                    pass
                 return "normal"
 
             if skill.kind == "heal_all":
                 amount = self._healing_amount(actor, skill)
                 for member in self.alive_party():
+                    old_hp = member.hp
                     member.hp += amount
                     member.clamp()
+                    self.emit_float(max(0, member.hp - old_hp), "heal", self.party.index(member))
                 self.heal_actions += 1
                 self.add_log("%s casts %s. The party recovers %d HP." % (actor.name, skill.name, amount))
                 self.set_fx("heal", "heal")
@@ -1802,8 +2642,10 @@ init -1 python:
             if skill.kind == "white_wind":
                 amount = self._white_wind_amount(actor)
                 for member in self.alive_party():
+                    old_hp = member.hp
                     member.hp += amount
                     member.clamp()
+                    self.emit_float(max(0, member.hp - old_hp), "heal", self.party.index(member))
                 self.heal_actions += 1
                 self.add_log("%s calls White Wind. The party recovers %d HP from her borrowed life force." % (actor.name, amount))
                 self.set_fx("heal", "heal")
@@ -1908,12 +2750,14 @@ init -1 python:
             self.boss.clamp()
             self.add_log("%s uses %s for %d fixed damage." % (actor.name, skill.name, damage))
             self.set_fx("hit", "hit")
+            self.emit_float(damage, "dmg", "boss")
             return "normal"
 
         def _true_damage_boss(self, actor, skill, element):
             if random.random() > self._hit_chance(actor, self.boss, skill):
                 self.add_log("%s uses %s, but Matsuda slips it." % (actor.name, skill.name))
                 self.set_fx("miss", "miss")
+                self.emit_float("MISS", "miss", "boss")
                 return "miss"
 
             affinity = self._boss_affinity(element)
@@ -1921,6 +2765,7 @@ init -1 python:
             damage = self._true_damage_amount(actor, skill, critical, affinity)
             self.boss.hp -= damage
             self.boss.clamp()
+            self.emit_float(damage, ("crit" if critical else (affinity if affinity in ("weak", "resist") else "dmg")), "boss")
 
             prefix = "%s uses %s for %d true damage." % (actor.name, skill.name, damage)
             if affinity == "weak":
@@ -1945,6 +2790,7 @@ init -1 python:
             if random.random() > self._hit_chance(actor, self.boss, skill):
                 self.add_log("%s uses %s, but Matsuda slips it." % (actor.name, skill.name))
                 self.set_fx("miss", "miss")
+                self.emit_float("MISS", "miss", "boss")
                 return "miss"
 
             affinity = self._boss_affinity(element)
@@ -1952,11 +2798,18 @@ init -1 python:
             damage = self._damage_amount(actor, self.boss, skill, element, critical, affinity)
             self.boss.hp -= damage
             self.boss.clamp()
+            self.emit_float(damage, ("crit" if critical else (affinity if affinity in ("weak", "resist") else "dmg")), "boss")
 
             if skill.recoil > 0.0:
                 recoil_damage = max(1, int(actor.max_hp * skill.recoil))
                 actor.hp -= recoil_damage
                 actor.clamp()
+                try:
+                    self.emit_float(recoil_damage, "enemy", self.party.index(actor))
+                    if not actor.alive:
+                        self.emit_death(self.party.index(actor))
+                except ValueError:
+                    pass
 
             prefix = "%s uses %s for %d damage." % (actor.name, skill.name, damage)
             if affinity == "weak":
@@ -2027,14 +2880,17 @@ init -1 python:
             else:
                 self.add_log("The critical hit converts the next full turn into a half turn.")
 
-        def _penalize_player_resist(self):
-            pass
-
+        # ----- PHASE TRANSITIONS ---------------------------------------------
+        # _configure_phase_* reshapes the fight when a bar breaks: phase 2 enables
+        # shuffling/adapting affinities and restores the party; phase 3 ("Id Mode"
+        # finale) sets the real boss HP, summons the full roster, swaps to the
+        # layered vocal track, and unlocks the boss's phase3_* / shmup moves.
+        # _handle_boss_bar_break / _handle_boss_phase_thresholds decide WHEN.
         def _configure_phase_two(self, restore_party=True):
             self.phase = 2
             self.boss.phase = 2
             self.boss.name = "Tohu Imago"
-            self.boss.max_hp = max(40, int(self.boss.max_hp * 0.70))
+            self.boss.max_hp = 5200
             self.boss.hp = self.boss.max_hp
             self.boss.offense = 70
             self.boss.magic = 74
@@ -2060,6 +2916,7 @@ init -1 python:
             self.phase2_scan_insight_bag = []
             self.analyzed = False
             self.player_element_history = []
+            self._settle_bars()
 
         def _begin_phase_two_transition(self):
             self._configure_phase_two(restore_party=True)
@@ -2070,7 +2927,11 @@ init -1 python:
             self.turn_phase = "phase_transition"
             self.phase_transition_delay = 0.12
             self._fade_out_phase_music()
-            self.set_fx("phase_blackout", "explode", 5.0)
+            # 1.6s, not 3.4. The break is meant to be a thing that HAPPENS
+            # to her; three and a half seconds of held black turned it into
+            # a summoning circle. msbf_phase_break_seq is blowout, fracture,
+            # and one held silence, and it is finished well inside this.
+            self.set_fx("phase_blackout", "explode", 1.60)
             self.add_log("Matsuda's guard breaks. Light floods the battlefield.")
             self.add_log("The party steadies itself as HP and MP surge to full.")
             self.add_log("Her rhythm snaps into a new pattern. Olden ways are futile.")
@@ -2079,21 +2940,28 @@ init -1 python:
             self.phase = 3
             self.phase3_started = True
             self.phase3_vocal_started = False
+            self.phase3_vocal_genre_done = False
+            self.phase3_last_microgame_enemy_action = -99
+            self.phase3_microgame_cooldown = 0
             self.phase3_scan_insight_bag = []
             self.phase3_genre_shift_count = 0
             self.phase3_reinforcements_added = self._summon_full_roster_for_phase_three()
             self.boss.phase = 3
             self.boss.name = "Imago Rupta"
+            # Superboss but fair (see TODO rebalance): 7600 HP is the ONE tuned
+            # number and stays. Everything offensive was overtuned, so the stat
+            # block, the free opening +1 attack stage, and the free charged Limit
+            # Read were all cut back. Tweak these to redial phase-3 difficulty.
             self.boss.max_hp = 7600
             self.boss.hp = self.boss.max_hp
-            self.boss.offense = 78
-            self.boss.magic = 86
-            self.boss.defense = 66
-            self.boss.agility = 78
-            self.boss.atk_stage = 1
+            self.boss.offense = 62
+            self.boss.magic = 70
+            self.boss.defense = 56
+            self.boss.agility = 70
+            self.boss.atk_stage = 0
             self.boss.def_stage = 0
             self.boss.agi_stage = 0
-            self.boss.focus = True
+            self.boss.focus = False
             self.boss.guard = False
             self.boss.taunt = False
             self.boss.used_second_wind = True
@@ -2109,6 +2977,7 @@ init -1 python:
             self.phase2_scan_insight_bag = []
             self.analyzed = False
             self.player_element_history = []
+            self._settle_bars()
 
         def _begin_phase_three_transition(self):
             self._configure_phase_three()
@@ -2120,7 +2989,7 @@ init -1 python:
             self.turn_phase = "phase_transition"
             self.phase_transition_delay = 0.10
             self._fade_out_phase_music()
-            self.set_fx("phase_blackout", "explode", 5.1)
+            self.set_fx("phase_blackout", "explode", 1.70)
             self.add_log("Tohu Imago dies halfway through the sentence.")
             self.add_log("Matsuda grabs for another script. The image ruptures.")
             self.add_log("Imago Rupta enters Id Mode's final phase.")
@@ -2153,7 +3022,10 @@ init -1 python:
                 self.clear_press_turn_fx()
                 self._fade_out_phase_music()
                 self.final_victory_whiteout = False
-                self.set_fx("final_victory", "explode", 5.2)
+                self.final_victory_explode_played = False
+                # No boom here -- the hypernova overlay plays "explode" on the
+                # detonation beat, not on the quiet implosion build.
+                self.set_fx("final_victory", None, MSBF_FINAL_VICTORY_RESULT_DELAY)
                 self.add_log("The killing blow lands.")
                 if self.phase == 3:
                     self.add_log("Imago Rupta fails to find another genre to hide in.")
@@ -2194,11 +3066,12 @@ init -1 python:
                         "Moveset read: Imago Rupta carries fewer openings, more resists, and adapts after repeated weakness hits faster than Tohu Imago.",
                         "Moveset read: Imago Rupta upgrades the phase 2 spell line into Firaga, Blizzaga, Thundaga, and Aeroga.",
                         "Moveset read: The full roster can act in phase 3, but the command deck still has a hard tempo limit.",
-                        "Moveset read: Curtain Script briefly turns the fight into a bullet pattern. Guarding blunts the lane damage.",
                         "Moveset read: Black Box Waltz attacks the interface itself, burning MP and stripping stable buffs.",
                         "Moveset read: Reticle Nightmare marks a vulnerable target like a point-and-click escape room with no escape prompt.",
                         "Moveset read: Identity Null is almighty pressure. It gets worse when the party is over-buffed.",
-                        "Moveset read: When this phase reaches half HP, the vocal layer enters and her action economy tightens."
+                        "Moveset read: When this phase reaches half HP, her action economy tightens.",
+                        "Moveset read: As it loses HP, Imago Rupta shifts genre in desperation.",
+                        "Moveset read: Winning a genre shift only chips 3-5% of her CURRENT HP, so it can't finish her, but losing one costs the party. Play them to stall and bleed her.",
                     ]
                     random.shuffle(self.phase3_scan_insight_bag)
                 return self.phase3_scan_insight_bag.pop()
@@ -2239,13 +3112,24 @@ init -1 python:
 
             return self.phase2_scan_insight_bag.pop()
 
+        # ----- ENEMY PHASE + BOSS AI -----------------------------------------
+        # start_enemy_phase hands tempo to Matsuda; advance_enemy_phase steps one
+        # boss action at a time (the screen ticks it). _choose_boss_skill /
+        # _choose_phase_three_skill pick the move based on phase, the player's
+        # recent behaviour (phase-2 stance read), and HP thresholds; _resolve_
+        # enemy_skill applies it to the party.
         def start_enemy_phase(self):
             if self.result:
                 return
             self.clear_press_turn_fx()
             if not self.alive_party():
-                self.result = "defeat"
+                self._trigger_defeat()
                 return
+
+            # Healer-hunting keys off RECENT healing, not a lifetime counter: the
+            # signal decays each enemy phase, so the boss eases off healers once
+            # the party stops leaning on them (patch -- heal_actions used to latch).
+            self.heal_actions = max(0, self.heal_actions - 1)
 
             if self.phase >= 2:
                 self._update_phase_two_ai_stance()
@@ -2262,29 +3146,31 @@ init -1 python:
             else:
                 self.enemy_press_turn_icons_state = ["full", "full"]
             self.enemy_actions_this_phase = 0
-            self.enemy_action_cap = (5 if self.phase3_vocal_started else 4) if self.phase == 3 else 4
+            if self.phase == 3:
+                self.phase3_last_microgame_enemy_action = -99
+                # Tick down the anti-streak cooldown: while >0, random genre shifts
+                # are suppressed this phase, so they can't land in consecutive phases.
+                if self.phase3_microgame_cooldown > 0:
+                    self.phase3_microgame_cooldown -= 1
+            # Phase-3 tempo trimmed from 5/4 -> 4/3: even at desperation the boss
+            # tops out at 4 actions, so a stacked AoE turn can't wipe a healed party.
+            self.enemy_action_cap = (4 if self.phase3_vocal_started else 3) if self.phase == 3 else 4
             self.enemy_settling = False
-            try:
-                renpy.music.stop(channel="audio", fadeout=0.0)
-            except Exception:
-                pass
+            # (No channel wipe here anymore -- SFX are pooled short one-shots that ring
+            # out on their own; hard-stopping would defeat the point and clip the cue
+            # that just played. The turn cue below simply lands on the next channel.)
             self.set_fx("enemy", "turn_ready")
             if self.phase == 3:
                 self.add_log("Imago Rupta seizes the wheel.")
             else:
                 self.add_log("Matsuda takes the initiative.")
 
-        def enemy_turn(self):
-            self.start_enemy_phase()
-
         def advance_enemy_phase(self):
             if self.result or self.turn_phase != "enemy":
                 return
 
             if not self.alive_party():
-                self.result = "defeat"
-                self.set_fx("defeat", "down")
-                self.add_log("The party is down.")
+                self._trigger_defeat()
                 renpy.restart_interaction()
                 return
 
@@ -2295,16 +3181,15 @@ init -1 python:
 
             skill = self._choose_boss_skill()
             outcome = self._resolve_enemy_skill(skill)
-            if self.shmup_segment_active:
+            if self.microgame_active:
                 renpy.restart_interaction()
                 return
+            self._sync_bars()
             self._apply_enemy_turn_cost(outcome)
             limit_reached = self._record_enemy_action()
 
             if not self.alive_party():
-                self.result = "defeat"
-                self.set_fx("defeat", "down")
-                self.add_log("The party is down.")
+                self._trigger_defeat()
                 renpy.restart_interaction()
                 return
 
@@ -2325,9 +3210,7 @@ init -1 python:
                 member.taunt = False
 
             if not self.alive_party():
-                self.result = "defeat"
-                self.set_fx("defeat", "down")
-                self.add_log("The party is down.")
+                self._trigger_defeat()
                 return
 
             if self.phase == 1 and self.round_number % 2 == 0:
@@ -2336,7 +3219,7 @@ init -1 python:
                 self._shuffle_phase_two_affinities()
             elif self.phase == 3 and self.round_number - self.phase2_last_affinity_shift_round >= 1:
                 self._shuffle_phase_two_affinities()
-            self.start_player_turn()
+            self.begin_handover("player")
 
         def _choose_boss_skill(self):
             if self.phase == 3:
@@ -2384,42 +3267,101 @@ init -1 python:
             pool = ["boss_slash", "boss_pierce", "boss_fira", "boss_blizzara", "boss_thundara"]
             return MSBF_SKILLS[random.choice(pool)]
 
+        def _party_is_buffed(self):
+            return any(
+                (member.atk_stage > 0 or member.def_stage > 0 or member.agi_stage > 0)
+                for member in self.alive_party()
+            )
+
+        def _phase_three_weakness_skills(self, alive):
+            # The damaging moves whose element hits at least one standing, unguarded
+            # party weakness right now -- so move choice and target choice agree.
+            hits = []
+            for skill_id in ("boss_slash", "boss_pierce", "boss_firaga", "boss_blizzaga", "boss_thundaga", "boss_aeroga"):
+                skill = MSBF_SKILLS[skill_id]
+                if any(skill.element in member.weaknesses and not member.guard for member in alive):
+                    hits.append(skill)
+            return hits
+
+        def _phase_three_genre_shift_skill(self):
+            # Desperation escalation: Imago Rupta flips genres more often the more
+            # wounded it is, with one guaranteed shift on the vocal (<=50% HP) beat.
+            # Considered on every boss action, but bounded three ways so shifts stay
+            # common-yet-never-dominant (no coasting on winnable minigames): one per
+            # enemy phase (guard 1), a cross-phase cooldown so they can't streak
+            # (guard 2, see MSBF_PHASE3_MICROGAME_COOLDOWN), and the per-phase roll.
+            shift_ids = ["boss_curtain_script", "boss_rewrite_order", "boss_multiple_choice"]
+            # Guard 1: at most one shift per enemy phase.
+            if self.phase3_last_microgame_enemy_action >= 0:
+                return None
+            # The guaranteed vocal-beat shift fires regardless of the cooldown, so
+            # every run sees at least one; it then arms the cooldown like any other.
+            if self.phase3_vocal_started and not self.phase3_vocal_genre_done:
+                self.phase3_vocal_genre_done = True
+                self.phase3_last_microgame_enemy_action = self.enemy_actions_this_phase
+                self.phase3_microgame_cooldown = MSBF_PHASE3_MICROGAME_COOLDOWN
+                return MSBF_SKILLS[random.choice(shift_ids)]
+            # Guard 2: no random shift while cooling down from a recent one, so
+            # shifts never streak across back-to-back enemy phases.
+            if self.phase3_microgame_cooldown > 0:
+                return None
+
+            hp_missing = 1.0 - self.boss.hp_ratio
+            chance = MSBF_PHASE3_MICROGAME_BASE_CHANCE + hp_missing * MSBF_PHASE3_MICROGAME_HP_SCALE
+            if self.phase3_vocal_started:
+                chance += MSBF_PHASE3_MICROGAME_VOCAL_BONUS
+            if self.boss.hp_ratio <= 0.35:
+                chance += MSBF_PHASE3_MICROGAME_LOW_HP_BONUS
+            chance = min(MSBF_PHASE3_MICROGAME_CHANCE_CAP, max(0.0, chance))
+            if random.random() < chance:
+                self.phase3_last_microgame_enemy_action = self.enemy_actions_this_phase
+                self.phase3_microgame_cooldown = MSBF_PHASE3_MICROGAME_COOLDOWN
+                return MSBF_SKILLS[random.choice(shift_ids)]
+            return None
+
         def _choose_phase_three_skill(self):
             alive = self.alive_party()
             stance = self.phase2_ai_stance
-            phase3_exploit_ids = ["boss_slash", "boss_pierce", "boss_firaga", "boss_blizzaga", "boss_thundaga", "boss_aeroga"]
+            weakness_skills = self._phase_three_weakness_skills(alive)
 
-            if not self.phase3_vocal_started and self.boss.hp_ratio <= 0.55 and random.random() < 0.18:
+            # 1) Genre shift (microgame): desperation escalation.
+            shift = self._phase_three_genre_shift_skill()
+            if shift is not None:
+                return shift
+
+            # 2) Identity Null: almighty AoE that punishes over-buffing. Weighted up
+            #    hard when the party is stacked with buffs, occasional otherwise.
+            null_chance = 0.10
+            if self._party_is_buffed():
+                null_chance = 0.42 if self.phase3_vocal_started else 0.34
+            elif self.phase3_vocal_started:
+                null_chance = 0.16
+            if self.boss.hp_ratio <= 0.55 and random.random() < null_chance:
                 return MSBF_SKILLS["boss_identity_null"]
 
-            if self.phase3_vocal_started and random.random() < 0.18:
-                return MSBF_SKILLS["boss_identity_null"]
-
+            # 3) Stance moves.
             if stance == "defensive":
                 if self.enemy_actions_this_phase == 0 and not self.boss.guard and random.random() < 0.40:
                     return MSBF_SKILLS["boss_guard"]
                 if random.random() < 0.30:
                     return MSBF_SKILLS["boss_black_box_waltz"]
             elif stance == "aggressive":
-                if not self.boss.focus and random.random() < 0.22:
+                # Limit Read with intent: only charge when there's a real payoff set
+                # up (a standing weakness to convert next), not on a blind roll.
+                if not self.boss.focus and weakness_skills and random.random() < 0.28:
                     return MSBF_SKILLS["boss_focus"]
                 if random.random() < 0.30:
                     return MSBF_SKILLS["boss_reticle_nightmare"]
 
-            if len(alive) >= 4 and random.random() < (0.28 if self.phase3_vocal_started else 0.18):
+            # 4) Wide AoE when the command deck is crowded.
+            if len(alive) >= 4 and random.random() < (0.26 if self.phase3_vocal_started else 0.16):
                 return MSBF_SKILLS["boss_aeroga"]
 
-            if len(alive) >= 3 and random.random() < (0.34 if self.phase3_vocal_started else 0.24):
-                return MSBF_SKILLS["boss_curtain_script"]
+            # 5) Exploit a standing weakness (coordinated with target selection).
+            if weakness_skills and random.random() < (0.52 if self.phase3_vocal_started else 0.42):
+                return random.choice(weakness_skills)
 
-            exploitable = []
-            for skill_id in phase3_exploit_ids:
-                skill = MSBF_SKILLS[skill_id]
-                if any(skill.element in member.weaknesses and not member.guard for member in alive):
-                    exploitable.append(skill)
-            if exploitable and random.random() < (0.50 if self.phase3_vocal_started else 0.40):
-                return random.choice(exploitable)
-
+            # 6) Fallback mixed pool.
             pool = [
                 "boss_slash",
                 "boss_pierce",
@@ -2427,7 +3369,6 @@ init -1 python:
                 "boss_blizzaga",
                 "boss_thundaga",
                 "boss_aeroga",
-                "boss_curtain_script",
                 "boss_black_box_waltz",
                 "boss_reticle_nightmare",
             ]
@@ -2451,15 +3392,23 @@ init -1 python:
 
             if skill.id == "boss_second_wind":
                 heal_amount = 240 + (90 if self.phase == 2 else 0)
+                old_hp = self.boss.hp
                 self.boss.hp += heal_amount
                 self.boss.atk_stage += 1
                 self.boss.clamp()
                 self.add_log("Matsuda catches a Second Wind and recovers %d HP." % heal_amount)
                 self.set_fx("enemy_heal", "heal")
+                self.emit_float(max(0, self.boss.hp - old_hp), "heal", "boss")
                 return "normal"
 
             if skill.kind == "phase3_curtain":
                 return self._resolve_phase_three_curtain(skill)
+
+            if skill.kind == "phase3_typing":
+                return self._resolve_phase_three_typing(skill)
+
+            if skill.kind == "phase3_quiz":
+                return self._resolve_phase_three_quiz(skill)
 
             if skill.kind == "phase3_black_box":
                 return self._resolve_phase_three_black_box(skill)
@@ -2511,10 +3460,103 @@ init -1 python:
                 self.set_fx("enemy_hit", "enemy")
             return outcome
 
+        # ----- PHASE-3 MICROGAME ("genre shift") SHARED WIN/LOSS -------------
+        # All three genre-shift minigames (bullet-hell, typing QTE, quiz QTE) run
+        # as overlays and settle through these helpers so the reward/penalty and
+        # the turn-economy tail are identical. Win chips 3-5% of the boss's CURRENT
+        # HP (never lethal); losses are non-lethal (floored at 1) so a microgame
+        # can't directly wipe the party.
+        def _microgame_win_chip(self):
+            if self.boss.hp <= 1:
+                return 0
+            frac = random.uniform(MSBF_MICROGAME_WIN_CHIP_MIN, MSBF_MICROGAME_WIN_CHIP_MAX)
+            old_hp = self.boss.hp
+            self.boss.hp = max(1, self.boss.hp - max(1, int(self.boss.hp * frac)))
+            dealt = old_hp - self.boss.hp
+            if dealt > 0:
+                self.emit_float(dealt, "dmg", "boss")
+            return dealt
+
+        def _microgame_chip_member(self, member, damage):
+            old_hp = member.hp
+            member.hp = max(1, member.hp - max(1, int(damage)))
+            member.clamp()
+            dealt = old_hp - member.hp
+            if dealt > 0:
+                try:
+                    idx = self.party.index(member)
+                except ValueError:
+                    idx = "boss"
+                self.emit_float(dealt, "enemy", idx)
+            return dealt
+
+        def _microgame_loss_single(self):
+            alive = self.alive_party()
+            if not alive:
+                return None, 0
+            target = random.choice(alive)
+            dealt = self._microgame_chip_member(target, int(target.max_hp * MSBF_MICROGAME_LOSS_SINGLE))
+            return target, dealt
+
+        def _microgame_loss_party(self):
+            total = 0
+            for member in list(self.alive_party()):
+                total += self._microgame_chip_member(member, int(member.max_hp * MSBF_MICROGAME_LOSS_PARTY))
+            return total
+
+        def _microgame_win_cue(self):
+            # The reward flash for a won genre shift -- except the chip that
+            # earned it can also carry the boss across a phase threshold, and
+            # that handler sets its own, louder cue. Both land in the same frame
+            # with nothing rendered between them, so whichever runs second just
+            # overwrites the other and only one is ever seen. Let the threshold
+            # win: run it first, and only flash if it stayed quiet. (Setting the
+            # flash first and letting the handler clobber it worked by accident
+            # and only in phase 3 -- from phase 2 the order was backwards and the
+            # flash would have eaten the phase-three blackout.)
+            before = self.fx_serial
+            self._handle_boss_phase_thresholds()
+            if self.fx_serial == before:
+                self.set_fx("resist", "weak")
+
+        def _finish_microgame_turn(self):
+            # Shared tail: animate the bars, spend one normal boss action, record it
+            # against the phase cap, guard against a wipe, then hand back to
+            # advance_enemy_phase. Wins still chip HP and avoid the penalty, but do
+            # not also burn extra enemy tempo like a resisted attack would -- which
+            # is why this takes no outcome: the cost is "normal" either way. (It
+            # used to accept one and ignore it, so the call sites read as though a
+            # win cost the boss a resisted attack's tempo. It never did.)
+            self._sync_bars()
+            self._apply_enemy_turn_cost("normal")
+            limit_reached = self._record_enemy_action()
+            if not self.alive_party():
+                self._trigger_defeat()
+                renpy.restart_interaction()
+                return
+            if limit_reached and self._has_enemy_press_turns():
+                self._force_enemy_phase_limit()
+            if not self._has_enemy_press_turns():
+                self.enemy_settling = True
+            renpy.restart_interaction()
+
         def _resolve_phase_three_curtain(self, skill):
             self._start_phase_three_shmup(skill)
             return "minor"
 
+        # ----- PHASE-3 SHMUP (bullet-hell dodge minigame) --------------------
+        # When the boss casts "Curtain Script" in phase 3, the fight detours into
+        # a real-time dodge segment. _start_phase_three_shmup arms it; the
+        # MSBFShmupField displayable (ui.rpy) then steps the simulation on a
+        # fixed 0.033s accumulator INSIDE its render() -- Kotonoha mode's 60fps
+        # architecture; there is NO screen timer and NO per-tick interaction
+        # restart any more. update_shmup_segment() spawns bullets via the named
+        # _shmup_pattern_* casters, advances + collision-checks them, and ends
+        # via finish_phase_three_shmup(success), whose _finish_microgame_turn
+        # tail restarts the interaction ONCE to hand back to the battle screen.
+        # Movement is polled per FRAME by the field (scaled to the frame delta),
+        # so the ship moves at display fps while the danmaku stays deterministic
+        # in the 30Hz tick.
         def _start_phase_three_shmup(self, skill):
             self.phase3_genre_shift_count += 1
             self.turn_phase = "shmup_segment"
@@ -2527,37 +3569,93 @@ init -1 python:
             self.shmup_bullets = []
             self.shmup_source_skill_id = skill.id
             self.shmup_sfx_cooldowns = {}
-            self.add_log("Curtain Script compresses the fight into a bullet field.")
+            self.shmup_focus = False
+            self.shmup_poll_ok = False
+            self.shmup_source_x = MSBF_SHMUP_STAGE_WIDTH * 0.5
+            self.shmup_source_y = 62.0
+            self.shmup_sparks = []
+            self.shmup_hit_fx = []
+            # One spell-card per cast, cycled in order so each is memorizable.
+            self.shmup_pattern = MSBF_SHMUP_PATTERNS[(self.phase3_genre_shift_count - 1) % len(MSBF_SHMUP_PATTERNS)]
+            card_name = MSBF_SHMUP_PATTERN_NAMES.get(self.shmup_pattern, "CURTAIN SCRIPT")
+            self.add_log("Curtain Script declares “%s.” Read the source, weave the gaps." % card_name)
             self.set_fx("shuffle", "shuffle", 0.45)
-            self._play_shmup_sfx("touhou_start", 0, 0.58)
+            self._play_shmup_sfx("shmup_declare", 0, 0.55)
+
+        @property
+        def shmup_pattern_name(self):
+            return MSBF_SHMUP_PATTERN_NAMES.get(getattr(self, "shmup_pattern", "spiral"), "CURTAIN SCRIPT")
 
         def shmup_nudge(self, dx, dy):
+            # Fallback only: if live keyboard polling is working, ignore discrete
+            # key-repeat nudges so movement stays smooth (no double-step).
             if not self.shmup_segment_active:
+                return
+            if getattr(self, "shmup_poll_ok", False):
                 return
             radius = MSBF_SHMUP_PLAYER_RADIUS
             self.shmup_player_x = msbf_clamp(self.shmup_player_x + dx, radius, MSBF_SHMUP_STAGE_WIDTH - radius)
             self.shmup_player_y = msbf_clamp(self.shmup_player_y + dy, radius, MSBF_SHMUP_STAGE_HEIGHT - radius)
             self._check_shmup_collision()
-            renpy.restart_interaction()
 
-        def update_shmup_segment(self):
-            if not self.shmup_segment_active:
+        def _poll_shmup_movement(self, input_latch, scale=1.0):
+            # Keyboard-only control: poll held WASD / arrow keys for smooth
+            # continuous movement, with Shift to focus (precise, slow). Called
+            # per FRAME by MSBFShmupField with scale = frame_dt / tick_dt, so a
+            # held key covers the same px/sec as the old per-tick poll but the
+            # motion itself runs at display framerate. The field owns and feeds
+            # input_latch so transient SDL event state never enters battle saves.
+            try:
+                import pygame_sdl2 as _pg
+                keys = _pg.key.get_pressed()
+            except Exception:
+                self.shmup_poll_ok = False
+                return
+            self.shmup_poll_ok = True
+
+            # Another window owns the keyboard: rest the ship instead of
+            # coasting on SDL's last sampled state.
+            if not input_latch.focused():
+                self.shmup_focus = False
+                input_latch.clear()
                 return
 
-            try:
-                mouse_x, mouse_y = renpy.get_mouse_pos()
-                radius = MSBF_SHMUP_PLAYER_RADIUS
-                target_x = msbf_clamp(mouse_x - MSBF_SHMUP_STAGE_X, radius, MSBF_SHMUP_STAGE_WIDTH - radius)
-                target_y = msbf_clamp(mouse_y - MSBF_SHMUP_STAGE_Y, radius, MSBF_SHMUP_STAGE_HEIGHT - radius)
-                if 0 <= mouse_x - MSBF_SHMUP_STAGE_X <= MSBF_SHMUP_STAGE_WIDTH and 0 <= mouse_y - MSBF_SHMUP_STAGE_Y <= MSBF_SHMUP_STAGE_HEIGHT:
-                    self.shmup_player_x += (target_x - self.shmup_player_x) * 0.55
-                    self.shmup_player_y += (target_y - self.shmup_player_y) * 0.55
-            except Exception:
-                pass
+            dx = 0.0
+            dy = 0.0
+            if input_latch.pressed(keys, _pg.K_LEFT, _pg.K_a):
+                dx -= 1.0
+            if input_latch.pressed(keys, _pg.K_RIGHT, _pg.K_d):
+                dx += 1.0
+            if input_latch.pressed(keys, _pg.K_UP, _pg.K_w):
+                dy -= 1.0
+            if input_latch.pressed(keys, _pg.K_DOWN, _pg.K_s):
+                dy += 1.0
+            self.shmup_focus = input_latch.pressed(
+                keys,
+                _pg.K_LSHIFT,
+                _pg.K_RSHIFT,
+            )
+            if dx == 0.0 and dy == 0.0:
+                return
+            if dx != 0.0 and dy != 0.0:
+                dx *= 0.70710678
+                dy *= 0.70710678
+            speed = (MSBF_SHMUP_FOCUS_SPEED if self.shmup_focus else MSBF_SHMUP_MOVE_SPEED) * scale
+            radius = MSBF_SHMUP_PLAYER_RADIUS
+            self.shmup_player_x = msbf_clamp(self.shmup_player_x + dx * speed, radius, MSBF_SHMUP_STAGE_WIDTH - radius)
+            self.shmup_player_y = msbf_clamp(self.shmup_player_y + dy * speed, radius, MSBF_SHMUP_STAGE_HEIGHT - radius)
+
+        def update_shmup_segment(self):
+            # One fixed 0.033s simulation tick. Driven by MSBFShmupField's
+            # render-side accumulator; deliberately does NOT restart the
+            # interaction (the field self-redraws every frame).
+            if not self.shmup_segment_active:
+                return
 
             self.shmup_tick += 1
             self._spawn_shmup_bullets()
             self._advance_shmup_bullets()
+            self._advance_shmup_sparks()
 
             if self._check_shmup_collision():
                 return
@@ -2565,8 +3663,6 @@ init -1 python:
             if self.shmup_tick >= MSBF_SHMUP_DURATION_TICKS:
                 self.finish_phase_three_shmup(True)
                 return
-
-            renpy.restart_interaction()
 
         def _play_shmup_sfx(self, sfx_name, min_interval=6, volume=0.42):
             path = MSBF_SFX.get(sfx_name)
@@ -2576,10 +3672,9 @@ init -1 python:
             if self.shmup_tick - last_tick < min_interval:
                 return
             self.shmup_sfx_cooldowns[sfx_name] = self.shmup_tick
-            try:
-                renpy.music.play("<volume %.2f>%s" % (volume, path), channel="audio", loop=False)
-            except Exception:
-                pass
+            # Pooled so rapid danmaku cues (a shot, then a hit, then a burst) overlap
+            # instead of each new one silencing the last.
+            msbf_play_pooled_sfx(path, volume)
 
         def _add_shmup_bullet(self, x, y, vx, vy, size=10, color="#ff3868dd", shape="orb", sway=0.0, phase=0.0, ax=0.0, ay=0.0, ttl=None):
             rot = 0.0
@@ -2602,31 +3697,45 @@ init -1 python:
                 "ttl": ttl,
             })
 
-        def _add_shmup_beam(self, x, y, w, h, vx, vy, color="#ff3868dd", arm_age=5, ttl=42):
-            self.shmup_bullets.append({
-                "x": float(x),
-                "y": float(y),
-                "vx": float(vx),
-                "vy": float(vy),
-                "size": int(max(w, h)),
-                "w": int(w),
-                "h": int(h),
-                "color": color,
-                "shape": "beam",
-                "sway": 0.0,
-                "phase": 0.0,
-                "rot": 0.0,
-                "age": 0,
-                "ax": 0.0,
-                "ay": 0.0,
-                "ttl": int(ttl),
-                "arm_age": int(arm_age),
-            })
+        def _add_shmup_sparks(self, x, y, n, color, spd=3.4, ttl=26):
+            # Cosmetic burst (hit feedback). Capped so a bad frame can't flood
+            # the renderer; sparks are advanced with the sim tick.
+            sparks = self._own_list("shmup_sparks")
+            room = MSBF_SHMUP_MAX_SPARKS - len(sparks)
+            for i in range(min(n, max(0, room))):
+                a = (math.pi * 2.0 * i / max(1, n)) + (self.shmup_tick * 0.17)
+                s = spd * (0.55 + 0.45 * ((i * 7) % 3) / 2.0)
+                sparks.append({
+                    "x": float(x), "y": float(y),
+                    "vx": math.cos(a) * s, "vy": math.sin(a) * s,
+                    "age": 0, "ttl": int(ttl), "color": color,
+                })
 
-        def _add_shmup_radial_burst(self, x, y, count, speed, offset, color, size=9, gap_every=None, gap_shift=0, shape="orb", sway=0.0):
-            for idx in range(count):
-                if gap_every and (idx + gap_shift) % gap_every == 0:
+        def _advance_shmup_sparks(self):
+            if not self.shmup_sparks:
+                return
+            kept = []
+            for s in self.shmup_sparks:
+                s["age"] += 1
+                if s["age"] > s["ttl"]:
                     continue
+                s["x"] += s["vx"]
+                s["y"] += s["vy"]
+                s["vx"] *= 0.95
+                s["vy"] = s["vy"] * 0.95 + 0.06
+                kept.append(s)
+            self.shmup_sparks = kept
+
+        def _add_shmup_radial_burst(self, x, y, count, speed, offset, color, size=9, shape="orb", sway=0.0):
+            # FULL rings only. This used to take gap_every/gap_shift and skip
+            # those spokes, which cut a safe pocket into every ring. Rings are
+            # exactly the case the house rule names: a circle spawns closed,
+            # because the dodge is already there for free -- neighbouring spokes
+            # spread apart as the radius grows. Difficulty comes from density,
+            # speed and layering. (Falling WALLS keep their travelling gap: a
+            # full-width wall has to be passable by something. See
+            # _shmup_pattern_walls.)
+            for idx in range(count):
                 angle = offset + (math.pi * 2.0 * idx / float(count))
                 self._add_shmup_bullet(
                     x,
@@ -2640,191 +3749,99 @@ init -1 python:
                     idx * 0.37
                 )
 
+        def _shmup_source(self):
+            # A single emitter drifting along a pure sine of the tick near the top
+            # of the stage. Deterministic, so the "bullet source" is readable and
+            # every card plays out identically each cast -- memorizable danmaku.
+            cx = MSBF_SHMUP_STAGE_WIDTH * 0.5 + math.sin(self.shmup_tick * 0.030) * (MSBF_SHMUP_STAGE_WIDTH * 0.28)
+            cy = 60.0
+            self.shmup_source_x = cx
+            self.shmup_source_y = cy
+            return cx, cy
+
+        def _shmup_aim(self, cx, cy):
+            # Angle from the emitter toward the player (for aimed shots).
+            return math.atan2(self.shmup_player_y - cy, self.shmup_player_x - cx)
+
         def _spawn_shmup_bullets(self):
+            # One clean card per cast (cycled). Each ramps density past the midpoint
+            # so the opening is readable and the back half is the real test.
             tick = self.shmup_tick
-            vocal = bool(getattr(self, "phase3_vocal_started", False))
-            density_bonus = 1 if vocal else 0
+            cx, cy = self._shmup_source()
+            pattern = getattr(self, "shmup_pattern", "spiral")
+            if pattern == "aimed":
+                self._shmup_pattern_aimed(tick, cx, cy)
+            elif pattern == "walls":
+                self._shmup_pattern_walls(tick, cx, cy)
+            else:
+                self._shmup_pattern_spiral(tick, cx, cy)
 
-            if tick % 6 == 0:
-                lane_count = 8
-                gap = (tick // 6 + self.phase3_genre_shift_count) % lane_count
-                for lane in range(lane_count):
-                    if lane == gap or lane == (gap + 1) % lane_count:
-                        continue
-                    x = 54 + lane * 96
-                    self._add_shmup_bullet(
-                        x,
-                        -16,
-                        math.sin((tick + lane * 11) * 0.20) * (0.48 + density_bonus * 0.10),
-                        4.55 + density_bonus * 0.30,
-                        8,
-                        "#ff3868dd",
-                        "orb",
-                        0.025,
-                        float(lane)
-                    )
-                self._play_shmup_sfx("touhou_shot", 10, 0.25)
+        # Arm palette shared by the spiral card.
+        _SHMUP_SPIRAL_COLORS = ["#ff3868dd", "#55ddffdd", "#ffcf66dd", "#a66bffdd", "#f5fbffee"]
 
-            if tick >= 24 and tick % 14 == 3:
-                origin_x = 48 + ((tick * 83) % (MSBF_SHMUP_STAGE_WIDTH - 96))
-                origin_y = -20
-                dx = self.shmup_player_x - origin_x
-                dy = self.shmup_player_y - origin_y
-                angle = math.atan2(dy, dx)
-                offsets = [-0.24, 0.0, 0.24]
-                if vocal:
-                    offsets = [-0.32, -0.12, 0.12, 0.32]
-                for offset in offsets:
-                    speed = 4.55 + density_bonus * 0.28
-                    self._add_shmup_bullet(
-                        origin_x,
-                        origin_y,
-                        math.cos(angle + offset) * speed,
-                        math.sin(angle + offset) * speed,
-                        8,
-                        "#f5fbffdd",
-                        "needle",
-                        0.0,
-                        offset * 10.0
-                    )
-                self._play_shmup_sfx("touhou_needle", 14, 0.30)
+        def _shmup_pattern_spiral(self, tick, cx, cy):
+            # SPIRAL SCRIPTURE: a slowly rotating multi-arm spiral (4 arms, 5 past
+            # the midpoint) laid over periodic FULL rings. You dodge the spiral by
+            # reading its rotation and the rings by sitting between their spokes;
+            # neither has a door cut into it.
+            if tick % 3 == 0:
+                arms = 4 if tick < msbf_shmup_gate(0.50) else 5
+                base = (tick // 3) * 0.28
+                for arm in range(arms):
+                    ang = base + arm * (2.0 * math.pi / arms)
+                    color = self._SHMUP_SPIRAL_COLORS[arm % len(self._SHMUP_SPIRAL_COLORS)]
+                    self._add_shmup_bullet(cx, cy, math.cos(ang) * 3.4, math.sin(ang) * 3.4, 9, color, "orb", 0.0, arm * 1.3)
+                self._play_shmup_sfx("shmup_shot", 6, 0.8)
+            if tick >= msbf_shmup_gate(0.30) and tick % 44 == 0:
+                self._add_shmup_radial_burst(cx, cy, 26, 2.8, tick * 0.06, "#a66bffdd", 9, shape="orb")
+                self._play_shmup_sfx("shmup_burst", 12, 0.8)
 
-            if tick >= 18 and tick % 22 == 0:
-                count = 14 + density_bonus * 4
-                speed = 2.95 + density_bonus * 0.24
-                offset = tick * 0.19 + self.phase3_genre_shift_count * 0.38
-                origin_x = MSBF_SHMUP_STAGE_WIDTH * (0.36 + 0.20 * math.sin(tick * 0.071))
-                origin_y = 92 + 58 * math.sin(tick * 0.047)
-                self._add_shmup_radial_burst(
-                    origin_x,
-                    origin_y,
-                    count,
-                    speed,
-                    offset,
-                    "#a66bffdd",
-                    9,
-                    gap_every=5,
-                    gap_shift=(tick // 22) % 5,
-                    shape="orb",
-                    sway=0.08 + density_bonus * 0.03
-                )
-                self._play_shmup_sfx("touhou_burst", 18, 0.35)
+        def _shmup_pattern_aimed(self, tick, cx, cy):
+            # REVISION SALVO: aimed needle fans force streaming and cutbacks; a
+            # slow wobbling orb stream keeps the field honest between fans; full
+            # rings layer in past the midpoint to shrink the room you stream into.
+            if tick >= 10 and tick % 14 == 0:
+                ang = self._shmup_aim(cx, cy)
+                spread = 5 if tick < msbf_shmup_gate(0.55) else 7
+                for i in range(spread):
+                    off = (i - (spread - 1) / 2.0) * 0.14
+                    self._add_shmup_bullet(cx, cy, math.cos(ang + off) * 5.0, math.sin(ang + off) * 5.0, 8, "#f5fbffea", "needle", 0.0, off * 8.0)
+                self._play_shmup_sfx("shmup_shot", 8, 0.8)
+            if tick % 6 == 3:
+                ang = self._shmup_aim(cx, cy) + (0.10 if (tick // 30) % 2 == 0 else -0.10)
+                self._add_shmup_bullet(cx, cy, math.cos(ang) * 3.6, math.sin(ang) * 3.6, 8, "#55ddffdd", "orb", 0.0, (tick // 6) * 0.4)
+            if tick >= msbf_shmup_gate(0.55) and tick % 48 == 24:
+                self._add_shmup_radial_burst(cx, cy, 24, 2.6, tick * 0.05, "#ff6b9fdd", 8, shape="orb")
+                self._play_shmup_sfx("shmup_burst", 12, 0.8)
 
-            if tick >= 42 and tick % 30 == 15:
-                count = 10 + density_bonus * 3
-                offset = -tick * 0.13
-                self._add_shmup_radial_burst(
-                    MSBF_SHMUP_STAGE_WIDTH * 0.50,
-                    MSBF_SHMUP_STAGE_HEIGHT * 0.48,
-                    count,
-                    3.15 + density_bonus * 0.18,
-                    offset,
-                    "#ffcf66dd",
-                    8,
-                    gap_every=5,
-                    gap_shift=(tick // 9) % 5,
-                    shape="needle",
-                    sway=0.04
-                )
-                self._play_shmup_sfx("touhou_burst_alt", 22, 0.28)
-
-            if tick % 16 == 8:
-                row = (tick // 16) % 6
-                y = 40 + row * 70
-                wobble = 0.15 + density_bonus * 0.05
-                self._add_shmup_bullet(-18, y, 4.95, 0.14, 8, "#55ddffdd", "orb", wobble, tick * 0.17)
-                self._add_shmup_bullet(MSBF_SHMUP_STAGE_WIDTH + 18, y + 34, -4.95, -0.14, 8, "#ff6b9fdd", "orb", wobble, tick * 0.13)
-                self._play_shmup_sfx("touhou_shot_alt", 14, 0.21)
-
-            if tick >= 34 and tick % 22 == 11:
-                base_x = msbf_clamp(self.shmup_player_x + math.sin(tick * 0.21) * 64, 42, MSBF_SHMUP_STAGE_WIDTH - 42)
-                for idx, spread in enumerate([-1, 0, 1]):
-                    self._add_shmup_bullet(
-                        base_x + spread * 24,
-                        MSBF_SHMUP_STAGE_HEIGHT + 18 + abs(spread) * 4,
-                        spread * 0.44 + math.sin(tick * 0.11 + idx) * 0.20,
-                        -4.55 - density_bonus * 0.22 + abs(spread) * 0.08,
-                        8,
-                        "#66e08add",
-                        "orb",
-                        0.07,
-                        tick + idx,
-                        ay=0.010
-                    )
-                self._play_shmup_sfx("touhou_graze", 24, 0.20)
-
-            if tick >= 48 and tick % 44 == 22:
-                lane_count = 11
-                lane_spacing = float(MSBF_SHMUP_STAGE_WIDTH - 72) / float(lane_count - 1)
-                gap = (tick // 44 + self.phase3_genre_shift_count) % (lane_count - 1)
-                for lane in range(lane_count):
+        def _shmup_pattern_walls(self, tick, cx, cy):
+            # MARGIN COLLAPSE: descending walls with a 2-wide gap that slides along
+            # a deterministic sine path, plus aimed needle triplets so the player
+            # can't just camp the moving gap.
+            #
+            # The gap is deliberate and stays. The no-authored-gaps rule is about
+            # RINGS -- a full-width falling wall has to be passable by something,
+            # and a window that travels is the sanctioned exception. It is also
+            # measurably not campable: simulated with the needles honestly
+            # tracking a stationary player, every one of 180 candidate camp spots
+            # is clipped inside one cast. Escalation is speed and cadence, which
+            # is what the rule asks for.
+            interval = 10 if tick < msbf_shmup_gate(0.50) else 8
+            if tick % interval == 0:
+                lanes = 15
+                step = float(MSBF_SHMUP_STAGE_WIDTH) / float(lanes)
+                gap = int((math.sin((tick // interval) * 0.5) * 0.5 + 0.5) * (lanes - 4)) + 1
+                speed = 4.8 if tick < msbf_shmup_gate(0.50) else 5.4
+                for lane in range(lanes):
                     if lane == gap or lane == gap + 1:
                         continue
-                    x = 36 + lane * lane_spacing
-                    wave = math.sin(tick * 0.09 + lane * 0.73)
-                    self._add_shmup_bullet(
-                        x,
-                        MSBF_SHMUP_STAGE_HEIGHT + 22,
-                        wave * (0.42 + density_bonus * 0.06),
-                        -3.35 - density_bonus * 0.18 - (lane % 3) * 0.07,
-                        8,
-                        "#ff3868dd",
-                        "orb",
-                        0.05,
-                        tick + lane
-                    )
-                    if lane % 2 == (tick // 44) % 2:
-                        self._add_shmup_bullet(
-                            x + wave * 18,
-                            MSBF_SHMUP_STAGE_HEIGHT + 54,
-                            -wave * 0.32,
-                            -3.05 - density_bonus * 0.16,
-                            7,
-                            "#ffcf66dd",
-                            "orb",
-                            0.04,
-                            tick + lane * 2
-                        )
-                self._play_shmup_sfx("touhou_shot_alt", 24, 0.26)
-
-            if tick >= 64 and tick % 52 == 26:
-                side = -1 if (tick // 52) % 2 == 0 else 1
-                x = -18 if side < 0 else MSBF_SHMUP_STAGE_WIDTH + 18
-                vx = (4.15 + density_bonus * 0.18) * (-side)
-                center_y = MSBF_SHMUP_STAGE_HEIGHT - 78 - ((tick * 17) % 156)
-                gap = (tick // 52) % 6
-                for idx, y_offset in enumerate([-72, -44, -16, 16, 44, 72]):
-                    if idx == gap:
-                        continue
-                    y = msbf_clamp(center_y + y_offset, 34, MSBF_SHMUP_STAGE_HEIGHT - 34)
-                    self._add_shmup_bullet(
-                        x,
-                        y,
-                        vx,
-                        math.sin(tick * 0.08 + idx * 0.65) * 0.34,
-                        7,
-                        "#55ddffdd",
-                        "needle",
-                        0.025,
-                        tick + idx
-                    )
-                self._play_shmup_sfx("touhou_needle", 26, 0.28)
-
-            if tick >= 56 and tick % 34 == 17:
-                origin_y = MSBF_SHMUP_STAGE_HEIGHT + 24
-                origin_x = 74 + ((tick * 61) % (MSBF_SHMUP_STAGE_WIDTH - 148))
-                dx = self.shmup_player_x - origin_x
-                dy = self.shmup_player_y - origin_y
-                angle = math.atan2(dy, dx)
-                for offset in [-0.22, 0.0, 0.22]:
-                    speed = 4.10 + density_bonus * 0.22
-                    self._add_shmup_bullet(origin_x, origin_y, math.cos(angle + offset) * speed, math.sin(angle + offset) * speed, 7, "#f5fbffdd", "needle", 0.0, tick + offset)
-
-            if vocal and tick >= 72 and tick % 12 == 6:
-                lane = (tick // 8) % 6
-                x = 80 + lane * 124
-                self._add_shmup_bullet(x, -18, -1.85, 4.95, 7, "#ffffffd8", "needle", 0.04, tick)
-                self._add_shmup_bullet(MSBF_SHMUP_STAGE_WIDTH - x, -18, 1.85, 4.95, 7, "#ff3868d8", "needle", 0.04, tick + 3)
+                    self._add_shmup_bullet(step * (lane + 0.5), -14, 0.0, speed, 9, "#ff3868dd", "orb", 0.0, lane)
+                self._play_shmup_sfx("shmup_shot", 8, 0.8)
+            if tick >= msbf_shmup_gate(0.35) and tick % 22 == 11:
+                ang = self._shmup_aim(cx, cy)
+                for off in (-0.10, 0.0, 0.10):
+                    self._add_shmup_bullet(cx, cy, math.cos(ang + off) * 4.6, math.sin(ang + off) * 4.6, 8, "#ffcf66ee", "needle", 0.0, off * 6.0)
+                self._play_shmup_sfx("shmup_burst", 10, 0.8)
 
         def _advance_shmup_bullets(self):
             updated = []
@@ -2845,7 +3862,13 @@ init -1 python:
                     bullet["rot"] = math.degrees(math.atan2(bullet.get("vy", 0.0), bullet.get("vx", 0.0))) + 90.0
                 if -margin <= bullet["x"] <= MSBF_SHMUP_STAGE_WIDTH + margin and -margin <= bullet["y"] <= MSBF_SHMUP_STAGE_HEIGHT + margin:
                     updated.append(bullet)
-            self.shmup_bullets = updated[-MSBF_SHMUP_MAX_BULLETS:]
+            # Overflow sheds the NEWEST spawns, not the oldest. Bullets are stored
+            # in spawn order and every card emits from the top of the stage, so
+            # the head of the list is the wave that has travelled furthest down --
+            # i.e. the one the player is currently threading. Slicing the tail off
+            # the front would delete pellets out of the air in front of the ship
+            # while freshly spawned ones up at the emitter survive.
+            self.shmup_bullets = updated[:MSBF_SHMUP_MAX_BULLETS]
 
         def _check_shmup_collision(self):
             if not self.shmup_segment_active:
@@ -2855,112 +3878,161 @@ init -1 python:
             if self.shmup_tick < getattr(self, "shmup_invuln_until_tick", 0):
                 return False
             player_radius = MSBF_SHMUP_PLAYER_RADIUS
-            for bullet in self.shmup_bullets:
-                if bullet.get("shape") == "beam":
-                    if bullet.get("age", 0) < bullet.get("arm_age", 0):
-                        continue
-                    dx = abs(bullet.get("x", 0) - self.shmup_player_x)
-                    dy = abs(bullet.get("y", 0) - self.shmup_player_y)
-                    if dx <= (bullet.get("w", 0) * 0.5 + player_radius) and dy <= (bullet.get("h", 0) * 0.5 + player_radius):
-                        return self._register_shmup_hit()
-                    continue
+            for index, bullet in enumerate(self.shmup_bullets):
                 bullet_radius = bullet.get("size", 10) * (0.34 if bullet.get("shape") == "needle" else 0.42)
                 dx = bullet.get("x", 0) - self.shmup_player_x
                 dy = bullet.get("y", 0) - self.shmup_player_y
                 hit_radius = player_radius + bullet_radius
                 if dx * dx + dy * dy <= hit_radius * hit_radius:
+                    # Undertale/Deltarune style: only the pellet that clipped you is
+                    # consumed; the rest of the pattern stays on screen and the
+                    # iframes (with the flickering marker) cover the recovery.
+                    del self.shmup_bullets[index]
                     return self._register_shmup_hit()
             return False
 
         def _register_shmup_hit(self):
             self.shmup_hits += 1
-            self._play_shmup_sfx("touhou_hit", 0, 0.62)
+            self._play_shmup_sfx("shmup_hit", 0, 0.9)
+            # Clip feedback: spark burst + an expanding ring at the impact spot
+            # (drawn by MSBFShmupField via the msbf.ring shader).
+            hit_fx = self._own_list("shmup_hit_fx")
+            hit_fx.append({
+                "x": self.shmup_player_x, "y": self.shmup_player_y,
+                "tick": self.shmup_tick,
+            })
+            if len(hit_fx) > 3:
+                del hit_fx[0]
+            self._add_shmup_sparks(self.shmup_player_x, self.shmup_player_y, 14, "#ff5c7a", 4.0, 30)
+            self._add_shmup_sparks(self.shmup_player_x, self.shmup_player_y, 8, "#f5fbff", 2.6, 24)
 
             if self.shmup_hits >= MSBF_SHMUP_HIT_LIMIT:
                 self.finish_phase_three_shmup(False)
                 return True
 
+            # No panic-clear of nearby bullets anymore -- just invulnerability frames.
+            # The player marker flickers on/off while they last (see msbf_shmup_overlay)
+            # so the hit reads clearly and you get a fair window to reposition.
             self.shmup_invuln_until_tick = self.shmup_tick + MSBF_SHMUP_HIT_INVULN_TICKS
-            self._clear_shmup_pressure_near_player()
             self.add_log("Curtain Script clips the hitbox (%d/%d)." % (self.shmup_hits, MSBF_SHMUP_HIT_LIMIT))
             return False
-
-        def _clear_shmup_pressure_near_player(self):
-            radius_sq = MSBF_SHMUP_PANIC_CLEAR_RADIUS * MSBF_SHMUP_PANIC_CLEAR_RADIUS
-            remaining = []
-            for bullet in self.shmup_bullets:
-                dx = bullet.get("x", 0.0) - self.shmup_player_x
-                dy = bullet.get("y", 0.0) - self.shmup_player_y
-                if bullet.get("shape") != "beam" and dx * dx + dy * dy <= radius_sq:
-                    continue
-                if bullet.get("shape") == "beam":
-                    clear_x = bullet.get("w", 0) * 0.5 + MSBF_SHMUP_PANIC_CLEAR_RADIUS
-                    clear_y = bullet.get("h", 0) * 0.5 + MSBF_SHMUP_PANIC_CLEAR_RADIUS
-                    if abs(dx) <= clear_x and abs(dy) <= clear_y:
-                        continue
-                remaining.append(bullet)
-            self.shmup_bullets = remaining
 
         def finish_phase_three_shmup(self, success):
             if not self.shmup_segment_active:
                 return
 
             self.shmup_bullets = []
+            self.shmup_sparks = []
+            self.shmup_hit_fx = []
             self.turn_phase = "enemy"
 
             if success:
-                base_damage = min(MSBF_SHMUP_SUCCESS_DAMAGE, max(90, int(self.boss.max_hp * 0.22)))
-                damage = int(base_damage * max(0.55, 1.0 - self.shmup_hits * 0.16))
-                old_hp = self.boss.hp
-                self.boss.hp = max(0, self.boss.hp - damage)
-                damage_done = old_hp - self.boss.hp
+                # Survived the cast -> chip the boss (never lethal). Fewer clips is
+                # its own reward via the hit limit; the chip itself is the flat 3-5%.
+                dealt = self._microgame_win_chip()
                 if self.shmup_hits:
-                    self.add_log("The party escapes Curtain Script with %d clip(s). Imago Rupta eats %d backlash damage." % (self.shmup_hits, damage_done))
+                    self.add_log("The party escapes Curtain Script (%d clip(s)). Imago Rupta buckles for %d." % (self.shmup_hits, dealt))
                 else:
-                    self.add_log("The party slips through Curtain Script. Imago Rupta eats %d backlash damage." % damage_done)
-                self._play_shmup_sfx("touhou_clear", 0, 0.58)
-                self.set_fx("resist", "weak")
-                outcome = "resist"
-
-                if self.boss.hp <= 0:
-                    self._record_enemy_action()
-                    self._handle_boss_bar_break()
-                    renpy.restart_interaction()
-                    return
-
-                if self._handle_boss_phase_thresholds():
-                    renpy.restart_interaction()
-                    return
+                    self.add_log("The party threads Curtain Script clean. Imago Rupta buckles for %d." % dealt)
+                self._play_shmup_sfx("shmup_clear", 0, 0.56)
+                msbf_record_micro_win("shmup")
+                self._microgame_win_cue()
             else:
-                total_damage = 0
-                for member in list(self.alive_party()):
-                    damage = int(MSBF_SHMUP_FAILURE_DAMAGE + self.boss.magic * 0.35)
-                    if member.guard:
-                        damage = int(damage * 0.62)
-                    self._apply_enemy_damage_to_member(member, damage)
-                    total_damage += damage
-                self.add_log("Curtain Script tags the hitbox. Identity Null splashes the party for %d total damage." % total_damage)
-                self._play_shmup_sfx("touhou_down", 0, 0.60)
+                # Bullet-hell is a party-wide game: 7% off every member (non-lethal).
+                total = self._microgame_loss_party()
+                self.add_log("Curtain Script overruns the hitbox. Identity Null splashes the whole party for %d." % total)
+                self._play_shmup_sfx("shmup_fail", 0, 0.60)
                 self.set_fx("enemy_aoe", "enemy")
-                outcome = "normal"
 
-            self._apply_enemy_turn_cost(outcome)
-            limit_reached = self._record_enemy_action()
+            self._finish_microgame_turn()
 
-            if not self.alive_party():
-                self.result = "defeat"
-                self.set_fx("defeat", "down")
-                self.add_log("The party is down.")
-                renpy.restart_interaction()
+        # ----- PHASE-3 TYPING QTE ("Rewrite Order") --------------------------
+        # The script demands a word; type it before the timer drains. Win chips
+        # the boss; timing out is a single-target loss (30% of one member).
+        def _resolve_phase_three_typing(self, skill):
+            self._start_phase_three_typing(skill)
+            return "minor"
+
+        def _start_phase_three_typing(self, skill):
+            self.phase3_genre_shift_count += 1
+            self.turn_phase = "typing_segment"
+            self.typing_serial += 1
+            self.typing_input = ""
+            self.typing_word = random.choice(MSBF_TYPING_WORDS)
+            self.typing_time_limit = max(MSBF_TYPING_TIME_MIN, MSBF_TYPING_TIME_BASE + len(self.typing_word) * MSBF_TYPING_TIME_PER_CHAR)
+            self.add_log("Rewrite Order: the script demands the word “%s.” Type it before the ink dries." % self.typing_word)
+            self.set_fx("shuffle", "debuff", 0.5)
+            self._play_sfx("scan")
+
+        def finish_phase_three_typing(self, success):
+            if not self.typing_segment_active:
                 return
+            self.turn_phase = "enemy"
+            if success:
+                dealt = self._microgame_win_chip()
+                self.add_log("The party types it back clean. The script recoils -- Imago Rupta buckles for %d." % dealt)
+                msbf_record_micro_win("typing")
+                self._microgame_win_cue()
+            else:
+                target, dealt = self._microgame_loss_single()
+                if target is not None:
+                    self.add_log("The ink dries first. The unfinished sentence redacts %s for %d." % (target.name, dealt))
+                self.set_fx("enemy_crit", "crit")
+            self._finish_microgame_turn()
 
-            if limit_reached and self._has_enemy_press_turns():
-                self._force_enemy_phase_limit()
+        # ----- PHASE-3 QUIZ QTE ("Multiple Choice Interrupt") ----------------
+        # Pick the correct answer before the timer runs out. Win chips the boss;
+        # a wrong answer or timeout is a party-wide loss (7% off everyone).
+        def _resolve_phase_three_quiz(self, skill):
+            self._start_phase_three_quiz(skill)
+            return "minor"
 
-            if not self._has_enemy_press_turns():
-                self.enemy_settling = True
+        def _start_phase_three_quiz(self, skill):
+            self.phase3_genre_shift_count += 1
+            self.turn_phase = "quiz_segment"
+            self.quiz_serial += 1
+            entry = random.choice(MSBF_QUIZ_BANK)
+            options = [(entry["correct"], True)] + [(text, False) for text in entry["wrong"]]
+            random.shuffle(options)
+            self.quiz_prompt = entry["q"]
+            self.quiz_options = options
+            self.quiz_cursor = 0
+            self.quiz_time_limit = MSBF_QUIZ_TIME_LIMIT
+            self.add_log("Multiple Choice Interrupt: “%s” Answer before the timer runs out." % entry["q"])
+            self.set_fx("shuffle", "scan", 0.5)
+            self._play_sfx("scan")
 
+        def quiz_move(self, delta):
+            # Keyboard cursor over the quiz options (state on the battle object so
+            # it survives the used-overlay screen-scope issue).
+            if not self.quiz_segment_active or not self.quiz_options:
+                return
+            self.quiz_cursor = (self.quiz_cursor + delta) % len(self.quiz_options)
             renpy.restart_interaction()
+
+        def quiz_confirm(self):
+            if not self.quiz_segment_active or not self.quiz_options:
+                return
+            idx = max(0, min(self.quiz_cursor, len(self.quiz_options) - 1))
+            self.answer_phase_three_quiz(self.quiz_options[idx][1])
+
+        def answer_phase_three_quiz(self, is_correct):
+            self.finish_phase_three_quiz(bool(is_correct))
+
+        def finish_phase_three_quiz(self, success):
+            if not self.quiz_segment_active:
+                return
+            self.turn_phase = "enemy"
+            if success:
+                dealt = self._microgame_win_chip()
+                self.add_log("Correct read. The genre collapses back on itself -- Imago Rupta buckles for %d." % dealt)
+                msbf_record_micro_win("quiz")
+                self._microgame_win_cue()
+            else:
+                total = self._microgame_loss_party()
+                self.add_log("Wrong answer. The script rewrites the whole party for %d." % total)
+                self.set_fx("enemy_aoe", "enemy")
+            self._finish_microgame_turn()
 
         def _resolve_phase_three_black_box(self, skill):
             self.phase3_genre_shift_count += 1
@@ -3037,15 +4109,18 @@ init -1 python:
                 buff_bonus = max(0, member.atk_stage) + max(0, member.def_stage) + max(0, member.agi_stage)
                 if buff_bonus > 0:
                     buffed_members += 1
-                damage = max(1, int(skill.power + self.boss.magic * 0.82 + buff_bonus * 28))
+                # Rebalanced from power 76 / magic*0.82 / buff*28. Still an
+                # almighty AoE that punishes over-buffing, but no longer a party
+                # delete -- it must stay survivable across a ~4-action phase.
+                damage = max(1, int(skill.power + self.boss.magic * 0.52 + buff_bonus * 14))
                 if member.guard:
                     damage = int(damage * 0.62)
-                self._apply_enemy_damage_to_member(member, damage)
+                applied_damage = self._apply_enemy_damage_to_member(member, damage)
                 member.atk_stage = min(0, member.atk_stage)
                 member.def_stage = min(0, member.def_stage)
                 member.agi_stage = min(0, member.agi_stage)
                 member.clamp()
-                total_damage += damage
+                total_damage += applied_damage
             self.add_log("Identity Null burns the role labels off %d allies for %d total damage." % (buffed_members, total_damage))
             self.set_fx("enemy_aoe", "enemy")
             return "normal"
@@ -3056,6 +4131,17 @@ init -1 python:
             taunters = [member for member in alive if member.taunt]
             if taunters and random.random() < (0.56 if self.phase == 3 else 0.70):
                 return self._weighted_enemy_target(taunters)
+
+            # Secure-but-fair kills: with a member already on the ropes (and not
+            # guarding), sometimes press the advantage instead of spreading damage.
+            # Capped so the boss can't tunnel one member every single action.
+            finishers = [member for member in alive if member.hp_ratio < 0.20 and not member.guard]
+            if finishers:
+                finish_chance = 0.34 if stance == "aggressive" else 0.22
+                if self.phase == 3:
+                    finish_chance += 0.06
+                if random.random() < finish_chance:
+                    return min(finishers, key=lambda member: member.hp)
 
             if self.heal_actions >= 2:
                 healers = [member for member in alive if "cure" in member.skill_ids or "medica" in member.skill_ids or "white_wind" in member.skill_ids or "raise" in member.skill_ids]
@@ -3106,8 +4192,8 @@ init -1 python:
             affinity = self._target_affinity(target, skill.element)
             critical = random.random() < self._crit_chance(self.boss, target, skill)
             damage = self._damage_amount(self.boss, target, skill, skill.element, critical, affinity)
-            self._apply_enemy_damage_to_member(target, damage)
-            return ("critical" if critical else affinity), damage
+            applied_damage = self._apply_enemy_damage_to_member(target, damage)
+            return ("critical" if critical else affinity), applied_damage
 
         def _target_affinity(self, target, element):
             if target.guard and element in target.weaknesses:
@@ -3139,9 +4225,11 @@ init -1 python:
             source = attacker.magic if skill.stat == "magic" else attacker.offense
             if attacker.id == "matsuda":
                 if self.phase == 3:
-                    base = skill.power + source * 1.08 - target.defense * 0.62
-                    damage_ceiling = 1.50
-                    damage_floor = 22.0
+                    # Rebalanced down from 1.08 / 1.50 / 22.0 -- phase 3 was
+                    # deleting squishies in a single hit. Superboss-but-fair.
+                    base = skill.power + source * 0.86 - target.defense * 0.62
+                    damage_ceiling = 1.42
+                    damage_floor = 18.0
                 else:
                     base = skill.power + source * 1.28 - target.defense * 0.58
                     damage_ceiling = 1.70
