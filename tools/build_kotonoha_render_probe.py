@@ -37,7 +37,7 @@ SCREEN_SIZE = (1280, 960)
 DISPLAY_BOX = (640, 960)
 HEAD_SOURCE_BOX = (270, 70, 755, 570)
 
-PRODUCTION_PREFIX = "mod_assets/char_sprites/kotonoha/"
+PRODUCTION_PREFIX = "assets/characters/kotonoha/"
 PROBE_PREFIX = "images/kotonoha/"
 
 OUTFITS = ("casual", "work")
@@ -1026,11 +1026,11 @@ def paths_from_args(args: argparse.Namespace) -> ProbePaths:
     temp_root = resolved(args.temp_root or (project_root / "tmp"))
     source_images = resolved(
         args.source_images
-        or (project_root / "game" / "mod_assets" / "char_sprites" / "kotonoha")
+        or (project_root / "game" / "assets" / "characters" / "kotonoha")
     )
     character_definitions = resolved(
         args.character_definitions
-        or (project_root / "game" / "mod_assets" / "def_characters.rpy")
+        or (project_root / "game" / "asset_definitions" / "def_characters.rpy")
     )
     probe_root = resolved(
         args.probe_root or (temp_root / "kotonoha_render_probe_project")

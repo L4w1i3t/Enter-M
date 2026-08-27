@@ -39,7 +39,7 @@
 #   (Assumes note text contains no raw { or [ -- the story data is plain text.)
 #
 # GEOMETRY -- read this before moving any number
-#   The art (mod_assets/gui/stickynote.png, 960x640) has the note drawn ALREADY
+#   The art (assets/gui/enter_m/stickynote.png, 960x640) has the note drawn ALREADY
 #   TILTED about 5 degrees counter-clockwise, so the text has to be tilted to
 #   match. Rather than hand-place rotated text, the writing sits in its own
 #   960x640 overlay in "note space" -- axis-aligned coordinates, as if the note
@@ -55,7 +55,7 @@
 #   ENTER_M_STICKY_AREA is that safe writing area. If you swap the art, re-measure.
 #
 # WRITING SFX
-#   `modwriting` (mod_assets/sfx/writing.ogg) loops on its own "sticky_write"
+#   `modwriting` (assets/audio/sfx/writing.ogg) loops on its own "sticky_write"
 #   channel for the writing duration and stops the moment the last character
 #   lands. page_turn plays once when the note appears. Pass sfx=False for a note
 #   that should appear without the pen loop.
@@ -76,7 +76,7 @@ define ENTER_M_STICKY_AREA = (265, 96, 451, 420)   # note-space x, y, w, h to wr
 define ENTER_M_STICKY_YALIGN = 0.48   # where the block sits in that area (0 = top)
 define ENTER_M_STICKY_INK = "#2a3a52" # default ballpoint blue-black
 
-image enter_m_sticky_paper = "mod_assets/gui/stickynote.png"
+image enter_m_sticky_paper = "assets/gui/enter_m/stickynote.png"
 
 # Manual-reveal state (set fresh each open by _enter_m_sticky_reset).
 default _enter_m_sticky_texts = []     # flat, ordered list of strings to write
@@ -228,7 +228,7 @@ transform enter_m_sticky_veil_out:
 # -----------------------------------------------------------------------------
 
 style enter_m_sticky_line:
-    font "gui/font/Halogen.ttf"
+    font "assets/gui/font/Halogen.ttf"
     size 36
     color "#2a3a52"
     outlines []

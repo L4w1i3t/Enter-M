@@ -19,7 +19,7 @@ It was a "start", not a finished art pass.
 
 ## The problem it was solving
 
-Every cast sprite is defined in `game/mod_assets/def_characters.rpy` as:
+Every cast sprite is defined in `game/asset_definitions/def_characters.rpy` as:
 
 ```renpy
 image matsuda neut = Transform(".../neutral.png", fit="contain", xysize=(640, 960))

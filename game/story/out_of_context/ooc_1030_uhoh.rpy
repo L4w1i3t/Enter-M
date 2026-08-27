@@ -73,7 +73,7 @@ label ooc_1030_uhoh:
     scene black
     stop music
     pause 1.5
-    scene bg cafeteria at fx_push(1.055, 300.0)
+    scene bg cafeteria_winter at fx_push(1.055, 300.0)
     $ atmos("winter")
     with dissolve_scene_full
     play sfxtrack1 ac loop
@@ -289,6 +289,7 @@ label ooc_1030_uhoh:
     ma "Briefcases are frequently empty. It is the great tragedy of the form."
     "The light comes off the window row somewhere in there."
     "It goes the way it always goes, which is all at once and then not at all: the bars on the tile shorten, slide under the tables, and are gone, and the room turns the flat gray-white it stays until the end of the day."
+    show bg cafeteria_winter_dim
     $ atmos("winter_dim")
     with Dissolve(1.6)
     "Nobody looks up. Ninety people at the far end and not one of them notices the building change color."

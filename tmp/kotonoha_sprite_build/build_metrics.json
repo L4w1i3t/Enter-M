@@ -1,6 +1,6 @@
 {
   "builder": "tools/build_kotonoha_sprites.py",
-  "builder_sha256": "af28ab440294f007c8b4680eb67e5038265c05c88c129a071ff5b3b44504c046",
+  "builder_sha256": "e97520722702a1993e9734bbed76de8e0e74b518d9d2962f7cbc05c0abd4df8f",
   "canonical_inputs": {
     "casual": {
       "alpha_bbox": [
@@ -39,7 +39,7 @@
       "master_sha256": "2cf1b3535be49c813d1f45c9c82a79b67c53e317ef7d31b7e2993037b94042b4",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 2,
           "matrix_master_to_outfit": [
             [
@@ -61,7 +61,7 @@
           "skin_samples": 7021
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 7,
           "matrix_master_to_outfit": [
             [
@@ -121,7 +121,7 @@
       "master_sha256": "97c9effaf2d5df08cd12881f87e888fb238c02337a44305126b49c9fb8f1a41c",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -143,7 +143,7 @@
           "skin_samples": 6916
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -203,7 +203,7 @@
       "master_sha256": "d8eb1eb836f3a4dc1e0ea72651da8063410c4f48197994ce6011c9b5b85e7284",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -225,7 +225,7 @@
           "skin_samples": 7033
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -285,7 +285,7 @@
       "master_sha256": "6c41b1d54ea892e9bf6511fdb451505a88ba43eb50598f1707b67a30350bdbda",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 30,
           "matrix_master_to_outfit": [
             [
@@ -307,7 +307,7 @@
           "skin_samples": 7003
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 26,
           "matrix_master_to_outfit": [
             [
@@ -367,7 +367,7 @@
       "master_sha256": "7aa0168476d89b9964b7b71971aa8c322ab568677984283e476ae197f2ca2b3a",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -389,7 +389,7 @@
           "skin_samples": 7045
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -449,7 +449,7 @@
       "master_sha256": "69185396c5a0c8c36cbf8261b1be75b21f1e80d780f78baa5c61593eb207debe",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 2,
           "matrix_master_to_outfit": [
             [
@@ -471,7 +471,7 @@
           "skin_samples": 7024
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 1,
           "matrix_master_to_outfit": [
             [
@@ -531,7 +531,7 @@
       "master_sha256": "8e1a102706b3f879c2fb3ac15343b6204850cc8c5b29a071802f093af8a33223",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 1,
           "matrix_master_to_outfit": [
             [
@@ -553,7 +553,7 @@
           "skin_samples": 6995
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 1,
           "matrix_master_to_outfit": [
             [
@@ -613,7 +613,7 @@
       "master_sha256": "ab1733f4e8d48bc01bd9b4474e994014d66f8e990ce6e03f46337af80b431516",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -635,7 +635,7 @@
           "skin_samples": 7008
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -695,7 +695,7 @@
       "master_sha256": "c1b20f9ab925b9e4a3a02d2706c80e5691af69d82cdad2b06c959a5249dca45f",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -717,7 +717,7 @@
           "skin_samples": 7012
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -777,7 +777,7 @@
       "master_sha256": "b5b5fa79e509e99d11a23d9b9c0e43ff551d79a57cd7360310a169f1215dbb4b",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -799,7 +799,7 @@
           "skin_samples": 7050
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -859,7 +859,7 @@
       "master_sha256": "1cf2459a6ad8a82fba6df46863ae07d7e9518f343638ec7ef702512996a957f3",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -881,7 +881,7 @@
           "skin_samples": 7066
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 2,
           "matrix_master_to_outfit": [
             [
@@ -941,7 +941,7 @@
       "master_sha256": "493d2f461b1c97fd049982ada66b8c1e197f1a7b74cdfed08e4ce004d19014bf",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -963,7 +963,7 @@
           "skin_samples": 7050
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1023,7 +1023,7 @@
       "master_sha256": "cdf20965973b6504eaf09060f12f6904cb2a5f8f01a628f691694230fc27d5d2",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1045,7 +1045,7 @@
           "skin_samples": 6944
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1105,7 +1105,7 @@
       "master_sha256": "bbfc5c6d075a8919678babc1f908dbe12ab94d15d9ec8ff524e599d634d973f7",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 1,
           "matrix_master_to_outfit": [
             [
@@ -1127,7 +1127,7 @@
           "skin_samples": 7066
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 2,
           "matrix_master_to_outfit": [
             [
@@ -1187,7 +1187,7 @@
       "master_sha256": "4a744eea6c0364482574b4110c0041fa274ea5420db5ad2d471ca1afde036b2b",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1209,7 +1209,7 @@
           "skin_samples": 6932
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1269,7 +1269,7 @@
       "master_sha256": "59ac574fe8a4d20094ae55f80aea2c28a11eb5a60a2f88ae812788c409ce90ff",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 3,
           "matrix_master_to_outfit": [
             [
@@ -1291,7 +1291,7 @@
           "skin_samples": 7054
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 3,
           "matrix_master_to_outfit": [
             [
@@ -1351,7 +1351,7 @@
       "master_sha256": "a807b2968aa91e2f1f220c7183e0f4c3564bf06300449daafd82e282eb12ca0a",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1373,7 +1373,7 @@
           "skin_samples": 7020
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1433,7 +1433,7 @@
       "master_sha256": "88173058f1f7de65b1ea703559643754668e6a4dd4f6567e3005bc5dc1951037",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1455,7 +1455,7 @@
           "skin_samples": 7034
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1515,7 +1515,7 @@
       "master_sha256": "6b9afbaef9f15baea016cf038fd4c3d466311af668de7c6170844eb60f4ec32d",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1537,7 +1537,7 @@
           "skin_samples": 7060
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1597,7 +1597,7 @@
       "master_sha256": "fa507783b449ed233edde2550ee27c120ed113e4a3c47b5645ad59d46521b1c9",
       "outfits": {
         "casual": {
-          "canonical_detail_pixels_preserved": 43285,
+          "canonical_detail_pixels_preserved": 40432,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1619,7 +1619,7 @@
           "skin_samples": 7013
         },
         "work": {
-          "canonical_detail_pixels_preserved": 43420,
+          "canonical_detail_pixels_preserved": 40643,
           "magenta_pixels_repaired": 0,
           "matrix_master_to_outfit": [
             [
@@ -1704,7 +1704,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "e370940066f5ed8c2a6eebf562419b67cb73fb179b45de91f351c01635b875e8",
+      "sha256": "ada784612b94cfe212e2d565de34a8522ca60a0c7e44a102b000f805bdfebaf5",
       "visible_pixels": 70818
     },
     "face_afraid_work.png": {
@@ -1715,7 +1715,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "d572513142d23cb1257918d5d071ceabd77dda76baa690decd9ce53c11100e01",
+      "sha256": "1d1fea5e1efc7bedfa6008629a252b3c1c8a8b68ede52aa8d8d8327d860a159f",
       "visible_pixels": 70950
     },
     "face_angry_casual.png": {
@@ -1726,7 +1726,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "e0d6e93137f6330a05e310e161f734963cb383355c4c68cd3a6a7ce4c492428a",
+      "sha256": "335369cf4a612c01031b0f780b32d0d90460cd199a51fc5a7a0933837c8483a2",
       "visible_pixels": 70818
     },
     "face_angry_work.png": {
@@ -1737,7 +1737,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "4256fcb5e3890e33049cb8e08631efc76c2e52c9f21d1d306272f2ebe786dda7",
+      "sha256": "495022749de02535190ceb148b23f98860c6905ef5bde1ecad2d1b1f4f0f1b72",
       "visible_pixels": 70950
     },
     "face_annoyed_casual.png": {
@@ -1748,7 +1748,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "1d1f5dfc7950ccf457ab6879c286ed0b2b1ea7b5b48c66a01f28a045a5ce9ee6",
+      "sha256": "0ed4c7694565c7500c9ba7bff66d152d07067533459f73593be9298b9e744248",
       "visible_pixels": 70818
     },
     "face_annoyed_work.png": {
@@ -1759,7 +1759,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "27854a96a6be62a1da237cc76756d6b0d8b7d74aa2c3a86c27cf78321bbac3d2",
+      "sha256": "a92ac9446832f81bb5b6c63c2bdb00bad0ac9487c80cdd1dfbbdeb4cf2d62963",
       "visible_pixels": 70950
     },
     "face_crying_casual.png": {
@@ -1770,7 +1770,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "4129326827248b859f0d66462fb80c11e601099f9081b0e02248905448194564",
+      "sha256": "a05fd049bccb6f9eb3d08672d58e94e4ad82a1b97105543573b32ef66f3e320d",
       "visible_pixels": 70818
     },
     "face_crying_work.png": {
@@ -1781,7 +1781,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "4bc21a2a8d34851c380d0b0ee4fcdfd068182e88aa15ae7e7f03317c17103a4b",
+      "sha256": "08909db4fff17f33aaa016c7e78f93a5d81076e7b94738e35bebf148a11693db",
       "visible_pixels": 70950
     },
     "face_curious_casual.png": {
@@ -1792,7 +1792,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "b4e578e7d3b457aca0ae70b3c200badc95982154b5d5f405862537954acf56a2",
+      "sha256": "9f8c72f31708d13103dede2cc606f753928e17e395c9c073a1e852b7fd6a97fd",
       "visible_pixels": 70818
     },
     "face_curious_work.png": {
@@ -1803,7 +1803,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "540916290ffdd024aca3630e0d1fa391797175263680bb89f82238a67f9022f2",
+      "sha256": "1c1918831423b982accb40a405a32a44af149b7ae8b491d58a7910983adf2823",
       "visible_pixels": 70950
     },
     "face_determined_casual.png": {
@@ -1814,7 +1814,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "64b0c7f8864c8451f1f186b3bed29e139e9d43e9e08419cc183fb2aea0fa0524",
+      "sha256": "c0bdbf65af668d78f55f96aa4921a4beccef4fea17f6914591cd8c1be9b25bf2",
       "visible_pixels": 70818
     },
     "face_determined_work.png": {
@@ -1825,7 +1825,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "04980f97c2237ade97eccc732758716392faf31629428396378121144bc384be",
+      "sha256": "df6f4dbad9c700c5a66c049bd0cf4bbcee6203b8b28fb54378e77f6784dfe643",
       "visible_pixels": 70950
     },
     "face_disgusted_casual.png": {
@@ -1836,7 +1836,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "5f41eab72dd113a2dd6d678f928c49d39b5265eb5547c4ca45ac210c211dcefa",
+      "sha256": "b32c129ec56ee95d79996623c749f89d576b50eecf79382ae55679b472a6f205",
       "visible_pixels": 70818
     },
     "face_disgusted_work.png": {
@@ -1847,7 +1847,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "a51972c17292189f1d1575c9cf2de91a3f447caf89094a8e6ee28c386d82c65e",
+      "sha256": "de0bf4c73f927cb7c0063286111be905289aaea8052e29a7eb4ee029c849f70f",
       "visible_pixels": 70950
     },
     "face_embarrassed_casual.png": {
@@ -1858,7 +1858,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "5268073574fb828ebab63f12df38ceeeb57f913c1b2f67b8e0f096ba69d92fc2",
+      "sha256": "4912b3e8f55c8a2cd8a7af3236fc4474e3e8b3325ac23ecba51cc43589e97e98",
       "visible_pixels": 70818
     },
     "face_embarrassed_work.png": {
@@ -1869,7 +1869,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "0f133ad2eb5fc6d99ae233f947647cb86590a9770e82bab3da196161c39b744e",
+      "sha256": "1bd4ed52a112623d2dac0e89ab33baffdd2275cde74422eef50d34bd9f5d6a83",
       "visible_pixels": 70950
     },
     "face_empty_casual.png": {
@@ -1880,7 +1880,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "98e812c917b09c890c68018dd1dcdf398dcaeb79dfe4f2282444ebbb2fc005f7",
+      "sha256": "9a1850917ddbf8d9bcc5149359392e93916260d4bdc82e586778dd1a047a80a1",
       "visible_pixels": 70818
     },
     "face_empty_work.png": {
@@ -1891,7 +1891,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "fe384e722164315dcab829c4a02a07a227722339a9ac7095be7ba82dbf4ff522",
+      "sha256": "0c7df09928a8d5460db80aa3e288f30321e6c721c1bc0aaa702052af58c1bac7",
       "visible_pixels": 70950
     },
     "face_frustrated_casual.png": {
@@ -1902,7 +1902,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "e72184325ea9450484b086a9767a0bfddbc0c9b322f27c7bca9767956af8253e",
+      "sha256": "9e4fda8f67be8ddabd8b4893034ea408955635ca0e3146868b868f80f592f0b1",
       "visible_pixels": 70818
     },
     "face_frustrated_work.png": {
@@ -1913,7 +1913,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "ba0ae58f6d24ab9f928ca409be752a4cb8fe2fc1cc9b58fa15507771c823c387",
+      "sha256": "9f4752140eadb1b54a8ad9f30ba9686270ae239895187866400fd1247d3f6319",
       "visible_pixels": 70950
     },
     "face_happy_casual.png": {
@@ -1924,7 +1924,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "8ef1e44c9a9688c897891e608becabf857f5be543968935c5cb901b98c2302cf",
+      "sha256": "c518da2857804cc88f4de51f17bf4a9645f5a73ffd04713d81c16539887543a2",
       "visible_pixels": 70818
     },
     "face_happy_work.png": {
@@ -1935,7 +1935,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "ed196e2e1e2a3b33d15b1a60a64211f3e00ee036fe221ed6a72873a867355988",
+      "sha256": "3214ba065f1982f33c613abcacb894a2f2fe777e556b0309b0711bfd31e5a9ce",
       "visible_pixels": 70950
     },
     "face_nervous_casual.png": {
@@ -1946,7 +1946,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "14eb8e24f0b2164821816c462038e525861b4cebd086a2d9f44e6ee0bae975f6",
+      "sha256": "e76162fcb3b6495495b1e3d112315f7194162cd8da17258aa170e1277a9c9115",
       "visible_pixels": 70818
     },
     "face_nervous_work.png": {
@@ -1957,7 +1957,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "f74102797d177f655ea2ad2712c14849db343c2d45bc039ec4c39e95f520683f",
+      "sha256": "9587998b7e25ca005c798c126f7e81376c37f55686bf6298accfd6476bbe8fc7",
       "visible_pixels": 70950
     },
     "face_neut_casual.png": {
@@ -1980,7 +1980,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "f34aaae53c5eb6e6d3839c759e3fd63fad5f1511392f61c9e98a3e8f40052cf0",
+      "sha256": "d593c41a317f22394ea58ecda0198077f8aea275545b77cd3fb3f05b12ab20e0",
       "visible_pixels": 70818
     },
     "face_panicked_work.png": {
@@ -1991,7 +1991,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "9e41f017ef2ed01b7670865633b7e756ff46b349475535529ebcb899afe4475e",
+      "sha256": "8475a1f4fbc882f3dece56dbc631c821665db1eb990be35582324bdcc13029da",
       "visible_pixels": 70950
     },
     "face_sad_casual.png": {
@@ -2002,7 +2002,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "8f9930796b349cfbc0324c02bb4c8f8b146a775f593db890c1bb1d3b090304e1",
+      "sha256": "f6df1d3a9be769e34a425ef6e6840d8d49f712e0fc94851c3e76927568cf055f",
       "visible_pixels": 70818
     },
     "face_sad_work.png": {
@@ -2013,7 +2013,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "9cf392f40cb4ac13ed4acd1f36bbff30383fa00a3deba20a9be6d52bf1e20a3c",
+      "sha256": "a7c275f9420b233326364761d41cdebdb9ceb92c7e877d700813cbb75f575494",
       "visible_pixels": 70950
     },
     "face_shocked_casual.png": {
@@ -2024,7 +2024,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "cf61f91d0b75ce934ce7c759ae84aab10c3b66d535ff63d48ff66fad1a2d30b9",
+      "sha256": "392e4478cbffad6c657aefcad9019a49268a28a3974e15fce14dfe52aef73047",
       "visible_pixels": 70818
     },
     "face_shocked_work.png": {
@@ -2035,7 +2035,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "c1bf2cb718fb24669bb1036a19370d0c11ba327a6593975d454ee5de24c18129",
+      "sha256": "b29d6960e68da461d0b13c9b85556632483da3dd52a906c33ccd78ad2e69b8f3",
       "visible_pixels": 70950
     },
     "face_smug_casual.png": {
@@ -2046,7 +2046,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "181d02b691006aa9ac4ece9ef3ef0d4402c39ece89bf66e6eea8cb75a09e8713",
+      "sha256": "f0ab1b879564742fd8ae04cd772cbc020ef97ff13000408ea807229c36f1b7b6",
       "visible_pixels": 70818
     },
     "face_smug_work.png": {
@@ -2057,7 +2057,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "9369e4de8eb2e6c1896c3e910f4374010cd69a301a1aff443169139c29e2a94d",
+      "sha256": "e9939ee1a4591679a63b09c0030eb4559dc93e3f30fcc52131cb12a641b8a358",
       "visible_pixels": 70950
     },
     "face_teasing_casual.png": {
@@ -2068,7 +2068,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "3e946a43868b92d2baa2c5a8ae189cd44b6b7934be0c70c36c50a4dfc9feefae",
+      "sha256": "08fd5da3f99369849c182b11ce404cfbac0c9c2e011012e8c1d5ce963e49c2a8",
       "visible_pixels": 70818
     },
     "face_teasing_work.png": {
@@ -2079,7 +2079,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "af820ead9ffdb5383c683b4e35e1c130c7b8a2c45c461665fa415c6bd68a81cf",
+      "sha256": "49d43bb4d574b2cda109c9c4f24b6733eae337083fe407f2069ba4cb9ad0657d",
       "visible_pixels": 70950
     },
     "face_thinking_casual.png": {
@@ -2090,7 +2090,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "58d419a012fdaeac17c3adc88bccef56466b1a8ac24cce15f60c716e2e7fbe5f",
+      "sha256": "fe5c592f921091b9b77ea4c2c8bee382f953006d4a857f4823ca96300354425e",
       "visible_pixels": 70818
     },
     "face_thinking_work.png": {
@@ -2101,7 +2101,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "b8ccd62ca910d931278b7434a4d9dfcc1f4961bd2e454dc2c9a399d2b110a450",
+      "sha256": "03f86f7c79bdc8b6b5b67d3e0970b6be2096bb28ed98d7544427ba67ad10b488",
       "visible_pixels": 70950
     },
     "face_unamused_casual.png": {
@@ -2112,7 +2112,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "c1c85f735e31a77c37c749f8ff018de0a135db5ad099f2d42e09a5b17841b8fb",
+      "sha256": "5e0da642821141e6f8bba22b0dc4ca02b2a495ea57e08dd773e49b8e58b93c1b",
       "visible_pixels": 70818
     },
     "face_unamused_work.png": {
@@ -2123,7 +2123,7 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "3b183a0b428106192e9b58e011a30d04a9d600bdc77c04fc095531230f43a600",
+      "sha256": "e033136cec278c3fdc61faf64ca07d923bcec214abb8e31d8b8e5438b60db561",
       "visible_pixels": 70950
     },
     "face_worried_casual.png": {
@@ -2134,7 +2134,7 @@
         487
       ],
       "partial_alpha_pixels": 17836,
-      "sha256": "852e1b9f68e2d00ff06bb9c9aa230f9bdbfdf05d5ee976824a09a41b3bf6f57f",
+      "sha256": "29451eea0a6bd1c0fafce1499424a1ba9fdc6e53f0c722b4fcaeeb50b6205639",
       "visible_pixels": 70818
     },
     "face_worried_work.png": {
@@ -2145,11 +2145,11 @@
         488
       ],
       "partial_alpha_pixels": 18050,
-      "sha256": "b359950bfff4dc460b055875523b434f0e4457450dcda61ede55707e90717ced",
+      "sha256": "62a5ad7e19d51bb6e906466f150137bf8fb4b39c2ea29a8c0f21a9c62e060900",
       "visible_pixels": 70950
     }
   },
-  "generated_at_utc": "2026-08-25T04:27:43.765602+00:00",
+  "generated_at_utc": "2026-08-25T22:52:53.598305+00:00",
   "installed_runtime_names": [
     "face_afraid_casual.png",
     "face_afraid_work.png",
@@ -2532,16 +2532,16 @@
   "reviews": {
     "directory": "tmp/kotonoha_sprite_build/review",
     "sha256": {
-      "expressions_checker.png": "dd2e82232592b56331d626643f28573bc5c254446f940ec257151f4b6fcc3aa9",
-      "expressions_dark.png": "d8bdb7371245ef4faaa3822a03ea0fe445caf78f980bca7ef6a7fc4595928281",
-      "expressions_gray.png": "f94cffb1d518bb3eb10c357dbdd59f5a40f5cd906b57f01f7ef9c846961e3a33",
-      "expressions_green.png": "c9eabb5ceb903025db2d646c54f9b122d8c08d58c924c4e6076d81d8258504f2",
-      "expressions_light.png": "4d2035b17a71a12a3b1a1fced2275ff6502696a05a6df837eafb78289ae27fe0",
-      "heads_checker.png": "4223410cf948ff53b2c76b0bd12ddd6dfe9de5f1618c523ddf5aa912561b456a",
-      "heads_dark.png": "d0b914d6ccee625d5578fa0c4f49c1e728ccf65f7defa3e356f23afdc0b35620",
-      "heads_gray.png": "c1fca17870ff75e80f56da0bdee1f4154ff9c3d3fe2ab04632421f5692d81352",
-      "heads_green.png": "9d4b7b3591a250c5f21f8db4d8f801c5581b157873a3827c5e9b7890789e672e",
-      "heads_light.png": "54dbccdb8d1a9f204cf32f042674b251073966bcf045a40b2d9c4c3c61d00b1a",
+      "expressions_checker.png": "31be3bb3038dbaff51d8c583bfa3108ff62a27032807218f82090bf252b33f79",
+      "expressions_dark.png": "1aa51c6dc74493c2bb6fbfeb4d7e3f2e0d23eeb84dc627b730d88fc2872872aa",
+      "expressions_gray.png": "b210a71f09c356cc6d49319bd68eb96a075b6cae894906889d074a266b123875",
+      "expressions_green.png": "82cb8f836331e6ee2f29c80d0404e4f3dcd5b0988b8635bdaf16ec3d76e4ac91",
+      "expressions_light.png": "62e7d6055ec62eb48e0a0954234284ed1baf9a8b8fc56e8b484a4866bcd7c48f",
+      "heads_checker.png": "61f0f36eb9daeff86c9a97775667c53f75cc1736c77329553fa8d7bbaebb3b6e",
+      "heads_dark.png": "d5ba0db4f0686114ec69c418b69efec4d9a767ea4ab328c72d315a3f5347b486",
+      "heads_gray.png": "ed3aa449df78cdeaedacf17095e2cb3c5380d443e28879b6ab7c065154201eca",
+      "heads_green.png": "6e1dc8da2ed6c5d372f7a72a387d9b352fd301f89b4326b3d7fb1cd1d71776f8",
+      "heads_light.png": "1db01dbbbd0db0db540b625602b401ebc205c2bc5d49ee40673fae69dca29b75",
       "poses_checker.png": "20956fccd44bc14473d514df45ab823b2958b669d5b45a747ce8e94f4cf222c7",
       "poses_dark.png": "a3d1de0819e2b464b0c3ed5539dc7216ef0d8d3d39df0cb31243a00ad2417452",
       "poses_gray.png": "db7fe35d82356155066c7e61a1042656a571c84f2e2178bb006f7fbf553d9c88",

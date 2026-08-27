@@ -25,7 +25,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SPRITE_DIR = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "matsuda"
+SPRITE_DIR = PROJECT_ROOT / "game" / "assets" / "characters" / "matsuda"
 RECOVERED_DIR = (
     PROJECT_ROOT
     / "tmp"

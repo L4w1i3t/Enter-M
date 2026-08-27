@@ -2,9 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/zz_probe.rpy", line 67: is not terminated with a newline. (Check strings and parenthesis.)
-(Perhaps you left out a " at the end of the first line.)
-                             ('"You don\\'t know me."', "reject"),
+File "game/story/season1/0519.rpy", line 297: expected statement.
+    ma unamused
+               ^
 
 Ren'Py Version: Ren'Py 8.1.1.23060707
-Sun Aug 23 23:33:02 2026
+Wed Aug 26 00:11:33 2026

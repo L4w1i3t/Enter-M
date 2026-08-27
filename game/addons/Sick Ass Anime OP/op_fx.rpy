@@ -1777,7 +1777,7 @@ transform enter_m_op_meta_dim_mod:
 # "here's the show."
 screen enter_m_op_meta_lineup(duration=1.5):
     zorder 80
-    add "mod_assets/dump/finalbg.png" at enter_m_op_bg_breathe(duration, 0.46, 0.54, 0.5, 0.46)
+    add "assets/dump/finalbg.png" at enter_m_op_bg_breathe(duration, 0.46, 0.54, 0.5, 0.46)
     add Solid("#03060bcc")
     add Solid("#75f7ff") at enter_m_op_stage_beam(190, 0.00, -8)
     add Solid("#d39a55") at enter_m_op_stage_beam(900, 0.10, 8)
@@ -1794,7 +1794,7 @@ screen enter_m_op_meta_lineup(duration=1.5):
 # forward in full colour. The only words are a fine-print footnote.
 screen enter_m_op_meta_monika(duration=1.5):
     zorder 80
-    add "mod_assets/dump/finalbg.png" at enter_m_op_bg_breathe(duration, 0.54, 0.46, 0.5, 0.46)
+    add "assets/dump/finalbg.png" at enter_m_op_bg_breathe(duration, 0.54, 0.46, 0.5, 0.46)
     add Solid("#03060be6")
     add "matsuda neut"  at enter_m_op_meta_pose(150, 716, 0.34, 0.00, -2), enter_m_op_meta_dim_mod
     add "tsubaki neut"  at enter_m_op_meta_pose(335, 716, 0.34, 0.00, 2), enter_m_op_meta_dim_mod

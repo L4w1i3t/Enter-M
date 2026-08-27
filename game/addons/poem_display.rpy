@@ -17,7 +17,7 @@
 #   shows a one-off "click to dismiss" hint image.
 #
 # AUTHOR -> FONT
-#   The screen picks a handwriting style by poem.author: "monika" -> m1.ttf,
+#   The screen picks a handwriting style by poem.author: "monika" -> m1.TTF,
 #   "mc" -> Halogen, anything else -> the default Halogen style.
 #
 # NOTE: the Poem class is defined here ONLY IF not already present (guarded with
@@ -40,7 +40,7 @@ init -2 python:
                 self.yuri_2 = yuri_2
                 self.yuri_3 = yuri_3
 
-image enter_m_poem_paper = "images/bg/poem.jpg"
+image enter_m_poem_paper = "assets/images/bg/poem.jpg"
 
 transform enter_m_poem_paper_position:
     truecenter
@@ -61,20 +61,20 @@ style enter_m_poem_vbar is vscrollbar:
     ysize 680
 
 style enter_m_poem_mc_text:
-    font "gui/font/Halogen.ttf"
+    font "assets/gui/font/Halogen.ttf"
     size 30
     color "#000"
     outlines []
     line_leading 4
 
 style enter_m_poem_monika_text:
-    font "gui/font/m1.ttf"
+    font "assets/gui/font/m1.TTF"
     size 34
     color "#000"
     outlines []
 
 style enter_m_poem_default_text:
-    font "gui/font/Halogen.ttf"
+    font "assets/gui/font/Halogen.ttf"
     size 30
     color "#000"
     outlines []
@@ -125,7 +125,7 @@ label enter_m_showpoem(poem=None):
     if not persistent.first_poem:
         $ persistent.first_poem = True
         $ renpy.save_persistent()
-        show expression "gui/poem_dismiss.png" as poem_dismiss:
+        show expression "assets/gui/poem_dismiss.png" as poem_dismiss:
             xpos 1050
             ypos 590
 

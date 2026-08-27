@@ -8,16 +8,16 @@ label a0515:
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
     window auto
-    # Short sequence before the player can finally enter MC's name. Monika finds MC's ID card on the floor and returns it to him.
+    # Short sequence before the player can finally enter MC's name. Monika finds
+    # his dropped ID during her assigned council sweep and returns it to him.
     show monika forward uniform happ om oe nobl rdown ldown at t11
     m forward uniform happ om oe nobl rdown ldown "...Of course, see you then!"
     window hide
     pause 2.0
     window auto
     m forward uniform anno om oe nobl rdown ldown "...Ah. Inappropriate flyer here..."
-    m forward uniform anno om oe awkw rdown ldown "Why am I always cleaning up others' messes...?"
-    m forward uniform neut om oe nobl rdown ldown "Alright, tuck that here for the trash..."
-    m "What else...?"
+    m forward uniform anno om oe awkw rdown ldown "Student council's end-of-day sweep sounded shorter when it was still on paper..."
+    m forward uniform neut om oe nobl rdown ldown "Alright, flyer in the trash bag... One more pass by the stairs, then club."
     window hide
     pause 1.5
     window auto
@@ -45,9 +45,8 @@ label a0515:
     # Perspective shift immediately onto MC
     # SFX SUGGESTION: A single dry pen tap against the desktop, prominent in the quiet room.
     "My pen rolls between my fingers and taps once against the desk. It is the loudest thing in the club room."
-    "When the room gets this quiet, the small details start volunteering themselves:"
-    "...the back locker door left at a perfect right angle, a speck of pencil lead on someone else's desk, the thin line of afternoon light caught along the window frame."
-    "I roll my shoulders to loosen my neck. A fingertip taps the right one while they're still up."
+    "When the room gets this quiet, small details start volunteering themselves. The back locker door sits at a perfect right angle, outlined by a thread of afternoon light."
+    "I roll my shoulders to loosen my neck. That's when a fingertip taps the right one while they're still up."
     "{i}Same shoulder, same timing,{/i} I think to myself."
     $ player = "???"
     mc "...Monika."
@@ -62,23 +61,20 @@ label a0515:
     mc "So, what did I do this time?"
     "Monika flicks up her hand."
     m forward uniform curi om oe nobl rhip ldown "Well, for starters..."
-    "She makes a sleight of hand and reveals an ID card."
-    m forward uniform happ om oe nobl rhip ldown "Looks like this has your name on it."
-    m "Found it in the hallway. It was face-down near the stairs, which felt dramatic for a piece of plastic."
-    "{i}That would explain why my lanyard felt suspiciously decorative.{/i}"
+    "A quick turn of her wrist reveals an ID card."
+    m forward uniform happ om oe nobl rhip ldown "Looks like this has your name on it. Found it face-down near the stairs, staging a tragedy for a piece of plastic."
+    "The plastic sleeve hanging from my lanyard has split at one corner. That explains the escape and why I've spent all day wearing a ribbon."
     mc "Oh! I was wondering where that went. Thanks."
     "She flips the card toward me as if it were a coin, and I catch it between two fingers mostly by accident."
     show monika forward uniform happ cm ce nobl rdown ldown
     m forward uniform happ cm ce nobl rdown ldown "Anytime. Try not to make a hobby of it."
-    "{i}Alright, let's slip that back into my lanyard...{/i}"
-    "I hold the card, now nestled in its little pouch, face up and get a good look at my information."
+    "{i}Not trusting that sleeve twice.{/i} I check the information, then zip the card into the front pocket of my bag."
     $ hide_calendar()
     $ atmos_clear()
     scene black with dissolve_scene_full
     pause 2.0
     scene bg ether with dissolve_scene_full
     call screen id_card_info_entry
-    pause 2.0
     scene bg club_day
     $ atmos("afternoon", particles="motes")
     $ show_calendar()
@@ -96,9 +92,9 @@ label a0515:
     mc "Usual routine works for me. I brought something you can tear apart, actually."
     m forward uniform pout om oe nobl rdown ldown "Oh come on, it sounds harsh when you say I'll tear it apart..."
     m forward uniform happ om oe nobl rdown lpoint "How about the term 'tough love' or simply 'constructive feedback?'"
-    "I pull the pages from my bag before I can change my mind."
+    "I pull the pages from my bag. Changing my mind can miss its window."
     mc "Just don't make the margins bleed too much."
-    "She takes the pages and reads the way she always does: lips slightly parted, pen capped but held ready, like the cap is the only thing keeping her professional."
+    "She takes the pages and reads the way she always does: lips parted, pen capped but held ready, like the cap is the only thing keeping her professional."
     "I already know which lines she'll stop on. To be fair, I wrote them so that she would, then pretended I hadn't."
     "{i}The desk is just a desk. [[It is not standing in for anything. I checked twice.]{/i}"
     "{i}I keep the good pens in the bag I never open. [[No reason. Don't look at me.]{/i}"
@@ -113,8 +109,8 @@ label a0515:
     mc "...Or that."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest of the session: drafts traded, two read aloud, one unresolved argument about whether a sunset can be 'smug.'"
-    nier "It's different from the rest of my day in a way I show up for on purpose."
+    nier "The rest of the session goes to trading drafts and reading two aloud. We leave one argument unresolved: whether a sunset can be 'smug.'"
+    nier "Unlike the rest of my day, I show up for this part on purpose."
     call nier_clear from _call_nier_clear_0515_1
     nier "By late afternoon the other members had shuffled out, leaving just Monika and me to lock up."
     call nier_clear from _call_nier_clear_0515_2
@@ -135,7 +131,7 @@ label a0515:
             m forward uniform pout om oe awkw rdown ldown "I had a {i}candidate{/i}."
             mc "I'd love to see the rest of the shortlist."
             m forward uniform nerv om ce blaw rdown ldown "It was a...very...exclusive list."
-            mc "Uh huh..."
+            mc "Uh-huh..."
             mc "Well, I got nothing going on, so...sure."
         "\"Sunday works.\"":
             $ s1_pick("monika_invite", "plain")
@@ -158,7 +154,7 @@ label a0515:
     # re-injected by sticky_positions, which replays the hop a second time.
     # Naming the rest slot settles her instead.
     show monika forward uniform happ cm ce nobl rdown ldown at t11
-    "Monika waltzes to the door and begins her exit."
+    "Monika waltzes to the door."
     m forward uniform happ cm ce nobl rdown ldown "I'm outta here now, so see you tomorrow!"
     "I hold my hand up in a wave."
     mc "Later, Ms. President."
@@ -170,19 +166,19 @@ label a0515:
     $ mark_character_met("monika")
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Bus stop, bus ride, short walk home, the usual route."
-    nier "The only thing it produces is a weird bottle cap next to a power line."
-    nier "A quick internet search reveals that it's from some sort of imported soda from Scotland." # planting a seed for matsuda because she drinks imported drinks (i.e. this universe's version of Irn Bru). also characterization for MC having weird bouts of curiosity
+    nier "Bus, then the short walk home. The usual."
+    nier "It produces one anomaly: a strange bottle cap beside a power line."
+    nier "A quick internet search says it came from an imported Scottish soda." # planting a seed for matsuda because she drinks imported drinks (i.e. this universe's version of Irn Bru). also characterization for MC having weird bouts of curiosity
     call nier_clear from _call_nier_clear_0515_3
     pause 2.0
     scene bg house
     $ show_calendar()
     $ atmos("afternoon", particles="motes")
     with wipeleft_scene
-    "By the time I reach the front gate, the first thing I smell is smoked meat, melted cheese, and the particular kind of salt that only comes from a paper bag with grease spots."
+    "By the time I reach the front gate, smoked meat and melted cheese hit first. Then salt and fryer grease drift from a paper bag gone translucent in spots."
     "My little sister Asahina is on the swing in the yard, one foot planted in the dirt so she can keep herself rocking while she eats."
     show asahina uniform neut at t11
-    "She looks up at me and gives me a small upward nod, mid-bite."
+    "She catches me in her peripheral vision and tips her chin, mid-bite."
     show asahina uniform unamused
     mc "Bill's Flamey Double again?"
     "She swallows her bite."
@@ -191,25 +187,25 @@ label a0515:
     ah "And your point is?"
     mc "Nothing. I'm just saying the cashier probably starts your order the second he sees you cross the street."
     show asahina uniform annoyed
-    ah "Yeah, well, I've got money, practice burns it off, and that cashier doesn't even know my name actually."
+    ah annoyed "Yeah, well, I've got money and practice burns it off. That cashier doesn't even know my name, actually."
     mc "Sure he doesn't... I'd say he's just too polite to use it."
     "A fry bounces off my cheek before I get to enjoy that one."
     show asahina uniform frustrated
     ah "Okay, listen here, you little--!"
     "{i}It's always too easy with her, I swear.{/i}"
-    "I hold the blank smile a second too long. It isn't the sibling-banter look on her face."
+    "I hold the blank smile too long. Something in her face goes still."
     mc "...Anyway. I'm heading in."
     mc "Leave some food for other paying customers, please."
     show asahina uniform unamused
     ah "Screw you too."
-    "My sister's empty hand gives me a middle finger as I approach the mat before our front door."
+    "Asahina raises her empty hand as I approach the front mat. Her middle finger follows."
     $ phone_mark_contact_met("asahina")
     $ mark_character_met("asahina")
     $ hide_calendar()
     scene black with wipeleft_scene
     play sound moddooropen
     pause 2.0
-    scene bg doorday
+    scene bg home_entry_day
     $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
@@ -218,22 +214,25 @@ label a0515:
     show mom happy at t11
     mom "Ah, hey there, [player]!"
     show mom neut
-    mom "Just in time, actually. I wanted to go over something with you, whenever you're available."
+    mom neut "Just in time, actually. I wanted to go over something with you when you're available."
     mc "Oh, uh, alright."
-    "{i}I just walked in the door...!{/i}"
-    mc "I have, uh, nothing going on at the moment, just let me get situated inside first..."
+    "{i}I literally just walked in.{/i}"
+    mc "I'm free. Just let me get situated first..."
     show mom happy
     mom "Take your time."
     mom "Oh, wait, question: katsudon sound good for dinner? I'm trying to find an excuse to use these pork loins before they expire."
     mc "Yeah, fine by me. Anyway, off I go."
     "I tip my head toward the stairs and shift my bag on my shoulder."
+    $ hide_calendar()
+    scene black with wipeleft_scene
     pause 2.0
     scene bg bedroom
+    $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
     # SFX SUGGESTION: A soft, weighted bag thump against the floor.
     "I drop my bag by the side of my desk and stretch my arms overhead."
-    "After some pacing and pondering, I pull my phone out of my pocket and check the time."
+    "I pace once around the room, then pull out my phone and check the time."
     "{i}Still early. I could get a head start on something.{/i}"
     "..."
     "I flop onto my bed and stare at the ceiling instead."
@@ -245,12 +244,11 @@ label a0515:
     nier "Before long, I find myself back downstairs."
     call nier_clear from _call_nier_clear_0515_4
     pause 2.0
-    scene bg kitchen
+    scene bg kitchen_evening
     $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
-    "Mom's already at the counter, prepping different vegetables and a spice mix."
-    "The pork loins are currently thawing in the sink, submerged in cold water."
+    "Mom's already at the counter with vegetables lined up beside a bowl of spice mix. The pork loins thaw in cold water in the sink."
     show mom happy at t11
     mc "Need a hand?"
     mom "You know it, kiddo."
@@ -260,10 +258,10 @@ label a0515:
     "{i}Gonna make me cry, huh?{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Time passes as I multitask, Mom hovers over the rice cooker, and we both begin breading and frying the loins."
+    nier "Time passes over the rice cooker and cutting board. Soon we're breading the loins together."
     call nier_clear from _call_nier_clear_0515_5
     pause 2.0
-    scene bg kitchen
+    scene bg kitchen_evening
     show mom neut at t11
     $ show_calendar()
     $ atmos("home")
@@ -273,7 +271,7 @@ label a0515:
     mc "So...you wanted to run something by me?"
     "She wipes her hands and slides a folded printout across the counter, still warm from the printer. A campus photo on the front: all glass and a courtyard with grass too green to be real."
     mom "I was digging around earlier and found a school I think would actually fit you."
-    "There's a line near the bottom she's already gone over in yellow highlighter--a program name. The exact one I'd have circled myself, if I were brave enough to admit I'd already looked it up."
+    "There's a line near the bottom already buried in yellow highlighter: the program name. It's the exact one I'd have circled myself, if I felt like admitting I'd already looked it up."
     "My hands stop moving on the pan."
     mc "...Already, huh?"
     show mom teasing
@@ -287,10 +285,11 @@ label a0515:
     mc "Anyway, go on. I'm listening."
     show mom happy
     mom "It checks a lot of boxes. Well-regarded faculty, tranquil setting..."
-    show mom teasing
-    mom "Good reputation, too--top 20, matter of fact. Far enough from home to count as 'seeing the world,' close enough that I can still threaten you by train."
+    mom happy "Good reputation, too. Top twenty, matter of fact."
+    mom teasing "You get to 'see the world,' and I can still threaten you in person after one train ride."
     show mom curious
-    mom "Could we perhaps do more digging together this coming week? Only if you want, though; I won't push."
+    mom curious "Could we perhaps do more digging together this coming week? Only if you want, though."
+    mom "I won't push."
     mc "I, uh..."
     mc "...Yeah, I mean, sure. I'm down."
     show mom smug
@@ -310,7 +309,7 @@ label a0515:
     with wipeleft_scene
     "My sister takes her seat, not even giving her own plate the time of day."
     ah "...Smells good."
-    mom "That's all you're having...? A tiddly-wink of rice and the smallest wedge?"
+    mom curious "That's all you're having...? A spoonful of rice and the smallest wedge?"
     show asahina unamused
     ah "Yeah."
     ah "I'm not that hungry today."
@@ -332,27 +331,26 @@ label a0515:
             ah "People have portions. Is it a crime to have {i}portions{/i}?"
             "She says it like it was in an easy-access chamber."
     show mom neut
-    mom "Asahina, you should really eat something proper."
-    mom "I don't think those empty bags of chips in your room are all that filling."
+    mom worried "Asahina, you should really eat something proper. Those empty chip bags in your room aren't much of a dinner."
     mom "And fast food isn't exactly a balanced diet, either."
-    mc "Wait...so that's where my snacks have been going?!"
+    mc "Wait, so that's where my snacks have been going?!"
     mc "...You owe me."
     show asahina neut
-    "Asahina pauses before picking up her chopsticks and nudging the pork slightly."
+    "Asahina picks up her chopsticks and nudges the pork without lifting it."
     ah "Yeah, I guess."
     "She takes a small bite, careful, like she's expecting the food to argue back."
     show mom worried
-    "Mom watches a beat longer than the moment needs, then makes herself look at her own plate. The chopsticks in her hand don't move for a while."
+    "Mom watches until Asahina looks back. Then she lowers her eyes to her own plate, chopsticks motionless."
     "I catch myself cataloguing it the way I catalogue everything: literally not my problem."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Dinner surprisingly picks up in the third quarter with plates cleared, lights dimmed, and everyone drifting back into their usual routines."
-    nier "On my end, I spend my time cranking out whatever homework I have in five minutes flat--or at least that's what it feels like."
-    nier "With nothing else to do, I fall back on the usual. An obligatory poem for Monika's club, the occasional book, grinding through a JRPG with about fifteen self-imposed restrictions, the works."
+    nier "Dinner somehow finds a second wind. By the third quarter, the plates are clear and everyone has drifted to a separate corner of the house."
+    nier "On my end, I crank out whatever homework I have in five minutes flat. That's what it feels like, anyway."
+    nier "With nothing else to do, I fall back on the usual: an obligatory poem for Monika's club, then a JRPG with about fifteen self-imposed restrictions."
     call nier_clear from _call_nier_clear_0515_7
     stop music fadeout 2.0
     pause 2.0
-    scene bg doornight
+    scene bg home_entry_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
@@ -381,8 +379,8 @@ label a0515:
     mc "...And what exactly am I supposed to do about it? You've always been the artsy one."
     # mc "Me? I can't draw a straight line with a ruler." # cut because it's tangential
     show asahina nervous
-    ah "Urgh, I dunno....."
-    "I ponder my options for a couple seconds."
+    ah nervous "Urgh, I dunno..."
+    "Saturday's game run gives me an idea."
     mc "Well, I was going to pick up this new game on launch Saturday..."
     mc "If you want me to grab some glue while I'm out, I can do that."
     "Asahina sighs and takes a subtle bow."
@@ -391,7 +389,7 @@ label a0515:
     show asahina embarrassed
     ah "And, uh, in return, I can...uhhh...restock your chips! Yeah!"
     mc "Yeah, sure, why not. It's a deal."
-    "I inadvertently finish the bottle of water that was in my hand."
+    "I finish the rest of my water without noticing."
     mc "Now, I hate to be that guy, but I'm dozing off as we speak."
     show asahina teasing
     ah "Then go to bed, doofus!"
@@ -401,9 +399,8 @@ label a0515:
     "{i}Way for her to trip me into doing her fetch quests...{/i}"
     $ hide_calendar()
     scene black with dissolve_scene_full
-    nier "I set a reminder on my phone to grab an extra item at the store."
-    nier "Through the kitchen for one more glass of water, I find her plate already rinsed and face-down in the rack."
-    nier "The trash bin under the sink has a paper towel laid flat across inside it."
+    nier "I set a reminder for the extra stop tomorrow, then pass through the kitchen for another glass of water."
+    nier "Asahina's plate is already rinsed and face-down in the rack. A paper towel lies flat across the trash in the bin under the sink."
     nier "I put my glass beside her plate and go up."
     call nier_clear from _call_nier_clear_0515_8
     stop music fadeout 2.0

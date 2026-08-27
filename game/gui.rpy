@@ -47,9 +47,9 @@ define gui.interface_text_color = '#eaf8ff'           # Color for interface text
 # When in doubt draw the icon out of rects the way the phone's hang-up handset
 # is drawn (addons/Phone System/call.rpy), or fall back to ASCII.
 # -----------------------------------------------------------------------------
-define gui.default_font = "mod_assets/fonts/Myanmar.otf"     # Default dialogue font
-define gui.name_font = "mod_assets/fonts/SF Automaton Extended.ttf" # Font for character names
-define gui.interface_font = "mod_assets/fonts/NovaSquare-Regular.ttf"   # Font for UI elements
+define gui.default_font = "assets/fonts/Myanmar.otf"     # Default dialogue font
+define gui.name_font = "assets/fonts/SF Automaton Extended.ttf" # Font for character names
+define gui.interface_font = "assets/fonts/NovaSquare-Regular.ttf"   # Font for UI elements
 
 # Text sizes for different parts of the interface
 define gui.text_size = 25                             # Size of dialogue text

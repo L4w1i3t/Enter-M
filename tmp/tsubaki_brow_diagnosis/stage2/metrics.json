@@ -1,0 +1,1610 @@
+{
+  "schema_version": 1,
+  "output_size": [
+    1023,
+    1537
+  ],
+  "source_size": [
+    1024,
+    1536
+  ],
+  "expressions": [
+    "neut",
+    "happy",
+    "smug",
+    "teasing",
+    "thinking",
+    "curious",
+    "unamused",
+    "annoyed",
+    "frustrated",
+    "angry",
+    "sad",
+    "crying",
+    "embarrassed",
+    "nervous",
+    "worried",
+    "shocked",
+    "afraid",
+    "panicked",
+    "determined",
+    "empty",
+    "disgusted"
+  ],
+  "outfits": {
+    "casual": {
+      "base": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\game\\mod_assets\\char_sprites\\tsubaki\\neutral.png",
+      "featureless_donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_face_patch\\featureless_casual_generated.png",
+      "source_eye_centers": [
+        [
+          454.2655,
+          609.7824
+        ],
+        [
+          567.6149,
+          612.8447
+        ]
+      ],
+      "target_eye_centers": [
+        [
+          446.8642,
+          376.5356
+        ],
+        [
+          570.0014,
+          381.8663
+        ]
+      ],
+      "matrix": [
+        [
+          1.0868278741836548,
+          -0.017666982486844063,
+          -36.07119369506836
+        ],
+        [
+          0.017666982486844063,
+          1.0868278741836548,
+          -294.2184753417969
+        ]
+      ],
+      "patch_center": [
+        508.4328,
+        410.2009
+      ],
+      "patch_radius": [
+        155.0,
+        135.0
+      ],
+      "patch_solid_radius": 0.84,
+      "visible_mask_pixels": 36196,
+      "opaque_mask_pixels": 28414,
+      "partial_mask_pixels": 7782,
+      "featureless_skin_offsets": [
+        0.0,
+        -2.0,
+        -2.0
+      ],
+      "featureless_skin_samples": 22350,
+      "base_brow_cleanup": {
+        "footprint_pixels": 210,
+        "opaque_pixels": 663,
+        "partial_pixels": 717,
+        "bbox": [
+          439,
+          307,
+          582,
+          362
+        ]
+      },
+      "layers": {
+        "happy": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_happy_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34580,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_happy_v2.png",
+          "donor_to_target_matrix": [
+            [
+              0.5662758350372314,
+              -0.009678715839982033,
+              226.39759826660156
+            ],
+            [
+              0.009678715839982033,
+              0.5662758350372314,
+              -6.327934741973877
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21191,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1766,
+            "core_pixels": 1415,
+            "changed_pixels": 1756,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "smug": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_smug_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34352,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_smug.png",
+          "donor_to_target_matrix": [
+            [
+              0.565212070941925,
+              -0.009046322666108608,
+              226.66946411132812
+            ],
+            [
+              0.009046322666108608,
+              0.565212070941925,
+              -4.956858158111572
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -16.0
+          ],
+          "skin_samples": 21641,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1788,
+            "core_pixels": 1436,
+            "changed_pixels": 1779,
+            "bbox": [
+              416,
+              349,
+              606,
+              364
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "teasing": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_teasing_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34522,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_teasing.png",
+          "donor_to_target_matrix": [
+            [
+              0.5650469064712524,
+              -0.009357089176774025,
+              226.8599090576172
+            ],
+            [
+              0.009357089176774025,
+              0.5650469064712524,
+              -5.578402519226074
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21478,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1763,
+            "core_pixels": 1413,
+            "changed_pixels": 1753,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "thinking": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_thinking_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34475,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_thinking.png",
+          "donor_to_target_matrix": [
+            [
+              0.5584840178489685,
+              -0.008329857140779495,
+              221.924072265625
+            ],
+            [
+              0.008329857140779495,
+              0.5584840178489685,
+              -4.368418216705322
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21435,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1726,
+            "core_pixels": 1380,
+            "changed_pixels": 1722,
+            "bbox": [
+              409,
+              346,
+              597,
+              359
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "curious": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_curious_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34522,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_curious.png",
+          "donor_to_target_matrix": [
+            [
+              0.5555139183998108,
+              -0.008496146649122238,
+              223.46578979492188
+            ],
+            [
+              0.008496146649122238,
+              0.5555139183998108,
+              -3.5609309673309326
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 21473,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1718,
+            "core_pixels": 1372,
+            "changed_pixels": 1710,
+            "bbox": [
+              410,
+              345,
+              597,
+              359
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "unamused": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_unamused_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34563,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_unamused.png",
+          "donor_to_target_matrix": [
+            [
+              0.5652378797531128,
+              -0.009669406339526176,
+              227.03436279296875
+            ],
+            [
+              0.009669406339526176,
+              0.5652378797531128,
+              -5.919138431549072
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -16.0
+          ],
+          "skin_samples": 21473,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1763,
+            "core_pixels": 1413,
+            "changed_pixels": 1750,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "annoyed": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_annoyed_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34375,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_annoyed.png",
+          "donor_to_target_matrix": [
+            [
+              0.5605652928352356,
+              -0.0079074427485466,
+              221.7373046875
+            ],
+            [
+              0.0079074427485466,
+              0.5605652928352356,
+              -5.469550132751465
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -18.0
+          ],
+          "skin_samples": 21684,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1757,
+            "core_pixels": 1407,
+            "changed_pixels": 1750,
+            "bbox": [
+              410,
+              346,
+              599,
+              359
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "frustrated": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_frustrated_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34573,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_frustrated.png",
+          "donor_to_target_matrix": [
+            [
+              0.5647991895675659,
+              -0.009429370984435081,
+              226.93365478515625
+            ],
+            [
+              0.009429370984435081,
+              0.5647991895675659,
+              -5.0012993812561035
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -13.0,
+            -17.0
+          ],
+          "skin_samples": 21557,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1790,
+            "core_pixels": 1437,
+            "changed_pixels": 1782,
+            "bbox": [
+              416,
+              349,
+              606,
+              364
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "angry": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_angry_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34482,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_angry.png",
+          "donor_to_target_matrix": [
+            [
+              0.5522314310073853,
+              -0.008413737639784813,
+              224.6194610595703
+            ],
+            [
+              0.008413737639784813,
+              0.5522314310073853,
+              0.6257716417312622
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21516,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1703,
+            "core_pixels": 1359,
+            "changed_pixels": 1691,
+            "bbox": [
+              410,
+              347,
+              596,
+              361
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "sad": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_sad_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34490,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_sad.png",
+          "donor_to_target_matrix": [
+            [
+              0.5652235746383667,
+              -0.009589816443622112,
+              226.9424591064453
+            ],
+            [
+              0.009589816443622112,
+              0.5652235746383667,
+              -5.481049060821533
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 21413,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1776,
+            "core_pixels": 1424,
+            "changed_pixels": 1771,
+            "bbox": [
+              416,
+              349,
+              606,
+              364
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "crying": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_crying_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34423,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_crying.png",
+          "donor_to_target_matrix": [
+            [
+              0.5645476579666138,
+              -0.009029139764606953,
+              226.8463592529297
+            ],
+            [
+              0.009029139764606953,
+              0.5645476579666138,
+              -4.890583038330078
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21267,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1766,
+            "core_pixels": 1415,
+            "changed_pixels": 1757,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "embarrassed": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_embarrassed_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34661,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_embarrassed.png",
+          "donor_to_target_matrix": [
+            [
+              0.5645990967750549,
+              -0.00893330480903387,
+              226.8740234375
+            ],
+            [
+              0.00893330480903387,
+              0.5645990967750549,
+              -4.754708766937256
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21550,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1774,
+            "core_pixels": 1423,
+            "changed_pixels": 1773,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "nervous": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_nervous_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34382,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_nervous.png",
+          "donor_to_target_matrix": [
+            [
+              0.5651227831840515,
+              -0.010758353397250175,
+              227.6186981201172
+            ],
+            [
+              0.010758353397250175,
+              0.5651227831840515,
+              -3.186079740524292
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -8.0,
+            -10.0
+          ],
+          "skin_samples": 21436,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1764,
+            "core_pixels": 1413,
+            "changed_pixels": 1758,
+            "bbox": [
+              416,
+              352,
+              606,
+              367
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "worried": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_worried_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34295,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_worried.png",
+          "donor_to_target_matrix": [
+            [
+              0.5651072263717651,
+              -0.009311892092227936,
+              226.8620147705078
+            ],
+            [
+              0.009311892092227936,
+              0.5651072263717651,
+              -5.5580644607543945
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21415,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1764,
+            "core_pixels": 1414,
+            "changed_pixels": 1756,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "shocked": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_shocked_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34725,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_shocked.png",
+          "donor_to_target_matrix": [
+            [
+              0.5671756267547607,
+              -0.009849177673459053,
+              226.4508819580078
+            ],
+            [
+              0.009849177673459053,
+              0.5671756267547607,
+              -7.15491247177124
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 20824,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1778,
+            "core_pixels": 1426,
+            "changed_pixels": 1767,
+            "bbox": [
+              416,
+              349,
+              607,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "afraid": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_afraid_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34457,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_afraid.png",
+          "donor_to_target_matrix": [
+            [
+              0.5660803914070129,
+              -0.00947972945868969,
+              226.08514404296875
+            ],
+            [
+              0.00947972945868969,
+              0.5660803914070129,
+              -6.100515365600586
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21168,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1776,
+            "core_pixels": 1424,
+            "changed_pixels": 1767,
+            "bbox": [
+              416,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "panicked": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_panicked_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34573,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_panicked.png",
+          "donor_to_target_matrix": [
+            [
+              0.5662049651145935,
+              -0.009457522071897984,
+              226.5977783203125
+            ],
+            [
+              0.009457522071897984,
+              0.5662049651145935,
+              -5.656712532043457
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 19558,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1785,
+            "core_pixels": 1432,
+            "changed_pixels": 1782,
+            "bbox": [
+              416,
+              349,
+              607,
+              364
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "determined": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_determined_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34557,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_determined.png",
+          "donor_to_target_matrix": [
+            [
+              0.5671281814575195,
+              -0.009627662599086761,
+              225.6131134033203
+            ],
+            [
+              0.009627662599086761,
+              0.5671281814575195,
+              -7.043821334838867
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -12.0,
+            -17.0
+          ],
+          "skin_samples": 21445,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1783,
+            "core_pixels": 1432,
+            "changed_pixels": 1771,
+            "bbox": [
+              415,
+              349,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "empty": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_empty_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34437,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_empty.png",
+          "donor_to_target_matrix": [
+            [
+              0.5664383172988892,
+              -0.00952840130776167,
+              226.30859375
+            ],
+            [
+              0.00952840130776167,
+              0.5664383172988892,
+              -6.9561448097229
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21581,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1798,
+            "core_pixels": 1446,
+            "changed_pixels": 1773,
+            "bbox": [
+              416,
+              348,
+              606,
+              363
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "disgusted": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_disgusted_casual.png",
+          "visible_pixels": 36196,
+          "changed_pixels": 34480,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_disgusted.png",
+          "donor_to_target_matrix": [
+            [
+              0.5669459700584412,
+              -0.00968424417078495,
+              225.7155303955078
+            ],
+            [
+              0.00968424417078495,
+              0.5669459700584412,
+              -6.566544055938721
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21698,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1806,
+            "core_pixels": 1452,
+            "changed_pixels": 1794,
+            "bbox": [
+              415,
+              349,
+              606,
+              364
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        }
+      }
+    },
+    "uniform": {
+      "base": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\game\\mod_assets\\char_sprites\\tsubaki\\neut_uniform.png",
+      "featureless_donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_face_patch\\featureless_uniform_generated.png",
+      "source_eye_centers": [
+        [
+          454.2655,
+          609.7824
+        ],
+        [
+          567.6149,
+          612.8447
+        ]
+      ],
+      "target_eye_centers": [
+        [
+          447.4905,
+          371.292
+        ],
+        [
+          569.7107,
+          375.1869
+        ]
+      ],
+      "matrix": [
+        [
+          1.0784013271331787,
+          -0.005228083115071058,
+          -39.201969146728516
+        ],
+        [
+          0.005228083115071058,
+          1.0784013271331787,
+          -288.6731262207031
+        ]
+      ],
+      "patch_center": [
+        508.6006,
+        404.2395
+      ],
+      "patch_radius": [
+        155.0,
+        135.0
+      ],
+      "patch_solid_radius": 0.84,
+      "visible_mask_pixels": 35734,
+      "opaque_mask_pixels": 28181,
+      "partial_mask_pixels": 7553,
+      "featureless_skin_offsets": [
+        0.0,
+        -2.0,
+        -3.0
+      ],
+      "featureless_skin_samples": 22404,
+      "base_brow_cleanup": {
+        "footprint_pixels": 128,
+        "opaque_pixels": 446,
+        "partial_pixels": 588,
+        "bbox": [
+          407,
+          307,
+          602,
+          355
+        ]
+      },
+      "layers": {
+        "happy": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_happy_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33760,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_happy_v2.png",
+          "donor_to_target_matrix": [
+            [
+              0.5618906617164612,
+              -0.0031938496977090836,
+              224.4413299560547
+            ],
+            [
+              0.0031938496977090836,
+              0.5618906617164612,
+              -6.037784099578857
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21006,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1761,
+            "core_pixels": 1412,
+            "changed_pixels": 1751,
+            "bbox": [
+              416,
+              344,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "smug": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_smug_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33445,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_smug.png",
+          "donor_to_target_matrix": [
+            [
+              0.5608281493186951,
+              -0.0025785136967897415,
+              224.7265625
+            ],
+            [
+              0.0025785136967897415,
+              0.5608281493186951,
+              -4.680666923522949
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -10.0
+          ],
+          "skin_samples": 21574,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1753,
+            "core_pixels": 1407,
+            "changed_pixels": 1730,
+            "bbox": [
+              417,
+              345,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "teasing": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_teasing_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33669,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_teasing.png",
+          "donor_to_target_matrix": [
+            [
+              0.5606678128242493,
+              -0.0028886825311928988,
+              224.90846252441406
+            ],
+            [
+              0.0028886825311928988,
+              0.5606678128242493,
+              -5.299432754516602
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 21354,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1747,
+            "core_pixels": 1399,
+            "changed_pixels": 1731,
+            "bbox": [
+              417,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "thinking": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_thinking_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33846,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_thinking.png",
+          "donor_to_target_matrix": [
+            [
+              0.5541454553604126,
+              -0.0019438702147454023,
+              220.02549743652344
+            ],
+            [
+              0.0019438702147454023,
+              0.5541454553604126,
+              -4.0431976318359375
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -9.0
+          ],
+          "skin_samples": 21422,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1717,
+            "core_pixels": 1373,
+            "changed_pixels": 1714,
+            "bbox": [
+              410,
+              341,
+              596,
+              353
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "curious": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_curious_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33727,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_curious.png",
+          "donor_to_target_matrix": [
+            [
+              0.551200807094574,
+              -0.002142449840903282,
+              221.56411743164062
+            ],
+            [
+              0.002142449840903282,
+              0.551200807094574,
+              -3.259566068649292
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 21223,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1690,
+            "core_pixels": 1348,
+            "changed_pixels": 1677,
+            "bbox": [
+              411,
+              340,
+              596,
+              352
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "unamused": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_unamused_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33730,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_unamused.png",
+          "donor_to_target_matrix": [
+            [
+              0.5608608722686768,
+              -0.0031963589135557413,
+              225.0776824951172
+            ],
+            [
+              0.0031963589135557413,
+              0.5608608722686768,
+              -5.639438152313232
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -10.0
+          ],
+          "skin_samples": 21322,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1727,
+            "core_pixels": 1380,
+            "changed_pixels": 1705,
+            "bbox": [
+              417,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "annoyed": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_annoyed_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33784,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_annoyed.png",
+          "donor_to_target_matrix": [
+            [
+              0.5562053918838501,
+              -0.0015012568328529596,
+              219.82774353027344
+            ],
+            [
+              0.0015012568328529596,
+              0.5562053918838501,
+              -5.133476734161377
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -8.0,
+            -12.0
+          ],
+          "skin_samples": 21524,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1751,
+            "core_pixels": 1405,
+            "changed_pixels": 1748,
+            "bbox": [
+              411,
+              341,
+              598,
+              353
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "frustrated": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_frustrated_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33746,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_frustrated.png",
+          "donor_to_target_matrix": [
+            [
+              0.560422956943512,
+              -0.00296319299377501,
+              224.98814392089844
+            ],
+            [
+              0.00296319299377501,
+              0.560422956943512,
+              -4.7277445793151855
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -8.0,
+            -11.0
+          ],
+          "skin_samples": 21473,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1755,
+            "core_pixels": 1407,
+            "changed_pixels": 1748,
+            "bbox": [
+              417,
+              345,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "angry": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_angry_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33829,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_angry.png",
+          "donor_to_target_matrix": [
+            [
+              0.5479434132575989,
+              -0.002097839955240488,
+              222.75599670410156
+            ],
+            [
+              0.002097839955240488,
+              0.5479434132575989,
+              0.8808503150939941
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21345,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1664,
+            "core_pixels": 1325,
+            "changed_pixels": 1654,
+            "bbox": [
+              411,
+              342,
+              595,
+              354
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "sad": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_sad_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33748,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_sad.png",
+          "donor_to_target_matrix": [
+            [
+              0.5608457326889038,
+              -0.003117562970146537,
+              224.991455078125
+            ],
+            [
+              0.003117562970146537,
+              0.5608457326889038,
+              -5.2037858963012695
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 21234,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1752,
+            "core_pixels": 1404,
+            "changed_pixels": 1732,
+            "bbox": [
+              417,
+              344,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "crying": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_crying_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33958,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_crying.png",
+          "donor_to_target_matrix": [
+            [
+              0.5601688623428345,
+              -0.0025689860340207815,
+              224.90280151367188
+            ],
+            [
+              0.0025689860340207815,
+              0.5601688623428345,
+              -4.61691951751709
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 21107,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1748,
+            "core_pixels": 1399,
+            "changed_pixels": 1742,
+            "bbox": [
+              417,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "embarrassed": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_embarrassed_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 34102,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_embarrassed.png",
+          "donor_to_target_matrix": [
+            [
+              0.5602188110351562,
+              -0.0024733291938900948,
+              224.93177795410156
+            ],
+            [
+              0.0024733291938900948,
+              0.5602188110351562,
+              -4.482436180114746
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21327,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1713,
+            "core_pixels": 1365,
+            "changed_pixels": 1709,
+            "bbox": [
+              417,
+              344,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "nervous": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_nervous_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33954,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_nervous.png",
+          "donor_to_target_matrix": [
+            [
+              0.5607590079307556,
+              -0.0042779650539159775,
+              225.68829345703125
+            ],
+            [
+              0.0042779650539159775,
+              0.5607590079307556,
+              -2.9346847534179688
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -3.0,
+            -3.0
+          ],
+          "skin_samples": 21244,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1764,
+            "core_pixels": 1415,
+            "changed_pixels": 1758,
+            "bbox": [
+              417,
+              347,
+              605,
+              360
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "worried": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_worried_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33407,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_worried.png",
+          "donor_to_target_matrix": [
+            [
+              0.5607271790504456,
+              -0.0028431611135601997,
+              224.91078186035156
+            ],
+            [
+              0.0028431611135601997,
+              0.5607271790504456,
+              -5.279279708862305
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 21214,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1748,
+            "core_pixels": 1402,
+            "changed_pixels": 1728,
+            "bbox": [
+              417,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "shocked": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_shocked_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33789,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_shocked.png",
+          "donor_to_target_matrix": [
+            [
+              0.562785267829895,
+              -0.00335277640260756,
+              224.48483276367188
+            ],
+            [
+              0.00335277640260756,
+              0.562785267829895,
+              -6.858800411224365
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 20756,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1752,
+            "core_pixels": 1403,
+            "changed_pixels": 1738,
+            "bbox": [
+              417,
+              344,
+              606,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "afraid": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_afraid_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33634,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_afraid.png",
+          "donor_to_target_matrix": [
+            [
+              0.5616945624351501,
+              -0.0029986537992954254,
+              224.13394165039062
+            ],
+            [
+              0.0029986537992954254,
+              0.5616945624351501,
+              -5.808634281158447
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 20936,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1771,
+            "core_pixels": 1421,
+            "changed_pixels": 1761,
+            "bbox": [
+              416,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "panicked": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_panicked_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 34152,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_panicked.png",
+          "donor_to_target_matrix": [
+            [
+              0.5618178844451904,
+              -0.0029752126429229975,
+              224.64752197265625
+            ],
+            [
+              0.0029752126429229975,
+              0.5618178844451904,
+              -5.374155044555664
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -6.0
+          ],
+          "skin_samples": 19463,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1747,
+            "core_pixels": 1398,
+            "changed_pixels": 1746,
+            "bbox": [
+              417,
+              345,
+              606,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "determined": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_determined_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33717,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_determined.png",
+          "donor_to_target_matrix": [
+            [
+              0.5627356767654419,
+              -0.0031335558742284775,
+              223.6549835205078
+            ],
+            [
+              0.0031335558742284775,
+              0.5627356767654419,
+              -6.739111423492432
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -11.0
+          ],
+          "skin_samples": 21283,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1763,
+            "core_pixels": 1412,
+            "changed_pixels": 1750,
+            "bbox": [
+              416,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "empty": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_empty_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33858,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_empty.png",
+          "donor_to_target_matrix": [
+            [
+              0.5620501637458801,
+              -0.003042888827621937,
+              224.34593200683594
+            ],
+            [
+              0.003042888827621937,
+              0.5620501637458801,
+              -6.660000801086426
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -9.0
+          ],
+          "skin_samples": 21380,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1749,
+            "core_pixels": 1403,
+            "changed_pixels": 1732,
+            "bbox": [
+              417,
+              344,
+              605,
+              356
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        },
+        "disgusted": {
+          "path": "tmp\\tsubaki_brow_diagnosis\\stage2\\face_disgusted_uniform.png",
+          "visible_pixels": 35734,
+          "changed_pixels": 33759,
+          "donor": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\tsubaki_sprite_masters\\expression_disgusted.png",
+          "donor_to_target_matrix": [
+            [
+              0.5625555515289307,
+              -0.003191750729456544,
+              223.76197814941406
+            ],
+            [
+              0.003191750729456544,
+              0.5625555515289307,
+              -6.266780853271484
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21583,
+          "duplicate_arc_cleanup": {
+            "guard_pixels": 1784,
+            "core_pixels": 1432,
+            "changed_pixels": 1765,
+            "bbox": [
+              416,
+              344,
+              605,
+              357
+            ]
+          },
+          "hidden_rgb_pixels": 0
+        }
+      }
+    }
+  }
+}

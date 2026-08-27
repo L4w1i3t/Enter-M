@@ -456,12 +456,23 @@ init -5 python:
     # money up, and already this project's "pickup" cue in the Arcade Originals.
     # It replaces audio.beep, which is the CENSOR BLEEP and reads as one.
     # -------------------------------------------------------------------------
-    MC_SE_DIR = "mod_assets/sfx/touhou/"
+    MC_SE_DIR = "assets/audio/sfx/touhou/"
     MC_SFX = {
         "coin": (MC_SE_DIR + "se_item00.wav", 0.75),   # coins credited
         "r":    (MC_SE_DIR + "se_kira00.wav", 0.50),   # common card lands
         "sr":   (MC_SE_DIR + "se_nice.wav",   0.75),   # SR lands
         "ssr":  (MC_SE_DIR + "se_cardget.wav", 0.90),  # SSR -- the card-capture cue
+
+        # -- the pull cinematic (mc_reveal_fx.rpy) ----------------------------
+        # The four beats of a wind-up, in one rising family: the capsule
+        # arriving, a rung of the tier ladder, the rung that UPGRADES, and the
+        # impact under every burst. The tier stings above are what plays on top
+        # of that impact, so the burst is always two layers.
+        "fx_drop":    (MC_SE_DIR + "se_tan00.wav",   0.70),
+        "fx_charge":  (MC_SE_DIR + "se_ch00.wav",    0.65),
+        "fx_upgrade": (MC_SE_DIR + "se_powerup.wav", 0.85),
+        "fx_impact":  ("assets/audio/sfx/sfx-shing.wav", 0.55),
+        "fx_flip":    (MC_SE_DIR + "se_kira02.wav",  0.40),
     }
 
     # A POOL, not the shared "sound" channel. A ten-pull lands a card every
@@ -546,9 +557,9 @@ init -5 python:
 
     # -------------------------------------------------------------------------
     # DEV
-    # There is a DEV pill on the prize machine (developer builds only) that
-    # opens screen mc_dev_shop; everything below is also callable straight from
-    # the Matsu'Py console with Shift+O:
+    # The ECONOMY page of the Developer Hub (main menu, top-right, or F9) drives
+    # all of this, and opens screen mc_dev_shop for the rest; everything below
+    # is also callable straight from the Matsu'Py console with Shift+O:
     #     mc_dev_give(5000)     mc_dev_fill()     mc_dev_reset()
     # -------------------------------------------------------------------------
     def mc_dev_set(amount):

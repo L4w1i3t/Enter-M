@@ -9,7 +9,7 @@
 # Shown by `call mika_poem_special_2` from inside a record.
 # =============================================================================
 
-image mika_poem_special2 = "poem_special/poem_special2.png" # Can You Hear Me?
+image mika_poem_special2 = "assets/images/poem_special/poem_special2.png" # Can You Hear Me?
 
 label mika_poem_special_2:
     $ quick_menu = False

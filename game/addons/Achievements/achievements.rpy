@@ -797,13 +797,10 @@ screen achievements():
                     xpos 1150
                     yalign 0.5
 
-                    # Dev-only: opens the grant/revoke shop. Hidden in release builds.
-                    if config.developer:
-                        textbutton "DEV SHOP":
-                            style "ach_dev_pill"
-                            yalign 0.5
-                            action Show("ach_dev_shop")
-
+                    # The grant/revoke shop below is NOT reachable from here any
+                    # more. A dev affordance cut into a player screen is one the
+                    # player can see the shape of; it lives on the Developer Hub
+                    # (main menu, top-right, or F9) instead.
                     text ("PLATINUM SECURED" if _ach_plat_done else "PLATINUM // LOCKED"):
                         style "archive_meta_text"
                         color (ACH_TIERS["platinum"]["glow"] if _ach_plat_done else "#5d7886")
@@ -921,8 +918,11 @@ screen achievements():
 
 
 # =============================================================================
-# DEV ACHIEVEMENT SHOP  (config.developer only; opened from the DEV SHOP pill
-# on the achievements screen). Nier-style manual control: flip AUTO-UNLOCK off
+# DEV ACHIEVEMENT SHOP  (config.developer only; opened from the Developer Hub
+# -- main menu, top-right, or F9. It used to hang off a pill on the achievement
+# list itself, which put a dev control inside a player screen; the hub owns
+# every entry point now, and this screen stays here because the LOGIC belongs
+# to Achievements.) Nier-style manual control: flip AUTO-UNLOCK off
 # (session-only) so a reset does not swarm, then GRANT the "ready" (already-
 # satisfied) ones one at a time to watch each toast.
 # =============================================================================
@@ -1291,7 +1291,7 @@ init python:
 
         # --- Music ------------------------------------------------------------
         # Map each library file back to the audio.<alias> it was defined as, so a
-        # `play music hopeless` counts for mod_assets/bgm/13am.ogg.
+        # `play music hopeless` counts for assets/audio/bgm/13am.ogg.
         try:
             aliases = {}
             for name in dir(store.audio):

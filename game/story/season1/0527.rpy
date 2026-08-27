@@ -315,7 +315,7 @@ label a0527_after_chemistry:
         call nier_clear from _call_nier_clear_0527_4_scum
     else:
         pause 2.0
-        scene bg track_day
+        scene bg track_evening
         $ show_calendar()
         $ atmos("evening")
         stop music fadeout 1.0

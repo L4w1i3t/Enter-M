@@ -26,13 +26,13 @@ from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SPRITE_DIR = ROOT / "game" / "mod_assets" / "char_sprites" / "matsuda"
+SPRITE_DIR = ROOT / "game" / "assets" / "characters" / "matsuda"
 FACE_STAGE = ROOT / "tmp" / "matsuda_rebuild_fresh" / "faces"
 POSE_STAGE = ROOT / "tmp" / "matsuda_rebuild_fresh" / "poses"
 FACE_REPORT = ROOT / "tmp" / "matsuda_rebuild_fresh" / "face_build_metrics.json"
 POSE_REPORT = POSE_STAGE / "provenance_metrics.json"
 VALIDATOR = ROOT / "tools" / "validate_matsuda_sprites.py"
-DEFINITIONS = ROOT / "game" / "mod_assets" / "def_characters.rpy"
+DEFINITIONS = ROOT / "game" / "asset_definitions" / "def_characters.rpy"
 CANVAS_SIZE = (1023, 1537)
 
 TOKENS = (
@@ -116,7 +116,7 @@ def provenance_hashes() -> tuple[dict[str, str], dict[str, str], dict[str, str]]
         }
         base_hashes = {}
         for name in BASE_NAMES:
-            relative = f"game/mod_assets/char_sprites/matsuda/{name}"
+            relative = f"game/assets/characters/matsuda/{name}"
             face_hash = face_report["inputs"][relative]["sha256"]
             pose_hash = pose_report["canonical_bases"][name]["sha256"]
             if face_hash != pose_hash:

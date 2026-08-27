@@ -54,7 +54,7 @@ style splash_warning_panel is empty:
     background "#050811dd"
 
 style splash_warning_heading is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 30
     color "#ff4968"
     xalign 0.5
@@ -63,14 +63,14 @@ style splash_warning_heading is gui_text:
 
 # Logo-splash "system boot" chrome (see enter_m_splash_intro in splash.rpy).
 style splash_boot_caption is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 19
     color "#bfeeff"
     text_align 0.5
     outlines [(2, "#02040b", 0, 0), (1, "#56d7ff66", 0, 0)]
 
 style splash_boot_micro is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 13
     color "#5fbcd6"
     outlines [(1, "#02040b", 0, 0)]
@@ -144,7 +144,7 @@ style vslider:
 
 style frame:
     padding gui.frame_borders.padding
-    background Frame("mod_assets/gui/frame.png", gui.frame_borders, tile=gui.frame_tile)
+    background Frame("assets/gui/enter_m/frame.png", gui.frame_borders, tile=gui.frame_tile)
 
 screen say(who, what):
     style_prefix "say"
@@ -191,7 +191,7 @@ init python:
         # Map slider 0..1 to alpha 0.2..1.0 so the box stays faintly visible at
         # the low end -- the text never floats over a fully transparent panel.
         a = 0.2 + 0.8 * a
-        return Transform("mod_assets/gui/textbox.png", alpha=a, xalign=0.5, yalign=1.0), None
+        return Transform("assets/gui/enter_m/textbox.png", alpha=a, xalign=0.5, yalign=1.0), None
 
 image enter_m_textbox_bg = DynamicDisplayable(_enter_m_textbox_bg)
 
@@ -213,7 +213,7 @@ style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Frame("mod_assets/gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+    background Frame("assets/gui/enter_m/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
     padding gui.namebox_borders.padding
 
 style say_label:
@@ -236,7 +236,7 @@ style say_dialogue:
 
 image ctc:
     xalign 0.81 yalign 0.98 xoffset -5 alpha 0.0 subpixel True
-    "gui/ctc.png"
+    "assets/gui/ctc.png"
     block:
         easeout 0.75 alpha 1.0 xoffset 0
         easein 0.75 alpha 0.5 xoffset -5
@@ -491,7 +491,7 @@ style navigation_button:
 
 style navigation_button_text:
     properties gui.button_text_properties("navigation_button")
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 19
     color "#eaf8ff"
     hover_color "#ff315b"
@@ -567,16 +567,26 @@ transform mm_panel_in(delay=0.0, xoff=-48, yoff=0):
 
 # Bright scan node that rides down the spine between the title block and the
 # monitor, on a loop.
+#
+# THE TRAVEL IS THE SPINE MINUS THE NODE, and it has to be written that way
+# because ypos moves the node's TOP. The spine is 356px from MM_MY, the node is
+# MM_SCAN_H tall, and the old end value was a bare 448 -- which put the node's
+# foot at 482 against a spine that stops at 464, so twice every nine seconds a
+# bright bar hung 19px off the end of the rail into open air, held there for
+# the whole 0.18s fade. Deriving both ends from the spine means the node lands
+# flush on it instead.
+define MM_SCAN_H = 34
+
 transform mm_rail_scan:
     subpixel True
-    ypos 110
+    ypos MM_MY
     alpha 0.0
     pause 0.7
     block:
         alpha 0.0
-        ypos 110
+        ypos MM_MY
         linear 0.18 alpha 1.0
-        linear 2.4 ypos 448
+        linear 2.4 ypos (MM_MY + MM_MH - MM_SCAN_H)
         linear 0.18 alpha 0.0
         pause 1.5
         repeat
@@ -640,39 +650,99 @@ transform mm_tally_lamp:
 
 # --- the rail ---------------------------------------------------------------
 
-# A channel card. `on show` staggers it up off the rail; `on hover` / `on idle`
-# lift it toward the monitor. Both focus handlers restate EVERY property the
-# other animates -- including alpha, which only `on show` would otherwise set --
-# because a handler that fires mid-entrance strands whatever it omits.
+# THE MENU-WARMING EXPERIMENT WAS REMOVED (Aug 27 2026). What it did, and why
+# it is not coming back in that form -- the finding underneath it is real and
+# somebody will be tempted again:
 #
-# THE LIFT IS A MEASUREMENT, NOT A TASTE. -11 is exactly the gap between the
+#   Opening a menu stalls for one frame while its art is decoded. Measured cold
+#   from this desk: Arcade 186ms, Settings 44ms, Archive 34ms. Ren'Py has a
+#   predictive loader for exactly that, and IT NEVER RUNS HERE -- prediction
+#   only happens on an "expensive" idle frame, which core.py gates on
+#   `needs_redraw` being false, and this desk animates something every frame by
+#   design. So `renpy.start_predict_screen` alone does nothing at all (measured
+#   at 0.3s, 0.6s, 1s, 2s and 4s of lead: 180ms every time), and
+#   `force_prediction` does the whole walk in a single 115ms frame, which is
+#   not fixing a stall, only moving it.
+#
+#   Driving the coroutine by hand from `config.periodic_callbacks` DID fix the
+#   menu -- Arcade 186ms -> 50ms. It also put a callback into every interaction
+#   in the game and left `_predict_screen` pointing at five menu screens after
+#   the desk was gone, pinning their textures in the image cache and re-walking
+#   their trees during play. That is a bad trade for a boss fight, and it is
+#   why this is gone.
+#
+# THE ACTUAL PROBLEM IS THE ART, NOT THE LOADER. The Arcade's five covers are
+# 1254x1254 for a shelf that draws them at 156px and a featured box that draws
+# them at 320px -- fifteen times the pixels they ever show. Ablating them
+# dropped the Arcade's cold open from 186ms to 41ms on its own. Resize the
+# covers and there is nothing left to hide.
+
+# How far a card climbs when it takes focus, and how far down its own alpha
+# sits when it has not. A card RESTS at yoffset MM_CARD_LIFT and arrives at 0
+# -- the raised position is the zero -- so the button underneath it can own
+# both rows of pixels at once. See the rail loop for why that matters.
+define MM_CARD_LIFT = 11
+define MM_CARD_DIM = 0.82
+
+# A channel card, in TWO transforms that are deliberately kept apart: the one
+# that brings it in, and the one that answers the pointer. Both of them hear
+# every event -- a Button hands hover/idle to its direct child and a Transform
+# passes it on down its own chain, so an at_list of two transforms is two
+# independent listeners -- and each simply ignores what it has no handler for.
+#
+# `ON SHOW` DOES NOT WORK ON A BUTTON INSIDE A SCREEN, and this entrance used
+# to be written with one, so it had never once played (measured: every card was
+# already at rest 0.12s in, before the first stagger delay was even up). A
+# screen relays "show" to its top-level children from update(), and Ren'Py runs
+# every screen's update() BEFORE focus.before_interact() -- which immediately
+# calls Button.unfocus(default=True) on all eight cards, overwriting the
+# pending event with "idle". A transform only ever sees the LAST event set
+# before its first execute, so "show" was gone before anything could read it,
+# and the `on show` block was dead code that left the cards at their defaults:
+# fully opaque, already home. The entrance therefore lives in a plain timed
+# block, which starts at st=0 and cannot be interrupted by an event it has no
+# handler for. This is the same shape mm_panel_in above already uses.
+transform mm_card_rise(delay=0.0):
+    subpixel True
+    alpha 0.0
+    yoffset 26
+    pause delay
+    parallel:
+        easeout 0.34 alpha 1.0
+    parallel:
+        easeout_cubic 0.42 yoffset 0
+
+# THE LIFT IS A MEASUREMENT, NOT A TASTE. 11 is exactly the gap between the
 # rail's marker line and the top of a card: the marker is 3px at
-# mm_rail_line_y (486) and the cards sit at mm_rail_y (500), so a hovered card
-# rising 11px puts its own accent bar at 489 -- the pixel the marker ends on.
-# The two become one continuous 6px band, which is the whole gesture: the
-# selected channel reaches up and joins the rail feeding the monitor.
+# mm_rail_line_y (486) and the cards rest at mm_rail_y (500), so a focused card
+# rising 11px puts its own bezel at 489 -- the pixel the marker ends on. The
+# two become one continuous band, which is the whole gesture: the selected
+# channel reaches up and joins the rail feeding the monitor.
 #
 # WHICH IS WHY THERE IS NO `zoom` HERE. A scale on this transform is anchored
 # at the card's top-left, so it grew the card RIGHTWARD: at 1.035 the 142px
 # card became 147px while the marker above it stayed 142px, and the accent
 # overhung the marker by 5px on the right (measured: marker x 493-634, accent
 # x 493-639). It also ate half the 10px gap to the next card, so the rail's
-# spacing went uneven on hover. The lift alone carries the pop; the colour
-# swap in the styles carries the rest. Keep every card exactly one slot wide.
-transform mm_card_face(delay=0.0):
+# spacing went uneven on hover. Keep every card exactly one slot wide.
+#
+# This one DOES want events, and it is the only reason the two are separate: an
+# `on idle` in the same transform as the entrance would fire at startup and
+# overwrite it. Here it has nothing to overwrite.
+#
+# The plate brightens on the same eased curve instead of snapping, so the lift
+# and the lamp are one movement rather than a slide with a flashbulb in it.
+# Hover and idle share a duration on purpose: sweeping along the rail puts two
+# cards in the air at once, and the one falling has to fall at the rate the one
+# rising rises, or the pair reads as a stutter.
+transform mm_card_lift:
     subpixel True
-    on show:
-        alpha 0.0
-        yoffset 30
-        pause delay
-        parallel:
-            easeout 0.34 alpha 1.0
-        parallel:
-            easeout_cubic 0.42 yoffset 0
+    alpha MM_CARD_DIM
+    yoffset MM_CARD_LIFT
     on hover:
-        easeout_cubic 0.14 alpha 1.0 yoffset -11
+        easeout_cubic 0.18 alpha 1.0 yoffset 0
     on idle:
-        easeout_cubic 0.20 alpha 1.0 yoffset 0
+        easeout_cubic 0.18 alpha MM_CARD_DIM yoffset MM_CARD_LIFT
 
 # The marker under the rail and the beam up to the monitor take the selected
 # card's x as a PARAMETER, which is the point: changing a screen transform's
@@ -712,6 +782,31 @@ transform mm_monitor_scan(top=138, bottom=460):
         repeat
 
 
+# --- desk geometry ----------------------------------------------------------
+# The rail row is centred as a whole, so adding or removing a channel re-spaces
+# everything without another number having to move. The stage monitor's box has
+# ONE home; everything drawn on the glass is placed relative to these four.
+define MM_CARD_W = 142
+define MM_CARD_H = 130
+define MM_CARD_GAP = 10
+define MM_RAIL_Y = 500
+define MM_RAIL_LINE_Y = 486
+define MM_MX = 324
+define MM_MY = 108
+define MM_MW = 620
+define MM_MH = 356
+
+
+# The channel-card plate. The source is a 1024x1024 square -- a 30px cyan bezel
+# around a blue gradient -- so it is DOWNSCALED FIRST and framed second: a
+# Frame's borders are measured in the source image's own pixels, and framing
+# the file at full size would put a 30px bezel on a 142px card. 205 is the
+# scale that lands that bezel on a whole pixel (30 * 205 / 1024 = 6.006), and
+# 6px is about the weight the accent bar and the lip used to carry between
+# them. Only the middle stretches, which a vertical gradient survives cleanly.
+define MM_PLATE = Frame(im.Scale("assets/gui/enter_m/menubutton.png", 205, 205), 6, 6)
+
+
 # The step wedge on the stage monitor's test card: light to dark, warm white
 # through to the panel's own blue-black, so the monitor always has something
 # calibrated-looking on it even when no channel is selected.
@@ -720,40 +815,53 @@ define MM_TEST_WEDGE = [
     "#3d85ad", "#31739a", "#276187", "#1e5074", "#173f60", "#11304d", "#0c223a",
 ]
 
+# The nine equalizer bars' start phases. A plain list rather than a `$` inside
+# the screen, which was one more statement running on every execution.
+define MM_SIGNAL_PHASE = [0.0, 0.18, 0.36, 0.06, 0.28, 0.10, 0.22, 0.40, 0.14]
+
+# The wedge and the equalizer, each collapsed from a screen `for` loop into ONE
+# constant displayable. A `for` in screen language is never constant -- its
+# loop variable is not -- so fourteen wedge bars and nine equalizer bars were
+# twenty-three nodes rebuilt on every execution, to draw a picture that has
+# never once changed. Built here instead, they are two nodes that are built
+# once. The ATL on each bar keeps running exactly as it did; a transform does
+# not care whether the screen re-executed around it.
+init python:
+
+    @renpy.pure
+    def enter_m_mm_wedge(bar_w=18, pitch=22, bar_h=82):
+        return Fixed(
+            *[Solid(c, xysize=(bar_w, bar_h), xpos=i * pitch, ypos=0)
+              for i, c in enumerate(MM_TEST_WEDGE)],
+            xysize=((len(MM_TEST_WEDGE) - 1) * pitch + bar_w, bar_h)
+        )
+
+    # yanchor 1.0 twice over, and both are load-bearing: the INNER one is
+    # mm_eq_bar's own, so yzoom shrinks the bar toward its foot instead of its
+    # head, and the OUTER one pins that shrunken render's foot to the baseline
+    # so the bar grows up out of the panel floor rather than hanging from a
+    # ceiling.
+    @renpy.pure
+    def enter_m_mm_eq(bar_w=16, pitch=26, bar_h=40):
+        bars = [
+            Transform(
+                At(Solid("#56d7ff", xysize=(bar_w, bar_h)),
+                   mm_eq_bar(phase, 0.62 + 0.04 * j, 0.18)),
+                xpos=j * pitch, ypos=bar_h, yanchor=1.0,
+            )
+            for j, phase in enumerate(MM_SIGNAL_PHASE)
+        ]
+        return Fixed(
+            *bars,
+            xysize=((len(MM_SIGNAL_PHASE) - 1) * pitch + bar_w, bar_h)
+        )
+
 
 # --- Reusable pieces of the desk --------------------------------------------
 
-# One labelled row of the telemetry stack. Built as a `fixed` with explicit
-# xpos rather than as an hbox, because a box given an xsize spreads its
-# children instead of packing them and the value column comes out crooked.
-screen mm_readout_row(rkey, rvalue, rwidth, rx, ry):
-    fixed:
-        xysize (rwidth, 20)
-        xpos rx
-        ypos ry
-        text rkey:
-            style "mm_readout_key"
-            xpos 0
-        text rvalue:
-            style "mm_readout_value"
-            xanchor 1.0
-            xpos rwidth
-
-# One line of the controls legend: a keycap chip and what it does.
-screen mm_legend_row(cap, what, lx, ly):
-    fixed:
-        xysize (240, 24)
-        xpos lx
-        ypos ly
-        frame:
-            style "mm_keycap"
-            xpos 0
-            text cap style "mm_keycap_text"
-        text what:
-            style "mm_legend_text"
-            xpos 78
-            ypos 4
-
+# The telemetry row and the legend row used to be `use` screens here. They are
+# now the pure factories `enter_m_readout_row` / `enter_m_legend_row` further
+# down this file, for the reason documented alongside them.
 
 screen main_menu():
 
@@ -779,18 +887,16 @@ screen main_menu():
             (_("Quit"),      _("CUT THE FEED."),                      Quit(confirm=False)),
         ]
 
-        # Rail geometry. The row is centred as a whole, so adding or removing a
-        # channel re-spaces everything without another number having to move.
+        # Rail geometry, derived from the module-level constants at the top of
+        # this section so the values the chrome is built from are the values
+        # the screen lays out with.
         mm_count = len(mm_channels)
-        mm_card_w, mm_card_h, mm_card_gap = 142, 130, 10
+        mm_card_w, mm_card_h, mm_card_gap = MM_CARD_W, MM_CARD_H, MM_CARD_GAP
         mm_rail_w = mm_count * mm_card_w + (mm_count - 1) * mm_card_gap
         mm_rail_x = (1280 - mm_rail_w) // 2
-        mm_rail_y = 500
-        mm_rail_line_y = 486
-
-        # The stage monitor's box has ONE home; everything drawn on the glass is
-        # placed relative to these four numbers.
-        mm_mx, mm_my, mm_mw, mm_mh = 324, 108, 620, 356
+        mm_rail_y = MM_RAIL_Y
+        mm_rail_line_y = MM_RAIL_LINE_Y
+        mm_mx, mm_my, mm_mw, mm_mh = MM_MX, MM_MY, MM_MW, MM_MH
 
         # The previewed channel, clamped in case the table ever shrinks under a
         # stale selection.
@@ -862,7 +968,7 @@ screen main_menu():
             style "mm_tally_text"
             xpos 102
             ypos 204
-        use console_brackets(44, 186, 236, 66, "#ff315b66", 14, 2)
+        add enter_m_brackets(236, 66, "#ff315b66", 14, 2) xpos 44 ypos 186
 
     fixed:
         at mm_panel_in(0.38, -40, 0)
@@ -873,10 +979,10 @@ screen main_menu():
             ypos 300
         add Solid("#56d7ff33") xysize (236, 1) xpos 44 ypos 320
 
-        use mm_legend_row(_("< >"), _("BROWSE CHANNELS"), 44, 334)
-        use mm_legend_row(_("ENTER"), _("OPEN CHANNEL"), 44, 368)
-        use mm_legend_row(_("CLICK"), _("SELECT CHANNEL"), 44, 402)
-        use mm_legend_row(_("ESC"), _("CUT THE FEED"), 44, 436)
+        add enter_m_legend_row(_("< >"), _("BROWSE CHANNELS")) xpos 44 ypos 334
+        add enter_m_legend_row(_("ENTER"), _("OPEN CHANNEL")) xpos 44 ypos 368
+        add enter_m_legend_row(_("CLICK"), _("SELECT CHANNEL")) xpos 44 ypos 402
+        add enter_m_legend_row(_("ESC"), _("CUT THE FEED")) xpos 44 ypos 436
 
     # The spine that separates the title column from the monitor, with a scan
     # node riding down it.
@@ -934,11 +1040,10 @@ screen main_menu():
         # not sitting in a box of its own on the right of the screen.
         add Solid("#56d7ff1a") xysize (mm_mw - 60, 1) xpos (mm_mx + 30) ypos (mm_my + 184)
 
-        for mm_i, mm_shade in enumerate(MM_TEST_WEDGE):
-            add Solid(mm_shade) xysize (18, 82) xpos (mm_mx + 30 + mm_i * 22) ypos (mm_my + 198)
+        add enter_m_mm_wedge() xpos (MM_MX + 30) ypos (MM_MY + 198)
 
         add Solid("#56d7ff26") xysize (1, 94) xpos (mm_mx + 366) ypos (mm_my + 192)
-        add "mod_assets/gui/logo.png":
+        add "assets/gui/enter_m/logo.png":
             xcenter (mm_mx + 476)
             ycenter (mm_my + 232)
             zoom 0.17
@@ -964,7 +1069,7 @@ screen main_menu():
         add Solid("#8be6ff1e") xysize (mm_mw, 2) xpos mm_mx at mm_monitor_scan(mm_my + 30, mm_my + mm_mh - 6)
         add Solid("#56d7ff") xpos mm_mx ypos mm_my xysize (mm_mw, mm_mh) at mm_channel_flash(mm_cur)
 
-        use console_brackets(mm_mx, mm_my, mm_mw, mm_mh, "#56d7ff7a", 22, 2)
+        add enter_m_brackets(MM_MW, MM_MH, "#56d7ff7a", 22, 2) xpos MM_MX ypos MM_MY
 
     # =========================================================================
     # RIGHT: telemetry stack
@@ -983,16 +1088,14 @@ screen main_menu():
             xpos 1000
             ypos 112
 
-        $ mm_sig = [0.0, 0.18, 0.36, 0.06, 0.28, 0.10, 0.22, 0.40, 0.14]
-        for mm_j in range(len(mm_sig)):
-            add Solid("#56d7ff") xysize (16, 40) xpos (988 + mm_j * 26) ypos 214 yanchor 1.0 at mm_eq_bar(mm_sig[mm_j], 0.62 + 0.04 * mm_j, 0.18)
+        add enter_m_mm_eq() xpos 988 ypos 174
 
         add Solid("#ff315b") xysize (6, 6) xpos 984 ypos 230 at console_blink
         text "LINK STABLE":
             style "mm_telemetry_accent"
             xpos 1000
             ypos 225
-        use console_brackets(968, 108, 268, 150, "#56d7ff6e", 18, 2)
+        add enter_m_brackets(268, 150, "#56d7ff6e", 18, 2) xpos 968 ypos 108
 
         # --- readout panel ---
         add Solid("#070f1af2") xpos 968 ypos 272 xysize (268, 192)
@@ -1004,13 +1107,13 @@ screen main_menu():
             xpos 1000
             ypos 276
 
-        use mm_readout_row(_("FEED"), _("MAIN"), 236, 984, 316)
-        use mm_readout_row(_("BUILD"), "v[config.version]", 236, 984, 344)
-        use mm_readout_row(_("CHANNELS"), ("%02d" % mm_count), 236, 984, 372)
-        use mm_readout_row(_("SELECTED"), ("%02d" % (mm_cur + 1)), 236, 984, 400)
-        use mm_readout_row(_("STATUS"), _("NOMINAL"), 236, 984, 428)
+        add enter_m_readout_row(_("FEED"), _("MAIN"), 236) xpos 984 ypos 316
+        add enter_m_readout_row(_("BUILD"), "v" + config.version, 236) xpos 984 ypos 344
+        add enter_m_readout_row(_("CHANNELS"), ("%02d" % mm_count), 236) xpos 984 ypos 372
+        add enter_m_readout_row(_("SELECTED"), ("%02d" % (mm_cur + 1)), 236) xpos 984 ypos 400
+        add enter_m_readout_row(_("STATUS"), _("NOMINAL"), 236) xpos 984 ypos 428
 
-        use console_brackets(968, 272, 268, 192, "#56d7ff6e", 18, 2)
+        add enter_m_brackets(268, 192, "#56d7ff6e", 18, 2) xpos 968 ypos 272
 
     # =========================================================================
     # BOTTOM: the channel rail
@@ -1027,11 +1130,20 @@ screen main_menu():
 
     for mm_k, (mm_k_label, mm_k_strap, mm_k_action) in enumerate(mm_channels):
 
+        # THE BUTTON IS TALLER THAN THE CARD, BY EXACTLY THE LIFT. The card
+        # moves and the focus rectangle does not -- add_focus reports the
+        # button's own rect, never the child's offset one -- so a button cut to
+        # the card's size left an 11px strip along the top that was visibly
+        # part of a raised card and not clickable, and a matching 11px strip
+        # along the bottom that was clickable and empty. Starting the button
+        # one lift HIGHER and letting the card rest at the bottom of it makes
+        # the hot rectangle the union of both positions: wherever the card is,
+        # the pointer is over it.
         button:
             style "mm_card_button"
-            xysize (mm_card_w, mm_card_h)
+            xysize (mm_card_w, mm_card_h + MM_CARD_LIFT)
             xpos (mm_rail_x + mm_k * (mm_card_w + mm_card_gap))
-            ypos mm_rail_y
+            ypos (mm_rail_y - MM_CARD_LIFT)
             action mm_k_action
             hovered SetScreenVariable("mm_sel", mm_k)
             default_focus (mm_k == 0)
@@ -1039,14 +1151,17 @@ screen main_menu():
             # This `fixed` is the button's ONLY child on purpose: hover and idle
             # transform events reach a button's direct child and stop there, so
             # anything nested deeper would never learn it was being pointed at.
-            # Colour changes go through styles instead, which DO recurse.
+            # Colour changes go through styles instead, which DO recurse. It
+            # fills the whole button rather than just the card so its placement
+            # inside the window can never come into it; the plate below is what
+            # says where the card face actually starts.
             fixed:
-                at mm_card_face(0.16 + 0.035 * mm_k)
-                xysize (mm_card_w, mm_card_h)
+                at [mm_card_rise(0.16 + 0.035 * mm_k), mm_card_lift]
+                xysize (mm_card_w, mm_card_h + MM_CARD_LIFT)
 
                 frame:
-                    style "mm_card_accent"
-                    xysize (mm_card_w, 3)
+                    style "mm_card_plate"
+                    xysize (mm_card_w, mm_card_h)
                 text ("%02d" % (mm_k + 1)):
                     style "mm_card_slot"
                     xpos 12
@@ -1064,10 +1179,6 @@ screen main_menu():
                     style "mm_card_caret"
                     xpos 12
                     ypos 98
-                frame:
-                    style "mm_card_lip"
-                    xysize (mm_card_w, 2)
-                    ypos (mm_card_h - 2)
 
     # =========================================================================
     # FOOTER + FRAME
@@ -1088,7 +1199,13 @@ screen main_menu():
         xpos 1236
         ypos 674
 
-    use console_brackets(14, 14, 1252, 692, "#56d7ff3a", 26, 2)
+    add enter_m_brackets(1252, 692, "#56d7ff3a", 26, 2) xpos 14 ypos 14
+
+    # The Developer Hub's ONE hook into the shipping game. Everything it does
+    # lives in addons/Dev Hub/; has_screen means deleting that folder removes
+    # the feature cleanly instead of leaving a dangling `use` behind.
+    if config.developer and renpy.has_screen("dev_hub_mount"):
+        use dev_hub_mount
 
     key "K_ESCAPE" action Quit(confirm=False)
 
@@ -1102,7 +1219,7 @@ style mm_micro is gui_text:
     outlines [(1, "#02050a", 0, 1)]
 
 style mm_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 40
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -1122,7 +1239,7 @@ style mm_section_label is gui_text:
     outlines [(1, "#02050a", 0, 1)]
 
 style mm_tally_text is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 26
     color "#ffd9e2"
     outlines [(2, "#02050a", 0, 1), (1, "#ff315baa", 0, 0)]
@@ -1149,7 +1266,7 @@ style mm_legend_text is gui_text:
 # --- monitor ---
 
 style mm_monitor_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 16
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1)]
@@ -1175,7 +1292,7 @@ style mm_channel_number is gui_text:
     outlines [(1, "#56d7ff44", 0, 0)]
 
 style mm_channel_name is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 38
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -1221,34 +1338,41 @@ style mm_footer_text is gui_text:
 # style prefixes recurse into a button's whole subtree while transform events
 # do not.
 
+# The button itself draws NOTHING. It is a lift taller than the card face and
+# sits with its top edge inside the marker band, so a background on it would
+# paint over the rail line the card is reaching up to join.
 style mm_card_button is gui_button:
-    background "#071019e0"
-    hover_background "#22091af2"
+    background None
+    hover_background None
     padding (0, 0, 0, 0)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
-style mm_card_accent is empty:
-    background "#56d7ff"
-    hover_background "#ff315b"
+# The plate graphic IS the card now; its bezel does the job the 3px accent bar
+# and the 2px lip used to split between them, so both are gone. Nothing swaps
+# here on hover -- a second plate cutting in at full opacity would snap, and
+# the lift transform already brightens this one on a curve.
+style mm_card_plate is empty:
+    background MM_PLATE
 
+# The plate's own face is far lighter than the flat "#071019" card these three
+# were picked against, so the values that read as "quiet" on the old face read
+# as "gone" on this one -- the caret in particular was #2f5262 sitting on a
+# #1a3a58 gradient, the same luminance as its background. Lifted until each
+# clears the plate, and no further: the label is still the loud thing on a card.
 style mm_card_pip is empty:
-    background "#2a5c70"
-    hover_background "#ff315b"
-
-style mm_card_lip is empty:
-    background "#123243"
+    background "#5d94ab"
     hover_background "#ff315b"
 
 style mm_card_slot is gui_text:
     font gui.interface_font
     size 11
-    color "#4e8195"
+    color "#86b9cd"
     hover_color "#ff8ba6"
     outlines [(1, "#02050a", 0, 1)]
 
 style mm_card_label is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 17
     color "#eaf8ff"
     hover_color "#ff315b"
@@ -1257,9 +1381,9 @@ style mm_card_label is gui_text:
     hover_outlines [(2, "#02050a", 0, 1), (1, "#ff315b99", 0, 0)]
 
 style mm_card_caret is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 15
-    color "#2f5262"
+    color "#6fa6bd"
     hover_color "#ff315b"
     outlines [(1, "#02050a", 0, 1)]
 
@@ -1275,8 +1399,74 @@ style main_menu_version is gui_text:
 # Retro-terminal technical dressing (Steins;Gate-inspired) reused across the
 # pause-menu screens. It's our own SIGNAL/LINK/0x4D readout language, not lifted.
 
+# WHY THERE ARE TWO OF THESE, AND WHICH ONE TO REACH FOR
+#
+#   `enter_m_brackets(w, h, ...)` returns ONE displayable and is declared pure,
+#   so a call with constant arguments is folded at screen-prepare time and the
+#   result is reused forever. `use console_brackets(...)` builds eight `add`
+#   nodes and, because SL2 cannot see constants across a `use` boundary
+#   (SLUse.prepare takes the constness of the TARGET screen's body, and that
+#   body reads its own parameters), all eight are re-executed on every screen
+#   execution -- which means every hover, every timer, every slider drag.
+#
+#   Measured on the main menu, which had five bracket frames: forty of its 112
+#   non-constant nodes were these. Prefer the function anywhere the rectangle
+#   is fixed; keep the screen for a rect that genuinely moves.
+#
+# The function takes a SIZE and is placed by the caller, rather than taking a
+# rect, so that the same brackets can be positioned with ordinary xpos/ypos.
+init python:
+
+    @renpy.pure
+    def enter_m_brackets(w, h, col="#56d7ff7a", blen=20, th=2):
+        def bar(bw, bh, x, y):
+            return Solid(col, xysize=(bw, bh), xpos=x, ypos=y)
+
+        return Fixed(
+            bar(blen, th, 0, 0),                        # top-left
+            bar(th, blen, 0, 0),
+            bar(blen, th, w - blen, 0),                 # top-right
+            bar(th, blen, w - th, 0),
+            bar(blen, th, 0, h - th),                   # bottom-left
+            bar(th, blen, 0, h - blen),
+            bar(blen, th, w - blen, h - th),            # bottom-right
+            bar(th, blen, w - th, h - blen),
+            xysize=(w, h),
+        )
+
+    # One labelled row of the telemetry stack, and one line of the controls
+    # legend. Same story as the brackets: these were `use` screens taking their
+    # geometry as parameters, so five readout rows and four legend rows came to
+    # thirty-one nodes rebuilt on every execution. `_` is in Ren'Py's own pure
+    # set, so `_("FEED")` folds too -- and because the memo key is the
+    # ALREADY-TRANSLATED string, changing language yields a different constant
+    # rather than a stale one.
+    #
+    # Built as a `fixed` with explicit xpos rather than as an hbox, because a
+    # box given an xsize spreads its children instead of packing them and the
+    # value column comes out crooked.
+    @renpy.pure
+    def enter_m_readout_row(rkey, rvalue, rwidth):
+        return Fixed(
+            Text(rkey, style="mm_readout_key", xpos=0, ypos=0),
+            Text(rvalue, style="mm_readout_value", xpos=rwidth, xanchor=1.0, ypos=0),
+            xysize=(rwidth, 20),
+        )
+
+    @renpy.pure
+    def enter_m_legend_row(cap, what):
+        return Fixed(
+            Window(Text(cap, style="mm_keycap_text"), style="mm_keycap", xpos=0, ypos=0),
+            Text(what, style="mm_legend_text", xpos=78, ypos=4),
+            xysize=(240, 24),
+        )
+
+
 # Four L-shaped corner brackets framing an arbitrary rect. Drawn with thin Solids
 # so it costs nothing and scales to any panel without a bespoke border asset.
+#
+# Prefer `enter_m_brackets()` above for a rect that does not move; see the note
+# there. This stays for the screens whose rect is computed from live state.
 screen console_brackets(bx, by, bw, bh, col="#56d7ff7a", blen=20, th=2):
     # top-left
     add Solid(col) xysize (blen, th) pos (bx, by)
@@ -1469,7 +1659,7 @@ style game_menu_label:
     ysize 58
 
 style game_menu_label_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -1480,7 +1670,7 @@ style return_button:
     ysize 42
 
 style game_menu_nav_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 24
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -1724,7 +1914,7 @@ style slot_button_text:
     outlines [(1, "#02050a", 0, 1)]
 
 style locked_file_menu_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 24
     color "#eaf8ff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -1756,9 +1946,19 @@ style locked_file_menu_hint:
 #   fight's pause menu borrows it, so the accordion has its own
 #   `pref_full_slider` and leaves that one at 360.
 #
-# WHICH SECTIONS ARE OPEN is a per-profile preference, not screen state, so it
-# survives leaving Settings and closing the game. DISPLAY starts open so the
-# screen never opens empty.
+# IT IS AN ACCORDION: AT MOST ONE SECTION IS OPEN, AND SETTINGS ALWAYS OPENS
+# SHUT. Opening a section closes whichever one was open, and arriving on the
+# screen -- from the main menu or from the pause menu, first visit or fiftieth
+# -- collapses everything. The column is 520px tall and several sections are
+# taller than that on their own, so anything that could leave two of them open
+# put the one you came for below the fold behind a scrollbar.
+#
+# The open section is still parked in `persistent` even though it no longer
+# survives a visit. That is not a leftover: it is the one store both contexts
+# can write without ceremony -- Settings is reachable from the main menu, where
+# there is no rollback, and from a live game, where a plain store variable
+# would go into the rollback log and the save file for something that is
+# thrown away on the next `show` anyway.
 
 init python:
 
@@ -1766,27 +1966,22 @@ init python:
 
     def enter_m_pref_section_toggle(key):
         """
-        Open or close one section.
+        Open one section and close every other one. Re-clicking the open
+        section shuts it, so the screen can be put back to all-closed without
+        hunting for a separate control.
 
-        Rebuilds the set and REASSIGNS it rather than mutating in place: an
-        attribute assignment is what tells `persistent` it has changed, and
-        rebuilding also quietly repairs a profile whose stored value is a stale
-        list, a None, or a set full of section keys that no longer exist.
+        Stored as a SET of one rather than a bare key so that a profile written
+        by the old multi-open version still loads: any stale set, list or None
+        collapses to a single key the first time a header is clicked.
         """
 
-        open_keys = set(persistent.enter_m_pref_open or ())
-        open_keys &= set(ENTER_M_PREF_SECTIONS)
-
-        if key in open_keys:
-            open_keys.discard(key)
-        else:
-            open_keys.add(key)
-
-        persistent.enter_m_pref_open = open_keys
+        already_open = key in (persistent.enter_m_pref_open or ())
+        persistent.enter_m_pref_open = set() if already_open else {key}
         renpy.restart_interaction()
 
-    def enter_m_pref_sections_set(open_all):
-        persistent.enter_m_pref_open = set(ENTER_M_PREF_SECTIONS) if open_all else set()
+    def enter_m_pref_sections_close():
+        """Collapse everything. Called on every arrival at the screen."""
+        persistent.enter_m_pref_open = set()
         renpy.restart_interaction()
 
     def enter_m_pref_section_is_open(key):
@@ -1823,7 +2018,7 @@ init python:
 
         renpy.restart_interaction()
 
-default persistent.enter_m_pref_open = set(["display"])
+default persistent.enter_m_pref_open = set()
 
 transform pref_panel_enter(delay=0.0):
     alpha 0.0
@@ -1905,6 +2100,12 @@ screen pref_section(pref_key, pref_title, pref_accent="#56d7ff", pref_delay=0.0)
 screen preferences():
     tag menu
 
+    # Always arrive collapsed. Both events are needed: "show" covers opening
+    # Settings over a menu that is not itself tagged `menu`, "replace" covers
+    # the usual case of it taking the tag from the screen it replaces.
+    on "show" action Function(enter_m_pref_sections_close)
+    on "replace" action Function(enter_m_pref_sections_close)
+
     use game_menu(_("Settings")):
 
         viewport:
@@ -1921,10 +2122,16 @@ screen preferences():
                 spacing 14
 
                 # --- the index bar --------------------------------------
-                # The two buttons stop 14px short of the column's right edge:
-                # the vertical scrollbar lands flush against it the moment a
-                # section opens far enough to need one, and a button pressed up
-                # against the scrollbar reads as clipped.
+                # "Expand All" was removed when this became an accordion: a
+                # button whose entire job is to open every section at once
+                # cannot coexist with a rule that at most one may be open.
+                # "Collapse All" survives because shutting the open one from
+                # here still saves aiming at its header.
+                #
+                # It stops 14px short of the column's right edge: the vertical
+                # scrollbar lands flush against it the moment a section opens
+                # far enough to need one, and a button pressed up against the
+                # scrollbar reads as clipped.
                 fixed:
                     xysize (620, 30)
                     at pref_panel_enter(0.00)
@@ -1934,18 +2141,11 @@ screen preferences():
                         xpos 2
                         ypos 7
 
-                    textbutton _("Expand All"):
-                        style "pref_index_button"
-                        xpos 366
-                        ypos 1
-                        action Function(enter_m_pref_sections_set, True)
-                        at pref_button_hover
-
                     textbutton _("Collapse All"):
                         style "pref_index_button"
                         xpos 490
                         ypos 1
-                        action Function(enter_m_pref_sections_set, False)
+                        action Function(enter_m_pref_sections_close)
                         at pref_button_hover
 
                 # --- DISPLAY: the window and what the hardware is doing --
@@ -1957,33 +2157,21 @@ screen preferences():
                             textbutton _("Window") style "radio_button" action Preference("display", "window") at pref_button_hover
                             textbutton _("Fullscreen") style "radio_button" action Preference("display", "fullscreen") at pref_button_hover
 
-                    # The slider walks the divisors of the monitor's refresh
-                    # rate -- the only rates Matsu'Py's swap interval can
-                    # produce. See framerate.rpy.
-                    $ _enter_m_fps_readout = enter_m_fps_label()
-                    text _("Frame Rate — [_enter_m_fps_readout!t]") style "pref_row_label"
-                    bar value EnterMFramerateValue() style "pref_full_slider"
-                    if enter_m_vsync_mode() == "off":
-                        text _("VSync is off — the cap does nothing.") style "pref_note_label"
-                    elif enter_m_fps_needs_restart():
-                        text _("Restart to apply.") style "pref_note_label"
-
-                    # Dev-only readout, so the cap can be confirmed rather than
-                    # guessed at. The timer forces the redraws that make this
-                    # measure the ceiling.
+                    # THE FRAME RATE CAP AND THE VSYNC PICKER USED TO LIVE HERE
+                    # and are gone (Aug 27 2026). The game runs at the display's
+                    # refresh rate; framerate.rpy has the measurements for why a
+                    # cap was actively harmful in the real-time modes. Nothing
+                    # replaced them, because there is nothing left to choose.
+                    #
+                    # The meter stays, developer-only: it is how a "the frame
+                    # rate feels wrong" report gets turned into a number. The
+                    # timer forces the redraws that make this read the ceiling
+                    # rather than the idle floor.
                     if config.developer:
                         timer 1.0 repeat True action Function(enter_m_fps_sample)
                         $ _enter_m_fps_now = enter_m_fps_measured()
-                        text _("measured: [_enter_m_fps_now!t] fps") style "pref_note_label"
-
-                    text _("VSync") style "pref_row_label"
-                    hbox:
-                        style "pref_button_row"
-                        textbutton _("On") style "pref_small_button" action SetField(persistent, "enter_m_vsync", "on") selected (enter_m_vsync_mode() == "on") at pref_button_hover
-                        textbutton _("Adaptive") style "pref_small_button" action SetField(persistent, "enter_m_vsync", "adaptive") selected (enter_m_vsync_mode() == "adaptive") at pref_button_hover
-                        textbutton _("Off") style "pref_small_button" action SetField(persistent, "enter_m_vsync", "off") selected (enter_m_vsync_mode() == "off") at pref_button_hover
-                    if enter_m_vsync_needs_restart():
-                        text _("Restart to apply.") style "pref_note_label"
+                        $ _enter_m_hz = enter_m_refresh_rate_label()
+                        text _("measured: [_enter_m_fps_now!t] fps  //  display: [_enter_m_hz!t]") style "pref_note_label"
 
                 # --- GRAPHICS: what the picture costs -------------------
                 use pref_section("graphics", _("Graphics"), "#56d7ff", 0.06):
@@ -2171,7 +2359,7 @@ style pref_label:
     bottom_margin 2
 
 style pref_label_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 24
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -2202,7 +2390,7 @@ style pref_section_button:
     activate_sound gui.activate_sound
 
 style pref_section_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 22
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -2581,7 +2769,7 @@ style history_header:
     ysize 56
 
 style history_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 34
     color "#f2fbff"
     outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
@@ -2677,7 +2865,7 @@ style history_empty:
     background "#08131c99"
 
 style history_empty_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 24
     color "#76919d"
 
@@ -3013,7 +3201,7 @@ style confirm_button:
     activate_sound gui.activate_sound
 
 style confirm_button_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 20
     color "#eaf8ff"
     hover_color "#ff315b"

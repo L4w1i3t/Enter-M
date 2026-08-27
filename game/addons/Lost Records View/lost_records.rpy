@@ -68,7 +68,7 @@ init python:
         # Falls back to a placeholder image when no thumbnail is supplied.
         @property
         def thumbnail_path(self):
-            return self.thumbnail or "mod_assets/dump/icon_placeholder.png"
+            return self.thumbnail or "assets/dump/icon_placeholder.png"
 
     # The catalog the screen renders. Rebuilt at init (see init 5 python below).
     lost_records = []

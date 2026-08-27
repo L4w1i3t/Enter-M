@@ -24,8 +24,10 @@ from PIL import Image, ImageFilter
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SPRITE_ROOT = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "matsuda"
-DEFAULT_DEFINITIONS = PROJECT_ROOT / "game" / "mod_assets" / "def_characters.rpy"
+DEFAULT_SPRITE_ROOT = PROJECT_ROOT / "game" / "assets" / "characters" / "matsuda"
+DEFAULT_DEFINITIONS = (
+    PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
+)
 CANVAS_SIZE = (1023, 1537)
 CANVAS_WIDTH, CANVAS_HEIGHT = CANVAS_SIZE
 EXPECTED_FACE_ALPHA_LEVELS = 256
@@ -76,11 +78,11 @@ class OutfitSpec:
         return f"face_{token}_{self.name}.png"
 
     def face_reference(self, token: str) -> str:
-        return f"mod_assets/char_sprites/matsuda/{self.face_name(token)}"
+        return f"assets/characters/matsuda/{self.face_name(token)}"
 
     @property
     def base_reference(self) -> str:
-        return f"mod_assets/char_sprites/matsuda/{self.base_name}"
+        return f"assets/characters/matsuda/{self.base_name}"
 
 
 OUTFITS = (
@@ -97,7 +99,7 @@ class PoseSpec:
 
     @property
     def reference(self) -> str:
-        return f"mod_assets/char_sprites/matsuda/{self.filename}"
+        return f"assets/characters/matsuda/{self.filename}"
 
 
 POSES = (
@@ -1042,7 +1044,7 @@ def parse_attribute_records(group: str) -> list[AttributeRecord]:
     records: list[AttributeRecord] = []
     attribute_pattern = re.compile(r"^        attribute\s+(\w+)(?P<tail>[^:]*):\s*$")
     asset_pattern = re.compile(
-        r'"(?P<asset>mod_assets/char_sprites/matsuda/[^"\n]+\.png)"'
+        r'"(?P<asset>assets/characters/matsuda/[^"\n]+\.png)"'
     )
     for index, line in enumerate(lines):
         match = attribute_pattern.match(line)
@@ -1142,7 +1144,7 @@ def validate_definition(
         f"extra={list((face_records - expected_faces).elements())}",
     )
 
-    reference_pattern = re.compile(r'"(mod_assets/char_sprites/matsuda/[^"\n]+\.png)"')
+    reference_pattern = re.compile(r'"(assets/characters/matsuda/[^"\n]+\.png)"')
     layered_reference_counts = Counter(reference_pattern.findall(layered))
     expected_layered_references = {
         *(outfit.base_reference for outfit in OUTFITS),
@@ -1195,7 +1197,7 @@ def validate_definition(
 
     pose_pattern = re.compile(
         r"^image\s+matsuda\s+(?P<outfit>\w+)\s+(?P<attribute>pose_\w+)\s*=\s*"
-        r'Transform\(\s*"(?P<asset>mod_assets/char_sprites/matsuda/[^"\n]+\.png)"\s*,'
+        r'Transform\(\s*"(?P<asset>assets/characters/matsuda/[^"\n]+\.png)"\s*,'
         r'\s*fit\s*=\s*"contain"\s*,\s*xysize\s*=\s*\(\s*640\s*,\s*960\s*\)\s*\)\s*$',
         re.MULTILINE,
     )

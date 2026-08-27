@@ -6,7 +6,7 @@ image console_bg:
 
 # Style definition for console text
 style console_text:
-    font "gui/font/F25_Bank_Printer.ttf"   # Typewriter-style font
+    font "assets/gui/font/F25_Bank_Printer.ttf"   # Typewriter-style font
     color "#fff"                         # White text
     size 18                                # Font size
     outlines []                            # No text outlines

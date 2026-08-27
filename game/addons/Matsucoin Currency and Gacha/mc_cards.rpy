@@ -27,11 +27,11 @@
 #   depicts, because it IS the thing it depicts.
 #
 # PIXEL SOURCES
-#   Four cards (the 16-bit Kotonoha, both marionette Tsubaki phases) are tiny
-#   pixel sprites -- 60x102 and smaller. They carry pixel=True, which pre-scales
-#   them with nearest sampling before the portrait cropper ever sees them.
-#   Without it a 60px sprite blown up to a 300px card face is mush; the crop's
-#   own scaling is smooth, so the source has to arrive already large.
+#   Three cards (the 16-bit Kotonoha and both marionette Tsubaki phases) use
+#   low-resolution pixel sprites. They carry pixel=True, which pre-scales them
+#   with nearest sampling before the portrait cropper ever sees them. Without
+#   it, sprite art blown up to a 300px card face is mush; the crop's own scaling
+#   is smooth, so the source has to arrive already large.
 #
 # ADDING A CARD
 #   Append one McCard(...) below. The id is a permanent ledger key -- it is what
@@ -193,7 +193,7 @@ init -4 python:
             "matsuda casual pose_laughing", focus=0.05),
         McCard("r_matsuda_convention", "ssr", "Forever Young", "matsuda",
                 "Gotta go all out on anime conventions, right?",
-                "mod_assets/char_sprites/matsuda/convention_fullbody.png"),
+                "assets/characters/matsuda/convention_fullbody.png"),
 
         McCard("r_tsubaki_casual", "r", "Casual", "tsubaki",
             "Standing slightly outside the group photo, as usual.",
@@ -342,11 +342,11 @@ init -4 python:
         McCard("ssr_tsuba_act1", "ssr", "The Unwritten Act", "tsubaki",
             "Somebody is holding the strings and it is not her.",
             MC_TSUBA + "phase1.png",
-            focus=0.0, aspect=135.0 / 302.0, pixel=True),
+            focus=0.0, aspect=184.0 / 344.0, pixel=True),
         McCard("ssr_tsuba_act2", "ssr", "The Unwritten Act // Encore", "tsubaki",
             "The house lights came up and she kept performing.",
             MC_TSUBA + "phase2.png",
-            focus=0.0, aspect=189.0 / 318.0, pixel=True),
+            focus=0.0, aspect=184.0 / 344.0, pixel=True),
 
         # The only `contain` card in the set. Its art is a single centred heart
         # on a wider-than-tall canvas; cover-cropping it into a portrait window
@@ -489,9 +489,9 @@ init -4 python:
     # renders SMALLER than the window and is centred inside it. That is correct
     # for a dossier, which draws its own opaque frame around the result -- and
     # wrong here, because the card shader is a MESH whose u_model_size comes
-    # from the displayable it wraps. A 135x302 marionette sprite resolved to a
-    # 102x134 render inside a 152x213 slot, so the shader drew a 102x134 CARD:
-    # visibly narrower than its neighbours, with its border in the wrong place.
+    # from the displayable it wraps. A narrow marionette sprite once resolved
+    # to a 102x134 render inside a 152x213 slot, so the shader drew a 102x134
+    # CARD: visibly narrower than its neighbours, with its border misplaced.
     #
     # So: cover-and-crop to exactly (w, h), then composite onto an opaque base
     # of exactly (w, h). The base doubles as the guarantee that the mesh is
@@ -572,7 +572,8 @@ init -4 python:
 
     # -------------------------------------------------------------------------
     # DEV
-    # Console (Shift+O): mc_dev_grant_all() / mc_dev_clear_cards()
+    # Developer Hub -> ECONOMY, or the console (Shift+O):
+    #     mc_dev_grant_all() / mc_dev_clear_cards()
     # -------------------------------------------------------------------------
     def mc_dev_grant_all():
         _mc_ensure_cards()

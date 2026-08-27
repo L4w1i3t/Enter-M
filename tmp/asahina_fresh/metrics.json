@@ -1,0 +1,199 @@
+{
+  "face_mask_box": [
+    310,
+    140,
+    670,
+    470
+  ],
+  "face_feather": 10,
+  "face_alpha_bbox": [
+    303,
+    117,
+    694,
+    494
+  ],
+  "expressions": {
+    "happy": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.779955
+    },
+    "smug": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.837312
+    },
+    "teasing": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.835682
+    },
+    "thinking": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.845661
+    },
+    "curious": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.874138
+    },
+    "unamused": {
+      "translation": [
+        0,
+        -1
+      ],
+      "head_edge_correlation": 0.910235
+    },
+    "annoyed": {
+      "translation": [
+        1,
+        -1
+      ],
+      "head_edge_correlation": 0.853225
+    },
+    "frustrated": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.788632
+    },
+    "angry": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.853458
+    },
+    "sad": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.864317
+    },
+    "crying": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.829165
+    },
+    "embarrassed": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.854833
+    },
+    "nervous": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.838442
+    },
+    "worried": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.87263
+    },
+    "shocked": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.863204
+    },
+    "afraid": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.862012
+    },
+    "panicked": {
+      "translation": [
+        1,
+        -1
+      ],
+      "head_edge_correlation": 0.802022
+    },
+    "determined": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.800705
+    },
+    "empty": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.837165
+    },
+    "disgusted": {
+      "translation": [
+        1,
+        0
+      ],
+      "head_edge_correlation": 0.874643
+    }
+  },
+  "poses": {
+    "hairflip": {
+      "alpha_bbox": [
+        98,
+        44,
+        918,
+        1537
+      ],
+      "partially_transparent_pixels": 9067,
+      "visible_green_excess_over_canonical": 0
+    },
+    "pointing": {
+      "alpha_bbox": [
+        215,
+        45,
+        905,
+        1537
+      ],
+      "partially_transparent_pixels": 5845,
+      "visible_green_excess_over_canonical": 0
+    },
+    "eyeroll": {
+      "alpha_bbox": [
+        202,
+        54,
+        914,
+        1537
+      ],
+      "partially_transparent_pixels": 6660,
+      "visible_green_excess_over_canonical": 0
+    },
+    "phone_panic": {
+      "alpha_bbox": [
+        217,
+        45,
+        805,
+        1537
+      ],
+      "partially_transparent_pixels": 5846,
+      "visible_green_excess_over_canonical": 0
+    }
+  }
+}

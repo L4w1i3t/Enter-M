@@ -10,7 +10,7 @@ project's canonical assets have since replaced.
 
 Do not re-enable it without preserving the current per-expression registration,
 feature-only masks, shared casual/uniform silhouette, and decontaminated soft
-alpha edges in game/mod_assets/char_sprites/asahina.
+alpha edges in game/assets/characters/asahina.
 #>
 
 [CmdletBinding()]

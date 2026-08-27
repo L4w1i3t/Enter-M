@@ -60,7 +60,7 @@
 #
 #   DISCHARGE (2026-08-12). The hyperspace only ever said "matter has not been
 #   decided" in its shaders; now it says it out loud. Cosmetic lightning from
-#   the shared atlas (mod_assets/def_bullets.rpy, EMB_ARCS) crackles ambiently
+#   the shared atlas (asset_definitions/def_bullets.rpy, EMB_ARCS) crackles ambiently
 #   through act two -- rarely, and harder the further along the fight is --
 #   and BURSTS across the Archivist on a buckle, which is the one moment it is
 #   not composed. It has no mechanics and cannot touch the player. In the same
@@ -636,7 +636,7 @@ init python:
     BIO_GLAIVE = INV_DIR + "glaive_biography.png"   # 174 x 228, SPECTRAL COPIES ONLY
     # The party member's thrown daggers. Shipped pixel art borrowed from
     # Kotonoha mode (9x15, resting point-up), tinted so it reads as yours.
-    # Bullet art lives in the shared mod_assets/bullets/ (see def_bullets.rpy).
+    # Bullet art lives in the shared assets/bullets/ (see def_bullets.rpy).
     BIO_DAGGER = EMB_DIR + "dagger.png"
 
     BIO_SPRITE_W, BIO_SPRITE_H = 1023, 1537
@@ -2117,7 +2117,7 @@ init python:
         # ----- discharge (cosmetic lightning) --------------------------------
         # The hyperspace "has not finished deciding what matter is", and until
         # now it only ever said so in the shaders. These are the arcs from the
-        # shared atlas (mod_assets/def_bullets.rpy, EMB_ARCS): four hand-drawn
+        # shared atlas (asset_definitions/def_bullets.rpy, EMB_ARCS): four hand-drawn
         # bolts that get stretched, rotated and cycled. They have NO mechanics
         # -- nothing here can touch the player -- so they are free to be loud
         # at exactly the moments that have earned it.
@@ -4082,7 +4082,7 @@ init python:
             # --- DISCHARGE. Drawn over the figures on purpose: a bolt is light,
             # and light does not queue behind the thing it is lighting. The art
             # is the four lightning arcs from the shared atlas
-            # (mod_assets/def_bullets.rpy); the frame is CYCLED per tick so a
+            # (asset_definitions/def_bullets.rpy); the frame is CYCLED per tick so a
             # bolt crackles instead of sitting there.
             for a_ in g.arcs:
                 a_age = g.tick - a_["born"]

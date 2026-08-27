@@ -35,7 +35,7 @@
 #   * Bullet sprites come from the shipped pixel art (bullet/pellet/dagger.png)
 #     plus bulletsheet.png, a 256x256 atlas of six more shapes (star, sphere,
 #     winged ring, knife, oval, spark) and four painted 64px "eye" orbs, plus
-#     the SHARED atlas in mod_assets/def_bullets.rpy (arrow, ofuda, rice,
+#     the SHARED atlas in asset_definitions/def_bullets.rpy (arrow, ofuda, rice,
 #     kunai, heart, sunburst, moon, the laser hairline, the summoning seals,
 #     the bloom discs -- see EMB_ATLAS_RAW there). Cells are cropped once into
 #     shared displayables, then colour-tinted via cached TintMatrix transforms
@@ -125,9 +125,9 @@ image koto_backdrop = "addons/Matsuda's Sick Boss Fight/kotonohamode/kotobackdro
 # the endless reading happens behind. Swapped in by kototouhou_screen.
 image koto_backdrop_endless = "addons/Matsuda's Sick Boss Fight/kotonohamode/endless.png"
 
-define -50 audio.kt_boss_theme = "<loop 0>mod_assets/bgm/kotobossmusic.ogg"
+define -50 audio.kt_boss_theme = "<loop 0>assets/audio/bgm/kotobossmusic.ogg"
 # Endless Mode gets its own loop -- a different, no-ending survival theme.
-define -50 audio.kt_endless_theme = "<loop 0>mod_assets/bgm/kotoendlessmode.ogg"
+define -50 audio.kt_endless_theme = "<loop 0>assets/audio/bgm/kotoendlessmode.ogg"
 
 # Persistent values live in Matsu'Py's save-independent persistent store. The
 # rest are normal rollback-managed defaults used as script/displayable handoff
@@ -306,17 +306,25 @@ init python:
     # KT_DIR is now only this mode's OWN art: the ship, the boss sprite, the
     # backdrops, the bomb icon. Every bullet sprite -- including the four
     # shipped pixel ones and the old bulletsheet.png -- lives in the shared
-    # mod_assets/bullets/ folder and is reached through EMB_DIR (defined in
-    # mod_assets/def_bullets.rpy at init -20), so that all bullet art in the
+    # assets/bullets/ folder and is reached through EMB_DIR (defined in
+    # asset_definitions/def_bullets.rpy at init -20), so that all bullet art in the
     # project sits in exactly one place.
     KT_DIR = "addons/Matsuda's Sick Boss Fight/kotonohamode/"
-    KT_SE_DIR = "mod_assets/sfx/touhou/"
+    KT_SE_DIR = "assets/audio/sfx/touhou/"
 
     # Kotonoha's boss sheet is a strict 4x4 atlas of 128px cells:
     #   row 0 idle/hover, row 1 bank left, row 2 bank right, row 3 cast.
     # Frames are cropped once here and selected from the simulation tick in
     # KTStage. That keeps animation deterministic, freezes it under pause, and
     # avoids rebuilding the screen interaction at animation speed.
+    #
+    # THE COLUMN IS POSE AMPLITUDE, NOT A FLIPBOOK STEP. Within any row, col 0
+    # is rest, col 1 is partway, col 2 is the full extension (deepest lean /
+    # arms wide open) and col 3 is settling back toward rest. So a row is
+    # played by HOLDING the column the current state calls for; only the idle
+    # breath loops on a timer. Cycling 0,1,2,3 off the clock is what used to
+    # make her flap -- she swept through a full lean and back three times a
+    # second while merely drifting.
     KT_BOSS_SHEET = KT_DIR + "kotoboss_sheet.png"
     KT_BOSS_CELL = 128
     KT_BOSS_ZOOM = 1.35
@@ -324,8 +332,54 @@ init python:
     KT_BOSS_LEFT = 1
     KT_BOSS_RIGHT = 2
     KT_BOSS_CAST = 3
-    KT_BOSS_IDLE_LOOP = (0, 1, 2, 3, 2, 1)
-    KT_BOSS_CAST_LOOP = (0, 1, 2, 3, 2, 1)
+    # Idle breath: forward only. Col 3 already IS the return frame, so
+    # ping-ponging it replayed the same hair spread in reverse.
+    KT_BOSS_IDLE_LOOP = (0, 1, 2, 3)
+    KT_BOSS_IDLE_EVERY = 14     # ticks per breath frame (~0.93s round trip)
+    # No ACTION may be shown for less than this. A cast landing a tick after
+    # the last one settled, or a lean picked up for a single frame between two
+    # volleys, reads as a glitch rather than as motion. Kept under the 8-tick
+    # wind-up so a cast held back by the dwell still enters on its first frame.
+    KT_BOSS_ROW_MIN = 7
+
+    # Lean. KTStage keeps an eased, SIGNED travel speed: its magnitude picks
+    # the column through a rise/fall hysteresis band so a boss cruising near a
+    # threshold cannot chatter between two cells, and its sign latches which
+    # way she is facing.
+    KT_BOSS_LEAN_FULL = 1.35    # px/tick of travel that reads as a full lean
+    KT_BOSS_LEAN_EASE = 0.12    # per-tick ease toward current travel speed
+    KT_BOSS_LEAN_RISE = (0.30, 0.62)    # lean at which col goes 0->1, 1->2
+    KT_BOSS_LEAN_FALL = (0.20, 0.48)    # ...and back down again
+    KT_BOSS_FACE_LATCH = 0.22   # signed lean that commits a left/right facing
+    # A lean can be held for SECONDS on the sway and sweep moves, and one cel
+    # held that long is a statue. Once it has settled, drift between the lean
+    # column and the one below it: two ADJACENT poses a couple of times a
+    # second, which reads as her body riding the movement. (This is not the
+    # old flipbook -- that ran all four columns at 12fps.)
+    KT_BOSS_LEAN_SETTLE = 20    # ticks at one lean column before it breathes
+    KT_BOSS_LEAN_BREATHE = 26   # ticks per breath half-cycle
+
+    # Cast: a one-shot with a real hold on the release, never a loop. Fire
+    # cues land every 6-10 ticks on most cards, so the old 12-tick window
+    # restarted before it had ever reached the spread -- she stuttered on the
+    # wind-up frames for whole patterns. (col, ticks); ~0.65s end to end.
+    KT_BOSS_CAST_STEPS = ((0, 8), (1, 8), (2, 13), (3, 10))
+    KT_BOSS_CAST_SEQ = tuple(
+        col for col, span in KT_BOSS_CAST_STEPS for _ in range(span)
+    )
+    KT_BOSS_CAST_LEN = len(KT_BOSS_CAST_SEQ)
+    # Tick at which the arms are fully out. A volley arriving after this
+    # rewinds only to here, so continuous fire HOLDS the spread instead of
+    # snapping back to hands-together.
+    KT_BOSS_CAST_HOLD = KT_BOSS_CAST_STEPS[0][1] + KT_BOSS_CAST_STEPS[1][1]
+    # ...but only for so long. Cards that fire every 6 ticks would otherwise
+    # rewind the hold forever and freeze her arms out for the whole pattern.
+    # Past this the cast is allowed to finish and the next cue winds up again,
+    # so sustained fire reads as a ~1.2s cast PULSE instead of a statue.
+    KT_BOSS_CAST_SPREAD_MAX = 34
+    # Declaration: she presents the card. Wind up once over these two tick
+    # marks, then hold wide for the rest of the banner.
+    KT_BOSS_DECLARE_STEPS = (14, 28)
 
     def kt_boss_cell(row, col):
         return Crop((col * KT_BOSS_CELL, row * KT_BOSS_CELL,
@@ -648,7 +702,7 @@ init python:
             return KT_BARS[idx]["card"]
         return KT_ENDLESS_CARDS[idx - len(KT_BARS)]["card"]
 
-    # SFX table (ZUN-standard cue names, shipped in mod_assets/sfx/touhou/). Volumes are
+    # SFX table (ZUN-standard cue names, shipped in assets/audio/sfx/touhou/). Volumes are
     # relative; playback rides MSBF's pooled channels so cues overlap cleanly.
     def kt_se(name):
         return KT_SE_DIR + name + ".wav"
@@ -1933,7 +1987,7 @@ init python:
         "oval": 4.5,        # 11x22 petal/droplet/casing, leans with its heading
         "spark": 5.0,       # 16px core under long thin rays
         "eye": 15.0,        # 48px painted orb -- big's replacement where it lands
-        # the shared atlas (mod_assets/def_bullets.rpy). Same house rule: the
+        # the shared atlas (asset_definitions/def_bullets.rpy). Same house rule: the
         # radius is ~55-65% of the drawn body, so what you see is bigger than
         # what kills you.
         "arrow": 5.5,       # 21px chevron -- reads as a direction, not a dot
@@ -3335,7 +3389,7 @@ init python:
 # player, sparkles, HUD, banners -- as cached-texture blits. It requests an
 # immediate redraw every frame, so the screen tree around it never rebuilds.
 init python:
-    KT_FONT = "mod_assets/fonts/SF Automaton Extended.ttf"
+    KT_FONT = "assets/fonts/SF Automaton Extended.ttf"
 
     class KTStage(renpy.Displayable):
 
@@ -3364,7 +3418,7 @@ init python:
         # orb reads 22px across, so star reads 26 point-to-point, sphere 22,
         # knife 12x30 against dagger's 13x27, oval 11x22 against pellet's
         # 14x22, and eye 48 against big's 48.
-        # The atlas shapes below come from mod_assets/def_bullets.rpy, which
+        # The atlas shapes below come from asset_definitions/def_bullets.rpy, which
         # hands back the NEUTRAL (desaturated) cell of each family -- exactly
         # the same deal as KT_SHEET_WHITE above, so they tint through the same
         # KT_PAL index and stay one cache family apiece. They are anti-aliased
@@ -3407,12 +3461,31 @@ init python:
             # positions for the travel afterimages on dart/sweep moves.
             self.trail = []
             self._trail_tick = -99
-            # Actual tick-to-tick boss travel, sampled only when the simulation
-            # tick changes. Duplicate render calls must not erase the direction
-            # and pause must freeze it with the rest of the fight.
+            # Boss animation state, advanced only when the simulation tick
+            # changes. Duplicate render calls must not double-step it and
+            # pause must freeze it with the rest of the fight.
             self._boss_motion_tick = game.tick
             self._boss_last_x = game.bx
-            self._boss_dx = 0.0
+            # Eased, signed travel speed in KT_BOSS_LEAN_FULL units: magnitude
+            # picks the bank column, sign latches the facing.
+            self._boss_lean = 0.0
+            self._boss_lean_col = 0
+            self._lean_col_since = game.tick
+            self._boss_face = 0
+            # Cast one-shot. _cast_showing is decided ONCE, when a cast
+            # starts, so a volley can never swap rows out from under itself
+            # halfway through the animation.
+            self._cast_start = -999
+            self._cast_muzzle = game.muzzle
+            self._cast_showing = False
+            self._cast_spread_end = -999
+            # Tick she settled into the idle row, so the breath is phased from
+            # that moment rather than from the absolute clock.
+            self._idle_from = -1
+            # Last cell actually shown, and when its row was entered.
+            self._row_shown = KT_BOSS_IDLE
+            self._col_shown = 0
+            self._row_since = game.tick
             # Player dash afterimages (renderer-side): sampled while the ship
             # moves unfocused, drawn as faint ghosts behind it.
             self.ptrail = []
@@ -3513,34 +3586,132 @@ init python:
                 return max(minimum, base - 3)
             return base
 
-        def _boss_frame(self, game):
-            """Choose one cached sheet cell from simulation state and time."""
-            if game.tick != self._boss_motion_tick:
-                self._boss_dx = game.bx - self._boss_last_x
-                self._boss_last_x = game.bx
-                self._boss_motion_tick = game.tick
+        def _advance_boss_anim(self, game):
+            """One simulation tick of Kotonoha's cosmetic animation state."""
+            steps = max(1, game.tick - self._boss_motion_tick)
+            dx = (game.bx - self._boss_last_x) / steps
+            self._boss_last_x = game.bx
+            self._boss_motion_tick = game.tick
 
+            # Ease toward the current signed travel speed. The ease is what
+            # makes a lean ramp in and settle out; reading raw per-tick dx (as
+            # this used to) put single-tick noise straight into the frame
+            # choice, and the lerp in _move_boss makes that dx wobble every
+            # time she nears her target.
+            target = kt_clamp(dx / KT_BOSS_LEAN_FULL, -1.0, 1.0)
+            self._boss_lean += (target - self._boss_lean) * KT_BOSS_LEAN_EASE
+
+            mag = abs(self._boss_lean)
+            col = self._boss_lean_col
+            rise1, rise2 = KT_BOSS_LEAN_RISE
+            fall1, fall2 = KT_BOSS_LEAN_FALL
+            if col >= 2:
+                if mag < fall2:
+                    col = 1
+            elif col == 1:
+                if mag >= rise2:
+                    col = 2
+                elif mag < fall1:
+                    col = 0
+            elif mag >= rise1:
+                col = 1
+            if col != self._boss_lean_col:
+                self._boss_lean_col = col
+                self._lean_col_since = game.tick
+
+            # The facing commits only on a decisive lean and is never cleared:
+            # she keeps tilting the way she was travelling while she settles,
+            # and a sway turnaround flips it while the column is already 0, so
+            # left and right never trade places mid-lean.
+            if self._boss_lean <= -KT_BOSS_FACE_LATCH:
+                self._boss_face = -1
+            elif self._boss_lean >= KT_BOSS_FACE_LATCH:
+                self._boss_face = 1
+
+            if game.muzzle != self._cast_muzzle:
+                self._cast_muzzle = game.muzzle
+                age = game.tick - self._cast_start
+                if not (0 <= age < KT_BOSS_CAST_LEN):
+                    # Fresh cast. Whether it is drawn at all is decided here
+                    # and then left alone: at a full lean the tilt IS the read,
+                    # and tearing her out of it for half a second is the flicker
+                    # this used to have every time a pattern fired mid-sweep.
+                    # The muzzle flare still sells the volley either way.
+                    self._cast_start = game.tick
+                    self._cast_showing = self._boss_lean_col < 2
+                    self._cast_spread_end = (game.tick + KT_BOSS_CAST_HOLD
+                                             + KT_BOSS_CAST_SPREAD_MAX)
+                elif age > KT_BOSS_CAST_HOLD and game.tick < self._cast_spread_end:
+                    # Already spread and still inside the cap: rewind only as
+                    # far as the hold so continuous fire keeps her arms out.
+                    self._cast_start = game.tick - KT_BOSS_CAST_HOLD
+
+        def _boss_pose(self, game):
+            """The acting pose as (row, col, cued), or None to hover.
+
+            `cued` marks a pose the state machine asked for on an exact beat,
+            which skips the dwell below so a declaration snaps in on its cue.
+            """
             if game.phase == "declare":
-                frame = KT_BOSS_CAST_LOOP[(game.phase_tick // 6) % len(KT_BOSS_CAST_LOOP)]
-                return KT_BOSS_CAST, frame
+                lead, wide = KT_BOSS_DECLARE_STEPS
+                pt = game.phase_tick
+                col = 0 if pt < lead else (1 if pt < wide else 2)
+                return KT_BOSS_CAST, col, True
             if game.phase == "victory":
-                return KT_BOSS_CAST, 2
+                return KT_BOSS_CAST, 2, True
             if game.phase == "break":
-                return KT_BOSS_CAST, 3
+                return KT_BOSS_CAST, 3, True
 
-            cast_age = game.tick - game.muzzle
-            if 0 <= cast_age < 12:
-                frame = KT_BOSS_CAST_LOOP[min(len(KT_BOSS_CAST_LOOP) - 1, cast_age // 2)]
-                return KT_BOSS_CAST, frame
+            cast_age = game.tick - self._cast_start
+            if self._cast_showing and 0 <= cast_age < KT_BOSS_CAST_LEN:
+                return KT_BOSS_CAST, KT_BOSS_CAST_SEQ[cast_age], False
 
-            move_frame = (game.tick // 5) % 4
-            if self._boss_dx < -0.35:
-                return KT_BOSS_LEFT, move_frame
-            if self._boss_dx > 0.35:
-                return KT_BOSS_RIGHT, move_frame
+            if self._boss_lean_col and self._boss_face:
+                row = KT_BOSS_LEFT if self._boss_face < 0 else KT_BOSS_RIGHT
+                col = self._boss_lean_col
+                held = game.tick - self._lean_col_since - KT_BOSS_LEAN_SETTLE
+                if held >= 0 and (held // KT_BOSS_LEAN_BREATHE) % 2:
+                    col = max(0, col - 1)
+                return row, col, False
+            return None
 
-            frame = KT_BOSS_IDLE_LOOP[(game.tick // 8) % len(KT_BOSS_IDLE_LOOP)]
-            return KT_BOSS_IDLE, frame
+        def _boss_frame(self, game):
+            """Choose one cached sheet cell from simulation state and time.
+
+            Rows are ACTIONS and columns are how far into that action she is,
+            so this picks a pose and holds it. Nothing loops on a timer except
+            the idle breath.
+            """
+            if game.tick != self._boss_motion_tick:
+                self._advance_boss_anim(game)
+
+            pose = self._boss_pose(game)
+            row = KT_BOSS_IDLE if pose is None else pose[0]
+
+            # Dwell: an action that would flash by faster than KT_BOSS_ROW_MIN
+            # never gets the row at all; she stays in the one she is already
+            # holding. This is what stops a volley and a lean trading places
+            # every few ticks the way they used to.
+            if row != self._row_shown:
+                cued = pose is not None and pose[2]
+                if (not cued) and game.tick - self._row_since < KT_BOSS_ROW_MIN:
+                    return self._row_shown, self._col_shown
+                self._row_since = game.tick
+                if row == KT_BOSS_IDLE:
+                    # Phase the breath from the tick she actually settled, so
+                    # entering the hover never flashes a part-spent frame.
+                    self._idle_from = game.tick
+
+            if pose is None:
+                if self._idle_from < 0:
+                    self._idle_from = game.tick
+                step = (game.tick - self._idle_from) // KT_BOSS_IDLE_EVERY
+                col = KT_BOSS_IDLE_LOOP[step % len(KT_BOSS_IDLE_LOOP)]
+            else:
+                col = pose[1]
+
+            self._row_shown, self._col_shown = row, col
+            return row, col
 
         # ----- render --------------------------------------------------------
 

@@ -33,7 +33,7 @@
 #                                  : the OP intro sequence (game/addons/Sick Ass Anime OP/op.rpy),
 #                                    reused here by the "Replay OP" button.
 #   - gui.hover_sound / gui.activate_sound : standard UI sounds (game/gui.rpy).
-#   - BGM tracks under mod_assets/bgm/ (roster_place, canyoufeel).
+#   - BGM tracks under assets/audio/bgm/ (roster_place, canyoufeel).
 # =============================================================================
 
 # Custom screens/labels for archive
@@ -110,13 +110,13 @@ init python:
     # Each entry: (label, unlock_persistent_key, unlocked_action, icon)
     # unlock_persistent_key of None means always locked (placeholder)
     archive_items = [
-        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen"), "mod_assets/dump/icon_placeholder.png"),
-        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery"),         "mod_assets/dump/icon_placeholder.png"),
-        ("Music Room",   "archive_unlocked_music",             Show("music_room"),         "mod_assets/dump/icon_placeholder.png"),
-        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories"),  "mod_assets/dump/icon_placeholder.png"),
-        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records"),       "mod_assets/dump/icon_placeholder.png"),
-        ("Achievements", "archive_unlocked_achievements",      Show("achievements"),       "mod_assets/dump/icon_placeholder.png"),
-        ("Cards",        "archive_unlocked_cards",             Show("mc_collection"),      "mod_assets/dump/icon_placeholder.png"),
+        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen"), "assets/dump/icon_placeholder.png"),
+        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery"),         "assets/dump/icon_placeholder.png"),
+        ("Music Room",   "archive_unlocked_music",             Show("music_room"),         "assets/dump/icon_placeholder.png"),
+        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories"),  "assets/dump/icon_placeholder.png"),
+        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records"),       "assets/dump/icon_placeholder.png"),
+        ("Achievements", "archive_unlocked_achievements",      Show("achievements"),       "assets/dump/icon_placeholder.png"),
+        ("Cards",        "archive_unlocked_cards",             Show("mc_collection"),      "assets/dump/icon_placeholder.png"),
     ]
 
     # Modules that ship unlocked rather than gated behind story progress. They
@@ -505,7 +505,7 @@ screen archive_portrait(img, w, h, fit_mode="contain", gray=False, focus=0.0, sc
             # dossier and a 118px People chip.
             $ _ap_icon_w = int(w * 0.34)
             $ _ap_icon_h = int(w * 0.48)
-            add Transform("mod_assets/dump/unavailable_icon_placeholder.png", size=(_ap_icon_w, _ap_icon_h)):
+            add Transform("assets/dump/unavailable_icon_placeholder.png", size=(_ap_icon_w, _ap_icon_h)):
                 align (0.5, 0.5)
                 at enter_m_locked_flicker
         elif fit_mode == "cover":
@@ -668,7 +668,7 @@ screen archive():
                                         text a_label style "archive_item_text" xalign 0.5
                                         text "AVAILABLE" style "archive_item_status" xalign 0.5
                                     else:
-                                        add Transform("mod_assets/dump/unavailable_icon_placeholder.png", size=(80, 112)) xalign 0.5 at enter_m_locked_flicker
+                                        add Transform("assets/dump/unavailable_icon_placeholder.png", size=(80, 112)) xalign 0.5 at enter_m_locked_flicker
                                         text "???" style "archive_locked_text" xalign 0.5
                                         text "LOCKED" style "archive_locked_status" xalign 0.5
 
@@ -726,7 +726,7 @@ style archive_header_title_frame:
     yalign 0.5
 
 style archive_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 40
     color "#f4fbff"
     bold True

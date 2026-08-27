@@ -83,9 +83,9 @@ define cs_fe_captain = Character("Captain", image="cs_matsuda_captain", what_pre
 define cs_fe_scout   = Character("Scout", image="cs_matsuda_scout", what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed", screen="cs_matsuda_fe_say")
 define cs_fe_medic   = Character("Medic", image="cs_matsuda_medic", what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed", screen="cs_matsuda_fe_say")
 
-image cs_matsuda_captain = Transform("mod_assets/char_sprites/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image cs_matsuda_scout = Transform("mod_assets/char_sprites/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image cs_matsuda_medic = Transform("mod_assets/char_sprites/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
+image cs_matsuda_captain = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
+image cs_matsuda_scout = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
+image cs_matsuda_medic = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
 
 screen cs_matsuda_fe_stage_overlay():
     zorder -20
@@ -814,7 +814,7 @@ label cs_matsuda_01:
     sa "..."
     show tsubaki embarrassed
     m forward casual vang om oe nobl rhip lpoint "And YOU."
-    ma "...Me?!"
+    ma "...Moi?!"
     m forward casual angr om oe nobl rhip lpoint "You have had that medic check in your pocket for half an hour. 'We'll roll it at the epilogue.' We are AT the epilogue! You are hoarding a woman's life for AMBIANCE!"
     show matsuda annoyed
     ma "It's called dramatic timi--"

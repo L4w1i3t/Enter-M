@@ -115,7 +115,7 @@ define MSBF_DRAW_PERIOD = 1.0 / 90.0
 
 # NovaSquare for the readout, not the display face: SF Automaton draws a 1 as a
 # bare vertical bar, and every number on this panel is a measurement.
-define MSBF_PERF_FONT = "mod_assets/fonts/NovaSquare-Regular.ttf"
+define MSBF_PERF_FONT = "assets/fonts/NovaSquare-Regular.ttf"
 
 # The profiler is off until asked for, and it is not remembered across runs --
 # it forces a continuous redraw to sample, which is not a state to leave a

@@ -177,7 +177,7 @@ init python:
     # WHY AN ATTRIBUTE AND NOT THE WHOLE IMAGE NAME. Matching `image` verbatim
     # against what is on screen works today only because every sprite in the cast
     # is still `neut`. The moment `matsuda uniform annoyed` exists (see the
-    # emotion list in docs/TODO.txt) an exact-name match stops firing and the
+    # emotion list in docs/project/TODO.txt) an exact-name match stops firing and the
     # uniform silently never unlocks. One distinguishing attribute survives the
     # whole expression sheet being filled in.
     #
@@ -545,7 +545,7 @@ init python:
                 portrait_aspect=1.0,
                 roster_id="monika",
                 # Her layeredimage's `outfit` group is uniform (the default) and
-                # casual -- mod_assets/MPT/monika_layeredimage.rpy. The casual
+                # casual -- assets/mpt/monika_layeredimage.rpy. The casual
                 # set is real art, not a recolour, and the story already uses it
                 # (cs_matsuda_01), so it unlocks like any other look.
                 outfits=[
@@ -1403,7 +1403,7 @@ screen character_thoughts_screen():
 # =============================================================================
 # Styles
 style roster_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#f4fbff"
     bold True
@@ -1499,7 +1499,7 @@ style roster_card_tag_dead:
     outlines [(1, "#02040b", 0, 0)]
 
 style character_detail_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 38
     color "#f4fbff"
     bold True
@@ -1577,7 +1577,7 @@ style thought_entry_frame:
 # archive_portrait window, which brings its own backing and rules.)
 
 style thought_name:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 25
     color "#f4fbff"
     outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]

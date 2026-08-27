@@ -41,7 +41,7 @@ CANVAS_SIZE = (CANVAS_WIDTH, CANVAS_HEIGHT)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CANONICAL_DIRECTORY = (
-    PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "masayami"
+    PROJECT_ROOT / "game" / "assets" / "characters" / "masayami"
 )
 
 # Keep this order stable: it controls deterministic processing, metrics, and

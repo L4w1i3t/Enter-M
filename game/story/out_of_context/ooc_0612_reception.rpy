@@ -41,7 +41,7 @@ label ooc_0612_reception:
     scene black
     stop music
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ atmos("home_night")
     with dissolve_scene_full
     play music fantasyserenity

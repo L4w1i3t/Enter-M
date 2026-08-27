@@ -49,10 +49,10 @@
 #     in call.rpy). phone_open stays a None placeholder (no "raise phone" SFX yet).
 # =============================================================================
 
-define -50 audio.phone_text_in = "mod_assets/sfx/phone/messagereceive.ogg"
-define -50 audio.phone_text_out = "mod_assets/sfx/phone/messagesend.ogg"
+define -50 audio.phone_text_in = "assets/audio/sfx/phone/messagereceive.ogg"
+define -50 audio.phone_text_out = "assets/audio/sfx/phone/messagesend.ogg"
 define -50 audio.phone_open = None
-define -50 audio.phone_ringtone = "mod_assets/sfx/phone/ringtone.ogg"
+define -50 audio.phone_ringtone = "assets/audio/sfx/phone/ringtone.ogg"
 
 
 init python:
@@ -201,7 +201,7 @@ init -2 python:
 
 # -----------------------------------------------------------------------------
 # COLOR EMOJI  --  drop-in image emoji (works on Matsu'Py 8.1.1, which can't render
-# color-emoji FONTS). Put Twemoji/OpenMoji-style PNGs in game/mod_assets/emoji/
+# color-emoji FONTS). Put Twemoji/OpenMoji-style PNGs in game/assets/emoji/
 # named by codepoint (Twemoji convention): 👍 -> "1f44d.png", 👍🏽 -> "1f44d-1f3fd.png",
 # ❤️ -> "2764.png" (the FE0F variation selector is dropped). Then just type the
 # literal emoji in a message body -- phone_emojify() swaps it for the image.
@@ -209,7 +209,7 @@ init -2 python:
 # and the thumbs-up reaction falls back to its hand-drawn icon).
 # -----------------------------------------------------------------------------
 init python:
-    PHONE_EMOJI_DIR = "mod_assets/emoji"
+    PHONE_EMOJI_DIR = "assets/emoji"
     PHONE_EMOJI_PX = 24          # inline size inside a message bubble
     _phone_emoji_codes = set()   # codepoint-keys we have a PNG (and image) for
 

@@ -119,13 +119,13 @@ define mm_pool_p3 = ["mm_scene_promise", "mm_scene_justmonika", "mm_gen_anything
 
 # Phase-keyed music loops (sit next to this .rpy; paths are relative to game/).
 # p4 is the LAST-RESORT track -- only the barrage plays it.
-define -50 audio.mm_music_p1 = "<loop 0>mod_assets/bgm/mm_phase1.ogg"
-define -50 audio.mm_music_p2 = "<loop 0>mod_assets/bgm/mm_phase2.ogg"
-define -50 audio.mm_music_p3 = "<loop 0>mod_assets/bgm/mm_phase3.ogg"
-define -50 audio.mm_music_p4 = "<loop 0>mod_assets/bgm/mm_phase4.ogg"
-define -50 audio.mm_music_crush1 = "mod_assets/bgm/mm_phase4_crush1.ogg"
-define -50 audio.mm_music_crush2 = "mod_assets/bgm/mm_phase4_crush2.ogg"
-define -50 audio.mm_music_crush3 = "mod_assets/bgm/mm_phase4_crush3.ogg"
+define -50 audio.mm_music_p1 = "<loop 0>assets/audio/bgm/mm_phase1.ogg"
+define -50 audio.mm_music_p2 = "<loop 0>assets/audio/bgm/mm_phase2.ogg"
+define -50 audio.mm_music_p3 = "<loop 0>assets/audio/bgm/mm_phase3.ogg"
+define -50 audio.mm_music_p4 = "<loop 0>assets/audio/bgm/mm_phase4.ogg"
+define -50 audio.mm_music_crush1 = "assets/audio/bgm/mm_phase4_crush1.ogg"
+define -50 audio.mm_music_crush2 = "assets/audio/bgm/mm_phase4_crush2.ogg"
+define -50 audio.mm_music_crush3 = "assets/audio/bgm/mm_phase4_crush3.ogg"
 
 # Pre-baked BITCRUSHED renders of the phase-4 track, from mild grit to a screaming
 # 3-bit ruin. All three are duration-identical to phase4.ogg (same sample rate,
@@ -268,7 +268,7 @@ image mm_arena_dim = ConditionSwitch(
 # The base `monika g1` ATL falls back to `monika 3` after 1.25s. The barrage
 # needs the same broken sprite pinned until the sequence resolves.
 image monika mm_lr_g1:
-    "monika/g1.png"
+    "assets/images/monika/g1.png"
     xoffset 35 yoffset 55
     parallel:
         zoom 1.00
@@ -619,7 +619,7 @@ screen mm_dmg_pop(txt, tint, px, py):
     text txt:
         xpos px ypos py
         xanchor 0.0
-        font "mod_assets/fonts/NovaSquare-Regular.ttf"
+        font "assets/fonts/NovaSquare-Regular.ttf"
         size 38
         color tint
         outlines [(3, "#12030acc", 0, 0)]

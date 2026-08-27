@@ -283,7 +283,7 @@ label exam_guard_home_repeat_confrontation(day_name, subject_1=None, subject_2=N
     $ hide_calendar()
     scene black with wipeleft_scene
     pause 2.0
-    scene bg living_room
+    scene bg living_room_night
     show vignette zorder 99:
         alpha 0.75
     $ show_calendar()
@@ -549,7 +549,7 @@ label exam_guard_home_confrontation(day_name, subject_1=None, subject_2=None):
     $ hide_calendar()
     scene black with wipeleft_scene
     pause 2.0
-    scene bg living_room
+    scene bg living_room_night
     show vignette zorder 99:
         alpha 0.75
     $ show_calendar()

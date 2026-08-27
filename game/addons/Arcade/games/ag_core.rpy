@@ -85,8 +85,8 @@ init -1 python:
     AG_H = 720
 
     # --- type ----------------------------------------------------------------
-    AG_FONT = "mod_assets/fonts/SF Automaton Extended.ttf"   # display / headings
-    AG_FONT_UI = "mod_assets/fonts/NovaSquare-Regular.ttf"   # readouts / body
+    AG_FONT = "assets/fonts/SF Automaton Extended.ttf"   # display / headings
+    AG_FONT_UI = "assets/fonts/NovaSquare-Regular.ttf"   # readouts / body
     AG_INK = "#f7f0e6"
     AG_DIM = "#a99fc4"
     AG_FAINT = "#6f668c"
@@ -100,8 +100,8 @@ init -1 python:
     # IS the definition system, and nothing here is played by a `play`
     # statement. Cues are shared across all four cabinets on purpose: one
     # vocabulary makes the originals sound like one machine.
-    AG_SFX_DIR = "mod_assets/sfx/msbf/"
-    AG_TH_DIR = "mod_assets/sfx/touhou/"
+    AG_SFX_DIR = "assets/audio/sfx/msbf/"
+    AG_TH_DIR = "assets/audio/sfx/touhou/"
     AG_SFX = {
         "ui_move":  (AG_SFX_DIR + "uiblip.wav", 0.55),
         "ui_ok":    (AG_SFX_DIR + "ui_accept.wav", 0.7),

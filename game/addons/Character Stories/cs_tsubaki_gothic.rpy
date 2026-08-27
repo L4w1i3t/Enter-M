@@ -380,14 +380,14 @@ style tsg_prose_tails is default:
     xmaximum 864
 
 style tsg_section_heads is default:
-    font "gui/font/F25_Bank_Printer.ttf"
+    font "assets/gui/font/F25_Bank_Printer.ttf"
     size 30
     color "#3a2c1c"
     outlines []
     text_align 0.5
 
 style tsg_section_tails is default:
-    font "gui/font/F25_Bank_Printer.ttf"
+    font "assets/gui/font/F25_Bank_Printer.ttf"
     size 30
     color "#b9c2cd"
     outlines []

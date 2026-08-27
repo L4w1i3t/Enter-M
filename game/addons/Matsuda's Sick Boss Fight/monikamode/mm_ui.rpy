@@ -925,12 +925,12 @@ style mm_gauge_label is default:
     outlines []
 
 style mm_gauge_pct is default:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 26
     outlines []
 
 style mm_clock is default:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 24
     outlines []
 

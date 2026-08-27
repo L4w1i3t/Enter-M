@@ -3,8 +3,10 @@
 The shipped bases remain the original 1023x1537 ``neutral.png`` and
 ``neut_uniform.png`` files. Alternate expressions are reconstructed from the
 already-registered expression masters. Featureless edits made from the two
-approved bases provide only the face-skin topology used to constrain one fixed
-feathered export mask per outfit; their RGB pixels are never installed.
+approved bases provide the face-skin topology used to constrain one fixed
+feathered export mask per outfit. Their color-matched RGB is used only inside
+the guarded brow/upper-eyelid cleanup corridors; no featureless full face is
+installed.
 
 Tsubaki's casual and uniform heads differ by roughly seven source pixels, so
 the output is outfit-conditioned.  This keeps the runtime model simple
@@ -25,7 +27,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SPRITE_DIR = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "tsubaki"
+SPRITE_DIR = PROJECT_ROOT / "game" / "assets" / "characters" / "tsubaki"
 DEFAULT_SOURCE_DIR = PROJECT_ROOT / "tmp" / "tsubaki_sprite_processed"
 DEFAULT_PART_DIR = PROJECT_ROOT / "tmp" / "tsubaki_sprite_parts"
 DEFAULT_DONOR_DIR = PROJECT_ROOT / "tmp" / "tsubaki_face_patch"
@@ -81,6 +83,44 @@ SOURCE_EYE_ROI = (430, 580, 590, 650)
 PATCH_RADIUS = (155.0, 135.0)
 PATCH_CENTER_BELOW_EYES = 31.0
 PATCH_SOLID_RADIUS = 0.84
+
+# Every generated expression master carries a pale upper-eyelid arc that reads
+# as a second eyebrow once the authored brow moves away from the neutral line.
+# These two narrow source-space paths trace that arc while leaving the
+# expressive brow above and the eyelashes below outside the cleanup region.
+# They are warped with the same per-expression affine as the face donor.
+SOURCE_CREASE_PATHS = (
+    (
+        (339, 641),
+        (350, 635),
+        (367, 630),
+        (386, 626),
+        (405, 625),
+        (424, 628),
+        (444, 634),
+        (458, 641),
+    ),
+    (
+        (556, 641),
+        (570, 635),
+        (590, 630),
+        (612, 627),
+        (634, 629),
+        (653, 634),
+        (670, 641),
+    ),
+)
+SOURCE_CREASE_THICKNESS = 8
+
+# The intact outfit bases contain their neutral eyebrows. Alternate face plates
+# must fully own that region before drawing the replacement face, or a sliver
+# of the old brow survives beside the bangs. In the flattened sparse neutral
+# layer, brow ink shares components with a few bang and upper-eye fragments, so
+# this deliberately conservative source-space guard owns the complete region.
+# The cleanup plate sits below the alternate face and is exposed only where the
+# broader face mask previously failed to cover base-brow/bang intersections.
+SOURCE_NEUTRAL_GUARD_Y_OFFSET = -37.0
+SOURCE_NEUTRAL_GUARD_AXES = (52, 18)
 
 
 def parse_args() -> argparse.Namespace:
@@ -323,6 +363,206 @@ def match_donor_skin(
     )
 
 
+def retain_components(
+    mask: np.ndarray,
+    *,
+    minimum_area: int,
+    maximum_area: int | None = None,
+) -> np.ndarray:
+    """Keep only connected components within a controlled area range."""
+
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(
+        mask.astype(np.uint8), connectivity=8
+    )
+    retained = np.zeros(mask.shape, dtype=bool)
+    for label in range(1, count):
+        area = int(stats[label, cv2.CC_STAT_AREA])
+        if area < minimum_area:
+            continue
+        if maximum_area is not None and area > maximum_area:
+            continue
+        retained |= labels == label
+    return retained
+
+
+def base_neutral_guard_alpha(
+    source_neutral: np.ndarray,
+    source_eyes: np.ndarray,
+    source_to_target: np.ndarray,
+    base_alpha: np.ndarray,
+) -> tuple[np.ndarray, dict[str, object]]:
+    """Build a conservative underlay for the intact base-brow region.
+
+    A strict eyebrow-only mask cannot be recovered from the flattened sparse
+    neutral RGBA: brow, bang, and upper-eye ink touch in several components.
+    The eye-relative guard therefore overincludes that local feature region,
+    then sits below the alternate face plate. It becomes visible only where
+    the broader face mask previously left base-brow/bang ink uncovered or
+    partially blended.
+    """
+
+    source_shape = source_neutral.shape[:2]
+    guard = np.zeros(source_shape, dtype=np.uint8)
+    for eye_x, eye_y in source_eyes:
+        cv2.ellipse(
+            guard,
+            (
+                round(float(eye_x)),
+                round(float(eye_y + SOURCE_NEUTRAL_GUARD_Y_OFFSET)),
+            ),
+            SOURCE_NEUTRAL_GUARD_AXES,
+            0.0,
+            0.0,
+            360.0,
+            1,
+            thickness=-1,
+        )
+    source_guard_footprint = (
+        guard.astype(bool)
+        & (source_neutral[:, :, 3] > 0)
+    )
+    source_guard_footprint = retain_components(
+        source_guard_footprint,
+        minimum_area=2,
+        maximum_area=900,
+    )
+    if not np.any(source_guard_footprint):
+        raise RuntimeError("Could not isolate the guarded sparse-neutral region")
+
+    guard_footprint = cv2.warpAffine(
+        source_guard_footprint.astype(np.uint8),
+        source_to_target,
+        OUTPUT_SIZE,
+        flags=cv2.INTER_NEAREST,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=0,
+    ).astype(bool)
+    guard_footprint &= base_alpha > 0
+
+    core = cv2.dilate(
+        guard_footprint.astype(np.uint8),
+        cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+    ).astype(bool)
+    core &= base_alpha > 0
+    feather = cv2.GaussianBlur(
+        core.astype(np.float32), (0, 0), sigmaX=0.85, sigmaY=0.85
+    )
+    feather[core] = 1.0
+    feather *= (base_alpha / 255.0)
+    alpha = np.clip(np.rint(feather * 255.0), 0, 255).astype(np.uint8)
+    unowned_guard = int(np.count_nonzero(alpha[guard_footprint] != 255))
+    if unowned_guard:
+        raise RuntimeError(
+            "Neutral-feature guard left "
+            f"{unowned_guard} guarded pixels non-opaque"
+        )
+
+    ys, xs = np.nonzero(alpha)
+    bbox = None
+    if len(xs):
+        bbox = [
+            int(xs.min()),
+            int(ys.min()),
+            int(xs.max()) + 1,
+            int(ys.max()) + 1,
+        ]
+    return alpha, {
+        "source_guard_footprint_pixels": int(source_guard_footprint.sum()),
+        "guard_footprint_pixels": int(guard_footprint.sum()),
+        "unowned_guard_pixels": unowned_guard,
+        "opaque_pixels": int((alpha == 255).sum()),
+        "partial_pixels": int(((alpha > 0) & (alpha < 255)).sum()),
+        "bbox": bbox,
+    }
+
+
+def remove_duplicate_eyelid_arcs(
+    face_rgb: np.ndarray,
+    featureless_rgb: np.ndarray,
+    base_alpha: np.ndarray,
+    donor_to_target: np.ndarray,
+) -> tuple[np.ndarray, dict[str, object]]:
+    """Replace only the pale lower ghost-brow arcs with matched facial skin."""
+
+    source_guard = np.zeros((SOURCE_SIZE[1], SOURCE_SIZE[0]), dtype=np.uint8)
+    for path in SOURCE_CREASE_PATHS:
+        cv2.polylines(
+            source_guard,
+            [np.asarray(path, dtype=np.int32)],
+            isClosed=False,
+            color=1,
+            thickness=SOURCE_CREASE_THICKNESS,
+            lineType=cv2.LINE_AA,
+        )
+    source_guard = source_guard > 0
+    guard = cv2.warpAffine(
+        source_guard.astype(np.uint8),
+        donor_to_target,
+        OUTPUT_SIZE,
+        flags=cv2.INTER_NEAREST,
+        borderMode=cv2.BORDER_CONSTANT,
+        borderValue=0,
+    ).astype(bool)
+    guard &= base_alpha > 0
+    if not np.any(guard):
+        raise RuntimeError("Duplicate-arc cleanup guard is empty after registration")
+
+    # The corridors sit strictly between the authored brows and eyelashes.
+    # Replace their complete interior so antialiased fragments cannot survive
+    # as a dotted second brow.  The featureless donor was edited from the same
+    # outfit base and therefore also restores any bang pixels crossing a guard.
+    core = cv2.erode(
+        guard.astype(np.uint8),
+        cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)),
+    ).astype(bool)
+    weight = cv2.GaussianBlur(
+        guard.astype(np.float32), (0, 0), sigmaX=0.75, sigmaY=0.75
+    )
+    weight *= guard
+    weight[core] = 1.0
+    weight *= base_alpha / 255.0
+    cleaned = np.clip(
+        np.rint(
+            face_rgb.astype(np.float32) * (1.0 - weight[:, :, None])
+            + featureless_rgb.astype(np.float32) * weight[:, :, None]
+        ),
+        0,
+        255,
+    ).astype(np.uint8)
+
+    changed = np.any(cleaned != face_rgb, axis=2)
+    if np.any(changed & ~guard):
+        raise RuntimeError("Duplicate-arc cleanup escaped its guarded corridors")
+    core_residual = int(
+        np.max(
+            np.abs(
+                cleaned[core].astype(np.int16)
+                - featureless_rgb[core].astype(np.int16)
+            )
+        )
+    )
+    if core_residual:
+        raise RuntimeError(
+            "Duplicate-arc cleanup did not fully replace its traced core"
+        )
+    ys, xs = np.nonzero(changed)
+    bbox = None
+    if len(xs):
+        bbox = [
+            int(xs.min()),
+            int(ys.min()),
+            int(xs.max()) + 1,
+            int(ys.max()) + 1,
+        ]
+    return cleaned, {
+        "guard_pixels": int(guard.sum()),
+        "core_pixels": int(core.sum()),
+        "core_residual_max_channel_delta": core_residual,
+        "changed_pixels": int(changed.sum()),
+        "bbox": bbox,
+    }
+
+
 def font(size: int) -> ImageFont.ImageFont:
     for candidate in ("arial.ttf", "DejaVuSans.ttf"):
         try:
@@ -451,7 +691,7 @@ def main() -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     bases: dict[str, np.ndarray] = {}
     report: dict[str, object] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "output_size": list(OUTPUT_SIZE),
         "source_size": list(SOURCE_SIZE),
         "expressions": list(EXPRESSIONS),
@@ -479,6 +719,25 @@ def main() -> int:
         if int((patch_alpha == 255).sum()) < 20000:
             raise RuntimeError(f"{outfit}: face patch has too little opaque coverage")
 
+        featureless_matched_rgb, featureless_offsets, featureless_samples = (
+            match_donor_skin(
+                featureless_rgb,
+                base[:, :, :3],
+                skin_component,
+                patch_center,
+            )
+        )
+        neutral_guard_alpha, neutral_guard_metrics = base_neutral_guard_alpha(
+            source_neutral,
+            source_eyes,
+            matrix,
+            base[:, :, 3],
+        )
+        neutral_guard_layer = np.dstack(
+            (featureless_matched_rgb, neutral_guard_alpha)
+        )
+        neutral_guard_layer[neutral_guard_alpha == 0, :3] = 0
+
         save_rgba(args.output_dir / f"face_neut_{outfit}.png", transparent)
         outfit_report: dict[str, object] = {
             "base": str(SPRITE_DIR / spec["base"]),
@@ -494,6 +753,9 @@ def main() -> int:
             "partial_mask_pixels": int(
                 ((patch_alpha > 0) & (patch_alpha < 255)).sum()
             ),
+            "featureless_skin_offsets": featureless_offsets,
+            "featureless_skin_samples": featureless_samples,
+            "base_neutral_guard": neutral_guard_metrics,
             "layers": {},
         }
         layers = outfit_report["layers"]
@@ -516,8 +778,16 @@ def main() -> int:
                 skin_component,
                 patch_center,
             )
-            output = np.dstack((corrected_rgb, patch_alpha))
-            output[patch_alpha == 0, :3] = 0
+            corrected_rgb, arc_cleanup_metrics = remove_duplicate_eyelid_arcs(
+                corrected_rgb,
+                featureless_matched_rgb,
+                base[:, :, 3],
+                donor_to_target,
+            )
+            face_layer = np.dstack((corrected_rgb, patch_alpha))
+            face_layer[patch_alpha == 0, :3] = 0
+            output = alpha_composite(neutral_guard_layer, face_layer).copy()
+            output[output[:, :, 3] == 0, :3] = 0
             destination = args.output_dir / f"face_{expression}_{outfit}.png"
             save_rgba(destination, output)
             visible = output[:, :, 3] > 0
@@ -532,6 +802,7 @@ def main() -> int:
                 "donor_to_target_matrix": donor_to_target.astype(float).tolist(),
                 "skin_offsets": skin_offsets,
                 "skin_samples": skin_samples,
+                "duplicate_arc_cleanup": arc_cleanup_metrics,
                 "hidden_rgb_pixels": int(
                     np.any(output[:, :, :3] != 0, axis=2)[~visible].sum()
                 ),

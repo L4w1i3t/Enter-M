@@ -25,7 +25,7 @@ from scipy import ndimage as ndi
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "tmp" / "matsuda_rebuild_fresh" / "masters" / "poses"
 OUTPUT_DIR = ROOT / "tmp" / "matsuda_rebuild_fresh" / "poses"
-CANONICAL_DIR = ROOT / "game" / "mod_assets" / "char_sprites" / "matsuda"
+CANONICAL_DIR = ROOT / "game" / "assets" / "characters" / "matsuda"
 
 CANVAS_SIZE = (1023, 1537)
 TARGET_TOP = 32

@@ -13,7 +13,7 @@
 #   opposite kind of effect -- it is a single location doing a single thing,
 #   over time, once. The room goes dark AND the screen becomes the only light
 #   source in it, which means the darkness has a hole in it that has to sit
-#   exactly where the screen is drawn in mod_assets/bg/theater_inside.png. A
+#   exactly where the screen is drawn in assets/backgrounds/theater_inside.png. A
 #   preset table cannot express "dark everywhere except this rectangle", and
 #   nothing outside a movie theater would ever want it to.
 #
@@ -169,7 +169,7 @@ init -10 python:
 # 2. WHERE THE SCREEN IS
 # -----------------------------------------------------------------------------
 # Normalized (centre x, centre y, half width, half height), measured off
-# mod_assets/bg/theater_inside.png. If that background is ever repainted, this
+# assets/backgrounds/theater_inside.png. If that background is ever repainted, this
 # is the one line to re-measure -- everything else is falloff maths that does
 # not care where the rectangle sits.
 #
@@ -177,7 +177,7 @@ init -10 python:
 # ever put back on this background the plate will drift by a few percent while
 # the shader stays put; the falloffs are soft enough that a couple of percent
 # of slip is invisible, and being roughly right beats being brittle.
-define ENTER_M_THEATER_SCREEN_RECT = (0.575, 0.330, 0.222, 0.212)
+define ENTER_M_THEATER_SCREEN_RECT = (0.553, 0.305, 0.205, 0.180)
 
 # The bleed off the edge of the plate, and the throw into the room. Both in the
 # same aspect-corrected units as the rect above.

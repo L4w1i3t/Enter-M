@@ -20,7 +20,7 @@ PROBE_GAME = PROBE_ROOT / "game"
 PROBE_IMAGES = PROBE_GAME / "images" / "tsubaki"
 SCREENSHOT_DIR = TEMP_ROOT / "tsubaki_render_probe"
 CHARACTER_DEFINITIONS = (
-    PROJECT_ROOT / "game" / "mod_assets" / "def_characters.rpy"
+    PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
 )
 
 OUTFITS = ("casual", "uniform")
@@ -110,7 +110,7 @@ def layeredimage_block() -> str:
         raise ValueError("Tsubaki probe found the retired pose group")
 
     block = transform + "\n\n" + layeredimage + "\n"
-    production_prefix = "mod_assets/char_sprites/tsubaki/"
+    production_prefix = "assets/characters/tsubaki/"
     if production_prefix not in block:
         raise ValueError("Tsubaki layeredimage contains no production asset paths")
     return block.replace(production_prefix, "images/tsubaki/")

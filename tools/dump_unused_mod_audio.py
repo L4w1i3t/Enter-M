@@ -40,18 +40,17 @@ TEXT_EXTENSIONS = {
     ".yml",
 }
 
-DEFAULT_MOD_AUDIO_ROOTS = (
-    Path("game/mod_assets"),
+DEFAULT_AUDIO_ROOTS = (
+    Path("game/assets/audio"),
     Path("game/addons"),
 )
 
 DEFAULT_DEFINITION_FILES = (
-    Path("game/mod_assets/misc_def.rpy"),
+    Path("game/asset_definitions/def_audio.rpy"),
     Path("game/definitions.rpy"),
 )
 
-DEFAULT_DUMP_DIR = Path("game/mod_assets/dump")
-DEFAULT_DUMP_SUBDIR = Path("_unused_audio")
+DEFAULT_ARCHIVE_DIR = Path("game/assets/archive/unused_audio")
 
 IGNORED_DIR_NAMES = {
     ".git",
@@ -110,7 +109,7 @@ def read_text(path: Path) -> str:
     return data.decode("utf-8", errors="replace")
 
 
-def iter_text_files(root: Path, dump_dir: Path) -> list[Path]:
+def iter_text_files(root: Path, archive_dir: Path) -> list[Path]:
     files: list[Path] = []
 
     for path in root.rglob("*"):
@@ -118,7 +117,7 @@ def iter_text_files(root: Path, dump_dir: Path) -> list[Path]:
             continue
         if has_ignored_part(path, root):
             continue
-        if is_relative_to(path, dump_dir):
+        if is_relative_to(path, archive_dir):
             continue
         if path.suffix.casefold() not in TEXT_EXTENSIONS:
             continue
@@ -128,10 +127,12 @@ def iter_text_files(root: Path, dump_dir: Path) -> list[Path]:
     return files
 
 
-def build_corpus(root: Path, dump_dir: Path, definition_files: tuple[Path, ...]) -> TextCorpus:
+def build_corpus(
+    root: Path, archive_dir: Path, definition_files: tuple[Path, ...]
+) -> TextCorpus:
     all_chunks: list[str] = []
     definition_chunks: list[str] = []
-    text_files = iter_text_files(root, dump_dir)
+    text_files = iter_text_files(root, archive_dir)
 
     definition_set = {path.resolve() for path in definition_files if path.exists()}
 
@@ -155,18 +156,20 @@ def build_corpus(root: Path, dump_dir: Path, definition_files: tuple[Path, ...])
     )
 
 
-def iter_audio_candidates(root: Path, mod_audio_roots: tuple[Path, ...], dump_dir: Path) -> list[Path]:
+def iter_audio_candidates(
+    root: Path, audio_roots: tuple[Path, ...], archive_dir: Path
+) -> list[Path]:
     candidates: list[Path] = []
-    resolved_dump_dir = dump_dir.resolve()
+    resolved_archive_dir = archive_dir.resolve()
 
-    for mod_root in mod_audio_roots:
-        if not mod_root.exists():
+    for audio_root in audio_roots:
+        if not audio_root.exists():
             continue
 
-        for path in mod_root.rglob("*"):
+        for path in audio_root.rglob("*"):
             if not path.is_file():
                 continue
-            if is_relative_to(path.resolve(), resolved_dump_dir):
+            if is_relative_to(path.resolve(), resolved_archive_dir):
                 continue
             if path.suffix.casefold() not in AUDIO_EXTENSIONS:
                 continue
@@ -245,19 +248,21 @@ def unique_target(path: Path) -> Path:
     raise RuntimeError(f"Could not find an unused target name for {path}")
 
 
-def target_for_audio(root: Path, game_dir: Path, dump_dir: Path, audio_file: Path) -> Path:
+def target_for_audio(
+    root: Path, game_dir: Path, archive_dir: Path, audio_file: Path
+) -> Path:
     try:
         relative = audio_file.relative_to(game_dir)
     except ValueError:
         relative = audio_file.relative_to(root)
 
-    return unique_target(dump_dir / DEFAULT_DUMP_SUBDIR / relative)
+    return unique_target(archive_dir / relative)
 
 
 def classify_audio(
     root: Path,
     game_dir: Path,
-    dump_dir: Path,
+    archive_dir: Path,
     corpus: TextCorpus,
     audio_files: list[Path],
 ) -> tuple[list[AudioDecision], list[AudioDecision]]:
@@ -279,7 +284,7 @@ def classify_audio(
         move.append(
             AudioDecision(
                 audio_file,
-                target_for_audio(root, game_dir, dump_dir, audio_file),
+                target_for_audio(root, game_dir, archive_dir, audio_file),
                 "unused",
             )
         )
@@ -296,8 +301,8 @@ def move_audio(decisions: list[AudioDecision]) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Move unused mod audio into game/mod_assets/dump/_unused_audio. "
-            "A mod audio file is kept if it is defined in misc_def.rpy or definitions.rpy, "
+            "Move unused project audio into game/assets/archive/unused_audio. "
+            "An audio file is kept if it is defined in def_audio.rpy or definitions.rpy, "
             "or if any scanned text file references its path or filename."
         )
     )
@@ -307,17 +312,22 @@ def parse_args() -> argparse.Namespace:
         help="Print what would move without changing files.",
     )
     parser.add_argument(
+        "--archive-dir",
         "--dump-dir",
+        dest="archive_dir",
         type=Path,
-        default=DEFAULT_DUMP_DIR,
-        help="Dump directory to move unused audio under. Defaults to game/mod_assets/dump.",
+        default=DEFAULT_ARCHIVE_DIR,
+        help=(
+            "Archive directory to move unused audio under. Defaults to "
+            "game/assets/archive/unused_audio."
+        ),
     )
     parser.add_argument(
         "--include-game-root",
         action="store_true",
         help=(
-            "Also scan loose audio directly under game/, excluding vanilla-style game/bgm "
-            "and game/sfx folders. The default only scans game/mod_assets and game/addons."
+            "Also scan audio anywhere under game/. The default scans "
+            "game/assets/audio and game/addons."
         ),
     )
     parser.add_argument(
@@ -340,31 +350,21 @@ def main() -> int:
     args = parse_args()
     root = find_project_root(Path(__file__).resolve().parent)
     game_dir = root / "game"
-    dump_dir = (root / args.dump_dir).resolve()
+    archive_dir = (root / args.archive_dir).resolve()
     definition_files = tuple((root / path).resolve() for path in DEFAULT_DEFINITION_FILES)
 
-    mod_audio_roots = tuple((root / path).resolve() for path in DEFAULT_MOD_AUDIO_ROOTS)
+    audio_roots = tuple((root / path).resolve() for path in DEFAULT_AUDIO_ROOTS)
     if args.include_game_root:
-        mod_audio_roots = mod_audio_roots + (game_dir.resolve(),)
+        audio_roots = audio_roots + (game_dir.resolve(),)
 
-    audio_files = iter_audio_candidates(root, mod_audio_roots, dump_dir)
-    if args.include_game_root:
-        vanilla_roots = {
-            (game_dir / "bgm").resolve(),
-            (game_dir / "sfx").resolve(),
-        }
-        audio_files = [
-            path
-            for path in audio_files
-            if not any(is_relative_to(path.resolve(), vanilla_root) for vanilla_root in vanilla_roots)
-        ]
+    audio_files = iter_audio_candidates(root, audio_roots, archive_dir)
 
-    corpus = build_corpus(root, dump_dir, definition_files)
-    keep, move = classify_audio(root, game_dir, dump_dir, corpus, audio_files)
+    corpus = build_corpus(root, archive_dir, definition_files)
+    keep, move = classify_audio(root, game_dir, archive_dir, corpus, audio_files)
 
     action = "Would move" if args.dry_run else "Moving"
     print(f"Scanned text files: {corpus.scanned_file_count}")
-    print(f"Scanned mod audio files: {len(audio_files)}")
+    print(f"Scanned project audio files: {len(audio_files)}")
     print(f"Kept: {len(keep)}")
     print(f"{action}: {len(move)}")
 

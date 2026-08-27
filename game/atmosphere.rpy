@@ -30,7 +30,7 @@
 #                   in is just noise on the screen.
 #     Both are opt-in per scene and neither is a default; a day with particles
 #     in every shot has spent the effect.
-#   * Call atmos_clear() before leaving an authored sequence for a menu/tool.
+#   * Call atmos_clear() before leaving an authored sequence for a assets/images/menu/tool.
 #
 # Quality is evaluated by ConditionSwitch at render time. This matters because
 # Preferences runs in a copied Matsu'Py context: changing Full/Light/Off there now
@@ -242,6 +242,7 @@ init -9 python:
     ATMOS_PRESETS = {
         #                 vignette                       key                         vertical ambient fill                         energy/shape                         animation             sat
         "home":           dict(vig=0.32, inner=0.52, outer=1.05, vtint=(0.030, 0.036, 0.058), kpos=(0.27, 0.21), kcol=(1.00, 0.88, 0.66), ftop=(0.86, 0.90, 1.00), fbottom=(0.40, 0.46, 0.62), fill=0.030, key=0.048, ksize=0.62, ksoft=0.70, grain=0.014, grate=16.0, pulse=0.000, prate=1.0, sat=1.00),
+        "morning":        dict(vig=0.24, inner=0.60, outer=1.10, vtint=(0.026, 0.034, 0.052), kpos=(0.22, 0.18), kcol=(1.00, 0.94, 0.78), ftop=(0.88, 0.94, 1.00), fbottom=(0.52, 0.60, 0.72), fill=0.020, key=0.032, ksize=0.68, ksoft=0.75, grain=0.011, grate=15.0, pulse=0.000, prate=1.0, sat=1.00),
         "afternoon":      dict(vig=0.28, inner=0.56, outer=1.08, vtint=(0.036, 0.036, 0.050), kpos=(0.31, 0.19), kcol=(1.00, 0.93, 0.74), ftop=(0.90, 0.93, 1.00), fbottom=(0.48, 0.54, 0.68), fill=0.022, key=0.036, ksize=0.66, ksoft=0.74, grain=0.012, grate=15.0, pulse=0.000, prate=1.0, sat=1.00),
         "evening":        dict(vig=0.42, inner=0.46, outer=1.00, vtint=(0.070, 0.038, 0.034), kpos=(0.77, 0.27), kcol=(1.00, 0.62, 0.30), ftop=(0.60, 0.50, 0.60), fbottom=(0.22, 0.24, 0.36), fill=0.045, key=0.075, ksize=0.58, ksoft=0.66, grain=0.017, grate=16.0, pulse=0.000, prate=1.0, sat=1.00),
         "night":          dict(vig=0.54, inner=0.38, outer=0.96, vtint=(0.010, 0.016, 0.042), kpos=(0.50, 0.13), kcol=(0.44, 0.60, 1.00), ftop=(0.12, 0.20, 0.42), fbottom=(0.04, 0.07, 0.16), fill=0.058, key=0.048, ksize=0.66, ksoft=0.78, grain=0.024, grate=18.0, pulse=0.000, prate=1.0, sat=1.00),
@@ -276,6 +277,7 @@ init -9 python:
     # dark rows -- which darken rather than bleach -- keep their weight.
     ATMOS_FALLBACK = {
         "home":           "#cdecc814",
+        "morning":        "#ffe3a30d",
         "afternoon":      "#ffd88a0e",
         "evening":        "#d7864a1c",
         "night":          "#07163350",

@@ -152,13 +152,14 @@ init python:
                 CreditEntry("Opening CG Sequence", "Image sequence and presentation by L4w1i3t.", ["Current OP images are custom placeholder assets in addons/Sick Ass Anime OP."]),
                 CreditEntry("Arcade Box Art", "Cabinet shelf art by L4w1i3t.", ["Current jewel-case art is placeholder."]),
                 CreditEntry("Custom CGs", "Custom placeholder CG assets prepared by L4w1i3t.", ["campaign, ransom, hell, hell2, lies, everyface, and voidhunter."]),
+                CreditEntry("Custom Backgrounds", "Creative direction, selection, editing, and integration by L4w1i3t; base imagery generated with OpenAI's built-in image-generation tool.", ["House, residential, city, movie-theater, and library location families, including lighting and weather variants."]),
                 CreditEntry("Uncle Mugen", "Background assets.", ["park_winter, bus_interior, grassy, and river."]),
                 CreditEntry("Fanmade DDLC Background Assets", "Artist currently unknown.", ["doordark and doorday."]),
                 CreditEntry("L4w1i3t", "Custom background and UI integration.", ["corridor_bootleg, menu styling, archive styling, screen layouts, and placeholder asset wiring."]),
                 CreditEntry("Elduator / Erika B. Hall", "town_day background asset."),
                 CreditEntry("Lornn", "fields background asset."),
-                CreditEntry("Additional Background Placeholders", "Attribution review pending.", ["All remaining custom backgrounds and dump-folder visual placeholders should be verified before release."]),
-                CreditEntry("Fonts", "SF Automaton Extended, NovaSquare, Galldr, and Myanmar font assets.", ["Packaged in mod_assets/fonts. Confirm license text before public distribution."]),
+                CreditEntry("Additional Background Placeholders", "Attribution review pending.", ["Remaining custom backgrounds and dump-folder visual placeholders should be verified before release."]),
+                CreditEntry("Fonts", "SF Automaton Extended, NovaSquare, Galldr, and Myanmar font assets.", ["Packaged in assets/fonts. Confirm license text before public distribution."]),
             ],
         ),
         CreditSection(
@@ -185,7 +186,7 @@ init python:
             [
                 CreditEntry("Base DDLC Sound Effects", "Team Salvato.", ["closet, page, fall, heartbeat, and vanilla interface sounds."]),
                 CreditEntry("Custom SFX", "Provided by L4w1i3t, Toby Fox, or stock libraries.", ["dooropen, doorclose, ac, hellbassboost, hover, select, snap, tick, vinyl, rain, clock, beep, and related UI sounds."]),
-                CreditEntry("Matsuda Boss Fight UI SFX", "Generated in-project as synthetic interface and combat cues.", ["mod_assets/sfx/msbf/*.wav"]),
+                CreditEntry("Matsuda Boss Fight UI SFX", "Generated in-project as synthetic interface and combat cues.", ["assets/audio/sfx/msbf/*.wav"]),
                 CreditEntry("Phone Audio", "Prepared for custom phone UI.", ["Current phone sound definitions are placeholders until final SFX are assigned."]),
             ],
         ),
@@ -254,7 +255,7 @@ screen credits_menu():
                     vbox:
                         spacing 14
 
-                        add "mod_assets/gui/logo.png":
+                        add "assets/gui/enter_m/logo.png":
                             fit "contain"
                             xsize 230
                             ysize 104
@@ -444,7 +445,7 @@ style credits_title_block is empty:
     padding (16, 12)
 
 style credits_screen_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 26
     color "#f4fbff"
     outlines [(2, "#02040b", 0, 0), (1, "#ff315b99", 1, 1)]
@@ -497,7 +498,7 @@ style credits_content is empty:
     padding (24, 20)
 
 style credits_section_title is gui_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#f4fbff"
     bold True

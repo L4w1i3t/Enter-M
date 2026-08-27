@@ -1466,7 +1466,7 @@ screen phone_them_row(speaker=None, show_name=False, show_avatar=False, time=Non
 
 
 # Thumbs-up reaction: a real 👍 emoji image when the PNG exists
-# (mod_assets/emoji/1f44d.png), otherwise the hand-drawn fallback icon.
+# (assets/emoji/1f44d.png), otherwise the hand-drawn fallback icon.
 # A video-camera glyph, drawn rather than typed: none of the project fonts have
 # a camera codepoint (see the coverage note in gui.rpy). Body plus the lens
 # barrel jutting off its right side -- the same silhouette a camcorder icon uses.
@@ -1481,7 +1481,7 @@ screen phone_camera_glyph(color="#ffffff"):
 
 screen phone_thumb_glyph(line="#111827", fill="#f2c36b", size=38):
     if phone_emoji_loadable("1f44d"):
-        add Transform("mod_assets/emoji/1f44d.png", size=(size, size))
+        add Transform("assets/emoji/1f44d.png", size=(size, size))
     else:
         use phone_thumb_icon(line, fill)
 

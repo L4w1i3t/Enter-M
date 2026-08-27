@@ -31,7 +31,7 @@ from PIL import Image, ImageDraw, ImageFont
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MASTER_DIR = PROJECT_ROOT / "tmp" / "sam_sprite_masters"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "tmp" / "sam_sprite_processed"
-SAM_SPRITE_DIR = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "masayami"
+SAM_SPRITE_DIR = PROJECT_ROOT / "game" / "assets" / "characters" / "masayami"
 
 CANVAS_WIDTH = 1023
 CANVAS_HEIGHT = 1537

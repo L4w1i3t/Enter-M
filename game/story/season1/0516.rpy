@@ -33,7 +33,7 @@ label a0516:
     $ atmos("home", particles="motes")
     with wipeleft_scene
     show mom uniform neut at t22
-    "Mom is still in the kitchen when I come in, elegantly moving between the toaster and the stove."
+    "Mom is still in the kitchen when I come in, moving between the toaster and stove without looking rushed."
     show asahina uniform thinking at t21
     "Asahina sits at the table with her head tilted over one shoulder while she tries to fix a twist in her sleeve by feel alone."
     mc "Morning."
@@ -55,7 +55,7 @@ label a0516:
     mom "Food first, commentary after."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Breakfast does what it always does: Mom asking about homework and my schedule today, me answering just enough to avoid a second question, and Asahina pretending not to smile at whatever message lit up her phone."
+    nier "Mom asks about homework while I answer vaguely. Across the table, Asahina pretends not to smile at whatever lit up her phone."
     call nier_clear from _call_nier_clear_0516_1
     pause 2.0
     scene bg dining_table
@@ -85,9 +85,8 @@ label a0516:
     "{i}At least the eggs are good.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "A few minutes later, we're out the door."
-    nier "Asahina leaves first, still pretending she isn't rushing."
-    nier "I double-check my bag, my lanyard, and the loose collection of small obligations that apparently make up a human life."
+    nier "A few minutes later, we're out the door. Asahina leaves first, still pretending she isn't rushing."
+    nier "I check my bag and lanyard twice, along with the loose obligations apparently required for personhood."
     call nier_clear from _call_nier_clear_0516_2
     stop music fadeout 1.0
     pause 2.0
@@ -153,8 +152,8 @@ label a0516:
     $ atmos("afternoon", particles="motes")
     with wipeleft_scene
     play music dailyfantasy
-    "After school, I make my way to the club room, running slightly late due to an ill-timed bathroom break."
-    "I half expect a few occupied desks, a handful of voices, and someone arguing with way too much confidence about whether a poem can be too purple for some reason."
+    "After school, I reach the club room a little late. The bathroom break was poorly negotiated."
+    "I expect the usual occupied desks and overlapping voices, probably centered on whether a poem can be too purple."
     show monika forward uniform dist cm oe nobl rdown ldown at t11
     "Monika is already here, flipping through a thin notebook with a pen tucked behind her ear. Nobody else is."
     m forward uniform happ om oe nobl rdown ldown "Hey, you made it!"
@@ -170,16 +169,15 @@ label a0516:
     m forward uniform wry cm ce nobl rdown ldown "Wow. This school really is falling apart..."
     "I take my usual seat and drop my bag beside the desk."
     "She closes her notebook halfway, keeping one finger between the pages."
-    m forward uniform happ om oe nobl rhip ldown "So, today's agenda is pretty light."
-    m "I was thinking we could read for a bit, have a little book club circle, then maybe workshop whatever you brought yesterday a bit more."
+    m forward uniform happ om oe nobl rhip ldown "Today's agenda is pretty light. I was thinking we could read for a bit, then workshop whatever you brought yesterday some more."
     mc "You mean the draft with all the brackets still in it?"
     m "That's the one~"
-    m forward uniform neut cm oe nobl rhip ldown "The brackets are useful, actually. Take that first stanza; I think the metacommentary works in your favor."
+    m forward uniform neut cm oe nobl rhip ldown "The brackets are useful, actually. Take that first stanza: I think the metacommentary works in your favor."
     mc "You're making my bad habits sound organized."
     m forward uniform wry cm oe nobl rhip ldown "Only because they are. That's why I can find them so easily."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Club time passes quietly. Monika reads with the focused little frown she gets when she's trying not to rewrite an entire paragraph in her head. Much to my chagrin, she actually does cross out an entire section that I thought was clever."
+    nier "Monika reads with the focused little frown she gets when she's trying not to rewrite an entire paragraph in her head. Much to my chagrin, she crosses out an entire section I thought was clever."
     call nier_clear from _call_nier_clear_0516_4
     pause 2.0
     scene bg club_day
@@ -190,12 +188,12 @@ label a0516:
     "By the time the light outside begins to wane, Monika stacks her notebook on top of mine."
     m forward uniform happ om oe nobl rdown ldown "There. Nothing too brutal, right?"
     mc "It was within the blast zone, yeah."
-    "She turns my second page around, near a line I'd buried three brackets deep, and she's written something in that neat slant of hers:"
+    "She turns my second page around. Beside a line I'd buried three brackets deep, her neat slant reads:"
     "{i}You're describing how this looks here so that you can avoid the elephant in the room.{/i}"
     "I read it twice."
     mc "...I think you're making me catch strays."
     m forward uniform happ om ce nobl rdown lpoint "Consider it a freebie."
-    "I slip the papers back into my bag before the sentence can follow me home."
+    "I slip the papers back into my bag. The sentence can commute by itself."
     mc "Anything I need to remember for tomorrow?"
     m forward uniform curi om oe nobl rhip ldown "Tomorrow? Survive classes, first of all."
     mc "I'll...pencil that in."
@@ -213,8 +211,7 @@ label a0516:
     "She waves me off, and I take the exit while it is on offer."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "My trip home starts the same way as always."
-    nier "The only thing of note, if you can call it that, is the vending machine that has been sold out of the exact same drink for a week."
+    nier "The walk home follows its usual route until the vending machine. It has been sold out of one particular drink all week."
     call nier_clear from _call_nier_clear_0516_5
     pause 2.0
     scene bg residential_day
@@ -222,7 +219,7 @@ label a0516:
     $ atmos("overcast")
     with wipeleft_scene
     "I slow down near the corner store when I notice someone standing by the curb with a neatly folded umbrella tucked under one arm."
-    show kotonoha neut at t11
+    show kotonoha casual neut at t11
     "It's Kotonoha, who is technically in my year, though most people know her by sight before they know anything else."
     "She is always either coming from somewhere or going somewhere. Nobody I know has ever seen her arrive."
     mc "Oh. Hey, Kotonoha."
@@ -230,11 +227,10 @@ label a0516:
     mc "Waiting for someone?"
     ko "A bus."
     mc "Right. That would make sense at a bus stop."
-    ko "It's running late."
+    ko casual unamused "It's running late."
     mc "Yeah...they do that."
-    "A light breeze passes through the street."
-    "She adjusts the bag in her hand. The convenience store logo crinkles under her fingers."
-    show kotonoha neut
+    "A light breeze passes through the street. She adjusts the bag in her hand, and the convenience store logo crinkles under her fingers."
+    show kotonoha casual neut
     mc "Coming from work?"
     ko "One of them."
     "I nod, because that's how people generally answer Kotonoha. You simply keep the line moving."
@@ -242,33 +238,33 @@ label a0516:
     ko "Average."
     "{i}For her, maybe.{/i}"
     # SFX SUGGESTION: Wet tires passing close, ending in a short gutter splash.
-    "A car rolls by, kicking up a brief hiss of water from a shallow gutter puddle."
-    "She steps back at the exact moment the water arrives."
+    "A car rolls by, kicking up a brief hiss of water from a shallow gutter puddle. She steps back as the water reaches the curb."
     mc "Woah, good timing."
     ko "I watch where cars are."
     mc "Useful habit."
-    ko "Most people watch where cars were."
+    ko casual thinking "Most people watch where cars were."
     mc "...Huh."
     # SFX SUGGESTION: A distant bus engine groan with a soft pneumatic-brake hiss.
-    show kotonoha neut at t21
+    show kotonoha casual neut at t21
     "The bus finally groans around the corner in the distance."
     ko "Oh, that's mine."
     mc "Yeah. Guess I'll see you around."
-    ko "Probably. We keep ending up in the same five minutes."
+    ko casual teasing "Probably. We keep ending up in the same five minutes."
+    show kotonoha casual neut
     "She gives a small bow, then steps toward the curb as the bus pulls in."
     show kotonoha at thide
     hide kotonoha
-    "The only reminder of the bus's existence is the skid marks it left on the sidewalk by accident."
+    "The bus leaves a wet tread mark along the curb and a fading engine groan."
     $ mark_character_met("kotonoha")
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest of the walk home is quiet enough for my brain to start making gibberish out of normal things."
+    nier "The rest of the walk goes quiet. My brain starts making gibberish out of normal things."
     nier "I look along the power lines and imagine a badass dude running on them without any other objective."
     nier "{i}Damn, I wish that were me.{/i}"
     call nier_clear from _call_nier_clear_0516_6
     play sound moddooropen
     pause 2.0
-    scene bg doorday
+    scene bg home_entry_day
     $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
@@ -277,7 +273,7 @@ label a0516:
     "{i}Please don't let this be one of Mom's surprise errands in human form.{/i}"
     mc "I'm home..."
     ah "Living room!"
-    "That tone tells me she wants me to come in, and that she has prepared herself emotionally to be a total nuisance about it."
+    "Her voice lands halfway between a summons and the opening move of a prank."
     $ hide_calendar()
     pause 2.0
     scene bg living_room
@@ -286,12 +282,10 @@ label a0516:
     show sam uniform neut at t33
     $ atmos("home")
     with wipeleft_scene
-    "Asahina is standing near the couch, arms folded in a way she keeps adjusting."
-    "Beside her is a guy I recognize mostly from context clues."
+    "Asahina is standing near the couch, arms folded in a way she keeps adjusting. Beside her is a guy I recognize mostly from context clues."
     ah "This is Sam."
     "{i}Look at me, solving mysteries in my own living room.{/i}"
-    sa "Hey. Masayami Inugami."
-    sa "But Sam is easier for basically everyone, so please use that."
+    sa "Hey, I'm Masayami Inugami, but basically everyone calls me Sam. Please do the same."
     mc "[player]."
     mc "...I'm the brother."
     show sam uniform happy
@@ -307,8 +301,7 @@ label a0516:
     show sam uniform teasing
     sa "You said he was smart, sarcastic, and impossible in the morning."
     mc "Hey, that's more of a profile than I expected. I'd think she'd completely drag my name through the mud."
-    "He offers his hand."
-    "The handshake is firm without being dramatic about it."
+    "He offers his hand. The handshake is firm and brief."
     show sam uniform neut
     "I hate that I notice that."
     mc "So, uh...welcome."
@@ -323,7 +316,7 @@ label a0516:
     mc "Wooooow, incredible. Seems like the mailing list has me blocked."
     show sam uniform smug
     sa "If it helps, I'm not on it either."
-    "He turns the awkwardness into a shared joke before I can decide whether to be annoyed by it."
+    "He catches the awkwardness and redirects it at himself. Annoyingly effective."
     "He's been nothing but friendly. That's sort of the problem, actually."
     play sound moddooropen
     "...Then again, it's only been two nanoseconds."
@@ -340,16 +333,13 @@ label a0516:
     ah "Mom..."
     show sam uniform pose_crossed
     "Mom points at my sister."
-    show mom uniform pose_objection
-    mom "Doors stay open, no exceptions."
-    mom "Homework comes before movies."
+    mom uniform pose_objection "Doors stay open, no exceptions. Homework comes before movies."
     mom "Absolutely zero PDA under any circumstances."
-    "She then pans her fingers around each of us."
+    "She points from Sam to Asahina, then to me."
     show mom uniform neut
     mom "And if anyone gets hungry, there are leftovers."
-    "Sam's eyes flick to Asahina for half a second before he answers, the way you check a gauge only you can read."
-    show sam uniform determined
-    sa "Understood, ma'am."
+    "Sam's eyes flick toward Asahina, then back to Mom."
+    sa uniform determined "Understood, ma'am."
     show mom uniform smug
     mom "Good answer."
     show asahina uniform smug
@@ -358,11 +348,9 @@ label a0516:
     show asahina uniform unamused
     ah "You did the face thing again."
     mc "...There's so much wrong with you."
-    sa "For what it's worth, I get it."
-    sa "If I had a younger sister bringing a guy home, I'd probably do the same kinda scan."
+    sa "For what it's worth, I get it. If I had a younger sister bringing a guy home, I'd probably do the same kinda scan."
     mc "Oh?"
     sa "Shoes, posture, handshake, whether I say something stupid in the first thirty seconds..."
-    "I pause."
     "{i}Okay, now that's just unfair.{/i}"
     mc "You passed two and a half."
     sa "Out of?"
@@ -371,57 +359,54 @@ label a0516:
     sa "I'll take it."
     show asahina uniform teasing
     ah "Don't encourage him, he's a freaking weirdo."
-    "She says that while failing to hide a smile."
+    "A smile keeps tugging at one corner of her mouth."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The evening turns out strangely typical."
-    nier "Mom heats up leftovers. Asahina and Sam sit at the coffee table with homework spread out between them, though only one of them appears to be treating homework as the primary activity."
+    nier "Mom heats leftovers while Asahina and Sam spread homework across the coffee table. Only one of them treats homework as the main event."
     call nier_clear from _call_nier_clear_0516_7
     pause 2.0
-    scene bg kitchen
+    scene bg kitchen_evening
     $ show_calendar()
     show mom neut at t22
     show sam uniform neut at t21
     $ atmos("home")
     with wipeleft_scene
-    "Later, I find him in the kitchen rinsing a glass while Mom packs away whatever scraps are left."
+    "Later, I find him in the kitchen rinsing a glass while Mom packs the last of the rice into a container."
     mom "You don't have to do that, Sam."
-    sa "It's fine--really. I used it, so I should clean it."
+    sa "It's fine, really. I used it, so I should clean it."
     mc "Careful. If you keep being useful, she'll invite you back."
     mom "He can come back."
-    "Sam's grin breaks all at once and contradicts everything I've seen up to this point."
-    show sam uniform happy
-    sa "I'd like that."
+    "Sam's grin breaks wide before he can smooth it back down."
+    sa uniform happy "I'd like that."
     "Asahina, from the living room, makes a triumphant noise."
     ah "Booyah!"
     mom angry "Homework!"
     ah "...Yes, ma'am..."
     "The victory dies instantly."
     show sam uniform neut
-    "Sam dries his hands and glances toward the living room."
-    sa "She's been working hard, you know."
+    mom curious "Think Asahina will take this for lunch tomorrow? She barely touched dinner."
+    "Sam dries the glass and glances toward the living room. The towel stops in his hands."
+    sa neut "She's been working hard, you know."
     mc "At volleyball? School?"
-    show sam uniform thinking
-    sa "That too, but she's, ah..."
-    sa "She's been trying really hard lately. Eating better, mostly. Said she wants to cut back on junk, believe it or not."
+    sa uniform thinking "That too, but..."
+    sa uniform nervous "I probably shouldn't be the one saying this."
+    mom curious "Saying what?"
+    sa uniform thinking "She's been trying hard to eat better lately. Cutting back on junk, mostly."
     "He says it to the glass he's drying, without looking up."
-    "{i}...She trusts a guy she met recently more than her own mother that she's known her whole life?{/i}"
-    show sam uniform determined
-    sa "I want to support that however I can."
+    "{i}Mom is standing three feet away, and Sam still lowers his voice.{/i}"
+    sa uniform worried "I want to support her. I just don't want to make it weird."
     mc "Yeah. She's modest like that."
-    sa "I noticed. Still though, gotta respect someone who wants to better themself."
-    "Mom takes us both in, then goes back to the containers."
-    "If she caught anything under the surface, she doesn't say it."
+    sa uniform determined "I noticed. Still, you gotta respect someone who wants to better themself."
+    "Mom presses the lid onto the container. It takes her two tries."
     $ mark_character_met("sam")
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Sam leaves sometime after dinner."
-    nier "Asahina walks him to the door and takes about three times longer than necessary to come back inside."
+    nier "Sam leaves sometime after dinner. Asahina walks him to the door and takes three times longer than necessary to come back inside."
     nier "Nobody comments on it."
     call nier_clear from _call_nier_clear_0516_8
     stop music fadeout 1.0
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
@@ -429,12 +414,11 @@ label a0516:
     "By night, I am back in my room with my phone in one hand and my planner open on my desk."
     "I only get the planner out when memory alone has started to feel like a terrible idea, and this not-quite-weekend qualifies. Saturday still has school attached to it like a punishment with better branding."
     call enter_m_show_planner("SATURDAY", "MAY 17", planner_0516_saturday, "SUNDAY", "MAY 18", planner_0516_sunday, "chip restitution = Asa's problem", "'date' is a normal word. stop thinking about it.") from _call_enter_m_show_planner_0516_1
-    "{i}Just enough to make my free time feel pre-owned.{/i}"
-    "A muffled laugh rises from downstairs, probably Asahina texting Sam."
-    "Mom says something after that, too faint for me to catch."
+    "{i}My free time already feels pre-owned.{/i}"
+    "A muffled laugh rises from downstairs, probably Asahina texting Sam. Mom says something after that, too faint for me to catch."
     $ hide_calendar()
     scene black with dissolve_scene_full
-    nier "A checklist, a tired brain, and the faint blue glow of a phone screen fading into sleep mode."
+    nier "The checklist stays open beside a tired brain. My phone's blue glow fades into sleep mode."
     call nier_clear from _call_nier_clear_0516_9
     stop music fadeout 2.0
     pause 2.0

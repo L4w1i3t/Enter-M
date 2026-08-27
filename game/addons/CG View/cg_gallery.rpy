@@ -50,16 +50,15 @@
 init python:
     def cg_key_from_path(image_path):
         """
-        Turn "mod_assets/cg/seer.png" into "cg_seen_mod_assets_cg_seer".
+        Turn an image path into the persistent key that records its unlock.
 
         THE CG'S IDENTITY IS ITS ART, so the persistent key is derived from the
         path rather than hand-written next to every entry. Two reasons: a catalog
         this long picks up typos and duplicates the moment it needs a second
         column, and a key that is generated cannot silently disagree with the
-        image it is supposed to gate. The trade is that MOVING or renaming a file
-        re-locks that CG on existing profiles, which for bonus art is a fair
-        price and is why the whole path is used -- two files with the same
-        basename in different folders must not collide.
+        image it is supposed to gate. Moved art supplies its pre-move path to
+        ``unlock_attr`` below, deliberately freezing the old key so an asset-tree
+        cleanup cannot relock a CG on an existing profile.
         """
         cleaned = str(image_path).lower()
         for junk in ("\\", "/", " ", "-", ".", "'"):
@@ -174,7 +173,11 @@ init python:
         ]),
         CGAct("Side Stories", [
             CGChapter("Matsuda's Story", [
-                CGEntry("Seer", "mod_assets/cg/seer.png")
+                CGEntry(
+                    "Seer",
+                    "assets/cg/seer.png",
+                    unlock_attr=cg_key_from_path("mod_assets/cg/seer.png")
+                )
             ]),
             CGChapter("Player's Story", [
 
@@ -186,8 +189,16 @@ init python:
 
             ]),
             CGChapter("Sam's Story", [
-                CGEntry("Ransom", "mod_assets/cg/ransom.png"),
-                CGEntry("A Girl", "mod_assets/cg/hell.png"),
+                CGEntry(
+                    "Ransom",
+                    "assets/cg/ransom.png",
+                    unlock_attr=cg_key_from_path("mod_assets/cg/ransom.png")
+                ),
+                CGEntry(
+                    "A Girl",
+                    "assets/cg/hell.png",
+                    unlock_attr=cg_key_from_path("mod_assets/cg/hell.png")
+                ),
             ]),
             CGChapter("Mom's Story", [
             ]),
@@ -201,7 +212,7 @@ init python:
     # -------------------------------------------------------------------------
     # PUBLIC API: cg_unlock(...) -- "the player has now seen this".
     #
-    # Takes CG TITLES ("Ransom") or image paths ("mod_assets/cg/ransom.png");
+    # Takes CG TITLES ("Ransom") or current image paths ("assets/cg/ransom.png");
     # titles are what read best at a call site, paths are there for art that is
     # in the catalog under a title you would rather not spell out in the script.
     # Several at once is fine -- a montage that puts four CGs on screen in one
@@ -686,7 +697,7 @@ screen cg_gallery():
 # Cyan-on-near-black palette consistent with the Archive theme.
 
 style cg_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#f4fbff"
     bold True

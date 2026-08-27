@@ -425,12 +425,12 @@ screen msbf_party_select():
     text "VS. ONTOLOGICAL SEER" style "msbf_title":
         xpos 48
         ypos 28
-    text "Index the cylinder. Chamber four. One of them has to take the front." style "msbf_subtitle":
+    text "Select a party of four. One of them has to take the front." style "msbf_subtitle":
         xpos 50
         ypos 74
 
     use msbf_hud_scrim(940, 0, 340, 150, 1.0, 0.7, -1.0)
-    text "CHAMBERED" style "msbf_tempo_kicker":
+    text "SELECTED" style "msbf_tempo_kicker":
         xanchor 1.0
         xpos 1232
         ypos 30
@@ -618,7 +618,7 @@ screen msbf_party_select():
         # Precomputed: Matsu'Py's text interpolation reads "[picks.index(_id)]" as
         # an ATTRIBUTE called "index(_id)", not as a call.
         $ _deck_pos = picks.index(_id)
-        text "CHAMBERED  #[_deck_pos]" style "msbf_cyl_state_in":
+        text "SELECTED  #[_deck_pos]" style "msbf_cyl_state_in":
             xpos 846
             ypos 302
     elif _locked:
@@ -626,11 +626,11 @@ screen msbf_party_select():
             xpos 846
             ypos 302
     else:
-        text "READY TO CHAMBER" style "msbf_cyl_state_free":
+        text "READY TO SELECT" style "msbf_cyl_state_free":
             xpos 846
             ypos 302
 
-    textbutton (("EJECT" if _in_deck else "CHAMBER") + "   Z"):
+    textbutton (("EJECT" if _in_deck else "SELECT")):
         style "msbf_cyl_action"
         keyboard_focus False
         xpos 846
@@ -718,7 +718,7 @@ screen msbf_party_select():
                 text "[_si]" style "msbf_cyl_pip_empty":
                     xpos 14
                     yalign 0.5
-                text "EMPTY CHAMBER" style "msbf_cyl_slot_empty":
+                text "NONE SELECTED" style "msbf_cyl_slot_empty":
                     xpos 76
                     yalign 0.5
 
@@ -739,7 +739,7 @@ screen msbf_party_select():
             xcenter 939
             ypos 696
 
-    textbutton ("READY" if _ready else "CHAMBER FOUR"):
+    textbutton ("READY" if _ready else "SELECT FOUR"):
         style "msbf_cyl_begin"
         keyboard_focus False
         xcenter 939
@@ -749,7 +749,7 @@ screen msbf_party_select():
         activate_sound MSBF_UI_SFX["accept"]
         action [SetScreenVariable("focus", 5), SetScreenVariable("kb_active", False)] + ([_act_begin] if _ready else [NullAction()])
 
-    text "Arrows index  |  Z chamber / flip row  |  X eject  |  Up/Down move" style "msbf_cyl_keys":
+    text "Arrows index  |  Z select / flip row  |  X eject  |  Up/Down move" style "msbf_cyl_keys":
         xcenter MSBF_CYL_CX
         ypos 640
 

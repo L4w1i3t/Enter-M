@@ -11,8 +11,8 @@ $ErrorActionPreference = "Stop"
 $sourceRoot = (Resolve-Path -LiteralPath $SourceDirectory).Path
 $outputRoot = (Resolve-Path -LiteralPath $OutputDirectory).Path
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
-$casualBase = Join-Path $projectRoot "game\mod_assets\char_sprites\himeko\neutral.png"
-$uniformBase = Join-Path $projectRoot "game\mod_assets\char_sprites\himeko\neut_uniform.png"
+$casualBase = Join-Path $projectRoot "game\assets\characters\himeko\neutral.png"
+$uniformBase = Join-Path $projectRoot "game\assets\characters\himeko\neut_uniform.png"
 
 Add-Type -ReferencedAssemblies System.Drawing -TypeDefinition @'
 using System;

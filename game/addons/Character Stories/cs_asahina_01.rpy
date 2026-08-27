@@ -67,7 +67,7 @@
 
 # -----------------------------------------------------------------------------
 #  FONT FIX
-#    The mod's dialogue font (mod_assets/fonts/Myanmar.otf) has no glyphs for the
+#    The mod's dialogue font (assets/fonts/Myanmar.otf) has no glyphs for the
 #    2000s decorations this story leans on (star, heart, bullet, guillemet,
 #    arrows), so they rendered as tofu. DejaVuSans.ttf ships with Matsu'Py, covers
 #    all of them, and conveniently reads like Tahoma/Verdana -- right at home on a
@@ -96,7 +96,7 @@ style hw_bar is bar
 style hw_vscrollbar is vscrollbar
 
 # Fit, not cover: the 3:2 wallpaper leaves awkward sidebars on 16:9.
-image hw2_xp_wallpaper = Transform("mod_assets/bg/xp.png", fit="contain", xysize=(1280, 720), xalign=0.5, yalign=0.5)
+image hw2_xp_wallpaper = Transform("assets/backgrounds/xp.png", fit="contain", xysize=(1280, 720), xalign=0.5, yalign=0.5)
 
 screen hw2_desktop_backdrop():
     add Solid("#000000")

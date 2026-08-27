@@ -4,10 +4,10 @@
 # label, state update, or Matsu'Py/Python logic was changed by this pass.
 #
 # Sources (docs/):
-#   docs/MAIN_STORY_REPETITION_AUDIT.md                 <AUDIT>
-#   docs/MAIN_STORY_REPETITION_DETAILS_0515_0519.md     <D0515-0519>
-#   docs/MAIN_STORY_REPETITION_DETAILS_0520_0524.md     <D0520-0524>
-#   docs/MAIN_STORY_REPETITION_DETAILS_0525_0528_EXAM.md <D0525-0528>
+#   docs/story/audits/repetition/MAIN_STORY_REPETITION_AUDIT.md                  <AUDIT>
+#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0515_0519.md      <D0515-0519>
+#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0520_0524.md      <D0520-0524>
+#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0525_0528_EXAM.md <D0525-0528>
 #
 # Inline notes start with '# REPETITION ['. Find them with:
 #   rg -n "^\s*# REPETITION \[" game/story/season1
@@ -74,7 +74,7 @@
 #   - addons/Sick Ass Anime OP/op.rpy / op_fx.rpy : generic fx only -- cut_fx,
 #       bg pan transforms (push/sweep/breathe/oblique/snap_pan), scanline,
 #       post_fx, impact, psyche_break, ambient dust, ENTER_M_OP_SHADERS, cleanup.
-#   - mod_assets/bgm/scamall.ogg (define audio.scamall in def_audio.rpy).
+#   - assets/audio/bgm/scamall.ogg (define audio.scamall in def_audio.rpy).
 #
 # >>> TEMPO / SYNC (confirmed by the author) <<<
 #   scamall: 75 BPM, F# minor (11A). beat = 0.8s, bar = 3.2s.
@@ -134,7 +134,7 @@ init python:
 # Cool, hollow palette. Matsuda keeps her cyan (#75f7ff); everything else leans
 # toward a muted teal-green so nothing reads as warm or "heavenly."
 style enter_m_tr_announce_big is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 78
     color "#eef7f4"
     outlines [(3, "#000000", 0, 0), (10, "#03070a99", 0, 0)]
@@ -142,7 +142,7 @@ style enter_m_tr_announce_big is gui_text:
     text_align 0.5
 
 style enter_m_tr_announce_small is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 27
     color "#79e6d2"
     kerning 9.0
@@ -151,14 +151,14 @@ style enter_m_tr_announce_small is gui_text:
     text_align 0.5
 
 style enter_m_tr_caption_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 33
     color "#eaffff"
     outlines [(3, "#000000", 0, 0)]
     text_align 0.5
 
 style enter_m_tr_cryptic_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 40
     color "#cfe6e0"
     italic True
@@ -167,7 +167,7 @@ style enter_m_tr_cryptic_text is gui_text:
     text_align 0.5
 
 style enter_m_tr_stark_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 60
     color "#eaf6f2"
     kerning 4.0
@@ -176,20 +176,20 @@ style enter_m_tr_stark_text is gui_text:
     text_align 0.5
 
 style enter_m_tr_vn_name is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 24
     color "#79e6d2"
     kerning 2.0
     outlines [(1, "#03060b", 0, 0)]
 
 style enter_m_tr_vn_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 32
     color "#e9f3f0"
     outlines [(3, "#000000", 0, 0)]
 
 style enter_m_tr_meta_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 42
     color "#f0fbf8"
     outlines [(3, "#000000", 0, 0), (10, "#03070a99", 0, 0)]
@@ -197,14 +197,14 @@ style enter_m_tr_meta_text is gui_text:
     text_align 0.5
 
 style enter_m_tr_bug_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 18
     color "#dfeee9"
     kerning 3.0
     outlines [(1, "#03060b", 0, 0)]
 
 style enter_m_tr_title is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 108
     color "#eef7f4"
     kerning 6.0
@@ -563,7 +563,7 @@ label enter_m_prologue_trailer:
     show screen enter_m_tr_cryptic("Some of this is already behind us.", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
-    scene bg kitchen at enter_m_op_bg_oblique(enter_m_tr_bar, 0.54, 0.46, 0.51, 0.47, 0.16) with Dissolve(0.5)
+    scene bg kitchen_evening at enter_m_op_bg_oblique(enter_m_tr_bar, 0.54, 0.46, 0.51, 0.47, 0.16) with Dissolve(0.5)
     show screen enter_m_tr_vn("???", "I-It doesn't hurt yet...", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 

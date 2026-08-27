@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "canvas": [
+    184,
+    344
+  ],
+  "baseline_y": 334,
+  "lower_body_anchor_x": 92.0,
+  "matte_cutoff": 22,
+  "output_scale": 0.25,
+  "pixel_levels": [
+    0,
+    96,
+    176,
+    255
+  ],
+  "sprites": [
+    {
+      "source": "docs/archive/tsubaki-boss/phase1_black_master.png",
+      "output": "game/addons/Matsuda's Sick Boss Fight/tsubakimode/phase1.png",
+      "source_canvas": [
+        1024,
+        1536
+      ],
+      "output_canvas": [
+        184,
+        344
+      ],
+      "source_content_bbox": [
+        311,
+        95,
+        720,
+        1359
+      ],
+      "output_content_bbox": [
+        46,
+        18,
+        148,
+        334
+      ],
+      "source_lower_body_anchor_x": 496.0,
+      "target_lower_body_anchor_x": 92.0,
+      "baseline_y": 334,
+      "scale": 0.25,
+      "translate": [
+        -32.0,
+        -5.75
+      ],
+      "baseline_adjust_y": 0,
+      "visible_pixels": 11856,
+      "nonzero_background_channels": 0
+    },
+    {
+      "source": "docs/archive/tsubaki-boss/phase1_strained_black_master.png",
+      "output": "game/addons/Matsuda's Sick Boss Fight/tsubakimode/phase1_strained.png",
+      "source_canvas": [
+        1023,
+        1537
+      ],
+      "output_canvas": [
+        184,
+        344
+      ],
+      "source_content_bbox": [
+        320,
+        86,
+        741,
+        1406
+      ],
+      "output_content_bbox": [
+        46,
+        4,
+        151,
+        334
+      ],
+      "source_lower_body_anchor_x": 507.0,
+      "target_lower_body_anchor_x": 92.0,
+      "baseline_y": 334,
+      "scale": 0.25,
+      "translate": [
+        -34.75,
+        -17.5
+      ],
+      "baseline_adjust_y": 0,
+      "visible_pixels": 12896,
+      "nonzero_background_channels": 0
+    },
+    {
+      "source": "docs/archive/tsubaki-boss/phase2_black_master.png",
+      "output": "game/addons/Matsuda's Sick Boss Fight/tsubakimode/phase2.png",
+      "source_canvas": [
+        1023,
+        1537
+      ],
+      "output_canvas": [
+        184,
+        344
+      ],
+      "source_content_bbox": [
+        270,
+        126,
+        844,
+        1404
+      ],
+      "output_content_bbox": [
+        13,
+        15,
+        156,
+        334
+      ],
+      "source_lower_body_anchor_x": 588.0,
+      "target_lower_body_anchor_x": 92.0,
+      "baseline_y": 334,
+      "scale": 0.25,
+      "translate": [
+        -55.0,
+        -17.0
+      ],
+      "baseline_adjust_y": 0,
+      "visible_pixels": 13679,
+      "nonzero_background_channels": 0
+    },
+    {
+      "source": "docs/archive/tsubaki-boss/phase2_exhausted_black_master.png",
+      "output": "game/addons/Matsuda's Sick Boss Fight/tsubakimode/phase2_exhausted.png",
+      "source_canvas": [
+        1023,
+        1537
+      ],
+      "output_canvas": [
+        184,
+        344
+      ],
+      "source_content_bbox": [
+        263,
+        146,
+        779,
+        1404
+      ],
+      "output_content_bbox": [
+        11,
+        20,
+        139,
+        334
+      ],
+      "source_lower_body_anchor_x": 594.0,
+      "target_lower_body_anchor_x": 92.0,
+      "baseline_y": 334,
+      "scale": 0.25,
+      "translate": [
+        -56.5,
+        -17.0
+      ],
+      "baseline_adjust_y": 0,
+      "visible_pixels": 13966,
+      "nonzero_background_channels": 0
+    },
+    {
+      "source": "docs/archive/tsubaki-boss/phase2_limp_black_master.png",
+      "output": "game/addons/Matsuda's Sick Boss Fight/tsubakimode/phase2_limp.png",
+      "source_canvas": [
+        1023,
+        1537
+      ],
+      "output_canvas": [
+        184,
+        344
+      ],
+      "source_content_bbox": [
+        245,
+        173,
+        756,
+        1409
+      ],
+      "output_content_bbox": [
+        4,
+        24,
+        132,
+        334
+      ],
+      "source_lower_body_anchor_x": 601.0,
+      "target_lower_body_anchor_x": 92.0,
+      "baseline_y": 334,
+      "scale": 0.25,
+      "translate": [
+        -58.25,
+        -19.25
+      ],
+      "baseline_adjust_y": -1,
+      "visible_pixels": 13321,
+      "nonzero_background_channels": 0
+    }
+  ]
+}

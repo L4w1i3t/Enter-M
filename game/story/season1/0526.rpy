@@ -300,7 +300,7 @@ label a0526_after_la:
         jump exam_guard_bad_ending
     if persistent.exam_save_scum_subjects:
         pause 2.0
-        scene bg bedroom
+        scene bg bedroom_night
         $ show_calendar()
         $ atmos("home_night")
         stop music fadeout 1.0

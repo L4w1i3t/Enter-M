@@ -30,7 +30,7 @@ from PIL import Image
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = PROJECT_ROOT / "tmp" / "tsubaki_face_patch" / "output"
-DESTINATION = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "tsubaki"
+DESTINATION = PROJECT_ROOT / "game" / "assets" / "characters" / "tsubaki"
 ARCHIVE_DIR = (
     PROJECT_ROOT / "tmp" / "tsubaki_face_patch" / "obsolete_modular_faces"
 )

@@ -121,7 +121,7 @@ init python:
     )
     # Tags that get a default rest transform registered at init 999 (below).
     # The roster is ENTER_M_SPRITE_TAGS, declared next to the `image` lines in
-    # game/mod_assets/def_characters.rpy -- a copy kept here went stale every
+    # game/asset_definitions/def_characters.rpy -- a copy kept here went stale every
     # time a sprite was added there, and the failure is silent (a bare
     # `show <tag>` just never gets a tracked slot). Read at init 999.
     def _autofocus_default_tags():

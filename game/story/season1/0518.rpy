@@ -14,7 +14,7 @@ label a0518:
     with dissolve_scene_full
     play music dailyleisure
     ah "Ugggh, why is there nothing good on?!"
-    "My sister continues to flip through the channels on the TV with a force that makes you think it offended her."
+    "My sister attacks the channel button like the TV started it."
     show asahina annoyed
     ah "Why did the Geographic have to have downtime now of all times?!"
     mc "Maybe this is the universe's way of telling you to expand your horizons or something."
@@ -33,15 +33,15 @@ label a0518:
     mc "Once again, Asa, she's not my--"
     mc "...Actually, no. We're not doing this."
     mc "Monika and I made plans to catch a movie today, that's all."
-    "She lightly punches my shoulder."
+    "She lightly punches my upper arm."
     show asahina happy
-    "I lay my cup back on the coaster."
+    "I set my cup back on the coaster."
     mc "...We still need to pick a time, so let me follow up with her real quick."
     mc "Also, you put WAY too much milk in the coffee this morning."
     show asahina neut
     ah "Hm? I didn't make it, Mom did."
     mc "...Be real."
-    "I continue to give my sister the stare of skepticism as I press the power button on my phone."
+    "I keep staring while I wake my phone."
     python:
         _phone_messages = [
             phone_msg("them", "Morning! I looked online and there are showings at noon and a couple hours after that."),
@@ -100,18 +100,17 @@ label a0518_showtime_pick:
     ah "You good there? I can hear you grinding your teeth from over here."
     mc "Just a nosy sister that gets under my skin."
     show asahina unamused
-    "The stare I get back is not amused."
-    mc "...Okay, fine, real talk, jokes aside."
-    mc "It's not that I'm annoyed, per se..."
-    mc "It's just--when somebody's that direct about things, I don't know where to put my hands. Or my face. Or, uh."
+    "Her thumb stops over the remote."
+    mc "...Okay, fine. Real talk, jokes aside."
+    mc "Monika doesn't annoy me. I just don't know what to do when somebody's that direct."
+    mc "Where to put my hands. Or my face. Or, uh..."
     mc "...Forget it."
     show asahina thinking
     ah "I think I get it..."
     mc "Here, I'll just show you."
     mc "And I swear to everything holy, do NOT scroll too far up or start digging through things."
-    "I turn over my phone's chat history to her and she reads through the texts in a scarily surgical manner."
-    "Half a minute passes before she tosses it back to me and reaches for her own."
-    "Some tapping and typing later, and I feel a vibration."
+    "I hand her the phone. Her thumb moves through the thread without a single wasted swipe."
+    "She tosses it back and reaches for her own. A few taps later, my phone vibrates."
     python:
         _phone_messages = [
             phone_msg("them", "dude shes so into u"),
@@ -137,8 +136,7 @@ label a0518_showtime_pick:
     $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
-    mc "Alright, game..."
-    mc "Let's see what you got..."
+    mc "Alright, game... Let's see what you got..."
     $ hide_calendar()
     stop music fadeout 2.0
     scene black with dissolve_scene_full
@@ -166,20 +164,19 @@ label a0518_showtime_pick:
     $ show_calendar()
     $ atmos(s1_mv_atmos)
     with wipeleft_scene
-    "The theater entrance is louder than the street."
-    "A staff member tapes one more {i}Iron Rod{/i} notice to the glass while the line inches around him without complaint."
-    "Near the ticket machines, two kids in plastic wrist morphers argue over their favorite members of the Mighty Lightning Squad. One of them looks personally betrayed by the idea that Yellow Arc is not the obvious answer."
+    "The theater entrance is louder than the street. A staff member tapes one more {i}Iron Rod{/i} notice to the glass while the line inches around him without complaint."
+    "Near the ticket machines, two kids in plastic wrist morphers argue over their favorite Lightning Squad member. One looks personally betrayed that Yellow Arc isn't the obvious answer."
     "I stand near the display case, half-watching the crowd and half-listening for my phone."
     show monika forward casual happ om oe nobl rdown ldown at l11
     m forward casual laug om ce nobl rdown ldown "Hey! Look who beat me here!"
     "Monika lifts a hand as she comes through the crowd. Her pace is quick until she sees me, then it eases."
-    "A loose strand of hair has slipped free near her cheek. She tucks it back with the side of one finger."
+    "A loose strand of hair has slipped free near her cheek. One finger sweeps it back into place."
     show monika forward casual happ om oe nobl rdown ldown
     mc "Yeah... Something tells me I should've left earlier."
     m forward casual happ om oe nobl rdown lpoint "I know, right? Like three different groups are taking pictures with the poster by the doors."
     mc "Yeah, not out of the ordinary. You wanna take one?"
-    mc "...Cause I don't. Count me out."
-    "For a second we both look at the banner instead of each other."
+    mc "...'Cause I don't. Count me out."
+    "We both look at the banner instead of each other."
     m forward casual happ cm oe nobl rhip ldown "I exchanged the vouchers when I checked the times. [s1_mv_label] still had seats together."
     "She pulls two tickets from her bag."
     mc "For a movie less than a day old, that's kind of wild."
@@ -197,12 +194,12 @@ label a0518_showtime_pick:
     mc "...Yeah?"
     mc "I ran into someone last night."
     m forward casual curi om oe nobl rdown ldown "Ran into, as in...?"
-    mc "Literally. My brain straight up wasn't on. Not exactly my finest moment."
-    "Monika's expression shifts, just a little. Not alarmed."
+    mc "Literally. My brain took the night off."
+    "Monika's mouth tightens, then settles."
     m forward casual worr cm oe nobl rdown ldown "Well...are you good?"
     mc "Yeah. Just a little sore, no need for vapor rub or anything like that."
     m forward casual neut cm oe awkw rdown ldown "Ah."
-    "She folds her ticket against her palm and nods toward the entrance."
+    "She closes her fingers around the ticket and nods toward the entrance."
     $ hide_calendar()
     scene black with wipeleft_scene
     pause 2.0
@@ -212,12 +209,11 @@ label a0518_showtime_pick:
     with wipeleft_scene
     play sound moddooropen
     show monika forward casual happ cm oe nobl rdown ldown at t11
-    "Inside, the air conditioning cuts through the heat at once."
-    "The lobby smells like popcorn, floor cleaner, and spilled cola that someone has already mopped but not quite defeated."
+    "Inside, the air conditioning cuts through the heat at once. The lobby smells like popcorn and floor cleaner losing a fight with spilled cola."
     "The line for concessions moves with practiced slowness."
     show monika at t21
     show kotonoha work neut at t22
-    "At the register, Kotonoha slides a tray of nachos across the counter, checks the next order on the screen, and looks up."
+    "At the register, Kotonoha slides a tray of nachos across the counter and checks the next order. Then she looks up."
     show kotonoha work neut
     mc "Yo."
     ko "Good afternoon, [player], Monika."
@@ -230,15 +226,15 @@ label a0518_showtime_pick:
     m "Let's go with that then."
     ko "Combo B is cheaper with two drinks."
     m forward casual happ om oe nobl rhip ldown "Combo B, then, please. Medium popcorn."
-    ko "Salted?"
-    "Monika defers to me."
+    ko work curious "Salted?"
+    "Monika tilts her chin toward me."
     mc "Sure."
     show monika forward casual laug om ce nobl rdown ldown at h21
     m forward casual laug om ce nobl rdown ldown "Salted and churro toppings!"
     mc "That is not what I ordered!"
     show monika forward casual happ om oe nobl rhip ldown
-    "Kotonoha taps the order in and reaches for two cups with her eyes still on the register."
     show kotonoha work neut
+    "Kotonoha taps the order in and reaches for two cups with her eyes still on the register."
     ko "{i}Iron Rod{/i} is in theater three. Doors open in five minutes."
     m forward casual lsur om oe nobl rdown ldown "Oh, that soon?"
     ko "The trailers are longer than usual."
@@ -254,21 +250,20 @@ label a0518_showtime_pick:
     show kotonoha work neut at t22
     show monika forward casual happ cm oe nobl rdown ldown at t21
     ko "Your total is on the screen."
-    "The number is higher than two snacks have any business being."
-    "Monika pays before I get my wallet halfway out."
+    "The total looks like it includes admission to a second movie. Monika pays before I get my wallet halfway out."
     mc "...I can get it. Seriously."
     m forward casual nerv om oe awkw rdown ldown "Hey, I was the one who invited you. I got this, brochacho."
-    "Monika busies herself with the cup lids instead of answering."
-    "I take the popcorn because it gives my hands something to do."
+    "Monika snaps a lid onto her cup like the matter is closed. I take the popcorn because it gives my hands something to do."
     ko "Enjoy the film."
     mc "Thanks, you too--"
     mc "...Uh..."
+    show kotonoha work teasing
     m forward casual happ om oe blus rdown ldown "Thank you, Kotonoha!"
+    "Kotonoha nods once and turns to the next customer."
     show kotonoha at thide
     hide kotonoha
     show monika forward casual happ cm oe nobl rdown ldown at t11
-    "Kotonoha nods once and turns to the next customer."
-    "Past the concession stand, theater three waits with its doors propped open and a strip of red carpet rolled crookedly across the threshold."
+    "Past the concession stand, theater three's doors stand propped open over a crooked strip of red carpet."
     "Monika balances both drinks against her chest, then leans one toward me."
     m forward casual happ om oe nobl rdown ldown "Ready?"
     mc "...Sure."
@@ -311,15 +306,14 @@ label a0518_showtime_pick:
     "{i}So why am I suddenly aware of the exact inch of air between our shoulders?{/i}"
     m forward casual curi om oe nobl rdown ldown "Hey."
     mc "Hm?"
-    m forward casual happ cm oe nobl rhip ldown "You can laugh if the movie gets stupid, by the way."
-    m "I won't report you to the horror fan committee."
+    m forward casual happ cm oe nobl rhip ldown "You can laugh if the movie gets stupid, by the way. I won't report you to the horror fan committee."
     mc "...There's a committee?"
     m forward casual happ om oe nobl rdown lpoint "Obviously! They meet in a basement and argue about which VHS tapes are best all the friggin' time."
     mc "Sounds credible..."
     $ theater_lights(1.0, secs=1.1)
     play sound sfx_thunder
     "The opening starts with a thunderclap. Someone in the front three rows jumps."
-    "She tries not to smile and fails miserably."
+    "A smile breaks across her face before she can turn it toward the screen."
     show monika forward casual happ cm oe nobl rdown ldown
     "{i}Alright. Movie time.{/i}"
     $ hide_calendar()
@@ -338,11 +332,11 @@ label a0518_showtime_pick:
     $ atmos(s1_mv_atmos)
     show monika forward casual neut cm oe nobl rdown ldown at t11
     with wipeleft_scene
-    "It's uneven, but when it works, it works. Monika watches with the focus she usually saves for poems."
-    "I catch myself eyerolling at one point because of how much a scene insists upon itself."
+    "It's uneven, but the good parts know exactly what they're doing. Monika gives it the attention she usually saves for poems."
+    "One scene insists upon itself until my eyes roll on their own."
     "About an hour in, the lead climbs into a maintenance tunnel he has no business entering."
     "The score thins down to a single held note. His flashlight finds a wall of something that should not be behind a wall."
-    "Then a sound comes from off-screen, low and wet and far too close, and the whole theater does that collective half-flinch where everyone pretends they didn't."
+    "Then a low, wet sound comes from off-screen, far too close. The whole theater flinches and goes rigid with plausible deniability."
     "Monika's hand closes around my sleeve."
     "Not even my hand, my {i}sleeve{/i} of all things."
     "I don't move, partly because the tunnel sound is genuinely doing numbers on my spine."
@@ -363,10 +357,9 @@ label a0518_showtime_pick:
     # ushers bring the house halfway up under them.
     $ theater_lights(0.34, secs=2.0)
     "The credits crawl up the screen while half the audience begins the annual tradition of blocking the row before anyone can stand."
-    "I stay seated, mostly because the people beside us are still negotiating popcorn logistics with the intensity of a hostage situation."
+    "I stay seated while the people beside us negotiate the safe evacuation of their popcorn."
     m forward casual curi om oe nobl rdown ldown "...Well?"
-    mc "I liked it."
-    mc "The maintenance tunnel was a cheap shot, though."
+    mc "I liked it. The maintenance tunnel was a cheap shot, though."
     m forward casual happ cm oe nobl rhip ldown "Cheap shots work sometimes. That's sort of the whole point of them."
     "Her hand has drifted to her own sleeve, smoothing the same spot she grabbed on mine."
     mc "...Says the person who tried to tear my arm off, by the way."
@@ -375,7 +368,7 @@ label a0518_showtime_pick:
     $ theater_lights(0.0, secs=1.3)
     "Her face goes pink faster than the house lights come up."
     m forward casual nerv om oe awkw rdown ldown "I was startled for maybe, like, half a second."
-    mc "Talk about a grippy half-second then."
+    mc "Talk about a grippy half-second, then."
     m forward casual flus om ce blaw rhip ldown "Okay, okay! Fine, it got me {i}once{/i}!"
     "She folds her empty straw wrapper into a tiny rectangle, then folds it again."
     m forward casual pout om oe nobl rdown lpoint "But you jumped at the opening thunder."
@@ -399,17 +392,17 @@ label a0518_showtime_pick:
     ko "Was the movie satisfactory?"
     mc "That's a very...customer-service way to ask."
     m forward casual happ om oe nobl rhip ldown "It was good! A little amateurish at a couple points, but good."
-    ko "Messy is usually more memorable."
-    "She gathers abandoned napkins from the counter and stacks them with precision."
+    ko work thinking "Messy is usually more memorable."
     show kotonoha work neut
+    "She gathers abandoned napkins from the counter and stacks them with precision."
     mc "You seen it yet?"
     ko "No. Employees are encouraged to avoid spoilers so we can maintain neutrality when customers yell about endings."
     mc "Sounds like a line from the handbook."
-    ko "It should be."
+    ko work teasing "It should be."
     "Monika laughs into her cup lid."
     show monika forward casual happ cm oe nobl rdown ldown
     m forward casual happ om oe nobl rdown ldown "Rest assured, we won't yell, at least."
-    ko "I appreciate that."
+    ko work neut "I appreciate that."
     "A customer waves from the other end of the counter. Kotonoha looks over, then back at us."
     ko "Have a good afternoon."
     mc "You too."
@@ -428,8 +421,7 @@ label a0518_showtime_pick:
     show monika forward casual happ cm oe nobl rdown ldown at t11
     with wipeleft_scene
     "[s1_mv_out]"
-    "The line for the next showing has already started curling toward the poster again."
-    "Neither of us moves."
+    "The line for the next showing has already started curling toward the poster again. Neither of us moves."
     m forward casual happ om oe blus rdown ldown "So..."
     mc "So."
     menu:
@@ -440,8 +432,7 @@ label a0518_showtime_pick:
         "\"Your horror committee sounds corrupt.\"":
             $ s1_pick("movie_goodbye", "joke")
             mc "Your horror committee sounds corrupt."
-            m forward casual laug om ce nobl rdown ldown "Oh, extremely."
-            m "But they have good snacks and tea!"
+            m forward casual laug om ce nobl rdown ldown "Oh, extremely. But they have good snacks and tea!"
         "(Say the true one.)":
             $ s1_pick("movie_goodbye", "linger")
             mc "I'm glad you asked me and not somebody else."
@@ -457,7 +448,7 @@ label a0518_showtime_pick:
     m forward casual flus cm oe blus rdown ldown "No."
     m forward casual nerv om oe awkw rdown ldown "...Maybe."
     m forward casual happ om oe nobl rdown lpoint "Does it matter?"
-    mc "Dangerous honesty."
+    mc "Careful. Honesty like that gets dangerous."
     show monika forward casual happ om oe nobl rdown lpoint at t11
     "She starts to leave, then pauses."
     m forward casual curi om oe nobl rdown ldown "Hey, [player]?"
@@ -469,7 +460,7 @@ label a0518_showtime_pick:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The ride home gives me too much time to think, which is rude of public transportation."
-    nier "The held note before the tunnel. The flashlight finding the wrong wall. The parts that worked and the parts that were only doing the bare minimum."
+    nier "The held note before the tunnel, the flashlight finding the wrong wall. The parts that worked and the parts that were only doing the bare minimum."
     nier "And that Matsuda girl's name, sitting in my messages like it rented space there."
     call nier_clear from _call_nier_clear_0518_6
     pause 2.0
@@ -480,9 +471,8 @@ label a0518_showtime_pick:
     with wipeleft_scene
     play music dailyleisure
     play sound moddooropen
-    "When I get home, Asahina is still in the living room."
-    "The poster is propped against the couch now, which means it has graduated from crisis to object."
-    "Big block letters, clean spacing, and a volleyball drawn in more detail than anyone pretending not to care would bother with."
+    "When I get home, Asahina is still in the living room. The poster is propped against the couch now, promoted from crisis to object."
+    "The block letters are clean, and the volleyball has more detail than anyone pretending not to care would bother with."
     show asahina curious at t11
     ah "Well?"
     mc "Well what?"
@@ -491,8 +481,7 @@ label a0518_showtime_pick:
     mc "It was...a movie."
     show asahina unamused
     ah "Wow. Thank you for the important info."
-    "I take my shoes off and decide whether honesty is worth the ammunition."
-    "Unfortunately, my mouth has historically been bad at being unilateral."
+    "I take my shoes off and decide whether honesty is worth the ammunition. Unfortunately, my mouth has never respected an internal vote."
     mc "It was fun. Monika and I both seemed to enjoy it."
     show asahina teasing
     ah "Awwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww." # purposefully goes off the textbox as a meta gag
@@ -503,15 +492,14 @@ label a0518_showtime_pick:
     show asahina embarrassed
     ah "Shut up! You're one to talk!"
     mc "...How mature of you."
-    "She leans back on her hands, then glances at the poster like she's pretending not to wait for me to notice it."
-    mc "Poster looks good. Especially the lettering."
+    "She leans back on her hands. Her eyes cut to the poster, then back to me."
+    mc "Coming along nicely, I see. Especially the lettering."
     show asahina nervous
     ah "...Yeah?"
     mc "Yeah."
     "She turns away too quickly."
     show asahina neut
-    ah "Cool."
-    ah "Now go away before your cinnamon smell ruins it."
+    ah "Cool. Now go away before your cinnamon smell ruins it."
     mc "Gladly."
     "I head toward the stairs, then stop near the first step."
     mc "Oh, and Asa?"
@@ -519,25 +507,23 @@ label a0518_showtime_pick:
     mc "If the volleyball team doesn't appreciate the poster, I will personally call them tasteless swines."
     show asahina worried
     ah "Please don't, they're still my friends."
-    mc "No promises."
+    mc "We'll see."
     show asahina happy
     ah "...Thanks, birdbrain."
     "I keep walking, and the smirk stays on the side of my face she cannot see."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Sunday evening drifts in without asking permission."
-    nier "Mom asks about the movie over dinner. Asahina answers half the questions for me, confidently, exaggerated, and incorrectly."
-    nier "I correct none of it unless absolutely necessary."
+    nier "Sunday evening drifts in without asking permission. Mom asks about the movie over dinner."
+    nier "Asahina supplies half the answers, adding details that never happened. I correct none of it unless absolutely necessary."
     call nier_clear from _call_nier_clear_0518_7
     stop music fadeout 1.0
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
     play music fantasyserenity
-    "My room is still when I finally get back to it, with the occasional rustle of leaves or trash outside."
-    "My phone waits on my nightstand, considerably less quiet than everything around it."
+    "My room is still when I finally get back to it, broken only by leaves or trash rustling outside. My phone waits on the nightstand, considerably less quiet than everything around it."
     python:
         _phone_messages = [
             phone_msg("them", "Okay, theory: the iron rod wasn't actually the weapon. It was the promise."),
@@ -550,7 +536,7 @@ label a0518_showtime_pick:
     "{i}Normal things.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest of the night slips by in fragments: homework I remember too late, a game I open for exactly long enough to lose track of time, and Monika's theory messages arriving in theoretical clusters."
+    nier "The rest of the night arrives in fragments: homework I remember too late and a game that steals the clock. Monika's theory messages keep landing between them."
     call nier_clear from _call_nier_clear_0518_8
     stop music fadeout 2.0
     pause 2.0

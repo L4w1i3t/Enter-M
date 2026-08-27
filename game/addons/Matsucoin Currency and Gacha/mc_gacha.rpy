@@ -271,11 +271,19 @@ init -3 python:
         """Button action: pull, then open the reveal. A failed pull (not enough
         coins) does nothing rather than opening an empty reveal.
 
+        The cinematic (mc_reveal_fx.rpy) plays FIRST and hands off to the wall
+        itself, unless the player has turned it off -- in which case the wall
+        opens with every card already face-up, because somebody who has switched
+        the spectacle off does not want a slower version of it either.
+
         NO click sound here. Every button that calls this already carries
         `activate_sound gui.activate_sound` through its style, so playing one
         here as well was the doubled UI click."""
         if mc_pull(count):
-            renpy.show_screen("mc_reveal")
+            if mc_fx_should_play():
+                renpy.show_screen("mc_pull_cinematic")
+            else:
+                renpy.show_screen("mc_reveal", instant=True)
         renpy.restart_interaction()
         return None
 
@@ -467,16 +475,33 @@ screen mc_gacha():
                     xsize 1128
                     ysize 46
 
-                    # Dev-only coin bench. Sits left of the wallet so it never
-                    # displaces it. Hidden entirely in release builds.
-                    if config.developer:
-                        textbutton "DEV":
-                            style "mc_dev_pill"
-                            xanchor 1.0
-                            xpos 1056
-                            yalign 0.5
-                            action Show("mc_dev_shop")
+                    # Pull-animation speed. Sits left of the wallet, in the slot
+                    # the old dev pill used to occupy, so it never displaces the
+                    # balance. This is a screen somebody will see several hundred
+                    # times and the cinematic runs up to three seconds -- a
+                    # spectacle you cannot turn down stops being one.
+                    # xpos 898, not 1076: the wallet plate is 210 wide and
+                    # right-anchored at 1128, so it owns everything from 918
+                    # rightward -- and it is drawn AFTER this, so a pill placed
+                    # inside that span is not merely crowded, it is invisible.
+                    button:
+                        style "mc_fx_pill"
+                        xanchor 1.0
+                        xpos 898
+                        yalign 0.5
+                        xysize (152, 30)
+                        action Function(mc_fx_cycle_speed)
+                        hover_sound gui.hover_sound
 
+                        fixed:
+                            xysize (152, 30)
+                            text ("PULL FX  //  " + mc_fx_speed_label()):
+                                style "mc_fx_pill_text"
+                                align (0.5, 0.5)
+
+                    # The coin bench below is NOT reachable from here any more.
+                    # It lives on the Developer Hub (main menu, top-right, or
+                    # F9), so the machine is only ever the machine.
                     frame:
                         background ArcadePanel(210, 42, top="#2b2250", bottom="#171130",
                                             radius=11, border=1.0, border_color="#ffb45466")
@@ -707,8 +732,11 @@ screen mc_gacha():
 
 
 # =============================================================================
-# DEV COIN BENCH  (config.developer only; opened from the DEV pill on the
-# machine's header, and mirrored by console calls -- see matsucoin.rpy)
+# DEV COIN BENCH  (config.developer only; opened from the Developer Hub --
+# main menu, top-right, or F9 -- and mirrored by console calls, see
+# matsucoin.rpy. It used to hang off a pill on the machine's own header; the
+# hub owns every entry point now, and this screen stays here because the LOGIC
+# belongs to Matsucoin.)
 #
 # Grants go straight to the balance rather than through mc_award, so a dev top-up
 # does not inflate TOTAL EARNED or break the lifetime == balance + spent
@@ -819,12 +847,17 @@ transform mc_reveal_glow:
     easeout 0.20 alpha 0.55
     easein 0.75 alpha 0.0
 
-screen mc_reveal():
+screen mc_reveal(instant=False):
     modal True
     zorder 70
 
     # How many cards have landed. The timer walks it up; a click completes it.
-    default shown = 0
+    #
+    # `instant` is how a SKIP arrives here -- from the cinematic being clicked
+    # through, or from the player having switched the spectacle off. Everything
+    # is already down and face-up, because a skip should cost the animation and
+    # never the result.
+    default shown = (len(_mc_pull_rt.results) if instant else 0)
 
     python:
         _mcr_results = _mc_pull_rt.results
@@ -840,6 +873,18 @@ screen mc_reveal():
         _mcr_cw, _mcr_ch = ((300, 420) if _mcr_single else (168, 236))
         _mcr_cols = 1 if _mcr_single else 5
         _mcr_grid_rows = 1 if _mcr_single else 2
+
+        # A single pull turns over slowly, because it is the only thing on
+        # screen and the turn IS the payoff. A ten-pull turns over in a wave --
+        # the cards arrive 0.16s apart, so a long flip would still be running
+        # three cards later and the wall would never settle.
+        _mcr_flip = (0.46 if _mcr_single else 0.24)
+        _mcr_flip_wait = (0.10 if _mcr_single else 0.0)
+
+        # A skip has nothing to animate: the backs would flash for a frame and
+        # then be gone, which reads as a glitch rather than as a reveal.
+        if instant:
+            _mcr_flip, _mcr_flip_wait = 0.0, 0.0
         # One action for every way out of this screen -- click, Enter, Escape --
         # so the reveal cannot be in a state where one of them works and another
         # silently does nothing. Mid-reveal it lands the rest; once everything
@@ -901,18 +946,49 @@ screen mc_reveal():
                     xysize (_mcr_cw, _mcr_ch + 56)
 
                     if _i < shown:
+                        # THE TURN.
+                        # The back and the face are both always in the tree and
+                        # their ATL decides which is visible, so there is no
+                        # swap to mistime. The back is tier-NEUTRAL on purpose:
+                        # it is what the player is looking at while they still
+                        # do not know.
+                        $ _mcr_hot = (_card.rarity != "r")
+
                         fixed:
                             xysize (_mcr_cw, _mcr_ch)
                             at mc_card_land(0.0)
 
-                            # rarity bloom behind the card as it lands
-                            add ArcadePanel(_mcr_cw + 26, _mcr_ch + 26,
-                                            top=(_card.glow + "88"), bottom=(_card.color + "00"),
-                                            radius=18):
-                                align (0.5, 0.5)
-                                at mc_reveal_glow
+                            # Rarity bloom behind the card. A common gets the
+                            # old soft glow; anything better gets a pop timed to
+                            # the moment the face comes round.
+                            if _mcr_hot and not instant:
+                                add ArcadePanel(_mcr_cw + 40, _mcr_ch + 40,
+                                                top=(_card.glow + "aa"), bottom=(_card.color + "00"),
+                                                radius=22):
+                                    align (0.5, 0.5)
+                                    at mc_fx_card_pop(_mcr_flip_wait + _mcr_flip * 0.45)
+                            else:
+                                add ArcadePanel(_mcr_cw + 26, _mcr_ch + 26,
+                                                top=(_card.glow + "88"), bottom=(_card.color + "00"),
+                                                radius=18):
+                                    align (0.5, 0.5)
+                                    at mc_reveal_glow
 
-                            use mc_card_face(_card, _mcr_cw, _mcr_ch)
+                            fixed:
+                                xysize (_mcr_cw, _mcr_ch)
+                                at (mc_fx_card_kick(_mcr_flip_wait + _mcr_flip * 0.5)
+                                    if (_mcr_hot and not instant) else mc_fx_still)
+
+                                if not instant:
+                                    add McCardBack(_mcr_cw, _mcr_ch):
+                                        at mc_fx_flip_back(_mcr_flip_wait, _mcr_flip)
+
+                                    fixed:
+                                        xysize (_mcr_cw, _mcr_ch)
+                                        at mc_fx_flip_face(_mcr_flip_wait, _mcr_flip)
+                                        use mc_card_face(_card, _mcr_cw, _mcr_ch)
+                                else:
+                                    use mc_card_face(_card, _mcr_cw, _mcr_ch)
 
                         # name + NEW / duplicate refund, under the card.
                         # TOP-anchored 10px below the card rather than bottom-
@@ -973,7 +1049,7 @@ screen mc_reveal():
 # STYLES  (the Arcade's palette: indigo field, warm off-white ink, amber accent)
 # =============================================================================
 style mc_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 34
     color "#f7f0e6"
     bold True
@@ -1109,7 +1185,7 @@ style mc_rarity_chip:
     outlines [(1, "#02040b", 0, 0)]
 
 style mc_reveal_banner:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 30
     bold True
     kerning 3.0

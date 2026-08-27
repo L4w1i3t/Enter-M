@@ -308,7 +308,9 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
 
         add PhonePanel(86, 112, "#0d1220", bottom="#070a12", radius=0)
 
-        if renpy.has_image("mc neut", exact=True):
+        # MC is a layered image, so its public attribute string resolves through
+        # the normal non-exact image lookup rather than an exact registry key.
+        if renpy.has_image("mc neut", exact=False):
             viewport:
                 xysize (86, 112)
 

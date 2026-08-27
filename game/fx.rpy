@@ -81,40 +81,40 @@
 
 image noise:
     truecenter
-    "images/bg/noise1.jpg"
+    "assets/images/bg/noise1.jpg"
     pause 0.1
-    "images/bg/noise2.jpg"
+    "assets/images/bg/noise2.jpg"
     pause 0.1
-    "images/bg/noise3.jpg"
+    "assets/images/bg/noise3.jpg"
     pause 0.1
-    "images/bg/noise4.jpg"
+    "assets/images/bg/noise4.jpg"
     pause 0.1
     xzoom -1
-    "images/bg/noise1.jpg"
+    "assets/images/bg/noise1.jpg"
     pause 0.1
-    "images/bg/noise2.jpg"
+    "assets/images/bg/noise2.jpg"
     pause 0.1
-    "images/bg/noise3.jpg"
+    "assets/images/bg/noise3.jpg"
     pause 0.1
-    "images/bg/noise4.jpg"
+    "assets/images/bg/noise4.jpg"
     pause 0.1
     yzoom -1
-    "images/bg/noise1.jpg"
+    "assets/images/bg/noise1.jpg"
     pause 0.1
-    "images/bg/noise2.jpg"
+    "assets/images/bg/noise2.jpg"
     pause 0.1
-    "images/bg/noise3.jpg"
+    "assets/images/bg/noise3.jpg"
     pause 0.1
-    "images/bg/noise4.jpg"
+    "assets/images/bg/noise4.jpg"
     pause 0.1
     xzoom 1
-    "images/bg/noise1.jpg"
+    "assets/images/bg/noise1.jpg"
     pause 0.1
-    "images/bg/noise2.jpg"
+    "assets/images/bg/noise2.jpg"
     pause 0.1
-    "images/bg/noise3.jpg"
+    "assets/images/bg/noise3.jpg"
     pause 0.1
-    "images/bg/noise4.jpg"
+    "assets/images/bg/noise4.jpg"
     pause 0.1
     yzoom 1
     repeat
@@ -127,7 +127,7 @@ transform noise_alpha:
 # displayable -- that is not a duplicate and must not be "unified" with this.
 image vignette:
     truecenter
-    "images/bg/vignette.png"
+    "assets/images/bg/vignette.png"
 
 transform yuripupils_move:
     function yuripupils_function

@@ -197,9 +197,9 @@ init python:
         compact_name = id_card_name_lookup_key(name)
 
         if compact_name in ("azaraeldelcarmen", "azarael", "weiss", "ganstakingofsa"):
-            return "mod_assets/gui/azarael.png"
+            return "assets/gui/enter_m/azarael.png"
 
-        return "mod_assets/gui/mc_id_photo.png"
+        return "assets/gui/enter_m/mc_id_photo.png"
 
     def id_card_prepare():
         existing_name = "Asahiko" # "canon" name, but exists as a means to say "this is TECHNICALLY the canon name, but you can name them whatever you want"
@@ -477,7 +477,7 @@ screen id_card_info_entry():
                 alpha 0.45
                 blur 26
 
-            add "mod_assets/gui/id_frame.png":
+            add "assets/gui/enter_m/id_frame.png":
                 xpos 0
                 ypos 0
                 xsize 780

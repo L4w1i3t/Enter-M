@@ -971,7 +971,7 @@ def validate_declared_inputs(paths: Iterable[Path]) -> None:
 
 def run(root: Path) -> dict[str, Any]:
     root = root.resolve()
-    matsuda_dir = root / "game" / "mod_assets" / "char_sprites" / "matsuda"
+    matsuda_dir = root / "game" / "assets" / "characters" / "matsuda"
     build_dir = root / "tmp" / "matsuda_rebuild_fresh"
     masters_dir = build_dir / "masters"
     faces_dir = build_dir / "faces"

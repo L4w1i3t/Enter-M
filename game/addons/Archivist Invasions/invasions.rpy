@@ -67,7 +67,7 @@
 #              own, which it has total mastery of. The setpiece tightens with
 #              it: faster, louder, harder to breathe in.
 #
-# AUDIO (defined in mod_assets/def_audio.rpy, both breakcore)
+# AUDIO (defined in asset_definitions/def_audio.rpy, both breakcore)
 #   audio.blackwolf            act one
 #   audio.blackwolf_corruptive act two -- slammed in, never cross-faded
 # =============================================================================
@@ -209,9 +209,9 @@ init -8 python:
     import random as inv_random
 
     INV_DIR = "addons/Archivist Invasions/"
-    INV_SFX_DIR = "mod_assets/sfx/"
-    INV_SE_DIR = "mod_assets/sfx/touhou/"
-    INV_MSBF_SFX_DIR = "mod_assets/sfx/msbf/"
+    INV_SFX_DIR = "assets/audio/sfx/"
+    INV_SE_DIR = "assets/audio/sfx/touhou/"
+    INV_MSBF_SFX_DIR = "assets/audio/sfx/msbf/"
 
     # Fixed-step simulation, shared by every invasion's stage displayable.
     INV_TICK = 1.0 / 60.0
@@ -222,8 +222,8 @@ init -8 python:
     INV_BPM = 174.0
     INV_BEAT_TICKS = (60.0 / INV_BPM) / INV_TICK      # ~20.7 ticks per beat
 
-    INV_FONT = "mod_assets/fonts/NovaSquare-Regular.ttf"   # HUD, windows, digits
-    INV_FONT_ALT = "mod_assets/fonts/Myanmar.otf"          # the Archivist's voice
+    INV_FONT = "assets/fonts/NovaSquare-Regular.ttf"   # HUD, windows, digits
+    INV_FONT_ALT = "assets/fonts/Myanmar.otf"          # the Archivist's voice
 
     # THE PLAYER'S AVATAR IN EVERY CORRUPTIVE STATE. The SOUL heart the other
     # game modes run on (Kotonoha's cellar, borrowed by Tsubaki mode before

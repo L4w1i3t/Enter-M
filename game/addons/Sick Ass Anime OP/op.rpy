@@ -43,7 +43,7 @@
 #   shader-based post-process.
 # =============================================================================
 
-define -50 audio.enter_m_op = "mod_assets/bgm/opsong.ogg"
+define -50 audio.enter_m_op = "assets/audio/bgm/opsong.ogg"
 
 # --- 1. IMAGE ALIASES -------------------------------------------------------
 # Short names for every Solid/CG/background the OP uses, so the timeline below
@@ -74,19 +74,19 @@ image enter_m_op_sam_bus = "addons/Sick Ass Anime OP/sambus.png"
 image enter_m_op_sam_villain = "addons/Sick Ass Anime OP/samvillain.png"
 image enter_m_op_turmoil = "addons/Sick Ass Anime OP/turmoil.png"
 image enter_m_op_title_drop = "addons/Sick Ass Anime OP/titledropalt.png"
-image enter_m_op_bg_arcade = "mod_assets/dump/arcade.png"
-image enter_m_op_bg_cafe = "mod_assets/dump/cafe.png"
-image enter_m_op_bg_bookstore = "mod_assets/dump/bookstore.png"
-image enter_m_op_bg_courtyard = "mod_assets/dump/courtyard.png"
-image enter_m_op_bg_house_evening = "mod_assets/dump/house_evening.png"
-image enter_m_op_bg_library = "mod_assets/dump/library.png"
-image enter_m_op_bg_lightcorridor = "mod_assets/dump/lightcorridor.png"
-image enter_m_op_bg_lightresidential = "mod_assets/dump/lightresidential.png"
-image enter_m_op_bg_kitchen = "mod_assets/dump/kitchen2.png"
-image enter_m_op_bg_musicroom = "mod_assets/dump/musicroom.png"
-image enter_m_op_bg_stairs = "mod_assets/dump/stairs.png"
-image enter_m_op_bg_street = "mod_assets/dump/street.png"
-image enter_m_op_bg_vending = "mod_assets/dump/vendingmachine.png"
+image enter_m_op_bg_arcade = "assets/dump/arcade.png"
+image enter_m_op_bg_cafe = "assets/dump/cafe.png"
+image enter_m_op_bg_bookstore = "assets/dump/bookstore.png"
+image enter_m_op_bg_courtyard = "assets/dump/courtyard.png"
+image enter_m_op_bg_house_evening = "assets/backgrounds/house_evening.png"
+image enter_m_op_bg_library = "assets/backgrounds/library.png"
+image enter_m_op_bg_lightcorridor = "assets/dump/lightcorridor.png"
+image enter_m_op_bg_lightresidential = "assets/images/bg/residential.png"
+image enter_m_op_bg_kitchen = "assets/images/bg/kitchen.png"
+image enter_m_op_bg_musicroom = "assets/dump/musicroom.png"
+image enter_m_op_bg_stairs = "assets/dump/stairs.png"
+image enter_m_op_bg_street = "assets/backgrounds/city_day.png"
+image enter_m_op_bg_vending = "assets/dump/vendingmachine.png"
 
 # --- 2. TIMING CONSTANTS ----------------------------------------------------
 # Song = 130 BPM. beat = seconds per beat; bar = 4 beats; the fractions are
@@ -154,7 +154,7 @@ init python:
 
 # --- 4. STYLES (title card, credit lines, skip button) ----------------------
 style enter_m_op_title is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 88
     color "#f8fbff"
     outlines [(2, "#03060b", 0, 0), (10, "#75f7ff66", 0, 0)]
@@ -162,7 +162,7 @@ style enter_m_op_title is gui_text:
     text_align 0.5
 
 style enter_m_op_credit is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 26
     color "#f4fbff"
     outlines [(2, "#03060b", 0, 0), (6, "#75f7ff44", 0, 0)]
@@ -174,7 +174,7 @@ style enter_m_op_skip_button is button:
     ypadding 6
 
 style enter_m_op_skip_button_text is gui_text:
-    font "mod_assets/fonts/NovaSquare-Regular.ttf"
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 16
     color "#d6f8ff"
     hover_color "#ffffff"
@@ -1134,7 +1134,7 @@ screen enter_m_op_bg_shadow_card(bg_image, fg_sprite, shadow_sprite, overlay="#f
     add Solid(panel) at enter_m_op_panel_sweep(160, 0.00, 1, -16, 0.13)
     add Solid(accent) at enter_m_op_panel_sweep(960, enter_m_op_eighth_bar, -1, 13, 0.18)
     add Solid("#ffffff58") at enter_m_op_motion_band(420, 220, 620, 11, -8, enter_m_op_quarter_bar, 1, 0.12)
-    # Both characters rendered normally -- the moody bg/lighting carries the
+    # Both characters rendered normally -- the moody assets/images/bg/lighting carries the
     # drama. (Previously the rear sprite was a dark silhouette, which read as
     # "looming villain" and telegraphed Sam's role; that's gone now.)
     add shadow_sprite at enter_m_op_stage_tf(shadow_style, shadow_start, shadow_end, 742, shadow_z, 3.0, duration, -1), enter_m_op_sprite_shadow_mod
@@ -1189,7 +1189,7 @@ screen enter_m_op_skip():
 # =============================================================================
 # --- 7. THE TIMELINE (main label) ------------------------------------------
 # The actual choreographed sequence. Pattern repeated for each "shot":
-#   scene <bg/cg> at <some _stage/_drift transform>
+#   scene <assets/images/bg/cg> at <some _stage/_drift transform>
 #   show screen <cut_fx / cg_polish / bg_*_card>     # dress the shot
 #   $ renpy.pause(<beat-derived seconds>, hard=True) # hold on-beat
 #   hide screen ...                                  # tear the shot down
@@ -1213,7 +1213,7 @@ label enter_m_sick_ass_anime_op:
 
     # 0.00s - 14.50s: quiet setup before the first drop.
     scene enter_m_op_dark
-    show image "mod_assets/dump/finalbg.png" at enter_m_op_bg_push(1.5, 1.00, 1.07, 0.48, 0.53)
+    show image "assets/dump/finalbg.png" at enter_m_op_bg_push(1.5, 1.00, 1.07, 0.48, 0.53)
     show expression Text("Yo check out this edit (this won't be in the full release lmao)", style="enter_m_op_credit") as enter_m_op_production at enter_m_op_credit_in
     $ renpy.pause(enter_m_op_audio_delay, hard=True)
     play music enter_m_op noloop
@@ -1648,7 +1648,7 @@ label enter_m_sick_ass_anime_op:
     if ENTER_M_OP_SHADERS:
         show screen enter_m_op_sludge_card(enter_m_op_bar)
     else:
-        show screen enter_m_op_bg_plate("mod_assets/dump/finalbg.png", "#0a0f06cc", "#3a3210", "#16240a", enter_m_op_bar, 0.46, 0.54)
+        show screen enter_m_op_bg_plate("assets/dump/finalbg.png", "#0a0f06cc", "#3a3210", "#16240a", enter_m_op_bar, 0.46, 0.54)
     $ renpy.pause(enter_m_op_bar, hard=True)
     if ENTER_M_OP_SHADERS:
         hide screen enter_m_op_sludge_card

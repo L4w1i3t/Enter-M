@@ -35,14 +35,14 @@ PROBE_GAME = PROBE_ROOT / "game"
 PROBE_IMAGES = PROBE_GAME / "images" / "matsuda"
 SCREENSHOT_DIR = TEMP_ROOT / "matsuda_render_probe"
 SOURCE_IMAGES = (
-    PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "matsuda"
+    PROJECT_ROOT / "game" / "assets" / "characters" / "matsuda"
 )
 STAGED_FACE_IMAGES = TEMP_ROOT / "matsuda_rebuild_fresh" / "faces"
 CHARACTER_DEFINITIONS = (
-    PROJECT_ROOT / "game" / "mod_assets" / "def_characters.rpy"
+    PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
 )
 
-PRODUCTION_PREFIX = "mod_assets/char_sprites/matsuda/"
+PRODUCTION_PREFIX = "assets/characters/matsuda/"
 PROBE_PREFIX = "images/matsuda/"
 SOURCE_CANVAS = (1023, 1537)
 SCREEN_SIZE = (1280, 960)

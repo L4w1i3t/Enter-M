@@ -65,17 +65,17 @@ class Rule:
 # What each replaced background does NOT have in it. Add a row whenever a piece
 # of art is swapped for one that drops a fixture the prose had been using.
 RULES: tuple[Rule, ...] = (
-    # images/bg/kitchen.png is a galley: counters, stove, sink, back door.
+    # assets/images/bg/kitchen.png is a galley: counters, stove, sink, back door.
     Rule("kitchen", r"\b(takes? (?:his|her|my|their) seat|sits? down at the table"
                     r"|around the table|sets? the table)\b",
          "the kitchen art is a galley with no table and no chairs -- "
          "use `bg dining_table`"),
-    # images/bg/club.png and class.png both have green/slate CHALKboards.
+    # assets/images/bg/club.png and class.png both have green/slate CHALKboards.
     Rule("club_day", r"\b(marker|whiteboard|dry[- ]erase)\b",
          "the club room's board is a chalkboard"),
     Rule("class_day", r"\b(marker|whiteboard|dry[- ]erase)\b",
          "the classroom board is a chalkboard"),
-    # mod_assets/bg/dining_table.png is the dining room; the kitchen is next door.
+    # assets/backgrounds/dining_table.png is the dining room; the kitchen is next door.
     # Fixtures may be referenced (sound carries, people walk through), but nobody
     # should be *standing at* one while the dining room is on screen.
     Rule("dining_table", r"\b(?:stands?|standing|is|was) at the (?:counter|stove|sink)\b",
@@ -91,10 +91,9 @@ RULES: tuple[Rule, ...] = (
 # until Aug 21 2026, because the art arrived after the scenes were written.
 #
 # Only this one direction is checked. The reverse -- daytime art under a night
-# grade -- is CORRECT wherever no night variant of that art exists, which is the
-# normal case: `bg bedroom` has no night twin, so all fourteen of MC's evening
-# bedroom scenes are `bedroom` + `home_night` on purpose. Flagging that produced
-# nothing but noise.
+# grade -- is correct wherever no night variant exists. MC's bedroom gained a
+# dedicated night twin in August 2026, and its evening scenes now use that art;
+# other one-off rooms still rely on their atmosphere grade by design.
 NIGHT_BG = re.compile(r"night|dark", re.IGNORECASE)
 DAY_PRESETS = frozenset({"home", "afternoon", "overcast", "winter", "winter_evening"})
 

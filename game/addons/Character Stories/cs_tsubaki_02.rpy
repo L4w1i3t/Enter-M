@@ -33,7 +33,7 @@
 #   "cs_tsubaki_02", "cs_tsubaki_02_unlocked"); reached via the hub PLAY
 #   button -> Start("cs_tsubaki_02").
 #   Presentation: the shared gothic prose engine in cs_tsubaki_gothic.rpy,
-#   theme "tails". Main score: audio.tails (mod_assets/bgm/tails.ogg, defined
+#   theme "tails". Main score: audio.tails (assets/audio/bgm/tails.ogg, defined
 #   in def_audio.rpy). Mood swaps ($ tsg_set_mood) sit beside section cards /
 #   clears, where the backdrop swap hides.
 #   ON COMPLETION: cs_mark_completed("cs_tsubaki_02"), which sets

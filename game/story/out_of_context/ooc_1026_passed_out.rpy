@@ -39,7 +39,7 @@ label ooc_1026_passed_out:
     stop music
     pause 2.0
     play sound moddooropen
-    scene bg doornight
+    scene bg home_entry_night
     $ atmos("home_night")
     with dissolve_scene_full
     play sound moddoorclose

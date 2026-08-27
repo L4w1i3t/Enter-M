@@ -33,8 +33,10 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SPRITE_ROOT = PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "kotonoha"
-DEFAULT_DEFINITIONS = PROJECT_ROOT / "game" / "mod_assets" / "def_characters.rpy"
+DEFAULT_SPRITE_ROOT = PROJECT_ROOT / "game" / "assets" / "characters" / "kotonoha"
+DEFAULT_DEFINITIONS = (
+    PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
+)
 DEFAULT_STORY_ROOT = PROJECT_ROOT / "game"
 
 CANVAS_SIZE = (1023, 1537)
@@ -92,6 +94,13 @@ MIN_FACE_PARTIAL_PIXELS = 512
 MIN_FACE_OPAQUE_PIXELS = 8_000
 MIN_ALTERNATE_CHANGED_PIXELS = 500
 MIN_PAIRWISE_CHANGED_PIXELS = 96
+# A registered master can naturally quantize a few skin/ink samples to the same
+# RGB values as the canonical base.  Thousands of exact matches across the
+# neutral feature footprint, however, means the builder has copied the old
+# brows/eyes/mouth back into the alternate plate.  The corrected bank peaks
+# below 600 pixels across both outfits, leaving ample headroom for PNG/library
+# changes without allowing the former 3,000+ pixel contamination.
+MAX_CANONICAL_FEATURE_REUSE_PIXELS = 1_024
 CHECKER_PERIODICITY_LIMIT = 0.28
 GRID_PERIODICITY_LIMIT = 0.55
 
@@ -112,11 +121,11 @@ class OutfitSpec:
         return f"face_{token}_{self.name}.png"
 
     def face_reference(self, token: str) -> str:
-        return f"mod_assets/char_sprites/kotonoha/{self.face_name(token)}"
+        return f"assets/characters/kotonoha/{self.face_name(token)}"
 
     @property
     def base_reference(self) -> str:
-        return f"mod_assets/char_sprites/kotonoha/{self.base_name}"
+        return f"assets/characters/kotonoha/{self.base_name}"
 
 
 OUTFITS = (
@@ -133,7 +142,7 @@ class PoseSpec:
 
     @property
     def reference(self) -> str:
-        return f"mod_assets/char_sprites/kotonoha/{self.filename}"
+        return f"assets/characters/kotonoha/{self.filename}"
 
 
 POSES = (
@@ -361,8 +370,9 @@ def neutral_feature_footprint(base: np.ndarray) -> np.ndarray:
     """Extract Kotonoha's neutral brows, eyes/irises, and mouth footprint.
 
     A fixed semantic layout plus local detail is safer than accepting any broad
-    face rectangle.  The resulting footprint is used only to ensure the opaque
-    core of every alternate fully replaces the old neutral features; it never
+    face rectangle.  The builder uses the footprint to keep canonical-detail
+    guards from repainting neutral facial ink, while validation uses it to
+    ensure every alternate's opaque core replaces those features.  It never
     dictates the expression artwork itself.
     """
 
@@ -1000,6 +1010,7 @@ def validate_face_bank(
         fringe_black_counts: list[int] = []
         fringe_white_counts: list[int] = []
         magenta_counts: list[int] = []
+        canonical_feature_reuse_counts: list[int] = []
         outfit_composites: dict[str, np.ndarray] = {}
         signatures: dict[bytes, str] = {}
 
@@ -1074,6 +1085,23 @@ def validate_face_bank(
                     "a visible effect; likely padded/empty output",
                 )
                 changed_counts.append(changed)
+                canonical_feature_reuse = (
+                    neutral_features
+                    & (alpha == 255)
+                    & np.all(layer[:, :, :3] == base[:, :, :3], axis=2)
+                )
+                canonical_feature_reuse_count = int(canonical_feature_reuse.sum())
+                report.check(
+                    canonical_feature_reuse_count
+                    <= MAX_CANONICAL_FEATURE_REUSE_PIXELS,
+                    f"{label}: {canonical_feature_reuse_count} canonical neutral "
+                    "feature pixels were copied exactly into the alternate "
+                    "plate; likely duplicated brows/eyes/mouth "
+                    f"(limit={MAX_CANONICAL_FEATURE_REUSE_PIXELS})",
+                )
+                canonical_feature_reuse_counts.append(
+                    canonical_feature_reuse_count
+                )
                 (
                     checker,
                     checker_tile,
@@ -1127,6 +1155,8 @@ def validate_face_bank(
                 f"{strongest_checker[1]}@{strongest_checker[2]}px "
                 f"grid-max={strongest_grid[0]:.3f}/"
                 f"{strongest_grid[1]}@{strongest_grid[2]}px "
+                "canonical-feature-reuse-max="
+                f"{max(canonical_feature_reuse_counts, default=0)} "
                 f"fringe-black-max={max(fringe_black_counts, default=0)} "
                 f"fringe-white-max={max(fringe_white_counts, default=0)} "
                 f"magenta-max={max(magenta_counts, default=0)}"
@@ -1436,7 +1466,7 @@ def parse_attribute_records(group: str) -> list[AttributeRecord]:
     records: list[AttributeRecord] = []
     attribute_pattern = re.compile(r"^        attribute\s+(\w+)(?P<tail>[^:]*):\s*$")
     asset_pattern = re.compile(
-        r'"(?P<asset>mod_assets/char_sprites/kotonoha/[^"\n]+\.png)"'
+        r'"(?P<asset>assets/characters/kotonoha/[^"\n]+\.png)"'
     )
     for index, line in enumerate(lines):
         match = attribute_pattern.match(line)
@@ -1555,7 +1585,7 @@ def validate_definition(
         f"extra={list((face_records - expected_faces).elements())}",
     )
 
-    reference_pattern = re.compile(r'"(mod_assets/char_sprites/kotonoha/[^"\n]+\.png)"')
+    reference_pattern = re.compile(r'"(assets/characters/kotonoha/[^"\n]+\.png)"')
     layered_counts = Counter(reference_pattern.findall(layered))
     expected_layered = expected_layered_references()
     report.check(
@@ -1585,7 +1615,7 @@ def validate_definition(
     pose_pattern = re.compile(
         r"^image\s+kotonoha\s+(?P<outfit>\w+)\s+"
         r"(?P<attribute>pose_\w+)\s*=\s*"
-        r'Transform\(\s*"(?P<asset>mod_assets/char_sprites/kotonoha/[^"\n]+\.png)"\s*,'
+        r'Transform\(\s*"(?P<asset>assets/characters/kotonoha/[^"\n]+\.png)"\s*,'
         r'\s*fit\s*=\s*"contain"\s*,\s*xysize\s*=\s*\(\s*640\s*,\s*960\s*\)\s*\)\s*$',
         re.MULTILINE,
     )

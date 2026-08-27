@@ -9,6 +9,12 @@ The production contract is intentionally small:
 * a layeredimage containing only the two bases and those 42 face layers; and
 * story ``show tsubaki`` calls containing no retired ``pose_*`` attributes.
 
+For the installed production bank, validation also verifies byte-for-byte
+provenance from the schema-v2 authoring build. That build records hard guards
+for complete ownership of the conservative neutral-feature region centered on
+the base brows and complete replacement of the traced duplicate upper-eyelid
+arcs.
+
 Validation is read-only unless ``--review-sheet PATH`` is supplied.  A staging
 bank can be checked before installation with ``--layer-root`` while the bases
 continue to come from ``--sprite-root``.
@@ -18,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import math
 import re
 import sys
@@ -31,10 +38,15 @@ from PIL import Image, ImageDraw, ImageFont
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SPRITE_ROOT = (
-    PROJECT_ROOT / "game" / "mod_assets" / "char_sprites" / "tsubaki"
+    PROJECT_ROOT / "game" / "assets" / "characters" / "tsubaki"
 )
-DEFAULT_DEFINITIONS = PROJECT_ROOT / "game" / "mod_assets" / "def_characters.rpy"
+DEFAULT_DEFINITIONS = (
+    PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
+)
 DEFAULT_STORY_ROOT = PROJECT_ROOT / "game"
+DEFAULT_PIPELINE_OUTPUT = (
+    PROJECT_ROOT / "tmp" / "tsubaki_face_patch" / "output"
+)
 CANVAS_SIZE = (1023, 1537)
 CANVAS_WIDTH, CANVAS_HEIGHT = CANVAS_SIZE
 
@@ -73,11 +85,11 @@ class OutfitSpec:
         return f"face_{token}_{self.name}.png"
 
     def face_reference(self, token: str) -> str:
-        return f"mod_assets/char_sprites/tsubaki/{self.face_name(token)}"
+        return f"assets/characters/tsubaki/{self.face_name(token)}"
 
     @property
     def base_reference(self) -> str:
-        return f"mod_assets/char_sprites/tsubaki/{self.base_name}"
+        return f"assets/characters/tsubaki/{self.base_name}"
 
 
 OUTFITS = (
@@ -246,6 +258,125 @@ def load_rgba(
         f"{label}: {hidden_rgb} zero-alpha pixels retain RGB matte data",
     )
     return pixels
+
+
+def validate_pipeline_regression(
+    layer_root: Path,
+    pipeline_output: Path,
+    report: ValidationReport,
+) -> None:
+    """Prove that installed layers came from the eyebrow-safe build."""
+
+    metrics_path = pipeline_output / "metrics.json"
+    try:
+        metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        report.error(f"cannot read Tsubaki authoring metrics {metrics_path}: {exc}")
+        return
+
+    if not report.check(
+        isinstance(metrics, dict) and metrics.get("schema_version") == 2,
+        "Tsubaki authoring metrics are not eyebrow-safe schema version 2",
+    ):
+        return
+
+    outfits = metrics.get("outfits")
+    if not report.check(
+        isinstance(outfits, dict),
+        "Tsubaki authoring metrics contain no outfit records",
+    ):
+        return
+
+    matched_layers = 0
+    guarded_arcs = 0
+    guarded_neutral_regions = 0
+    for outfit in OUTFITS:
+        outfit_metrics = outfits.get(outfit.name)
+        if not report.check(
+            isinstance(outfit_metrics, dict),
+            f"Tsubaki authoring metrics omit the {outfit.name} outfit",
+        ):
+            continue
+
+        neutral_guard = outfit_metrics.get("base_neutral_guard")
+        if report.check(
+            isinstance(neutral_guard, dict),
+            f"{outfit.name}: authoring metrics omit the neutral-feature guard",
+        ):
+            guard_complete = (
+                neutral_guard.get("unowned_guard_pixels") == 0
+                and isinstance(neutral_guard.get("guard_footprint_pixels"), int)
+                and neutral_guard["guard_footprint_pixels"] > 0
+            )
+            report.check(
+                guard_complete,
+                f"{outfit.name}: neutral-feature guard is empty or not fully owned",
+            )
+            if guard_complete:
+                guarded_neutral_regions += 1
+
+        layers = outfit_metrics.get("layers")
+        if not report.check(
+            isinstance(layers, dict) and set(layers) == set(ALTERNATE_TOKENS),
+            f"{outfit.name}: authoring metrics are not the exact 20 alternates",
+        ):
+            continue
+
+        for token in FACE_TOKENS:
+            filename = outfit.face_name(token)
+            built_path = pipeline_output / filename
+            installed_path = layer_root / filename
+            try:
+                built_bytes = built_path.read_bytes()
+                installed_bytes = installed_path.read_bytes()
+            except OSError as exc:
+                report.error(f"cannot compare built/installed {filename}: {exc}")
+                continue
+            report.check(
+                installed_bytes == built_bytes,
+                f"{filename}: installed PNG does not byte-match the guarded build",
+            )
+            if installed_bytes == built_bytes:
+                matched_layers += 1
+
+            if token == "neut":
+                continue
+            layer_metrics = layers[token]
+            if not report.check(
+                isinstance(layer_metrics, dict),
+                f"{outfit.name}/{token}: malformed authoring metrics",
+            ):
+                continue
+            arc_cleanup = layer_metrics.get("duplicate_arc_cleanup")
+            if not report.check(
+                isinstance(arc_cleanup, dict),
+                f"{outfit.name}/{token}: duplicate-arc guard is unrecorded",
+            ):
+                continue
+            fully_replaced = (
+                arc_cleanup.get("core_residual_max_channel_delta") == 0
+                and isinstance(arc_cleanup.get("core_pixels"), int)
+                and arc_cleanup["core_pixels"] > 0
+                and isinstance(arc_cleanup.get("changed_pixels"), int)
+                and arc_cleanup["changed_pixels"] > 0
+            )
+            report.check(
+                fully_replaced,
+                f"{outfit.name}/{token}: traced duplicate arc was not fully replaced",
+            )
+            report.check(
+                layer_metrics.get("hidden_rgb_pixels") == 0,
+                f"{outfit.name}/{token}: guarded build retains hidden RGB",
+            )
+            if fully_replaced:
+                guarded_arcs += 1
+
+    report.note(
+        "tsubaki/pipeline: "
+        f"{matched_layers}/42 installed layers byte-match schema-v2 output; "
+        f"{guarded_arcs}/40 duplicate-arc guards and "
+        f"{guarded_neutral_regions}/2 neutral-feature guards checked"
+    )
 
 
 def validate_manifest(layer_root: Path, sprite_root: Path, report: ValidationReport) -> None:
@@ -494,7 +625,7 @@ def parse_attribute_records(group: str) -> list[AttributeRecord]:
     records: list[AttributeRecord] = []
     attribute_pattern = re.compile(r"^        attribute\s+(\w+)(?P<tail>[^:]*):\s*$")
     asset_pattern = re.compile(
-        r'"(?P<asset>mod_assets/char_sprites/tsubaki/[^"\n]+\.png)"'
+        r'"(?P<asset>assets/characters/tsubaki/[^"\n]+\.png)"'
     )
     for index, line in enumerate(lines):
         match = attribute_pattern.match(line)
@@ -616,7 +747,7 @@ def validate_definition(definitions: Path, report: ValidationReport) -> None:
     )
 
     reference_pattern = re.compile(
-        r'"(mod_assets/char_sprites/tsubaki/[^"\n]+\.png)"'
+        r'"(assets/characters/tsubaki/[^"\n]+\.png)"'
     )
     reference_counts = Counter(reference_pattern.findall(layered))
     expected_references = expected_layered_references()
@@ -832,6 +963,17 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="optional contact-sheet output; omitted by default",
     )
+    parser.add_argument(
+        "--pipeline-output",
+        type=Path,
+        default=None,
+        help=(
+            "authoring build to verify byte-for-byte and audit for eyebrow "
+            "regressions; production validation uses the standard output "
+            "automatically, while a custom --layer-root skips this check "
+            "unless supplied"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -846,6 +988,15 @@ def main() -> int:
     validate_manifest(layer_root, sprite_root, report)
     bases = validate_bases(sprite_root, report)
     validate_face_bank(layer_root, bases, report)
+    pipeline_output = args.pipeline_output
+    if pipeline_output is None and layer_root == DEFAULT_SPRITE_ROOT.resolve():
+        pipeline_output = DEFAULT_PIPELINE_OUTPUT
+    if pipeline_output is not None:
+        validate_pipeline_regression(
+            layer_root,
+            pipeline_output.resolve(),
+            report,
+        )
     validate_definition(definitions, report)
     validate_story(story_root, report)
 
@@ -878,8 +1029,8 @@ def main() -> int:
     print(
         "\nTSUBAKI SPRITE VALIDATION PASSED: 2 untouched neutral bases, "
         "42 conditioned face layers, transparent neutral, fixed feather masks, "
-        "preserved silhouettes, distinct alternates, exact wiring, and no "
-        "retired story pose attributes."
+        "preserved silhouettes, distinct alternates, eyebrow-safe authoring "
+        "provenance, exact wiring, and no retired story pose attributes."
     )
     return 0
 

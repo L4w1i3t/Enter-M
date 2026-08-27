@@ -42,6 +42,15 @@ except ImportError:  # pragma: no cover - module-style invocation from repo root
         remove_final_detached_noise,
     )
 
+try:
+    # Keep the builder and production validator on the same semantic definition
+    # of Kotonoha's canonical neutral brows, eyes/irises, and mouth.
+    from validate_kotonoha_sprites import neutral_feature_footprint
+except ImportError:  # pragma: no cover - module-style invocation from repo root.
+    from tools.validate_kotonoha_sprites import (  # type: ignore[no-redef]
+        neutral_feature_footprint,
+    )
+
 
 CANVAS_SIZE = (1023, 1537)
 CANVAS_WIDTH, CANVAS_HEIGHT = CANVAS_SIZE
@@ -198,7 +207,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--install",
         action="store_true",
-        help="Atomically install validated staged PNGs into game/mod_assets.",
+        help=(
+            "Atomically install validated staged PNGs into "
+            "game/assets/characters/kotonoha."
+        ),
     )
     return parser.parse_args()
 
@@ -546,12 +558,12 @@ def color_match_face(
 
 
 def canonical_detail_guard(
-    base_rgba: np.ndarray, mandatory_features: np.ndarray
+    base_rgba: np.ndarray, neutral_features: np.ndarray
 ) -> np.ndarray:
     """Protect canonical hair and outfit details outside the edited features.
 
     The source expression plates use Kotonoha's casual turtleneck.  Preserving
-    non-skin canonical pixels outside the mandatory eyes/brows/mouth polygons
+    non-skin canonical pixels outside the neutral brows/eyes/mouth footprint
     prevents that collar from bleeding into either runtime outfit while still
     leaving the complete expressive feature area available to the new plate.
     """
@@ -562,11 +574,10 @@ def canonical_detail_guard(
         cv2.MORPH_CLOSE,
         cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)),
     )
-    # Color alone also selects Kotonoha's lavender eyebrows and irises.  Hair
-    # belongs to large connected regions; the facial features are small
-    # islands (under 500 pixels in both canonical outfits).  Retaining only
-    # large components preserves actual bangs inside the expanded feature
-    # envelope without repainting any neutral brow/eye pixels.
+    # Color alone also selects Kotonoha's lavender eyebrows and irises.  Keep
+    # large components to reject isolated noise, then explicitly subtract the
+    # semantic neutral-feature footprint below; component size cannot safely
+    # distinguish facial ink that touches a bang from the bang itself.
     component_count, labels, stats, _ = cv2.connectedComponentsWithStats(
         hair, connectivity=8
     )
@@ -584,7 +595,7 @@ def canonical_detail_guard(
     non_skin_detail = (
         (base_rgba[:, :, 3] > 96)
         & ~skin_pixels(base_rgba[:, :, :3])
-        & ~mandatory_features
+        & ~neutral_features
     )
     # Expression plates were generated from the casual sprite, whose tall
     # turtleneck otherwise lands inside the work sprite's open polo collar.
@@ -593,7 +604,8 @@ def canonical_detail_guard(
     lower_chin_and_neck = np.zeros((CANVAS_HEIGHT, CANVAS_WIDTH), dtype=bool)
     lower_chin_and_neck[422:510, 400:625] = True
     lower_chin_and_neck &= base_rgba[:, :, 3] > 96
-    return hair | non_skin_detail | lower_chin_and_neck
+    canonical_face_detail = (hair | non_skin_detail) & ~neutral_features
+    return canonical_face_detail | lower_chin_and_neck
 
 
 def clean_pose_edge_residue(
@@ -858,7 +870,7 @@ def install_outputs(
 
 def build(root: Path, install: bool) -> dict[str, Any]:
     root = root.resolve()
-    production_dir = root / "game" / "mod_assets" / "char_sprites" / "kotonoha"
+    production_dir = root / "game" / "assets" / "characters" / "kotonoha"
     build_dir = root / "tmp" / "kotonoha_sprite_build"
     masters_dir = build_dir / "masters"
     faces_dir = build_dir / "faces"
@@ -905,8 +917,11 @@ def build(root: Path, install: bool) -> dict[str, Any]:
     work_mask[work_mandatory & (bases["work"][:, :, 3] == 255)] = 255
     masks = {"casual": casual_mask, "work": work_mask}
     mandatory = {"casual": casual_mandatory, "work": work_mandatory}
+    neutral_features = {
+        outfit: neutral_feature_footprint(base) for outfit, base in bases.items()
+    }
     detail_guards = {
-        outfit: canonical_detail_guard(base, mandatory[outfit])
+        outfit: canonical_detail_guard(base, neutral_features[outfit])
         for outfit, base in bases.items()
     }
 
@@ -920,6 +935,12 @@ def build(root: Path, install: bool) -> dict[str, Any]:
         if np.any(uncovered):
             raise BuildError(
                 f"{outfit} mask leaves {int(uncovered.sum())} mandatory pixels translucent"
+            )
+        guarded_features = detail_guards[outfit] & neutral_features[outfit]
+        if np.any(guarded_features):
+            raise BuildError(
+                f"{outfit} canonical detail guard restores "
+                f"{int(guarded_features.sum())} expression-owned feature pixels"
             )
 
     faces_dir.mkdir(parents=True, exist_ok=True)

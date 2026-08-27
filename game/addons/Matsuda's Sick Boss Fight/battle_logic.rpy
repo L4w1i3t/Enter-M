@@ -480,7 +480,7 @@ init -1 python:
         """
         return int(MSBF_SHMUP_DURATION_TICKS * frac)
 
-    MSBF_SFX_DIR = "mod_assets/sfx/msbf/"
+    MSBF_SFX_DIR = "assets/audio/sfx/msbf/"
     MSBF_FINAL_VICTORY_EXPLODE_DELAY = 0.84
     # explode.ogg is ~4.01s. The battle screen Returns 0.5s after result, then
     # cs_matsuda_02 clears pooled SFX, so the result delay must leave the tail room.

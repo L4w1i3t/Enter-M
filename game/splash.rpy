@@ -73,16 +73,16 @@ image splash_warning = ParameterizedText(style="splash_text", xalign=0.5, yalign
 
 image menu_bg:
     topleft
-    "mod_assets/gui/menu_bg.png"
+    "assets/gui/enter_m/menu_bg.png"
     menu_bg_drift
 
 image game_menu_bg:
     topleft
-    "mod_assets/gui/menu_bg.png"
+    "assets/gui/enter_m/menu_bg.png"
     menu_bg_drift
 
 image menu_nav:
-    #"gui/overlay/main_menu.png"
+    #"assets/gui/overlay/main_menu.png"
     #menu_nav_move
 
 transform menu_bg_drift:
@@ -475,7 +475,7 @@ screen enter_m_splash_intro():
         at splash_signal_drop
 
         add Solid("#02040b")
-        add "mod_assets/gui/menu_bg.png" at splash_bg_push
+        add "assets/gui/enter_m/menu_bg.png" at splash_bg_push
         add Solid("#000000aa")
         add "vignette":
             alpha 0.5
@@ -515,18 +515,18 @@ screen enter_m_splash_intro():
         # is not divided from anything.
         add Solid("#56d7ff3a") xysize (2, 130) xcenter 640 ycenter 250 at splash_divider(1.26)
 
-        add "mod_assets/gui/TRM_splash.png" at splash_logo_bloom(430, 250, 0.225, 0.30)
-        add "mod_assets/gui/TRM_splash.png" at splash_logo_slam(430, 250, 0.225, 0.30)
+        add "assets/gui/enter_m/TRM_splash.png" at splash_logo_bloom(430, 250, 0.225, 0.30)
+        add "assets/gui/enter_m/TRM_splash.png" at splash_logo_slam(430, 250, 0.225, 0.30)
         add Solid("#bdf6ff") at splash_impact(0.52, 0.42)
         add Solid("#ff315b") at splash_tear(268, 0.52, 6)
 
-        add "mod_assets/gui/matsupy_splash.png" at splash_logo_bloom(850, 250, 0.141, 0.62)
-        add "mod_assets/gui/matsupy_splash.png" at splash_logo_slam(850, 250, 0.141, 0.62)
+        add "assets/gui/enter_m/matsupy_splash.png" at splash_logo_bloom(850, 250, 0.141, 0.62)
+        add "assets/gui/enter_m/matsupy_splash.png" at splash_logo_slam(850, 250, 0.141, 0.62)
         add Solid("#bdf6ff") at splash_impact(0.84, 0.42)
         add Solid("#56d7ff") at splash_tear(300, 0.84, 9)
 
-        add "mod_assets/gui/TS_SF_splash.png" at splash_logo_bloom(640, 430, 0.211, 0.94)
-        add "mod_assets/gui/TS_SF_splash.png" at splash_logo_slam(640, 430, 0.211, 0.94)
+        add "assets/gui/enter_m/TS_SF_splash.png" at splash_logo_bloom(640, 430, 0.211, 0.94)
+        add "assets/gui/enter_m/TS_SF_splash.png" at splash_logo_slam(640, 430, 0.211, 0.94)
         add Solid("#bdf6ff") at splash_impact(1.16, 0.42)
         add Solid("#ff315b") at splash_tear(214, 1.16, 8)
 
@@ -666,7 +666,7 @@ screen enter_m_splash_warning(message):
         at splash_alert_shutdown
 
         add Solid("#02040b")
-        add "mod_assets/gui/menu_bg.png" at splash_bg_push
+        add "assets/gui/enter_m/menu_bg.png" at splash_bg_push
         add Solid("#000000cc")
         add Solid("#ff2f5f18") xysize (1280, 1) at splash_sweep2
 
@@ -729,7 +729,7 @@ image intro:
     truecenter
     "white"
     0.5
-    "bg/splash.png" with Dissolve(0.5, alpha=True)
+    "assets/images/bg/splash.png" with Dissolve(0.5, alpha=True)
     2.5
     "white" with Dissolve(0.5, alpha=True)
     0.5
@@ -742,8 +742,8 @@ image warning:
     "white" with Dissolve(0.5, alpha=True)
     0.5
 
-image tos = "mod_assets/gui/warning.png"
-image tos2 = "mod_assets/gui/warning2.png"
+image tos = "assets/gui/enter_m/warning.png"
+image tos2 = "assets/gui/enter_m/warning2.png"
 
 label splashscreen:
 
@@ -765,7 +765,7 @@ label splashscreen:
                         renpy.persistent.should_save_persistent = False
                         renpy.utter_restart()
                 "No, continue where I left off.":
-                    $ restore_all_characters()
+                    pass
 
         python:
             if not firstrun:
@@ -775,12 +775,10 @@ label splashscreen:
                     renpy.jump("readonly")
 
     if config.version != persistent.oldversion:
-        $ restore_all_characters()
         $ persistent.oldversion = config.version
         $ renpy.save_persistent()
 
     if not persistent.first_run:
-        $ restore_all_characters()
         $ quick_menu = False
         scene white
         pause 0.5
@@ -808,25 +806,7 @@ label splashscreen:
         pause 1.0
         scene white
 
-    python:
-        s_kill_early = None
-        try: renpy.file("../characters/sayori.chr")
-        except: s_kill_early = True
-        if not s_kill_early:
-            try: renpy.file("../characters/natsuki.chr")
-            except: open(config.basedir + "/characters/natsuki.chr", "wb").write(renpy.file("natsuki.chr").read())
-            try: renpy.file("../characters/yuri.chr")
-            except: open(config.basedir + "/characters/yuri.chr", "wb").write(renpy.file("yuri.chr").read())
-
     $ config.allow_skipping = False
-
-    if s_kill_early:
-        show black
-        with dissolve_scene_soft
-        "Required local character data is missing."
-        "Please restore the project files before continuing."
-        $ config.allow_skipping = True
-        $ renpy.quit()
 
 
     # THE COLD OPEN. Every mark below is wall-clock seconds from `starttime`, and
@@ -862,8 +842,6 @@ label after_load:
     $ exam_guard_prepare_after_load()
     if exam_guard_has_mismatch():
         jump expression exam_guard_caught_label()
-    if persistent.playthrough == 0:
-        $ restore_all_characters()
     $ config.allow_skipping = allow_skipping
     $ _dismiss_pause = config.developer
 

@@ -1,6 +1,6 @@
 """Measure proper-noun density in MC's narration prose.
 
-Companion to ``docs/NARRATION_NAMING_AUDIT.md``. Re-run after an apply pass to
+Companion to ``docs/story/audits/NARRATION_NAMING_AUDIT.md``. Re-run after an apply pass to
 check the targets in that document's section 6.
 
 A "narration line" is a bare quoted string in a story file -- MC's first-person
@@ -74,7 +74,7 @@ RE_SUBJECT_VERB = re.compile(
 )
 
 TARGETS = """
-Targets after the apply pass (docs/NARRATION_NAMING_AUDIT.md section 6):
+Targets after the apply pass (docs/story/audits/NARRATION_NAMING_AUDIT.md section 6):
   name-openers        452 -> ~300 (15.6% -> ~10%)
   worst-file density  35% -> at or under 22%
   'looks' after a person-subject   67 -> ~35

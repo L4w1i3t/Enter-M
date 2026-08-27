@@ -99,12 +99,12 @@ label a0524:
     pause 2.0
     scene bg schoolgym
     $ show_calendar()
-    $ atmos("afternoon")
+    $ atmos("morning")
     with dissolve_scene_full
     play music schooldays
     window auto
     "The gym smells like floor wax and several hundred people who did not consent to being awake."
-    "The whole student body has been arranged by year and class across the floor, standing in lines that look straight from a distance but teeter off."
+    "The whole student body has been arranged by year and class across the floor, standing in lines that look straight from a distance and unravel up close."
     "{i}Morning pep assembly.{/i}"
     "{i}Because when a school says midterms begin Monday, apparently the next step is forced enthusiasm under fluorescent lighting.{/i}"
     "Somewhere near the front, a microphone pops."
@@ -134,34 +134,33 @@ label a0524:
     show sam uniform happy
     "Sam smiles. Asahina's ears go pink, and she doesn't get defensive about it."
     show sam uniform pose_crossed
-    principal "You are not merely taking tests. You are proving the discipline you have built all term--and some of you, all of high school up to this point."
+    principal "You are not merely taking tests. You are proving the discipline you have built all term, or for some of you, all of high school so far."
     "A classmate behind me mutters something about proving he built nothing and how he hates half his classes anyway."
     "{i}At least I respect the honesty.{/i}"
     principal "You may feel anxious. That is natural."
     principal "But anxiety is not an enemy. It is a signal that what you are doing matters."
     "The speech keeps going."
-    "Goals. Community. Study habits. Sleep. Hydration. The usual snooze-inducing, egregious, obligatory checklist."
+    "Goals and community lead into study habits. Sleep and hydration finish the usual obligatory checklist."
     "My track coach stands near the wall with his arms folded, and even from here I can tell he is mentally underlining things that apply to his athletes."
     "A projector screen at the side of the stage displays a slogan in clean blue letters:"
     "{b}YOUR EFFORT TODAY BECOMES TOMORROW'S CONFIDENCE.{/b}"
     "{i}My confidence tomorrow will be a half-dead ballpoint pen and an empty cracker jack box.{/i}"
     show sam uniform neut
     "My sister shifts her weight."
-    "Sam replicates her actions a fraction later. It could be coincidence, if I had not started noticing these things against my will."
+    "Sam shifts in the same direction a fraction later. It could be coincidence, if I had not started noticing these things against my will."
     "The assembly eventually reaches the part where the student council representative thanks everyone for their attention, despite the room offering little proof."
     # SFX SUGGESTION: A microphone cutoff pop, followed by the gym crowd swelling back in.
     "The microphone clicks off, and the gym exhales in one enormous, adolescent wave."
-    "Bodies begin preparing to move before anyone grants permission, almost like everyone is desperate to cause a crowd crush and maybe some casualties."
-    "Our class is the last to leave because of course it is, so we watch the first-years and second-years enjoy temporary freedom before we do."
+    "Bodies begin preparing to move before anyone grants permission, each row quietly daring the others to start the traffic jam."
+    "Our class is the last to leave because of course it is. Asahina's class is long gone, though one last second-year class is filing past the end of our row."
     mc "...Asa, your people are long gone."
     ah smug "And? Not like anyone will notice anyway. I went to the bathroom, or something."
-    show asahina uniform neut at t31
+    show asahina uniform happy at t31
     show sam uniform neut at t32
+    "Asahina spots someone near the back of the passing line and raises a hand."
+    ah "Tsubaki!"
     show tsubaki uniform nervous at t33
-    "A familiar face appears at the edge of our row with a notebook hugged to her chest."
-    ts uniform embarrassed "Sorry, excuse me... I think my class is cutting through here."
-    show asahina uniform happy
-    ah "Oh, Tsubaki!"
+    "Tsubaki looks over, then steps out of the traffic beside our row, hugging a notebook to her chest."
     show tsubaki uniform happy
     ts "Oh. Hi, Asahina. [player]."
     mc "Morning."
@@ -177,11 +176,10 @@ label a0524:
     show tsubaki uniform nervous
     ts "Oh! Right. Nice to meet you."
     show sam uniform neut
-    sa "Masayami Inugami."
-    sa "Sam's fine, though."
+    sa "Masayami Inugami. Sam's fine, though."
     show tsubaki uniform neut
     ts "Tsubaki Kareda."
-    "She bows, polite and shallow, and the loose sheet tucked inside her notebook slips forward, where it's caught by someone too smooth for his own good."
+    "She gives a shallow, polite bow. The loose sheet tucked inside her notebook slides forward, and Sam catches it before it falls."
     sa "Got it."
     show tsubaki uniform embarrassed
     ts "Ah--thank you!"
@@ -198,14 +196,14 @@ label a0524:
     sa "You said, and I quote, 'she understood the motion lines, which means she has functioning eyes and taste.'"
     show asahina uniform embarrassed
     ah "You can't prove I said that!"
-    mc "Too late. It's already in writing. In all our brains."
+    mc "Too late. It's already in writing and in all our brains."
     show tsubaki uniform embarrassed
-    "Tsubaki lowers her eyes toward the sheet like it might hide her face if she believes hard enough."
+    "Tsubaki lowers her eyes toward the sheet like it might hide her face if she stares at it properly."
     ts "It was just a nice poster."
     show sam uniform happy
     sa "Still. Good eye."
     show tsubaki uniform nervous
-    "Her smile starts, panics, and becomes something she stores safely behind a nod."
+    "Her smile starts, then slips behind a quick nod."
     ts "Thanks..."
     # SFX SUGGESTION: Two sharp handclaps with a short gymnasium echo.
     "A teacher claps twice near the doorway."
@@ -231,21 +229,23 @@ label a0524:
     show asahina uniform unamused
     ah "Maybe she's still nice today. Ever think of that?"
     show sam uniform thinking
-    sa "She seems awfully skiddish."
+    sa "She seemed jumpy."
     show asahina uniform curious
-    ah "Skiddish...how?"
+    ah "Jumpy how?"
     show sam uniform pose_thinking
-    sa "You not see how she was constantly looking over her shoulders? And how she didn't commit to her grip?"
-    "All our voices fall flat as none of us can come up with a witty remark."
+    sa "She checked behind her twice and almost lost that notebook. Could just be the crowd."
     show asahina uniform thinking
-    ah "...Huh."
+    ah "Maybe. She does keep acting like she needs permission to stand somewhere, though."
+    show sam uniform neut
+    sa "Then you've seen more of her than I have."
+    "Asahina looks toward the doorway Tsubaki used. Sam leaves his guess where it is."
     "The traffic behind us begins to push."
     mc "Okay, we should move before the gym decides we live here now."
     show asahina uniform teasing
-    ah "Dramatic."
+    ah "You're so dramatic."
     show sam uniform smug
     sa "I mean, he {i}is{/i} right."
-    "We move with the crowd, and the assembly disappears behind us with the hard plastic smell of the gym floor."
+    "We move with the crowd. The hard plastic smell of the gym floor follows us out."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Homeroom becomes a distribution center for exam reminders. Civics, language arts, and biology each add a review packet to the pile."
@@ -258,19 +258,18 @@ label a0524:
     $ atmos("afternoon")
     with wipeleft_scene
     play music dailyfantasy
-    "Lunch feels like it comes too late to feel embedded in reality."
+    "Lunch comes so late that the morning already feels borrowed."
     show asahina uniform neut at t11
     "Asahina finds me by the stairwell, checking her phone with one thumb."
     ah "Roof?"
     mc "You've really streamlined the invitation process, I see."
     show asahina uniform unamused
     ah "Roof, please."
-    mc "Powerful revision."
+    mc "That revision really sold it."
     "She glances down the hall once."
     mc "Where's Sam?"
     show asahina uniform neut
-    ah "Senior thing."
-    ah "Or basketball thing. Or both. He said he'd text me after."
+    ah "Senior thing, or basketball. He said he'd text me after."
     mc "You sound normal about it."
     show asahina uniform smug
     ah "I'm normal about literally everything. Normal is my middle name, don'tcha know?"
@@ -305,15 +304,10 @@ label a0524:
     ah "Do you think Tsubaki was okay earlier?"
     mc "In the gym?"
     show asahina uniform pose_eyeroll
-    ah "No, in the Pacific ocean--YES, in the gym, dumbass."
-    mc "She seemed...Tsubaki."
+    ah "No, in the Pacific Ocean. Yes, in the gym, dumbass."
+    mc "She looked surprised. Not hurt, exactly."
     show asahina uniform unamused
-    ah "...The hell is that supposed to mean?"
-    mc "It means what it means."
-    ah "Yeah, whatever in the world {i}that{/i} means."
-    "She pokes at her food."
-    show asahina uniform thinking
-    ah "Sam gave her a compliment, and she looked like he handed her an award."
+    ah "Yeah. Like Sam handed her an award instead of one compliment."
     mc "You jelly?"
     show asahina uniform angry
     "Her head turns very slowly."
@@ -322,11 +316,17 @@ label a0524:
     "The easy joke waits in front of me, yet I leave it there."
     show asahina uniform neut
     "She keeps her eyes on the skyline."
-    ah "It's just...I dunno."
-    ah "I get how nice compliments feel when you aren't fishing for 'em."
-    "The idea of the poster hangs between the words without being named."
-    mc "...Perchance."
-    "My phone buzzes, not letting the sentence take any more time to breathe."
+    ah "It's just...I know how nice compliments feel when you aren't fishing for them."
+    ah "I don't want her thinking every nice thing is a setup."
+    mc "Then keep giving her normal ones."
+    show asahina uniform thinking
+    ah "Without making it weird."
+    mc "Impossible standard, but you can try."
+    "She eats another bite and gives that the attention it deserves. For a while, the roof only asks us to finish lunch."
+    show asahina uniform neut
+    ah "I can do normal."
+    mc "That claim needs peer review."
+    "She bumps her shoe against mine, lightly this time. My phone buzzes after the silence has had somewhere to land."
     "{i}Yeah, about time for regularly scheduled contact.{/i}"
     python:
         _phone_messages = [
@@ -347,32 +347,31 @@ label a0524:
     ah "Wow. She came looking?"
     mc "She wants to ask something."
     show asahina uniform teasing
-    ah "Uh huh."
+    ah "Uh-huh."
     mc "That's all I know, don't gimme that."
-    ah "Uh huh..."
+    ah "Uh-huh..."
     mc "Can you not make that noise like you cracked a code?"
     ah "Can you not be a drooling dumbass for five seconds?"
     play sound moddooropen
     "The rooftop door opens, and the verbal hands stay mostly unthrown."
     show asahina uniform neut at t21
     show monika forward uniform happ cm oe nobl rdown ldown at t22
-    "Monika steps out with a folder against her chest and wind immediately pulling at the loose ribbon of her bow."
+    "Monika steps out, a folder against her chest. The wind immediately pulls at the loose ribbon of her bow."
     m forward uniform happ om oe nobl rdown ldown "There's my guy!"
     mc "Present."
     m forward uniform happ cm oe nobl rdown ldown "Hi, Asahina!"
     ah "Yo."
     m forward uniform wry om oe nobl rdown ldown "Sorry to interrupt whatever was going on."
-    show asahina uniform teasing
-    ah "You're not. I was about to return to civilization anyway."
+    "Asahina looks from Monika's folder to the fingers tightening around its edge."
+    show asahina uniform neut
+    ah "You're not. I was done eating anyway."
     mc "You were?"
-    ah "Yes. Because I'm responsible and have..."
-    # SFX SUGGESTION: A single phone vibration muffled by the lunch bag.
-    "Her phone buzzes once in her lap."
-    ah "...a thing."
-    mc "A senior thing? Basketball thing?"
+    show asahina uniform teasing
+    ah "Yep. You two have your responsible-person summit."
+    m forward uniform nerv om oe awkw rdown ldown "You don't have to leave."
     show asahina uniform smug
-    ah "A leaving thing."
-    "She packs with a speed that fails to look innocent."
+    ah "I know. I want to catch Sam before fifth period."
+    "She closes her lunch bag and gets to her feet without rushing."
     ah "Later."
     m "See you."
     mc "Don't hit your head on the way out."
@@ -381,31 +380,30 @@ label a0524:
     play sound moddoorclose
     "The door closes behind her, and the roof is suddenly much quieter."
     show monika forward uniform nerv cm oe awkw rdown ldown at t11
-    "Monika remains standing for a second, fingers tightening around the folder."
+    "Monika remains standing for a second. Her thumb works at the folder's corner."
     mc "You alright?"
-    m forward uniform nerv cm oe awkw rdown ldown "Yeah."
-    m forward uniform nerv om oe awkw rhip ldown "I just wanted to ask before I talked myself into making it overly responsible."
-    mc "Concerning phrase."
-    "She laughs once, soft and not quite enough."
+    m forward uniform nerv om oe awkw rhip ldown "Yeah. I just wanted to ask before I talked myself into making it overly responsible."
+    mc "You say that like I shouldn't be concerned."
+    "She laughs once, soft and unfinished."
     m forward uniform happ cm oe nobl rhip ldown "Tomorrow's our last full study day before exams."
     m "I know you probably already have a plan, and I know your science and math stuff is more...you know."
-    mc "Soul-crushing? Stress-inducing? Guilty of making you want to blow your head off?"
-    m forward uniform nerv om ce blaw rdown ldown "...STEM-oriented."
+    mc "Soul-crushing? The kind that makes you want to throw the whole notebook off the roof?"
+    m forward uniform nerv om ce blaw rdown ldown "...I was going to say STEM-oriented."
     mc "...That too."
     m forward uniform happ cm ce nobl rdown ldown "I try."
     "She sits beside me, leaving a careful space that feels more deliberate than sitting close would."
     m forward uniform nerv om oe blus rhip ldown "I was thinking we could meet at the public library in the morning."
     m "Study for a few hours, trade notes where we can, maybe quiz each other."
-    m "I can help with language arts and civics, you can help me not get destroyed by algebra notation, and we can both pretend biology is a normal subject."
-    mc "Bold plan."
-    m forward uniform nerv om oe blus rdown ldown "After that, if we survive, there's that new cafe downtown in the historic district--the one with the green awning near the old bank."
+    m "I can help with language arts and civics, and you can keep me from getting destroyed by algebra notation. For your science classes, I can at least tell you when the explanations stop sounding human."
+    mc "That's ambitious."
+    m forward uniform nerv om oe blus rdown ldown "After that, if we survive, there's that new cafe downtown in the historic district, the one with the green awning near the old bank."
     "She looks down at the folder and a corner of a printed review sheet peeks out."
     m forward uniform flus cm oe blus rdown ldown "I thought lunch there might be nice."
     "{i}Ah.{/i}"
-    "Monika keeps talking as a means to not draw attention to growing silence."
+    "Monika keeps talking, each sentence arriving before the silence can settle."
     m forward uniform nerv om oe awkw rdown ldown "Not as, like, a big thing, just...exams are coming up, track is back, you have college stuff probably, and your family, and..."
     "She stops herself there."
-    "For a second, the president version of Monika disappears."
+    "Her grip loosens on the folder. When she speaks again, the practiced brightness is gone."
     m forward uniform flus cm oe blus rdown ldown "I missed talking to you without the school day pulling at our sleeves."
     mc "Didn't we just go to the movies last weekend?"
     m "I mean, yeah, but I just wanna make it more of a regular occurrence, y'know?"
@@ -423,11 +421,10 @@ label a0524:
     m forward uniform happ cm ce nobl rdown ldown "Well, that {i}is{/i} one of my core talents."
     mc "Your marketable skills are terrifying."
     m forward uniform laug cm ce nobl rdown ldown "Thank ya, thank ya."
-    "The smile returns, but smaller. Like a weird, contorted smirk."
+    "Her smile returns, smaller but no longer strained."
     m forward uniform happ cm oe nobl rhip ldown "I'll send you the time tonight."
     mc "No need to. I can meet you there at, like, nine."
-    m "Yeah, nine works!"
-    m forward uniform happ om oe nobl rdown lpoint "Don't make me text five reminders."
+    m forward uniform happ om oe nobl rdown lpoint "Yeah, nine works! Don't make me text five reminders."
     mc "I would never."
     m forward uniform wry cm ce nobl rdown ldown "You absolutely would, by needing them."
     mc "Correct, albeit awfully cruel wording..."
@@ -435,19 +432,18 @@ label a0524:
     "Somewhere below us a bell goes, and the roof stops belonging to us."
     "Monika stands first and I follow suit."
     m "Okay! Let's get back before we're written up as runaways."
-    mc "Reasonable."
-    m "Occasionally."
+    mc "That seems reasonable."
+    m "I manage it occasionally."
     "She pauses near the door."
     m forward uniform nerv om oe awkw rdown ldown "Thanks."
     mc "For...saying yes?"
     m forward uniform neut cm oe blus rdown ldown "For not making me make it smaller."
     "That one takes the air out of my joke before it forms."
-    mc "...Yeah."
-    mc "No problem."
+    mc "...Yeah. No problem."
     show monika at thide
     hide monika
     play sound moddoorclose
-    "The rooftop goes back to wind and concrete, with no man or woman in sight."
+    "The rooftop goes back to wind and concrete."
     $ update_character_thought("monika", "Monika reserved a study table by the second-floor windows before she asked me whether I was free. She has been at council every afternoon this week.")
     $ hide_calendar()
     scene black with wipeleft_scene
@@ -463,8 +459,8 @@ label a0524:
     play music quiz
     "College algebra review begins with a silence only matrices can create."
     show math_teacher neut at t11
-    math_teacher "Matrices are not decorative boxes."
-    math_teacher "Instead, they are a way to organize operations. To some, it's easier. Some, harder."
+    math_teacher "Matrices are not decorative boxes. They're a way to organize operations."
+    math_teacher "Some of you will find that easier, and others won't."
     math_teacher "If you treat them like a pile of numbers with cute little brackets, you will make mistakes that are very easy to avoid."
     "{i}Decorative boxes. Got it.{/i}"
     "The teacher writes two matrices on the board."
@@ -481,11 +477,10 @@ label a0524:
         "Yes. The result is two by two.":
             $ atmos_pressure_clear()
             with dissolve
-            mc "Yes. The inside dimensions match, so the result takes the outside dimensions."
-            mc "Two by two."
+            mc "Yes. The inside dimensions match, so the result takes the outside dimensions: two by two."
             math_teacher "Correct."
             "He circles the three and three in the middle, then boxes the two and two on the outside."
-            "{i}A sentence simple enough to make this coming Monday feel a little less hostile.{/i}"
+            "{i}One simple sentence, and this coming Monday feels a little less hostile.{/i}"
         "Yes. The result is three by three.":
             $ atmos_pressure_clear()
             with dissolve
@@ -493,7 +488,7 @@ label a0524:
             "The board stares back."
             "The two and two sit outside the expression like they are waiting for me to stop embarrassing both of us."
             math_teacher "Not quite."
-            math_teacher "Inside confirms compatibility. Outside gives the result. Two by two."
+            math_teacher "Inside confirms compatibility. The outside gives a two-by-two result."
             math_teacher "Do not average the sizes, do not guess by vibes, and do not let panic do arithmetic."
             "{i}Panic is not a reliable calculator. Duly noted.{/i}"
         "No. The dimensions do not match.":
@@ -503,27 +498,25 @@ label a0524:
             math_teacher "Check again."
             "Two by three times three by two."
             "The middle dimensions match."
-            math_teacher "Inside confirms compatibility. Outside gives the result. Two by two."
+            math_teacher "Inside confirms compatibility. The outside gives a two-by-two result."
             "{i}Nearly taken out by a bracket. Not my proudest moment.{/i}"
     math_teacher "Now BA."
     "The board receives a second set of arrows."
-    math_teacher "Order matters."
-    math_teacher "AB and BA are not guaranteed to have the same size, the same value, or even both exist."
+    math_teacher "Order matters. AB and BA aren't guaranteed the same size or value, and one may not exist at all."
     "{i}Order matters. Math has social boundaries too.{/i}"
     "He writes a multiplication table step by step."
-    "Row times column. Row one, column one. Row one, column two. Then repeat."
+    "Row times column. First column, then the second, and repeat."
     "It is so unbearably tedious that I can't help but put my hand on my chin and rest my elbow on my desk."
     math_teacher "Midterm expectation: you must show the setup."
     math_teacher "If I see a correct answer with no path, I cannot tell whether you actually understood it or rolled lucky dice."
-    math_teacher "Now, I'm not usually one to make something all-or-nothing, but the whole point of exams is to show comprehension and maybe some problem solving skills."
+    math_teacher "Now, I'm not usually one to make something all-or-nothing, but the whole point of exams is to show comprehension and maybe some problem-solving skills."
     "The class practices three examples."
     "By the third, someone near the windows asks whether calculators will be allowed and receives a look normally reserved for betrayal."
     math_teacher "For this one, yes. Calculators can help you multiply larger numbers or decimals, but they cannot save you from entering the wrong structure."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Algebra finishes with a review sheet heavy enough to change the weather in my binder. English hands back vocabulary sheets, because Saturday apparently has no interest in staying light."
-    nier "The school day ends with one more announcement about pencils and the moral necessity of sleeping before an exam."
-    nier "By the final bell, the school feels less like a building and more like a machine ejecting dead students into the weekend."
+    nier "Algebra ends with a review sheet that bows the binder pocket. English adds vocabulary, because Saturday apparently has no interest in staying light."
+    nier "One last announcement covers pencils and sleep. By the final bell, the school feels less like a building and more like a machine ejecting exhausted students into the weekend."
     call nier_clear from _call_nier_clear_0524_3
     stop music fadeout 1.0
     pause 2.0
@@ -532,11 +525,10 @@ label a0524:
     $ atmos("afternoon")
     with wipeleft_scene
     play music daily
-    "The club room is warmer than usual when I arrive -- not physically, though the afternoon sun does its best."
+    "The club room feels warmer than usual when I arrive. Not physically, though the afternoon sun does its best."
     "A few members are already here, notebooks open and chairs pulled into loose corners, but the room is holding a not-so-rare quiet."
     show monika forward uniform happ cm oe nobl rdown ldown at t11
-    "Monika stands near the board, writing the prompt in clean letters."
-    "{i}Write about a place that holds still while you don't.{/i}"
+    "Monika stands near the board, writing the prompt in clean letters: {i}Write about a place that holds still while you don't.{/i}"
     "She turns when she hears the door."
     m forward uniform happ om oe nobl rdown ldown "Yo."
     mc "Hey."
@@ -544,20 +536,17 @@ label a0524:
     "Same desk, same room, shifted by half an inch."
     m forward uniform happ cm oe nobl rhip ldown "I figured we could keep it low pressure today."
     m forward uniform happ om oe nobl rhip lpoint "Fifteen minutes drafting, then voluntary exchange. Rapid-fire poetry and all that."
-    m "And actually voluntary this time. Everyone looks tired enough that forcing feedback would just get everyone defensive."
+    m "And actually voluntary this time. Everyone looks tired, and forcing feedback would only make them defensive."
     "Everyone lowers into writing. For a while, there is only paper noise."
-    "Someone near the back erases a line so hard the page wrinkles."
-    "He writes steadily, pauses, crosses out exactly three words, and keeps going."
+    "Someone near the back erases until the page wrinkles, then crosses out exactly three words and keeps going."
     "I stare at the prompt longer than I should."
-    "The obvious answer is school."
-    "The smarter answer is not to write the obvious answer if I don't want to sound like a backhanded motivational poster."
-    "And the even smarter answer is to circle back to the obvious answer to never let Monika know my next move."
-    "My pen moves before I fully decide. The bus arrives first, then the window, then the seat."
+    "The obvious answer is school, which has all the subtlety of a backhanded motivational poster. I circle back to it anyway."
+    "My pen moves before I fully decide. It starts with a bus seat by the window."
     call enter_m_showpoem(poem_0524_mc_draft) from _call_enter_m_showpoem_0524_1
     "I look at the lines."
     "{i}Not exactly the cheerful version of exam-week pressure, then.{/i}"
     m forward uniform curi om oe nobl rhip ldown "You stopped..."
-    mc "For now, now stop hovering."
+    mc "For now. Stop hovering."
     m forward uniform happ cm ce nobl rhip ldown "What'd I say about getting defensive...?"
     mc "It probably was. Can't do my best with a hawk on my shoulder."
     # SFX SUGGESTION: A short, neutral timer buzz from Monika's phone.
@@ -566,20 +555,18 @@ label a0524:
     "{i}So much for the meaning of voluntary.{/i}"
     m forward uniform happ om oe nobl rdown ldown "Trade?"
     mc "As always."
-    "We swap notebooks in an indiscrete fashion."
+    "We swap notebooks with very little ceremony."
     "Her handwriting is neater than mine even when she is drafting. The title is crossed out, and under it, a new one sits in smaller letters."
     "I read."
     call enter_m_showpoem(poem_0524_monika) from _call_enter_m_showpoem_0524_2
-    "I stop reading for a second."
-    "Around me, nothing changes."
+    "I stop reading for a second. Around me, nothing changes."
     "A page turns somewhere behind us. Someone asks a raspy question about whether a line is too blunt, and the answer comes back just as quietly."
     "Monika sits across from me and reads six lines without hurrying."
     "It should be easy to say something, yet it is not."
     mc "This is..."
     "Her eyes lift."
     m forward uniform worr om oe nobl rdown ldown "Too much?"
-    mc "No, not at all."
-    mc "No, it's good. A bit specific and on the nose, but I like it."
+    mc "No. It's good, just a bit specific and on the nose."
     mc "It feels like the table exists. Or am I off the mark and that was just symbolic?"
     m forward uniform happ cm oe nobl rhip ldown "That was the hope."
     "She grins, then looks back down at my notebook instead of her own."
@@ -591,10 +578,9 @@ label a0524:
     "She doesn't answer that and lets it be a true statement."
     mc "It's only six lines."
     m forward uniform happ cm oe nobl rhip ldown "Maybe that's why it works. Some poems don't need to be extravagant pieces."
-    m "But the bus seat remembers nobody line is strong."
+    m "But the line about the seat remembering nobody is strong."
     "Her finger hovers near the page without touching it."
-    m forward uniform neut cm oe nobl rhip ldown "It says something honest without explaining itself to death."
-    m forward uniform curi om oe nobl rdown lpoint "So don't ruin it."
+    m forward uniform curi om oe nobl rdown lpoint "It says something honest without explaining itself to death. So don't ruin it."
     m "My suggestion, though: add one image after these last two lines. Not an explanation."
     "She taps the air once."
     m "Something the seat or something else physically does."
@@ -615,7 +601,7 @@ label a0524:
         call enter_m_showpoem(poem_0524_mc_revised_spring) from _call_enter_m_showpoem_0524_3c
     else:
         call enter_m_showpoem(poem_0524_mc_revised_vinyl) from _call_enter_m_showpoem_0524_3
-    "She reads over my shoulder, close enough that I can feel her attention before I see her reaction."
+    "She reads over my shoulder. I feel her attention before I see her reaction."
     m forward uniform happ cm ce blus rdown ldown "There."
     "One syllable, and she means all of it."
     mc "Yeah?"
@@ -626,21 +612,19 @@ label a0524:
     "Monika turns red so quickly that I almost feel the heat from across the desk."
     "A few people snicker without much resistance into their writing."
     m forward uniform flus om oe blaw rdown ldown "We're giving feedback over here!"
-    "I stay quiet with pressed lips into the inside of my mouth."
+    "I press my lips together and keep quiet."
     "Monika presses the back of one hand to her cheek and tries to regain presidential authority from somewhere under the desk."
-    m forward uniform flus cm oe blaw rhip lpoint "All right, new rule."
-    m "No commenting on other people's feedback...for like five minutes!"
+    m forward uniform flus cm oe blaw rhip lpoint "All right, new rule: no commenting on other people's feedback...for like five minutes!"
     mc "I'd say that's a perfectly reasonable rule."
     m forward uniform wry cm ce blaw rdown ldown "Thank you."
     "She looks at me first. It works, which is annoying."
     mc "...Understood."
-    "For the next half hour, club actually becomes club."
-    "A few people trade drafts and a few keep writing alone."
-    "Monika gives notes, takes notes, and only glances at me twice."
+    "For the next half hour, club actually becomes club. Some people trade drafts while others keep writing alone."
+    "Monika moves around the room collecting and offering notes. She only glances at me twice."
     "...Maybe three times. In times like these, I stop myself from counting."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Club ends gently. The poems remain small, unfinished things, and this is one of the very few media where that's allowed."
+    nier "Club ends gently. Poetry is one of the few mediums that lets small, unfinished things stay that way."
     call nier_clear from _call_nier_clear_0524_4
     pause 2.0
     scene bg club_day
@@ -649,18 +633,18 @@ label a0524:
     show monika forward uniform happ cm oe nobl rdown ldown at t11
     with wipeleft_scene
     "The room is almost empty when Monika stacks the last loose paper."
-    m forward uniform nerv om oe awkw rdown ldown "Sorry about earlier, didn't mean for...whatever that awkward moment was."
-    mc "It wasn't that bad, I've been through worse."
+    m forward uniform nerv om oe awkw rdown ldown "Sorry about earlier. I didn't mean for...whatever that awkward moment was."
+    mc "It wasn't that bad. I've been through worse."
     m "Still..."
     mc "The club noticed a thing and moved on. You know how people are."
     m forward uniform flus om ce blaw rdown ldown "Still embarrassing, though..."
-    "She slides her notebook into her bag before physically and mentally pivoting."
+    "She slides her notebook into her bag and squares the zipper with both hands."
     m forward uniform nerv om oe blus rhip ldown "Anyway! Tomorrow at nine, then?"
     mc "Tomorrow at nine. Green awning near the old bank."
     m forward uniform curi om oe nobl rdown ldown "Oh hey, you remembered~"
     mc "Oh don't be like that, I have my moments."
     m forward uniform happ cm oe nobl rdown ldown "Yes, you do..."
-    "Her words are simple enough that I have to look away."
+    "The words are simple. I look away anyway."
     m forward uniform happ cm ce nobl rdown ldown "See you tomorrow, [player]!"
     mc "Catch ya later."
     show monika at thide
@@ -670,11 +654,11 @@ label a0524:
     window auto
     mc "..."
     mc "Heh."
-    "I leave while the goodbye is still light enough to carry."
+    "I leave before the goodbye can pick up any extra weight."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The trip home is quiet. A Saturday evening does not owe me more than that."
-    nier "My bag carries review sheets, my notebook carries eight lines about a bus seat, and my planner carries tomorrow like a small lit window."
+    nier "My bag carries review sheets and eight lines about a bus seat. Tomorrow rides in the planner like a small lit window."
     call nier_clear from _call_nier_clear_0524_5
     stop music fadeout 1.0
     pause 2.0
@@ -718,7 +702,7 @@ label a0524:
     mom "Nice area."
     "I pretend to be very concerned with my soup."
     mom "So study, then lunch."
-    mc "Yeah, pretty much sums it up."
+    mc "Yeah, that pretty much sums it up."
     show mom neut
     mom "With Monika."
     mc "Generally how studying with Monika works."
@@ -738,15 +722,15 @@ label a0524:
     mom "Take your transit card and be sure to charge your phone tonight. Tell me when you get there and when you leave."
     mc "Yes, counselor."
     mom "And budget."
-    mc "I have money, don't worry."
-    mom "Okay, perfect, not the same as a budget."
+    mc "I have money. Don't worry."
+    mom "Okay, perfect. Not the same as a budget."
     show mom unamused
     "She gives me the look."
     mc "...I will bring cash and not spend it like crazy."
     show mom smug
     mom "Beautiful. I'm touched to hear that."
     show mom happy
-    "A snigger gets out of me sideways while Mom smiles, fatigued but present."
+    "A snicker escapes me while Mom smiles, tired but present."
     mom "I'm glad you're making time with her."
     "The plainness of it makes me look up."
     show mom neut
@@ -766,19 +750,17 @@ label a0524:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "After dinner, I wash dishes while Mom reviews one last work email at the table."
-    nier "Asahina comes down long enough to steal a glass of water, deny she was on a call, and vanish again, all of it faster than a follow-up question."
-    nier "The house holds together in small domestic pieces and Mom's pen scratching once before going still."
+    nier "Asahina comes down for water and is halfway upstairs by the time I mention the call. The house goes quiet around one last scratch of Mom's pen."
     call nier_clear from _call_nier_clear_0524_6
     stop music fadeout 1.0
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
     play music fantasypassion
-    "Night finally gives my room back."
-    "My desk is a negotiation between responsibility and everything else."
-    "On one side: review sheets, calculator, literature notes, a pencil that has been sharpened into a weapon against my hand."
+    "Night finally gives my room back. My desk is a negotiation between responsibility and everything else."
+    "On one side, review sheets and literature notes crowd a calculator. A pencil sharpened into a weapon waits among them."
     "On the other: my console's controller, waiting with patient digital malice."
     "{i}I could study more.{/i}"
     "{i}I could also admit one more pass through matrices at ten at night will probably not make me a different person.{/i}"
@@ -789,6 +771,10 @@ label a0524:
             phone_msg("them", "I may have overprepared."),
             phone_msg("me", "You? Impossible."),
             phone_msg("them", "Rude but earned."),
+            phone_msg("them", "Before I forget, send me photos of your biology and chemistry review guides."),
+            phone_msg("me", "That request is suspiciously specific."),
+            phone_msg("them", "I need the topic list. The reason can wait until tomorrow."),
+            phone_msg("me", "Fine. Give me a minute."),
             phone_msg("them", "Sleep at a reasonable time, okay?"),
             phone_msg("me", "Look who's talking."),
             phone_msg("them", "I said reasonable, not early. Two different things."),
@@ -797,7 +783,7 @@ label a0524:
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0524_2
     "I drop whatever is in my hands onto the blanket before submitting to my console."
-    "My game loads with a low choir, a broken city skyline, and a title screen that looks like it was designed by someone who believes menus should have existential consequences."
+    "My game loads to a low choir over a broken city skyline. The title screen looks designed by someone who believes menus should have existential consequences."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The game is about a city sealed under a false sky after a ritual goes wrong."
@@ -805,26 +791,26 @@ label a0524:
     nier "Every time I lose, I call it bad luck. At the same time, every win is a display of pure skill."
     call nier_clear from _call_nier_clear_0524_7
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
     "My party is currently in the subway underpass, which has become a cathedral for reasons the game has not yet explained and probably will explain later with great seriousness."
     "A horned bureaucrat blocks the ticket gates."
-    "\"State your alignment preference,\" it says, despite the fact that I only wanted to find a save point."
+    "\"State your alignment preference.\""
+    "Apparently the game expects cosmic commitment while I am looking for a save point."
     mc "...My alignment preference is tired."
-    "The game does not accept tired as an answer."
-    "I choose the neutral response, because committing to cosmic ideology before bed feels wrong."
+    "The game does not accept tired as an answer. I choose the neutral response, because committing to cosmic ideology before bed feels wrong."
     "The bureaucrat approves, takes half my money as a processing fee, and joins my party."
     "{i}Unbelievable...{/i}"
     "The next encounter nearly wipes me because I forget that lightning skills reflect off one enemy and healing magic costs more than my current dignity can afford."
-    "Annoying, but absorbing just enough to keep me in the fray."
+    "Annoying, but absorbing. I stay in the fray."
     "For twenty minutes, midterms become numbers in a game instead of numbers on a schedule. The library becomes a marker on tomorrow instead of a thing to overthink."
     "I save twice because I have learned from pain, then I sit for a moment with the controller in my lap."
     "My room has gone properly still. The game music loops softly through the speakers, patient and ominous."
     "{i}Monday can wait outside for one more night.{/i}"
     "I turn the console off before the next dungeon can make a liar out of my bedtime."
-    $ update_character_thought("sam", "Sam fixed Asahina's sleeve cuff before she noticed it was folded, and had Tsubaki read in about thirty seconds. Neither is a bad thing to be able to do.")
+    $ update_character_thought("sam", "Sam fixed Asahina's sleeve cuff before she noticed it was folded. He noticed Tsubaki watching the aisle, then admitted he could be wrong about why.")
     $ update_character_thought("tsubaki", "Tsubaki's step caught for half a beat when Sam used her surname. I have no idea what that was.")
     $ hide_calendar()
     scene black with wipeleft_scene

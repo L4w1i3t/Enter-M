@@ -766,7 +766,7 @@ label a0530:
     call nier_clear from _call_nier_clear_0530_6_5
     stop music fadeout 1.0
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene

@@ -63,6 +63,9 @@ init python:
         Same reasoning as cg_key_from_path (CG View/cg_gallery.rpy): the track IS
         its file, the library is long enough that a hand-written second column
         would drift, and a derived key cannot disagree with the audio it gates.
+        Existing entries pass their pre-consolidation path explicitly below;
+        those derived values are now stable IDs, independent of where the audio
+        file lives today.
         """
         cleaned = str(file_path).lower()
         for junk in ("\\", "/", " ", "-", ".", "'"):
@@ -78,11 +81,14 @@ init python:
     # it somewhere in the game (see music_scan_now_playing below); the room as a
     # whole is gated upstream by persistent.archive_unlocked_music.
     class MusicTrack:
-        def __init__(self, title, artist, file_path):
+        def __init__(self, title, artist, file_path, legacy_file_path=None):
             self.title = title
             self.artist = artist
             self.file_path = file_path
-            self.persistent_key = music_key_from_path(file_path)
+            # Unlock keys used to be derived from physical paths. Keep deriving
+            # them from each track's OLD path so moving bgm/ + mod_assets/bgm/
+            # into assets/audio/bgm/ does not relock existing profiles.
+            self.persistent_key = music_key_from_path(legacy_file_path or file_path)
 
         @property
         def is_unlocked(self):
@@ -98,293 +104,351 @@ init python:
             MusicTrack(
                 "The Way Home",
                 "San-Z Studio",
-                audio.roster_place
+                audio.roster_place,
+                "mod_assets/bgm/roster_place.ogg"
             ),
             # Add more tracks here as they become available
             MusicTrack(
                 "13 AM",
                 "Toby Fox",
-                audio.hopeless
+                audio.hopeless,
+                "mod_assets/bgm/13am.ogg"
             ),
             MusicTrack(
                 "12 AM",
                 "Toby Fox",
-                audio.twelveam
+                audio.twelveam,
+                "mod_assets/bgm/12am.ogg"
             ),
             MusicTrack(
                 "Can You Feel",
                 "Torchkas",
-                audio.canyoufeel
+                audio.canyoufeel,
+                "mod_assets/bgm/canyoufeel.ogg"
             ),
             MusicTrack(
                 "Hymn of the Righteous",
                 "Intelligent Systems",
-                audio.hotr
+                audio.hotr,
+                "mod_assets/bgm/hotr.ogg"
             ),
             MusicTrack(
                 "Proud Flight",
                 "Intelligent Systems",
-                audio.flight
+                audio.flight,
+                "mod_assets/bgm/flight.ogg"
             ),
             MusicTrack(
                 "The Devoted",
                 "Intelligent Systems",
-                audio.devoted
+                audio.devoted,
+                "mod_assets/bgm/devoted.ogg"
             ),
             MusicTrack(
                 "Grandma",
                 "Square Enix",
-                audio.grandma
+                audio.grandma,
+                "mod_assets/bgm/grandma.mp3"
             ),
             MusicTrack(
                 "The Incomplete Stone",
                 "Square Enix",
-                audio.stone
+                audio.stone,
+                "mod_assets/bgm/stone.mp3"
             ),
             MusicTrack(
                 "City of Commerce",
                 "Square Enix",
-                audio.seafront
+                audio.seafront,
+                "mod_assets/bgm/seafront.mp3"
             ),
             MusicTrack(
                 "Fleeting Words - Family",
                 "Square Enix",
-                audio.family
+                audio.family,
+                "mod_assets/bgm/family.mp3"
             ),
             MusicTrack(
                 "Snow in Summer",
                 "Square Enix",
-                audio.sis
+                audio.sis,
+                "mod_assets/bgm/sis.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Devola",
                 "Square Enix",
-                audio.devola
+                audio.devola,
+                "mod_assets/bgm/devola.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Popola",
                 "Square Enix",
-                audio.popola
+                audio.popola,
+                "mod_assets/bgm/popola.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Hollow Dreams",
                 "Square Enix",
-                audio.hollow
+                audio.hollow,
+                "mod_assets/bgm/hollow.mp3"
             ),
             MusicTrack(
                 "This Dream",
                 "Square Enix",
-                audio.dream
+                audio.dream,
+                "mod_assets/bgm/dream.mp3"
             ),
             MusicTrack(
                 "Beautiful Days (16-bit)",
                 "Spike Chunsoft",
-                audio.beautiful
+                audio.beautiful,
+                "mod_assets/bgm/beautiful.mp3"
             ),
             MusicTrack(
                 "All Star Apologies (16-bit)",
                 "Spike Chunsoft",
-                audio.apology
+                audio.apology,
+                "mod_assets/bgm/apology.mp3"
             ),
             MusicTrack(
                 "Dump",
                 "Toby Fox",
-                audio.dump
+                audio.dump,
+                "mod_assets/bgm/dump.ogg"
             ),
             MusicTrack(
                 "Temple of Drifting Sands",
                 "Square Enix",
-                audio.sands
+                audio.sands,
+                "mod_assets/bgm/sands.mp3"
             ),
             MusicTrack(
                 "Wretched Automatons",
                 "Square Enix",
-                audio.automatons
+                audio.automatons,
+                "mod_assets/bgm/automatons.mp3"
             ),
             MusicTrack(
                 "Blu Bird",
                 "Square Enix",
-                audio.blubird
+                audio.blubird,
+                "mod_assets/bgm/blubird.mp3"
             ),
             MusicTrack(
                 "60% Daily Fantasy",
                 "San-Z Studio",
-                audio.dailyfantasy
+                audio.dailyfantasy,
+                "mod_assets/bgm/dailyfantasy.ogg"
             ),
             MusicTrack(
                 "60% Fantasy Passion",
                 "San-Z Studio",
-                audio.fantasypassion
+                audio.fantasypassion,
+                "mod_assets/bgm/fantasypassion.ogg"
             ),
             MusicTrack(
                 "60% Daily Leisure",
                 "San-Z Studio",
-                audio.dailyleisure
+                audio.dailyleisure,
+                "mod_assets/bgm/dailyleisure.ogg"
             ),
             MusicTrack(
                 "60% Daily",
                 "San-Z Studio",
-                audio.daily
+                audio.daily,
+                "mod_assets/bgm/daily.ogg"
             ),
             MusicTrack(
                 "60% Fantasy Serenity",
                 "San-Z Studio",
-                audio.fantasyserenity
+                audio.fantasyserenity,
+                "mod_assets/bgm/fantasyserenity.ogg"
             ),
             MusicTrack(
                 "Scheduled Programming",
                 "L4w1i3t",
-                audio.holdmusic
+                audio.holdmusic,
+                "mod_assets/bgm/holdmusic.ogg"
             ),
             MusicTrack(
                 "Black Knife",
                 "Toby Fox",
-                audio.epicbattlephase1
+                audio.epicbattlephase1,
+                "mod_assets/bgm/epicbattlephase1.ogg"
             ),
             MusicTrack(
                 "GUARDIAN",
                 "Toby Fox",
-                audio.epicbattlephase2
+                audio.epicbattlephase2,
+                "mod_assets/bgm/epicbattlephase2.ogg"
             ),
             MusicTrack(
                 "Safety",
                 "--",
-                audio.safety
+                audio.safety,
+                "mod_assets/bgm/safety.ogg"
             ),
             MusicTrack(
                 "Mike, the BOARD Please!",
                 "Toby Fox",
-                audio.quiz
+                audio.quiz,
+                "mod_assets/bgm/quiz.ogg"
             ),
             MusicTrack(
                 "School Days",
                 "ATLUS",
-                audio.schooldays
+                audio.schooldays,
+                "mod_assets/bgm/schooldays.ogg"
             ),
             MusicTrack(
                 "03/31",
                 "ATLUS",
-                audio.enterm
+                audio.enterm,
+                "mod_assets/bgm/enterm.ogg"
             ),
             MusicTrack(
                 "Scamall Hollow",
                 "San-Z Studio",
-                audio.scamall
+                audio.scamall,
+                "mod_assets/bgm/scamall.ogg"
             ),
             MusicTrack(
                 "Montagem Toma",
                 "MXZI, sk3tch01, X972",
-                audio.enter_m_op
+                audio.enter_m_op,
+                "mod_assets/bgm/opsong.ogg"
             ),
             MusicTrack(
                 "Sound of Justice",
                 "Toby Fox",
-                audio.mm_phase4
+                audio.mm_phase4,
+                "mod_assets/bgm/mm_phase4.ogg"
             ),
             MusicTrack(
                 "Embraced by the Flame (Inst.)",
                 "UNDEAD CORPORATION",
-                audio.embracedflame_inst
+                audio.embracedflame_inst,
+                "mod_assets/bgm/embracedbytheflameinst.ogg"
             ),
             MusicTrack(
                 "Embraced by the Flame (Vocal)",
                 "UNDEAD CORPORATION",
-                audio.embracedflame_vocal
+                audio.embracedflame_vocal,
+                "mod_assets/bgm/embracedbytheflamevocal.ogg"
             ),
             MusicTrack(
                 "Doki Doki Literature Club Main Theme",
                 "Team Salvato",
-                audio.ddlc_main
+                audio.ddlc_main,
+                "bgm/1.ogg"
             ),
             MusicTrack(
                 "Sayo-nara",
                 "Team Salvato",
-                audio.ddlc_sayonara
+                audio.ddlc_sayonara,
+                "bgm/d.ogg"
             ),
             MusicTrack(
                 "I Still Love You",
                 "Team Salvato",
-                audio.ddlc_still_love_you
+                audio.ddlc_still_love_you,
+                "bgm/monika-end.ogg"
             ),
             MusicTrack(
                 "Ghost Menu",
                 "Team Salvato",
-                audio.ddlc_ghostmenu
+                audio.ddlc_ghostmenu,
+                "bgm/ghostmenu.ogg"
             ),
             MusicTrack(
                 "Petal Dance",
                 "Toby Fox",
-                audio.kotoboss
+                audio.kotoboss,
+                "mod_assets/bgm/kotobossmusic.ogg"
             ),
             MusicTrack(
                 "worldenddominator",
                 "zts",
-                audio.kotoendlessmode
+                audio.kotoendlessmode,
+                "mod_assets/bgm/kotoendlessmode.ogg"
             ),
             MusicTrack(
                 "Dusk",
                 "Team Salvato",
-                audio.hearttoheart
+                audio.hearttoheart,
+                "mod_assets/bgm/hearttoheart.ogg"
             ),
             MusicTrack(
                 "muirtA dnoceS",
                 "xoF yboT",
-                audio.tails
+                audio.tails,
+                "mod_assets/bgm/tails.ogg"
             ),
             MusicTrack(
                 "Green Room",
                 "Toby Fox",
-                audio.arcade_theme
+                audio.arcade_theme,
+                "mod_assets/bgm/arcade.ogg"
             ),
             MusicTrack(
                 "Flower Man",
                 "Toby Fox",
-                audio.tsubaphase1
+                audio.tsubaphase1,
+                "mod_assets/bgm/tsubaphase1.ogg"
             ),
             MusicTrack(
                 "Flower Man (Teto Cover)",
                 "Toby Fox, TheCappuccino04",
-                audio.tsubaphase2
+                audio.tsubaphase2,
+                "mod_assets/bgm/tsubaphase2.ogg"
             ),
             MusicTrack(
                 "YOU Actually Changed!",
                 "Toby Fox",
-                audio.noreturn
+                audio.noreturn,
+                "mod_assets/bgm/noreturn.ogg"
             ),
             MusicTrack(
                 "Smooth Sailing",
                 "Dylan Sitts",
-                audio.smoothsailing
+                audio.smoothsailing,
+                "mod_assets/bgm/ch4_night.ogg"
             ),
             MusicTrack(
                 "Samsara",
                 "Nihilore",
-                audio.samsara
+                audio.samsara,
+                "mod_assets/bgm/ch4_serious.ogg"
             ),
             MusicTrack(
                 "Emotions",
                 "Falling Forever",
-                audio.emotions
+                audio.emotions,
+                "mod_assets/bgm/ch4_day.ogg"
             ),
             MusicTrack(
                 "Opus No. 1",
                 "Time Carleton",
-                audio.opus1
+                audio.opus1,
+                "mod_assets/bgm/ch5_day.ogg"
             ),
             MusicTrack(
                 "ReDreaming Angel",
                 "San-Z Studio",
-                audio.tetris
+                audio.tetris,
+                "mod_assets/bgm/tetris.ogg"
             ),
             MusicTrack(
                 "Black Wolf",
                 "San-Z Studio",
-                audio.blackwolf
+                audio.blackwolf,
+                "mod_assets/bgm/blackwolf.ogg"
             ),
             MusicTrack(
                 "Black Wolf (Corruptive Barrier)",
                 "San-Z Studio",
-                audio.blackwolf_corruptive
+                audio.blackwolf_corruptive,
+                "mod_assets/bgm/blackwolf_corruptive.ogg"
             ),
         ]
 
@@ -1043,7 +1107,7 @@ style music_room_frame:
     padding (25, 18)
 
 style music_room_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 34
     color "#f4fbff"
     bold True

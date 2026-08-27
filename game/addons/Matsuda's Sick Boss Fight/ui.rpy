@@ -1387,10 +1387,10 @@ init python:
     }
 
     # Only the SHIP comes from Kotonoha's folder now; every bullet sprite lives
-    # in the shared mod_assets/bullets/ and is reached through EMB_DIR
-    # (mod_assets/def_bullets.rpy).
+    # in the shared assets/bullets/ and is reached through EMB_DIR
+    # (asset_definitions/def_bullets.rpy).
     MSBF_SHMUP_SPRITE_DIR = "addons/Matsuda's Sick Boss Fight/kotonohamode/"
-    MSBF_SHMUP_FONT = "mod_assets/fonts/SF Automaton Extended.ttf"
+    MSBF_SHMUP_FONT = "assets/fonts/SF Automaton Extended.ttf"
 
     class MSBFShmupField(renpy.Displayable):
 
@@ -2816,7 +2816,7 @@ screen msbf_press_turn_fx_icon(event):
 # near-black, matching the rest of the mod's UI.
 # =============================================================================
 style msbf_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 32
     color "#f5fbff"
     bold True
@@ -3338,56 +3338,56 @@ style msbf_tooltip:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_fx_weak:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 42
     color "#ffcf66"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#ffffffcc", 0, 0)]
 
 style msbf_fx_crit:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 42
     color "#ffffff"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#ff3868cc", 0, 0)]
 
 style msbf_fx_resist:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 38
     color "#9aa7b7"
     bold True
     outlines [(3, "#02040b", 0, 0)]
 
 style msbf_fx_heal:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#66e08a"
     bold True
     outlines [(3, "#02040b", 0, 0)]
 
 style msbf_fx_scan:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 38
     color "#55ddff"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#ffffffaa", 0, 0)]
 
 style msbf_fx_phase:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 50
     color "#ff3868"
     bold True
     outlines [(4, "#02040b", 0, 0), (1, "#ffffffaa", 0, 0)]
 
 style msbf_phase_transition_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 56
     color "#ffffff"
     bold True
     outlines [(5, "#02040b", 0, 0), (2, "#ff3868cc", 0, 0), (1, "#ffcf66aa", 0, 0)]
 
 style msbf_phase_transition_subtitle:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 25
     color "#f5fbff"
     bold True
@@ -3397,7 +3397,7 @@ style msbf_phase_transition_subtitle:
 # Title uses the default (narrower) font on purpose: the full name
 # "Matsuda, Crimson-Azure" overflows in the wide Extended face.
 style msbf_intro_kicker:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 20
     color "#ffcf66"
     bold True
@@ -3412,7 +3412,7 @@ style msbf_intro_title_text:
     outlines [(5, "#02040b", 0, 0), (2, "#ff3868cc", 0, 0), (1, "#ffcf66aa", 0, 0)]
 
 style msbf_intro_skip_hint:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 13
     color "#7c93ad"
     bold True
@@ -3421,49 +3421,49 @@ style msbf_intro_skip_hint:
 
 # ---- Floating combat numbers -------------------------------------------------
 style msbf_float_dmg:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 27
     color "#f5fbff"
     bold True
     outlines [(3, "#02040b", 0, 0)]
 
 style msbf_float_crit:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 40
     color "#ffffff"
     bold True
     outlines [(4, "#02040b", 0, 0), (2, "#ff3868dd", 0, 0)]
 
 style msbf_float_weak:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 33
     color "#ffcf66"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#ffffffcc", 0, 0)]
 
 style msbf_float_resist:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 22
     color "#9aa7b7"
     bold True
     outlines [(3, "#02040b", 0, 0)]
 
 style msbf_float_heal:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 27
     color "#66e08a"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#ffffff88", 0, 0)]
 
 style msbf_float_enemy:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 27
     color "#ff6b8e"
     bold True
     outlines [(3, "#02040b", 0, 0)]
 
 style msbf_float_miss:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 23
     color "#c4d4e0"
     bold True

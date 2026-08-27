@@ -265,7 +265,7 @@ label cs_matsuda_02_battle:
         if _msbf_party_downs == 0:
             $ ach_grant("msbf_no_downs")
         # The "Seer" CG is catalogued under Matsuda's Story but has no show site
-        # in the fight yet (mod_assets/cg/seer.png is drawn and unused), so
+        # in the fight yet (assets/cg/seer.png is drawn and unused), so
         # clearing the fight is what stands in for having seen it -- and clearing
         # it from the Arcade counts just the same, which is why the unlock sits
         # up here and not in the victory label. If it ever gets staged, move this

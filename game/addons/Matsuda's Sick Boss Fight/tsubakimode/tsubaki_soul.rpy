@@ -56,8 +56,8 @@
 #       her back upright mid-kneel. The fight isn't done with her.
 #     * Pacifism: she strains toward the SPARE, arms almost down -- and the
 #       strings SNAP TAUT and wrench her into the second half.
-#   Either way: white flash, sprite swap (phase1.png -> phase2.png), and the
-#   music crossfades from the instrumental to the IDENTICAL vocal take
+#   Either way: white flash, the wear-state sprite set crosses into phase 2,
+#   and the music crossfades from the instrumental to the IDENTICAL vocal take
 #   (tsubaphase1/2.ogg, twin synchro_start channels, Id Mode's trick).
 #   After the shift ALL endings remain reachable; the shift only chooses the
 #   cinematic and the tone of the back half.
@@ -145,8 +145,8 @@
 # First half: instrumental. Second half: the IDENTICAL take with vocals.
 # Both start together (synchro_start) on the twin track channels; the phase
 # shift is a volume crossfade, never a restart -- Id Mode's phase-3 trick.
-define -50 audio.tsb_inst = "<loop 0>mod_assets/bgm/tsubaphase1.ogg"
-define -50 audio.tsb_vocal = "<loop 0>mod_assets/bgm/tsubaphase2.ogg"
+define -50 audio.tsb_inst = "<loop 0>assets/audio/bgm/tsubaphase1.ogg"
+define -50 audio.tsb_vocal = "<loop 0>assets/audio/bgm/tsubaphase2.ogg"
 
 default persistent.tsubamode_attempts = 0
 default persistent.tsubamode_outcome = None
@@ -472,11 +472,11 @@ init python:
     TSB_DIR = "addons/Matsuda's Sick Boss Fight/tsubakimode/"
     # The reuse is the point: the SOUL heart and the bullet art are borrowed
     # deliberately as shared visual grammar. The bullet sprites now come from
-    # mod_assets/bullets/ via EMB_DIR (def_bullets.rpy); TSB_KT_DIR is only
+    # assets/bullets/ via EMB_DIR (def_bullets.rpy); TSB_KT_DIR is only
     # still here for Kotonoha's SHIP sprite, which this mode draws as the soul.
     TSB_KT_DIR = "addons/Matsuda's Sick Boss Fight/kotonohamode/"
-    TSB_KT_SE = "mod_assets/sfx/touhou/"
-    TSB_MSBF_SFX = "mod_assets/sfx/msbf/"
+    TSB_KT_SE = "assets/audio/sfx/touhou/"
+    TSB_MSBF_SFX = "assets/audio/sfx/msbf/"
 
     TSB_TICK = 1.0 / 60.0
     TSB_MAX_CATCHUP = 4
@@ -494,14 +494,31 @@ init python:
     TSB_BOSS_X = 640.0      # boss sprite anchor (feet center)
     TSB_BOSS_FEET_Y = 352.0
     TSB_BOSS_ZOOM = 1.0
-    TSB_BOSS_NATIVE_SIZE = {1: (135.0, 302.0), 2: (189.0, 318.0)}
-    # Pixel anchors in each pose: left wrist, right wrist, head, shoulder,
-    # middle back. These sit on the actual line art rather than empty bounds.
+    # All five refreshed poses share one tightly cropped, four-tone pixel cell.
+    # (92, 334) is the lower-body/sole registration point produced by
+    # tools/process_tsubaki_boss_sprites.py.
+    TSB_BOSS_NATIVE_SIZE = (184.0, 344.0)
+    TSB_BOSS_BASELINE = (92.0, 334.0)
+    TSB_BOSS_ASSETS = {
+        "p1_clean":     ("phase1.png", 0),
+        "p1_strained":  ("phase1_strained.png", 1),
+        "p2_strained":  ("phase2.png", 2),
+        "p2_exhausted": ("phase2_exhausted.png", 3),
+        "p2_limp":      ("phase2_limp.png", 4),
+    }
+    # Per-pose pixel anchors: viewer-right wrist, viewer-left wrist, head,
+    # shoulder, middle back. The external strings are drawn by the renderer.
     TSB_STRING_ANCHORS = {
-        1: [(101.0, 142.0), (25.0, 184.0), (69.0, 20.0),
-            (48.0, 82.0), (78.0, 108.0)],
-        2: [(168.0, 151.0), (60.0, 108.0), (94.0, 18.0),
-            (76.0, 70.0), (107.0, 104.0)],
+        "p1_clean": [(141.0, 149.0), (54.0, 166.0), (97.0, 18.0),
+                     (71.0, 79.0), (99.0, 106.0)],
+        "p1_strained": [(142.0, 149.0), (52.0, 170.0), (91.0, 14.0),
+                        (68.0, 71.0), (94.0, 100.0)],
+        "p2_strained": [(145.0, 135.0), (60.0, 104.0), (69.0, 25.0),
+                        (102.0, 67.0), (83.0, 103.0)],
+        "p2_exhausted": [(133.0, 143.0), (60.0, 108.0), (65.0, 30.0),
+                         (96.0, 70.0), (80.0, 105.0)],
+        "p2_limp": [(128.0, 159.0), (65.0, 160.0), (61.0, 41.0),
+                    (99.0, 73.0), (82.0, 111.0)],
     }
 
     # Player SOUL. 20 HP, UT-honest: five clean hits end you.
@@ -520,6 +537,149 @@ init python:
     TSB_MERCY2_NEED = 3     # phase-2 ACT progress per thread; a SPARE spends it
     TSB_SPARES2_NEED = 5    # one committed SPARE per visible string
     TSB_LIMP_HP = 300.0     # below this the violence route stops fighting back
+
+    def tsb_boss_asset_key(game):
+        """Pick a non-regressing wear pose for every route and launch mode."""
+        progress = max(0.0, min(1.0,
+            float(getattr(game, "ems_progress", 0.0))))
+        if int(getattr(game, "boss_img", 1)) == 1:
+            return "p1_strained" if progress >= 0.20 else "p1_clean"
+
+        mode = getattr(game, "mode", "")
+        ending = (getattr(game, "end_flag", None) is not None
+                  or mode in ("end_v", "end_p", "end_b")
+                  or bool(getattr(game, "void", False)))
+        cut_ids = getattr(game, "cut_string_ids", ()) or ()
+        cuts = max(int(getattr(game, "strings_cut", 0)),
+                   len(cut_ids))
+        if (ending or cuts >= 4
+                or (getattr(game, "phase", 1) == 2
+                    and float(getattr(game, "boss_hp", TSB_BOSS_HP))
+                    <= TSB_LIMP_HP)
+                or progress >= 0.86):
+            return "p2_limp"
+        if cuts >= 2 or progress >= 0.68:
+            return "p2_exhausted"
+        return "p2_strained"
+
+    def tsb_boss_motion(game):
+        """Deterministic breathing and string-driven motion for one frame.
+
+        Everything is derived from existing simulation state, so old saves and
+        rollback do not need new serialized fields. Breathing is quantized to
+        five steps to keep the Transform cache bounded and preserve pixel art.
+        """
+        asset_key = tsb_boss_asset_key(game)
+        filename, wear = TSB_BOSS_ASSETS[asset_key]
+        tick = int(getattr(game, "tick", 0))
+        mode = getattr(game, "mode", "")
+        pose_frozen = (mode in ("end_v", "end_p", "end_b", "dead")
+                       or bool(getattr(game, "void", False))
+                       or bool(getattr(game, "boss_fallen", False)))
+        motion_frozen = pose_frozen or mode == "shift"
+
+        breath_bucket = 0
+        if not pose_frozen:
+            periods = (173, 149, 127, 103, 91)
+            period = periods[wear]
+            phase = (tick % period) / float(period)
+            if wear < 2:
+                breath = 0.5 - 0.5 * math.cos(phase * math.pi * 2.0)
+            elif phase < 0.24:
+                u = phase / 0.24
+                breath = u * u * (3.0 - 2.0 * u)
+            else:
+                u = (phase - 0.24) / 0.76
+                u = u * u * (3.0 - 2.0 * u)
+                breath = 1.0 - u
+            # Late gasps interrupt the regular cycle without adding new art.
+            if wear >= 3:
+                gasp_age = (tick + 31 * wear) % 167
+                if gasp_age < 17:
+                    breath = max(breath,
+                        math.sin(gasp_age / 17.0 * math.pi))
+            breath_bucket = max(0, min(4, int(round(breath * 4.0))))
+
+        breath = breath_bucket / 4.0
+        x_amp = (0.004, 0.007, 0.009, 0.012, 0.007)[wear]
+        y_amp = (0.006, 0.010, 0.013, 0.017, 0.010)[wear]
+        scale_x = TSB_BOSS_ZOOM * (1.0 + x_amp * breath)
+        scale_y = TSB_BOSS_ZOOM * (1.0 + y_amp * breath)
+
+        puppet_dx = 0.0
+        puppet_dy = 0.0
+        puppet_rot = 0.0
+        strings_live = float(getattr(game, "strings_alpha", 0.0)) > 0.06
+        cut_ids = getattr(game, "cut_string_ids", ()) or ()
+        if not motion_frozen and strings_live:
+            periods = (281, 233, 197, 163, 137)
+            period = periods[wear]
+            offset_tick = tick + 37 * wear
+            age = offset_tick % period
+            pull = 0.0
+            if age < 3:
+                pull = 1.0 - age / 3.0
+            elif age < 18:
+                u = (age - 3) / 15.0
+                pull = -0.28 * math.sin(u * math.pi) * (1.0 - u)
+            cycle = offset_tick // period
+            direction = -1.0 if cycle % 2 else 1.0
+            held = max(0, 5 - len(cut_ids))
+            control = 0.0 if held == 0 else 0.70 + 0.06 * held
+            puppet_dx = direction * (0.6 + 0.65 * wear) * pull * control
+            puppet_dy = -(1.4 + 1.55 * wear) * pull * control
+            puppet_rot = direction * (0.8 + 0.72 * wear) * pull * control
+
+        ending = mode in ("end_v", "end_p", "end_b")
+        bob = 0.0 if motion_frozen or ending else (
+            math.sin(tick * (0.026 if wear >= 2 else 0.031))
+            * (0.65 if wear >= 2 else 0.45))
+        idle_rot = 0.0 if motion_frozen else (
+            math.sin(tick * 0.019) * (0.25 + 0.12 * wear))
+
+        hit_age = tick - int(getattr(game, "slash_born", -9999))
+        hit_rot = 0.0
+        hit_dx = 0.0
+        if 0 <= hit_age < 24 and not getattr(game, "boss_fallen", False):
+            hit_pulse = math.sin(hit_age / 24.0 * math.pi)
+            hit_rot = -7.0 * hit_pulse
+            hit_dx = 15.0 * hit_pulse
+
+        shake_x = 0.0
+        shake_y = 0.0
+        shake = int(getattr(game, "shake", 0))
+        if shake > 0:
+            shake_x = math.sin(tick * 1.7) * min(6.0, shake * 0.4)
+            shake_y = math.cos(tick * 2.3) * min(4.0, shake * 0.3)
+
+        native_w, native_h = TSB_BOSS_NATIVE_SIZE
+        baseline_x, baseline_y = TSB_BOSS_BASELINE
+        drawn_w = native_w * scale_x
+        drawn_h = native_h * scale_y
+        center_x = (TSB_BOSS_X + float(getattr(game, "boss_dx", 0.0))
+                    + hit_dx + shake_x + puppet_dx
+                    + drawn_w * 0.5 - baseline_x * scale_x)
+        center_y = (TSB_BOSS_FEET_Y + float(getattr(game, "boss_dy", 0.0))
+                    + bob + shake_y + puppet_dy
+                    + drawn_h * 0.5 - baseline_y * scale_y)
+        return {
+            "asset_key": asset_key,
+            "path": TSB_DIR + filename,
+            "wear": wear,
+            "breath_bucket": breath_bucket,
+            "scale_x": scale_x,
+            "scale_y": scale_y,
+            "drawn_w": drawn_w,
+            "drawn_h": drawn_h,
+            "center_x": round(center_x),
+            "center_y": round(center_y),
+            # Quantize once so the sprite and all five string anchors rotate
+            # by exactly the same pixel-art-friendly angle.
+            "rotation": float(round(
+                float(getattr(game, "boss_rot", 0.0))
+                + idle_rot + hit_rot + puppet_rot)),
+            "anchors": TSB_STRING_ANCHORS[asset_key],
+        }
 
     # FIGHT gauge: sweep duration in ticks; damage from strike accuracy.
     TSB_FIGHT_SWEEP = 100
@@ -567,8 +727,8 @@ init python:
         "#7be5ff",  # 9 cyan
     ]
 
-    TSB_FONT = "mod_assets/fonts/Myanmar.otf"           # flavor / bubbles
-    TSB_FONT_UI = "mod_assets/fonts/NovaSquare-Regular.ttf"  # HUD / buttons
+    TSB_FONT = "assets/fonts/Myanmar.otf"           # flavor / bubbles
+    TSB_FONT_UI = "assets/fonts/NovaSquare-Regular.ttf"  # HUD / buttons
 
     # Music channels (registered in def_audio.rpy; Id Mode uses the same pair).
     TSB_INST_CH = "track1"
@@ -1276,22 +1436,18 @@ init python:
 
         def _anchor_pos(self, index):
             """Screen position of a string's body anchor, tracking the
-            sprite's current rotation and offset."""
-            native_w, native_h = TSB_BOSS_NATIVE_SIZE.get(
-                self.boss_img, TSB_BOSS_NATIVE_SIZE[2])
-            native_w *= TSB_BOSS_ZOOM
-            native_h *= TSB_BOSS_ZOOM
-            anchor_x, anchor_y = TSB_STRING_ANCHORS.get(
-                self.boss_img, TSB_STRING_ANCHORS[2])[index]
-            rax = anchor_x * TSB_BOSS_ZOOM - native_w * 0.5
-            ray = anchor_y * TSB_BOSS_ZOOM - native_h * 0.5
-            rr = math.radians(self.boss_rot)
+            sprite's breathing, puppet jerk, rotation, and offset."""
+            motion = tsb_boss_motion(self)
+            anchor_x, anchor_y = motion["anchors"][index]
+            rax = (anchor_x * motion["scale_x"]
+                   - motion["drawn_w"] * 0.5)
+            ray = (anchor_y * motion["scale_y"]
+                   - motion["drawn_h"] * 0.5)
+            rr = math.radians(motion["rotation"])
             rc = math.cos(rr)
             rs = math.sin(rr)
-            center_x = TSB_BOSS_X + self.boss_dx
-            center_y = TSB_BOSS_FEET_Y - native_h * 0.5 + self.boss_dy
-            return (center_x + rax * rc - ray * rs,
-                    center_y + rax * rs + ray * rc)
+            return (motion["center_x"] + rax * rc - ray * rs,
+                    motion["center_y"] + rax * rs + ray * rc)
 
         def _cut_string(self, index, violent=False):
             if index in self.cut_string_ids or index < 0 or index > 4:
@@ -4077,7 +4233,7 @@ init python:
         # The art is Kotonoha's. The mode knows. The mode is not sorry.
         #
         # Everything below them comes from the shared atlas
-        # (mod_assets/def_bullets.rpy) and is anti-aliased at 16-62px, so it
+        # (asset_definitions/def_bullets.rpy) and is anti-aliased at 16-62px, so it
         # wants SMOOTH scaling instead -- see _bullet_tf. They are named for
         # what they mean in this fight, not for what the sheet calls them: a
         # pin, a page of the script, a soul, and the lamps over a stage.
@@ -4223,7 +4379,7 @@ init python:
 
             def beam(color, length, thick, vertical=False):
                 # A wire body drawn from the shared atlas `lens` hairline
-                # (mod_assets/def_bullets.rpy) instead of two stacked Solids.
+                # (asset_definitions/def_bullets.rpy) instead of two stacked Solids.
                 # The art already carries a hot white core inside a soft
                 # coloured falloff, which is exactly the glow+core pair this
                 # used to hand-build -- one texture, and a real beam profile
@@ -4374,43 +4530,23 @@ init python:
                     sblit(ar, (m["x"] - aw / 2.0, m["y"] - ah / 2.0))
 
             # --- 3. boss sprite + strings --------------------------------------
-            img_path = TSB_DIR + ("phase2.png" if g.boss_img == 2 else "phase1.png")
-            native_w, native_h = TSB_BOSS_NATIVE_SIZE[g.boss_img]
-            bw_ = native_w * TSB_BOSS_ZOOM
-            bh_ = native_h * TSB_BOSS_ZOOM
-
-            ending = g.mode in ("end_v", "end_p", "end_b")
-            bob = 0.0 if ending or g.boss_fallen else (
-                math.sin(g.tick * (0.032 if g.phase == 2 else 0.045)) *
-                (2.2 if g.phase == 2 else 1.6))
-            idle_rot = 0.0
-            if not ending and not g.boss_fallen:
-                idle_rot = math.sin(g.tick * 0.021) * (0.9 if g.phase == 2 else 0.45)
-                if g.phase == 2:
-                    twitch_age = g.tick % 173
-                    if twitch_age < 13:
-                        idle_rot += math.sin(twitch_age / 13.0 * math.pi) * 3.5
-            hit_age = g.tick - g.slash_born
-            hit_rot = 0.0
-            hit_dx = 0.0
-            if 0 <= hit_age < 24 and not g.boss_fallen:
-                hpulse = math.sin(hit_age / 24.0 * math.pi)
-                hit_rot = -7.0 * hpulse
-                hit_dx = 15.0 * hpulse
-            rot = g.boss_rot + idle_rot + hit_rot
-            jx = jy = 0.0
-            if g.shake > 0:
-                jx = math.sin(g.tick * 1.7) * min(6.0, g.shake * 0.4)
-                jy = math.cos(g.tick * 2.3) * min(4.0, g.shake * 0.3)
-            center_x = TSB_BOSS_X + g.boss_dx + hit_dx + jx
-            center_y = TSB_BOSS_FEET_Y - bh_ * 0.5 + g.boss_dy + bob + jy
+            motion = tsb_boss_motion(g)
+            asset_key = motion["asset_key"]
+            img_path = motion["path"]
+            bw_ = motion["drawn_w"]
+            bh_ = motion["drawn_h"]
+            center_x = motion["center_x"]
+            center_y = motion["center_y"]
+            rot = motion["rotation"]
 
             def boss_variant(angle, alpha_bucket=10, tint=None):
-                aq = round(angle * 2.0) / 2.0
+                aq = float(round(angle))
                 ab = max(0, min(10, int(alpha_bucket)))
-                key = ("boss_pose", g.boss_img, aq, ab, tint)
-                props = dict(zoom=TSB_BOSS_ZOOM, nearest=False,
-                            subpixel=True, rotate=aq, rotate_pad=False,
+                key = ("boss_pose", asset_key, motion["breath_bucket"],
+                       aq, ab, tint)
+                props = dict(xzoom=motion["scale_x"],
+                            yzoom=motion["scale_y"], nearest=True,
+                            subpixel=False, rotate=aq, rotate_pad=False,
                             matrixcolor=TSB_LINEART_MATRIX,
                             alpha=ab / 10.0)
                 if tint is not None:
@@ -4422,9 +4558,9 @@ init python:
             # Body anchors are rotated around the sprite center, so the strings
             # stay attached through hit recoil, phase yanks, and both falls.
             rel_anchors = [
-                (px * TSB_BOSS_ZOOM - bw_ * 0.5,
-                py * TSB_BOSS_ZOOM - bh_ * 0.5)
-                for px, py in TSB_STRING_ANCHORS[g.boss_img]
+                (px * motion["scale_x"] - bw_ * 0.5,
+                 py * motion["scale_y"] - bh_ * 0.5)
+                for px, py in motion["anchors"]
             ]
             rr = math.radians(rot)
             rc = math.cos(rr)
@@ -4487,15 +4623,16 @@ init python:
                     old_rot = max(0.0, rot - gi * 6.0)
                     gkey, gd = boss_variant(old_rot, 1, ghost_col)
                     gr, (gw, gh) = tex(gkey, gd, 520, 520)
-                    sblit(gr, (center_x - gw * 0.5,
-                                center_y - g.fall_vy * gi * 2.0 - gh * 0.5))
+                    rv.blit(gr, (int(round(center_x - gw * 0.5)),
+                                 int(round(center_y - g.fall_vy * gi * 2.0
+                                           - gh * 0.5))))
 
             if g.boss_alpha > 0.0:
                 main_ab = int(tsb_clamp(g.boss_alpha, 0.0, 1.0) * 10)
                 pose_key, pose_d = boss_variant(rot, main_ab)
                 pose_r, (pose_w, pose_h) = tex(pose_key, pose_d, 520, 520)
-                sblit(pose_r, (center_x - pose_w * 0.5,
-                                center_y - pose_h * 0.5))
+                rv.blit(pose_r, (int(round(center_x - pose_w * 0.5)),
+                                 int(round(center_y - pose_h * 0.5))))
 
             # Slash arc on a landed FIGHT.
             if g.tick - g.slash_born < 10:
@@ -4517,7 +4654,10 @@ init python:
                                 0.0, 1.0)
                 frac = tsb_clamp(g.boss_hp / TSB_BOSS_HP, 0.0, 1.0)
                 bbx = int(TSB_BOSS_X - 120)
-                bby = int(TSB_BOSS_FEET_Y - bh_ - 26) - int((1.0 - bar_a) * 6)
+                # Fixed near the top of the battle stage: the shared 184x344
+                # cell includes a little transparent breathing room above the
+                # differently hunched poses, so its canvas top is not her head.
+                bby = 6 - int((1.0 - bar_a) * 6)
                 rv.blit(rect("#f5f5f0" + qa(0.95 * bar_a), 244, 18),
                         (bbx - 2, bby - 2))
                 rv.blit(rect("#3a0a10" + qa(bar_a), 240, 14), (bbx, bby))
@@ -4544,7 +4684,8 @@ init python:
                 m_ready = m_cur >= m_need
                 mgw = 14
                 mgh = 66
-                mgx = int(TSB_BOSS_X + bw_ * 0.5 + 12)
+                base_boss_w = TSB_BOSS_NATIVE_SIZE[0] * TSB_BOSS_ZOOM
+                mgx = int(TSB_BOSS_X + base_boss_w * 0.5 + 12)
                 mgy = int(TSB_BOSS_FEET_Y - 6 - mgh)
                 rv.blit(rect("#101014", mgw + 4, mgh + 4), (mgx - 2, mgy - 2))
                 rv.blit(rect("#3a2e12" if m_ready else "#241d33", mgw, mgh),

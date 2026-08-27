@@ -983,7 +983,7 @@ style msbf_shmup_card_kicker:
     outlines [(2, "#02040b", 0, 0)]
 
 style msbf_shmup_card_name:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 30
     color "#f5fbff"
     bold True
@@ -991,7 +991,7 @@ style msbf_shmup_card_name:
     outlines [(3, "#02040b", 0, 0), (1, "#ff386899", 1, 1)]
 
 style msbf_shmup_controls_big:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 22
     color "#bfe9ff"
     bold True
@@ -1017,7 +1017,7 @@ style msbf_rail_kicker:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_rail_actor:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 23
     color "#f5fbff"
     bold True
@@ -1049,7 +1049,7 @@ style msbf_dossier_button is button:
     insensitive_background Solid("#070d15e0")
 
 style msbf_dossier_mug:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 28
     color "#ffffff"
     bold True
@@ -1074,7 +1074,7 @@ style msbf_dossier_summary:
     outlines [(1, "#02040b", 0, 0)]
 
 style msbf_dossier_order:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 20
     color "#ffcf66"
     bold True
@@ -1488,7 +1488,7 @@ screen msbf_death_burst(x=0, y=0, color="#ff3868", boss=False):
             ypos _dcy - 14
 
 style msbf_death_tag:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 20
     color "#ff6b8f"
     bold True
@@ -1503,7 +1503,7 @@ style msbf_turn_banner_kicker:
     outlines [(2, "#02040b", 0, 0)]
 
 style msbf_turn_banner_name:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 40
     color "#f5fbff"
     bold True

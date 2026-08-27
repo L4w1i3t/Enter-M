@@ -1,12 +1,12 @@
 # Generates the platform icon files the build needs, from the single source
-# image in mod_assets/gui.
+# image in game/assets/gui/enter_m.
 #
 # Ren'Py takes each icon from a different place, which is why setting one of
 # them does not set the others:
 #
 #   Window icon - the icon in the title bar and taskbar while the game is
 #   running. Comes from config.window_icon in game/options.rpy, a PNG under
-#   game/. Already configured; this script does not touch it.
+#   game/assets/gui/enter_m/. Already configured; this script does not touch it.
 #
 #   Windows executable icon - what Explorer, the taskbar and any desktop
 #   shortcut show for the built .exe. Comes from icon.ico in the PROJECT ROOT,
@@ -32,7 +32,9 @@ from PIL import Image
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DEFAULT_SOURCE = os.path.join("game", "mod_assets", "gui", "desktop_icon.png")
+DEFAULT_SOURCE = os.path.join(
+    "game", "assets", "gui", "enter_m", "desktop_icon.png"
+)
 
 # Windows picks the closest match from whatever the .ico contains, so cover the
 # sizes it actually asks for rather than shipping one big image.

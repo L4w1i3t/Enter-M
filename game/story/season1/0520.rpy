@@ -5,17 +5,18 @@ label a0520:
     pause 2.0
     python:
         _phone_messages = [
-            phone_msg("me", "Morning. Minor life update: my foot has been promoted from Complete Doodoo to Kind of Doodoo."),
-            phone_msg("them", "Good morning! Also good! Does that mean track is back?"),
+            phone_msg("me", "Morning. Minor life update: my foot has been promoted from complete doodoo to mostly doodoo."),
+            phone_msg("them", "Good morning, and that's good! Does that mean track is back?"),
             phone_msg("me", "Starting tomorrow, yeah. Coach called and cleared me for light practice."),
             phone_msg("me", "Which I assume means I get to suffer in moderation."),
             phone_msg("them", "Responsible suffering. The best kind."),
             phone_msg("me", "So I'll start dividing afternoons again. Track some days, club the others."),
             phone_msg("them", "Ah. So the club room is losing full custody of you."),
             phone_msg("me", "Joint custody. Very modern arrangement."),
-            phone_msg("them", "I'll allow it. I had you to myself for a whole month. That's basically greedy by club standards."),
+            phone_msg("them", "I'll allow it. I had you to myself for a whole month."),
+            phone_msg("them", "That's basically greedy by club standards."),
             phone_msg("me", "If I die during warmups, tell everyone I was brave and not stupid."),
-            phone_msg("them", "No promises on that second part!"),
+            phone_msg("them", "The stupid part may be unavoidable!"),
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0520_1
     $ hide_calendar()
@@ -29,7 +30,7 @@ label a0520:
     "I stand at the counter with a glass of water and a packet of allergy medicine."
     "{i}Trees reproduce one time and suddenly they've chosen violence.{/i}"
     mc "You can do it, pill. Just like we practiced..."
-    "I pop the tablet from the foil and wash it down with a drink that has not had enough time to become anything but cold."
+    "I pop the tablet from the foil and chase it with water straight from the fridge."
     mc "...God, I suck at swallowing these."
     "The floor creaks behind me."
     show mom uniform happy at l11
@@ -38,8 +39,8 @@ label a0520:
     mom teasing "I see..."
     mom "And does it believe in you?"
     mc "Give it twenty minutes."
-    "She sets her work bag on the end of the counter and starts the kettle in the precise, joyless way that means she has been up for hours already."
-    "She's dressed for court-adjacent warfare: blouse, slacks, hair pinned back, and the calm that makes other people nervous."
+    "She sets her work bag on the counter and starts the kettle. Every motion says she has been up for hours."
+    "She's dressed for court-adjacent warfare, hair pinned back over her blouse. The calm expression is the part most likely to make other people nervous."
     mc "Early start?"
     show mom uniform unamused
     mom "Unfortunately."
@@ -49,9 +50,9 @@ label a0520:
     mc "Ah. Professional."
     show mom uniform smug
     mom "That is the legal term, obviously."
-    mom "The short version is that another attorney had a scheduling conflict, the client is anxious, and I'm now catching up on a file that's much thicker than advertised..."
+    mom "Another attorney had a scheduling conflict, so the file landed on me yesterday. The client is anxious, and the paperwork is much thicker than advertised..."
     show mom uniform frustrated
-    "She runs her hands over her face, pulling the bottoms of her eye sockets down."
+    "She rubs both hands down her face."
     mom "Uuuugh, and it's the one thing I don't wanna do, too..."
     mc "...Files can advertise?"
     mom "You have no idea, kiddo..."
@@ -60,14 +61,14 @@ label a0520:
     "She checks her phone, then turns it facedown before the screen can ask more of her."
     mom "I may be home especially late tonight."
     mc "How late are we talking?"
-    mom "Late enough that dinner shouldn't wait on me."
-    mc "That feels like an intentionally...vague unit of time."
+    mom "Past dinner. Don't wait on me."
+    mc "That's an impressively vague unit of time."
     mom "It is."
     mom "There are leftovers, and Asahina already asked if Sam could come over after homework."
     "I blink once."
     mc "She asked you before asking me?"
     show mom uniform teasing
-    mom "Unfortunately--or fortunately--you're not the household scheduling office."
+    mom "Fortunately or otherwise, you're not the household scheduling office."
     mc "I would like that in writing for future disputes."
     show mom uniform unamused
     mom "Denied."
@@ -88,8 +89,8 @@ label a0520:
     "The kettle clicks off and her hand finds it by memory."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest of breakfast happens in the usual fragments: toast, bag checks, Asahina shouting from upstairs that she is not late while clearly being late, and Mom leaving with a folder thick enough to count as a dumbbell."
-    nier "By the time I step outside, the allergy medicine has achieved the advanced medical state known as maybe, perhaps, doing something."
+    nier "Breakfast finishes in the usual fragments. Asahina shouts from upstairs that she is not late while clearly being late."
+    nier "Mom leaves with a folder that could double as a dumbbell. By the time I step outside, the allergy medicine has achieved the advanced medical state known as maybe doing something."
     call nier_clear from _call_nier_clear_0520_1
     stop music fadeout 1.0
     pause 2.0
@@ -101,28 +102,26 @@ label a0520:
     "By the middle of the school day, science has become a room full of diagrams that look simple until someone asks what they mean."
     show science_teacher neut at t11
     "The teacher draws a cell on the board and taps the chalk twice against the nucleus."
-    show science_teacher neut
     science_teacher "Remember, the point is not to memorize the diagram as a picture."
     science_teacher "You need to understand what each structure does and how it contributes to the larger system."
-    "A few students write that down fast, the way you transcribe anything the second it turns into test material."
-    "{i}Cells are just tiny bureaucracies with better membranes... Heh, good one, I'm hilarious.{/i}"
-    "My pencil copies it down between rounds of self-congratulation."
+    "Several pens sprint to catch up the instant it sounds testable."
+    "{i}Cells are just tiny bureaucracies with better membranes. Look at me, contributing.{/i}"
+    "My pencil copies the real notes down once I've finished admiring my contribution."
     "Nucleus. Mitochondria. Ribosomes. Endoplasmic reticulum."
     science_teacher "Also, before anyone tries to leave this room with supposed selective hearing..."
     "The chalk returns to the tray."
     science_teacher "Midterm exams begin next Monday."
     "The whole class makes the quiet sound of a group remembering consequences exist."
     science_teacher "Your sciences will be on the second day, but do {i}not{/i} use that as an excuse to start studying on the first day."
-    science_teacher "The review guide is posted. It covers a review on cell structure, intermediate genetics, and the first half of our ecology unit."
+    science_teacher "The review guide is posted. It covers cell structure, intermediate genetics, and the first half of our ecology unit."
     "Somewhere behind me, someone whispers what sounds like a prayer. To my left, a girl is already color-coding a study plan with four highlighters, bargaining with the calendar in real time."
-    "My bag is already too full. From this morning's commute, the strap has pressed a red line into my shoulder I don't remember it earning."
+    "My bag is already too full, and its strap has pressed a red line into my shoulder during the commute. I don't remember authorizing that."
     science_teacher "Questions?"
-    "No one moves."
-    "The silence says there are people with many questions and no desire to be perceived."
+    "No one moves. The room has many questions and no desire to be perceived asking them."
     science_teacher "Excellent. Then we continue."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest of the day stacks itself into homework reminders, exam warnings, and a lunch period that ends about thirty seconds after I finally stop thinking about school."
+    nier "The rest of the day stacks itself with homework and exam warnings. Lunch ends about thirty seconds after I finally stop thinking about school."
     call nier_clear from _call_nier_clear_0520_2
     stop music fadeout 1.0
     pause 2.0
@@ -131,7 +130,7 @@ label a0520:
     $ atmos("afternoon", particles="motes")
     with wipeleft_scene
     play music schooldays
-    "A couple of the regulars are scattered around the edges of the club room--Hikari by the window, scribbling a line and crossing it out with equal violence, and Homura in the far corner, annotating someone's draft in handwriting too small to be casual."
+    "Hikari sits by the window, scribbling a line and crossing it out with equal violence. Homura annotates someone's draft in the far corner, her handwriting too small to be casual."
     show monika forward uniform neut cm oe nobl rdown ldown at t11
     "Monika is at the front desk with a stack of papers and the unmistakable posture of someone pretending she is not making a list."
     m forward uniform happ om oe nobl rdown ldown "Hey, there he is!"
@@ -150,7 +149,7 @@ label a0520:
     "I pull a paperback from my bag and open it to the bookmark."
     "She returns to her notebook, pen moving in small, neat lines."
     "For a while, that's all club is."
-    "Page turns, pencil scratches, someone slamming their notebook a bit too hard, and a chair creaking once because I apparently cannot sit like a normal organism."
+    "Pages turn and pencils scratch. Every so often, Hikari punishes her notebook or my chair reports another failure of posture."
     $ hide_calendar()
     scene black with wipeleft_scene
     # CRITIQUE (ADDRESSED): Stopped skipping the piece. A couple of rough lines of the bus-seat draft are shown -- the first, abandoned attempt at the poem finished on May 24 -- so the prompt reveals more about MC than another summary, his bracket-hedging habit recurs, and the later payoff has a visible seed.
@@ -166,7 +165,7 @@ label a0520:
     $ atmos("evening")
     show monika forward uniform happ cm oe nobl rdown ldown at t11
     with wipeleft_scene
-    "By the time the light starts waning around the windows, Monika closes her notebook."
+    "By the time the window light thins, Monika closes her notebook."
     m forward uniform happ om oe nobl rdown ldown "Not bad today!"
     mc "For the club, or for civilization?"
     m forward uniform laug om ce nobl rhip ldown "Let's not grade civilization before midterms. I don't think it studied."
@@ -181,7 +180,7 @@ label a0520:
     m forward uniform happ cm ce nobl rdown ldown "Ten-four, dinosaur~"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "I stop by the convenience store for a drink on the way home, regret the price, and buy it anyway."
+    nier "I stop by the convenience store for a drink on the way home. The price is a mistake I pay for anyway."
     call nier_clear from _call_nier_clear_0520_4
     stop music fadeout 1.0
     pause 2.0
@@ -214,12 +213,10 @@ label a0520:
     # line; this is her texting him at night about nothing in particular. Her
     # idle chatter unlocks here and not a day earlier.
     $ phone_open("matsuda")
-    "I turn the phone over and leave it there."
-    "It buzzes again almost immediately and I valiantly resist the urge to pick it back up."
+    "I turn the phone over and leave it there. It buzzes again almost immediately, and I valiantly resist picking it back up."
     "The phone buzzes a third time."
     "{i}...Tiny personal growth.{/i}"
-    "Then a laugh rises from downstairs--Asahina's laugh."
-    "Then a second one, lower and smoother."
+    "Asahina laughs downstairs, followed by a second laugh, lower and smoother."
     "{i}Right. The guy's here.{/i}"
     "{i}...Frick.{/i}"
     "I close my notebook."
@@ -230,8 +227,7 @@ label a0520:
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
-    "The living room has been occupied."
-    "Asahina is on the floor by the coffee table with one controller in her lap, and Sam is on the couch leaning forward like the game has personally challenged his bloodline."
+    "The living room has been occupied. Asahina sits on the floor with a controller in her lap, while Sam leans forward on the couch like the game has challenged his bloodline."
     "{i}The gamer stance already, eh?{/i}"
     show asahina teasing at t21
     show sam neut at t22
@@ -250,14 +246,12 @@ label a0520:
     mc "You know, I was actually very busy upstairs."
     ah "Doing homework? Or...? Oh, you {i}were{/i}, weren't you?"
     mc "Opening the notebook is part of the process of doing homework."
-    show asahina neut
-    ah "So...the other thing."
-    ah "Hey, me neither. Don't sweat it, dork."
+    ah neut "So...the other thing. Hey, me neither."
+    ah "Don't sweat it, dork."
     mc "...Move over."
     show sam casual smug
     sa "Aaaaand there it is."
-    "I take the empty spot on the floor, beside the coffee table and directly in the backdrop of snack crumbs."
-    "Asahina hands me the crappy third-party AngryDawgz controller."
+    "I take the empty spot beside the coffee table, directly in the field of snack crumbs. Asahina hands me the crappy third-party AngryDawgz controller."
     show asahina smug
     ah "Try not to embarrass the family."
     mc "Our family has survived your quote-unquote group projects. It can survive anything."
@@ -268,7 +262,7 @@ label a0520:
     show sam casual happy
     sa "I don't know, your poster looked pretty good."
     show asahina embarrassed
-    ah "...It was decent, methinks."
+    ah "...Maybe it didn't suck."
     show sam casual teasing
     sa "Then congratulations on your victory."
     "She bumps his knee with her shoulder and looks back at the TV."
@@ -276,8 +270,8 @@ label a0520:
     "The game starts."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Party mode is, in theory, a game about timing, luck, and mild betrayal."
-    nier "Sam passes me snacks without asking. Asahina tells him which character I always pick. Sam remembers that information two rounds later."
+    nier "Party mode is theoretically about luck and mild betrayal. Timing decides who gets to blame the controller."
+    nier "Asahina mentions my usual character while Sam passes me snacks. Two rounds later, he remembers."
     call nier_clear from _call_nier_clear_0520_5
     pause 2.0
     scene bg living_room_night
@@ -296,10 +290,9 @@ label a0520:
     mc "That sounds fake as hell."
     show sam casual smug
     sa "No, it's true. I looked it up."
-    "The two of them exchange a glance. Not even a long one. A whole joke goes across the table inside it."
+    "They exchange a glance, barely a second long. A whole joke crosses the table inside it."
     # CRITIQUE (ADDRESSED): Let the alienation breathe before the deflection -- MC names the feeling (a small room he doesn't have a key to, snacks handed politely through the door) and notably doesn't say it to anyone, his self-hiding pattern, before the joke. The discovery isn't joked away.
-    "It's not that they're shutting me out. It's that they've built a small room I don't have a key to, and they're being very polite about handing me snacks through the door."
-    "...In my own house, no less."
+    "They've built a small room I don't have a key to, and they're being very polite about handing me snacks through the door. In my own house, no less."
     "I don't say any of that. I'm not sure who I'd even say it to."
     show asahina curious
     ah "You good?"
@@ -308,9 +301,8 @@ label a0520:
     sa "Not that hard."
     show asahina teasing
     ah "Pretty firetruckin' hard."
-    mc "Balanced feedback, thank you, we take those."
-    "My phone buzzes against my leg."
-    "Matsuda, probably, sending another progress report from whatever digital battlefield she has thrown herself into."
+    mc "The committee has spoken. Thank you both."
+    "My phone buzzes against my leg. Probably Matsuda, sending another progress report from whatever digital battlefield she has thrown herself into."
     "I leave it alone."
     "The round ends with Asahina winning by a margin that feels medically suspicious."
     show asahina happy
@@ -328,10 +320,10 @@ label a0520:
     "{i}Yeah. He's good at this.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The night moves on through more rounds, pizza that Sam ordered, and Mom texting that the case is still eating her evening."
+    nier "The night continues through more rounds until the pizza arrives. Mom texts that the case is still eating her evening."
     call nier_clear from _call_nier_clear_0520_6
     pause 2.0
-    scene bg doornight
+    scene bg home_entry_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
@@ -340,7 +332,7 @@ label a0520:
     show sam casual pose_phone at t22
     "Asahina walks him to the door. The distance does not justify the ceremony."
     show sam casual neut
-    "They proceed to stand by the door after it has already opened, apparently a normal thing to do if you are sixteen and allergic to efficient goodbyes."
+    "They proceed to stand by the door after it has already opened, which is normal if you are sixteen and allergic to efficient goodbyes."
     sa "Thanks for letting me hang out."
     mc "Yeah. No problem."
     ah "He means thanks for helping him lose."
@@ -368,18 +360,18 @@ label a0520:
     ah "It was fine."
     mc "That's your it-was-fun voice."
     show asahina embarrassed
-    ah "Shut the hell your mouth!"
+    ah "Shut your whole mouth!"
     "I am four steps up the stairs by the time she recovers."
     $ hide_calendar()
     scene black with wipeleft_scene
     pause 2.0
-    scene bg bedroom
+    scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
     "My room, at least, has not moved."
     "My homework is still open on the desk. My phone is still carrying the weight of several unread messages."
-    "I check Matsuda's thread first, because curiosity has apparently survived all attempts at discipline."
+    "I check Matsuda's thread first because curiosity has survived all attempts at discipline."
     python:
         _phone_messages = [
             phone_msg("them", "Update the first: tutorial complete. Combat has hands."),
@@ -390,9 +382,9 @@ label a0520:
         ]
     call phone_text_conversation("Matsuda Akai", _phone_messages, append=True) from _call_phone_text_conversation_0520_3
     "I put the thread down and rub my eyes."
-    "Tomorrow has track practice. Next Monday has midterms. Somewhere downstairs, Asahina is probably texting Sam the parts of tonight I did not need to hear in real time."
+    "Tomorrow has track practice, and next Monday has midterms. Somewhere downstairs, Asahina is probably texting Sam the parts of tonight I did not need to hear in real time."
     play sound moddooropen
-    "Mom gets home late enough that I only catch the sound of the front door opening through the small gap between my door and the floorboards."
+    "Mom finally gets home. I only catch the front door through the small gap beneath mine."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Sleep takes a while to find me."

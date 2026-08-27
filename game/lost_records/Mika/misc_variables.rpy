@@ -115,7 +115,7 @@ define -50 audio.mika_footsteps = "lost_records/Mika/mod_assets/sfx/footsteps.og
 define -50 audio.mika_night = "lost_records/Mika/mod_assets/sfx/night.ogg"
 define -50 audio.mika_bell = "lost_records/Mika/mod_assets/sfx/schoolbell.ogg"
 define -50 audio.mika_laugh = "lost_records/Mika/mod_assets/sfx/laugh.ogg"
-define -50 audio.mika_pound = "<from 0.69>sfx/monikapound.ogg"
+define -50 audio.mika_pound = "<from 0.69>assets/audio/sfx/monikapound.ogg"
 
 
 # custom bg

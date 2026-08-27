@@ -1,5 +1,13 @@
 ##### ENGINE SETTINGS FOR YOUR MOD #####
 
+# Keep Ren'Py's automatic image discovery and its engine-generated ``gui/**``
+# lookups pointed at the consolidated asset tree.  This must run after the
+# common code creates these config variables (init -1900), but before ordinary
+# init blocks begin.
+init -999 python:
+    config.images_directory = "assets/images"
+    config.search_prefixes = ["", "assets/"]
+
 # The formal name of the mod. Change the value of this to your mod's name
 define config.name = "ENTER-M"
 
@@ -69,7 +77,7 @@ default preferences.sfx_volume = 1.0
 define config.save_directory = "ENTERM"
 
 # Window icon that appears in your taskbar
-define config.window_icon = "mod_assets/gui/window_icon.png"
+define config.window_icon = "assets/gui/enter_m/window_icon.png"
 
 # Gameplay settings
 define config.allow_skipping = True        # Allows player to skip unseen dialogue
@@ -133,6 +141,8 @@ init python:
     build.classify("/docs/**", None)            # developer docs, including .txt guides
     build.classify("game/**.md", None)          # READMEs, cheatsheets, critiques
     build.classify("/**.md", None)
+    build.classify("game/assets/archive/**", None) # source/reference asset archive
+    build.classify("game/assets/**.txt", None) # asset READMEs and vendor notes
     build.classify("/.claude/**", None)
     build.classify("/.agents/**", None)
     build.classify("/vanilla/**", None)         # DDLC reference dump; not loaded at runtime
@@ -140,6 +150,7 @@ init python:
     build.classify("**sync-conflict**", None)   # Syncthing conflict copies
     # Dev tools (gated by config.developer, never run in release). Do NOT exclude
     # dev.rpy -- it also defines runtime state (player name, singleton, defaults).
+    build.classify("/game/addons/Dev Hub/**", None)
     build.classify("/game/addons/Developer Date Jump/**", None)
     build.classify("/game/story/dev_scene_manager.rpyc", None)  # rough unplaced scratch scenes
     build.classify("/game/story/out_of_context/**", None)       # dated dev-only preview scenes
@@ -170,7 +181,6 @@ init python:
     build.classify("/game/**.rpa", None)
     build.classify("/game/saves/**", None)
     # NOTE: root characters/ is NOT excluded -- it holds the only copies of the
-    # .chr masters that definitions.rpy/splash.rpy regenerate from.
 
     # --- Includes (only reached by files that survived the excludes) ---
     build.classify("game/**.jpg", "mod")
@@ -179,7 +189,6 @@ init python:
     build.classify("game/**.gif", "mod")
     build.classify("game/**.rpyc", "mod")
     build.classify("game/**.txt", "mod")
-    build.classify("game/**.chr", "mod")
     build.classify("game/**.wav", "mod")
     build.classify("game/**.mp3", "mod")
     build.classify("game/**.ogg", "mod")
@@ -187,7 +196,7 @@ init python:
     build.classify("game/**.otf", "mod")
     build.classify("game/story/**", "mod")
     build.classify("game/addons/**", "mod")
-    build.classify("game/mod_assets/**", "mod")
+    build.classify("game/assets/**", "mod")
     build.classify("game/lost_records/**", "mod")
 
     # Documentation files to include

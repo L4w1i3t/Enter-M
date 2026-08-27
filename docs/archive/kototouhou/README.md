@@ -32,7 +32,7 @@ alpha, safe cell padding, and no more than 48 opaque colors before saving.
 ## Generation prompt
 
 Built-in image generation was given the legacy boss still as the primary
-costume/proportion reference and `game/mod_assets/char_sprites/kotonoha/neutral.png`
+costume/proportion reference and `game/assets/characters/kotonoha/neutral.png`
 as the canonical identity reference, with this prompt:
 
 > Use case: stylized-concept

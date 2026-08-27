@@ -28,7 +28,7 @@
 #   (Assumes planner text contains no raw { or [ -- the story data is plain text.)
 #
 # WRITING SFX
-#   `modwriting` (mod_assets/sfx/writing.ogg) loops on its own "planner_write"
+#   `modwriting` (assets/audio/sfx/writing.ogg) loops on its own "planner_write"
 #   channel for the entire writing duration, then stops the moment the last
 #   character lands. page_turn still plays once when the planner opens.
 # =============================================================================
@@ -171,14 +171,14 @@ style enter_m_planner_checkbox:
     outlines []
 
 style enter_m_planner_entry:
-    font "gui/font/Halogen.ttf"
+    font "assets/gui/font/Halogen.ttf"
     size 27
     color "#292724"
     outlines []
     line_spacing 2
 
 style enter_m_planner_note:
-    font "gui/font/Halogen.ttf"
+    font "assets/gui/font/Halogen.ttf"
     size 22
     color "#65564c"
     outlines []

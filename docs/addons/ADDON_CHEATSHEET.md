@@ -409,7 +409,7 @@ Text conversations also call the storage path that marks the contact as met, but
 
 Avatars (contacts list + call / video-call screens) show a circular **profile photo** when the contact has one, otherwise the initials chip. Known contacts get theirs from a `"pfp"` field in `PHONE_CONTACT_CATALOG` (`text.rpy`); Monika and Matsuda Akai are wired to `monikpfp.png` / `matsupfp.png`. Add one for a custom contact via the `pfp=` argument above (a path relative to `game/`). Missing/unloadable images silently fall back to initials.
 
-Message threads play SFX automatically as each bubble reveals: `messagesend.ogg` for `"me"` bubbles, `messagereceive.ogg` for `"them"` bubbles (silent for system/date notes and while skipping). Incoming `phone_call` rings with `ringtone.ogg`, looped on the dedicated `phone_ring` (sfx-mixer) channel until the player answers/declines. All three assets live in `game/mod_assets/sfx/phone/` and are defined as `audio.phone_text_out` / `audio.phone_text_in` / `audio.phone_ringtone`.
+Message threads play SFX automatically as each bubble reveals: `messagesend.ogg` for `"me"` bubbles, `messagereceive.ogg` for `"them"` bubbles (silent for system/date notes and while skipping). Incoming `phone_call` rings with `ringtone.ogg`, looped on the dedicated `phone_ring` (sfx-mixer) channel until the player answers/declines. All three assets live in `game/assets/audio/sfx/phone/` and are defined as `audio.phone_text_out` / `audio.phone_text_in` / `audio.phone_ringtone`.
 
 ### Phone Contacts Screen
 
@@ -661,23 +661,32 @@ somebody else's feature:
 
 | What | Where |
 |---|---|
-| Music (every track, including boss-fight and OP music) | `game/mod_assets/bgm/` |
-| Shared one-shot SFX | `game/mod_assets/sfx/` |
-| Matsuda boss-fight combat + UI cues | `game/mod_assets/sfx/msbf/` |
-| ZUN-standard SE (Kotonoha / Tsubaki modes) | `game/mod_assets/sfx/touhou/` |
-| Phone message + ringtone cues | `game/mod_assets/sfx/phone/` |
-| Backgrounds / CGs / sprites | `game/mod_assets/bg`, `cg`, `char_sprites` |
+| Music (every track, including boss-fight and OP music) | `game/assets/audio/bgm/` |
+| Shared one-shot SFX | `game/assets/audio/sfx/` |
+| Matsuda boss-fight combat + UI cues | `game/assets/audio/sfx/msbf/` |
+| ZUN-standard SE (Kotonoha / Tsubaki modes) | `game/assets/audio/sfx/touhou/` |
+| Phone message + ringtone cues | `game/assets/audio/sfx/phone/` |
+| Original DDLC image tree | `game/assets/images/` |
+| ENTER M backgrounds / CGs / cast sprites | `game/assets/backgrounds/`, `game/assets/cg/`, `game/assets/characters/` |
+| Base GUI / ENTER M GUI extensions | `game/assets/gui/`, `game/assets/gui/enter_m/` |
+| Fonts / MPT art | `game/assets/fonts/`, `game/assets/mpt/` |
+| Shared bullets / extra sprites / transitions | `game/assets/bullets/`, `game/assets/extra_sprites/`, `game/assets/transitions/` |
+| Phone emoji / miscellaneous runtime art | `game/assets/emoji/`, `game/assets/misc/` |
+| Working dump / archived unused audio | `game/assets/dump/`, `game/assets/archive/unused_audio/` |
 | Art owned by one addon (OP frames, bullet sprites, box art) | that addon's folder |
 
 No audio lives under `game/addons/`. An addon that owns a track still declares
-its own `define audio.<name> = "mod_assets/bgm/..."` next to the code that plays
+its own `define audio.<name> = "assets/audio/bgm/..."` next to the code that plays
 it; only the file moved, not the ownership.
 
-Project-wide definitions are split by concern in `game/mod_assets/`:
+Project-wide definitions are split by concern in `game/asset_definitions/`:
 
 - `def_characters.rpy` — cast sprites, `Character` / `DynamicCharacter`, names.
 - `def_audio.rpy` — main-story `audio.*` aliases and the extra mixer channels.
+- `def_bullets.rpy` — shared bullet-image declarations.
 - `def_images.rpy` — backgrounds and CGs.
+- `mpt/*.rpy` — global MPT layered-image definitions; their PNG inputs live in
+  `game/assets/mpt/`.
 
 (These replaced the old single `misc_def.rpy`. Put a new definition in the file
 that matches its kind; if it belongs to exactly one addon, keep it in that

@@ -375,7 +375,7 @@ init python:
 
 image blood_particle:
     subpixel True
-    "gui/blood_drop.png"
+    "assets/gui/blood_drop.png"
     zoom 0.75
     alpha 0.75
     choice:
@@ -393,7 +393,7 @@ image blood:
     Blood("blood_particle").sm
 
 image bsod_1:
-    "images/bg/bsod.png"
+    "assets/images/bg/bsod.png"
     size (1280,720)
 image bsod_2:
     "black"
@@ -407,7 +407,7 @@ image bsod_2:
 image bsod = LiveComposite((1280, 720), (0, 0), "bsod_1", (0, 0), "bsod_2")
 
 image veins:
-    AnimatedMask("images/bg/veinmask.png", "images/bg/veinmask.png", "images/bg/veinmaskb.png", 0.15, 16, moving=False, speed=10.0, frequency=0.25, amount=0.1)
+    AnimatedMask("assets/images/bg/veinmask.png", "assets/images/bg/veinmask.png", "assets/images/bg/veinmaskb.png", 0.15, 16, moving=False, speed=10.0, frequency=0.25, amount=0.1)
     xanchor 0.05 zoom 1.10
     xpos -5
     subpixel True

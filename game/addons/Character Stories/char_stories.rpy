@@ -222,7 +222,7 @@ init python:
         ),
         # CharacterStoryCatalog(
         #     "???",
-        #     "mod_assets/dump/icon_placeholder.png",
+        #     "assets/dump/icon_placeholder.png",
         #     [
         #         CharacterStoryEntry("???", "This story is still locked.", "", ""),
         #     ],
@@ -1012,7 +1012,7 @@ screen character_stories():
 # ----- Styles ----- (cyan-on-near-black, matching the archive theme)
 
 style cs_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 36
     color "#f4fbff"
     bold True
@@ -1107,7 +1107,7 @@ style cs_story_status_locked:
 
 # --- New chrome styles (readout strip, FILE tag, status chips) ---------------
 style cs_meta_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 13
     color "#5fbcd6"
     outlines [(1, "#02040b", 0, 0)]
@@ -1145,7 +1145,7 @@ style cs_sheet_tab:
 
 # The rubber stamp across the header.
 style cs_stamp_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 17
     color "#9fe9ff"
     bold True

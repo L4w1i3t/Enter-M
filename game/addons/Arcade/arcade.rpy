@@ -1467,7 +1467,7 @@ transform arcade_pop:
 
 # --- header / meta ---
 style arcade_logo:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 46
     color "#f7f0e6"
     bold True
@@ -1514,7 +1514,7 @@ style arcade_meta is gui_text:
 
 # --- featured panel ---
 style arcade_feature_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 40
     color "#fbf6ee"
     bold True
@@ -1567,7 +1567,7 @@ style arcade_panel:
     padding (34, 26)
 
 style arcade_panel_title:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 34
     color "#f7f0e6"
     bold True
@@ -1672,7 +1672,7 @@ style arcade_play_button:
     activate_sound gui.activate_sound
 
 style arcade_play_text:
-    font "mod_assets/fonts/SF Automaton Extended.ttf"
+    font "assets/fonts/SF Automaton Extended.ttf"
     size 25
     bold True
     kerning 2.0
