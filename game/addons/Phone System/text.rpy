@@ -23,6 +23,8 @@
 #   phone_thread_messages  : dict id -> {messages, status, timestamp, clock_text}.
 #   phone_unread_threads   : list of ids with an unread badge.
 #   phone_custom_contacts  : dict id -> info for contacts created at runtime.
+#   phone_notification_snapshot : available random-conversation ids seen by the
+#                                 in-game alert poll on its previous pass.
 #
 # CONTACT IDENTITY
 #   PHONE_CONTACT_CATALOG (known contacts) + PHONE_CONTACT_ALIASES (name->id) +
@@ -794,6 +796,114 @@ init -1 python:
             return phone_compact_text("You: {}".format(body))
         return phone_compact_text(body)
 
+    # --- Available-conversation notifications --------------------------------
+    # The random-conversation catalog is built later (init 1), so these helpers
+    # resolve its API dynamically at runtime. Nothing here knows entry ids,
+    # channels, or a fixed catalog size: replacing the catalog automatically
+    # changes every count and alert.
+    _PHONE_NOTIFICATION_BLOCKING_SCREENS = (
+        "phone_contacts_screen",
+        "phone_thread_history_screen",
+        "phone_text_screen",
+        "phone_thread_static",
+        "phone_home_screen",
+        "phone_call_screen",
+        "phone_active_call_screen",
+        "phone_video_call_screen",
+    )
+
+    def phone_notification_entries():
+        available = getattr(store, "phone_random_available", None)
+        if available is None:
+            return []
+        try:
+            return list(available())
+        except Exception as exc:
+            if config.developer:
+                renpy.log("ENTER-M PHONE: availability check failed: %r" % (exc,))
+            return []
+
+    def phone_notification_ids():
+        return [
+            str(entry["id"])
+            for entry in phone_notification_entries()
+            if entry.get("id") is not None
+        ]
+
+    def phone_notification_count():
+        return len(phone_notification_ids())
+
+    def phone_notification_ui_open():
+        return any(renpy.get_screen(name) is not None for name in _PHONE_NOTIFICATION_BLOCKING_SCREENS)
+
+    def phone_notification_poll():
+        """
+        Announce each availability transition once, never once per render.
+
+        The saved snapshot tracks the exact ids that were available on the last
+        completed poll. This catches a newly unlocked entry even when the total
+        stays unchanged, avoids replaying the chime after save/load, and lets a
+        developer reset make the same entry a genuine new transition again.
+        While a phone screen is open, polling pauses so a new item that appears
+        behind the handset is announced only after the player closes it.
+        """
+        if phone_notification_ui_open():
+            return False
+
+        current_ids = phone_notification_ids()
+        snapshot = phone_state_list("phone_notification_snapshot")
+        new_ids = [entry_id for entry_id in current_ids if entry_id not in snapshot]
+
+        # Defer rather than discard an alert crossed during fast-forward. Once
+        # skipping stops, the player gets one cue for the whole accumulated set.
+        if renpy.is_skipping():
+            return False
+
+        snapshot[:] = current_ids
+
+        if not new_ids:
+            return False
+
+        sound = getattr(audio, "phone_notification", None)
+        if sound:
+            renpy.sound.play(sound, channel="phone_alert")
+
+        renpy.show_screen(
+            "phone_notification_alert",
+            count=len(current_ids),
+            new_count=len(new_ids),
+        )
+        return True
+
+    def phone_notification_poll_action():
+        """Screen-action wrapper: update only on change and never return a value."""
+        changed = phone_notification_poll()
+        if changed:
+            renpy.restart_interaction()
+        # A non-None Function result ends the current interaction. In the quick
+        # menu that would dismiss the active say statement every half-second.
+        return None
+
+    def phone_ready_count_label(count, singular, plural=None):
+        count = max(0, int(count))
+        noun = singular if count == 1 else (plural or singular + "s")
+        return "%d %s" % (count, noun)
+
+    def phone_ready_status(count, fallback="Messages"):
+        if not count:
+            return fallback
+        return phone_ready_count_label(count, "conversation") + " ready"
+
+    def phone_random_action_summary(text_count, call_count, video_count):
+        parts = []
+        if text_count:
+            parts.append(phone_ready_count_label(text_count, "text"))
+        if call_count:
+            parts.append(phone_ready_count_label(call_count, "call"))
+        if video_count:
+            parts.append(phone_ready_count_label(video_count, "video call"))
+        return "Ready: " + " / ".join(parts) if parts else None
+
     # Build the ordered contacts-list data: catalog contacts that are met/have a
     # thread first (in PHONE_CONTACT_ORDER), then custom contacts, then any other
     # threads -- de-duplicated.
@@ -801,10 +911,15 @@ init -1 python:
         met_contacts = phone_state_list("phone_met_contacts")
         threads = phone_state_dict("phone_thread_messages")
         custom_contacts = phone_state_dict("phone_custom_contacts")
+        waiting_contacts = []
+        for entry in phone_notification_entries():
+            contact_id = phone_contact_id_from_name(entry.get("contact"))
+            if contact_id not in waiting_contacts:
+                waiting_contacts.append(contact_id)
 
         ordered_ids = []
         for contact_id in PHONE_CONTACT_ORDER:
-            if contact_id in met_contacts or contact_id in threads:
+            if contact_id in met_contacts or contact_id in threads or contact_id in waiting_contacts:
                 ordered_ids.append(contact_id)
 
         for contact_id in sorted(custom_contacts.keys()):
@@ -812,6 +927,12 @@ init -1 python:
                 ordered_ids.append(contact_id)
 
         for contact_id in sorted(threads.keys()):
+            if contact_id not in ordered_ids:
+                ordered_ids.append(contact_id)
+
+        # An available conversation must always have a route into the UI, even
+        # on a compatibility save whose old contact/thread state is incomplete.
+        for contact_id in waiting_contacts:
             if contact_id not in ordered_ids:
                 ordered_ids.append(contact_id)
 
@@ -909,6 +1030,70 @@ default phone_met_contacts = []
 default phone_thread_messages = {}
 default phone_unread_threads = []
 default phone_custom_contacts = {}
+default phone_notification_snapshot = []
+
+
+# -----------------------------------------------------------------------------
+# SCREEN: phone_notification_alert -- a compact, diegetic heads-up beside the
+# quick menu. It is deliberately not a renpy.notify toast: the small phone icon
+# identifies the source, the existing Phone button remains the persistent home
+# for the count, and the chip gets out of the scene after a few seconds.
+# -----------------------------------------------------------------------------
+screen phone_notification_alert(count=1, new_count=1):
+    zorder 150
+
+    $ _phone_alert_count = max(0, int(count))
+    $ _phone_alert_new = max(1, int(new_count))
+    $ _phone_alert_badge_width = phone_badge_width(_phone_alert_count, min_width=28)
+    $ _phone_alert_title = (_("New phone conversation") if _phone_alert_new == 1 else _("%d new phone conversations") % _phone_alert_new)
+    $ _phone_alert_detail = _("Open Phone - %d ready total") % _phone_alert_count
+
+    button:
+        style "phone_notification_alert_button"
+        xpos 108
+        yalign 1.0
+        # Sit above both the dialogue box and the quick menu's first row. The
+        # extra height grows upward, so the alert never covers the current line.
+        yoffset -198
+        at phone_notification_alert_enter
+        action [Hide("phone_notification_alert"), Show("phone_contacts_screen")]
+
+        fixed:
+            xysize (344, 76)
+
+            add PhonePanel(344, 76, "#102039f2", bottom="#091425f2", radius=16, border=1.0, border_color="#6fb2ff88")
+
+            fixed:
+                xpos 18
+                yalign 0.5
+                xysize (18, 25)
+
+                use phone_notification_glyph("#8bc7ff")
+
+            vbox:
+                xpos 54
+                yalign 0.5
+                xsize 220
+                spacing 5
+
+                text _phone_alert_title style "phone_notification_alert_title":
+                    xmaximum 220
+
+                text _phone_alert_detail style "phone_notification_alert_detail":
+                    xmaximum 220
+
+            fixed:
+                xpos 328 - _phone_alert_badge_width
+                yalign 0.5
+                xysize (_phone_alert_badge_width, 28)
+
+                add PhonePanel(_phone_alert_badge_width, 28, "#0a84ff", bottom="#0066d6", radius=14)
+
+                text str(_phone_alert_count) style "phone_badge_text":
+                    xalign 0.5
+                    yalign 0.5
+
+    timer 3.25 action Hide("phone_notification_alert")
 
 
 # -----------------------------------------------------------------------------
@@ -1024,13 +1209,13 @@ screen phone_contacts_screen():
                 xsize 346
                 ysize 1
 
-            text "Contacts" style "phone_thread_contact":
+            text "Phone" style "phone_thread_contact":
                 xalign 0.5
                 ypos 11
 
-            $ _phone_waiting_total = phone_random_count()
+            $ _phone_waiting_total = phone_notification_count()
 
-            text ("%d waiting" % _phone_waiting_total if _phone_waiting_total else "Messages"):
+            text phone_ready_status(_phone_waiting_total):
                 style ("phone_thread_status_live" if _phone_waiting_total else "phone_thread_status")
                 xalign 0.5
                 ypos 40
@@ -1039,7 +1224,7 @@ screen phone_contacts_screen():
                 style "phone_header_button"
                 xpos 306
                 ypos 16
-                action Hide("phone_contacts_screen")
+                action [Hide("phone_notification_alert"), Hide("phone_contacts_screen")]
 
         viewport:
             xpos 40
@@ -1063,7 +1248,7 @@ screen phone_contacts_screen():
 
                         button:
                             style "phone_contact_button"
-                            action [Hide("phone_contacts_screen"), Show("phone_thread_history_screen", contact_id=_contact_id)]
+                            action [Hide("phone_notification_alert"), Hide("phone_contacts_screen"), Show("phone_thread_history_screen", contact_id=_contact_id)]
 
                             hbox:
                                 spacing 10
@@ -1085,6 +1270,7 @@ screen phone_contacts_screen():
                                         xmaximum 148
 
                                     $ _contact_waiting = phone_random_count(_contact_id)
+                                    $ _contact_badge_width = phone_badge_width(_contact_waiting, min_width=22)
 
                                     if _contact_date:
                                         text _contact_date style "phone_contact_time":
@@ -1103,23 +1289,29 @@ screen phone_contacts_screen():
                                         fixed:
                                             xalign 1.0
                                             ypos 24
-                                            xysize (22, 17)
+                                            xysize (_contact_badge_width, 17)
 
-                                            add PhonePanel(22, 17, "#0a84ff", bottom="#0066d6", radius=8)
+                                            add PhonePanel(_contact_badge_width, 17, "#0a84ff", bottom="#0066d6", radius=8)
 
                                             text str(_contact_waiting) style "phone_badge_text":
                                                 xalign 0.5
                                                 yalign 0.5
 
-                                    text _contact["subtitle"] style "phone_contact_subtitle":
+                                    text phone_ready_status(_contact_waiting, _contact["subtitle"]):
+                                        style ("phone_contact_ready" if _contact_waiting else "phone_contact_subtitle")
                                         xpos 0
                                         ypos 24
+                                        xmaximum 180
 
                                     text _contact_preview style "phone_contact_preview":
                                         xpos 0
                                         ypos 43
 
-    key "K_ESCAPE" action Hide("phone_contacts_screen")
+        text "Choose a contact to view history or start a conversation." style "phone_contacts_help":
+            xalign 0.5
+            ypos 583
+
+    key "game_menu" action [Hide("phone_notification_alert"), Hide("phone_contacts_screen")]
 
 
 # -----------------------------------------------------------------------------
@@ -1132,28 +1324,31 @@ screen phone_thread_history_screen(contact_id):
 
     $ _phone_contact = phone_get_contact(contact_id)
     $ _phone_thread = phone_get_thread(contact_id)
-    # Each key is lit only when this contact has an unplayed conversation of
-    # that kind waiting (random_conversations.rpy). Nothing available means the
-    # thread is the same read-only history view it has always been.
-    $ _phone_can_text = phone_random_has(contact_id, "text")
-    $ _phone_can_call = phone_random_has(contact_id, "call")
-    $ _phone_can_video = phone_random_has(contact_id, "facetime")
+    # Exact entry counts, not three booleans: two waiting texts are two
+    # notifications even though they share one launch control.
+    $ _phone_text_waiting = phone_random_count(contact_id, "text")
+    $ _phone_call_waiting = phone_random_count(contact_id, "call")
+    $ _phone_video_waiting = phone_random_count(contact_id, "facetime")
+    $ _phone_waiting_total = _phone_text_waiting + _phone_call_waiting + _phone_video_waiting
 
     use phone_thread_model(
         _phone_contact["name"],
         _phone_thread["messages"],
-        _phone_thread["status"],
+        phone_ready_status(_phone_waiting_total, _phone_thread["status"]),
         _phone_thread["timestamp"],
         _phone_thread["clock_text"],
         Hide("phone_thread_history_screen"),
         [Hide("phone_thread_history_screen"), Show("phone_contacts_screen")],
-        compose_action=(Function(phone_random_launch, contact_id, "text") if _phone_can_text else None),
-        call_action=(Function(phone_random_launch, contact_id, "call") if _phone_can_call else None),
-        video_action=(Function(phone_random_launch, contact_id, "facetime") if _phone_can_video else None),
-        action_hint=phone_random_hint(_phone_contact["name"], _phone_can_text, _phone_can_call, _phone_can_video),
+        compose_action=(Function(phone_random_launch, contact_id, "text") if _phone_text_waiting else None),
+        call_action=(Function(phone_random_launch, contact_id, "call") if _phone_call_waiting else None),
+        video_action=(Function(phone_random_launch, contact_id, "facetime") if _phone_video_waiting else None),
+        action_hint=phone_random_action_summary(_phone_text_waiting, _phone_call_waiting, _phone_video_waiting),
+        text_waiting=_phone_text_waiting,
+        call_waiting=_phone_call_waiting,
+        video_waiting=_phone_video_waiting,
     )
 
-    key "K_ESCAPE" action Hide("phone_thread_history_screen")
+    key "game_menu" action [Hide("phone_thread_history_screen"), Show("phone_contacts_screen")]
 
 
 # -----------------------------------------------------------------------------
@@ -1193,7 +1388,7 @@ screen phone_thread_static(contact_name, messages, status="Messages", timestamp=
 # an optional in-progress `typing_message` bubble. "me" = right blue bubble,
 # "them" = left grey bubble, "system" = centered note; kind "thumb" = thumbs-up icon.
 # -----------------------------------------------------------------------------
-screen phone_thread_model(contact_name, messages, status="Messages", timestamp=None, clock_text=None, dismiss_action=None, back_action=None, typing_message=None, typing_phase=0, compose_action=None, call_action=None, video_action=None, action_hint=None):
+screen phone_thread_model(contact_name, messages, status="Messages", timestamp=None, clock_text=None, dismiss_action=None, back_action=None, typing_message=None, typing_phase=0, compose_action=None, call_action=None, video_action=None, action_hint=None, text_waiting=0, call_waiting=0, video_waiting=0):
     $ _phone_status_text = phone_status_text(timestamp, clock_text)
     $ _phone_messages = messages or []
     $ _phone_dismiss_action = dismiss_action if dismiss_action is not None else Return()
@@ -1207,6 +1402,9 @@ screen phone_thread_model(contact_name, messages, status="Messages", timestamp=N
     # pushes the conversation up instead of covering the last thing said.
     $ _phone_compose = phone_compose_fit(_phone_me_typing_body, typing_phase) if _phone_me_typing_body is not None else None
     $ _phone_compose_height = _phone_compose[1] if _phone_compose else PHONE_COMPOSE_MIN_HEIGHT
+    $ _phone_text_waiting = max(0, int(text_waiting))
+    $ _phone_call_waiting = max(0, int(call_waiting))
+    $ _phone_video_waiting = max(0, int(video_waiting))
     # The hint line takes its space out of the thread, same as a grown compose
     # field does, so nothing it says lands on top of the conversation.
     $ _phone_hint_space = 22 if action_hint else 0
@@ -1324,6 +1522,9 @@ screen phone_thread_model(contact_name, messages, status="Messages", timestamp=N
         $ _phone_bar_width = 314 - len(_phone_side_keys) * 34
 
         for _key_index, _key in enumerate(_phone_side_keys):
+            $ _phone_key_count = _phone_video_waiting if _key[0] == "video" else _phone_call_waiting
+            $ _phone_key_badge_width = phone_badge_width(_phone_key_count, min_width=15, digit_width=6, padding=7)
+
             button:
                 style "phone_attach_key"
                 xpos 40 + _key_index * 34
@@ -1344,6 +1545,18 @@ screen phone_thread_model(contact_name, messages, status="Messages", timestamp=N
                             use phone_handset_glyph("#0a84ff")
                     else:
                         use phone_camera_glyph("#0a84ff")
+
+                    if _phone_key_count:
+                        fixed:
+                            xpos 30 - _phone_key_badge_width
+                            ypos 0
+                            xysize (_phone_key_badge_width, 14)
+
+                            add PhonePanel(_phone_key_badge_width, 14, "#ff315b", bottom="#d91f49", radius=7)
+
+                            text str(_phone_key_count) style "phone_action_badge_text":
+                                xalign 0.5
+                                yalign 0.5
 
         # The compose bar. Idle it shows its placeholder; while the player is
         # writing it fills with his message a keystroke at a time (typos and
@@ -1377,7 +1590,7 @@ screen phone_thread_model(contact_name, messages, status="Messages", timestamp=N
                         ypos PHONE_COMPOSE_PAD_Y
                         xsize PHONE_COMPOSE_TEXT_WIDTH
                 else:
-                    text ("Message " + contact_name if compose_action is not None else "Message"):
+                    text (("Text (%d ready)" % _phone_text_waiting) if compose_action is not None else "Message"):
                         style "phone_input_placeholder"
                         xpos 16
                         yalign 0.5
@@ -1521,6 +1734,44 @@ screen phone_thumb_icon(line="#111827", fill="#f2c36b"):
             ysize 2
 
 
+transform phone_notification_alert_enter:
+    on show:
+        alpha 0.0
+        xoffset -12
+        easeout_quad 0.20 alpha 1.0 xoffset 0
+    on hide:
+        easein_quad 0.14 alpha 0.0 xoffset -8
+
+
+transform phone_notification_badge_arrive:
+    on show:
+        alpha 0.0
+        zoom 0.72
+        easeout_back 0.24 alpha 1.0 zoom 1.0
+
+
+style phone_notification_alert_button is empty:
+    xysize (344, 76)
+    padding (0, 0)
+    background None
+    hover_background None
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style phone_notification_alert_title:
+    font gui.interface_font
+    size 14
+    color "#f3f8ff"
+    bold True
+    outlines []
+
+style phone_notification_alert_detail:
+    font gui.interface_font
+    size 11
+    color "#8da4bf"
+    outlines []
+
+
 style phone_thread_contact:
     font gui.name_font
     size 22
@@ -1615,11 +1866,23 @@ style phone_contact_subtitle:
     color "#7f8aa0"
     outlines []
 
+style phone_contact_ready is phone_contact_subtitle:
+    color "#6fb2ff"
+    bold True
+
 style phone_contact_preview:
     font gui.interface_font
     size 12
     color "#cbd5e1"
     xmaximum 222
+    outlines []
+
+style phone_contacts_help:
+    font gui.interface_font
+    size 10
+    color "#7f8aa0"
+    text_align 0.5
+    xmaximum 286
     outlines []
 
 # Bubble corners are rounded by `at phone_round(18)` on the frame; the flat fill
@@ -1709,6 +1972,7 @@ style phone_action_hint:
     color "#6fb2ff"
     bold True
     text_align 0.5
+    xmaximum 320
     outlines []
 
 # The unread-style count badge on a contacts row.
@@ -1719,6 +1983,9 @@ style phone_badge_text:
     bold True
     text_align 0.5
     outlines []
+
+style phone_action_badge_text is phone_badge_text:
+    size 9
 
 # The compose bar in its two lives. `phone_compose_plate` is the dead chrome the
 # live conversation view has always shown; `phone_compose_button` is the same
@@ -1767,10 +2034,9 @@ style phone_input_send:
 #   append=True : extend the existing thread (old messages shown instantly).
 #   append=False: replace the thread with `messages`.
 #   timestamp   : date label for the thread (defaults to current calendar date).
-# Hides the dialogue window during the call; `window auto` restores it on return.
+# The blocking call screen participates in automatic dialogue-window management.
 # =============================================================================
 label phone_text_conversation(contact_name, messages, status="Messages", timestamp=None, clock_text=None, append=False):
-    window hide
     $ _phone_date_label = timestamp or phone_current_date_label()
     $ _phone_contact_id = phone_contact_id_from_name(contact_name)
     $ _phone_old_messages = phone_thread_messages_for(_phone_contact_id)
@@ -1782,5 +2048,4 @@ label phone_text_conversation(contact_name, messages, status="Messages", timesta
     $ _phone_display_messages = phone_thread_messages_for(_phone_contact_id)
     $ _phone_start_visible_count = phone_animation_start_count(_phone_old_messages, _phone_display_messages)
     call screen phone_text_screen(contact_name, _phone_display_messages, status, _phone_date_label, clock_text, start_visible_count=_phone_start_visible_count, animate=True)
-    window auto
     return

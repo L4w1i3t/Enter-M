@@ -6,7 +6,6 @@ label a0528:
     $ atmos("afternoon")
     with dissolve_scene_full
     play music quiz
-    window auto
     # Day 3: morning College Algebra, afternoon English.
     $ exam_guard_checkpoint_or_jump("algebra", "exam_start", "a0528_algebra_save_scum")
     "Third day of exams."

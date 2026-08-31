@@ -73,13 +73,24 @@ image splash_warning = ParameterizedText(style="splash_text", xalign=0.5, yalign
 
 image menu_bg:
     topleft
-    "assets/gui/enter_m/menu_bg.png"
+    "assets/gui/menu/main_menu_matsuda_evening.png"
     menu_bg_drift
 
 image game_menu_bg:
     topleft
-    "assets/gui/enter_m/menu_bg.png"
+    "assets/gui/menu/game_menu_vn.png"
     menu_bg_drift
+
+# Dedicated menu artwork. Keep these separate from ``menu_bg`` above: that
+# image is also part of the authored cold-open plates, while these two belong
+# only to the interactive main/game-menu UI.
+image enter_m_main_menu_bg:
+    topleft
+    "assets/gui/menu/main_menu_matsuda_evening.png"
+
+image enter_m_game_menu_bg:
+    topleft
+    "assets/gui/menu/game_menu_vn.png"
 
 image menu_nav:
     #"assets/gui/overlay/main_menu.png"
@@ -475,7 +486,7 @@ screen enter_m_splash_intro():
         at splash_signal_drop
 
         add Solid("#02040b")
-        add "assets/gui/enter_m/menu_bg.png" at splash_bg_push
+        add "assets/gui/menu/main_menu_matsuda_evening.png" at splash_bg_push
         add Solid("#000000aa")
         add "vignette":
             alpha 0.5
@@ -515,18 +526,18 @@ screen enter_m_splash_intro():
         # is not divided from anything.
         add Solid("#56d7ff3a") xysize (2, 130) xcenter 640 ycenter 250 at splash_divider(1.26)
 
-        add "assets/gui/enter_m/TRM_splash.png" at splash_logo_bloom(430, 250, 0.225, 0.30)
-        add "assets/gui/enter_m/TRM_splash.png" at splash_logo_slam(430, 250, 0.225, 0.30)
+        add "assets/gui/TRM_splash.png" at splash_logo_bloom(430, 250, 0.225, 0.30)
+        add "assets/gui/TRM_splash.png" at splash_logo_slam(430, 250, 0.225, 0.30)
         add Solid("#bdf6ff") at splash_impact(0.52, 0.42)
         add Solid("#ff315b") at splash_tear(268, 0.52, 6)
 
-        add "assets/gui/enter_m/matsupy_splash.png" at splash_logo_bloom(850, 250, 0.141, 0.62)
-        add "assets/gui/enter_m/matsupy_splash.png" at splash_logo_slam(850, 250, 0.141, 0.62)
+        add "assets/gui/matsupy_splash.png" at splash_logo_bloom(850, 250, 0.141, 0.62)
+        add "assets/gui/matsupy_splash.png" at splash_logo_slam(850, 250, 0.141, 0.62)
         add Solid("#bdf6ff") at splash_impact(0.84, 0.42)
         add Solid("#56d7ff") at splash_tear(300, 0.84, 9)
 
-        add "assets/gui/enter_m/TS_SF_splash.png" at splash_logo_bloom(640, 430, 0.211, 0.94)
-        add "assets/gui/enter_m/TS_SF_splash.png" at splash_logo_slam(640, 430, 0.211, 0.94)
+        add "assets/gui/TS_SF_splash.png" at splash_logo_bloom(640, 430, 0.211, 0.94)
+        add "assets/gui/TS_SF_splash.png" at splash_logo_slam(640, 430, 0.211, 0.94)
         add Solid("#bdf6ff") at splash_impact(1.16, 0.42)
         add Solid("#ff315b") at splash_tear(214, 1.16, 8)
 
@@ -666,7 +677,7 @@ screen enter_m_splash_warning(message):
         at splash_alert_shutdown
 
         add Solid("#02040b")
-        add "assets/gui/enter_m/menu_bg.png" at splash_bg_push
+        add "assets/gui/menu/main_menu_matsuda_evening.png" at splash_bg_push
         add Solid("#000000cc")
         add Solid("#ff2f5f18") xysize (1280, 1) at splash_sweep2
 
@@ -729,7 +740,7 @@ image intro:
     truecenter
     "white"
     0.5
-    "assets/images/bg/splash.png" with Dissolve(0.5, alpha=True)
+    "assets/backgrounds/splash.png" with Dissolve(0.5, alpha=True)
     2.5
     "white" with Dissolve(0.5, alpha=True)
     0.5
@@ -742,8 +753,8 @@ image warning:
     "white" with Dissolve(0.5, alpha=True)
     0.5
 
-image tos = "assets/gui/enter_m/warning.png"
-image tos2 = "assets/gui/enter_m/warning2.png"
+image tos = "assets/gui/warning.png"
+image tos2 = "assets/gui/warning2.png"
 
 label splashscreen:
 
@@ -793,10 +804,10 @@ label splashscreen:
         "This is an early demo build of ENTER-M."
         "This build contains placeholder art, temporary audio, unfinished systems, and experimental scenes."
         "Some presentation, story flow, and archive features may change before a later release."
-        "{b}Personal note: some placeholder artwork in this demo was created using Stable Diffusion (with my own trained AI models).{/b}"
-        "{b}They're PLACEHOLDERS. This game is being developed by one person who's a talentless hack and can't draw worth anything.{/b}"
-        "{b}But hey, I am always looking to collaborate with anyone who can help make my ideas a reality.{/b}"
-        "{b}Also the same placeholder sprites and expressions may ruin immersion, but that's not my problem. Use something called your imagination.{/b}"
+        "{b}Personal note: some placeholder artwork in this demo was created using Stable Diffusion (with my own trained generation models and pipelines).{/b}"
+        "{b}They're PLACEHOLDERS. This game is being developed by one person who can't draw worth anything, nor can a dedicated artist be afforded.{/b}"
+        "{b}If that upsets you or gives you tunnel vision that automatically invalidates the rest of the game, then I'm sorry for being a talentless hack.{/b}"
+        "{b}All I ask is that you don't antagonize me for it, and at least give the game a shot.{/b}"
         "{b}Anyway...{/b}"
         "The full story is planned to include mature topics."
         "By playing this game, you agree that you are of sufficient age and mental state to handle the contents within."
@@ -864,22 +875,8 @@ label after_load:
             call screen dialog("Hint: You can use the \"Skip\" button to\nfast-forward through text you've already read.", ok_action=Return())
     return
 
-# Matsu'Py runs this EVERY time the title screen is reached, not just once: the
-# engine's own `label _return` (00gamemenu.rpy) queues config.game_main_transition
-# and then jumps to `_main_menu_screen`, which calls this label -- so it fires on
-# the way back from Archive, Arcade, Credits, Settings, Save and Load alike.
-#
-# It used to answer that with a bare `renpy.music.play(...)`: no if_changed, no
-# fade, i.e. an unconditional teardown of the stream and a cold start of 9.4 MB
-# of canyoufeel.ogg, in the very interaction that had just started the 0.42s move
-# home. That is the stutter -- and the reason it was worst coming back from the
-# Archive and the Arcade, the only two screens that ALSO have a real track change
-# in flight at that moment, whose fade this then tore up.
-#
-# enter_m_menu_music() is a no-op when the track is already playing and a fade
-# when it is not, so the common case now costs nothing at all.
 label before_main_menu:
-    $ config.main_menu_music = audio.canyoufeel
+    $ config.main_menu_music = audio.mainmenu
     $ enter_m_menu_music(config.main_menu_music)
     return
 

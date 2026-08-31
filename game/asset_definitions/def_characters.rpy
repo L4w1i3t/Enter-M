@@ -164,9 +164,11 @@ transform tsubaki_sprite_size:
     xysize (640, 960)
 
 
-# Tsubaki's outfit-native neutral sprites are the fixed bases for her expression
-# bank. Each alternate face is registered independently to the corresponding
-# 1023x1537 outfit canvas, so changing expressions cannot move or crop her body.
+# Tsubaki's outfit-native neutral sprites are fixed bases for her expression
+# bank. Like Himeko and Asahina, each alternate is one broad, independently
+# registered face plate that owns the bangs, brows, eyes, and mouth together.
+# Changing expressions therefore cannot expose a second neutral-base eyebrow
+# or move/crop her body.
 layeredimage tsubaki:
     at tsubaki_sprite_size, Flatten
 
@@ -712,12 +714,28 @@ define npc2 = Character("NPC 2", **SAY_STYLE)
 
 # -----------------------------------------------------------------------------
 # Side-story cast sprites (no Character of their own; the owning story speaks
-# for them). Fire Emblem bit players from Matsuda's "Dead Fantasy".
+# for them). Original fantasy cast from Matsuda's "Dead Fantasy". Each tag has
+# one purpose-built battlefield portrait; expression attributes should only be
+# added when a visually distinct portrait actually exists.
 # -----------------------------------------------------------------------------
 
-image gary = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image gregor = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image leif = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
+transform dead_fantasy_sprite_size:
+    # The source paintings are full-body, while ENTER M's regular sprites are
+    # framed around the thighs. Enlarge and lower the complete canvas instead
+    # of cropping it: two-person slots retain every cape, weapon and strand of
+    # hair, while the dialogue window supplies the natural lower-frame cutoff.
+    fit "contain"
+    xysize (640, 960)
+    zoom 1.25
+    yoffset 300
+
+image df_akai = At("assets/extra_sprites/dead_fantasy/akai.png", dead_fantasy_sprite_size)
+image df_rival = At("assets/extra_sprites/dead_fantasy/rival.png", dead_fantasy_sprite_size)
+image df_sam = At("assets/extra_sprites/dead_fantasy/sam_clean.png", dead_fantasy_sprite_size)
+image df_tsubaki = At("assets/extra_sprites/dead_fantasy/tsubaki.png", dead_fantasy_sprite_size)
+image gary = At("assets/extra_sprites/dead_fantasy/gary.png", dead_fantasy_sprite_size)
+image gregor = At("assets/extra_sprites/dead_fantasy/gregor.png", dead_fantasy_sprite_size)
+image leif = At("assets/extra_sprites/dead_fantasy/leif.png", dead_fantasy_sprite_size)
 
 # Purgatorium (Sam's character story).
 image purg_girl = Transform("assets/extra_sprites/purg_girl.png", fit="contain", xysize=(640, 960))
@@ -747,6 +765,7 @@ init python:
         "math_teacher", "civics_teacher", "science_teacher", "japanese_teacher",
         "english_teacher", "track_coach", "hikari", "homura", "daichi",
         # Side-story bit players
+        "df_akai", "df_rival", "df_sam", "df_tsubaki",
         "gary", "gregor", "leif",
         "purg_girl", "purg_girl_day7", "purg_girl_yukata",
     )

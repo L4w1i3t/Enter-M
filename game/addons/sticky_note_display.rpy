@@ -39,7 +39,7 @@
 #   (Assumes note text contains no raw { or [ -- the story data is plain text.)
 #
 # GEOMETRY -- read this before moving any number
-#   The art (assets/gui/enter_m/stickynote.png, 960x640) has the note drawn ALREADY
+#   The art (assets/gui/stickynote.png, 960x640) has the note drawn ALREADY
 #   TILTED about 5 degrees counter-clockwise, so the text has to be tilted to
 #   match. Rather than hand-place rotated text, the writing sits in its own
 #   960x640 overlay in "note space" -- axis-aligned coordinates, as if the note
@@ -76,7 +76,7 @@ define ENTER_M_STICKY_AREA = (265, 96, 451, 420)   # note-space x, y, w, h to wr
 define ENTER_M_STICKY_YALIGN = 0.48   # where the block sits in that area (0 = top)
 define ENTER_M_STICKY_INK = "#2a3a52" # default ballpoint blue-black
 
-image enter_m_sticky_paper = "assets/gui/enter_m/stickynote.png"
+image enter_m_sticky_paper = "assets/gui/stickynote.png"
 
 # Manual-reveal state (set fresh each open by _enter_m_sticky_reset).
 default _enter_m_sticky_texts = []     # flat, ordered list of strings to write
@@ -372,7 +372,6 @@ screen enter_m_sticky_note(lines, signature=None, ink=None):
 # PUBLIC: present a sticky note and block until the player writes it out and
 # clicks it away. See the header for the argument shapes.
 label enter_m_show_sticky_note(lines, signature=None, ink=None, sfx=True):
-    window hide
     $ _enter_m_sticky_prev_afm = renpy.game.preferences.afm_enable
     $ renpy.game.preferences.afm_enable = False
 
@@ -394,5 +393,4 @@ label enter_m_show_sticky_note(lines, signature=None, ink=None, sfx=True):
     # Escape mid-write returns immediately).
     $ _enter_m_sticky_sfx(False)
     $ renpy.game.preferences.afm_enable = _enter_m_sticky_prev_afm
-    window auto
     return

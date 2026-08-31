@@ -1688,12 +1688,6 @@ init -1 python:
                 return "MATSUDA TURNS"
             return "PRESS TURNS"
 
-        @property
-        def press_turn_empty_label(self):
-            if self.enemy_display_active:
-                return "Tempo spent"
-            return "Matsuda has tempo"
-
         def _press_turn_fx_x(self, index):
             return MSBF_PRESS_TURN_ROW_X + (index * (MSBF_PRESS_TURN_SLOT_WIDTH + MSBF_PRESS_TURN_SLOT_SPACING))
 

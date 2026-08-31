@@ -28,6 +28,8 @@
 #   _msbf_id_mode    : harder "Id Mode" toggle (see below)
 #   _msbf_party_ids  : chosen party from the select screen
 #   _msbf_result     : "victory" or otherwise, returned by the battle screen
+#   _msbf_party_downs : party KOs this run, snapshotted off the battle state
+#       before it is torn down (the Arcade results card reads it)
 #   _msbf_prev_quick_menu : saved quick_menu flag, restored after the fight
 #
 # UNLOCK FLAGS
@@ -46,6 +48,7 @@
 
 default persistent.id_mode_unlocked = False
 default persistent.id_check = 0
+default _msbf_party_downs = 0
 label cs_matsuda_02:
     $ msbf_clear_battle_watch()
     $ _msbf_id_mode = False
@@ -59,7 +62,6 @@ label cs_matsuda_02:
         play music enterm
         scene bg ether with dissolve_scene_full
         show matsuda curious at t11 zorder 2
-        window auto
         if persistent.id_check == 1:
             ma "...You know the drill."
             jump msbf_choice1
@@ -153,7 +155,6 @@ label cs_matsuda_02:
                         ma "See ya!"
                         $ renpy.quit()
 
-    window auto
     "There are stories with delicate setups, carefully measured pacing, and meaningful emotional turns."
     "Colorful characters, tear-jerking plot twists, badass action sequences, you name it."
     "This is not one of those stories. It's something else entirely."
@@ -183,7 +184,6 @@ label cs_matsuda_02:
     scene black with dissolve_scene_full
 
 label cs_matsuda_02_setup:
-    window hide
     $ msbf_clear_battle_watch()
     call screen msbf_keyboard_notice
     call screen msbf_party_select
@@ -231,25 +231,20 @@ label cs_matsuda_02_battle:
         play music epicbattlephase1
     call screen msbf_battle_screen(msbf_battle_state)
     $ _msbf_result = _return
+    # Snapshot the whole-fight KO tally NOW: msbf_clear_battle_watch() below
+    # drops msbf_battle_state to None, and the Arcade results card is rendered
+    # long after that.
+    $ _msbf_party_downs = getattr(msbf_battle_state, "party_downs", 0)
     # The pause menu is a persistent Show() overlay -- make sure it never lingers
     # over the result dialogue if the battle resolved on a timer while it was open.
     hide screen msbf_pause_menu
-    # Snapshot BEFORE msbf_clear_battle_watch() -- it nulls msbf_battle_state,
-    # so anything the victory label wants from the fight must be copied here.
-    # (default 1 = fail closed if the state object predates party_downs)
-    $ _msbf_party_downs = getattr(msbf_battle_state, "party_downs", 1)
     $ msbf_clear_battle_watch()
     $ msbf_stop_battle_music(1.5)
     $ quick_menu = _msbf_prev_quick_menu
 
     # Pause-menu forfeit ("Quit Fight"): exit cleanly (works in story OR arcade)
     # instead of scoring it as a loss. See pause_menu.rpy / msbf_forfeit.
-    # Sync FIRST -- a forfeited run can still have banked micro-wins mid-fight
-    # (msbf_record_micro_win writes persistent immediately), and msbf_forfeit
-    # only tears down and leaves, so skipping the sync here would defer "Genre
-    # Savvy" and its toast until the player next opened the Archive.
     if _msbf_result == "quit":
-        $ ach_sync()
         jump msbf_forfeit
 
     # EVERYTHING THIS RUN EARNED, AWARDED ABOVE THE ARCADE/STORY SPLIT.
@@ -257,13 +252,7 @@ label cs_matsuda_02_battle:
     # them, the other path silently stops awarding it (that is exactly how the
     # Arcade lost matsuda_id and arcade_id_cleared).
     #
-    # Flawless-run check runs off the snapshot taken before
-    # msbf_clear_battle_watch() nulled the battle object: party_downs counts
-    # every KO across the whole fight (battle_logic emit_death), and phase
-    # transitions never reset it.
     if _msbf_result == "victory":
-        if _msbf_party_downs == 0:
-            $ ach_grant("msbf_no_downs")
         # The "Seer" CG is catalogued under Matsuda's Story but has no show site
         # in the fight yet (assets/cg/seer.png is drawn and unused), so
         # clearing the fight is what stands in for having seen it -- and clearing
@@ -274,16 +263,14 @@ label cs_matsuda_02_battle:
         if _msbf_id_mode:
             # Id Mode superboss clear -- nothing else persists this, so grant it,
             # and open the Id Mode tile in the Arcade (its own beaten-once gate).
-            $ ach_grant("matsuda_id")
             $ persistent.arcade_id_cleared = True
+            $ ach_grant("matsuda_id")
         else:
             $ persistent.id_mode_unlocked = True
+            $ ach_grant("beat_matsuda")
 
-    # One unconditional sync for everything this run changed: "beat_matsuda"
-    # from id_mode_unlocked, "Genre Savvy" from msbf_micro_wins (which a LOSS
-    # can still have banked mid-fight). ach_grant only cascades a sync when it
-    # actually grants, so a REPLAYED win would otherwise leave derived toasts
-    # waiting for the Archive.
+    # One unconditional sync also reconciles any older completed objective. The
+    # two exact victory hooks above are what award this run immediately.
     $ ach_sync()
 
     # ARCADE: skip all VN result dialogue -> shared arcade results card. Inert in
@@ -298,7 +285,6 @@ label cs_matsuda_02_battle:
 
 label cs_matsuda_02_defeat:
     scene black with dissolve_scene_full
-    window auto
 
     ma "Wipe. Hook, line, and sinker."
     ma "You want the salty runback, or are you just a scared wittle baby?"
@@ -321,7 +307,6 @@ label cs_matsuda_02_victory:
     play music daily
     scene bg ether with dissolve_scene_full
     show matsuda neut at t11 zorder 2
-    window auto
 
     if _msbf_id_mode:
         ma "...Okay."

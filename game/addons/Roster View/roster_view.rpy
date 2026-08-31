@@ -437,10 +437,8 @@ init python:
                     CharacterOutfit("uniform", "School Uniform", "tsubaki uniform neut", "uniform"),
                     # NOT YET WORN. Her metamorphosis is late Season 1 (Chapter
                     # 4), and `tsubaki post_neut` is drawn but no scene shows it
-                    # yet -- a wardrobe entry nothing can unlock makes "Costume
-                    # Department", and therefore platinum, impossible.
-                    # ach_audit_content() flags exactly this, which is how it was
-                    # caught; uncomment the day Chapter 4 stages her.
+                    # yet. ach_audit_content() flags unreachable wardrobe rows;
+                    # uncomment this the day Chapter 4 stages her.
                     # CharacterOutfit("post", "Metamorphosis", "tsubaki post_neut", "post_neut"),
                 ],
             ),

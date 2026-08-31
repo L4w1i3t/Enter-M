@@ -81,8 +81,8 @@ image enter_m_op_bg_courtyard = "assets/dump/courtyard.png"
 image enter_m_op_bg_house_evening = "assets/backgrounds/house_evening.png"
 image enter_m_op_bg_library = "assets/backgrounds/library.png"
 image enter_m_op_bg_lightcorridor = "assets/dump/lightcorridor.png"
-image enter_m_op_bg_lightresidential = "assets/images/bg/residential.png"
-image enter_m_op_bg_kitchen = "assets/images/bg/kitchen.png"
+image enter_m_op_bg_lightresidential = "assets/backgrounds/residential.png"
+image enter_m_op_bg_kitchen = "assets/backgrounds/kitchen.png"
 image enter_m_op_bg_musicroom = "assets/dump/musicroom.png"
 image enter_m_op_bg_stairs = "assets/dump/stairs.png"
 image enter_m_op_bg_street = "assets/backgrounds/city_day.png"
@@ -149,6 +149,24 @@ init python:
         for screen_name in ENTER_M_OP_ACTIVE_SCREENS:
             try:
                 renpy.hide_screen(screen_name)
+            except Exception:
+                pass
+
+    def enter_m_op_cg_unlock(*names):
+        """Unlock a CG Gallery entry, but NEVER let the gallery break the OP.
+
+        The OP owns its own art -- the PNGs beside this file, defined as
+        enter_m_op_* images in section 1. The gallery is bookkeeping laid on
+        top of that, not a dependency. cg_unlock raises under
+        config.developer on a title that is not in cg_gallery_catalog, so
+        pulling one CG out of the gallery used to take the whole OP down with
+        it. Here a title that no longer exists -- or a gallery module that is
+        not installed at all -- is simply a no-op.
+        """
+        for name in names:
+            try:
+                if cg_find(name) is not None:
+                    cg_unlock(name)
             except Exception:
                 pass
 
@@ -1134,7 +1152,7 @@ screen enter_m_op_bg_shadow_card(bg_image, fg_sprite, shadow_sprite, overlay="#f
     add Solid(panel) at enter_m_op_panel_sweep(160, 0.00, 1, -16, 0.13)
     add Solid(accent) at enter_m_op_panel_sweep(960, enter_m_op_eighth_bar, -1, 13, 0.18)
     add Solid("#ffffff58") at enter_m_op_motion_band(420, 220, 620, 11, -8, enter_m_op_quarter_bar, 1, 0.12)
-    # Both characters rendered normally -- the moody assets/images/bg/lighting carries the
+    # Both characters render normally -- the moody background lighting carries the
     # drama. (Previously the rear sprite was a dark silhouette, which read as
     # "looming villain" and telegraphed Sam's role; that's gone now.)
     add shadow_sprite at enter_m_op_stage_tf(shadow_style, shadow_start, shadow_end, 742, shadow_z, 3.0, duration, -1), enter_m_op_sprite_shadow_mod
@@ -1189,7 +1207,7 @@ screen enter_m_op_skip():
 # =============================================================================
 # --- 7. THE TIMELINE (main label) ------------------------------------------
 # The actual choreographed sequence. Pattern repeated for each "shot":
-#   scene <assets/images/bg/cg> at <some _stage/_drift transform>
+#   scene <background or CG image name> at <some _stage/_drift transform>
 #   show screen <cut_fx / cg_polish / bg_*_card>     # dress the shot
 #   $ renpy.pause(<beat-derived seconds>, hard=True) # hold on-beat
 #   hide screen ...                                  # tear the shot down
@@ -1232,12 +1250,18 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_bg_shadow_card
 
     # Every CG shot in this montage is also a CG Gallery entry, and the `$
-    # cg_unlock(...)` under each one is what puts it there -- the gallery's
-    # "Opening" act fills in as the OP plays, in the order the OP plays it. The
-    # unlock sits AFTER the scene rather than before so a CG only counts once it
-    # is actually on screen. See cg_unlock in CG View/cg_gallery.rpy.
+    # enter_m_op_cg_unlock(...)` under each one is what puts it there -- the
+    # gallery's "Opening" act fills in as the OP plays, in the order the OP
+    # plays it. The unlock sits AFTER the scene rather than before so a CG only
+    # counts once it is actually on screen.
+    #
+    # The dependency runs ONE WAY: the OP draws its own art and the unlock is
+    # bookkeeping on top, so a title later pulled out of cg_gallery_catalog is
+    # skipped and the OP plays on. Never call cg_unlock directly from here --
+    # it raises on an unknown title under config.developer. See
+    # enter_m_op_cg_unlock() in section 3.
     scene enter_m_op_mom_work at enter_m_op_cg_drift(1.2, 1.02, 1.06, 0.52, 0.49, 0.50, 0.49)
-    $ cg_unlock("Mom at Work")
+    $ enter_m_op_cg_unlock("Mom at Work")
     show screen enter_m_op_cg_polish("enter_m_op_mom_work", 0.075, 1.2, "#d39a55", "#75f7ff")
     show screen enter_m_op_cut_fx("amber", 0.24)
     show noise:
@@ -1249,7 +1273,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.2, hard=True)
 
     scene enter_m_op_storekoto at enter_m_op_cg_drift(1.2, 1.02, 1.06, 0.46, 0.48, 0.50, 0.49)
-    $ cg_unlock("Cashier Kotonoha")
+    $ enter_m_op_cg_unlock("Cashier Kotonoha")
     show screen enter_m_op_cg_polish("enter_m_op_storekoto", 0.08, 1.2, "#75f7ff", "#d39a55")
     show screen enter_m_op_cut_fx("white", 0.22)
     show screen enter_m_op_kinetic_credit("CREATED & WRITTEN BY", "LAWLIET", 170, 132, "#75f7ff", 1.15, 1)
@@ -1305,7 +1329,7 @@ label enter_m_sick_ass_anime_op:
 
     # 14.50s first drop.
     scene enter_m_op_warning_color at enter_m_op_stage_hit
-    $ cg_unlock("Matsuda Performing")
+    $ enter_m_op_cg_unlock("Matsuda Performing")
     show screen enter_m_op_cg_polish("enter_m_op_warning_color", 0.105, 3.5, "#75f7ff", "#ff4fb8")
     show screen enter_m_op_cut_fx("white", 0.52)
     show enter_m_op_white at enter_m_op_flash(0.58)
@@ -1325,7 +1349,7 @@ label enter_m_sick_ass_anime_op:
 
     # 18.00s - 44.00s: ensemble montage between drops.
     scene enter_m_op_monika_club at enter_m_op_monika_club_stage(2.4)
-    $ cg_unlock("Club President")
+    $ enter_m_op_cg_unlock("Club President")
     show screen enter_m_op_cg_polish("enter_m_op_monika_club", 0.06, 2.4, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("amber", 0.30)
     show noise:
@@ -1353,7 +1377,7 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_bg_hold_card
 
     scene enter_m_op_arguing at enter_m_op_cg_impact(2.8, 1.06, 1.11, 0.50, 0.48, 0.50, 0.49)
-    $ cg_unlock("Argue")
+    $ enter_m_op_cg_unlock("Argue")
     show screen enter_m_op_cg_polish("enter_m_op_arguing", 0.12, 2.8, "#d05f77", "#75f7ff")
     show screen enter_m_op_cut_fx("red", 0.34)
     show screen enter_m_op_pressure_marks
@@ -1367,7 +1391,7 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_bg_shadow_card
 
     scene enter_m_op_sam_bus at enter_m_op_cg_drift(2.2, 1.03, 1.08, 0.52, 0.49, 0.50, 0.48)
-    $ cg_unlock("Sam Bus")
+    $ enter_m_op_cg_unlock("Sam Bus")
     show screen enter_m_op_cg_polish("enter_m_op_sam_bus", 0.07, 2.2, "#d39a55", "#ffffff")
     show screen enter_m_op_cut_fx("white", 0.22)
     show enter_m_op_amber:
@@ -1377,7 +1401,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(2.2, hard=True)
 
     scene enter_m_op_asahina_poster at enter_m_op_asahina_poster_stage(2.0)
-    $ cg_unlock("Poster Session")
+    $ enter_m_op_cg_unlock("Poster Session")
     show screen enter_m_op_cg_polish("enter_m_op_asahina_poster", 0.08, 2.0, "#d39a55", "#75f7ff")
     show screen enter_m_op_cut_fx("amber", 0.30)
     show noise:
@@ -1397,7 +1421,7 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_freeze_frame
 
     scene enter_m_op_matsuda_wistful at enter_m_op_reminisce_stage(3.0)
-    $ cg_unlock("Matsuda Wistful")
+    $ enter_m_op_cg_unlock("Matsuda Wistful")
     show screen enter_m_op_cg_polish("enter_m_op_matsuda_wistful", 0.040, 3.0, "#d39a55", "#ffffff", glint=False)
     show screen enter_m_op_memory_glow(3.0, 0.070)
     show screen enter_m_op_cut_fx("amber", 0.24)
@@ -1410,7 +1434,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(3.0, hard=True)
 
     scene enter_m_op_icecream at enter_m_op_icecream_memory_stage(1.8)
-    $ cg_unlock("Ice Cream")
+    $ enter_m_op_cg_unlock("Ice Cream")
     show screen enter_m_op_cg_polish("enter_m_op_icecream", 0.040, 1.8, "#ffffff", "#d39a55", glint=False)
     show screen enter_m_op_memory_glow(1.8, 0.155)
     show screen enter_m_op_cut_fx("white", 0.28)
@@ -1423,7 +1447,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.8, hard=True)
 
     scene enter_m_op_console_tsubaki at enter_m_op_consolation_stage(1.4)
-    $ cg_unlock("Consoling Tsubaki")
+    $ enter_m_op_cg_unlock("Consoling Tsubaki")
     show screen enter_m_op_cg_polish("enter_m_op_console_tsubaki", 0.070, 1.4, "#75f7ff", "#ffffff", glint=False)
     show screen enter_m_op_memory_loss(1.4)
     show screen enter_m_op_cut_fx("blue", 0.34)
@@ -1436,7 +1460,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(1.4, hard=True)
 
     scene enter_m_op_redshift at enter_m_op_redshift_stage(2.0)
-    $ cg_unlock("Redshift")
+    $ enter_m_op_cg_unlock("Redshift")
     show screen enter_m_op_cg_polish("enter_m_op_redshift", 0.10, 2.0, "#d05f77", "#ffffff")
     show screen enter_m_op_cut_fx("red", 0.36)
     show noise:
@@ -1451,7 +1475,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(2.0, hard=True)
 
     scene enter_m_op_blueshift at enter_m_op_blueshift_stage(1.2)
-    $ cg_unlock("Blueshift")
+    $ enter_m_op_cg_unlock("Blueshift")
     show screen enter_m_op_cg_polish("enter_m_op_blueshift", 0.12, 1.2, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("wipe_blue", 0.46)
     show noise:
@@ -1469,7 +1493,7 @@ label enter_m_sick_ass_anime_op:
 
     # 44.00s second drop. The post-drop montage locks to 4-beat bars.
     scene enter_m_op_puppet at enter_m_op_puppet_stage(enter_m_op_bar)
-    $ cg_unlock("Puppet")
+    $ enter_m_op_cg_unlock("Puppet")
     show screen enter_m_op_cg_polish("enter_m_op_puppet", 0.10, enter_m_op_bar, "#ffffff", "#d05f77")
     show screen enter_m_op_cut_fx("white", 0.48)
     show noise:
@@ -1485,7 +1509,7 @@ label enter_m_sick_ass_anime_op:
 
     scene enter_m_op_asahina_world_broken at enter_m_op_world_crumble_stage(enter_m_op_bar):
         zoom 1.50
-    $ cg_unlock("World Broken")
+    $ enter_m_op_cg_unlock("World Broken")
     show screen enter_m_op_cg_polish("enter_m_op_asahina_world_broken", 0.09, enter_m_op_bar, "#d05f77", "#75f7ff")
     show screen enter_m_op_cut_fx("wipe_red", 0.36)
     show noise:
@@ -1500,7 +1524,7 @@ label enter_m_sick_ass_anime_op:
     $ renpy.pause(enter_m_op_bar, hard=True)
 
     scene enter_m_op_no_marks at enter_m_op_no_marks_stage(enter_m_op_bar)
-    $ cg_unlock("No Marks")
+    $ enter_m_op_cg_unlock("No Marks")
     show screen enter_m_op_cg_polish("enter_m_op_no_marks", 0.075, enter_m_op_bar, "#75f7ff", "#ffffff")
     show screen enter_m_op_cut_fx("wipe_blue", 0.30)
     show noise:
@@ -1518,7 +1542,7 @@ label enter_m_sick_ass_anime_op:
     scene enter_m_op_dark
     show enter_m_op_turmoil as enter_m_op_turmoil_back at enter_m_op_turmoil_backplate(enter_m_op_bar * 2.0)
     show enter_m_op_turmoil as enter_m_op_turmoil_front at enter_m_op_turmoil_chaos(enter_m_op_bar * 2.0)
-    $ cg_unlock("Turmoil")
+    $ enter_m_op_cg_unlock("Turmoil")
     show screen enter_m_op_cut_fx("red", 0.55)
     show screen enter_m_op_turmoil_fx(enter_m_op_bar * 2.0)
     # FX upgrade: MC's psyche fracturing -- sustained datamosh + chromatic tear,
@@ -1608,7 +1632,7 @@ label enter_m_sick_ass_anime_op:
     scene enter_m_op_dark
     show enter_m_op_sam_villain as enter_m_op_sam_villain_back at enter_m_op_sam_villain_backplate(enter_m_op_bar * 2.0)
     show enter_m_op_sam_villain as enter_m_op_sam_villain_front at enter_m_op_sam_villain_stage(enter_m_op_bar * 2.0)
-    $ cg_unlock("Smug Sam")
+    $ enter_m_op_cg_unlock("Smug Sam")
     show screen enter_m_op_cut_fx("amber", 0.34)
     show noise:
         alpha 0.045
@@ -1656,7 +1680,7 @@ label enter_m_sick_ass_anime_op:
         hide screen enter_m_op_bg_plate
 
     scene enter_m_op_missing at enter_m_op_missing_stage(enter_m_op_bar * 2.0)
-    $ cg_unlock("Next Line Missing")
+    $ enter_m_op_cg_unlock("Next Line Missing")
     show screen enter_m_op_cg_polish("enter_m_op_missing", 0.13, enter_m_op_bar * 2.0, "#75f7ff", "#d05f77")
     show screen enter_m_op_cut_fx("white", 0.42)
     show noise:
@@ -1680,7 +1704,7 @@ label enter_m_sick_ass_anime_op:
 
     # 73.54s title drop, sixteen 4-beat bars after the second drop.
     scene enter_m_op_title_drop at enter_m_op_title_plate
-    $ cg_unlock("Title Drop")
+    $ enter_m_op_cg_unlock("Title Drop")
     show screen enter_m_op_cg_polish("enter_m_op_title_drop", 0.08, 6.8, "#ffffff", "#75f7ff")
     show screen enter_m_op_cut_fx("white", 0.58)
     show noise:

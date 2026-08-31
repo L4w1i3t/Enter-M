@@ -5238,11 +5238,6 @@ label cs_asahina_snoop_loop:
         jump cs_asahina_snoop_loop
     if _sret and _sret.startswith("snoopfile:"):
         $ _doc = _sret[10:]
-        # Files opened from INSIDE a folder window take this inline path and
-        # never touch cs_asahina_snoop_file_open below -- so the dare has to be
-        # checked here too (DO_NOT_READ_HINA.txt lives in Asahiko Stuff).
-        if _doc == "do_not_read":
-            $ ach_grant("hina_donotread")
         call screen hw2_notepad(title=hw_snoop_doc_title(_doc) + " - Notepad", body=hw_snoop_doc_body(_doc))
         if _return == "logoff":
             jump cs_asahina_log_off
@@ -5272,9 +5267,6 @@ label cs_asahina_snoop_file:
     $ hw_add_pressure("open_file", 1)
 
 label cs_asahina_snoop_file_open:
-    # The filename is a dare, and opening it is the achievement.
-    if _doc == "do_not_read":
-        $ ach_grant("hina_donotread")
     call screen hw2_notepad(title=hw_snoop_doc_title(_doc) + " - Notepad", body=hw_snoop_doc_body(_doc))
     if _return == "logoff":
         jump cs_asahina_log_off
@@ -5566,14 +5558,7 @@ label cs_asahina_log_off_end:
     pause 0.8
     $ persistent.cs_asahina_01_unlocked = True
     $ hw_start_open = False
-    # Ending-state achievements, granted once the sim is over (the toasts play
-    # over the black-out / the Archive, not inside the diegetic desktop).
-    # "tender" = she got to stay a kid; the guarded run = every beat done
-    # without ever warming her to the stranger (hw_guest is entirely player-fed).
-    if hw_ending_tone() == "tender":
-        $ ach_grant("hina_tender")
-    if hw_all_beats_hit() and hw_guest == 0:
-        $ ach_grant("hina_guard")
+    $ cg_unlock("Hina's World")
     $ cs_mark_completed("cs_asahina_01")
     $ quick_menu = _hw_prev_quick_menu
     return

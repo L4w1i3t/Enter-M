@@ -94,9 +94,10 @@ HEAD_REVIEW_CROP = (330, 170, 680, 525)
 
 # The polygon stays inside the facial plane.  A fixed feather is shared by all
 # twenty alternates; expanded feature polygons force the neutral
-# eyes/brows/mouth fully out of the composite.  Only large connected lavender
-# hair regions are painted back after registration, never the similarly colored
-# neutral brows or irises.
+# eyes/brows/mouth fully out of the composite.  The flattened canonical art
+# joins the viewer-right neutral brow to the diagonal bang, so a separate,
+# deliberately conservative brow-ownership guard prevents that connected brow
+# from being mistaken for hair and painted back over an alternate expression.
 CASUAL_FACE_POLYGON: tuple[tuple[int, int], ...] = (
     (424, 224),
     (477, 202),
@@ -124,6 +125,14 @@ CASUAL_FEATURE_POLYGONS: tuple[tuple[tuple[int, int], ...], ...] = (
     ((516, 251), (606, 244), (636, 276), (635, 330), (600, 350), (522, 342), (508, 306)),
     # Nose, mouth, and the surrounding facial plane.
     ((428, 338), (575, 330), (590, 381), (579, 428), (548, 449), (470, 449), (438, 425), (422, 378)),
+)
+# Reviewed ellipses own both canonical brow corridors, including the tiny pale
+# forehead dash above the viewer-left brow and the complete viewer-right brow
+# where it touches the bang.  They are intentionally broader than the visible
+# ink but much narrower than disabling canonical hair preservation wholesale.
+CASUAL_BROW_OWNERSHIP_ELLIPSES: tuple[tuple[int, int, int, int], ...] = (
+    (443, 270, 58, 21),
+    (553, 244, 61, 24),
 )
 FACE_MASK_SIGMA = 5.75
 
@@ -486,6 +495,25 @@ def polygon_mask(polygons: Iterable[Sequence[tuple[int, int]]]) -> np.ndarray:
     return result
 
 
+def casual_brow_ownership_mask() -> np.ndarray:
+    """Return the reviewed source-space ownership guard for both brows."""
+
+    result = np.zeros((CANVAS_HEIGHT, CANVAS_WIDTH), dtype=np.uint8)
+    for center_x, center_y, radius_x, radius_y in CASUAL_BROW_OWNERSHIP_ELLIPSES:
+        cv2.ellipse(
+            result,
+            (center_x, center_y),
+            (radius_x, radius_y),
+            0.0,
+            0.0,
+            360.0,
+            255,
+            thickness=-1,
+            lineType=cv2.LINE_8,
+        )
+    return result
+
+
 def make_casual_face_mask(base_alpha: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     binary = polygon_mask((CASUAL_FACE_POLYGON,)).astype(np.float32) / 255.0
     feathered = cv2.GaussianBlur(
@@ -558,7 +586,9 @@ def color_match_face(
 
 
 def canonical_detail_guard(
-    base_rgba: np.ndarray, neutral_features: np.ndarray
+    base_rgba: np.ndarray,
+    neutral_features: np.ndarray,
+    brow_ownership: np.ndarray,
 ) -> np.ndarray:
     """Protect canonical hair and outfit details outside the edited features.
 
@@ -604,8 +634,16 @@ def canonical_detail_guard(
     lower_chin_and_neck = np.zeros((CANVAS_HEIGHT, CANVAS_WIDTH), dtype=bool)
     lower_chin_and_neck[422:510, 400:625] = True
     lower_chin_and_neck &= base_rgba[:, :, 3] > 96
-    canonical_face_detail = (hair | non_skin_detail) & ~neutral_features
-    return canonical_face_detail | lower_chin_and_neck
+    # The brow guard is a provenance boundary, not a color classifier.  The
+    # viewer-right neutral eyebrow is connected to the bang in the flattened
+    # base, so component filtering alone cannot keep the hair while rejecting
+    # the brow.  Alternate masters therefore own this narrow reviewed region.
+    canonical_face_detail = (
+        (hair | non_skin_detail)
+        & ~neutral_features
+        & ~brow_ownership
+    )
+    return (canonical_face_detail | lower_chin_and_neck) & ~brow_ownership
 
 
 def clean_pose_edge_residue(
@@ -917,11 +955,27 @@ def build(root: Path, install: bool) -> dict[str, Any]:
     work_mask[work_mandatory & (bases["work"][:, :, 3] == 255)] = 255
     masks = {"casual": casual_mask, "work": work_mask}
     mandatory = {"casual": casual_mandatory, "work": work_mandatory}
+    casual_brow_ownership = casual_brow_ownership_mask() > 0
+    casual_brow_ownership &= bases["casual"][:, :, 3] == 255
+    work_brow_ownership = warp_mask(
+        casual_brow_ownership.astype(np.uint8) * 255,
+        casual_to_work.matrix,
+        nearest=True,
+    ) > 0
+    work_brow_ownership &= bases["work"][:, :, 3] == 255
+    brow_ownership = {
+        "casual": casual_brow_ownership,
+        "work": work_brow_ownership,
+    }
     neutral_features = {
         outfit: neutral_feature_footprint(base) for outfit, base in bases.items()
     }
     detail_guards = {
-        outfit: canonical_detail_guard(base, neutral_features[outfit])
+        outfit: canonical_detail_guard(
+            base,
+            neutral_features[outfit],
+            brow_ownership[outfit],
+        )
         for outfit, base in bases.items()
     }
 
@@ -941,6 +995,12 @@ def build(root: Path, install: bool) -> dict[str, Any]:
             raise BuildError(
                 f"{outfit} canonical detail guard restores "
                 f"{int(guarded_features.sum())} expression-owned feature pixels"
+            )
+        guarded_brow_pixels = detail_guards[outfit] & brow_ownership[outfit]
+        if np.any(guarded_brow_pixels):
+            raise BuildError(
+                f"{outfit} canonical detail guard restores "
+                f"{int(guarded_brow_pixels.sum())} reviewed brow-ownership pixels"
             )
 
     faces_dir.mkdir(parents=True, exist_ok=True)
@@ -992,6 +1052,9 @@ def build(root: Path, install: bool) -> dict[str, Any]:
                 "skin_samples": sample_count,
                 "magenta_pixels_repaired": int(magenta.sum()),
                 "canonical_detail_pixels_preserved": int(guard.sum()),
+                "canonical_brow_pixels_preserved": int(
+                    (guard & brow_ownership[outfit]).sum()
+                ),
             }
         expression_records[token] = {
             "master": relative(master_path, root),
@@ -1182,7 +1245,7 @@ def build(root: Path, install: bool) -> dict[str, Any]:
         install_outputs(staged_paths, production_dir, expected_runtime_names)
 
     payload: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "builder": relative(Path(__file__), root),
         "builder_sha256": sha256_file(Path(__file__)),
@@ -1193,6 +1256,7 @@ def build(root: Path, install: bool) -> dict[str, Any]:
             "legacy_kotonoha_art_opened": False,
             "existing_face_or_pose_assets_opened": False,
             "mid_thigh_pose_framing": True,
+            "reviewed_brow_ownership_guard": True,
             "installed": install,
         },
         "canonical_inputs": {
@@ -1211,6 +1275,11 @@ def build(root: Path, install: bool) -> dict[str, Any]:
                 "opaque_pixels": int((mask == 255).sum()),
                 "partial_alpha_pixels": int(((mask > 0) & (mask < 255)).sum()),
                 "unique_alpha_levels": int(len(np.unique(mask))),
+                "brow_ownership_bbox": bbox(brow_ownership[outfit]),
+                "brow_ownership_pixels": int(brow_ownership[outfit].sum()),
+                "canonical_guard_overlap_pixels": int(
+                    (detail_guards[outfit] & brow_ownership[outfit]).sum()
+                ),
             }
             for outfit, mask in masks.items()
         },

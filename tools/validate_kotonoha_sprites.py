@@ -9,6 +9,8 @@ The accepted production contract is deliberately narrow:
 * three fixed, mid-thigh-and-up poses live outside the layered image; and
 * ``def_characters.rpy`` exposes the exact conditioned attributes without
   breaking the existing ``kotonoha neut`` and ``kotonoha work neut`` names.
+* installed generated PNGs are byte-identical to a schema-v2 audited stage
+  whose reviewed brow-ownership guard restores zero canonical brow pixels.
 
 Validation is read-only.  Passing ``--review-sheet PATH`` is the sole optional
 write and produces a dark/light/checker contact sheet for human art review.
@@ -19,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import math
 import re
 import sys
@@ -38,6 +41,7 @@ DEFAULT_DEFINITIONS = (
     PROJECT_ROOT / "game" / "asset_definitions" / "def_characters.rpy"
 )
 DEFAULT_STORY_ROOT = PROJECT_ROOT / "game"
+DEFAULT_PIPELINE_ROOT = PROJECT_ROOT / "tmp" / "kotonoha_sprite_build"
 
 CANVAS_SIZE = (1023, 1537)
 CANVAS_WIDTH, CANVAS_HEIGHT = CANVAS_SIZE
@@ -95,11 +99,10 @@ MIN_FACE_OPAQUE_PIXELS = 8_000
 MIN_ALTERNATE_CHANGED_PIXELS = 500
 MIN_PAIRWISE_CHANGED_PIXELS = 96
 # A registered master can naturally quantize a few skin/ink samples to the same
-# RGB values as the canonical base.  Thousands of exact matches across the
-# neutral feature footprint, however, means the builder has copied the old
-# brows/eyes/mouth back into the alternate plate.  The corrected bank peaks
-# below 600 pixels across both outfits, leaving ample headroom for PNG/library
-# changes without allowing the former 3,000+ pixel contamination.
+# RGB values as the canonical base.  This remains a useful secondary signal,
+# but it cannot prove feature ownership: one canonical brow is connected to a
+# bang and falls partly outside the color-derived footprint.  Schema-v2 build
+# provenance below is the authoritative regression check for that case.
 MAX_CANONICAL_FEATURE_REUSE_PIXELS = 1_024
 CHECKER_PERIODICITY_LIMIT = 0.28
 GRID_PERIODICITY_LIMIT = 0.55
@@ -725,6 +728,272 @@ def validate_manifest(sprite_root: Path, report: ValidationReport) -> None:
         not obsolete,
         f"obsolete/unconditioned Kotonoha sprite iteration(s) remain: {obsolete}",
     )
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def validate_pipeline_provenance(
+    sprite_root: Path,
+    pipeline_root: Path,
+    report: ValidationReport,
+) -> None:
+    """Require the installed bank to equal an audited schema-v2 build.
+
+    Pixel heuristics alone missed the former duplicate brow because its ink was
+    connected to a canonical hair component.  This check makes the reviewed
+    brow-ownership boundary, clean masters, staged outputs, build script, and
+    installed runtime PNGs one exact provenance chain.
+    """
+
+    starting_errors = len(report.errors)
+    metrics_path = pipeline_root / "build_metrics.json"
+    if not metrics_path.is_file() or metrics_path.is_symlink():
+        report.error(
+            "Kotonoha schema-v2 build metrics are missing or unsafe: "
+            f"{metrics_path}"
+        )
+        return
+    try:
+        payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        report.error(f"cannot read Kotonoha build metrics {metrics_path}: {exc}")
+        return
+    if not isinstance(payload, dict):
+        report.error(f"Kotonoha build metrics root is not an object: {metrics_path}")
+        return
+
+    report.check(
+        payload.get("schema_version") == 2,
+        "Kotonoha build metrics must use audited schema_version 2; "
+        f"got {payload.get('schema_version')!r}",
+    )
+    expected_builder_reference = "tools/build_kotonoha_sprites.py"
+    expected_builder = PROJECT_ROOT / expected_builder_reference
+    report.check(
+        payload.get("builder") == expected_builder_reference,
+        "Kotonoha metrics reference an unexpected builder: "
+        f"{payload.get('builder')!r}",
+    )
+    try:
+        actual_builder_hash = file_sha256(expected_builder)
+    except OSError as exc:
+        report.error(f"cannot hash Kotonoha builder {expected_builder}: {exc}")
+    else:
+        report.check(
+            payload.get("builder_sha256") == actual_builder_hash,
+            "Kotonoha builder changed after the audited build; rebuild before "
+            f"installing (actual={actual_builder_hash}, "
+            f"metrics={payload.get('builder_sha256')!r})",
+        )
+
+    policy = payload.get("policy")
+    if not isinstance(policy, dict):
+        report.error("Kotonoha build metrics policy is missing or malformed")
+        policy = {}
+    report.check(
+        policy.get("installed") is True,
+        "Kotonoha build metrics do not attest that the staged bank was installed",
+    )
+    report.check(
+        policy.get("clean_room") is True,
+        "Kotonoha build metrics do not attest clean-room generation",
+    )
+    report.check(
+        policy.get("reviewed_brow_ownership_guard") is True,
+        "Kotonoha build metrics lack the reviewed brow-ownership guard",
+    )
+
+    face_masks = payload.get("face_masks")
+    if not isinstance(face_masks, dict):
+        report.error("Kotonoha build metrics face_masks are missing or malformed")
+        face_masks = {}
+    report.check(
+        set(face_masks) == {outfit.name for outfit in OUTFITS},
+        "Kotonoha build metrics do not contain exactly the casual/work face masks",
+    )
+    for outfit in OUTFITS:
+        mask_metrics = face_masks.get(outfit.name)
+        if not isinstance(mask_metrics, dict):
+            report.error(
+                f"Kotonoha {outfit.name} face-mask provenance is missing or malformed"
+            )
+            continue
+        report.check(
+            isinstance(mask_metrics.get("brow_ownership_pixels"), int)
+            and mask_metrics["brow_ownership_pixels"] > 0,
+            f"Kotonoha {outfit.name} brow-ownership guard is empty",
+        )
+        report.check(
+            mask_metrics.get("canonical_guard_overlap_pixels") == 0,
+            f"Kotonoha {outfit.name} canonical guard overlaps reviewed brow "
+            f"ownership by {mask_metrics.get('canonical_guard_overlap_pixels')!r} pixels",
+        )
+
+    expressions = payload.get("expressions")
+    if not isinstance(expressions, dict):
+        report.error("Kotonoha build metrics expressions are missing or malformed")
+        expressions = {}
+    report.check(
+        set(expressions) == set(ALTERNATE_TOKENS),
+        "Kotonoha build metrics do not contain exactly the 20 alternate expressions",
+    )
+    master_hash_mismatches: list[str] = []
+    brow_guard_mismatches: list[str] = []
+    for token in ALTERNATE_TOKENS:
+        expression = expressions.get(token)
+        if not isinstance(expression, dict):
+            report.error(f"Kotonoha expression provenance is missing: {token}")
+            continue
+        master_path = pipeline_root / "masters" / f"expression_{token}.png"
+        try:
+            master_hash = file_sha256(master_path)
+        except OSError:
+            master_hash_mismatches.append(token)
+        else:
+            if expression.get("master_sha256") != master_hash:
+                master_hash_mismatches.append(token)
+        outfit_records = expression.get("outfits")
+        if not isinstance(outfit_records, dict):
+            report.error(f"Kotonoha expression outfit provenance is malformed: {token}")
+            continue
+        if set(outfit_records) != {outfit.name for outfit in OUTFITS}:
+            report.error(
+                f"Kotonoha expression outfit provenance is incomplete: {token}"
+            )
+            continue
+        for outfit in OUTFITS:
+            record = outfit_records.get(outfit.name)
+            if (
+                not isinstance(record, dict)
+                or record.get("canonical_brow_pixels_preserved") != 0
+            ):
+                brow_guard_mismatches.append(f"{outfit.name}/{token}")
+    report.check(
+        not master_hash_mismatches,
+        "Kotonoha expression master hashes differ from build metrics: "
+        f"{master_hash_mismatches}",
+    )
+    report.check(
+        not brow_guard_mismatches,
+        "Kotonoha canonical detail guard preserved pixels inside reviewed brow "
+        f"ownership: {brow_guard_mismatches}",
+    )
+
+    expected_faces = expected_face_names()
+    expected_poses = {pose.filename for pose in POSES}
+    expected_generated = expected_faces | expected_poses
+    installed_names = payload.get("installed_runtime_names")
+    report.check(
+        isinstance(installed_names, list)
+        and set(installed_names) == expected_generated,
+        "Kotonoha installed_runtime_names do not describe the exact 45 generated assets",
+    )
+
+    face_outputs = payload.get("face_outputs")
+    if not isinstance(face_outputs, dict):
+        report.error("Kotonoha face_outputs provenance is missing or malformed")
+        face_outputs = {}
+    pose_outputs = payload.get("poses")
+    if not isinstance(pose_outputs, dict):
+        report.error("Kotonoha pose provenance is missing or malformed")
+        pose_outputs = {}
+    report.check(
+        set(face_outputs) == expected_faces,
+        "Kotonoha build metrics do not hash exactly the 42 face outputs",
+    )
+    report.check(
+        set(pose_outputs) == expected_poses,
+        "Kotonoha build metrics do not hash exactly the 3 pose outputs",
+    )
+
+    staged_face_names = {
+        path.name for path in (pipeline_root / "faces").glob("*.png") if path.is_file()
+    }
+    staged_pose_names = {
+        path.name for path in (pipeline_root / "poses").glob("*.png") if path.is_file()
+    }
+    report.check(
+        staged_face_names == expected_faces,
+        "Kotonoha staged face manifest differs from the exact 42-file contract",
+    )
+    report.check(
+        staged_pose_names == expected_poses,
+        "Kotonoha staged pose manifest differs from the exact 3-file contract",
+    )
+
+    staged_missing: list[str] = []
+    installed_missing: list[str] = []
+    metric_hash_mismatches: list[str] = []
+    install_byte_mismatches: list[str] = []
+    for name in sorted(expected_generated):
+        is_face = name in expected_faces
+        staged_path = pipeline_root / ("faces" if is_face else "poses") / name
+        installed_path = sprite_root / name
+        output_record = face_outputs.get(name) if is_face else pose_outputs.get(name)
+        expected_hash = None
+        if isinstance(output_record, dict):
+            expected_hash = output_record.get("sha256" if is_face else "output_sha256")
+        try:
+            staged_hash = file_sha256(staged_path)
+        except OSError:
+            staged_missing.append(name)
+            continue
+        try:
+            installed_hash = file_sha256(installed_path)
+        except OSError:
+            installed_missing.append(name)
+            continue
+        if expected_hash != staged_hash:
+            metric_hash_mismatches.append(name)
+        if installed_hash != staged_hash:
+            install_byte_mismatches.append(name)
+    report.check(
+        not staged_missing,
+        f"Kotonoha staged outputs are missing or unreadable: {staged_missing}",
+    )
+    report.check(
+        not installed_missing,
+        f"Kotonoha installed outputs are missing or unreadable: {installed_missing}",
+    )
+    report.check(
+        not metric_hash_mismatches,
+        "Kotonoha staged output hashes differ from build metrics: "
+        f"{metric_hash_mismatches}",
+    )
+    report.check(
+        not install_byte_mismatches,
+        "Kotonoha installed outputs are not byte-identical to the audited stage: "
+        f"{install_byte_mismatches}",
+    )
+
+    pose_master_mismatches: list[str] = []
+    for pose in POSES:
+        record = pose_outputs.get(pose.filename)
+        master_path = pipeline_root / "masters" / pose.filename
+        try:
+            master_hash = file_sha256(master_path)
+        except OSError:
+            pose_master_mismatches.append(pose.filename)
+            continue
+        if not isinstance(record, dict) or record.get("master_sha256") != master_hash:
+            pose_master_mismatches.append(pose.filename)
+    report.check(
+        not pose_master_mismatches,
+        "Kotonoha pose master hashes differ from build metrics: "
+        f"{pose_master_mismatches}",
+    )
+
+    if len(report.errors) == starting_errors:
+        report.note(
+            "kotonoha/provenance: schema-v2 builder + 23 masters + 45 staged/installed "
+            "outputs exact; 40/40 alternate brow guards preserve 0 canonical pixels"
+        )
 
 
 def validate_bases(
@@ -1896,6 +2165,12 @@ def parse_args() -> argparse.Namespace:
         help="directory recursively audited for `show kotonoha` calls",
     )
     parser.add_argument(
+        "--pipeline-root",
+        type=Path,
+        default=DEFAULT_PIPELINE_ROOT,
+        help="audited Kotonoha build stage containing schema-v2 metrics",
+    )
+    parser.add_argument(
         "--review-sheet",
         type=Path,
         default=None,
@@ -1909,12 +2184,14 @@ def main() -> int:
     sprite_root = args.sprite_root.resolve()
     definitions = args.definitions.resolve()
     story_root = args.story_root.resolve()
+    pipeline_root = args.pipeline_root.resolve()
     report = ValidationReport()
 
     if not sprite_root.is_dir():
         report.error(f"Kotonoha sprite directory does not exist: {sprite_root}")
     else:
         validate_manifest(sprite_root, report)
+    validate_pipeline_provenance(sprite_root, pipeline_root, report)
     bases = validate_bases(sprite_root, report)
     validate_face_bank(sprite_root, bases, report)
     validate_poses(sprite_root, bases, report)
@@ -1955,7 +2232,8 @@ def main() -> int:
         "42 outfit-conditioned RGBA face layers with blank neutrals and fixed "
         "registered masks, pairwise-distinct residue-free composites, 3 clean "
         "mid-thigh poses at the established head scale, exact Ren'Py wiring, "
-        "and compatible story attributes."
+        "compatible story attributes, and exact schema-v2 staged/installed "
+        "provenance with zero canonical brow restoration."
     )
     return 0
 

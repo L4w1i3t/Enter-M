@@ -7,25 +7,18 @@ label a0515:
     $ show_calendar()
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
-    window auto
     # Short sequence before the player can finally enter MC's name. Monika finds
     # his dropped ID during her assigned council sweep and returns it to him.
     show monika forward uniform happ om oe nobl rdown ldown at t11
     m forward uniform happ om oe nobl rdown ldown "...Of course, see you then!"
-    window hide
     pause 2.0
-    window auto
     m forward uniform anno om oe nobl rdown ldown "...Ah. Inappropriate flyer here..."
     m forward uniform anno om oe awkw rdown ldown "Student council's end-of-day sweep sounded shorter when it was still on paper..."
     m forward uniform neut om oe nobl rdown ldown "Alright, flyer in the trash bag... One more pass by the stairs, then club."
-    window hide
     pause 1.5
-    window auto
     m forward uniform anno om ce nobl rdown ldown "Aaaaand...of course he left this thing here."
     m forward uniform worr om oe nobl rhip ldown "Come on, you're better than this..."
-    window hide
     pause 1.0
-    window auto
     # The only fourth-wall break in the chapter. Staged deliberately SMALL: she
     # is still mid-cleanup and still holding the card, so the line stays
     # deniable as something said to it. The meta thread is dormant until later
@@ -41,7 +34,6 @@ label a0515:
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_soft
     play music dailyfantasy
-    window auto
     # Perspective shift immediately onto MC
     # SFX SUGGESTION: A single dry pen tap against the desktop, prominent in the quiet room.
     "My pen rolls between my fingers and taps once against the desk. It is the loudest thing in the club room."
@@ -79,7 +71,6 @@ label a0515:
     $ atmos("afternoon", particles="motes")
     $ show_calendar()
     with dissolve_scene_full
-    window auto
     show monika forward uniform happ cm oe nobl rdown lpoint at t11
     m forward uniform happ om oe nobl rdown lpoint "Be sure not to lose it again, 'kay?"
     mc "Yeah, yeah..."
@@ -188,15 +179,15 @@ label a0515:
     mc "Nothing. I'm just saying the cashier probably starts your order the second he sees you cross the street."
     show asahina uniform annoyed
     ah annoyed "Yeah, well, I've got money and practice burns it off. That cashier doesn't even know my name, actually."
-    mc "Sure he doesn't... I'd say he's just too polite to use it."
+    mc "Sure he doesn't. He's just too polite to say it while you're ordering three double combos."
     "A fry bounces off my cheek before I get to enjoy that one."
     show asahina uniform frustrated
     ah "Okay, listen here, you little--!"
     "{i}It's always too easy with her, I swear.{/i}"
+    show asahina uniform unamused
     "I hold the blank smile too long. Something in her face goes still."
     mc "...Anyway. I'm heading in."
     mc "Leave some food for other paying customers, please."
-    show asahina uniform unamused
     ah "Screw you too."
     "Asahina raises her empty hand as I approach the front mat. Her middle finger follows."
     $ phone_mark_contact_met("asahina")
@@ -277,7 +268,7 @@ label a0515:
     show mom teasing
     mom "Oh, don't be like that. If anything, we're late to the party."
     show mom neut
-    mom "You graduate in less than a year. I don't want to be the parent who nags, but it's time to start thinking about what comes after."
+    mom "You graduate in {i}less than a year{/i}. I don't want to be the parent who nags, but it's time to start thinking about what comes after."
     "I make myself nod."
     mc "...When you put it that way."
     mc "I know a few classmates who already have the whole thing mapped. Major, city, the exact dorm they want, et cetera."
@@ -309,7 +300,7 @@ label a0515:
     with wipeleft_scene
     "My sister takes her seat, not even giving her own plate the time of day."
     ah "...Smells good."
-    mom curious "That's all you're having...? A spoonful of rice and the smallest wedge?"
+    mom curious "That's {i}all{/i} you're having...? A spoonful of rice and the smallest wedge?"
     show asahina unamused
     ah "Yeah."
     ah "I'm not that hungry today."
@@ -373,7 +364,7 @@ label a0515:
     show asahina shocked at h11
     mom "Language, Asahina!"
     show asahina annoyed at t11
-    ah "I didn't even swear that time!"
+    ah "I didn't even {i}swear{/i} that time!"
     show asahina neut
     ah "...So, anyway. Yeah."
     mc "...And what exactly am I supposed to do about it? You've always been the artsy one."

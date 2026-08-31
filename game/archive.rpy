@@ -4,10 +4,10 @@
 #
 # WHAT THIS FILE IS
 #   This is the central "Archive" menu reachable from the main menu / game menu.
-#   It is a grid of six cards, each card being a gateway to one bonus feature
-#   (Roster, CG Gallery, Music Room, Side Stories, Lost Records, Achievements),
-#   gated by the persistent.archive_unlocked_* flags defined at the top of this
-#   file. Five of the six now ship OPEN -- read the flag block for why, and for
+#   It is a grid of seven cards, each card being a gateway to one bonus feature
+#   (Roster, CG Gallery, Music Room, Side Stories, Lost Records, Achievements,
+#   Cards), gated by the persistent.archive_unlocked_* flags defined at the top
+#   of this file. Six of the seven now ship OPEN -- read the flag block for why,
 #   where the per-item gating moved to instead.
 #
 # HOW IT IS REACHED (who opens this screen)
@@ -28,7 +28,6 @@
 #
 # EXTERNAL SYMBOLS THIS FILE LEANS ON (defined elsewhere)
 #   - image "bg ether"             : background art (defined in definitions/images).
-#   - transform menu_scanline_slow : scrolling-scanline effect (game/screens.rpy).
 #   - label enter_m_sick_ass_anime_op + enter_m_op_cleanup_screens()
 #                                  : the OP intro sequence (game/addons/Sick Ass Anime OP/op.rpy),
 #                                    reused here by the "Replay OP" button.
@@ -47,8 +46,8 @@
 #       (poems are surfaced elsewhere -- see game/addons/poem_display.rpy).
 #
 # WHAT IS GATED AND WHAT IS NOT
-#   The SHELL is not the reward. Five of the six panels ship open on a brand new
-#   save, because an Archive that is six identical "???" cards tells a first-time
+#   The SHELL is not the reward. Six of the seven panels ship open on a brand new
+#   save, because an Archive that is seven identical "???" cards tells a first-time
 #   player nothing about what is in there or how to earn it. What is actually
 #   withheld lives one level DOWN, per item, and is visibly incomplete instead of
 #   invisible:
@@ -110,14 +109,53 @@ init python:
     # Each entry: (label, unlock_persistent_key, unlocked_action, icon)
     # unlock_persistent_key of None means always locked (placeholder)
     archive_items = [
-        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen"), "assets/dump/icon_placeholder.png"),
-        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery"),         "assets/dump/icon_placeholder.png"),
-        ("Music Room",   "archive_unlocked_music",             Show("music_room"),         "assets/dump/icon_placeholder.png"),
-        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories"),  "assets/dump/icon_placeholder.png"),
-        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records"),       "assets/dump/icon_placeholder.png"),
-        ("Achievements", "archive_unlocked_achievements",      Show("achievements"),       "assets/dump/icon_placeholder.png"),
-        ("Cards",        "archive_unlocked_cards",             Show("mc_collection"),      "assets/dump/icon_placeholder.png"),
+        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen"), "assets/gui/archive_panels/roster.png"),
+        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery"),         "assets/gui/archive_panels/cg_gallery.png"),
+        ("Music Room",   "archive_unlocked_music",             Show("music_room"),         "assets/gui/archive_panels/music_room.png"),
+        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories"),  "assets/gui/archive_panels/side_stories.png"),
+        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records"),       "assets/gui/archive_panels/lost_records.png"),
+        ("Achievements", "archive_unlocked_achievements",      Show("achievements"),       "assets/gui/archive_panels/achievements.png"),
+        ("Cards",        "archive_unlocked_cards",             Show("mc_collection"),      "assets/gui/archive_panels/cards.png"),
     ]
+
+    # Each hub panel also has a full-resolution CG Gallery master. The module
+    # flag remains the source of truth for whether the player has actually seen
+    # that panel; the CG keeps its own path-derived persistent key so gallery
+    # recovery and Archive availability cannot accidentally mutate each other.
+    # ach_audit_content() reads this table as a truthful dynamic unlock source.
+    archive_panel_cg_unlocks = (
+        ("archive_unlocked_roster",            "Roster"),
+        ("archive_unlocked_cgs",               "CG Gallery"),
+        ("archive_unlocked_music",             "Music Room"),
+        ("archive_unlocked_character_stories", "Side Stories"),
+        ("archive_unlocked_lost_records",      "Lost Records"),
+        ("archive_unlocked_achievements",      "Achievements"),
+        ("archive_unlocked_cards",             "Cards"),
+    )
+
+    # Recover completion-reward CGs for profiles that finished these stories
+    # before the reward art shipped. Keep the gallery's own path-derived keys
+    # separate from story completion so developer gallery unlocks cannot forge
+    # story progress in the opposite direction.
+    archive_completed_story_cg_unlocks = (
+        ("cs_tsubaki_02_completed", ("What I Keep", "What She Kept")),
+        ("cs_asahina_01_completed", ("Hina's World",)),
+        ("cs_kotonoha_01_completed", ("No One Lived There",)),
+        ("cs_kotonoha_02_completed", ("Open Hands",)),
+    )
+
+    def archive_sync_panel_cgs():
+        recovered = [
+            title for archive_key, title in archive_panel_cg_unlocks
+            if getattr(persistent, archive_key, False)
+        ]
+        for completed_key, titles in archive_completed_story_cg_unlocks:
+            if getattr(persistent, completed_key, False):
+                recovered.extend(titles)
+        if recovered:
+            # One batched call means at most one persistent write when several
+            # default-open panels and old story rewards are recovered together.
+            cg_unlock(*recovered)
 
     # Modules that ship unlocked rather than gated behind story progress. They
     # are excluded from archive_unlock_keys() by default so "bring a module
@@ -346,13 +384,15 @@ transform archive_scanline(h=156):
 
 # -----------------------------------------------------------------------------
 # BACKDROP
-# Shared background layer: the "ether" art, a dark tint, and a thin animated
-# scanline strip (menu_scanline_slow lives in game/screens.rpy).
+# Shared background layer: the Archive's dedicated physical preservation room
+# and a light readability grade. Keep this alias separate from `bg ether`: that
+# image is also story/transition art and must not be repurposed for menus.
 # -----------------------------------------------------------------------------
+image enter_m_archive_bg = "assets/gui/menu/archive_vn.png"
+
 screen archive_backdrop():
-    add "bg ether"
-    add Solid("#00000050")
-    add Solid("#75f7ff1f") xysize (1280, 2) at menu_scanline_slow
+    add "enter_m_archive_bg"
+    add Solid("#02050a30")
 
 # -----------------------------------------------------------------------------
 # REUSABLE HEADER
@@ -362,7 +402,7 @@ screen archive_backdrop():
 #   return_action : action list run by the Return button
 #   return_text   : button caption (defaults to localized "Return")
 # -----------------------------------------------------------------------------
-screen archive_header(title, return_action, return_text=_("Return")):
+screen archive_header(title, return_action, return_text=_("Return"), static=False):
     hbox:
         xfill True
         ysize 64
@@ -379,10 +419,16 @@ screen archive_header(title, return_action, return_text=_("Return")):
                 spacing 13
                 yalign 0.5
 
-                add Solid("#56d7ff") xysize (11, 11) yalign 0.5 at console_blink
+                if static:
+                    add Solid("#56d7ff") xysize (11, 11) yalign 0.5
+                else:
+                    add Solid("#56d7ff") xysize (11, 11) yalign 0.5 at console_blink
                 text title style "archive_title"
 
-        add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16 at enter_m_pip_pulse
+        if static:
+            add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16
+        else:
+            add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16 at enter_m_pip_pulse
 
         null width 1 xfill True
 
@@ -420,7 +466,7 @@ screen archive_header(title, return_action, return_text=_("Return")):
 # `text_style` is for the one sub-screen with a deliberately different typeface
 # (Side Stories' dossier face) -- it shares the LAYOUT without being forced into
 # the default archive face.
-screen archive_readout(left_text, right_text="", width=1150, rule=True, right_slot=False, slot_spacing=20, text_style="archive_meta_text"):
+screen archive_readout(left_text, right_text="", width=1150, rule=True, right_slot=False, slot_spacing=20, text_style="archive_meta_text", static=False):
     vbox:
         xalign 0.5
         spacing 8
@@ -429,7 +475,10 @@ screen archive_readout(left_text, right_text="", width=1150, rule=True, right_sl
             xsize width
             ysize 20
 
-            add Solid("#56d7ff") xysize (6, 6) xpos 0 yalign 0.5 at console_blink
+            if static:
+                add Solid("#56d7ff") xysize (6, 6) xpos 0 yalign 0.5
+            else:
+                add Solid("#56d7ff") xysize (6, 6) xpos 0 yalign 0.5 at console_blink
             text left_text style text_style xpos 16 yalign 0.5
 
             if right_text:
@@ -539,7 +588,39 @@ screen archive_portrait(img, w, h, fit_mode="contain", gray=False, focus=0.0, sc
 # callers (pause menu, splash, main menu).
 # -----------------------------------------------------------------------------
 screen archive_shell_brackets():
-    use console_brackets(40, 15, 1200, 690, "#56d7ff7a", 24, 2)
+    add enter_m_brackets(1200, 690, "#56d7ff7a", 24, 2) xpos 40 ypos 15
+
+# -----------------------------------------------------------------------------
+# HUB MINI-CG
+# The old placeholder was squeezed into a narrow 80x112 portrait. These scenes
+# need room for interactions, so every module now gets a 16:9 window while the
+# 250x230 card and the surrounding 4+3 wall remain exactly the same size.
+# Production art is stored at 384x216 (2x this window) for clean downsampling.
+# The frame stays code-drawn so locked and unlocked modules share one silhouette,
+# and so the art itself remains reusable without Archive-specific chrome baked in.
+# -----------------------------------------------------------------------------
+screen archive_module_thumbnail(img, unlocked):
+    fixed:
+        xysize (192, 108)
+        xalign 0.5
+
+        add Solid("#02050a") xysize (192, 108)
+
+        if unlocked and img:
+            add Transform(img, xysize=(192, 108), fit="contain")
+        else:
+            add Transform(
+                "assets/dump/unavailable_icon_placeholder.png",
+                xysize=(72, 108),
+                fit="contain"):
+                xalign 0.5
+                at enter_m_locked_flicker
+
+        $ _amt_rule = "#56d7ff99" if unlocked else "#33414d"
+        add Solid(_amt_rule) xysize (192, 2)
+        add Solid(_amt_rule) xysize (192, 2) ypos 106
+        add Solid(_amt_rule) xysize (2, 108)
+        add Solid(_amt_rule) xysize (2, 108) xpos 190
 
 # -----------------------------------------------------------------------------
 # THE ARCHIVE SCREEN (main hub)
@@ -557,16 +638,16 @@ screen archive():
     # track then fades out across the black beat of enter_m_menu_shutter and
     # roster_place starts, at full volume, on the frame this screen appears.
     # See menu_transitions.rpy section 6.
-    on "show" action [EnterMMenuMusic(audio.roster_place), Function(ach_refresh)]
-    on "replace" action [EnterMMenuMusic(audio.roster_place), Function(ach_refresh)]
+    on "show" action [EnterMMenuMusic(audio.roster_place), Function(archive_sync_panel_cgs), Function(ach_refresh)]
+    on "replace" action [EnterMMenuMusic(audio.roster_place), Function(archive_sync_panel_cgs), Function(ach_refresh)]
 
     use archive_backdrop
 
     # Back/Escape both bail out: restore menu BGM, then Return() to the caller.
     # The track is handed over with a fade rather than cut -- see section 6 of
     # menu_transitions.rpy for why a hard cut here stuttered the way out.
-    key "game_menu" action [EnterMMenuMusic(audio.canyoufeel), Return()]
-    key "K_ESCAPE" action [EnterMMenuMusic(audio.canyoufeel), Return()]
+    key "game_menu" action [EnterMMenuMusic(audio.mainmenu), Return()]
+    key "K_ESCAPE" action [EnterMMenuMusic(audio.mainmenu), Return()]
 
     # Live module census for the subsystem readout.
     $ a_total = len(archive_items)
@@ -579,10 +660,13 @@ screen archive():
         vbox:
             xalign 0.5
             yalign 0.5
-            spacing 10
+            # The old 10px outer gaps plus a 25px card-row gap totalled 625px
+            # inside a 620px content well. Tighten only the hub's rhythm so both
+            # rows and the footer sit inside the frame without changing card size.
+            spacing 8
 
             # Reuse the header defined above; its Return mirrors the key actions.
-            use archive_header("ARCHIVE", [EnterMMenuMusic(audio.canyoufeel), Return()])
+            use archive_header("ARCHIVE", [EnterMMenuMusic(audio.mainmenu), Return()])
 
             # Subsystem readout + accent rail -- the same strip every sub-screen
             # uses, so the hub is styled by the same definition it exports.
@@ -606,17 +690,16 @@ screen archive():
                         for _i in range(0, len(_a_all), _a_cols)]
 
             vbox:
-                spacing 25
+                spacing 20
                 xalign 0.5
 
                 for _a_row in _a_rows:
-                    # xalign 0.0, so a short final row lines its cards up under
-                    # the first row's left edge instead of centring them into a
-                    # pyramid. The VBOX is what is centred (above), so the wall
-                    # as a whole still sits in the middle of the shell.
+                    # Centre a short final row within the full first-row width so
+                    # seven modules read as a deliberate 4+3 wall, not a missing
+                    # fourth card.
                     hbox:
                         spacing 25
-                        xalign 0.0
+                        xalign 0.5
 
                         for i, item in _a_row:
                             # Unpack the data tuple and resolve its lock state.
@@ -651,7 +734,10 @@ screen archive():
                                         text "[a_id]" style "archive_card_id" xpos 0 yalign 0.5
 
                                         if a_unlocked:
-                                            add Solid("#56d7ff") xysize (7, 7) xanchor 1.0 xpos 214 yalign 0.5 at console_blink
+                                            # Static status is enough here; seven
+                                            # independent blink loops added motion
+                                            # without conveying changing state.
+                                            add Solid("#56d7ff") xysize (7, 7) xanchor 1.0 xpos 214 yalign 0.5
                                         else:
                                             add Solid("#4f5b67") xysize (7, 7) xanchor 1.0 xpos 214 yalign 0.5
 
@@ -659,16 +745,15 @@ screen archive():
                                         xsize 214
                                         ysize 2
 
-                                    # Visual fork: real card (icon + label + AVAILABLE)
-                                    # vs. locked (flickering mystery icon + ??? + LOCKED).
-                                    # NB: a bare `fixed` here is greedy and blows the
-                                    # card up -- add the icon directly at a fixed size.
+                                    # Both states use the same landscape mini-CG frame;
+                                    # a locked module swaps its art for the flickering X.
+                                    use archive_module_thumbnail(a_icon, a_unlocked)
+
+                                    # Visual fork: real label + AVAILABLE vs. ??? + LOCKED.
                                     if a_unlocked and a_icon:
-                                        add Transform(a_icon, size=(80, 112)) xalign 0.5
                                         text a_label style "archive_item_text" xalign 0.5
                                         text "AVAILABLE" style "archive_item_status" xalign 0.5
                                     else:
-                                        add Transform("assets/dump/unavailable_icon_placeholder.png", size=(80, 112)) xalign 0.5 at enter_m_locked_flicker
                                         text "???" style "archive_locked_text" xalign 0.5
                                         text "LOCKED" style "archive_locked_status" xalign 0.5
 
@@ -682,7 +767,7 @@ screen archive():
                 text "CONNECTION STABLE" style "archive_footer_text" xanchor 1.0 xpos 1100 yalign 0.5
 
     # Console brackets framing the archive panel.
-    use console_brackets(60, 28, 1160, 664, "#56d7ff7a", 24, 2)
+    add enter_m_brackets(1160, 664, "#56d7ff7a", 24, 2) xpos 60 ypos 28
 
     # Floating corner button: relaunch the opening movie. Uses call_in_new_context
     # so the OP plays in its own context and returns here cleanly (see the
@@ -712,7 +797,9 @@ style archive_frame:
     yalign 0.5
     xsize 1160
     ysize 664
-    background Solid("#050811e8")
+    # The preservation-room art should remain legible through the shell while
+    # this dark plate keeps text and thumbnails comfortably separated from it.
+    background Solid("#050811c4")
     padding (30, 22)
 
 style archive_shell_frame is archive_frame:
@@ -853,11 +940,9 @@ style archive_sv_vscrollbar:
 # WHY THE "on" INK STAYS NEAR-BLACK. It looks like it ought to be light, because
 # every other piece of text in the Archive is. It must not be: this style is
 # only ever stamped on chips whose fill is BRIGHT -- achievement tiers (bronze
-# #b9793f, silver #9fb0bd, gold #e0ac33, platinum #5fd3ef) and the cyan status
-# chips. Measured contrast of #04121a on those fills is 5.3:1 / 8.5:1 / 9.1:1 /
-# 10.9:1 / 11.4:1; swapping to a near-white #f4fbff drops the same pairs to
-# 3.4:1 / 2.1:1 / 2.0:1 / 1.7:1 / 1.6:1, i.e. strictly worse everywhere, and an
-# outline cannot honestly rescue a 1.6:1 fill.
+# #b9793f, silver #9fb0bd, gold #e0ac33) and cyan status chips. Measured contrast
+# of #04121a on those fills stays comfortably readable; swapping to near-white
+# makes the same pairings strictly worse, and an outline cannot rescue them.
 #
 # A dark glyph on a MUTED fill is the combination that reads badly -- that is
 # what made the card binder's R chip (steel #6f7d95, 4.7:1) hard to read. The

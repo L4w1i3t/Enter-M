@@ -245,9 +245,9 @@ init -3 python:
 
 # =============================================================================
 # DISPLAYABLE FACTORIES
-# Every one of these hands the shader an OPAQUE Solid at a known xysize: that
-# is what defines u_model_size and what stops the mesh being culled before the
-# fragment stage ever runs.
+# Every one of these hands the shader an OPAQUE displayable at a known xysize:
+# that is what defines u_model_size and what stops the mesh being culled before
+# the fragment stage ever runs.
 # =============================================================================
 init -3 python:
 
@@ -263,6 +263,9 @@ init -3 python:
         """
         return Transform(Solid("#000000"), xysize=(int(w), int(h)))
 
+    MC_CARD_BACK_PATH = "assets/gui/cards/card_back_archive.png"
+    _MC_CARD_BACK_CACHE = {}
+
     def McCardBack(w, h, radius=10.0):
         """
         The face-down card.
@@ -271,19 +274,29 @@ init -3 python:
         they still do not know, so it must not leak the answer. The tier is
         spent entirely on the flip and the face.
         """
-        w, h = int(w), int(h)
-        return Fixed(
-            ArcadePanel(w, h, top="#2a2150", bottom="#140e2a",
-                        radius=radius, border=1.5, border_color="#ffb45455"),
-            Transform(
-                ArcadePanel(int(w * 0.74), int(h * 0.80), top="#00000000",
-                            bottom="#00000000", radius=radius * 0.8,
-                            border=1.0, border_color="#ffb45433"),
-                align=(0.5, 0.5),
-            ),
-            Transform(MatsucoinIcon(int(h * 0.30)), align=(0.5, 0.5), alpha=0.55),
-            xysize=(w, h),
-        )
+        w, h = max(1, int(w)), max(1, int(h))
+        radius = max(0.0, float(radius))
+        key = (w, h, round(radius, 3))
+        hit = _MC_CARD_BACK_CACHE.get(key)
+        if hit is None:
+            # The authored back is opaque, including its black corner pixels.
+            # Reuse the face shader as a neutral rounded clip: a transparent
+            # synthetic edge leaves the raster's own frame authoritative.
+            hit = Transform(
+                MC_CARD_BACK_PATH,
+                fit="cover",
+                xysize=(w, h),
+                mesh=True,
+                shader="enter_m.mc_card",
+                u_radius=key[2],
+                u_edge=(0.0, 0.0, 0.0, 0.0),
+                u_locked=0.0,
+                u_holo=0.0,
+                u_sweep=0.0,
+                u_flash=0.0,
+            )
+            _MC_CARD_BACK_CACHE[key] = hit
+        return hit
 
     def McGachaCapsule(size):
         """

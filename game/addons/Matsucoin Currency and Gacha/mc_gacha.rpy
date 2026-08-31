@@ -110,21 +110,37 @@ init -10 python:
             vec2 vv = (uv - vec2(0.5)) * vec2(1.05, 1.0);
             col *= 1.0 - smoothstep(0.42, 0.95, length(vv)) * 0.40;
 
-            // SSR holo: a wide prismatic band riding the diagonal
+            // SSR foil: a prismatic band riding the printed shell, not the
+            // illustration. Sweeping the whole portrait looked like a filter
+            // laid over an image; confining it to the rails/footer makes the
+            // card itself the holographic object.
             if (u_holo > 0.0) {
                 float band = uv.x * 0.72 + uv.y * 0.28 - u_sweep;
                 float g = exp(-band * band * 26.0);
+                float edge_x = 1.0 - smoothstep(0.10, 0.145,
+                    min(uv.x, 1.0 - uv.x));
+                float edge_top = 1.0 - smoothstep(0.085, 0.13, uv.y);
+                // Reserve the readable nameplate. The lower foil lives on the
+                // bottom hardware, while an expanded aperture mask guarantees
+                // that no colorful strip can touch the illustration itself.
+                float footer = smoothstep(0.865, 0.915, uv.y);
+                float foil = max(edge_x, max(edge_top, footer));
+                float art_mask = step(0.112, uv.x)
+                    * step(uv.x, 0.888)
+                    * step(0.104, uv.y)
+                    * step(uv.y, 0.721);
+                foil *= (1.0 - art_mask);
                 vec3 rainbow = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67)
                                 + (uv.x * 0.6 + uv.y * 0.4) * 1.6));
-                col += rainbow * g * 0.42 * u_holo;
-                col += vec3(1.0) * g * 0.10 * u_holo;
+                col += rainbow * g * 0.38 * u_holo * foil;
+                col += vec3(1.0) * g * 0.09 * u_holo * foil;
             }
 
             // reveal flash (ATL-driven, 1 -> 0 as the card lands)
             col += u_edge.rgb * u_flash;
 
             // rarity edge ring
-            float bw = 3.0;
+            float bw = 1.4;
             float band2 = (1.0 - smoothstep(bw - aa, bw + aa, abs(d))) * step(d, 0.0);
             col = mix(col, u_edge.rgb, band2 * u_edge.a);
             a = mix(a, max(a, u_edge.a), band2);
@@ -146,9 +162,10 @@ init -3 python:
     # SDF glass dome, a seeded field of capsule circles, a red body built out of
     # rounded panels -- and all of that is gone, because a drawn machine is a
     # drawing of a machine and this is the actual object.
-    MC_MACHINE_PATH = "addons/Matsucoin Currency and Gacha/gachamachine.png"
-    MC_MACHINE_W, MC_MACHINE_H = 218, 312
+    MC_MACHINE_PATH = "addons/Matsucoin Currency and Gacha/gachamachine_ui.png"
+    MC_MACHINE_W, MC_MACHINE_H = 320, 480
 
+    @renpy.pure
     def McMachine(height=452):
         """The cabinet at a given pixel HEIGHT, aspect preserved."""
         h = int(height)
@@ -354,21 +371,48 @@ transform mc_card_fx_holo(radius=10.0, edge=(1.0, 1.0, 1.0, 1.0), holo=1.0):
         pause 2.4
         repeat
 
-screen mc_card_face(card, w, h, locked=False, holo=None, radius=10.0):
+screen mc_card_face(card, w, h, locked=False, holo=None, radius=10.0,
+                    show_title=False, show_serial=True):
     $ _mcf_holo = (1.0 if card.rarity == "ssr" else 0.0) if holo is None else holo
-    $ _mcf_edge = enter_m_rgba("#3a4152" if locked else card.color)
+    $ _mcf_edge = enter_m_rgba("#3a4152" if locked else card.color, 0.62)
 
     fixed:
         xysize (w, h)
 
-        # No separate backing Solid: mc_card_art already composites the art onto
-        # an opaque base of exactly (w, h). That is what keeps every card face
-        # the same size AND what stops the mesh being culled for transparency --
-        # see the contract note on mc_card_art in mc_cards.rpy.
+        # No separate backing Solid: mc_card_front composites authored tier stock
+        # and the live illustration onto an opaque base of exactly (w, h). That
+        # keeps every face identical in size and prevents mesh culling.
         if _mcf_holo > 0.0 and not locked:
-            add mc_card_art(card, w, h) at mc_card_fx_holo(radius, _mcf_edge, _mcf_holo)
+            add mc_card_front(card, w, h) at mc_card_fx_holo(radius, _mcf_edge, _mcf_holo)
         else:
-            add mc_card_art(card, w, h) at mc_card_fx(radius, _mcf_edge, (1.0 if locked else 0.0))
+            add mc_card_front(card, w, h) at mc_card_fx(radius, _mcf_edge, (1.0 if locked else 0.0))
+
+        # The binder and inspection view put the identity on the physical card.
+        # Reveal walls keep their existing larger caption underneath by leaving
+        # show_title at its default False.
+        if show_title:
+            $ _mcf_name = "UNRECORDED" if locked else mc_card_display_title(card, h)
+            $ _mcf_subject = "ENTRY SEALED" if locked else MC_SUBJECT_LABEL.get(card.subject, card.subject.upper())
+
+            text _mcf_name:
+                style "mc_card_face_title"
+                size mc_card_title_size(card, h)
+                xsize int(w * (0.90 if h < 200 else 0.76))
+                xalign 0.5
+                yanchor 0.5
+                ypos int(h * 0.800)
+                text_align 0.5
+                layout "subtitle"
+                outlines ([(1, "#02040bdd", 0, 0)] if h < 200 else [(2, "#02040bcc", 0, 0), (1, "#56d7ff55", 1, 1)])
+
+            if show_serial:
+                text ("ARCHIVE // " + _mcf_subject):
+                    style "mc_card_face_serial"
+                    size max(5, int(round(h * 0.024)))
+                    xanchor 1.0
+                    xpos (w - int(radius) - 4)
+                    yanchor 1.0
+                    ypos (h - int(radius) - 4)
 
         # Rarity chip, bottom-left of the face. Inset past the corner radius so
         # it does not overhang the rounded edge it is sitting on.
@@ -402,18 +446,17 @@ transform mc_panel_in(delay=0.0, yoff=26):
     easeout 0.42 alpha 1.0 yoffset 0
 
 transform mc_machine_idle:
-    # The cabinet breathing, and rising to meet the pointer. It lives directly
+    # The cabinet rises to meet the pointer. It lives directly
     # inside the machine button, which is what gets it hover/idle dispatch --
     # an intermediate container would swallow those events (the same
     # button-direct-child rule the Arcade's cartridges follow).
     subpixel True
     on idle:
-        block:
-            easeout 1.8 yoffset -3
-            easein 1.8 yoffset 0
-            repeat
+        easeout 0.20 yoffset 0 zoom 1.0
     on hover:
         easeout 0.25 yoffset -10 zoom 1.03
+    on insensitive:
+        easeout 0.20 yoffset 0 zoom 1.0
 
 screen mc_gacha():
     modal True
@@ -433,8 +476,10 @@ screen mc_gacha():
         _mcg_pity = persistent.mc_pity
         _mcg_pity_left = max(0, MC_PITY_HARD - _mcg_pity)
 
-    add ArcadeField("#ffb454")
-    add Solid("#0a0713a8")
+    add "assets/gui/menu/arcade_vn.png"
+    add ArcadeField("#ffb454"):
+        alpha 0.18
+    add Solid("#0a0713b5")
 
     frame:
         background ArcadePanel(1188, 656, top="#221a4ae8", bottom="#0f0a20f2",
@@ -542,7 +587,8 @@ screen mc_gacha():
                     button:
                         style "mc_machine_button"
                         xysize (440, 512)
-                        action (Function(mc_pull_and_show, 1) if _mcg_single_ok else NullAction())
+                        sensitive _mcg_single_ok
+                        action Function(mc_pull_and_show, 1)
                         hover_sound gui.hover_sound
 
                         # Direct child of the button, so hover/idle reach it.
@@ -620,7 +666,8 @@ screen mc_gacha():
                         button:
                             style "mc_pull_button"
                             xysize (302, 92)
-                            action (Function(mc_pull_and_show, 1) if _mcg_single_ok else NullAction())
+                            sensitive _mcg_single_ok
+                            action Function(mc_pull_and_show, 1)
                             background ArcadePanel(302, 92, top=("#3a2c5e" if _mcg_single_ok else "#241f38"),
                                                 bottom=("#1d1636" if _mcg_single_ok else "#171327"),
                                                 radius=12, border=1.0,
@@ -648,7 +695,8 @@ screen mc_gacha():
                         button:
                             style "mc_pull_button"
                             xysize (302, 92)
-                            action (Function(mc_pull_and_show, MC_TEN_COUNT) if _mcg_ten_ok else NullAction())
+                            sensitive _mcg_ten_ok
+                            action Function(mc_pull_and_show, MC_TEN_COUNT)
                             background ArcadePanel(302, 92, top=("#5c3f2a" if _mcg_ten_ok else "#241f38"),
                                                 bottom=("#2e1f1c" if _mcg_ten_ok else "#171327"),
                                                 radius=12, border=1.0,
@@ -892,8 +940,10 @@ screen mc_reveal(instant=False):
         # Skipping lands every remaining card at once, so it rings the BEST
         # rarity in the batch rather than nothing -- a skip should still tell
         # you what you got.
+        # Sync only when the completed wall closes. If the thirtieth unique card
+        # earns a trophy, its toast follows the reveal instead of spoiling it.
         _mcr_action = (
-            [Function(mc_se, "coin", 0.7), Hide("mc_reveal")]
+            [Function(mc_se, "coin", 0.7), Function(ach_grant_if_met, "cards_30"), Hide("mc_reveal")]
             if _mcr_done
             else [Function(mc_se, _mcr_best), SetScreenVariable("shown", _mcr_count)]
         )
@@ -1183,6 +1233,18 @@ style mc_rarity_chip:
     bold True
     kerning 1.0
     outlines [(1, "#02040b", 0, 0)]
+
+style mc_card_face_title is gui_text:
+    font gui.interface_font
+    color "#f4fbff"
+    bold True
+    outlines [(2, "#02040bcc", 0, 0), (1, "#56d7ff55", 1, 1)]
+
+style mc_card_face_serial is gui_text:
+    font gui.interface_font
+    color "#9fc9d6"
+    kerning 0.4
+    outlines [(1, "#02040bdd", 0, 0)]
 
 style mc_reveal_banner:
     font "assets/fonts/SF Automaton Extended.ttf"

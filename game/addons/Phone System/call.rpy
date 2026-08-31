@@ -487,25 +487,20 @@ style phone_call_advance:
 
 # PUBLIC: show the incoming-call screen; returns "answer"/"decline"/"dismiss".
 label phone_call(contact_name, status="Calling...", clock_text=None, can_decline=True, date_label=None):
-    window hide
     $ _phone_call_date_label = phone_call_date_label(date_label)
     # Ring on the dedicated looping channel until the player answers/declines.
     $ renpy.music.play(audio.phone_ringtone, channel="phone_ring", loop=False)
     call screen phone_call_screen(contact_name, status, _phone_call_date_label, can_decline)
     $ renpy.music.stop(channel="phone_ring")
     $ _phone_call_result = _return
-    window auto
     return _phone_call_result
 
 # PUBLIC: play a call transcript (no-op if `lines` is empty); returns "end".
 label phone_call_conversation(contact_name, lines, status="Connected", clock_text=None, date_label=None):
-    window hide
     $ _phone_active_lines = lines or []
     if _phone_active_lines:
         $ _phone_call_date_label = phone_call_date_label(date_label)
         call screen phone_active_call_screen(contact_name, _phone_active_lines, start_line_index=0, status=status, date_label=_phone_call_date_label)
         $ _phone_call_conversation_result = _return
-        window auto
         return _phone_call_conversation_result
-    window auto
     return

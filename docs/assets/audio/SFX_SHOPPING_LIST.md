@@ -12,14 +12,14 @@ Existing reusable definitions to audit before sourcing new audio:
 - `ac` - `game/assets/audio/sfx/ac.ogg`
 - `modwriting` - `game/assets/audio/sfx/writing.ogg`
 - `interjection` - `game/assets/audio/sfx/interject.wav`
-- Phone SFX now wired: `phone_text_in` = `messagereceive.ogg`, `phone_text_out` = `messagesend.ogg`, `phone_ringtone` = `ringtone.ogg` (all in `game/addons/Phone System/`). Still `None`: `phone_open` (no "raise phone" cue yet).
+- Phone SFX now wired: `phone_text_in` = `messagereceive.ogg`, `phone_text_out` = `messagesend.ogg`, `phone_notification` = the same restrained `messagereceive.ogg` cue, and `phone_ringtone` = `ringtone.ogg` (assets in `game/assets/audio/sfx/phone/`). Still `None`: `phone_open` (no "raise phone" cue yet).
 
 Tone target: restrained, close, tactile, and slightly dry. The story gets a lot of pressure from small physical details, so most sounds should feel like real room noise rather than comedy punctuation. Save louder/stylized cues for diegetic media, arcade games, exam breaks, and dream/meta material.
 
 ## Buy Or Make First
 
 - [ ] `P1` Phone vibration pack - short fabric-muted buzz, desk/table rattle, nightstand rattle, pocket buzz, repeated-message sequence, incoming-call vibration, timer buzz. `[Explicit/Inferred]` Sources: `0516:25`, `0518:17`, `0519:9`, `0519:406`, `0520:210`, `0521:563`, `0524:414`, `0524:565`, `0525:48`, `0525:1018`, `0526:371`, `0528:277`, `0529:93`, `0531:72`.
-- [ ] `P1` Phone UI pack - open/raise phone, thread reveal tick, contact unlock/new contact, phone call answer/end. `[Inferred]` Partially filled: text sent/received (`messagesend.ogg`/`messagereceive.ogg`) and the incoming-call ringtone (`ringtone.ogg`) are now wired; `phone_open` (open/raise phone) is still a `None` placeholder in `game/addons/Phone System/phone_model_construct.rpy`.
+- [ ] `P1` Phone UI pack - open/raise phone, thread reveal tick, a distinct contact-unlock cue, phone call answer/end. `[Inferred]` Partially filled: text sent/received (`messagesend.ogg`/`messagereceive.ogg`), random-conversation availability (currently reusing `messagereceive.ogg`), and the incoming-call ringtone (`ringtone.ogg`) are wired; `phone_open` (open/raise phone) is still a `None` placeholder in `game/addons/Phone System/phone_model_construct.rpy`.
 - [ ] `P1` School bell set - clean warning bell, final bell, distant/muffled rooftop bell, stark exam bell with no crowd tail, underwater/dream bell. `[Explicit]` Sources: `0517:110`, `0519:203`, `0521:313`, `0522:29`, `0522:140`, `0523:295`, `0524:492`, `0526:22`, `0528:256`, `0530:215`, `0531:127`.
 - [ ] `P1` School hallway bed - layered students, shoe squeaks, bag swings, corridor tile footsteps, room-release chatter after bells. `[Explicit/Inferred]` Sources: `0517:110`, `0519:228`, `0528:256`, `0529:121`, `0531:127`.
 - [ ] `P1` Classroom/exam room bed - pencils, paper shifts, occasional cough, clock tick, chairs, silence-forward room tone. `[Explicit/Inferred]` Sources: `0516:129`, `0519:156`, `0526:14`, `0526:79`, `0526:121`, `0526:465`, `0527:22`, `0527:162`, `0528:22`.

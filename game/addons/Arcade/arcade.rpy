@@ -317,6 +317,7 @@ init -2 python:
     # --- displayable factories ----------------------------------------------
     # Each wraps an OPAQUE base in a mesh Transform whose xysize sets
     # u_model_size (the PhonePanel pattern).
+    @renpy.pure
     def ArcadeField(accent="#e0455e", width=1280, height=720):
         # The hub's whole-screen gradient field, tinted to the selected game.
         return Transform(
@@ -327,6 +328,7 @@ init -2 python:
             u_accent=_arcade_vec4(accent),
         )
 
+    @renpy.pure
     def ArcadePanel(width, height, top="#1e1742ee", bottom=None, radius=16.0,
                     border=0.0, border_color="#00000000", horiz=False):
         # A rounded gradient plate: pages, badges, keycap plates, meters, the
@@ -409,6 +411,38 @@ init -2 python:
 
         return None
 
+    # --- shelf thumbnails ----------------------------------------------------
+    # The shelf draws a card at 126px. The featured cover draws at 320px. Handing
+    # the shelf the full-size cover meant decoding eight 512px images to show
+    # them at a quarter of that, and MEASURED (Aug 31 2026, cache-instrumented)
+    # that was 53ms of the hub's 130ms cold open -- its single largest cost.
+    #
+    # A 384px thumbnail beside the art covers a 126px card at 3x display scale,
+    # so nothing is drawn below its own resolution at 4K, and the eight of them
+    # decode in ~21ms instead of ~53ms.
+    #
+    # THE THUMBNAIL IS AN OPTIMISATION, NEVER A REQUIREMENT. A missing one falls
+    # straight back to the full cover, so the "drop art/<slug>.png in and you are
+    # done" convention in the file header still holds exactly as written -- a new
+    # cover simply costs a few more milliseconds until someone generates a thumb.
+    ARCADE_THUMB_DIR = "addons/Arcade/art/thumbs"
+
+    def arcade_art_thumb(art):
+        # Procedural covers (ag_cover) come back as displayables, not paths, and
+        # are already drawn at whatever size they are asked for.
+        if not isinstance(art, str):
+            return art
+
+        cand = "%s/%s.webp" % (
+            ARCADE_THUMB_DIR, art.rsplit("/", 1)[-1].rsplit(".", 1)[0])
+        try:
+            if renpy.loadable(cand):
+                return cand
+        except Exception:
+            pass
+
+        return art
+
 
 # --- TILE TABLE --------------------------------------------------------------
 # Data-driven. Each entry:
@@ -424,59 +458,61 @@ init python:
     arcade_items = [
         ("Ontological Seer", "PRESS-TURN BOSS",
             "Matsuda's four-on-one press-turn boss battle. Read her tempo, exploit the weakness, and grind down one absurd health bar.",
-            "#e0455e", None,
+            "#e0455e", "addons/Arcade/art/ontological_seer_classic.webp",
             lambda: persistent.id_mode_unlocked,
             Function(renpy.call_in_new_context, "arcade_play_msbf")),
         ("Ontological Seer: Id", "SUPERBOSS REMATCH",
             "The rematch with every safety off -- Matsuda throws every genre into a blender. Her no-warmup superboss form.",
-            "#8a5cff", None,
+            "#8a5cff", "addons/Arcade/art/ontological_seer_id_classic.webp",
             lambda: persistent.arcade_id_cleared,
             Function(renpy.call_in_new_context, "arcade_play_msbf", id_mode=True)),
         ("A Fine Date", "ANTI-DATING SIM",
             "One evening, one exit. Every honest 'no' walks her a step closer to the open door.",
-            "#4fbf7a", None,
+            "#4fbf7a", "addons/Arcade/art/a_fine_date_classic.webp",
             lambda: persistent.arcade_monika_cleared,
             Function(renpy.call_in_new_context, "arcade_play_monika")),
         ("Embodiment of Violet Ink", "BULLET HELL",
             "Kotonoha's danmaku recital. Dodge every word. Normal, Endless, or Practice.",
-            "#ff6fae", None,
+            "#ff6fae", "addons/Arcade/art/embodiment_of_violet_ink_doujin.webp",
             lambda: persistent.kotomode_cleared,
             Show("arcade_koto_variant")),
         ("The Unwritten Act", "SOUL BOX FIGHT",
             "Tsubaki's SOUL box duel. Cut the strings -- violently or passively.",
-            "#d9c68a", None,
+            "#d9c68a", "addons/Arcade/art/the_unwritten_act_ui.webp",
             lambda: persistent.tsubamode_outcome is not None,
             Function(renpy.call_in_new_context, "arcade_play_tsubaki")),
 
         # --- MATSUCOM ORIGINALS ----------------------------------------------
         # Cabinets with no story attachment: they exist only here, so their
         # prerequisite is `lambda: True` (always cleared -> no content notice)
-        # and their covers are drawn in code ("ag:<kind>", see arcade_art_for).
+        # and their covers use a shared 16-bit-era print direction. The
+        # procedural "ag:<kind>" resolver remains available as a fallback for
+        # future cabinets, but shipped covers are explicit optimized assets.
         # All four run on the shared cabinet in addons/Arcade/games/ag_core.rpy
         # and launch through one label with the cabinet named as a parameter.
         ("Ouroboros Protocol", "GRID SURVIVAL",
             "Snake, except the samples rot where they sit. Eat them fresh to "
             "keep the chain -- and hold Shift to sprint, if you can afford to "
             "boil off your own length to get there.",
-            "#57d6a8", "ag:snake",
+            "#57d6a8", "addons/Arcade/art/ouroboros_protocol_classic.webp",
             lambda: True,
             Function(renpy.call_in_new_context, "ag_play", ag_kind="snake")),
         ("Peer Review", "BRICK BREAKER",
             "Demolish a manuscript one claim at a time. Some are cited and "
             "come back, some are redacted, and one power-up is a trap.",
-            "#ff8f5e", "ag:brick",
+            "#ff8f5e", "addons/Arcade/art/peer_review_classic.webp",
             lambda: True,
             Function(renpy.call_in_new_context, "ag_play", ag_kind="brick")),
         ("Intake", "FALLING BLOCKS",
             "Rack the samples and clear the shelf. Standard controls, except "
             "the backlog keeps pushing contaminated rows up from the bottom.",
-            "#5ec8e0", "ag:intake",
+            "#5ec8e0", "addons/Arcade/art/intake_classic.webp",
             lambda: True,
             Function(renpy.call_in_new_context, "ag_play", ag_kind="intake")),
         ("Containment Sweep", "DEDUCTION",
             "Read the floor, label the incidents, don't stand on one. Three "
             "floor sizes and a par time to beat.",
-            "#e0c05e", "ag:sweep",
+            "#e0c05e", "addons/Arcade/art/containment_sweep_classic.webp",
             lambda: True,
             Function(renpy.call_in_new_context, "ag_play", ag_kind="sweep")),
         ("Board Meeting", "CHESS",
@@ -484,7 +520,7 @@ init python:
             "intern who thinks out loud, a professional on a clock, a "
             "grandmaster on the same clock, and a model that reads you while "
             "you play and forgets you when you leave.",
-            "#8fa8ff", "ag:chess",
+            "#8fa8ff", "addons/Arcade/art/board_meeting_classic.webp",
             lambda: True,
             Function(renpy.call_in_new_context, "ag_play", ag_kind="chess")),
 
@@ -495,6 +531,17 @@ init python:
             "#5a5a6e", None,
             lambda: False, None),
     ]
+
+    ARCADE_ORIGINAL_TITLES = frozenset((
+        "Ouroboros Protocol",
+        "Peer Review",
+        "Intake",
+        "Containment Sweep",
+        "Board Meeting",
+    ))
+
+    def arcade_entry_is_original(entry):
+        return entry[0] in ARCADE_ORIGINAL_TITLES
 
     def arcade_prerequisite_is_cleared(prerequisite_cleared_fn):
         """Return whether a mode's prerequisite content has been experienced."""
@@ -599,17 +646,15 @@ screen arcade_coming_soon_badge(badge_size):
 
 
 # --- BACKDROP ----------------------------------------------------------------
-# The whole-screen gradient field (enter_m.arcade_field) -- indigo->black with
-# twin blooms tinted to the selected game, a shelf shade under the library rail,
-# scanlines and a vignette -- plus the art vignette and the drifting scanline
-# strip the rest of the mod's menus use. Distinct from the Archive's cyan
-# terminal. The field shader itself is intentionally static; only the ATL
-# scanline requests periodic redraws.
+# A painted after-school console room anchors the hub in the same visual-novel
+# world as the story. The static field is retained at low opacity so selecting a
+# cartridge can tint the room without replacing it or forcing ambient redraws.
 screen arcade_backdrop(accent):
-    add ArcadeField(accent)
+    add "assets/gui/menu/arcade_vn.png"
+    add ArcadeField(accent):
+        alpha 0.18
     add "vignette":
-        alpha 0.42
-    add Solid("#ffe6bc12") xysize (1280, 2) at menu_scanline_slow
+        alpha 0.34
 
 
 # --- KEYCAP CHIP -------------------------------------------------------------
@@ -626,81 +671,79 @@ screen arcade_keycap_chip(klabel):
 # predicate has been satisfied. This is a Show() overlay rather than a called
 # screen, so both choices explicitly hide it; Return() here would exit the hub.
 screen arcade_story_warning(mode_title, proceed_action):
-    style_prefix "hw"
     modal True
     zorder 90
     use enter_m_input_lock()
-    add Solid("#000000")
+    use arcade_backdrop("#ffb454")
+    add Solid("#05030bdc")
 
     frame:
         xalign 0.5
         yalign 0.5
-        xsize 720
+        xysize (760, 360)
         padding (0, 0, 0, 0)
-        background "#d4d0c8"
+        background ArcadePanel(760, 360, top="#241b43f4", bottom="#100b20fa",
+                                radius=18, border=1.5, border_color="#ffb45488")
 
         vbox:
-            spacing 0
+            xpos 34
+            ypos 28
+            xsize 692
+            spacing 13
 
-            frame:
-                xsize 720
-                ysize 26
-                padding (8, 4, 8, 4)
-                background "#0a246a"
-                text "Content Notice":
-                    color "#ffffff"
-                    bold True
-                    size 12
-                    yalign 0.5
+            hbox:
+                spacing 12
+                add Solid("#ffb454") xysize (5, 18) yalign 0.5
+                text "CONTENT NOTICE" style "arcade_kicker" color "#ffcf88" yalign 0.5
 
-            frame:
-                xsize 720
-                padding (24, 22, 24, 18)
-                background "#ffffff"
-                vbox:
-                    spacing 14
-                    text ("You haven't cleared the story content that introduces %s." % mode_title):
-                        color "#000000"
-                        bold True
-                        size 15
-                        xsize 672
-                    text "Playing it here now may spoil story events or break the intended immersion.":
-                        color "#000000"
-                        size 15
-                        xsize 672
-                    text "Do you want to proceed anyway?":
-                        color "#000000"
-                        size 15
-                        xsize 672
+            text mode_title:
+                style "arcade_feature_title"
+                size 34
+                color "#fbf6ee"
 
-            frame:
-                xsize 720
-                padding (0, 8, 18, 16)
-                background "#d4d0c8"
-                hbox:
-                    xalign 1.0
-                    spacing 10
-                    button:
-                        background "#ece9d8"
-                        hover_background "#c2d8f0"
-                        padding (18, 6, 18, 6)
-                        hover_sound gui.hover_sound
-                        activate_sound gui.activate_sound
-                        action Hide("arcade_story_warning")
-                        text "Go Back":
-                            color "#000000"
-                            size 13
-                    button:
-                        background "#0a246a"
-                        hover_background "#245edb"
-                        padding (18, 6, 18, 6)
-                        hover_sound gui.hover_sound
-                        activate_sound gui.activate_sound
-                        action [Hide("arcade_story_warning"), proceed_action]
-                        text "Proceed Anyway":
-                            color "#ffffff"
-                            bold True
-                            size 13
+            add ArcadePanel(692, 2, top="#ffb45488", bottom="#ffb45400",
+                            radius=1, horiz=True)
+
+            text ("This mode appears later in the story. Playing it now may reveal events or undercut its intended introduction."):
+                style "arcade_feature_blurb"
+                size 18
+                color "#c9c1d8"
+                xsize 692
+
+            text "Continue into the standalone mode anyway?":
+                style "arcade_prompt_hint"
+                size 16
+                color "#9f96b8"
+
+            null height 6
+
+            hbox:
+                xalign 1.0
+                spacing 12
+
+                button:
+                    xysize (190, 54)
+                    padding (0, 0)
+                    background ArcadePanel(190, 54, top="#2c2542", bottom="#191427",
+                                        radius=10, border=1.0, border_color="#8d83a666")
+                    hover_background ArcadePanel(190, 54, top="#403653", bottom="#252036",
+                                                radius=10, border=1.5, border_color="#bcb3cf99")
+                    hover_sound gui.hover_sound
+                    activate_sound gui.activate_sound
+                    action Hide("arcade_story_warning")
+                    text "GO BACK" style "arcade_play_text" size 17 align (0.5, 0.5)
+
+                button:
+                    xysize (246, 54)
+                    padding (0, 0)
+                    background ArcadePanel(246, 54, top="#684922", bottom="#332117",
+                                        radius=10, border=1.5, border_color="#ffb454bb")
+                    hover_background ArcadePanel(246, 54, top="#8a6130", bottom="#493020",
+                                                radius=10, border=2.0, border_color="#ffe0a4")
+                    hover_sound gui.hover_sound
+                    activate_sound gui.activate_sound
+                    action [Hide("arcade_story_warning"), proceed_action]
+                    text "PLAY ANYWAY" style "arcade_play_text" size 17 align (0.5, 0.5)
 
     key "K_ESCAPE" action Hide("arcade_story_warning")
     key "game_menu" action Hide("arcade_story_warning")
@@ -713,9 +756,9 @@ screen arcade_story_warning(mode_title, proceed_action):
 # gradient field, the page's border and every accent in the chrome key off the
 # selected game.
 #
-# NAVIGATION: there are no arrows -- every card in the shelf is a full-square
-# click target (click a side card to feature it, click the featured card, its
-# shelf card, or PLAY to launch). The keyboard keeps <- / -> and Enter.
+# NAVIGATION: there are no arrows -- every shelf card is a full-square selection
+# target. Launch from the large featured cover, PLAY, or Enter; this prevents a
+# second click on the selected shelf item from unexpectedly starting a game.
 #
 # STABLE GEOMETRY: each shelf card sits in a fixed 156px slot and the featured
 # card in a fixed 320px box, so the selection/hover zooms grow inside their own
@@ -748,28 +791,28 @@ screen arcade_hub():
         cur_playable = not cur_soon
         cur_prerequisite_cleared = arcade_prerequisite_is_cleared(cur_prerequisite_fn)
         cur_enter = arcade_entry_action(cur_title, cur_prerequisite_fn, cur_action)
-        # A MATSUCOM ORIGINAL has no story behind it (its art slot is an "ag:"
-        # sentinel), so "story cleared" is meaningless for it -- it says so
-        # instead, and it is left out of the story-clear census below.
-        cur_is_original = isinstance(cur_art_path, str) and cur_art_path.startswith("ag:")
+        # A MATSUCOM ORIGINAL has no story behind it, so "story cleared" is
+        # meaningless for it -- it says so instead, and it is left out of the
+        # story-clear census below.
+        cur_is_original = arcade_entry_is_original(arcade_items[sel])
         ac_total = sum(1 for entry in arcade_items if entry[6] is not None)
         ac_story = sum(
             1 for entry in arcade_items
             if entry[6] is not None
-            and not (isinstance(entry[4], str) and entry[4].startswith("ag:"))
+            and not arcade_entry_is_original(entry)
         )
         ac_cleared = sum(
             1 for entry in arcade_items
             if entry[6] is not None
-            and not (isinstance(entry[4], str) and entry[4].startswith("ag:"))
+            and not arcade_entry_is_original(entry)
             and arcade_prerequisite_is_cleared(entry[5])
         )
 
     use arcade_backdrop(cur_color)
 
     # Faded handover rather than a hard cut -- see menu_transitions.rpy, sec. 6.
-    key "game_menu" action [EnterMMenuMusic(audio.canyoufeel), Return()]
-    key "K_ESCAPE" action [EnterMMenuMusic(audio.canyoufeel), Return()]
+    key "game_menu" action [EnterMMenuMusic(audio.mainmenu), Return()]
+    key "K_ESCAPE" action [EnterMMenuMusic(audio.mainmenu), Return()]
     key "K_LEFT" action SetScreenVariable("sel", (sel - 1) % n)
     key "K_RIGHT" action SetScreenVariable("sel", (sel + 1) % n)
     key "K_RETURN" action cur_enter
@@ -1004,14 +1047,16 @@ screen arcade_hub():
             # shoves the rest of the shelf sideways.
             fixed:
                 xysize (156, 156)
-                # Click a side game to feature it; click the featured one to play.
+                # Shelf clicks only change selection. Launching stays deliberate:
+                # use the large featured cover, PLAY, or Enter.
                 use arcade_cart(
                     entry_color,
                     entry_available,
                     126,
-                    artwork=arcade_art_for(entry_title, entry_art_path),
+                    artwork=arcade_art_thumb(
+                        arcade_art_for(entry_title, entry_art_path)),
                     edge_strength=(1.0 if index == sel else 0.30),
-                    click_action=(cur_enter if index == sel else SetScreenVariable("sel", index)),
+                    click_action=SetScreenVariable("sel", index),
                     pose_transform=arcade_thumb(index == sel),
                 )
 
@@ -1025,7 +1070,7 @@ screen arcade_hub():
         text "BROWSE" style "arcade_footer" yalign 0.5
         text "//" style "arcade_footer_sep" yalign 0.5
         use arcade_keycap_chip("ENTER")
-        text "OR CLICK A COVER" style "arcade_footer" yalign 0.5
+        text "OR CLICK FEATURED COVER" style "arcade_footer" yalign 0.5
         text "//" style "arcade_footer_sep" yalign 0.5
         use arcade_keycap_chip("ESC")
         text "BACK" style "arcade_footer" yalign 0.5
@@ -1210,7 +1255,6 @@ label arcade_launch_prep(blackout=True):
     if blackout:
         stop music fadeout 0.5
         scene black
-        window hide
     return
 
 # --- Matsuda main fight (Normal / Id share one setup path) -------------------
@@ -1322,7 +1366,6 @@ label arcade_koto_result:
         $ kt_continue_bar = 0
         $ kt_continues = 0
         scene black
-        window hide
         jump kototouhou_fight
     jump arcade_return
 
@@ -1350,12 +1393,11 @@ label arcade_tsuba_result:
         $ tsb_run_deaths = 0
         $ tsb_retry = False
         scene black
-        window hide
         jump tsubamode_fight
     jump arcade_return
 
 label arcade_monika_result:
-    # date_win/date_flawless + persistent.arcade_monika_cleared are already set in
+    # date_win + persistent.arcade_monika_cleared are already set in
     # mm_victory (the only win path). Monika has no defeat state -- this is a win card.
     python:
         _ac_coins = mc_award_mode("monika", "A FINE DATE", True)

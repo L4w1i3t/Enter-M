@@ -30,7 +30,7 @@
 #                   in is just noise on the screen.
 #     Both are opt-in per scene and neither is a default; a day with particles
 #     in every shot has spent the effect.
-#   * Call atmos_clear() before leaving an authored sequence for a assets/images/menu/tool.
+#   * Call atmos_clear() before leaving an authored sequence for a menu or tool screen.
 #
 # Quality is evaluated by ConditionSwitch at render time. This matters because
 # Preferences runs in a copied Matsu'Py context: changing Full/Light/Off there now

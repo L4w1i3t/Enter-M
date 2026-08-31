@@ -21,8 +21,9 @@
 #   not a difficulty setting -- see the long note in cs_kotonoha_01.rpy's
 #   header for the full reasoning; it governs both files.
 #
-#   ON COMPLETION: sets persistent.cs_kotonoha_02_unlocked = True, then
-#   nier_exit + return. (Note: the unique `from _call_nier_*` clause suffixes on
+#   ON COMPLETION: sets persistent.cs_kotonoha_02_unlocked, awards the
+#   "Open Hands" CG, marks the story completed, then nier_exit + return. (Note:
+#   the unique `from _call_nier_*` clause suffixes on
 #   the call statements are Matsu'Py rollback-id tags; they keep save compatibility
 #   across edits and must stay unique within the file.)
 # =============================================================================
@@ -995,6 +996,7 @@ label cs_kotonoha_02:
 
     $ persistent.cs_kotonoha_02_unlocked = True
     # The real ending. The attention-check failure below is not one.
+    $ cg_unlock("Open Hands")
     $ cs_mark_completed("cs_kotonoha_02")
 
     call nier_exit from _call_nier_exit_2

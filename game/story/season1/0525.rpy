@@ -6,7 +6,6 @@ label a0525:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "I beat the first alarm by one minute, which is completely unheard of for me. Not fifteen minutes after it or from inside another dream where a coffee mug accuses me: one minute before."
     "The screen reads 7:14. The other three alarms sit beneath it like backup prosecutors, and I disable all of them."
     "For a few seconds, I stay under the blanket and listen."
@@ -514,7 +513,7 @@ label a0525:
     m forward casual curi om oe nobl rhip ldown "Hm?"
     mc "I mean earlier, when I asked how you were doing."
     "Her straw stops against the ice."
-    m forward casual nerv cm oe awkw rdown ldown "Hey, I corrected it."
+    m forward casual nerv cm oe awkw rdown ldown "Hey, I {i}did{/i} correct it."
     mc "You upgraded from good to tired and nervous. That was very brave."
     m forward casual wry cm oe nobl rhip ldown "Do I get partial credit?"
     mc "Depends, because you brought chemistry flashcards for a class you don't take."
@@ -622,7 +621,7 @@ label a0525:
     show asahina worried at t11
     "Asahina has occupied half the table and built a defensive perimeter out of exam material. Her laptop is wedged between two open textbooks."
     "A review packet sits under one elbow, its top corner bent into a gray little triangle. The water beside it hasn't been touched."
-    ah "Before you say anything, I'm studying."
+    ah "Before you say anything, I {i}am{/i} studying."
     mc "I'd gathered that from the active crime scene."
     show asahina unamused
     ah "Then keep gathering somewhere else."
@@ -684,12 +683,13 @@ label a0525:
     show asahina worried
     ah "Does it get easier?"
     mc "Science?"
-    ah "No, exams. All of it."
+    ah "No. Exams. All of it."
     mc "I don't know if easier is the word."
     show asahina unamused
     ah "That's not what I asked."
     mc "It's the honest answer. You get better at knowing whether you're actually stuck or panic is just getting loud."
-    ah "Then which is this?"
+    show asahina worried
+    ah "Then which is {i}this{/i}?"
     mc "Right now? A little of both."
     show asahina neut
     ah "Wow. Glad I asked."
@@ -757,7 +757,7 @@ label a0525:
             phone_call_line("me", "And lost the round, it seems."),
             phone_call_line("them", "The plums here started it!"),
             phone_call_line("them", "Wait-- why are you breathing like that. Are you running?"),
-            phone_call_line("me", "Easy jog. Heavy emphasis on easy."),
+            phone_call_line("me", "Easy jog. Heavy emphasis on {i}easy{/i}."),
             phone_call_line("them", "I can hear the emphasis working very hard to cover for you."),
             phone_call_line("me", "I'm basically walking."),
             phone_call_line("them", "Then keep basically walking. It's the night before exams, not-- hang on--"),
@@ -809,6 +809,9 @@ label a0525:
             phone_msg("them", "Deal."),
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0525_2
+    # After a full day together and an unprompted night check-in, a casual video
+    # call is no longer a leap. This opens Monika's independent FaceTime chatter.
+    $ phone_open("monika_video")
     "I put the phone away, then actually put the notes away too."
     "My room looks cleaner without the papers spread open."
     "{i}Tomorrow there's no folder to reopen. No draft to revise.{/i}"

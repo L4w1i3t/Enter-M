@@ -1,6 +1,72 @@
-# Tsubaki Face-Patch Authoring Record
+# Tsubaki Face-Plate Authoring Record
 
-Date: 2026-08-24
+Current revision: 2026-08-30
+
+## Current production contract
+
+Tsubaki now uses the same slicing model as Himeko and Asahina: an intact
+outfit-native neutral sprite under one broad, full-color oval face plate. Each
+alternate plate carries the surrounding bangs, both brows, both eyes, nose,
+and mouth as one registered raster. The plate therefore owns the complete
+neutral-brow footprint instead of trying to reconstruct separate facial parts
+or trace a skin-shaped mask around them.
+
+The two production bases remain byte-unchanged:
+
+- Casual: `game/assets/characters/tsubaki/neutral.png`
+- Uniform: `game/assets/characters/tsubaki/neut_uniform.png`
+
+There are 21 conditioned layers per outfit. `face_neut_<outfit>.png` is fully
+transparent because the corresponding base already contains the neutral face;
+the other 20 layers share one pixel-identical oval alpha within that outfit.
+Casual and uniform keep separate registration because their eyes differ by
+about six vertical pixels.
+
+The canonical builder is `tools/build_tsubaki_faceplates.py`. Its oval is
+clipped only by the approved base silhouette and uses:
+
+- radius `(155, 135)`;
+- solid radius `0.84`;
+- center 31 pixels below the detected eye midpoint; and
+- a geometric lower fade from 85 through 105 pixels below center.
+
+Unlike the retired schema-v5 pipeline, the exported alpha does not use a skin
+component, sparse semantic union, neutral-brow guard, or expression-specific
+negative mask. The expression masters do contain detached pale upper-lid
+residue. A bounded lash-relative cleanup replaces only that residue with the
+color-matched featureless authoring donor *before* the complete source raster
+is sliced through the oval. Intentional near-lash eyelid folds remain.
+
+Current staging and review paths:
+
+- Build: `tmp/tsubaki_oval_faceplates/built/`
+- Metrics: `tmp/tsubaki_oval_faceplates/metrics.json`
+- Review sheets: `tmp/tsubaki_oval_faceplates/review/`
+- Pre-install backup: `tmp/tsubaki_oval_faceplates/pre_install_backup/`
+- Runtime screenshots: `tmp/tsubaki_render_probe/`
+
+Canonical commands:
+
+```text
+python -B tools/build_tsubaki_faceplates.py build
+python -B tools/build_tsubaki_faceplates.py review
+python -B tools/build_tsubaki_faceplates.py validate
+python -B tools/install_tsubaki_sprites.py
+python -B tools/build_tsubaki_render_probe.py
+python -B tools/validate_tsubaki_sprites.py --render-root tmp/tsubaki_render_probe
+```
+
+`tools/process_tsubaki_face_patches.py` remains only as a compatibility entry
+point and forwards to the oval builder. It cannot recreate schema v5. The dated
+acceptance record is `2026-08-30-tsubaki-oval-faceplate-rebuild.md`.
+
+## Superseded pipeline history
+
+Everything below this heading documents the earlier skin-stencil approaches.
+It is retained as failure analysis, not as the current build specification or
+command source.
+
+Original record date: 2026-08-24
 
 This records the approved pipeline for Tsubaki's face-only sprite bank. The
 runtime design deliberately mirrors Himeko's: one intact neutral whole-body
@@ -90,17 +156,33 @@ precise-object edits:
    intentionally overincludes them rather than risking lost brow edges. The
    alternate face plate covers those extra pixels; the underlay is exposed only
    where the broad face mask previously missed base-brow/bang intersections.
-6. It removes the donor-authored pale upper-eyelid arcs along two narrow traced
-   source paths before export. The cleanup copies only color-matched pixels from
-   the matching featureless outfit donor and is asserted not to escape its
-   registered brow/upper-lid guards.
-7. It exports 42 outfit-conditioned broad-feathered face-patch assets: 21
+6. It registers each reviewed sparse expression layer as a binary semantic
+   keep mask. Source alpha is thresholded before an `INTER_NEAREST` warp, so
+   filtered resampling cannot create ringing islands that later become facial
+   detail. The exact registered masks and their outfit unions are hashed.
+7. It locates the real upper lash independently in each registered expression,
+   builds a robust top profile, and searches only the 2-10-pixel band above that
+   profile. A featureless-donor comparison selects the darker pale/peach ghost
+   arc, while dilated authored-brow and selected-lash masks are absolute keep
+   zones. The negative mask is therefore expression-relative instead of a
+   universal traced strip.
+8. It makes both the union of all 20 semantic masks and the union of all 20
+   adaptive negative masks fully opaque in every alternate layer. It subtracts
+   the active ghost-arc mask from that expression's positive support, restores
+   corrected master RGB on the remainder, and finally writes exact
+   outfit-matched featureless RGB on the active negative mask. This gives all
+   alternates one stable alpha topology while preserving complete authored
+   brows, eye contours, blush, tears, and mouths without resurrecting rejected
+   source residue.
+9. It exports 42 outfit-conditioned broad-feathered face-patch assets: 21
    runtime tokens for casual and the same 21 for uniform. The two `neut` assets
    are intentionally transparent compatibility layers because each approved
    base already contains its exact neutral face; the 40 alternate assets carry
    the visible replacement patch.
-8. It zeros RGB beneath zero alpha and emits metrics plus full-body and head
-   review sheets on light, dark, and checker backgrounds.
+10. It zeros RGB beneath zero alpha and emits metrics plus full-body and head
+   review sheets on light, dark, and checker backgrounds. A separate 2x
+   nearest-neighbor upper-face sheet preserves native pixels for the final
+   brow/lash gate; downsampled contact sheets are not sufficient acceptance.
 
 The expression masters are reused as authored expression designs, but they are
 never copied directly into production. Registration, skin matching, masking,
@@ -124,14 +206,44 @@ face-patch export:
   allowing a second base-brow fragment to survive under all 40 alternate
   faces.
 
-`process_tsubaki_face_patches.py` now handles the defects separately. It
-replaces the traced pale arcs with color-matched featureless pixels, then lays
-an outfit-native featureless neutral-feature guard below the alternate face.
-Builder assertions require every guarded pixel to be fully opaque, require
-exact featureless replacement throughout each traced arc core, and confine all
-cleanup to the registered brow/upper-lid regions. Both approved
-neutral bases and both transparent `neut` compatibility layers remain
-byte-unchanged.
+`process_tsubaki_face_patches.py` handles the defects separately. It lays an
+outfit-native featureless neutral-feature guard below the alternate face, then
+removes pale source-master ghost arcs through an adaptive lash-relative negative
+mask. The 2026-08-30 correction replaced the universal traced paths: those paths
+sat above the artifact in lowered-lid expressions and semantic restoration then
+reintroduced the missed pixels. Builder and validator assertions now require
+exact adaptive-mask reconstruction, complete donor replacement on the negative
+mask, no changes outside it, and zero overlap with the dilated real brow or
+selected lash. Both approved neutral bases and both transparent `neut`
+compatibility layers remain byte-unchanged.
+
+## Semantic detail ownership repair
+
+Repair completed: 2026-08-29.
+
+Gameplay review exposed incomplete eyes, half-erased brows, and apparent brow
+misalignment in `annoyed`, `embarrassed`, `disgusted`, and `shocked`. Runtime
+definitions and placement were correct: the damage was already present in the
+generated face PNGs. The expression masters still contained the missing
+strokes, but the universal duplicate-arc cleanup crossed authored brow and eye
+support, and the broad skin-constrained face mask did not fully own every fine
+feature pixel.
+
+Schema-v4 authoring fixes both causes without repainting or regenerating the
+art. Each sparse authored-feature mask is thresholded in source space, warped
+with nearest-neighbor registration, and protected from cleanup. Its corrected
+master RGB is restored exactly, while the union across all expressions is
+encoded into every alternate alpha mask to prevent topology changes during
+attribute switches. The approved source bundles and crop matrices are pinned;
+the validator independently rebuilds every semantic, protection, cleanup, and
+registration mask before accepting production.
+
+The semantic unions remain 10,862 pixels for casual at
+`(405,323)-(605,483)` and 10,639 pixels for uniform at
+`(406,318)-(605,476)`. Both lie entirely on fully opaque base pixels. The
+2026-08-29 visual-acceptance claim was superseded after native-scale gameplay
+review exposed remaining ghost arcs. The corrected implementation and current
+acceptance record is `2026-08-30-tsubaki-adaptive-ghost-arc-repair.md`.
 
 ## Runtime token mapping
 

@@ -14,7 +14,6 @@ label a0531:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "All three chairs are occupied, which has not been true on a school morning in longer than I want to count."
     "Mom is at the end of the table with her hair still pinned up from yesterday, a mug between both hands, and no folder in sight."
     "Asahina has one knee bouncing beneath her chair while she eats toast and checks the time every few bites."
@@ -1138,6 +1137,9 @@ label a0531:
     # ends. WHEN SEASON 1 PROPER SHIPS, this line moves to its ending.
     python:
         persistent.archive_unlocked_music = True
+        # This stays here even when the Music Room gate eventually moves: it is
+        # the permanent signal for finishing the currently playable Chapter 0.5.
+        persistent.chapter05_completed = True
         for _key in (
             "cs_matsuda_01_unlocked",
             "cs_matsuda_02_unlocked",
@@ -1149,6 +1151,9 @@ label a0531:
             "cs_kotonoha_02_unlocked",
         ):
             setattr(persistent, _key, True)
+        # Exact event hook for Curtain Call (For Now). The achievement also has
+        # a derived chapter05_completed fallback for old saves and reconciliation.
+        ach_grant("music_on")
         renpy.save_persistent()
     nier "The Music Room is open."
     nier "Character stories unlocked:"

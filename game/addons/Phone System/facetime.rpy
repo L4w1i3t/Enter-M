@@ -422,12 +422,10 @@ style phone_video_end_button_text is phone_video_tool_button_text
 #   sprite : override the contact's catalog sprite for this call (a different
 #            outfit or expression). None uses phone_contact_sprite().
 label phone_video_call(contact_name, lines=None, status="Video Call", clock_text=None, date_label=None, sprite=None):
-    window hide
     play sound phone_open
     $ _phone_video_date_label = phone_call_date_label(date_label)
     call screen phone_video_call_screen(contact_name, lines, sprite, status, _phone_video_date_label)
     $ _phone_video_call_result = _return
-    window auto
     return _phone_video_call_result
 
 # PUBLIC ALIAS: same as phone_video_call, friendlier name for story scripts.

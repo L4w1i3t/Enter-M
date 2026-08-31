@@ -6,7 +6,6 @@ label a0517:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "Saturday morning doesn't happen at the table. It happens by the door, one shoe half-tied and one hand searching my bag for a pen I am reasonably sure I never owned."
     show mom neut at t22
     show asahina uniform frustrated at t21
@@ -237,7 +236,6 @@ label a0517:
     $ atmos("night", particles="nightdrift")
     with wipeleft_scene
     play music fantasypassion
-    window auto
     "I sit on the step with my elbows on my knees, listening to the loose click of a bicycle wheel somewhere across the street and the faint clatter of dishes through our kitchen window."
     "I stand and work the stiffness out of my shoulders, then take the sidewalk with no plan beyond moving until boredom loses interest."
     $ hide_calendar()
@@ -327,7 +325,7 @@ label a0517:
     show matsuda determined at h21
     ma "My good sir! Healthy choices are where stories go to die!"
     show tsubaki unamused
-    ts "You...literally told me to stop you from buying an extra large pizza for dinner."
+    ts "You...{i}literally{/i} told me to stop you from buying an extra large pizza for dinner."
     show matsuda smug
     ma "'Twas nutritional compromise! Let us not mince semantics!"
     show tsubaki happy
@@ -347,7 +345,7 @@ label a0517:
     "She plants her feet and points at me as if she's offering a duel."
     ma "[player]! I not-so-humbly request your contact information."
     show tsubaki worried
-    ts "She means, if you're okay with it. You don't have to."
+    ts "She means, if you're okay with it. You {i}don't{/i} have to."
     show matsuda unamused
     ma "Yes, yes, manners and civilization. I was {i}approaching{/i} the polite version, with more grand pacing."
     mc "You ask everyone you crash into for their number?"
@@ -493,6 +491,8 @@ label a0517:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Mom checks in twice. On the second pass she praises the poster, and Asahina realigns the same letter for the next five minutes."
+    nier "A fresh bag of chips appears outside my door afterward, wearing a strip of leftover masking tape that reads {i}DEBT SETTLED. DO NOT GET EMOTIONAL.{/i}"
+    nier "The seal is intact. She resisted charging a handling fee."
     call nier_clear from _call_nier_clear_0517_8
     pause 2.0
     scene bg bedroom_night

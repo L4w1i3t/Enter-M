@@ -7,7 +7,6 @@ label a0522:
     show noise zorder 4 at noise_alpha
     with dissolve_scene_full
     play music holdmusic
-    window auto
     # CRITIQUE (ADDRESSED): Reduced the gag density so the dream reads as subconscious pressure, not a sketch. Kept the strong images (waiting room, blank ticket, cup, open door, conveyor belt), cut the joke class names entirely, and pointed the classroom board at the day's omitted-agency lesson -- a passive sentence with no named actor, which is also a mirror of MC's own evasive narration.
     "The dream gives me a waiting room."
     "Plastic chairs face a number dispenser. A lopsided plant occupies the corner."
@@ -96,7 +95,7 @@ label a0522:
     "Mom's mug is gone too, which means the case from work has claimed her before breakfast could become a family activity."
     "A sticky note waits on the table."
     call enter_m_show_sticky_note(("Late court prep.", "Breakfast in fridge.", "Don't forget to ice if your foot complains."), signature="Mom") from _call_enter_m_show_sticky_note_0522_1
-    "{i}Breakfast in fridge. If only I had the FREAKING TIME TO.{/i}"
+    "{i}Breakfast in fridge. If only I had the freaking TIME.{/i}"
     "I grab a convenience-store rice ball from the fridge and shove it into my bag. Halfway to the door I notice my socks do not match."
     mc "I got a feeling that it's gonna be a wonderful day~"
     $ hide_calendar()
@@ -222,7 +221,7 @@ label a0522:
             "I look over at Homura."
             mc "Was that what you were trying to tell her?"
             homura "No. Not at all."
-            hikari "Then what WERE you trying to tell me?"
+            hikari "Then what {i}were{/i} you trying to tell me?"
             homura "That I wanted one more line."
             hikari "...What?"
             homura "One more line before the ending. I thought the speaker still had something she wasn't saying."
@@ -305,6 +304,8 @@ label a0522:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "I leave school at a normal pace and decide the rest of the day can stay mercifully undescribed."
+    nier "At home, Asahina hears the toaster version of my morning, takes my phone, and schedules three alarms without asking."
+    nier "She names them {i}WAKE UP{/i}, {i}STILL WAKE UP{/i}, and {i}MOM WILL KNOW{/i}. I leave all three enabled."
     call nier_clear from _call_nier_clear_0522_4
     stop music fadeout 2.0
     pause 2.0

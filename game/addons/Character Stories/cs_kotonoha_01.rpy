@@ -39,8 +39,8 @@
 #     - Keep them cheap to recover from. A reader who was genuinely present has
 #       nothing to fear from any of the seven.
 #
-#   ON COMPLETION: sets persistent.cs_kotonoha_01_unlocked = True, then
-#   nier_exit + return (back to the archive/hub it was launched from).
+#   ON COMPLETION: sets persistent.cs_kotonoha_01_unlocked, awards the
+#   "No One Lived There" CG, marks the story completed, then nier_exit + return.
 # =============================================================================
 
 label cs_kotonoha_01:
@@ -1069,6 +1069,7 @@ label cs_kotonoha_01:
 
     $ persistent.cs_kotonoha_01_unlocked = True
     # The real ending. The attention-check failure below is not one.
+    $ cg_unlock("No One Lived There")
     $ cs_mark_completed("cs_kotonoha_01")
 
     call nier_exit from _call_nier_exit

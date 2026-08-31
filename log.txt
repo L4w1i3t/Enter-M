@@ -1,85 +1,70 @@
-Thu Aug 27 15:50:40 2026
-Windows-10-10.0.26100
+Mon Aug 31 17:21:46 2026
+Windows-10-10.0.26200
 Ren'Py 8.1.1.23060707
  
 
-Bootstrap to the start of init.init. took 0.04s
+Bootstrap to the start of init.init. took 0.02s
 Early init. took 0.00s
-Loader init. took 0.13s
-Loading error handling. took 0.23s
-Loading script. took 1.20s
-Loading save slot metadata. took 0.38s
-Loading persistent. took 0.01s
+Loader init. took 0.06s
+Loading error handling. took 0.10s
+Loading script. took 0.68s
+Loading save slot metadata. took 0.08s
+Loading persistent. took 0.00s
 
 === ENTER M content reachability audit ===
-  0 unreachable item(s) across 129 source files.
+  0 unreachable item(s) across 125 source files.
 ==========================================
 
- - Init at game/addons/Achievements/achievements.rpy:1333 took 0.66452 s.
-Running init code. took 0.97s
-Loading analysis data. took 0.17s
-Analyze and compile ATL. took 0.26s
-Reloading save slot metadata. took 0.06s
+ - Init at game/addons/Achievements/achievements.rpy:1256 took 0.37139 s.
+Running init code. took 0.52s
+Loading analysis data. took 0.11s
+Analyze and compile ATL. took 0.12s
+Reloading save slot metadata. took 0.05s
 Index archives took 0.00s
-Dump and make backups. took 0.00s
+Dump and make backups. took 0.05s
 Cleaning cache. took 0.00s
 Making clean stores. took 0.00s
-Initial gc. took 0.16s
+Initial gc. took 0.21s
 DPI scale factor: 1.000000
 nvdrs: Loaded, about to disable thread optimizations.
 nvdrs: Disabled thread optimizations.
-Creating interface object. took 0.29s
+Creating interface object. took 0.22s
 Cleaning stores took 0.00s
-Init translation took 0.21s
-Build styles took 0.02s
+Init translation took 0.22s
+Build styles took 0.01s
 Load screen analysis took 0.00s
-Analyze screens took 0.10s
-Save screen analysis took 0.16s
-Prepare screens took 0.53s
+Analyze screens took 0.07s
+Save screen analysis took 0.13s
+Prepare screens took 0.36s
 Save pyanalysis. took 0.00s
 Save bytecode. took 0.00s
-﻿Ren'Py 8.1.1.23060707 lint report, generated at: Thu Aug 27 15:50:45 2026
+Running _start took 0.00s
+Performance test:
+Interface start. took 0.28s
 
-
-Statistics:
-
-The game contains 9,776 dialogue blocks, containing 106,377 words and 582,905
-characters, for an average of 10.9 words and 60 characters per block.
-
-The game contains 95 menus, 1,258 images, and 277 screens.
-
-Character statistics (for default language):
- * narrator has 3,201 blocks of dialogue.
- * mc has 1,287 blocks of dialogue.
- * nier has 1,225 blocks of dialogue.
- * m has 669 blocks of dialogue.
- * ah has 604 blocks of dialogue.
- * mom has 576 blocks of dialogue.
- * ma has 556 blocks of dialogue.
- * ts has 254 blocks of dialogue.
- * mm has 156 blocks of dialogue.
- * _purg_girl has 147 blocks of dialogue.
- * mmd has 131 blocks of dialogue.
- * ko and sa have 98 blocks of dialogue each.
- * tsgt has 97 blocks of dialogue.
- * track_coach has 92 blocks of dialogue.
- * tsg has 90 blocks of dialogue.
- * cs_fe_akai has 89 blocks of dialogue.
- * math_teacher has 44 blocks of dialogue.
- * civics_teacher has 40 blocks of dialogue.
- * cs_fe_rival has 37 blocks of dialogue.
- * japanese_teacher has 36 blocks of dialogue.
- * hikari and science_teacher have 33 blocks of dialogue each.
- * cs_fe_ts has 31 blocks of dialogue.
- * cs_fe_sam and homura have 27 blocks of dialogue each.
- * dai and n have 22 blocks of dialogue each.
- * english_teacher has 13 blocks of dialogue.
- * cs_fe_gary and cs_fe_gregor have 11 blocks of dialogue each.
- * cs_fe_leif and principal have 6 blocks of dialogue each.
- * cs_fe_captain has 3 blocks of dialogue.
- * cs_fe_medic has 2 blocks of dialogue.
- * cs_fe_scout and teacher have 1 block of dialogue each.
-
-
-Lint is not a substitute for thorough testing. Remember to update Ren'Py
-before releasing. New releases fix bugs and improve compatibility.
+Initializing gl2 renderer:
+primary display bounds: (0, 0, 1920, 1080)
+swap interval: 1 frames
+Windowed mode.
+Vendor: "b'NVIDIA Corporation'"
+Renderer: b'NVIDIA GeForce RTX 5060/PCIe/SSE2'
+Version: b'4.6.0 NVIDIA 596.21'
+Display Info: None
+Screen sizes: virtual=(1280, 720) physical=(1274, 717) drawable=(1274, 717)
+Maximum texture size: 4096x4096
+Screen sizes: virtual=(1280, 720) physical=(1920, 1080) drawable=(1920, 1080)
+Maximum texture size: 4096x4096
+Cleaning stores took 0.00s
+Init translation took 0.00s
+Build styles took 0.01s
+Load screen analysis took 0.13s
+Analyze screens took 0.00s
+Prepare screens took 0.00s
+Running _start took 0.01s
+Cleaning stores took 0.00s
+Init translation took 0.00s
+Build styles took 0.01s
+Load screen analysis took 0.12s
+Analyze screens took 0.00s
+Prepare screens took 0.00s
+Running _start took 0.01s

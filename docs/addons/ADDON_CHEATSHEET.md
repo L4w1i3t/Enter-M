@@ -409,14 +409,16 @@ Text conversations also call the storage path that marks the contact as met, but
 
 Avatars (contacts list + call / video-call screens) show a circular **profile photo** when the contact has one, otherwise the initials chip. Known contacts get theirs from a `"pfp"` field in `PHONE_CONTACT_CATALOG` (`text.rpy`); Monika and Matsuda Akai are wired to `monikpfp.png` / `matsupfp.png`. Add one for a custom contact via the `pfp=` argument above (a path relative to `game/`). Missing/unloadable images silently fall back to initials.
 
-Message threads play SFX automatically as each bubble reveals: `messagesend.ogg` for `"me"` bubbles, `messagereceive.ogg` for `"them"` bubbles (silent for system/date notes and while skipping). Incoming `phone_call` rings with `ringtone.ogg`, looped on the dedicated `phone_ring` (sfx-mixer) channel until the player answers/declines. All three assets live in `game/assets/audio/sfx/phone/` and are defined as `audio.phone_text_out` / `audio.phone_text_in` / `audio.phone_ringtone`.
+Message threads play SFX automatically as each bubble reveals: `messagesend.ogg` for `"me"` bubbles and `messagereceive.ogg` for `"them"` bubbles (silent for system/date notes and while skipping). Newly available random conversations reuse `messagereceive.ogg` through `audio.phone_notification`; one cue announces the whole newly available set on the dedicated `phone_alert` SFX-mixer channel, so it cannot cut off a story sound, and a compact phone chip appears beside the quick menu. Incoming `phone_call` rings with `ringtone.ogg`, looped on the dedicated `phone_ring` (sfx-mixer) channel until the player answers/declines. These assets live in `game/assets/audio/sfx/phone/` and are defined as `audio.phone_text_out` / `audio.phone_text_in` / `audio.phone_notification` / `audio.phone_ringtone`.
 
 ### Phone Contacts Screen
 
-The quick menu already has:
+The quick menu owns the standard entry point. Its button carries the exact total
+returned by `phone_notification_count()` and polls for newly available catalog
+ids, so do not add a second story-specific notification path:
 
 ```renpy
-textbutton _("Phone") action Show("phone_contacts_screen")
+action [Hide("phone_notification_alert"), Show("phone_contacts_screen")]
 ```
 
 Direct story/script usage:
@@ -425,7 +427,7 @@ Direct story/script usage:
 show screen phone_contacts_screen
 ```
 
-Usually use the quick menu or `Show("phone_contacts_screen")`, not a story `call screen`, unless you need to block script flow.
+Usually use the quick menu or `Show("phone_contacts_screen")`, not a story `call screen`, unless you need to block script flow. Counts are entry-based: `phone_random_count(contact_id, kind)` reports every available conversation, even when several share the same text/call/video control.
 
 ### Phone Call
 
@@ -666,9 +668,8 @@ somebody else's feature:
 | Matsuda boss-fight combat + UI cues | `game/assets/audio/sfx/msbf/` |
 | ZUN-standard SE (Kotonoha / Tsubaki modes) | `game/assets/audio/sfx/touhou/` |
 | Phone message + ringtone cues | `game/assets/audio/sfx/phone/` |
-| Original DDLC image tree | `game/assets/images/` |
-| ENTER M backgrounds / CGs / cast sprites | `game/assets/backgrounds/`, `game/assets/cg/`, `game/assets/characters/` |
-| Base GUI / ENTER M GUI extensions | `game/assets/gui/`, `game/assets/gui/enter_m/` |
+| Backgrounds / CGs / cast sprites | `game/assets/backgrounds/`, `game/assets/cg/`, `game/assets/characters/` |
+| Base GUI / ENTER M GUI extensions | `game/assets/gui/`, `game/assets/gui/` |
 | Fonts / MPT art | `game/assets/fonts/`, `game/assets/mpt/` |
 | Shared bullets / extra sprites / transitions | `game/assets/bullets/`, `game/assets/extra_sprites/`, `game/assets/transitions/` |
 | Phone emoji / miscellaneous runtime art | `game/assets/emoji/`, `game/assets/misc/` |

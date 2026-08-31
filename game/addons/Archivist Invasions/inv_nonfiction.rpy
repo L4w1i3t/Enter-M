@@ -2573,8 +2573,23 @@ init python:
                         NF_DIM if not on_page else NF_FAINT,
                         640, 372, anchor=(0.5, 0.5), w=800, h=44)
 
+            # THE DRAW RATE IS THE TICK RATE. Every pixel above is a pure
+            # function of the simulation state: nothing in this method reads
+            # self.acc and nothing interpolates between ticks, so between two
+            # 1/60s ticks this stage paints a byte-identical picture. Asking
+            # for the next frame IMMEDIATELY meant a 165Hz or 240Hz panel ran
+            # the entire draw -- every python-side blit, every full-screen
+            # shader pass, and the mark-and-sweep over every Render they make
+            # -- two to four times per tick and threw the extra frames away.
+            #
+            # Handing redraw() the time remaining until the next tick lets the
+            # engine's scheduler wake us exactly when there is something new to
+            # draw. It wakes at the first vblank at or after the delay, so a
+            # 60Hz display is unaffected and only a high-refresh one stops
+            # paying. Input is unchanged: the key latch is polled inside
+            # step(), on the tick. Same governor as kototouhou.rpy.
             if g.result is None and not g.paused:
-                renpy.redraw(self, 0)
+                renpy.redraw(self, max(0.0, INV_TICK - self.acc))
             return rv
 
         # ----- the room --------------------------------------------------------
@@ -3278,7 +3293,6 @@ label archivist_invasion_nonfiction:
     $ nf_retry = False
 
 label inv_nonfiction_fight:
-    window hide
     $ renpy.block_rollback()
 
     $ nf_game = NFGame(retry=nf_retry, deaths=nf_deaths,
@@ -3320,12 +3334,10 @@ label inv_nonfiction_victory:
 label inv_nonfiction_defeat:
     $ nf_deaths += 1
     $ nf_retry = True
-    window auto
 
     menu:
         "AGAIN":
             scene black
-            window hide
             jump inv_nonfiction_fight
 
         "STOP":

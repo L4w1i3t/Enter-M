@@ -641,8 +641,9 @@ screen calendar_menu():
     tag menu
 
     on "show" action Function(calendar_view.reset_to_current)
+    on "replace" action Function(calendar_view.reset_to_current)
 
-    use game_menu(_("Calendar")):
+    use game_menu(_("Calendar"), current_screen="calendar_menu"):
         $ _cm_formatted = "{}, {} {}".format(calendar.get_day_name(), calendar.get_month_name(), calendar.get_day())
         $ _cm_year = calendar.get_year()
         $ _cm_month = calendar.get_month()
@@ -659,7 +660,7 @@ screen calendar_menu():
         $ _cm_is_current_month = (_cm_vy == _cm_year and _cm_vm == _cm_month)
 
         fixed:
-            xysize (880, 520)
+            xysize (836, 520)
             xalign 0.5
             yalign 0.5
             at cal_content_fade(0.0)
@@ -671,7 +672,7 @@ screen calendar_menu():
 
                 frame:
                     xysize (690, 58)
-                    background Solid("#090b10dd")
+                    background ROOM_MENU_SELECTOR_SELECTED
                     padding (18, 0)
 
                     hbox:
@@ -679,7 +680,7 @@ screen calendar_menu():
                         spacing 14
 
                         text "TODAY" style "cal_menu_banner_label"
-                        add Solid("#ffffff33"):
+                        add Solid("#e8dbc54d"):
                             xsize 1
                             ysize 28
                             yalign 0.5
@@ -694,7 +695,7 @@ screen calendar_menu():
 
                     frame:
                         xysize (360, 48)
-                        background Solid("#161b22ee")
+                        background ROOM_MENU_SELECTOR_IDLE
                         padding (0, 0)
 
                         text _cm_month_name style "cal_menu_month_label":
@@ -721,16 +722,16 @@ screen calendar_menu():
 
                             frame:
                                 xysize (76, 32)
-                                background Solid("#cc2233" if _hdr_active else "#090b10dd")
+                                background (ROOM_MENU_SELECTOR_SELECTED if _hdr_active else ROOM_MENU_SELECTOR_IDLE)
                                 padding (0, 0)
 
                                 text _dow style "cal_day_header":
                                     xalign 0.5
                                     yalign 0.5
                                     if _hdr_active:
-                                        color "#ffffff"
+                                        color ROOM_MENU_INK
                                     elif _hdr_wkend:
-                                        color "#e06b6b"
+                                        color ROOM_MENU_CORAL
 
                     for _week in _cm_grid:
                         hbox:
@@ -751,7 +752,7 @@ screen calendar_menu():
                                         text "[_wd]" style "cal_cell_today_text"
 
                                 else:
-                                    $ _cell_color = "#5f6368" if _is_past else ("#e06b6b" if _is_wkend else "#d6d9df")
+                                    $ _cell_color = "#71807e" if _is_past else (ROOM_MENU_CORAL if _is_wkend else ROOM_MENU_PAPER)
 
                                     frame:
                                         style "cal_cell"
@@ -760,8 +761,8 @@ screen calendar_menu():
 
 
 # =============================================================================
-# STYLES  -- calendar overlay/menu visuals. Palette: dark slate panels with a
-# red (#cc2233 / #e06b6b) "today/weekend" accent and blue (#72b8d4) weekday dow.
+# STYLES  -- story overlays retain their authored palette. The month-grid menu
+# below joins the quiet room family with teal, coral, ochre, and paper tones.
 # =============================================================================
 style cal_overlay_month:
     font gui.interface_font
@@ -857,48 +858,49 @@ style cal_change_delta:
     outlines []
 
 style cal_menu_banner_label:
-    font gui.name_font
-    size 19
-    color "#cc2233"
-    outlines [(1, "#000000", 0, 0)]
+    font gui.interface_font
+    size 14
+    color ROOM_MENU_OCHRE
+    kerning 1.2
+    outlines [(1, "#05090d99", 0, 1)]
     yalign 0.5
 
 style cal_menu_today:
-    font gui.interface_font
-    size 21
-    color "#ffffff"
-    outlines [(1, "#000000", 0, 0)]
+    font gui.default_font
+    size 20
+    color ROOM_MENU_INK
+    outlines [(1, "#05090db8", 0, 1)]
     yalign 0.5
 
 style cal_menu_month_label:
-    font gui.name_font
-    size 28
-    color "#ffffff"
-    outlines [(2, "#000000", 0, 0)]
+    font gui.default_font
+    size 24
+    color ROOM_MENU_INK
+    outlines [(2, "#05090db8", 0, 1)]
 
 style cal_nav_button:
     xysize (48, 48)
-    background Solid("#161b22ee")
-    hover_background Solid("#cc2233")
+    background ROOM_MENU_SELECTOR_IDLE
+    hover_background ROOM_MENU_SELECTOR_HOVER
     padding (0, 0)
     yalign 0.5
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 style cal_nav_button_text:
-    font gui.name_font
-    size 24
-    color "#ffffff"
-    bold True
+    font gui.default_font
+    size 22
+    color ROOM_MENU_PAPER
+    hover_color "#fff8ea"
     xalign 0.5
     yalign 0.5
-    outlines [(1, "#000000", 0, 0)]
+    outlines [(1, "#05090db8", 0, 1)]
 
 style cal_nav_today_button:
     xysize (94, 48)
-    background Solid("#161b22ee")
-    hover_background Solid("#cc2233")
-    insensitive_background Solid("#090b10bb")
+    background ROOM_MENU_SELECTOR_IDLE
+    hover_background ROOM_MENU_SELECTOR_HOVER
+    insensitive_background ROOM_MENU_SELECTOR_SELECTED
     padding (0, 0)
     yalign 0.5
     hover_sound gui.hover_sound
@@ -906,52 +908,50 @@ style cal_nav_today_button:
 
 style cal_nav_today_button_text:
     font gui.interface_font
-    size 17
-    color "#ffffff"
-    insensitive_color "#5f6368"
-    bold True
+    size 15
+    color ROOM_MENU_PAPER
+    hover_color "#fff8ea"
+    insensitive_color ROOM_MENU_INK
     xalign 0.5
     yalign 0.5
-    outlines [(1, "#000000", 0, 0)]
+    outlines [(1, "#05090db8", 0, 1)]
 
 style cal_day_header:
     font gui.interface_font
-    size 15
-    color "#8f96a3"
-    bold True
+    size 13
+    color ROOM_MENU_MUTED
     text_align 0.5
-    outlines []
+    outlines [(1, "#05090d99", 0, 1)]
 
 style cal_cell:
     xysize (76, 48)
-    background Solid("#161b22dd")
+    background ROOM_MENU_SELECTOR_IDLE
     padding (0, 0)
 
 style cal_cell_empty:
     xysize (76, 48)
-    background Solid("#090b1099")
+    background Solid("#0711168f")
     padding (0, 0)
 
 style cal_cell_text:
     font gui.interface_font
-    size 22
-    color "#d6d9df"
+    size 20
+    color ROOM_MENU_PAPER
     xalign 0.5
     yalign 0.5
     text_align 0.5
-    outlines [(1, "#000000", 0, 0)]
+    outlines [(1, "#05090d99", 0, 1)]
 
 style cal_cell_today:
     xysize (76, 48)
-    background Solid("#cc2233")
+    background ROOM_MENU_SELECTOR_SELECTED
     padding (0, 0)
 
 style cal_cell_today_text:
-    font gui.name_font
-    size 23
-    color "#ffffff"
-    bold True
+    font gui.default_font
+    size 21
+    color ROOM_MENU_INK
     xalign 0.5
     yalign 0.5
     text_align 0.5
-    outlines [(2, "#000000", 0, 0)]
+    outlines [(2, "#05090db8", 0, 1)]

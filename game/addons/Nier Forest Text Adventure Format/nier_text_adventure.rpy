@@ -33,8 +33,8 @@
 #               quick_menu flag, restored on exit).
 #
 # GOTCHA (FROM THE CHEATSHEET)
-#   Always `call nier_exit` before returning to normal ADV scenes, and restore
-#   `window auto` if ADV dialogue follows immediately.
+#   Always `call nier_exit` before returning to normal ADV scenes. The shared
+#   window-auto policy resumes ordinary ADV ownership on its own.
 # =============================================================================
 
 

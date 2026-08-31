@@ -685,7 +685,6 @@ label archivist_invasion_dev(slug, start_open=False):
     $ inv_dev_start_open = bool(start_open)
     $ inv_player = "YOU"
 
-    window hide
     stop music fadeout 0.5
     scene black with dissolve_scene_full
 

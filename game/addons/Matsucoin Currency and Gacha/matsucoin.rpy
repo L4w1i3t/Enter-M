@@ -48,11 +48,16 @@
 #            player who has spent everything.
 # spent    : counterpart to lifetime, for the same readout.
 # paid_keys: the one-time ledger described above.
+# pending_notice_*: the persisted receipt waiting for the next title-screen
+#            visit. Coins are credited immediately; only their presentation is
+#            deferred, so quitting or reloading cannot lose either half.
 # -----------------------------------------------------------------------------
 default persistent.mc_balance = 0
 default persistent.mc_lifetime = 0
 default persistent.mc_spent = 0
 default persistent.mc_paid_keys = set()
+default persistent.mc_pending_notice_amount = 0
+default persistent.mc_pending_notice_events = 0
 
 init -5 python:
 
@@ -75,7 +80,6 @@ init -5 python:
         "bronze":   60,
         "silver":   120,
         "gold":     250,
-        "platinum": 1200,
     }
     MC_PAY_SIDE_UNLOCKED  = 40     # a side story becoming available
     MC_PAY_SIDE_COMPLETED = 120    # ...and actually being read to the end
@@ -113,14 +117,15 @@ init -5 python:
 
     # -------------------------------------------------------------------------
     # RUNTIME (never saved, never rolled back)
-    # The earn-toast queue, in the same shape and for the same reasons as
-    # achievements.rpy's _AchRuntime: a `default` store variable would be rolled
-    # back with the game (a rollback could vaporize or duplicate a pending
-    # toast) and would be pickled into every save.
+    # Only the receipt CURRENTLY BEING PRESENTED lives here. The actual pending
+    # amount lives in persistent.mc_pending_notice_* above, and is acknowledged
+    # only after its title-screen toast finishes. That means closing the game
+    # during the toast simply presents the same receipt on the next launch.
     # -------------------------------------------------------------------------
     class _McRuntime(NoRollback):
         def __init__(self):
-            self.queue = []      # FIFO of (amount, label) still to toast
+            # (amount, label, persisted_amount, persisted_event_count)
+            self.queue = []
             self.started = None  # wall clock of the current toast; None = unrendered
 
     _mc_rt = _McRuntime()
@@ -131,12 +136,6 @@ init -5 python:
     MC_TOAST_HOLD  = 2.2
     MC_TOAST_OUT   = 0.40
     MC_TOAST_TOTAL = MC_TOAST_IN + MC_TOAST_HOLD + MC_TOAST_OUT
-    # A sync that pays out more than this at once is a reconciliation (a profile
-    # that predates the feature, a dev unlock-everything), not a moment. It
-    # credits silently -- 40 toasts in a row is not a reward, it is a hostage
-    # situation. Same threshold reasoning as ACH_TOAST_BATCH_MAX.
-    MC_TOAST_BATCH_MAX = 3
-
     # -------------------------------------------------------------------------
     # WALLET
     # -------------------------------------------------------------------------
@@ -146,12 +145,25 @@ init -5 python:
         profiles merged between two machines."""
         if not isinstance(getattr(persistent, "mc_paid_keys", None), set):
             persistent.mc_paid_keys = set(getattr(persistent, "mc_paid_keys", None) or [])
-        for _field in ("mc_balance", "mc_lifetime", "mc_spent"):
+        for _field in (
+                "mc_balance", "mc_lifetime", "mc_spent",
+                "mc_pending_notice_amount", "mc_pending_notice_events"):
             if not isinstance(getattr(persistent, _field, None), int):
                 try:
                     setattr(persistent, _field, int(getattr(persistent, _field, 0) or 0))
                 except (TypeError, ValueError):
                     setattr(persistent, _field, 0)
+
+        # Pending receipt fields are counters, never debts. Profiles created by
+        # an interrupted dev edit or an older build should repair themselves.
+        persistent.mc_pending_notice_amount = max(
+            0, persistent.mc_pending_notice_amount)
+        persistent.mc_pending_notice_events = max(
+            0, persistent.mc_pending_notice_events)
+        if persistent.mc_pending_notice_amount <= 0:
+            persistent.mc_pending_notice_events = 0
+        elif persistent.mc_pending_notice_events <= 0:
+            persistent.mc_pending_notice_events = 1
 
     def mc_balance():
         _mc_ensure_store()
@@ -170,7 +182,8 @@ init -5 python:
 
         amount : coins. Non-positive amounts are a no-op, so a caller doing its
                 own arithmetic can pass a computed 0 without a guard.
-        label  : what the player did, for the toast ("OUROBOROS PROTOCOL").
+        label  : retained for source compatibility. Title receipts summarize
+                all payout sources, so they do not display per-event labels.
         key    : ONE-TIME. With a key set, the payout happens at most once ever
                 and the key is remembered in persistent.mc_paid_keys.
         """
@@ -201,7 +214,7 @@ init -5 python:
         persistent.mc_lifetime += amount
 
         if toast:
-            mc_push_toast(amount, label)
+            mc_queue_payout_notice(amount)
         if save:
             _mc_save()
         return amount
@@ -287,10 +300,9 @@ init -5 python:
         return tuple(getattr(persistent, "inv_fended", None) or ())
 
     def _mc_campaign():
-        # The campaign's clear signal is the Music Room unlock -- see the note
-        # at the end of game/story/season1/0531.rpy. When Season 1 proper ships
-        # and that line moves to its real ending, this follows it for free.
-        return ("chapter05",) if getattr(persistent, "archive_unlocked_music", False) else ()
+        # Chapter 0.5 owns a permanent signal independent of where the Music
+        # Room gate moves when the rest of Season 1 ships.
+        return ("chapter05",) if getattr(persistent, "chapter05_completed", False) else ()
 
     def _mc_ach_coins(aid):
         """An achievement's payout is set by its TIER, so the rule needs a
@@ -300,22 +312,17 @@ init -5 python:
         tier = getattr(entry, "tier", "bronze") if entry else "bronze"
         return MC_PAY_ACH.get(tier, MC_PAY_ACH["bronze"])
 
-    def _mc_ach_label(aid):
-        catalog = globals().get("ACH_BY_ID") or {}
-        entry = catalog.get(aid)
-        return ("ACHIEVEMENT: %s" % entry.title) if entry else "ACHIEVEMENT"
-
     # -- the rule table -------------------------------------------------------
-    # (ledger prefix, coins-or-callable, reader, toast label-or-callable)
+    # (ledger prefix, coins-or-callable, reader)
     MC_DERIVED_RULES = (
-        ("ach",      _mc_ach_coins,         _mc_earned_achievements, _mc_ach_label),
-        ("side_get", MC_PAY_SIDE_UNLOCKED,  _mc_side_unlocked,       "SIDE STORY RECOVERED"),
-        ("side_end", MC_PAY_SIDE_COMPLETED, _mc_side_completed,      "SIDE STORY READ"),
-        ("cg",       MC_PAY_CG,             _mc_cgs,                 "CG RECOVERED"),
-        ("fit",      MC_PAY_OUTFIT,         _mc_outfits,             "WARDROBE ENTRY"),
-        ("who",      MC_PAY_ROSTER,         _mc_roster,              "ROSTER SLOT IDENTIFIED"),
-        ("inv",      MC_PAY_ARCHIVIST,      _mc_archivists,          "ARCHIVIST FENDED OFF"),
-        ("camp",     MC_PAY_CAMPAIGN,       _mc_campaign,            "CAMPAIGN CLEARED"),
+        ("ach",      _mc_ach_coins,         _mc_earned_achievements),
+        ("side_get", MC_PAY_SIDE_UNLOCKED,  _mc_side_unlocked),
+        ("side_end", MC_PAY_SIDE_COMPLETED, _mc_side_completed),
+        ("cg",       MC_PAY_CG,             _mc_cgs),
+        ("fit",      MC_PAY_OUTFIT,         _mc_outfits),
+        ("who",      MC_PAY_ROSTER,         _mc_roster),
+        ("inv",      MC_PAY_ARCHIVIST,      _mc_archivists),
+        ("camp",     MC_PAY_CAMPAIGN,       _mc_campaign),
     )
 
     def mc_sync(notify=True):
@@ -328,31 +335,28 @@ init -5 python:
         Returns total coins credited."""
         _mc_ensure_store()
         total = 0
-        events = []
+        events = 0
 
-        for prefix, coins, reader, label in MC_DERIVED_RULES:
+        for prefix, coins, reader in MC_DERIVED_RULES:
             for item in _mc_read(reader):
                 key = "%s:%s" % (prefix, item)
                 if key in persistent.mc_paid_keys:
                     continue
                 amount = coins(item) if callable(coins) else coins
-                text = label(item) if callable(label) else label
                 # toast=False: the batch is judged as a whole below, because a
                 # first sync on an established profile can settle dozens of
                 # these at once.
-                got = mc_award(amount, text, key=key, toast=False, save=False)
+                got = mc_award(amount, key=key, toast=False, save=False)
                 if got:
                     total += got
-                    events.append((got, text))
+                    events += 1
 
         if total:
+            if notify:
+                # A derived sweep can settle dozens of catalog entries. Keep
+                # one persisted total instead of recreating the old toast parade.
+                mc_queue_payout_notice(total, events)
             _mc_save()
-            if notify and len(events) <= MC_TOAST_BATCH_MAX:
-                for amount, text in events:
-                    mc_push_toast(amount, text)
-            elif notify:
-                # Reconciliation: one summary line instead of a parade.
-                mc_push_toast(total, "BACK PAY")
         return total
 
     def mc_refresh():
@@ -511,13 +515,94 @@ init -5 python:
     mc_se.cursor = 0
 
     # -------------------------------------------------------------------------
-    # TOAST QUEUE
+    # DEFERRED PAYOUT RECEIPT
     # -------------------------------------------------------------------------
+    def mc_queue_payout_notice(amount, events=1):
+        """Persist a receipt without presenting it during gameplay.
+
+        This deliberately does not save on its own: mc_award and mc_sync already
+        own the transaction boundary and save the wallet, ledger and receipt in
+        one write. Returns the amount added for small test harnesses and console
+        diagnostics.
+        """
+        _mc_ensure_store()
+        amount = max(0, int(amount or 0))
+        events = max(0, int(events or 0))
+        if amount <= 0:
+            return 0
+        persistent.mc_pending_notice_amount += amount
+        persistent.mc_pending_notice_events += max(1, events)
+        return amount
+
     def mc_push_toast(amount, label=None):
-        _mc_rt.queue.append((int(amount), label or "MATSUCOINS"))
-        # The always-shown screen only re-evaluates on an interaction restart;
-        # force one so a toast pushed mid-interaction appears immediately.
-        renpy.restart_interaction()
+        """Compatibility wrapper for older console/addon calls.
+
+        Payout toasts are no longer immediate. A direct call now creates one
+        persisted payout event for the next main-menu entry. ``label`` remains
+        accepted so old callers do not break; the title screen intentionally
+        summarizes all sources under one neutral receipt.
+        """
+        queued = mc_queue_payout_notice(amount)
+        if queued:
+            _mc_save()
+        return queued
+
+    def _mc_notice_label(events):
+        events = max(1, int(events or 0))
+        if events == 1:
+            return "PAYOUT COLLECTED"
+        return "%s PAYOUTS COLLECTED" % mc_num(events)
+
+    def mc_main_menu_enter():
+        """Settle the wallet, then stage exactly one persisted title receipt.
+
+        The pending counters are NOT cleared here. They are acknowledged only
+        after the toast completes, so quitting during the title transition or
+        leaving the menu quickly cannot make the notification disappear forever.
+        """
+        _mc_ensure_store()
+
+        # Achievement conditions own some of this currency's derived inputs.
+        # Reconcile them first so a cold relaunch after an objective (including
+        # quitting during a card reveal) can pay and present the receipt on THIS
+        # title visit instead of waiting for another round trip. The addon is
+        # optional, and one broken condition must not block all other payouts.
+        ach_sync_fn = globals().get("ach_sync", None)
+        if ach_sync_fn:
+            try:
+                ach_sync_fn()
+            except Exception:
+                pass
+
+        mc_sync()
+
+        # A return to the title is a fresh delivery attempt. Replacing the
+        # session queue also folds any interrupted receipt and any newer awards
+        # into one current total without ever double-crediting the wallet.
+        del _mc_rt.queue[:]
+        _mc_rt.started = None
+
+        amount = persistent.mc_pending_notice_amount
+        events = persistent.mc_pending_notice_events
+        if amount > 0:
+            _mc_rt.queue.append(
+                (amount, _mc_notice_label(events), amount, events))
+        return None
+
+    def _mc_acknowledge_notice(amount, events):
+        """Remove only the portion represented by one completed receipt.
+
+        Subtraction rather than clearing is important: a dev action can earn a
+        new payout while the current title receipt is still animating.
+        """
+        _mc_ensure_store()
+        persistent.mc_pending_notice_amount = max(
+            0, persistent.mc_pending_notice_amount - max(0, int(amount or 0)))
+        persistent.mc_pending_notice_events = max(
+            0, persistent.mc_pending_notice_events - max(0, int(events or 0)))
+        if persistent.mc_pending_notice_amount <= 0:
+            persistent.mc_pending_notice_events = 0
+        _mc_save()
 
     def _mc_toast_anim(trans, st, at):
         """ATL driver on the toast card, one call per frame while it is up.
@@ -526,7 +611,7 @@ init -5 python:
         RENDERS, so a coin awarded mid-transition still gets its full dwell."""
         if renpy.predicting():
             return 0
-        if not _mc_rt.queue:
+        if not getattr(renpy.store, "main_menu", False) or not _mc_rt.queue:
             trans.alpha = 0.0
             return 0
         now = _mc_time.time()
@@ -549,9 +634,11 @@ init -5 python:
             trans.alpha = 1.0 - p * p
             trans.xoffset = 40.0 * p * p
         else:
-            _mc_rt.queue.pop(0)
+            finished = _mc_rt.queue.pop(0)
             _mc_rt.started = None
             trans.alpha = 0.0
+            if len(finished) >= 4:
+                _mc_acknowledge_notice(finished[2], finished[3])
             renpy.restart_interaction()
         return 0
 
@@ -592,6 +679,10 @@ init -5 python:
         persistent.mc_balance = 0
         persistent.mc_lifetime = 0
         persistent.mc_spent = 0
+        persistent.mc_pending_notice_amount = 0
+        persistent.mc_pending_notice_events = 0
+        del _mc_rt.queue[:]
+        _mc_rt.started = None
         if not keep_ledger:
             persistent.mc_paid_keys = set()
         _mc_save()
@@ -601,9 +692,9 @@ init -5 python:
 
 # -----------------------------------------------------------------------------
 # TOAST SCREEN
-# Hosted by config.always_shown_screens (registered at the bottom of this file),
-# so it is present in EVERY context -- story, the menu contexts, the fights --
-# even while overlays are suppressed. Renders nothing while the queue is empty.
+# Hosted by config.always_shown_screens (registered at the bottom of this file)
+# so it survives menu-context changes, but it renders ONLY while ``main_menu``
+# is true. Gameplay can keep settling the wallet without ever drawing a receipt.
 # Never show or hide it by hand.
 # -----------------------------------------------------------------------------
 transform mc_toast_drive:
@@ -617,8 +708,9 @@ screen matsucoin_toaster():
     # reads as the headline and the coins as its receipt.
     zorder 399
 
-    if _mc_rt.queue:
-        $ _mc_amount, _mc_label = _mc_rt.queue[0]
+    if main_menu and _mc_rt.queue:
+        $ _mc_amount, _mc_label = _mc_rt.queue[0][:2]
+        $ _mc_ach_queue = getattr(getattr(renpy.store, "_ach_rt", None), "queue", ())
 
         frame:
             style "mc_toast_frame"
@@ -626,7 +718,7 @@ screen matsucoin_toaster():
             # The achievement toast owns the bottom-right corner and is 62px
             # tall. When one is up, this sits on top of it instead of under it.
             pos (0.988, 0.965)
-            yoffset (-70 if _ach_rt.queue else 0)
+            yoffset (-70 if _mc_ach_queue else 0)
             ysize 54
             at mc_toast_drive
 
@@ -701,10 +793,9 @@ style mc_chip_amount:
 
 # -----------------------------------------------------------------------------
 # HOOKS
-# Sync on load, and once per launch at the title screen, so a profile that
-# earned things before this feature shipped is paid without having to go
-# anywhere specific. The hub screens sync on show as well (see their on "show"
-# handlers) to catch anything earned during a run.
+# Sync on load and before every interaction so the WALLET never lags behind the
+# deed. Presentation is separate: the ``before_main_menu`` label callback stages
+# the persisted total exactly when the player next reaches the title screen.
 # -----------------------------------------------------------------------------
 init 60 python:
     if "matsucoin_toaster" not in config.always_shown_screens:
@@ -716,14 +807,12 @@ init 60 python:
     if _mc_after_load not in config.after_load_callbacks:
         config.after_load_callbacks.append(_mc_after_load)
 
-    # SETTLE EVERY INTERACTION.
-    #
-    # This used to fire once per launch, gated on the main menu, with the hub
-    # screens re-syncing on show. That paid correctly but paid LATE: earning an
-    # achievement mid-chapter credited nothing until the player next opened the
-    # Arcade or the Archive, so the coins arrived detached from the thing that
-    # earned them and the toast was a mystery. Coins should land -- and say so --
-    # at the moment the deed is done.
+# SETTLE EVERY INTERACTION, PRESENT ONLY AT THE TITLE.
+#
+# Crediting immediately keeps every wallet read correct and makes the one-time
+# ledger idempotent even if the player quits mid-chapter. The receipt is a
+# different concern: mc_sync adds its amount to persistent pending counters,
+# and mc_main_menu_enter stages one summary later, away from story scenes.
     #
     # Running the whole sweep per interaction is affordable: it is ~130 getattr
     # lookups and a few list comprehensions against catalogs that are already in
@@ -743,3 +832,19 @@ init 60 python:
 
     if _mc_interact_sync not in config.interact_callbacks:
         config.interact_callbacks.append(_mc_interact_sync)
+
+    def _mc_label_callback(name, abnormal):
+        # Official Ren'Py lifecycle calls before_main_menu on first launch and
+        # every return from gameplay. A label callback keeps this addon
+        # self-contained instead of adding a hard reference to splash.rpy.
+        if name != "before_main_menu":
+            return
+        try:
+            mc_main_menu_enter()
+        except Exception:
+            # The callback must never make the title screen unreachable. Any
+            # unpresented amount remains persistent and can be retried later.
+            pass
+
+    if _mc_label_callback not in config.label_callbacks:
+        config.label_callbacks.append(_mc_label_callback)

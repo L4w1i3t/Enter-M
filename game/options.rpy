@@ -1,11 +1,13 @@
 ##### ENGINE SETTINGS FOR YOUR MOD #####
 
-# Keep Ren'Py's automatic image discovery and its engine-generated ``gui/**``
-# lookups pointed at the consolidated asset tree.  This must run after the
-# common code creates these config variables (init -1900), but before ordinary
-# init blocks begin.
+# Runtime art now lives in category-specific directories and is explicitly
+# declared. Disable Ren'Py's single-directory basename scan: pointing it at the
+# whole assets tree would create ambiguous aliases for duplicate filenames and
+# do unnecessary work at startup. Keep the compatibility search prefix for
+# engine-generated ``gui/**`` lookups. This must run after common code creates
+# these config variables (init -1900), but before ordinary init blocks begin.
 init -999 python:
-    config.images_directory = "assets/images"
+    config.images_directory = None
     config.search_prefixes = ["", "assets/"]
 
 # The formal name of the mod. Change the value of this to your mod's name
@@ -24,7 +26,7 @@ define build.name = "ENTER-M"
 define config.has_sound = True
 define config.has_music = True
 define config.has_voice = False
-define config.main_menu_music = audio.canyoufeel   # Set this to whatever you want the main menu music to be
+define config.main_menu_music = audio.mainmenu   # Set this to whatever you want the main menu music to be
 
 # The transitions BETWEEN MENUS (enter/exit/intra/game_main/end_game) live in
 # menu_transitions.rpy, next to the choreographies they are built from. The
@@ -35,27 +37,33 @@ define config.window = "auto"
 define config.window_show_transition = Dissolve(.18)
 define config.window_hide_transition = Dissolve(.14)
 
-# KEEPING "auto" ACTUALLY AUTOMATIC.
+# STRICT AUTOMATIC WINDOW OWNERSHIP.
 #
-# `window hide` and `window show` are not the scoped, one-shot statements they
-# look like. Both of them ALSO set `_window_auto = False` (see the statement
-# handlers in renpy/common/000window.rpy), which switches the policy above off
-# for the REST OF THE RUN -- not just for the next statement. So one game mode
-# hiding the box by hand on its way in left the whole session with automatic
-# hiding disabled: the empty textbox then sat through every later `scene`
-# change instead of fading out before it, and a mode with its own dialogue card
-# drew that card on top of a stray default DDLC box whose wider, lower edges
-# peeked out around it. `game/story/season1/s1disc.rpy` and `arcade_launch_prep`
-# both hand off into long sections that way.
+# Stock Ren'Py deliberately carries an empty dialogue window through `pause`
+# statements. ENTER-M uses pauses as visual beats, so an automatic window should
+# be absent for the whole beat instead. Characters with a bespoke say screen use
+# the `say-custom` statement name; hiding the stock empty window for that name
+# leaves the character's actual say screen as the sole owner of the text layer.
 #
-# Re-arming on the following statement keeps `window hide` doing its immediate
-# job -- the box goes away NOW -- while making it impossible for one to disarm
-# the policy permanently. The callback is appended after 000window.rpy's own
-# (registered at init -1200), so for any given statement it runs AFTER the auto
-# show/hide decision has been made, and only takes effect from the next one.
-# That one-statement gap is deliberate: it is what lets an explicit `window
-# hide` still suppress the auto-hide of the `scene` or `call screen` it was
-# written to precede.
+# These are statement names reported through Ren'Py's normal window-auto
+# callback. They do not affect ATL `pause` clauses or the contents of a custom
+# screen.
+define config.window_auto_hide += [ "pause", "say-custom" ]
+
+# KEEPING "auto" ARMED.
+#
+# Window visibility is owned here, not reset piecemeal in story labels. Ordinary
+# script must rely on the semantic statement names above and Ren'Py's stock
+# scene/menu/call-screen rules. The sole manual exception is `window hide(None)`
+# for an authored hard cut where even the normal hide dissolve would be wrong.
+#
+# Every `window hide`, including the no-transition form, also sets
+# `_window_auto = False`. This callback restores automatic ownership on the
+# following statement. It is appended after 000window.rpy's callback, so the
+# one-statement delay preserves the hard cut and its immediate beat; the next
+# dialogue or owned non-dialogue statement resumes normal automatic behavior.
+# Bespoke Characters report `say-custom`, keeping the stock box hidden while
+# their custom say screen is active.
 init python:
 
     def _enter_m_rearm_window_auto(statement):
@@ -77,7 +85,7 @@ default preferences.sfx_volume = 1.0
 define config.save_directory = "ENTERM"
 
 # Window icon that appears in your taskbar
-define config.window_icon = "assets/gui/enter_m/window_icon.png"
+define config.window_icon = "assets/gui/window_icon.png"
 
 # Gameplay settings
 define config.allow_skipping = True        # Allows player to skip unseen dialogue

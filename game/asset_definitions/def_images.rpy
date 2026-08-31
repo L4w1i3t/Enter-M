@@ -13,10 +13,10 @@
 #   NOT from more image variants.
 #
 # WHERE THE FILES LIVE
-#   assets/backgrounds/    finished backgrounds
-#   assets/cg/    finished CGs
-#   assets/dump/  art not yet sorted into assets/images/bg/ or cg/; entries pointing here
-#                     are the ones still waiting on a home.
+#   assets/backgrounds/  finished backgrounds
+#   assets/cg/           finished CGs
+#   assets/dump/         art not yet sorted into backgrounds or CGs; entries
+#                        pointing here are the ones still waiting on a home.
 #
 # RELATED FILES
 #   def_characters.rpy -- cast sprites and Characters
@@ -37,6 +37,7 @@ image bg dining_table = "assets/backgrounds/dining_table.png"
 image bg dining_table_night = "assets/backgrounds/dining_table_night.png"
 image bg living_room = "assets/backgrounds/living_room.png"
 image bg living_room_night = "assets/backgrounds/living_room_night.png"
+image bg living_room_tabletop_night = "assets/backgrounds/living_room_tabletop_night.png"
 image bg bedroom_night = "assets/backgrounds/bedroom_night.png"
 image bg kitchen_evening = "assets/backgrounds/kitchen_evening.png"
 image bg kitchen_night = "assets/backgrounds/kitchen_night.png"
@@ -126,10 +127,16 @@ image bg fortress = "assets/backgrounds/fortress.png"
 image bg battlefield01 = "assets/backgrounds/battlefield01.png"       # Dead Fantasy
 image bg battle_setpiece = "assets/backgrounds/battle_setpiece.png"
 image bg castle01_strategyroom = "assets/backgrounds/castle01_strategyroom.png"
+image bg castle01_strategyroom_night = "assets/backgrounds/castle01_strategyroom_night.png"
+image bg greywake_rival_keep = "assets/backgrounds/greywake_rival_keep.png"
+image bg greywake_field_dawn = "assets/backgrounds/greywake_field_dawn.png"
+image bg greywake_ravine = "assets/backgrounds/greywake_ravine.png"
+image bg greywake_west_ridge = "assets/backgrounds/greywake_west_ridge.png"
+image bg greywake_field_aftermath = "assets/backgrounds/greywake_field_aftermath.png"
 image bg classroom_purg = "assets/backgrounds/classroom_purg.png"     # Purgatorium
 image bg courtyard_purg = "assets/backgrounds/courtyard_purg.png"
 image bg roof_purg = "assets/backgrounds/roof_purg.png"
-image bg monika_room = "assets/images/cg/monika/monika_room.png"        # carried over from vanilla
+image bg monika_room = "assets/cg/monika/monika_room.png"        # carried over from vanilla
 
 
 # -----------------------------------------------------------------------------
@@ -139,3 +146,4 @@ image bg monika_room = "assets/images/cg/monika/monika_room.png"        # carrie
 image cg hell = "assets/cg/hell.png"
 image cg hell2 = "assets/cg/hell2.png"
 image cg ransom = "assets/cg/ransom.png"
+image cg dead_fantasy_greywake_draw = "assets/cg/dead_fantasy_greywake_draw.png"

@@ -6,7 +6,6 @@ label a0523:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "For once the alarm and I reach an agreement, which I would report to Monika if I thought she'd accept it without a victory lap."
     "The only casualty of the morning is Asahina's toast, which came out of the toaster the color of a barbecue accident."
     "{i}Sucks to be you~{/i}"
@@ -269,8 +268,8 @@ label a0523:
     # the route addressable only to someone who chose substitution every single
     # time. See dependency_route.rpy for the full contract.
     show tsubaki uniform sad
-    ts "I really have to break this habit, though... Not the first time something like this has happened."
-    mc "You regularly submit the wrong assignments...? Are all your notebooks identical or something?"
+    ts "I really {i}do{/i} have to break this habit, though... It isn't the first time I've mixed things up."
+    mc "You regularly submit the wrong assignments? Are all your notebooks identical or something?"
     show tsubaki uniform embarrassed
     ts "Nah, more like...clumsy, maybe? I turn in the wrong thing or leave it on a table, and one day I'm going to have to blame the dog."
     show tsubaki uniform unamused
@@ -425,7 +424,7 @@ label a0523:
     show matsuda smug
     ma "I consumed a rather exquisite melon bread in transit."
     show tsubaki uniform annoyed
-    ts "That's not lunch! Did you not pay attention in primary health?!"
+    ts "That's not lunch! Did you pay any attention in primary health?!"
     show matsuda annoyed
     ma "Hark, don't be like that. It had structural integrity, which is sufficient fuel for one such as I."
     show tsubaki uniform determined
@@ -873,6 +872,11 @@ label a0523:
         ]
     call phone_text_conversation("Matsuda Akai", _phone_messages, append=True) from _call_phone_text_conversation_0523_2
     "I turn my screen over. Then I pick it up again and reread the last few messages."
+    "One knock touches the open door. Asahina reaches in and drops the good charger beside my phone."
+    ah "Found it."
+    mc "That was in your room."
+    ah "And now it isn't."
+    "She disappears before the question can become one."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "The rest of Friday finally eases off."

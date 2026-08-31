@@ -36,7 +36,8 @@
 #   theme "tails". Main score: audio.tails (assets/audio/bgm/tails.ogg, defined
 #   in def_audio.rpy). Mood swaps ($ tsg_set_mood) sit beside section cards /
 #   clears, where the backdrop swap hides.
-#   ON COMPLETION: cs_mark_completed("cs_tsubaki_02"), which sets
+#   ON COMPLETION: awards both paired gothic CGs, then calls
+#   cs_mark_completed("cs_tsubaki_02"), which sets
 #   persistent.cs_tsubaki_02_completed and syncs achievements. That flag is what
 #   drives "Same Coin" -- the _unlocked flag only means recoverable-in-hub and
 #   gets force-set by the dev all-content unlocks, so it must never gate an
@@ -277,6 +278,7 @@ label cs_tsubaki_02:
     # -- Completion: recover the file, mark it read, sync achievements. ------
     # cs_mark_completed does the flag, the persist and the ach_sync.
     $ persistent.cs_tsubaki_02_unlocked = True
+    $ cg_unlock("What I Keep", "What She Kept")
     $ cs_mark_completed("cs_tsubaki_02")
 
     call tsg_exit from _cts2_23

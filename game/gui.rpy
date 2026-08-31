@@ -61,8 +61,8 @@ define gui.notify_text_size = 16                      # Size of notification tex
 define gui.title_text_size = 42                       # Size of title text
 
 # Background images for menus
-define gui.main_menu_background = "menu_bg"           # Main menu background
-define gui.game_menu_background = "game_menu_bg"      # Game menu background
+define gui.main_menu_background = "enter_m_main_menu_bg"  # Interactive title-screen background
+define gui.game_menu_background = "enter_m_game_menu_bg"  # Interactive pause/submenu background
 
 # Show game title in main menu
 define gui.show_name = False
@@ -128,6 +128,11 @@ define gui.choice_button_text_idle_color = "#eef7f4"   # Choice text color when 
 define gui.choice_button_text_hover_color = "#ff315b"  # Choice text color when hovered
 
 # Save/load slot buttons
+# NOTE: dead since the RECORD BANK replaced the save/load grid -- these dressed
+# `screen file_slots`, which no longer exists. The bank draws its own rows and
+# sizes them from the EMB_* constants in game/data_bank.rpy. Left in place
+# because they are stock Ren'Py GUI names and something in the SDK's own
+# common screens may still read one.
 define gui.slot_button_width = 270                     # Save slot width
 define gui.slot_button_height = 206                    # Save slot height
 define gui.slot_button_borders = Borders(12, 12, 12, 12)  # Save slot borders
@@ -137,10 +142,17 @@ define gui.slot_button_text_idle_color = gui.idle_small_color  # Save slot inact
 define gui.slot_button_text_hover_color = gui.hover_color      # Save slot hover color
 
 # Save thumbnails
-define config.thumbnail_width = 256                    # Save thumbnail width
-define config.thumbnail_height = 144                   # Save thumbnail height
+# Sized to draw 1:1 on the record bank's monitor glass (EMB_SHOT_W/H), so a
+# save written from here needs no rescaling to be previewed. Saves written
+# before this change carry a 256x144 thumbnail and are scaled up to fit.
+define config.thumbnail_width = 416                    # Save thumbnail width
+define config.thumbnail_height = 234                   # Save thumbnail height
 
 # Save/load screen grid layout
+# Also dead with `screen file_slots`. The bank is one flat scrolling list of
+# EMB_SLOTS records; gui.file_slot_cols * gui.file_slot_rows only survives as
+# the page size Ren'Py names slots by, which the bank hardcodes as EMB_PER_PAGE
+# so that changing these can never rename an existing save file.
 define gui.file_slot_cols = 3                          # Number of save slots per row
 define gui.file_slot_rows = 2                          # Number of rows of save slots
 

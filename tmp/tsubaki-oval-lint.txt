@@ -1,0 +1,388 @@
+﻿Ren'Py 8.1.1.23060707 lint report, generated at: Sun Aug 30 02:07:41 2026
+
+game/asset_definitions/def_images.rpy:139 Image bg monika_room uses file 'assets/cg/monika/monika_room.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:7 Image nat_ff_n1 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:7 Image nat_ff_n1 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:9 Image nat_ff_n2 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:9 Image nat_ff_n2 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:11 Image nat_ff_n3 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:11 Image nat_ff_n3 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:13 Image nat_ff_n4 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:13 Image nat_ff_n4 uses file 'assets/mpt/natsuki/natsuki_ff_nose_n4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:18 Image nat_ff_ma uses file 'assets/mpt/natsuki/natsuki_ff_mouth_ma.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:18 Image nat_ff_ma uses file 'assets/mpt/natsuki/natsuki_ff_mouth_ma.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:20 Image nat_ff_mb uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mb.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:20 Image nat_ff_mb uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mb.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:22 Image nat_ff_mc uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mc.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:22 Image nat_ff_mc uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mc.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:24 Image nat_ff_md uses file 'assets/mpt/natsuki/natsuki_ff_mouth_md.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:24 Image nat_ff_md uses file 'assets/mpt/natsuki/natsuki_ff_mouth_md.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:26 Image nat_ff_me uses file 'assets/mpt/natsuki/natsuki_ff_mouth_me.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:26 Image nat_ff_me uses file 'assets/mpt/natsuki/natsuki_ff_mouth_me.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:28 Image nat_ff_mf uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mf.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:28 Image nat_ff_mf uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mf.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:30 Image nat_ff_mg uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mg.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:30 Image nat_ff_mg uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mg.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:32 Image nat_ff_mh uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mh.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:32 Image nat_ff_mh uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mh.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:34 Image nat_ff_mi uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mi.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:34 Image nat_ff_mi uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mi.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:36 Image nat_ff_mj uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mj.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:36 Image nat_ff_mj uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mj.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:38 Image nat_ff_mk uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mk.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:38 Image nat_ff_mk uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mk.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:40 Image nat_ff_ml uses file 'assets/mpt/natsuki/natsuki_ff_mouth_ml.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:40 Image nat_ff_ml uses file 'assets/mpt/natsuki/natsuki_ff_mouth_ml.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:42 Image nat_ff_mm uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mm.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:42 Image nat_ff_mm uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mm.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:44 Image nat_ff_mn uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mn.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:44 Image nat_ff_mn uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mn.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:46 Image nat_ff_mo uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mo.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:46 Image nat_ff_mo uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mo.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:48 Image nat_ff_mp uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mp.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:48 Image nat_ff_mp uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mp.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:50 Image nat_ff_mq uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mq.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:50 Image nat_ff_mq uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mq.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:52 Image nat_ff_mr uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mr.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:52 Image nat_ff_mr uses file 'assets/mpt/natsuki/natsuki_ff_mouth_mr.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:57 Image nat_ff_e1a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:57 Image nat_ff_e1a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:59 Image nat_ff_e1b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:59 Image nat_ff_e1b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:61 Image nat_ff_e1c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:61 Image nat_ff_e1c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:63 Image nat_ff_e1d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:63 Image nat_ff_e1d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:65 Image nat_ff_e1e uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:65 Image nat_ff_e1e uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:67 Image nat_ff_e1f uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1f.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:67 Image nat_ff_e1f uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1f.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:69 Image nat_ff_e1g uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1g.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:69 Image nat_ff_e1g uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1g.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:71 Image nat_ff_e1h uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1h.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:71 Image nat_ff_e1h uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e1h.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:73 Image nat_ff_e2a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:73 Image nat_ff_e2a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:75 Image nat_ff_e2b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:75 Image nat_ff_e2b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:77 Image nat_ff_e2c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:77 Image nat_ff_e2c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:79 Image nat_ff_e2d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:79 Image nat_ff_e2d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e2d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:81 Image nat_ff_e3a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e3a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:81 Image nat_ff_e3a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e3a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:83 Image nat_ff_e3b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e3b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:83 Image nat_ff_e3b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e3b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:85 Image nat_ff_e4a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:85 Image nat_ff_e4a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:87 Image nat_ff_e4b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:87 Image nat_ff_e4b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:89 Image nat_ff_e4c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:89 Image nat_ff_e4c uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:91 Image nat_ff_e4d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:91 Image nat_ff_e4d uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:93 Image nat_ff_e4e uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:93 Image nat_ff_e4e uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e4e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:95 Image nat_ff_e0a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e0a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:95 Image nat_ff_e0a uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e0a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:97 Image nat_ff_e0b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e0b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:97 Image nat_ff_e0b uses file 'assets/mpt/natsuki/natsuki_ff_eyes_e0b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:102 Image nat_ff_b1a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:102 Image nat_ff_b1a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:104 Image nat_ff_b1b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:104 Image nat_ff_b1b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:106 Image nat_ff_b1c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:106 Image nat_ff_b1c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:108 Image nat_ff_b1d uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:108 Image nat_ff_b1d uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1d.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:110 Image nat_ff_b1e uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:110 Image nat_ff_b1e uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1e.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:112 Image nat_ff_b1f uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1f.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:112 Image nat_ff_b1f uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b1f.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:114 Image nat_ff_b2a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:114 Image nat_ff_b2a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:116 Image nat_ff_b2b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:116 Image nat_ff_b2b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:118 Image nat_ff_b2c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:118 Image nat_ff_b2c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b2c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:120 Image nat_ff_b3a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:120 Image nat_ff_b3a uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3a.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:122 Image nat_ff_b3b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:122 Image nat_ff_b3b uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3b.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:124 Image nat_ff_b3c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:124 Image nat_ff_b3c uses file 'assets/mpt/natsuki/natsuki_ff_eyebrows_b3c.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:133 Image nat_fs_n1 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:133 Image nat_fs_n1 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:135 Image nat_fs_n2 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:135 Image nat_fs_n2 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:137 Image nat_fs_n3 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:137 Image nat_fs_n3 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:139 Image nat_fs_n4 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:139 Image nat_fs_n4 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:141 Image nat_fs_n5 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n5.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:141 Image nat_fs_n5 uses file 'assets/mpt/natsuki/natsuki_fs_nose_n5.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:146 Image nat_fs_m1 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:146 Image nat_fs_m1 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:148 Image nat_fs_m2 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:148 Image nat_fs_m2 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:150 Image nat_fs_m3 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:150 Image nat_fs_m3 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:152 Image nat_fs_m4 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:152 Image nat_fs_m4 uses file 'assets/mpt/natsuki/natsuki_fs_mouth_m4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:157 Image nat_fs_e1 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:157 Image nat_fs_e1 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:159 Image nat_fs_e2 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:159 Image nat_fs_e2 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:161 Image nat_fs_e3 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:161 Image nat_fs_e3 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:163 Image nat_fs_e4 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:163 Image nat_fs_e4 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e4.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:165 Image nat_fs_e5 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e5.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:165 Image nat_fs_e5 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e5.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:167 Image nat_fs_e6 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e6.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:167 Image nat_fs_e6 uses file 'assets/mpt/natsuki/natsuki_fs_eyes_e6.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:172 Image nat_fs_b1 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:172 Image nat_fs_b1 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b1.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:174 Image nat_fs_b2 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:174 Image nat_fs_b2 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b2.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:176 Image nat_fs_b3 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b3.png', which is not loadable.
+
+game/asset_definitions/mpt/natsuki_layeredimage.rpy:176 Image nat_fs_b3 uses file 'assets/mpt/natsuki/natsuki_fs_eyebrows_b3.png', which is not loadable.
+
+game/definitions.rpy:61 Image splash uses file 'assets/backgrounds/splash.png', which is not loadable.
+
+game/definitions.rpy:63 Image end uses file 'assets/gui/end.png', which is not loadable.
+
+game/definitions.rpy:63 Image end uses file 'assets/gui/end.png', which is not loadable.
+
+game/definitions.rpy:89 Image bg notebook uses file 'assets/backgrounds/notebook.png', which is not loadable.
+
+game/definitions.rpy:90 Image bg notebook-glitch uses file 'assets/backgrounds/notebook-glitch.png', which is not loadable.
+
+game/definitions.rpy:91 Image bg glitch uses file 'assets/backgrounds/glitch.jpg', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-red.png', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-green.png', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-blue.png', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-red.png', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-green.png', which is not loadable.
+
+game/definitions.rpy:94 Image glitch_color uses file 'assets/backgrounds/glitch-blue.png', which is not loadable.
+
+game/definitions.rpy:136 Image glitch_color2 uses file 'assets/backgrounds/glitch-red.png', which is not loadable.
+
+game/definitions.rpy:136 Image glitch_color2 uses file 'assets/backgrounds/glitch-green.png', which is not loadable.
+
+game/definitions.rpy:136 Image glitch_color2 uses file 'assets/backgrounds/glitch-blue.png', which is not loadable.
+
+game/effects.rpy:376 Image blood_particle uses file 'assets/gui/blood_drop.png', which is not loadable.
+
+game/effects.rpy:376 Image blood_particle uses file 'assets/gui/blood_drop.png', which is not loadable.
+
+game/effects.rpy:395 Image bsod_1 uses file 'assets/backgrounds/bsod.png', which is not loadable.
+
+game/effects.rpy:395 Image bsod_1 uses file 'assets/backgrounds/bsod.png', which is not loadable.
+
+game/effects.rpy:407 Image bsod uses file 'assets/backgrounds/bsod.png', which is not loadable.
+
+game/splash.rpy:739 Image intro uses file 'assets/backgrounds/splash.png', which is not loadable.
+
+game/splash.rpy:739 Image intro uses file 'assets/backgrounds/splash.png', which is not loadable.
+
+
+Statistics:
+
+The game contains 10,137 dialogue blocks, containing 104,144 words and 573,176
+characters, for an average of 10.3 words and 57 characters per block.
+
+The game contains 93 menus, 1,119 images, and 284 screens.
+
+Character statistics (for default language):
+ * narrator has 2,977 blocks of dialogue.
+ * mc has 1,313 blocks of dialogue.
+ * nier has 1,225 blocks of dialogue.
+ * ah has 637 blocks of dialogue.
+ * ma has 636 blocks of dialogue.
+ * mom has 576 blocks of dialogue.
+ * m has 526 blocks of dialogue.
+ * cs_fe_akai has 313 blocks of dialogue.
+ * ts has 269 blocks of dialogue.
+ * cs_fe_rival has 209 blocks of dialogue.
+ * _purg_girl has 147 blocks of dialogue.
+ * sa has 140 blocks of dialogue.
+ * mmd has 131 blocks of dialogue.
+ * cs_fe_sam has 111 blocks of dialogue.
+ * ko has 98 blocks of dialogue.
+ * tsgt has 97 blocks of dialogue.
+ * track_coach has 92 blocks of dialogue.
+ * tsg has 90 blocks of dialogue.
+ * cs_fe_gary has 61 blocks of dialogue.
+ * cs_fe_ts has 53 blocks of dialogue.
+ * math_teacher has 44 blocks of dialogue.
+ * civics_teacher has 40 blocks of dialogue.
+ * japanese_teacher has 36 blocks of dialogue.
+ * hikari and science_teacher have 33 blocks of dialogue each.
+ * cs_fe_captain has 32 blocks of dialogue.
+ * cs_fe_leif has 31 blocks of dialogue.
+ * cs_fe_gregor has 30 blocks of dialogue.
+ * homura has 27 blocks of dialogue.
+ * cs_fe_scout has 24 blocks of dialogue.
+ * dai has 22 blocks of dialogue.
+ * cs_fe_rider and cs_fe_soldier have 21 blocks of dialogue each.
+ * english_teacher has 13 blocks of dialogue.
+ * cs_fe_guard and cs_fe_medic have 11 blocks of dialogue each.
+ * principal has 6 blocks of dialogue.
+ * teacher has 1 block of dialogue.
+
+
+Lint is not a substitute for thorough testing. Remember to update Ren'Py
+before releasing. New releases fix bugs and improve compatibility.

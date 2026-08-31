@@ -6,7 +6,6 @@ label a0527:
     $ atmos("afternoon")
     with dissolve_scene_full
     play music quiz
-    window auto
     # Day 2: morning Biology, afternoon Chemistry.
     $ exam_guard_checkpoint_or_jump("biology", "exam_start", "a0527_biology_save_scum")
     "Second day of exams."

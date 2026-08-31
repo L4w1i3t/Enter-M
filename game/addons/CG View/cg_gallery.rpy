@@ -136,68 +136,53 @@ init python:
     # Master CG catalog -- organized by act > chapter
     # Uses vanilla DDLC CGs as placeholders
     cg_gallery_catalog = [
-        CGAct("Opening", [
-            CGChapter("All Opening CGs", [
-                CGEntry("Title Drop", "addons/Sick Ass Anime OP/titledropalt.png"),
-                CGEntry("Matsuda Performing", "addons/Sick Ass Anime OP/warning2.png"),
-                CGEntry("Club President", "addons/Sick Ass Anime OP/monikaclub.png"),
-                CGEntry("Argue", "addons/Sick Ass Anime OP/arguing.png"),
-                CGEntry("Poster Session", "addons/Sick Ass Anime OP/asahinaposter.png"),
-                CGEntry("Mom at Work", "addons/Sick Ass Anime OP/momwork.png"),
-                CGEntry("Sam Bus", "addons/Sick Ass Anime OP/sambus.png"),
-                CGEntry("Matsuda Wistful", "addons/Sick Ass Anime OP/matsuwistful.png"),
-                CGEntry("Ice Cream", "addons/Sick Ass Anime OP/tsubakimatsudaicecream.png"),
-                CGEntry("Consoling Tsubaki", "addons/Sick Ass Anime OP/consoletsubaki.png"),
-                CGEntry("Redshift", "addons/Sick Ass Anime OP/redshift.png"),
-                CGEntry("Blueshift", "addons/Sick Ass Anime OP/blueshift.png"),
-                CGEntry("Puppet", "addons/Sick Ass Anime OP/puppet.png"),
-                CGEntry("World Broken", "addons/Sick Ass Anime OP/asahinaworldbroken.png"),
-                CGEntry("No Marks", "addons/Sick Ass Anime OP/nomarks.png"),
-                CGEntry("Cashier Kotonoha", "addons/Sick Ass Anime OP/storekoto.png"),
-                CGEntry("Turmoil", "addons/Sick Ass Anime OP/turmoil.png"),
-                CGEntry("Smug Sam", "addons/Sick Ass Anime OP/samvillain.png"),
-                CGEntry("Next Line Missing", "addons/Sick Ass Anime OP/missing.png"),
-            ])
+        CGAct("Other", [
+            CGChapter("Archive Panels", [
+                CGEntry("Roster", "assets/cg/archive_roster.png"),
+                CGEntry("CG Gallery", "assets/cg/archive_cg_gallery.png"),
+                CGEntry("Music Room", "assets/cg/archive_music_room.png"),
+                CGEntry("Side Stories", "assets/cg/archive_side_stories.png"),
+                CGEntry("Lost Records", "assets/cg/archive_lost_records.png"),
+                CGEntry("Achievements", "assets/cg/archive_achievements.png"),
+                CGEntry("Cards", "assets/cg/archive_cards.png"),
+            ]),
         ]),
-        CGAct("Season 1", [
+        CGAct("Main Campaign", [
 
         ]),
-        CGAct("Season 2", [
 
-        ]),
-        CGAct("Intermission", [
-
-        ]),
-        CGAct("Season 3", [
-
-        ]),
         CGAct("Side Stories", [
             CGChapter("Matsuda's Story", [
                 CGEntry(
                     "Seer",
                     "assets/cg/seer.png",
-                    unlock_attr=cg_key_from_path("mod_assets/cg/seer.png")
+                    unlock_attr=cg_key_from_path("assets/cg/seer.png")
+                ),
+                CGEntry(
+                    "Greywake Draw",
+                    "assets/cg/dead_fantasy_greywake_draw.png"
                 )
             ]),
             CGChapter("Player's Story", [
 
             ]),
             CGChapter("Tsubaki's Story", [
-
+                CGEntry("What I Keep", "assets/cg/heads_what_i_keep.png"),
+                CGEntry("What She Kept", "assets/cg/tails_what_she_kept.png"),
             ]),
             CGChapter("Asahina's Story", [
-
+                CGEntry("Hina's World", "assets/cg/hinas_world.png"),
             ]),
             CGChapter("Sam's Story", [
                 CGEntry(
                     "Ransom",
                     "assets/cg/ransom.png",
-                    unlock_attr=cg_key_from_path("mod_assets/cg/ransom.png")
+                    unlock_attr=cg_key_from_path("assets/cg/ransom.png")
                 ),
                 CGEntry(
                     "A Girl",
                     "assets/cg/hell.png",
-                    unlock_attr=cg_key_from_path("mod_assets/cg/hell.png")
+                    unlock_attr=cg_key_from_path("assets/cg/hell.png")
                 ),
             ]),
             CGChapter("Mom's Story", [
@@ -205,6 +190,8 @@ init python:
             CGChapter("Monika's Story", [
             ]),
             CGChapter("Kotonoha's Story", [
+                CGEntry("No One Lived There", "assets/cg/kotonoha_every_face.png"),
+                CGEntry("Open Hands", "assets/cg/kotonoha_void_hunter.png"),
             ])
         ])
     ]
@@ -587,7 +574,9 @@ screen cg_gallery():
                                                 style "cg_panel_subtitle_locked"
 
                                 # Chapters (only those with CGs)
-                                for chidx, chapter in enumerate(_act_chapters):
+                                # Keyed on the chapter, not on its position --
+                                # see the note on the CG loop further down.
+                                for chidx, chapter index (_sel_act.name, chapter.name) in enumerate(_act_chapters):
                                     $ _ch_delay = chidx * 0.08
 
                                     vbox:
@@ -630,7 +619,24 @@ screen cg_gallery():
                                                 hbox:
                                                     spacing 12
 
-                                                    for row_idx, cg in enumerate(chapter.cgs[row_start:row_start + 4]):
+                                                    # KEYED ON THE CG, NOT ON ITS
+                                                    # POSITION. SL2 caches a
+                                                    # loop's children by LOOP
+                                                    # COUNTER unless told
+                                                    # otherwise, so switching acts
+                                                    # handed the new act the old
+                                                    # one's displayables wherever
+                                                    # the positions lined up --
+                                                    # transform and all, already
+                                                    # settled. Only the surplus
+                                                    # thumbnails faded in, and two
+                                                    # acts of equal size animated
+                                                    # nothing. Keying on the CG's
+                                                    # own file makes each one its
+                                                    # own displayable, so they all
+                                                    # run the entrance from the
+                                                    # top.
+                                                    for row_idx, cg index cg.image_path in enumerate(chapter.cgs[row_start:row_start + 4]):
                                                         $ cidx = row_start + row_idx
                                                         $ _t_delay = _ch_delay + cidx * 0.05
                                                         # Index of this CG within the act's unlocked list (for the viewer).

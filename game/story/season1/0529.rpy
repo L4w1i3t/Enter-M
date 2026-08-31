@@ -13,7 +13,6 @@ label a0529:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "Something is missing this morning, and it takes me until the bottom of the stairs to work out what."
     "I've been waiting for the dread to clock in on schedule."
     "It doesn't."

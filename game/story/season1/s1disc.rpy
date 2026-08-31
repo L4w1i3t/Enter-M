@@ -39,6 +39,5 @@ label disclaimer:
     nier "It is a generous-looking stretch of road. Most of it only looks that way from where you are standing now."
     nier "Make the most of your time here."
     call nier_exit from _call_nier_exit_s1disc_1
-    window hide
     pause 2.0
     jump a0515

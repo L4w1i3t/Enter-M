@@ -253,8 +253,7 @@ init python:
         if key and not getattr(persistent, key, False):
             setattr(persistent, key, True)
             renpy.save_persistent()
-            # Let a completion-derived achievement (same_coin) toast now rather
-            # than whenever the player next happens to open the hub.
+            # Keep the global trophy state current when a story closes.
             if "ach_sync" in globals():
                 ach_sync()
 
@@ -299,8 +298,7 @@ default persistent.cs_kotonoha_02_unlocked = False
 # ...and one _completed per story, set by cs_mark_completed() from the story's
 # own ending. Declared here beside their _unlocked partners rather than in each
 # cs_*.rpy, so "which stories exist" is one list to read. (The Tsubaki pair used
-# to declare theirs locally; those two were the first to have completion flags,
-# for the same_coin achievement.)
+# to declare theirs locally; those two were the first to have completion flags.)
 default persistent.cs_matsuda_01_completed = False
 default persistent.cs_matsuda_02_completed = False
 default persistent.cs_tsubaki_01_completed = False
@@ -882,7 +880,25 @@ screen character_stories():
                                         spacing 9
 
                                         if _sel_real:
-                                            for sidx, story in enumerate(_sel_catalog.stories):
+                                            # KEYED ON THE CHARACTER, NOT ON THE
+                                            # SLIP'S POSITION. SL2 caches a loop's
+                                            # children by LOOP COUNTER unless told
+                                            # otherwise, so switching characters
+                                            # handed the new folder the old one's
+                                            # displayables wherever the positions
+                                            # lined up -- transform and all,
+                                            # already settled at the end of its
+                                            # entrance. Only the surplus slips
+                                            # animated, and two characters with
+                                            # the same number of stories animated
+                                            # nothing at all.
+                                            #
+                                            # The catalog's name rather than the
+                                            # story's own key, so a re-enabled
+                                            # "???" placeholder -- which carries
+                                            # no key at all -- cannot collide with
+                                            # another one.
+                                            for sidx, story index (_sel_catalog.name, sidx) in enumerate(_sel_catalog.stories):
                                                 # Skip empty placeholder entries entirely.
                                                 if story.persistent_key:
                                                     $ _sr_delay = sidx * 0.07

@@ -65,12 +65,12 @@ class Rule:
 # What each replaced background does NOT have in it. Add a row whenever a piece
 # of art is swapped for one that drops a fixture the prose had been using.
 RULES: tuple[Rule, ...] = (
-    # assets/images/bg/kitchen.png is a galley: counters, stove, sink, back door.
+    # assets/backgrounds/kitchen.png is a galley: counters, stove, sink, back door.
     Rule("kitchen", r"\b(takes? (?:his|her|my|their) seat|sits? down at the table"
                     r"|around the table|sets? the table)\b",
          "the kitchen art is a galley with no table and no chairs -- "
          "use `bg dining_table`"),
-    # assets/images/bg/club.png and class.png both have green/slate CHALKboards.
+    # assets/backgrounds/club.png and class.png both have green/slate CHALKboards.
     Rule("club_day", r"\b(marker|whiteboard|dry[- ]erase)\b",
          "the club room's board is a chalkboard"),
     Rule("class_day", r"\b(marker|whiteboard|dry[- ]erase)\b",

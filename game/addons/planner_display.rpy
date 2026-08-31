@@ -366,7 +366,6 @@ screen enter_m_planner(left_day, left_date, left_items, right_day, right_date, r
 
 
 label enter_m_show_planner(left_day, left_date, left_items, right_day, right_date, right_items, left_note=None, right_note=None):
-    window hide
     $ _enter_m_planner_prev_afm = renpy.game.preferences.afm_enable
     $ renpy.game.preferences.afm_enable = False
 
@@ -389,5 +388,4 @@ label enter_m_show_planner(left_day, left_date, left_items, right_day, right_dat
     # (e.g. Escape mid-write returns immediately).
     $ _enter_m_planner_sfx(False)
     $ renpy.game.preferences.afm_enable = _enter_m_planner_prev_afm
-    window auto
     return

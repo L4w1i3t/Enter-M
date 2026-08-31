@@ -856,12 +856,13 @@ init python:
 define enter_m_menu_glitch = EnterMChannelChange()
 
 # Main menu -> Credits. Matsuda would not let a curtain call happen without a
-# curtain.
+# curtain. The choreography remains theatrical, but its cloth and edge colours
+# now belong to the domestic menu family instead of the retired cyan terminal.
 define ENTER_M_CURTAIN_PLATES = [
-    (Solid("#0a1420"), enter_m_ch_curtain_left),
-    (Solid("#0a1420"), enter_m_ch_curtain_right),
-    (Solid("#56d7ff"), enter_m_ch_curtain_edge_left),
-    (Solid("#56d7ff"), enter_m_ch_curtain_edge_right),
+    (Solid("#10191e"), enter_m_ch_curtain_left),
+    (Solid("#10191e"), enter_m_ch_curtain_right),
+    (Solid("#d87b6d"), enter_m_ch_curtain_edge_left),
+    (Solid("#70bbb3"), enter_m_ch_curtain_edge_right),
 ]
 
 define enter_m_menu_curtain = EnterMChoreo(
@@ -870,6 +871,22 @@ define enter_m_menu_curtain = EnterMChoreo(
     new_at=enter_m_ch_behind_curtain_in,
     under=enter_m_menu_void,
     over=ENTER_M_CURTAIN_PLATES)
+
+# Settings and Records do not power up like hardware. Their short dissolve is
+# quiet enough to feel continuous with the bedroom while still giving Ren'Py a
+# clean interaction boundary. Credits keeps the character-specific curtain.
+define enter_m_menu_room = Dissolve(0.30)
+
+define ENTER_M_MENU_ROOM_SCREENS = (
+    "preferences",
+    "data_bank",
+    "save",
+    "load",
+    "credits_menu",
+    "history",
+    "calendar_menu",
+    "about",
+)
 
 
 # =============================================================================
@@ -891,6 +908,13 @@ define ENTER_M_MENU_FLAVOUR = {
     "archive": enter_m_menu_shutter,
     "arcade_hub": enter_m_menu_glitch,
     "credits_menu": enter_m_menu_curtain,
+    "preferences": enter_m_menu_room,
+    "data_bank": enter_m_menu_room,
+    "save": enter_m_menu_room,
+    "load": enter_m_menu_room,
+    "history": enter_m_menu_room,
+    "calendar_menu": enter_m_menu_room,
+    "about": enter_m_menu_room,
 }
 
 init python:
@@ -915,16 +939,15 @@ init python:
 
     class EnterMMenuHome(renpy.object.Object):
         """
-        config.game_main_transition. The way back to the main terminal, in two
-        flavours: the fast covered cycle, or the longer one that cuts through
-        black to give a music handoff somewhere to happen.
+        config.game_main_transition. The way back to the title, choosing the
+        quiet room dissolve, the legacy covered cycle, or the longer cut that
+        gives a music handoff somewhere to happen.
 
-        Which one is decided by whether a handoff is actually in flight, not by
-        which screen we came from -- so Credits, Settings, Save and Load keep
-        the fast move they have always had, and only the Archive and the Arcade
-        pay for the black. The ordering works because the screens ask for
-        `canyoufeel` in the SAME action list as Return(), and the action list
-        runs before `_return` reaches renpy.transition().
+        A music handoff still takes precedence. Otherwise the source screen
+        selects the domestic dissolve or the legacy cycle. The ordering works
+        because the screens ask for `canyoufeel` in the SAME action list as
+        Return(), and the action list runs before `_return` reaches
+        renpy.transition().
 
         THE LATCH IS NOT OPTIONAL HERE. A handoff stops being "in flight" one
         ENTER_M_MENU_REVEAL in, which is barely half of the cut move -- so
@@ -940,14 +963,49 @@ init python:
             if enter_m_move_is_new() or (self.flavour is None):
                 if enter_m_menu_music_is_switching():
                     self.flavour = enter_m_menu_home_cut
+                elif getattr(store, "_game_menu_screen", None) in ENTER_M_MENU_ROOM_SCREENS:
+                    self.flavour = enter_m_menu_room
                 else:
                     self.flavour = enter_m_menu_home
 
             return self.flavour(old_widget=old_widget, new_widget=new_widget)
 
+    class EnterMMenuExit(renpy.object.Object):
+        """Leave room-family pause screens without replaying the CRT collapse."""
+
+        flavour = None
+
+        def __call__(self, old_widget=None, new_widget=None):
+
+            if enter_m_move_is_new() or (self.flavour is None):
+                if getattr(store, "_game_menu_screen", None) in ENTER_M_MENU_ROOM_SCREENS:
+                    self.flavour = enter_m_menu_room
+                else:
+                    self.flavour = enter_m_menu_close
+
+            return self.flavour(old_widget=old_widget, new_widget=new_widget)
+
+    class EnterMMenuIntra(renpy.object.Object):
+        """Use the quiet move only when the destination belongs to this family."""
+
+        flavour = None
+
+        def __call__(self, old_widget=None, new_widget=None):
+
+            if enter_m_move_is_new() or (self.flavour is None):
+                destination = getattr(store, "_game_menu_screen", None)
+                if destination == "credits_menu":
+                    self.flavour = enter_m_menu_curtain
+                elif destination in ENTER_M_MENU_ROOM_SCREENS:
+                    self.flavour = enter_m_menu_room
+                else:
+                    self.flavour = enter_m_menu_swap
+
+            return self.flavour(old_widget=old_widget, new_widget=new_widget)
+
 define config.enter_transition = EnterMMenuEnter()
-define config.exit_transition = enter_m_menu_close
-define config.intra_transition = enter_m_menu_swap
+define config.exit_transition = EnterMMenuExit()
+define config.intra_transition = EnterMMenuIntra()
 define config.game_main_transition = EnterMMenuHome()
 define config.end_game_transition = EnterMMenuHome()
 define config.after_load_transition = None

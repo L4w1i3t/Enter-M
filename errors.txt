@@ -2,9 +2,11 @@
 errors listed below, and try again.
 
 
-File "game/story/season1/0519.rpy", line 297: expected statement.
-    ma unamused
-               ^
+The label main_menu_screen is defined twice, at File "tools/probes/menu_family_capture.rpy", line 8:
+label main_menu_screen:
+and File "renpy/common/_layout/screen_main_menu.rpym", line 26:
+label main_menu_screen:
+
 
 Ren'Py Version: Ren'Py 8.1.1.23060707
-Wed Aug 26 00:11:33 2026
+Sun Aug 30 23:18:11 2026

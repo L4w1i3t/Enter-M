@@ -1,0 +1,3202 @@
+{
+  "schema": "tsubaki-oval-faceplate-v1",
+  "architecture": "intact outfit base plus registered full-master oval",
+  "canvas": [
+    1023,
+    1537
+  ],
+  "plate_radius": [
+    155.0,
+    135.0
+  ],
+  "plate_center_below_eyes": 31.0,
+  "plate_solid_radius": 0.84,
+  "plate_lower_fade": [
+    85.0,
+    105.0
+  ],
+  "source_bundles": {
+    "masters": "303e23eb396f59a7b8634cfc4d5218c1317117a191abc8d7306ec842422a7b49",
+    "registration": "3962e01ed3b0b89df4a4e509873a8b541f699835d8fb9d1359d41f8d3f1c3f06",
+    "bases": "f370618e7c2395fa10c3734610ae5521ec35b1cf403d175ea9a4a0cb91b5406c",
+    "featureless": "8bed3761ca630724a4616558e1f9a61984defa09a6bf5a55b3af2edd7bcf0855"
+  },
+  "outfits": {
+    "casual": {
+      "base": "game/assets/characters/tsubaki/neutral.png",
+      "base_sha256": "5bf70411d5da4ce239b8b1ae89acc3552d642ebe2546ddb5cacfd3abd7c85cbc",
+      "source_eye_centers": [
+        [
+          454.2655,
+          609.7824
+        ],
+        [
+          567.6149,
+          612.8447
+        ]
+      ],
+      "target_eye_centers": [
+        [
+          446.8642,
+          376.5356
+        ],
+        [
+          570.0014,
+          381.8663
+        ]
+      ],
+      "source_to_target_matrix": [
+        [
+          1.0868278741836548,
+          -0.017666982486844063,
+          -36.07119369506836
+        ],
+        [
+          0.017666982486844063,
+          1.0868278741836548,
+          -294.2184753417969
+        ]
+      ],
+      "plate_center": [
+        508.4328,
+        410.2009
+      ],
+      "alpha_bbox": [
+        355,
+        277,
+        663,
+        515
+      ],
+      "visible_alpha_pixels": 60781,
+      "opaque_alpha_pixels": 43866,
+      "partial_alpha_pixels": 16915,
+      "alpha_sha256": "c899129824e6d2a6435b23e5ddac83fd898b219c0b2f3da7834f780d0b00e164",
+      "neutral_brow_ownership": {
+        "pixels": 2930,
+        "bbox": [
+          407,
+          324,
+          602,
+          375
+        ],
+        "sha256": "7416bdcb16da6fc9e8b73dedadc9f63baf4d9ea3e336171374ce41cfea125e51"
+      },
+      "featureless_skin_offsets": [
+        0.0,
+        -2.0,
+        -2.0
+      ],
+      "featureless_skin_samples": 22107,
+      "layers": {
+        "happy": {
+          "master": "expression_happy_v2.png",
+          "master_to_target_matrix": [
+            [
+              0.5662758350372314,
+              -0.009678715839982033,
+              226.39759826660156
+            ],
+            [
+              0.009678715839982033,
+              0.5662758350372314,
+              -6.327934741973877
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 20962,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3747,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1209331,
+            "cleanup_pixels": 717,
+            "cleanup_bbox": [
+              427,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "f26712677dc6520c74f7e40909e3b78338e47a2b4c2d2e03c9cc4f7be683649f",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3237,
+                "component_bbox": [
+                  369,
+                  343,
+                  474,
+                  394
+                ],
+                "component_score": 2005.423,
+                "profile_y_median": 344
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3431,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2110.706,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "f84b124147b01c9e826343025a834fd1ae3cda20fb6e93202d5fa9dc212467c7",
+          "head_composite_sha256": "87c83f7451caed949f46c5f41636083d81f62e856c74e0eb484a16e4bb45a934"
+        },
+        "smug": {
+          "master": "expression_smug.png",
+          "master_to_target_matrix": [
+            [
+              0.565212070941925,
+              -0.009046322666108608,
+              226.66946411132812
+            ],
+            [
+              0.009046322666108608,
+              0.565212070941925,
+              -4.956858158111572
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -16.0
+          ],
+          "skin_samples": 21415,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3678,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              350
+            ],
+            "protected_dark_pixels": 1210147,
+            "cleanup_pixels": 373,
+            "cleanup_bbox": [
+              427,
+              332,
+              589,
+              349
+            ],
+            "cleanup_sha256": "69475f3a358baefa90b2a3ac9a39074b281ad445953e7c02956261999c908ca5",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3072,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 1928.918,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3275,
+                "component_bbox": [
+                  536,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2054.291,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "9fbb9dbe1ec26a4bbb5bb049a5dadc1cc6ab062544ba7d23a890675bd76f2d3f",
+          "head_composite_sha256": "1b484c87e6bbea6b88a3fc67435649575e82a845b0baff89ee25cae8dbb3eee9"
+        },
+        "teasing": {
+          "master": "expression_teasing.png",
+          "master_to_target_matrix": [
+            [
+              0.5650469064712524,
+              -0.009357089176774025,
+              226.8599090576172
+            ],
+            [
+              0.009357089176774025,
+              0.5650469064712524,
+              -5.578402519226074
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21242,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3664,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1211060,
+            "cleanup_pixels": 565,
+            "cleanup_bbox": [
+              427,
+              332,
+              588,
+              353
+            ],
+            "cleanup_sha256": "ea50940c7f5ab72dc7297a7e997556f9dea46d9ed3b4f4f5e77c940ab89acdae",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3114,
+                "component_bbox": [
+                  369,
+                  343,
+                  473,
+                  394
+                ],
+                "component_score": 1936.666,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3148,
+                "component_bbox": [
+                  537,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1989.074,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "1ea6c700078db07fd61402be692c9836380d64b81997a0a0e1556224021935ac",
+          "head_composite_sha256": "cd6d51d6f1c2729b67727ba34f2e1a335bf3b3b279504d1d90e393acca2f4e6e"
+        },
+        "thinking": {
+          "master": "expression_thinking.png",
+          "master_to_target_matrix": [
+            [
+              0.5584840178489685,
+              -0.008329857140779495,
+              221.924072265625
+            ],
+            [
+              0.008329857140779495,
+              0.5584840178489685,
+              -4.368418216705322
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21216,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3701,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1223213,
+            "cleanup_pixels": 548,
+            "cleanup_bbox": [
+              427,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "1169d0f90def9b741a04a9f4002b5b52f282a039bee3b553d48fd7848d34b3ce",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3113,
+                "component_bbox": [
+                  369,
+                  343,
+                  471,
+                  394
+                ],
+                "component_score": 1918.477,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3309,
+                "component_bbox": [
+                  538,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2049.673,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "63b7071855254607d17f2127d6b11cfce68f0822b26303051bbd5a12d61e2248",
+          "head_composite_sha256": "c91aad29a2b4d23100448c1956ff8de199b60e639a83fadc0a05eb667a13386a"
+        },
+        "curious": {
+          "master": "expression_curious.png",
+          "master_to_target_matrix": [
+            [
+              0.5555139183998108,
+              -0.008496146649122238,
+              223.46578979492188
+            ],
+            [
+              0.008496146649122238,
+              0.5555139183998108,
+              -3.5609309673309326
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 21249,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3800,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1227609,
+            "cleanup_pixels": 687,
+            "cleanup_bbox": [
+              425,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "93cc14111610bd41ebcf897579c7f3ea40977d44a6fd0b8b8bc2136d9dd4eb63",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3209,
+                "component_bbox": [
+                  369,
+                  343,
+                  474,
+                  394
+                ],
+                "component_score": 1987.464,
+                "profile_y_median": 348
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3432,
+                "component_bbox": [
+                  541,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2107.758,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "f1c671f4441e4317d9cbec7f54a7aee97025af53fa035c2eb3566b76c20e9d53",
+          "head_composite_sha256": "a0d374341e12ba8e8cb86f39fe86788c37fb5bf031ad48451c03537385756ab2"
+        },
+        "unamused": {
+          "master": "expression_unamused.png",
+          "master_to_target_matrix": [
+            [
+              0.5652378797531128,
+              -0.009669406339526176,
+              227.03436279296875
+            ],
+            [
+              0.009669406339526176,
+              0.5652378797531128,
+              -5.919138431549072
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -16.0
+          ],
+          "skin_samples": 21244,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3640,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1209640,
+            "cleanup_pixels": 454,
+            "cleanup_bbox": [
+              428,
+              332,
+              592,
+              353
+            ],
+            "cleanup_sha256": "4b0b8dd3adb5ddefb95f4f56806afb253f4c403584d3912d605e39ff42ec3c0d",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2807,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 1803.658,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2875,
+                "component_bbox": [
+                  538,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1852.592,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "6cd3fd0d7595047b538f7ad1e750afa25309d80123e65ccc8325b2d276bc1a5a",
+          "head_composite_sha256": "b9fb6363b96fcc5e38e48681e9166b7826c086af9232c76511748b2e4f65baac"
+        },
+        "annoyed": {
+          "master": "expression_annoyed.png",
+          "master_to_target_matrix": [
+            [
+              0.5605652928352356,
+              -0.0079074427485466,
+              221.7373046875
+            ],
+            [
+              0.0079074427485466,
+              0.5605652928352356,
+              -5.469550132751465
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -12.0,
+            -18.0
+          ],
+          "skin_samples": 21463,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3784,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1219346,
+            "cleanup_pixels": 487,
+            "cleanup_bbox": [
+              428,
+              333,
+              592,
+              353
+            ],
+            "cleanup_sha256": "3502671d4deedbc10445510d99e4c8779ca84db514ed6fefd710a8787244397a",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3084,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 1934.294,
+                "profile_y_median": 344
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3417,
+                "component_bbox": [
+                  534,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2129.179,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "6c03915d487ca19d48778cfba40eeabb57f08890497e26cc9c95118432c194f4",
+          "head_composite_sha256": "9dfdaec4aa37c4777f21386e47fd06b5907f56854909046c6e683bd4191a9a41"
+        },
+        "frustrated": {
+          "master": "expression_frustrated.png",
+          "master_to_target_matrix": [
+            [
+              0.5647991895675659,
+              -0.009429370984435081,
+              226.93365478515625
+            ],
+            [
+              0.009429370984435081,
+              0.5647991895675659,
+              -5.0012993812561035
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -13.0,
+            -17.0
+          ],
+          "skin_samples": 21327,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3616,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1210641,
+            "cleanup_pixels": 411,
+            "cleanup_bbox": [
+              427,
+              332,
+              592,
+              353
+            ],
+            "cleanup_sha256": "6e30f2ce7cd0f6ea359a3f686cb1c5f40d684bd727824fb25ac4d6e29d629702",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3036,
+                "component_bbox": [
+                  369,
+                  343,
+                  472,
+                  394
+                ],
+                "component_score": 1898.79,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3232,
+                "component_bbox": [
+                  539,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2021.012,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "68565c14c253e1972db172cc7b6700be3a387abe09a6acd84ca7b23d3632c562",
+          "head_composite_sha256": "6dc9822a4b6a07fc41ebbcabbd37b11a130d526732a7bd206c88e75ef5ca004a"
+        },
+        "angry": {
+          "master": "expression_angry.png",
+          "master_to_target_matrix": [
+            [
+              0.5522314310073853,
+              -0.008413737639784813,
+              224.6194610595703
+            ],
+            [
+              0.008413737639784813,
+              0.5522314310073853,
+              0.6257716417312622
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21291,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3886,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1233899,
+            "cleanup_pixels": 618,
+            "cleanup_bbox": [
+              429,
+              327,
+              591,
+              353
+            ],
+            "cleanup_sha256": "d77147de06c5beccb1921af01f65204d04e71f23120465290836a9dc45b0e198",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3285,
+                "component_bbox": [
+                  369,
+                  343,
+                  479,
+                  394
+                ],
+                "component_score": 2045.887,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3468,
+                "component_bbox": [
+                  533,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2158.591,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "78b28273fe0ed0e9d182f8fa85ae49bc32d6888ecc12b6c23a9bd50da310fd07",
+          "head_composite_sha256": "0b23c14c9407eb319131b0de9d3680c90888a26aaf6a92d6d2b9acf452d63084"
+        },
+        "sad": {
+          "master": "expression_sad.png",
+          "master_to_target_matrix": [
+            [
+              0.5652235746383667,
+              -0.009589816443622112,
+              226.9424591064453
+            ],
+            [
+              0.009589816443622112,
+              0.5652235746383667,
+              -5.481049060821533
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 21187,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3648,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1210652,
+            "cleanup_pixels": 666,
+            "cleanup_bbox": [
+              427,
+              332,
+              592,
+              353
+            ],
+            "cleanup_sha256": "4c66f65ba7fbc864fd97d9c3d43daf8d51490aa63018326c1039397e38a1d231",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3160,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 1973.517,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3349,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2075.072,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "2940c0bdf90ef5a173755b9c36d0cd5c8cab6bb14cb513c6ea21bcc66cae1402",
+          "head_composite_sha256": "c21f354dc10737927e61aec8b4ae1ce24f79fbb14971131214038d1dbdd88a5c"
+        },
+        "crying": {
+          "master": "expression_crying.png",
+          "master_to_target_matrix": [
+            [
+              0.5645476579666138,
+              -0.009029139764606953,
+              226.8463592529297
+            ],
+            [
+              0.009029139764606953,
+              0.5645476579666138,
+              -4.890583038330078
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21036,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3600,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1211533,
+            "cleanup_pixels": 410,
+            "cleanup_bbox": [
+              427,
+              332,
+              591,
+              353
+            ],
+            "cleanup_sha256": "6a01388a58519c32b9230afc4ed94d8aabc385c14f003d15afaacaf1125de3d0",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3150,
+                "component_bbox": [
+                  369,
+                  343,
+                  473,
+                  394
+                ],
+                "component_score": 1957.316,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3295,
+                "component_bbox": [
+                  541,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2040.632,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "780e4c37c423bcb2a6e19a168fafe4a4121ff2afedce5105e6d6bc8cc1750de3",
+          "head_composite_sha256": "ee87aeaee5ed88b5ecbe1354bdcaffea056cbeb79fb35a940d766c10d5ecef89"
+        },
+        "embarrassed": {
+          "master": "expression_embarrassed.png",
+          "master_to_target_matrix": [
+            [
+              0.5645990967750549,
+              -0.00893330480903387,
+              226.8740234375
+            ],
+            [
+              0.00893330480903387,
+              0.5645990967750549,
+              -4.754708766937256
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21319,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3783,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1211222,
+            "cleanup_pixels": 578,
+            "cleanup_bbox": [
+              425,
+              327,
+              591,
+              353
+            ],
+            "cleanup_sha256": "6850ef07db1af407585eaf4a657ee9990a264afda76b69a5553042c3a5c47307",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3226,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 2004.751,
+                "profile_y_median": 347
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3339,
+                "component_bbox": [
+                  539,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2073.214,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "abebbcd189e0eb9fa616050fdad9c7e245bb852e952cbb88f4ecce38be482b0b",
+          "head_composite_sha256": "c55deabc4b258f0a20e21741ab98b3fb99bd88aa6c1f4b8c8ec861f5e522396b"
+        },
+        "nervous": {
+          "master": "expression_nervous.png",
+          "master_to_target_matrix": [
+            [
+              0.5651227831840515,
+              -0.010758353397250175,
+              227.6186981201172
+            ],
+            [
+              0.010758353397250175,
+              0.5651227831840515,
+              -3.186079740524292
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -8.0,
+            -10.0
+          ],
+          "skin_samples": 21197,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3692,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1211329,
+            "cleanup_pixels": 420,
+            "cleanup_bbox": [
+              427,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "4eeeaf4eb6e2346a8c11e7a1a5fa6bd4e9983da9098124f7ae8d1707a57ab7c2",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3201,
+                "component_bbox": [
+                  369,
+                  343,
+                  473,
+                  394
+                ],
+                "component_score": 1977.236,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3398,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2091.761,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "d8434cfd06fcb620e03380a89794d4d98cddf6496e257f7026b43355228dfa4c",
+          "head_composite_sha256": "0ce388afef4071aebde37540e19fc85a00cd237cf50ca8233691bd731d5f0717"
+        },
+        "worried": {
+          "master": "expression_worried.png",
+          "master_to_target_matrix": [
+            [
+              0.5651072263717651,
+              -0.009311892092227936,
+              226.8620147705078
+            ],
+            [
+              0.009311892092227936,
+              0.5651072263717651,
+              -5.5580644607543945
+            ]
+          ],
+          "skin_offsets": [
+            -2.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 21188,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3687,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1211094,
+            "cleanup_pixels": 521,
+            "cleanup_bbox": [
+              427,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "430137f37b8826065884d7c2557ef85431a97c158386ba2f0ba07db6699b6902",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3373,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 2073.58,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3432,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2112.962,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "d0d61899470587fc0782ef626a69092a489e58aa4b3ffab1d0e6f752d8ba943b",
+          "head_composite_sha256": "dfca6e5f39126e0be60aa927d15ad977ec39e655baf81853d63897793634bd04"
+        },
+        "shocked": {
+          "master": "expression_shocked.png",
+          "master_to_target_matrix": [
+            [
+              0.5671756267547607,
+              -0.009849177673459053,
+              226.4508819580078
+            ],
+            [
+              0.009849177673459053,
+              0.5671756267547607,
+              -7.15491247177124
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -14.0
+          ],
+          "skin_samples": 20594,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3683,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1207102,
+            "cleanup_pixels": 552,
+            "cleanup_bbox": [
+              430,
+              327,
+              590,
+              353
+            ],
+            "cleanup_sha256": "91f650b1654ffd6a12eb628ce8a4ad98dd80fee9cf878cc8afc15bcf45b4fdc8",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2582,
+                "component_bbox": [
+                  369,
+                  343,
+                  474,
+                  394
+                ],
+                "component_score": 1660.127,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2685,
+                "component_bbox": [
+                  541,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1721.478,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "84ca83986a7e9725bdbc05fb2a6daee7aec745b95f5332486c94b56c5ee1dd15",
+          "head_composite_sha256": "ef281420b3808e2136da7bab3b27c5142cdebdc375f11684ce64078e8ab08eba"
+        },
+        "afraid": {
+          "master": "expression_afraid.png",
+          "master_to_target_matrix": [
+            [
+              0.5660803914070129,
+              -0.00947972945868969,
+              226.08514404296875
+            ],
+            [
+              0.00947972945868969,
+              0.5660803914070129,
+              -6.100515365600586
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 20932,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3711,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1209657,
+            "cleanup_pixels": 599,
+            "cleanup_bbox": [
+              429,
+              327,
+              591,
+              353
+            ],
+            "cleanup_sha256": "e4e52da1ba929efaa53bac9545a31887726bac6eee1d6eec7579d2938eb444aa",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2560,
+                "component_bbox": [
+                  369,
+                  343,
+                  474,
+                  394
+                ],
+                "component_score": 1655.266,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2686,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1730.147,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "0b49a37f8ed27e1b3c263ff7c52b28e40436652989189b8ca7e222c183aa2a2f",
+          "head_composite_sha256": "65b0e8951a270fd0fbd10a4de0769924bce37c98223a9d69dccfba89d350cd9c"
+        },
+        "panicked": {
+          "master": "expression_panicked.png",
+          "master_to_target_matrix": [
+            [
+              0.5662049651145935,
+              -0.009457522071897984,
+              226.5977783203125
+            ],
+            [
+              0.009457522071897984,
+              0.5662049651145935,
+              -5.656712532043457
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -10.0,
+            -13.0
+          ],
+          "skin_samples": 19331,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3711,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1209444,
+            "cleanup_pixels": 568,
+            "cleanup_bbox": [
+              428,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "f90fec1c683411f104b90e9df13ac4549c8bc4ebd12a5dc04ea4f42daf81786c",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2661,
+                "component_bbox": [
+                  369,
+                  343,
+                  474,
+                  394
+                ],
+                "component_score": 1707.02,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2790,
+                "component_bbox": [
+                  540,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1781.921,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "34948402357fb3f0ff4670032d4e962fee6a63c9981d8c509c14c018d256a604",
+          "head_composite_sha256": "88de108c8824c94c77dec647078a3c3e8bffdfcf3ea1aee585b3626a1834360f"
+        },
+        "determined": {
+          "master": "expression_determined.png",
+          "master_to_target_matrix": [
+            [
+              0.5671281814575195,
+              -0.009627662599086761,
+              225.6131134033203
+            ],
+            [
+              0.009627662599086761,
+              0.5671281814575195,
+              -7.043821334838867
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -12.0,
+            -17.0
+          ],
+          "skin_samples": 21218,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3988,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1208051,
+            "cleanup_pixels": 401,
+            "cleanup_bbox": [
+              428,
+              327,
+              592,
+              353
+            ],
+            "cleanup_sha256": "3f3266be64ac146ebe936072d660607c97a4c0509f26b8900443f5af28f1075d",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 3275,
+                "component_bbox": [
+                  369,
+                  343,
+                  480,
+                  394
+                ],
+                "component_score": 2043.187,
+                "profile_y_median": 343
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 3443,
+                "component_bbox": [
+                  530,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 2154.266,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "099d287c4331781e2f61c3909dfad42cecbee714c61fcaceaf40eac315627f11",
+          "head_composite_sha256": "14d4262741e83e8fe060c67c6bd79c2e68076bfe5be3e09e3e565a7561ada18b"
+        },
+        "empty": {
+          "master": "expression_empty.png",
+          "master_to_target_matrix": [
+            [
+              0.5664383172988892,
+              -0.00952840130776167,
+              226.30859375
+            ],
+            [
+              0.00952840130776167,
+              0.5664383172988892,
+              -6.9561448097229
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21349,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3552,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1207656,
+            "cleanup_pixels": 447,
+            "cleanup_bbox": [
+              426,
+              334,
+              592,
+              353
+            ],
+            "cleanup_sha256": "bcf8740a6bd69c61722fce7b038bf87d002020da95b0f68044c92f01e003a276",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2652,
+                "component_bbox": [
+                  369,
+                  343,
+                  472,
+                  394
+                ],
+                "component_score": 1717.199,
+                "profile_y_median": 345
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2860,
+                "component_bbox": [
+                  542,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1833.781,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "eb01e20b8c8c17166847eae921023ca4923603adb0f8fd4af688f304dc0b8119",
+          "head_composite_sha256": "3e057d7d255ef922d6de3b1ee6d48371c1b46839bed3c7f58313cdc8329f5ab1"
+        },
+        "disgusted": {
+          "master": "expression_disgusted.png",
+          "master_to_target_matrix": [
+            [
+              0.5669459700584412,
+              -0.00968424417078495,
+              225.7155303955078
+            ],
+            [
+              0.00968424417078495,
+              0.5669459700584412,
+              -6.566544055938721
+            ]
+          ],
+          "skin_offsets": [
+            -1.0,
+            -11.0,
+            -15.0
+          ],
+          "skin_samples": 21467,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3650,
+            "band_bbox": [
+              367,
+              327,
+              651,
+              353
+            ],
+            "protected_dark_pixels": 1206969,
+            "cleanup_pixels": 387,
+            "cleanup_bbox": [
+              424,
+              337,
+              591,
+              353
+            ],
+            "cleanup_sha256": "2088684bc10b16e5cfe60bc62940fbd87af6214f721ece7dc2ef7e23c1c9fa2d",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  377
+                ],
+                "component_area": 2633,
+                "component_bbox": [
+                  369,
+                  343,
+                  475,
+                  394
+                ],
+                "component_score": 1714.013,
+                "profile_y_median": 348
+              },
+              {
+                "eye_center": [
+                  570,
+                  382
+                ],
+                "component_area": 2824,
+                "component_bbox": [
+                  541,
+                  348,
+                  649,
+                  399
+                ],
+                "component_score": 1814.244,
+                "profile_y_median": 348
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "cfd2afe11056a0836beaa6fdaf9bc05ff77f55d3e39e1a21ef56676c3ff89ab6",
+          "head_composite_sha256": "20ba3eac731d42a4a113dcb02b5ae4b9ea3f1505e7cac18eee3878546cd57db6"
+        }
+      }
+    },
+    "uniform": {
+      "base": "game/assets/characters/tsubaki/neut_uniform.png",
+      "base_sha256": "c9939fa627ab74a2eb5596eff36bee4f17629972e924f81c94c6a25dac6e2942",
+      "source_eye_centers": [
+        [
+          454.2655,
+          609.7824
+        ],
+        [
+          567.6149,
+          612.8447
+        ]
+      ],
+      "target_eye_centers": [
+        [
+          447.4905,
+          371.292
+        ],
+        [
+          569.7107,
+          375.1869
+        ]
+      ],
+      "source_to_target_matrix": [
+        [
+          1.0784013271331787,
+          -0.005228083115071058,
+          -39.201969146728516
+        ],
+        [
+          0.005228083115071058,
+          1.0784013271331787,
+          -288.6731262207031
+        ]
+      ],
+      "plate_center": [
+        508.6006,
+        404.2395
+      ],
+      "alpha_bbox": [
+        355,
+        271,
+        663,
+        509
+      ],
+      "visible_alpha_pixels": 60769,
+      "opaque_alpha_pixels": 43856,
+      "partial_alpha_pixels": 16913,
+      "alpha_sha256": "e9a054b0e41b30b8710cf778181065f0cdecd5fa1622ea6299c9f5bf863795c2",
+      "neutral_brow_ownership": {
+        "pixels": 2848,
+        "bbox": [
+          408,
+          318,
+          602,
+          369
+        ],
+        "sha256": "e005da546d595659a34186a08347cdea11e073538d382f008cd7dab0caccd42f"
+      },
+      "featureless_skin_offsets": [
+        0.0,
+        -2.0,
+        -3.0
+      ],
+      "featureless_skin_samples": 22206,
+      "layers": {
+        "happy": {
+          "master": "expression_happy_v2.png",
+          "master_to_target_matrix": [
+            [
+              0.5618906617164612,
+              -0.0031938496977090836,
+              224.4413299560547
+            ],
+            [
+              0.0031938496977090836,
+              0.5618906617164612,
+              -6.037784099578857
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 20794,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3669,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1216866,
+            "cleanup_pixels": 775,
+            "cleanup_bbox": [
+              428,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "07a7a1a16bbaaef8fee51d565b7da454807c828763ef7a75177390f1408fa740",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3406,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 2089.393,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3388,
+                "component_bbox": [
+                  542,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2083.378,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "b6310d43fe7f5374159c54571e7ba11c4dee69047dcc72a32ca7ece69d15f4fe",
+          "head_composite_sha256": "7bed999c5981760365f1436d5e5fe2b992cf64c1dd2e561a946eebe35a713f13"
+        },
+        "smug": {
+          "master": "expression_smug.png",
+          "master_to_target_matrix": [
+            [
+              0.5608281493186951,
+              -0.0025785136967897415,
+              224.7265625
+            ],
+            [
+              0.0025785136967897415,
+              0.5608281493186951,
+              -4.680666923522949
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -10.0
+          ],
+          "skin_samples": 21364,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3711,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              344
+            ],
+            "protected_dark_pixels": 1217477,
+            "cleanup_pixels": 495,
+            "cleanup_bbox": [
+              429,
+              325,
+              588,
+              343
+            ],
+            "cleanup_sha256": "e93dc82a2d69154f599c8a86112a311df12e46d778520a54355abf5ca0586de4",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3252,
+                "component_bbox": [
+                  369,
+                  337,
+                  476,
+                  388
+                ],
+                "component_score": 2022.959,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3201,
+                "component_bbox": [
+                  536,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2015.373,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "20c02087b1a11bf4f1dfa7d962ae3a8ea15d152585888126e587090a1bbbacb6",
+          "head_composite_sha256": "040283c653f851ace2b35eb605ee63c16da5935d07184d8a26327f60f82361cb"
+        },
+        "teasing": {
+          "master": "expression_teasing.png",
+          "master_to_target_matrix": [
+            [
+              0.5606678128242493,
+              -0.0028886825311928988,
+              224.90846252441406
+            ],
+            [
+              0.0028886825311928988,
+              0.5606678128242493,
+              -5.299432754516602
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 21139,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3680,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218603,
+            "cleanup_pixels": 636,
+            "cleanup_bbox": [
+              429,
+              321,
+              587,
+              346
+            ],
+            "cleanup_sha256": "a6cd7c04badda06600a73d60fed57f6e24cfd5736029e663a018daa336a231ab",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3428,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 2099.604,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3313,
+                "component_bbox": [
+                  537,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2069.705,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "ce3d11c81b7cb4a2476298d9b72c9dfa7c9eb0657c102123fc1d63b77032f169",
+          "head_composite_sha256": "25648cefdf95e223ddb60a36c6ab27b116e65388fbd83a01ceaf4be67014acbc"
+        },
+        "thinking": {
+          "master": "expression_thinking.png",
+          "master_to_target_matrix": [
+            [
+              0.5541454553604126,
+              -0.0019438702147454023,
+              220.02549743652344
+            ],
+            [
+              0.0019438702147454023,
+              0.5541454553604126,
+              -4.0431976318359375
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -9.0
+          ],
+          "skin_samples": 21207,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3682,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1230315,
+            "cleanup_pixels": 620,
+            "cleanup_bbox": [
+              429,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "0ecf0c5003d4ee8f433d88a6d398492b4a549cfb3dfbc64193b892eba26dbc6e",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3323,
+                "component_bbox": [
+                  369,
+                  337,
+                  471,
+                  388
+                ],
+                "component_score": 2024.83,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3360,
+                "component_bbox": [
+                  539,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2072.576,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "da3f373dc40e6129c4b3811040d76c27e321e01b0cf91b5758760a518ab121e9",
+          "head_composite_sha256": "682b39bcfe958bf8f48058c645f07289eab7ea602e712234ea630ab56a527660"
+        },
+        "curious": {
+          "master": "expression_curious.png",
+          "master_to_target_matrix": [
+            [
+              0.551200807094574,
+              -0.002142449840903282,
+              221.56411743164062
+            ],
+            [
+              0.002142449840903282,
+              0.551200807094574,
+              -3.259566068649292
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 21007,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3672,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1234656,
+            "cleanup_pixels": 775,
+            "cleanup_bbox": [
+              428,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "0c2642ea721c52e3f070dd186b8a6dce8a1ba084678daddf248517e82709a8ac",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3539,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 2152.608,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3510,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2149.99,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "4d6719358cc98739142b1a959502b62de05a29355c274950a83ffa5edbbe08e2",
+          "head_composite_sha256": "f831de81dbb73e0df1ca70e01a3c291db42d922638d10aa88a3ec0df23027121"
+        },
+        "unamused": {
+          "master": "expression_unamused.png",
+          "master_to_target_matrix": [
+            [
+              0.5608608722686768,
+              -0.0031963589135557413,
+              225.0776824951172
+            ],
+            [
+              0.0031963589135557413,
+              0.5608608722686768,
+              -5.639438152313232
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -10.0
+          ],
+          "skin_samples": 21108,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3651,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              347
+            ],
+            "protected_dark_pixels": 1216973,
+            "cleanup_pixels": 622,
+            "cleanup_bbox": [
+              429,
+              326,
+              592,
+              347
+            ],
+            "cleanup_sha256": "f25ba33601362facb83c9d1922f6bc6874d7bf02f41b5d1d06e286a5ca068144",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2960,
+                "component_bbox": [
+                  369,
+                  337,
+                  476,
+                  388
+                ],
+                "component_score": 1883.833,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2843,
+                "component_bbox": [
+                  539,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1832.84,
+                "profile_y_median": 342
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "3e25d5dcffe22ad62278581db17bfffe224a5210f9c80dfd4518ce7770c2bd94",
+          "head_composite_sha256": "d14aaf5ac6e546ed20d69b3f7fb4dc1a4580fcd9af220f6e9eab89f9c3874a02"
+        },
+        "annoyed": {
+          "master": "expression_annoyed.png",
+          "master_to_target_matrix": [
+            [
+              0.5562053918838501,
+              -0.0015012568328529596,
+              219.82774353027344
+            ],
+            [
+              0.0015012568328529596,
+              0.5562053918838501,
+              -5.133476734161377
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -8.0,
+            -12.0
+          ],
+          "skin_samples": 21317,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3802,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1226816,
+            "cleanup_pixels": 763,
+            "cleanup_bbox": [
+              429,
+              325,
+              591,
+              346
+            ],
+            "cleanup_sha256": "eb8fb2d3f3c3154ee9d00129f0980016f9dcf81128264fd03c89f96dbad91e5b",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3242,
+                "component_bbox": [
+                  369,
+                  337,
+                  475,
+                  388
+                ],
+                "component_score": 2014.741,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3178,
+                "component_bbox": [
+                  534,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2008.366,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "7bbbe40b95ced086b35e466b1514cb70668df127beb37166e0d776fa4fbdae45",
+          "head_composite_sha256": "4c07242cc35ec02501e2e98e813875eb05f564a390e103c3f76dcc1cea8bb55a"
+        },
+        "frustrated": {
+          "master": "expression_frustrated.png",
+          "master_to_target_matrix": [
+            [
+              0.560422956943512,
+              -0.00296319299377501,
+              224.98814392089844
+            ],
+            [
+              0.00296319299377501,
+              0.560422956943512,
+              -4.7277445793151855
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -8.0,
+            -11.0
+          ],
+          "skin_samples": 21260,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3648,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218009,
+            "cleanup_pixels": 618,
+            "cleanup_bbox": [
+              429,
+              325,
+              591,
+              346
+            ],
+            "cleanup_sha256": "59b33eea14b8509cefcc1559642eda30e917f85c1a5e613bd2c2cd2fcdc802ef",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3220,
+                "component_bbox": [
+                  369,
+                  337,
+                  473,
+                  388
+                ],
+                "component_score": 1995.972,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3180,
+                "component_bbox": [
+                  538,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1997.123,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "a82870bfd141fe75314cea329385e897a5945873c8b8c7a223cbddea20c10d8f",
+          "head_composite_sha256": "96a43445cf514699c6fa98b24f6bd551ccc6a1c1d88f8d2f395ee3a6f01e78ad"
+        },
+        "angry": {
+          "master": "expression_angry.png",
+          "master_to_target_matrix": [
+            [
+              0.5479434132575989,
+              -0.002097839955240488,
+              222.75599670410156
+            ],
+            [
+              0.002097839955240488,
+              0.5479434132575989,
+              0.8808503150939941
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21130,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3902,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1240010,
+            "cleanup_pixels": 793,
+            "cleanup_bbox": [
+              430,
+              321,
+              590,
+              346
+            ],
+            "cleanup_sha256": "12c5d50ab0641892fa481f011f3a9e8f53f20697a14b27de4d9bb19c4742157d",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3503,
+                "component_bbox": [
+                  369,
+                  337,
+                  481,
+                  388
+                ],
+                "component_score": 2163.828,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3491,
+                "component_bbox": [
+                  534,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2164.658,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "8c73c15d808a734aeb82b40bb2a617f0d06088a40d65ba51007d1eb16edace90",
+          "head_composite_sha256": "6d02260bbdf409581713c90bb8aec81d5f9bc58886f24b612463e7bd1cfff84c"
+        },
+        "sad": {
+          "master": "expression_sad.png",
+          "master_to_target_matrix": [
+            [
+              0.5608457326889038,
+              -0.003117562970146537,
+              224.991455078125
+            ],
+            [
+              0.003117562970146537,
+              0.5608457326889038,
+              -5.2037858963012695
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 21021,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3671,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218054,
+            "cleanup_pixels": 710,
+            "cleanup_bbox": [
+              429,
+              325,
+              591,
+              346
+            ],
+            "cleanup_sha256": "17eaeb5fd51c3d62748ffba0756520821f2ae1daad90ac92c0b5b01971b0ecbf",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3321,
+                "component_bbox": [
+                  369,
+                  337,
+                  476,
+                  388
+                ],
+                "component_score": 2059.373,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3382,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2092.025,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "e256f40796b59ad6e22900eb5a4841d2a40ac9021f45133f51dc253c764b6e7e",
+          "head_composite_sha256": "7e8f2612beebd4c9b724366df70ac6019ea37b71c2782d1208012453a09f3b65"
+        },
+        "crying": {
+          "master": "expression_crying.png",
+          "master_to_target_matrix": [
+            [
+              0.5601688623428345,
+              -0.0025689860340207815,
+              224.90280151367188
+            ],
+            [
+              0.0025689860340207815,
+              0.5601688623428345,
+              -4.61691951751709
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 20897,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3632,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218892,
+            "cleanup_pixels": 504,
+            "cleanup_bbox": [
+              429,
+              325,
+              590,
+              346
+            ],
+            "cleanup_sha256": "d4c984ba0aa7b9a6b8bf7e41eb96f0b82d7585f436f940747f7f9dc5eea8f796",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3304,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 2039.712,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3283,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2038.603,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "ebbc1bdbea05943a425b12cd5258422a128e10ee048774bd1833578221fa1f80",
+          "head_composite_sha256": "620e961b83ec317a8595d7664150f4005ac8f447b6156250774c8316818c61eb"
+        },
+        "embarrassed": {
+          "master": "expression_embarrassed.png",
+          "master_to_target_matrix": [
+            [
+              0.5602188110351562,
+              -0.0024733291938900948,
+              224.93177795410156
+            ],
+            [
+              0.0024733291938900948,
+              0.5602188110351562,
+              -4.482436180114746
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21113,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3710,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218584,
+            "cleanup_pixels": 606,
+            "cleanup_bbox": [
+              429,
+              321,
+              590,
+              346
+            ],
+            "cleanup_sha256": "4dcd09f24d5f58a047a0e9ed6814b210c78d11aa87da1a7a48eea6c566871194",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3402,
+                "component_bbox": [
+                  369,
+                  337,
+                  476,
+                  388
+                ],
+                "component_score": 2097.189,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3378,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2088.758,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "571f86f3f2e68945289f01bb5989b51fd8aab37ca0b2465d8586147a9ef2f87a",
+          "head_composite_sha256": "5b6e5db5cf49968eba1867dbe76ce55f61995ba1766ef169e410f754f2126733"
+        },
+        "nervous": {
+          "master": "expression_nervous.png",
+          "master_to_target_matrix": [
+            [
+              0.5607590079307556,
+              -0.0042779650539159775,
+              225.68829345703125
+            ],
+            [
+              0.0042779650539159775,
+              0.5607590079307556,
+              -2.9346847534179688
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -3.0,
+            -3.0
+          ],
+          "skin_samples": 21027,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3697,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1217950,
+            "cleanup_pixels": 463,
+            "cleanup_bbox": [
+              429,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "8313a574510993f7fd3cfa55beb0eaee72c62518b10bf1066ff5e87d8891188b",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3415,
+                "component_bbox": [
+                  369,
+                  337,
+                  473,
+                  388
+                ],
+                "component_score": 2083.564,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3500,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2141.857,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "a7e164e620747ccb5ac26a35448ec8230173ceb3aac9e6d7fc886e04605ba986",
+          "head_composite_sha256": "bc4c088bccac0abeb92d1274bb1a2e641b710fb883e53072c5b0b4d6fddc82c5"
+        },
+        "worried": {
+          "master": "expression_worried.png",
+          "master_to_target_matrix": [
+            [
+              0.5607271790504456,
+              -0.0028431611135601997,
+              224.91078186035156
+            ],
+            [
+              0.0028431611135601997,
+              0.5607271790504456,
+              -5.279279708862305
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -7.0
+          ],
+          "skin_samples": 21001,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3726,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1218553,
+            "cleanup_pixels": 594,
+            "cleanup_bbox": [
+              429,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "4cc19444ae33ad7bc018ac557212a3b881eac5f3aa88a53f8ec992fe3f408df0",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3538,
+                "component_bbox": [
+                  369,
+                  337,
+                  475,
+                  388
+                ],
+                "component_score": 2156.985,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3448,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2120.75,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "ea04b411af5722b90d968102147b451a58aec6d3782fb632b1371e7b9bff4039",
+          "head_composite_sha256": "d780d1a35092e92972a8070e8e8cefbe6edaa81b4b51b40d9e01c542d5305aa3"
+        },
+        "shocked": {
+          "master": "expression_shocked.png",
+          "master_to_target_matrix": [
+            [
+              0.562785267829895,
+              -0.00335277640260756,
+              224.48483276367188
+            ],
+            [
+              0.00335277640260756,
+              0.562785267829895,
+              -6.858800411224365
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -8.0
+          ],
+          "skin_samples": 20543,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3683,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1214954,
+            "cleanup_pixels": 648,
+            "cleanup_bbox": [
+              430,
+              321,
+              590,
+              346
+            ],
+            "cleanup_sha256": "cd14eff83577de5a06e427bcc68c03bfc2538924f5cdbbd646b5ad7b6b882f41",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2791,
+                "component_bbox": [
+                  369,
+                  337,
+                  475,
+                  388
+                ],
+                "component_score": 1771.54,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2708,
+                "component_bbox": [
+                  541,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1734.661,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "6ab897483975088a166cece29eaae9f40dfa6344720f355fe2ef7e0ed4131f2d",
+          "head_composite_sha256": "3ded6ec854ed7e061f42c96cbe2e2a549a20296c97dd69181a009a4aba694bb3"
+        },
+        "afraid": {
+          "master": "expression_afraid.png",
+          "master_to_target_matrix": [
+            [
+              0.5616945624351501,
+              -0.0029986537992954254,
+              224.13394165039062
+            ],
+            [
+              0.0029986537992954254,
+              0.5616945624351501,
+              -5.808634281158447
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 20720,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3656,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1217196,
+            "cleanup_pixels": 663,
+            "cleanup_bbox": [
+              430,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "87aed89bc1f7718c0adcd1f9259627b2dc3be58bccee846e4903f4b5bed5ce27",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2818,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 1785.327,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2823,
+                "component_bbox": [
+                  541,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1796.715,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "34443db9a229c7d2d65c455bdf1365bc1899f290265aceda037f9b1beb190dae",
+          "head_composite_sha256": "84ff0fdce27d09bf1398e6e86afb45ad2d538feee040563f5804305adbb8dd22"
+        },
+        "panicked": {
+          "master": "expression_panicked.png",
+          "master_to_target_matrix": [
+            [
+              0.5618178844451904,
+              -0.0029752126429229975,
+              224.64752197265625
+            ],
+            [
+              0.0029752126429229975,
+              0.5618178844451904,
+              -5.374155044555664
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -5.0,
+            -6.0
+          ],
+          "skin_samples": 19250,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3648,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1216797,
+            "cleanup_pixels": 583,
+            "cleanup_bbox": [
+              430,
+              325,
+              591,
+              346
+            ],
+            "cleanup_sha256": "cd1ebb9f72dbbc1998d7f27a406127d14f4a0db7eb9a03af08f3fc0028c79da6",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2861,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 1808.191,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2817,
+                "component_bbox": [
+                  539,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1800.158,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "c59cb8df1ec3a431884e7e63642953ebce907c8f31f328df28b6b3349dd1fb3b",
+          "head_composite_sha256": "7d1aa8d3f84580fd04ff7ee3e871693752a64440eaa222cb74bb8e8706d56f0f"
+        },
+        "determined": {
+          "master": "expression_determined.png",
+          "master_to_target_matrix": [
+            [
+              0.5627356767654419,
+              -0.0031335558742284775,
+              223.6549835205078
+            ],
+            [
+              0.0031335558742284775,
+              0.5627356767654419,
+              -6.739111423492432
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -11.0
+          ],
+          "skin_samples": 21070,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3985,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1215805,
+            "cleanup_pixels": 684,
+            "cleanup_bbox": [
+              430,
+              321,
+              591,
+              346
+            ],
+            "cleanup_sha256": "d80f78aca160ca02d42129e398a1df97662a9dea6a9665d6de07e7f378780ab2",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 3543,
+                "component_bbox": [
+                  369,
+                  337,
+                  481,
+                  388
+                ],
+                "component_score": 2182.737,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 3503,
+                "component_bbox": [
+                  530,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 2185.497,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "d20e5134fd19902ce7cc62f0c94259b2a92368887d556be837d6681e713b08e1",
+          "head_composite_sha256": "a6b449916e7ac4825e3b5b10124e64adae12a68856da20e92fe6a4907aff809f"
+        },
+        "empty": {
+          "master": "expression_empty.png",
+          "master_to_target_matrix": [
+            [
+              0.5620501637458801,
+              -0.003042888827621937,
+              224.34593200683594
+            ],
+            [
+              0.003042888827621937,
+              0.5620501637458801,
+              -6.660000801086426
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -7.0,
+            -9.0
+          ],
+          "skin_samples": 21167,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3563,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              347
+            ],
+            "protected_dark_pixels": 1215335,
+            "cleanup_pixels": 518,
+            "cleanup_bbox": [
+              429,
+              326,
+              592,
+              347
+            ],
+            "cleanup_sha256": "b825fb434aea56664b9f88f7e2c7bf38a801c7845a94135f6382fe7febfcc896",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2854,
+                "component_bbox": [
+                  369,
+                  337,
+                  471,
+                  388
+                ],
+                "component_score": 1812.871,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2873,
+                "component_bbox": [
+                  540,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1848.116,
+                "profile_y_median": 342
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "61b5fed42eae690dee9394b8cb2a533703c3b4030912607183126163236a00ea",
+          "head_composite_sha256": "b67767913754b660566bac15a75a9ea120907d326f76ae1f2e7a089e30004da5"
+        },
+        "disgusted": {
+          "master": "expression_disgusted.png",
+          "master_to_target_matrix": [
+            [
+              0.5625555515289307,
+              -0.003191750729456544,
+              223.76197814941406
+            ],
+            [
+              0.003191750729456544,
+              0.5625555515289307,
+              -6.266780853271484
+            ]
+          ],
+          "skin_offsets": [
+            0.0,
+            -6.0,
+            -9.0
+          ],
+          "skin_samples": 21372,
+          "upper_lid_cleanup": {
+            "method": "pre-slice-lash-relative-light-arc-scrub",
+            "band_pixels": 3575,
+            "band_bbox": [
+              367,
+              321,
+              651,
+              346
+            ],
+            "protected_dark_pixels": 1214617,
+            "cleanup_pixels": 481,
+            "cleanup_bbox": [
+              429,
+              326,
+              589,
+              346
+            ],
+            "cleanup_sha256": "a744074f28e11a1e217bd9e71aaa14c33cbbb70333ae4a7dda7427f8f811f65c",
+            "lash_components": [
+              {
+                "eye_center": [
+                  447,
+                  371
+                ],
+                "component_area": 2879,
+                "component_bbox": [
+                  369,
+                  337,
+                  474,
+                  388
+                ],
+                "component_score": 1832.607,
+                "profile_y_median": 337
+              },
+              {
+                "eye_center": [
+                  570,
+                  375
+                ],
+                "component_area": 2849,
+                "component_bbox": [
+                  542,
+                  341,
+                  649,
+                  392
+                ],
+                "component_score": 1823.471,
+                "profile_y_median": 341
+              }
+            ]
+          },
+          "checker_core_pixels": 0,
+          "checker_fringe_pixels": 0,
+          "layer_sha256": "1fc4ef4d928592b644eea4facc766fcab186e465f9a24dfa9ac1f61f594f7cc4",
+          "head_composite_sha256": "3c5b15b505477f528b4e6f531b5eb16b0712f8a2b56bafa4769f5c1b678ac9a3"
+        }
+      }
+    }
+  }
+}

@@ -572,6 +572,106 @@ Follow-up completed: 2026-08-26. The reported frame is the May 23 rooftop beat a
 - The preserved pre-fix bank intentionally fails the new provenance check on all 40 alternate PNGs, confirming that the validator distinguishes the faulty and repaired banks rather than accepting both.
 - Python bytecode compilation for the builder, installer, validator, and render-probe tools passes. Post-repair full Ren'Py lint passes with no script errors and `0 unreachable item(s) across 129 source files`; the final approved compile passes with exit code 0. Scoped `git diff --check` passes with only the repository's existing LF-to-CRLF notices.
 
+## Emotional-prosody and inflection follow-up
+
+Follow-up completed: 2026-08-28. The exact live working copies used as the baseline are preserved under `tmp/prosody_pass_0515_0525_20260828/before/`; this pass was reviewed against that snapshot rather than against `HEAD` so none of the user's prior revisions would be misattributed or overwritten.
+
+### Pass checklist and calibration
+
+- [x] Re-read the pacing ledger, roadmap, character-opinion review, and the relevant Asahina, Sam, Matsuda, Kotonoha, and Tsubaki sprite-expression contracts before editing.
+- [x] Audited every scene in `0515`-`0525` for spoken stress, emotional punctuation, sentence cadence, visible action, expression timing, and character-specific amplitude.
+- [x] Reserved capitals for genuine volume spikes. Used italics for semantic contrast, defensive correction, reassurance, or a word a character is consciously leaning on.
+- [x] Kept MC observant, dry, and emotionally indirect. No new narration declares a character's intent or tells the reader how to interpret a beat.
+- [x] Preserved the rule that a fully italicized narrator/Nier box is normally MC's inner thought. This pass did not convert observation or montage narration into thought formatting.
+- [x] Rechecked textbox economy. No dialogue was merged with narration, no edited box exceeds two substantial sentences, and no emphasis was added merely because a face was expressive.
+- [x] Rechecked the earlier tic list and contrivance decisions. No new em dash, semicolon, `X enough to Y`, `with the X of Y`, `with a X to Y`, adjective-noun reply, or gratuitous triad was introduced.
+- [x] Protected Kotonoha's low-amplitude performance and earnest employment gag. Her scenes were reviewed and deliberately left textually and visually unchanged in this follow-up.
+
+Across non-comment quoted text, the pass adds 19 balanced italic stress pairs while removing five all-cap words. The distribution is intentionally sparse: `0519` and `0520` gain no italic stress at all, and several already-loud scenes lose capitals instead of gaining more typography.
+
+### `0515.rpy`
+
+- Moved Asahina's existing `uniform unamused` switch ahead of "Something in her face goes still" so the visible drop from frustration happens when MC observes it, not after two more lines.
+- Stressed `less than a year` in Mom's college warning. This supplies one controlled point of urgency while her surrounding dialogue remains measured and explicitly non-coercive.
+- Stressed `all` in Mom's question about Asahina's small serving so the concern behind `curious` is audible before her face progresses to `worried`.
+- Stressed `swear` in Asahina's "I didn't even swear that time!" correction. The word now carries the complaint without another capitalized shout.
+
+### `0516.rpy`
+
+- Stressed `are` in Monika's wry insistence that MC's bad habits really are organized.
+- Replaced the mechanical "I take a deep sigh" with the physical "I let out a long sigh."
+- Changed Sam's face on "She's been working hard, you know" from neutral to `uniform thinking`; his visible word-choice now begins with the towel stopping rather than one line late.
+- Added Mom's `worried` face before the container lid takes two tries. The sprite now carries her reaction to Sam's disclosure without explanatory narration.
+
+### `0517.rpy`
+
+- Stressed `literally` in Tsubaki's pizza correction, giving her `unamused` face a dry spoken center rather than making her timid by default.
+- Stressed `don't` when Tsubaki restores MC's ability to decline the contact exchange. The small emphasis gives her worried intervention a spine without turning it into a command.
+
+### `0518.rpy`
+
+- Stressed `not` when MC tells Monika she is allowed not to have every answer. The contrast reads as familiar reassurance rather than a lecture.
+- Moved Monika's existing `worr` face ahead of "Monika's mouth tightens, then settles" so the visual concern is present during the narrated reaction.
+- Moved Monika's existing `nerv` face ahead of the sleeve grab in the maintenance tunnel. Her involuntary facial break, hand movement, and blush now occur as one beat instead of the face arriving only on release.
+- Stressed `you` in Monika's pouty redirect about the opening thunder. This complements the defensive face without adding another shout.
+
+### `0519.rpy`
+
+- Opened Monika's mouth for the automatic "Always," then restored the same closed-mouth distant face before she smooths the already-flat wrapper. The one-word answer is now visibly spoken while the shutdown remains visible afterward.
+- Replaced MC's text-message-like "I didn't apologize???" with the cleaner incredulous "I didn't apologize?!"
+- Rewrote the Nier recap from the hostile, abstract "verbally contorted into a different persona" to "the conversation survived without the bard doing most of the lifting." It retains MC's dry distance while recognizing that Matsuda respected his boundary and the conversation continued.
+
+### `0520.rpy`
+
+- Reviewed in full and left unchanged. Mom's exhausted restraint, Monika's club banter, Matsuda's messages, the party-game scene, MC's alienation, and Sam's calibrated warmth already carry their emotion through action and cadence; additional stress would make the day noisier rather than clearer.
+
+### `0521.rpy`
+
+- Changed Asahina's rooftop entrance from neutral to `uniform happy` for "There you are!" and her exaggerated search claim. The existing scene reset still returns her to neutral immediately afterward.
+- Converted MC's capitalized `ONE` to italic `one`; the line is a dry semantic complaint, not a raised-volume beat.
+- Removed the competing period before the teasing tilde in "Wooooow. You meant that~"
+- Converted Asahina's capitalized `LITERALLY` to italic `literally`; her disgust remains exaggerated without treating every exaggeration as a shout.
+- Replaced MC's unusually violent pike threat during the warm Monika call with "Call me that again and track gets full custody." The new line pays off the prior joint-custody joke and keeps his response dry and playful.
+
+### `0522.rpy`
+
+- Changed the panicked thought from "FREAKING TIME TO" to "freaking TIME." The useful word now receives the volume, and the trailing preposition no longer looks accidentally shouted.
+- Converted Hikari's branch-specific `WERE` to italic `were`. She is still demanding a real answer, but the scene can audibly step down from its opening shouting peak.
+
+### `0523.rpy`
+
+- Recast Tsubaki's sad admission as "I really *do* have to break this habit, though... It isn't the first time I've mixed things up." The one stress supports the repaired sad face, the second clause is a complete spoken sentence, and the final cross-audit removed a threefold repetition of `this`.
+- Replaced MC's muddled `assignments...?` hybrid with a clean question mark; the second question still carries his dry disbelief.
+- Changed Tsubaki's formal "Did you not pay attention" to the more natural worried outburst "Did you pay any attention" while preserving the existing `?!` peak.
+
+### `0524.rpy`
+
+- Stressed `just` while embarrassed Tsubaki minimizes her poster praise.
+- Stressed `missed` in Monika's unpracticed rooftop admission. This gives the blush one precise vocal center without making the subtext explicit in narration.
+- Reworked MC's poem reassurance to "No. It's *good*. Just a bit specific and on the nose." The praise now lands before the qualification and remains within two sentences.
+- Replaced "One syllable, and she means all of it" with the observable "Her fingertip stays beside the new line. She doesn't reach for another correction." The player's inference now comes from Monika's behavior and happy/blushing face.
+- Replaced the stacked vague "Still..." / "Still embarrassing, though..." exchange with "I know." / "It was still embarrassing, though." Monika retains the embarrassment without two consecutive trailing ellipses.
+
+### `0525.rpy`
+
+- Stressed `did` in Monika's nervous bid for partial credit after correcting her evasive answer.
+- Stressed `am` in Asahina's preemptive "I am studying" defense.
+- Re-punctuated Asahina's real question as "No. Exams. All of it." The fragments let the broader fear break through her ordinary irritation.
+- Restored Asahina's `worried` face before "Then which is *this*?" and stressed `this`. Her intervening `unamused` face now reads as armor rather than erasing the vulnerability that prompts the question.
+- Italicized `easy` in MC's "Heavy emphasis on easy" pocket-call joke, making the typography perform the exact emphasis Mom immediately hears him working too hard to sell.
+- Reviewed Kotonoha's neutral, happy, thinking, worried, and happy cafe progression and made no change. Its restrained range already complements her dialogue and preserves the job gag's completely earnest delivery.
+
+### Follow-up validation
+
+- Three independent read-only audits covered prose/voice, mechanics/text tags, and expression/continuity. The prose audit caught the repeated `this` in Tsubaki's May 23 admission; it was corrected and rechecked. No blocker remains.
+- Per-line italic-tag balance passes across all eleven scripts. Counts move from 192 opening/closing pairs in the captured baseline to 211 in the saved scripts, with every opening tag matched on its own line.
+- Capital-word scan moves from 105 to 100 tokens in non-comment quoted text. The five-token reduction comes from converting semantic stress to italics or lower case, not from muting genuine volume peaks.
+- Control-flow comparison against the captured working copies passes: labels, menus and menu text, conditionals, Python blocks, assignments, calls, jumps, returns, scene/audio transitions, pauses, hides, route picks, dependency operations, phone/contact unlock counts, and calendar/state operations are unchanged.
+- All added or moved face tokens are valid and semantically compatible. Outfit persistence, arm/eye/blush/mouth attributes, fixed-pose rules, stage positions, and scene resets remain coherent; Kotonoha receives no new staging.
+- Full Ren'Py lint passes with no script errors and `0 unreachable item(s) across 121 source files`. It still reports unrelated existing missing-asset warnings outside the edited prose range.
+- Full Ren'Py compile passes with exit code 0 and no output on the approved rerun. The first sandboxed compile was rejected as evidence because the SDK could not update its own common `.rpyc`/`.rpymc` cache files.
+- Scoped `git diff --check` passes; output contains only the repository's existing LF-to-CRLF notices.
+
 ## Validation record
 
 - `git diff --check` on all eleven source scripts: passed; only the repository's LF-to-CRLF notices appeared.

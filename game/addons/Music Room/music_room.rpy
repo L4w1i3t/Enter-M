@@ -58,7 +58,7 @@ init python:
 
     def music_key_from_path(file_path):
         """
-        Turn "mod_assets/bgm/13am.ogg" into "music_heard_mod_assets_bgm_13am".
+        Turn "assets/audio/bgm/13am.ogg" into "music_heard_mod_assets_bgm_13am".
 
         Same reasoning as cg_key_from_path (CG View/cg_gallery.rpy): the track IS
         its file, the library is long enough that a hand-written second column
@@ -86,7 +86,7 @@ init python:
             self.artist = artist
             self.file_path = file_path
             # Unlock keys used to be derived from physical paths. Keep deriving
-            # them from each track's OLD path so moving bgm/ + mod_assets/bgm/
+            # them from each track's OLD path so moving bgm/ + assets/audio/bgm/
             # into assets/audio/bgm/ does not relock existing profiles.
             self.persistent_key = music_key_from_path(legacy_file_path or file_path)
 
@@ -105,350 +105,314 @@ init python:
                 "The Way Home",
                 "San-Z Studio",
                 audio.roster_place,
-                "mod_assets/bgm/roster_place.ogg"
+                "assets/audio/bgm/roster_place.ogg"
             ),
             # Add more tracks here as they become available
             MusicTrack(
                 "13 AM",
                 "Toby Fox",
                 audio.hopeless,
-                "mod_assets/bgm/13am.ogg"
+                "assets/audio/bgm/13am.ogg"
             ),
             MusicTrack(
                 "12 AM",
                 "Toby Fox",
                 audio.twelveam,
-                "mod_assets/bgm/12am.ogg"
+                "assets/audio/bgm/12am.ogg"
             ),
             MusicTrack(
                 "Can You Feel",
                 "Torchkas",
                 audio.canyoufeel,
-                "mod_assets/bgm/canyoufeel.ogg"
+                "assets/audio/bgm/canyoufeel.ogg"
             ),
             MusicTrack(
-                "Hymn of the Righteous",
-                "Intelligent Systems",
-                audio.hotr,
-                "mod_assets/bgm/hotr.ogg"
-            ),
-            MusicTrack(
-                "Proud Flight",
-                "Intelligent Systems",
-                audio.flight,
-                "mod_assets/bgm/flight.ogg"
-            ),
-            MusicTrack(
-                "The Devoted",
-                "Intelligent Systems",
-                audio.devoted,
-                "mod_assets/bgm/devoted.ogg"
+                "Lofi Coffee",
+                "M ali",
+                audio.mainmenu,
+                "assets/audio/bgm/mainmenu.ogg"
             ),
             MusicTrack(
                 "Grandma",
                 "Square Enix",
                 audio.grandma,
-                "mod_assets/bgm/grandma.mp3"
+                "assets/audio/bgm/grandma.mp3"
             ),
             MusicTrack(
                 "The Incomplete Stone",
                 "Square Enix",
                 audio.stone,
-                "mod_assets/bgm/stone.mp3"
+                "assets/audio/bgm/stone.mp3"
             ),
             MusicTrack(
                 "City of Commerce",
                 "Square Enix",
                 audio.seafront,
-                "mod_assets/bgm/seafront.mp3"
+                "assets/audio/bgm/seafront.mp3"
             ),
             MusicTrack(
                 "Fleeting Words - Family",
                 "Square Enix",
                 audio.family,
-                "mod_assets/bgm/family.mp3"
+                "assets/audio/bgm/family.mp3"
             ),
             MusicTrack(
                 "Snow in Summer",
                 "Square Enix",
                 audio.sis,
-                "mod_assets/bgm/sis.mp3"
+                "assets/audio/bgm/sis.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Devola",
                 "Square Enix",
                 audio.devola,
-                "mod_assets/bgm/devola.mp3"
+                "assets/audio/bgm/devola.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Popola",
                 "Square Enix",
                 audio.popola,
-                "mod_assets/bgm/popola.mp3"
+                "assets/audio/bgm/popola.mp3"
             ),
             MusicTrack(
                 "Song of the Ancients - Hollow Dreams",
                 "Square Enix",
                 audio.hollow,
-                "mod_assets/bgm/hollow.mp3"
+                "assets/audio/bgm/hollow.mp3"
             ),
             MusicTrack(
                 "This Dream",
                 "Square Enix",
                 audio.dream,
-                "mod_assets/bgm/dream.mp3"
+                "assets/audio/bgm/dream.mp3"
             ),
             MusicTrack(
                 "Beautiful Days (16-bit)",
                 "Spike Chunsoft",
                 audio.beautiful,
-                "mod_assets/bgm/beautiful.mp3"
+                "assets/audio/bgm/beautiful.mp3"
             ),
             MusicTrack(
                 "All Star Apologies (16-bit)",
                 "Spike Chunsoft",
                 audio.apology,
-                "mod_assets/bgm/apology.mp3"
+                "assets/audio/bgm/apology.mp3"
             ),
             MusicTrack(
                 "Dump",
                 "Toby Fox",
                 audio.dump,
-                "mod_assets/bgm/dump.ogg"
+                "assets/audio/bgm/dump.ogg"
             ),
             MusicTrack(
                 "Temple of Drifting Sands",
                 "Square Enix",
                 audio.sands,
-                "mod_assets/bgm/sands.mp3"
+                "assets/audio/bgm/sands.mp3"
             ),
             MusicTrack(
                 "Wretched Automatons",
                 "Square Enix",
                 audio.automatons,
-                "mod_assets/bgm/automatons.mp3"
+                "assets/audio/bgm/automatons.mp3"
             ),
             MusicTrack(
                 "Blu Bird",
                 "Square Enix",
                 audio.blubird,
-                "mod_assets/bgm/blubird.mp3"
+                "assets/audio/bgm/blubird.mp3"
             ),
             MusicTrack(
                 "60% Daily Fantasy",
                 "San-Z Studio",
                 audio.dailyfantasy,
-                "mod_assets/bgm/dailyfantasy.ogg"
+                "assets/audio/bgm/dailyfantasy.ogg"
             ),
             MusicTrack(
                 "60% Fantasy Passion",
                 "San-Z Studio",
                 audio.fantasypassion,
-                "mod_assets/bgm/fantasypassion.ogg"
+                "assets/audio/bgm/fantasypassion.ogg"
             ),
             MusicTrack(
                 "60% Daily Leisure",
                 "San-Z Studio",
                 audio.dailyleisure,
-                "mod_assets/bgm/dailyleisure.ogg"
+                "assets/audio/bgm/dailyleisure.ogg"
             ),
             MusicTrack(
                 "60% Daily",
                 "San-Z Studio",
                 audio.daily,
-                "mod_assets/bgm/daily.ogg"
+                "assets/audio/bgm/daily.ogg"
             ),
             MusicTrack(
                 "60% Fantasy Serenity",
                 "San-Z Studio",
                 audio.fantasyserenity,
-                "mod_assets/bgm/fantasyserenity.ogg"
+                "assets/audio/bgm/fantasyserenity.ogg"
             ),
             MusicTrack(
                 "Scheduled Programming",
                 "L4w1i3t",
                 audio.holdmusic,
-                "mod_assets/bgm/holdmusic.ogg"
+                "assets/audio/bgm/holdmusic.ogg"
             ),
             MusicTrack(
                 "Black Knife",
                 "Toby Fox",
                 audio.epicbattlephase1,
-                "mod_assets/bgm/epicbattlephase1.ogg"
+                "assets/audio/bgm/epicbattlephase1.ogg"
             ),
             MusicTrack(
                 "GUARDIAN",
                 "Toby Fox",
                 audio.epicbattlephase2,
-                "mod_assets/bgm/epicbattlephase2.ogg"
+                "assets/audio/bgm/epicbattlephase2.ogg"
             ),
             MusicTrack(
                 "Safety",
                 "--",
                 audio.safety,
-                "mod_assets/bgm/safety.ogg"
+                "assets/audio/bgm/safety.ogg"
             ),
             MusicTrack(
                 "Mike, the BOARD Please!",
                 "Toby Fox",
                 audio.quiz,
-                "mod_assets/bgm/quiz.ogg"
+                "assets/audio/bgm/quiz.ogg"
             ),
             MusicTrack(
                 "School Days",
                 "ATLUS",
                 audio.schooldays,
-                "mod_assets/bgm/schooldays.ogg"
+                "assets/audio/bgm/schooldays.ogg"
             ),
             MusicTrack(
                 "03/31",
                 "ATLUS",
                 audio.enterm,
-                "mod_assets/bgm/enterm.ogg"
+                "assets/audio/bgm/enterm.ogg"
             ),
             MusicTrack(
                 "Scamall Hollow",
                 "San-Z Studio",
                 audio.scamall,
-                "mod_assets/bgm/scamall.ogg"
+                "assets/audio/bgm/scamall.ogg"
             ),
             MusicTrack(
                 "Montagem Toma",
                 "MXZI, sk3tch01, X972",
                 audio.enter_m_op,
-                "mod_assets/bgm/opsong.ogg"
+                "assets/audio/bgm/opsong.ogg"
             ),
             MusicTrack(
                 "Sound of Justice",
                 "Toby Fox",
                 audio.mm_phase4,
-                "mod_assets/bgm/mm_phase4.ogg"
+                "assets/audio/bgm/mm_phase4.ogg"
             ),
             MusicTrack(
                 "Embraced by the Flame (Inst.)",
                 "UNDEAD CORPORATION",
                 audio.embracedflame_inst,
-                "mod_assets/bgm/embracedbytheflameinst.ogg"
+                "assets/audio/bgm/embracedbytheflameinst.ogg"
             ),
             MusicTrack(
                 "Embraced by the Flame (Vocal)",
                 "UNDEAD CORPORATION",
                 audio.embracedflame_vocal,
-                "mod_assets/bgm/embracedbytheflamevocal.ogg"
-            ),
-            MusicTrack(
-                "Doki Doki Literature Club Main Theme",
-                "Team Salvato",
-                audio.ddlc_main,
-                "bgm/1.ogg"
-            ),
-            MusicTrack(
-                "Sayo-nara",
-                "Team Salvato",
-                audio.ddlc_sayonara,
-                "bgm/d.ogg"
-            ),
-            MusicTrack(
-                "I Still Love You",
-                "Team Salvato",
-                audio.ddlc_still_love_you,
-                "bgm/monika-end.ogg"
-            ),
-            MusicTrack(
-                "Ghost Menu",
-                "Team Salvato",
-                audio.ddlc_ghostmenu,
-                "bgm/ghostmenu.ogg"
+                "assets/audio/bgm/embracedbytheflamevocal.ogg"
             ),
             MusicTrack(
                 "Petal Dance",
                 "Toby Fox",
                 audio.kotoboss,
-                "mod_assets/bgm/kotobossmusic.ogg"
+                "assets/audio/bgm/kotobossmusic.ogg"
             ),
             MusicTrack(
                 "worldenddominator",
                 "zts",
                 audio.kotoendlessmode,
-                "mod_assets/bgm/kotoendlessmode.ogg"
+                "assets/audio/bgm/kotoendlessmode.ogg"
             ),
             MusicTrack(
                 "Dusk",
                 "Team Salvato",
                 audio.hearttoheart,
-                "mod_assets/bgm/hearttoheart.ogg"
+                "assets/audio/bgm/hearttoheart.ogg"
             ),
             MusicTrack(
                 "muirtA dnoceS",
                 "xoF yboT",
                 audio.tails,
-                "mod_assets/bgm/tails.ogg"
+                "assets/audio/bgm/tails.ogg"
             ),
             MusicTrack(
                 "Green Room",
                 "Toby Fox",
                 audio.arcade_theme,
-                "mod_assets/bgm/arcade.ogg"
+                "assets/audio/bgm/arcade.ogg"
             ),
             MusicTrack(
                 "Flower Man",
                 "Toby Fox",
                 audio.tsubaphase1,
-                "mod_assets/bgm/tsubaphase1.ogg"
+                "assets/audio/bgm/tsubaphase1.ogg"
             ),
             MusicTrack(
                 "Flower Man (Teto Cover)",
                 "Toby Fox, TheCappuccino04",
                 audio.tsubaphase2,
-                "mod_assets/bgm/tsubaphase2.ogg"
+                "assets/audio/bgm/tsubaphase2.ogg"
             ),
             MusicTrack(
                 "YOU Actually Changed!",
                 "Toby Fox",
                 audio.noreturn,
-                "mod_assets/bgm/noreturn.ogg"
+                "assets/audio/bgm/noreturn.ogg"
             ),
             MusicTrack(
                 "Smooth Sailing",
                 "Dylan Sitts",
                 audio.smoothsailing,
-                "mod_assets/bgm/ch4_night.ogg"
+                "assets/audio/bgm/ch4_night.ogg"
             ),
             MusicTrack(
                 "Samsara",
                 "Nihilore",
                 audio.samsara,
-                "mod_assets/bgm/ch4_serious.ogg"
+                "assets/audio/bgm/ch4_serious.ogg"
             ),
             MusicTrack(
                 "Emotions",
                 "Falling Forever",
                 audio.emotions,
-                "mod_assets/bgm/ch4_day.ogg"
+                "assets/audio/bgm/ch4_day.ogg"
             ),
             MusicTrack(
                 "Opus No. 1",
-                "Time Carleton",
+                "Tim Carleton",
                 audio.opus1,
-                "mod_assets/bgm/ch5_day.ogg"
+                "assets/audio/bgm/ch5_day.ogg"
             ),
             MusicTrack(
                 "ReDreaming Angel",
                 "San-Z Studio",
                 audio.tetris,
-                "mod_assets/bgm/tetris.ogg"
+                "assets/audio/bgm/tetris.ogg"
             ),
             MusicTrack(
                 "Black Wolf",
                 "San-Z Studio",
                 audio.blackwolf,
-                "mod_assets/bgm/blackwolf.ogg"
+                "assets/audio/bgm/blackwolf.ogg"
             ),
             MusicTrack(
                 "Black Wolf (Corruptive Barrier)",
                 "San-Z Studio",
                 audio.blackwolf_corruptive,
-                "mod_assets/bgm/blackwolf_corruptive.ogg"
+                "assets/audio/bgm/blackwolf_corruptive.ogg"
             ),
         ]
 
@@ -728,6 +692,21 @@ init python:
             duration = 0.0
         return Text(format_time(duration), style="music_time"), 1.0
 
+    def music_volume_pct(mixer="music"):
+        """The deck's volume readout, as the SLIDER'S OWN position (0-100).
+
+        Not the stored amplitude. Ren'Py mixer sliders are logarithmic over
+        config.volume_db_range unless config.quadratic_volumes is on, so
+        `get_volume() * 100` reads about 3% with the handle sitting exactly
+        halfway -- which looks like a bug rather than a scale. Dividing the
+        mixer position by the same range the adjustment uses makes the number
+        and the handle agree at every point.
+        """
+        rng = 1.0 if config.quadratic_volumes else (config.volume_db_range * 1.0)
+        if not rng:
+            return 0
+        return int(round(100.0 * MixerValue(mixer).get_mixer() / rng))
+
 # init 5 so music_library is rebuilt after the class above is defined.
 init 5 python:
     init_music_library()
@@ -821,6 +800,7 @@ screen music_room():
         ]
         _now_title = current_track.title if current_track else None
         _m_found = len(music_unlocked_tracks())
+        _mvol = music_volume_pct()
 
     frame:
         style "archive_shell_frame"
@@ -902,7 +882,7 @@ screen music_room():
                             draggable True
                             pagekeys True
                             xsize 530
-                            ysize 372
+                            ysize 392
 
                             vbox:
                                 spacing 6
@@ -1091,6 +1071,26 @@ screen music_room():
                                 style "music_toggle_button"
                                 action Function(cycle_play_mode)
 
+                        # Output level. This is the one room in the game you sit
+                        # in to LISTEN, so the music mixer belongs on the deck
+                        # rather than four clicks away in Settings -- and it is
+                        # the same persistent preference, so a level set here is
+                        # the level the rest of the game plays at.
+                        hbox:
+                            spacing 10
+                            xalign 0.5
+                            ysize 24
+
+                            add Solid("#56d7ff") xysize (3, 16) yalign 0.5
+                            text "VOL" style "music_volume_label" yalign 0.5
+
+                            bar:
+                                value Preference("music volume")
+                                style "music_volume_slider"
+                                yalign 0.5
+
+                            text "[_mvol]%" style "music_volume_pct" yalign 0.5
+
     # Console brackets framing the shell (cohesion with the archive hub).
     use archive_shell_brackets()
 
@@ -1116,7 +1116,7 @@ style music_room_title:
 
 style music_list_frame:
     xsize 560
-    ysize 520
+    ysize 540
     background Solid("#07101add")
     padding (10, 10)
 
@@ -1171,7 +1171,7 @@ style music_track_artist_locked is music_track_artist:
 
 style music_player_frame:
     xsize 440
-    ysize 520
+    ysize 540
     background Solid("#07101add")
     padding (10, 10)
 
@@ -1240,6 +1240,30 @@ style music_control_button_text:
 
 style music_play_button is music_control_button:
     xysize (65, 55)
+
+# The volume strip. slider_slider is the same base the Settings screen and the
+# Matsuda pause menu use, so the drag feel (and the log scale) is identical
+# everywhere; only the width and the palette change.
+style music_volume_label:
+    font gui.interface_font
+    size 13
+    color "#56d7ff"
+    bold True
+    outlines [(1, "#02040b", 0, 0)]
+
+style music_volume_pct:
+    font gui.interface_font
+    size 13
+    color "#9fc9d6"
+    xsize 42
+    text_align 1.0
+    outlines [(1, "#02040b", 0, 0)]
+
+style music_volume_slider is slider_slider:
+    xsize 250
+    ysize 10
+    base_bar Solid("#102338")
+    thumb Solid("#56d7ff")
 
 style music_play_button_text is music_control_button_text:
     size 24

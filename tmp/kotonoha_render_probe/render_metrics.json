@@ -14,13 +14,13 @@
   "review_sheets": [
     {
       "filename": "review_expressions_mid_thigh_light.png",
-      "bytes": 355392,
-      "sha256": "9fb94a778c2d5cf2bdb45d9c30fa8ef686e95a57059fb8daa969f99896e37738"
+      "bytes": 363349,
+      "sha256": "5507d38d1830ad9a2b67ec75398e792e24a7d50fcd9861c2dd28ebc523125f23"
     },
     {
       "filename": "review_expressions_head_light.png",
-      "bytes": 1068859,
-      "sha256": "2b5ec85b8906f9c161b0bed98998d79d9c53e5697819ba81dbaf90ca4b212b10"
+      "bytes": 1123908,
+      "sha256": "bd515c567b766a0f80fe23cc814b0c492ba147fa88b64034cc523f82c11b721b"
     },
     {
       "filename": "review_poses_mid_thigh_light.png",
@@ -29,13 +29,13 @@
     },
     {
       "filename": "review_expressions_mid_thigh_dark.png",
-      "bytes": 359141,
-      "sha256": "f14de05c1cde2c74be9b3406f0195dc7b634d947604ac3acb7e0d85c3fb0ca0f"
+      "bytes": 367231,
+      "sha256": "d5a62850b69db805287e12cb744c95de3606bed9490b76f16cb8cc9a4fac4d3e"
     },
     {
       "filename": "review_expressions_head_dark.png",
-      "bytes": 1073870,
-      "sha256": "c89cb370a04190d59e20f67ab0e8631de17d78baea4a2cd66c5d1bbaf149d3f6"
+      "bytes": 1128023,
+      "sha256": "c0bfeb74fa93a952d0aed51e13fa000717720a96f22b15a1cab1d9b71b134a5f"
     },
     {
       "filename": "review_poses_mid_thigh_dark.png",
@@ -44,13 +44,13 @@
     },
     {
       "filename": "review_expressions_mid_thigh_checker.png",
-      "bytes": 372930,
-      "sha256": "5746a1afa04786fc6e47d9da90eda0dd26d98822e5fa243d9763e13c6f38101a"
+      "bytes": 380877,
+      "sha256": "dede7725640e28dd36a314d68219c15352b8d3433007fb9ff6e20f11094a5d7f"
     },
     {
       "filename": "review_expressions_head_checker.png",
-      "bytes": 1077285,
-      "sha256": "e8bf9a3331d04cd7d55ae768cebe28bae53e116bec86091e81ce5719aa694c00"
+      "bytes": 1133375,
+      "sha256": "58b07c8f4eb884e5f4eac27d582f77d6494872079a0cd1d1b7e1d84f819b888d"
     },
     {
       "filename": "review_poses_mid_thigh_checker.png",
@@ -77,8 +77,8 @@
     },
     {
       "relative_path": "light/expressions/02_casual_happy.png",
-      "bytes": 487189,
-      "sha256": "47a613d467eb2b0d082d49156b985c75e4e261fa07d186d65638ba268bef633a",
+      "bytes": 486876,
+      "sha256": "7bf50eb10b3c8ddbd90edd061bf189e594a3c3632293677ab3fe1854deb06d27",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -93,8 +93,8 @@
     },
     {
       "relative_path": "light/expressions/03_casual_smug.png",
-      "bytes": 487133,
-      "sha256": "5bccf58bdfa64dd8f49733692b623fc9cb97b53c49653448bb4eb14bf0367ba8",
+      "bytes": 486898,
+      "sha256": "0a91088238e5224ef236c21acd073ccb6cfe028ea927001a06098a663bc9ecdd",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -109,8 +109,8 @@
     },
     {
       "relative_path": "light/expressions/04_casual_teasing.png",
-      "bytes": 487497,
-      "sha256": "93a6364c5579110dd83beaa5efd1110084129e09220bd6229929429a3a8fdccc",
+      "bytes": 487348,
+      "sha256": "e002e79667c8cc244978cc0cd0203184428513d1405d896c6fb440f55c3866de",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -125,8 +125,8 @@
     },
     {
       "relative_path": "light/expressions/05_casual_thinking.png",
-      "bytes": 487710,
-      "sha256": "537b21d2b8bd1a68f0dd450d8319ef7eaf809ac9eb9441a1203b4b7f55a4de85",
+      "bytes": 487432,
+      "sha256": "756ee9adaecd97c3b56231158538a181da0e6c0835584c1b4a4fabf646b4729e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -141,8 +141,8 @@
     },
     {
       "relative_path": "light/expressions/06_casual_curious.png",
-      "bytes": 487732,
-      "sha256": "e38f09fa846ec92bbbabee44222304d7c8614d2bc9e619ba81b87eed6662f380",
+      "bytes": 487582,
+      "sha256": "03aba8631ae990febf450b1703731e734833ad14005ae0d5342a5119ee91619e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -157,8 +157,8 @@
     },
     {
       "relative_path": "light/expressions/07_casual_unamused.png",
-      "bytes": 486510,
-      "sha256": "118a7539a6ec68bd588b7683bb9538cd1d67fce594db996a604eb12e6b65df81",
+      "bytes": 486168,
+      "sha256": "edbec769e35707d21c9f1965120534657d99765ce7968682b47cbe8a57919a96",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -173,8 +173,8 @@
     },
     {
       "relative_path": "light/expressions/08_casual_annoyed.png",
-      "bytes": 487323,
-      "sha256": "84f0deccdf8366887a024283ee17c69e976b6b203fdde7dd60815f50d8246469",
+      "bytes": 487063,
+      "sha256": "6912a32cb5902e588dff86023b8a1f262615747b9f9447d20fdd6e7ad4fa7385",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -189,8 +189,8 @@
     },
     {
       "relative_path": "light/expressions/09_casual_frustrated.png",
-      "bytes": 487360,
-      "sha256": "141e2212308ee8067ef14e2a8634585281ebd8a67939b06059a654040e2b9dd0",
+      "bytes": 486982,
+      "sha256": "0a74a01954f924d2ba7cb1deb68f102cafc090b5e60edd4494b9834e0a9f5ed8",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -205,8 +205,8 @@
     },
     {
       "relative_path": "light/expressions/10_casual_angry.png",
-      "bytes": 487459,
-      "sha256": "043f2175c4ae85d6c3921aa2ecf805da032dd4a294311e56193791db88ee2dde",
+      "bytes": 487263,
+      "sha256": "16a623cfdb2cad4b0d0cca42b185a46536af437b84eec82df55c3156dede817a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -221,8 +221,8 @@
     },
     {
       "relative_path": "light/expressions/11_casual_sad.png",
-      "bytes": 487162,
-      "sha256": "b75be8eb76649b22e0da5b8c351cce45ece7da2ad2b33eeba29700f992ed5792",
+      "bytes": 486876,
+      "sha256": "f51c32c09759c61aedb762918168aae7343b2ca1c3d3d3d0fa2038584e8dd511",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -237,8 +237,8 @@
     },
     {
       "relative_path": "light/expressions/12_casual_crying.png",
-      "bytes": 488379,
-      "sha256": "11810708b94c710cd84e3ec46a5ec1feff8c5edb0ae3d58ac43f3709b0a98718",
+      "bytes": 488117,
+      "sha256": "0f02bdb4f2444b98091dd873c374c64052620dfa102fc6967cfe17856e5e07a9",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -253,8 +253,8 @@
     },
     {
       "relative_path": "light/expressions/13_casual_embarrassed.png",
-      "bytes": 487843,
-      "sha256": "8a7e9cd78ed2bd839bd28d4165eb8abf8b8437ea5356b4605266c7bbd7d10ac0",
+      "bytes": 487664,
+      "sha256": "e35ad965a1e3f2a7b5488e692bf72e1dc556b824a478ebf740c971b07b6fc596",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -269,8 +269,8 @@
     },
     {
       "relative_path": "light/expressions/14_casual_nervous.png",
-      "bytes": 487248,
-      "sha256": "261e129606ee97d04d1335a18e5bc7286584f4942fb32700546a12b41550c902",
+      "bytes": 486954,
+      "sha256": "ca6d814034113e1dd1f1ef212ee80a3b427e43933f33232db176fe55911ab40d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -285,8 +285,8 @@
     },
     {
       "relative_path": "light/expressions/15_casual_worried.png",
-      "bytes": 487600,
-      "sha256": "bfaf9642ad20114ec8e8c8b781f176539b927db0720de302f0fe79bc5ac78a8a",
+      "bytes": 487314,
+      "sha256": "7e60e7f8caa208e4e1b2cd2fe21ce392e477cb9e4f9135cc9fd7f496329fd2d0",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -301,8 +301,8 @@
     },
     {
       "relative_path": "light/expressions/16_casual_shocked.png",
-      "bytes": 487898,
-      "sha256": "4586eb8c7f8b779cb960c83b8ac9bb708a9c1ac8629ff21d6d29ddc261950ce9",
+      "bytes": 487879,
+      "sha256": "650b44647b13e4430e4a5ccb16a84f9d2cee155bcfe85d2914141c1779de9427",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -317,8 +317,8 @@
     },
     {
       "relative_path": "light/expressions/17_casual_afraid.png",
-      "bytes": 487928,
-      "sha256": "2af06b24ac2bc9d1c5008fcb725034d49b0311c849aa953e04e2ee0f68c0549f",
+      "bytes": 487677,
+      "sha256": "6ccaf1f4ba7300eeda52e3e9b5b8a1d0cf95f218cadaca696d783827132747a2",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -333,8 +333,8 @@
     },
     {
       "relative_path": "light/expressions/18_casual_panicked.png",
-      "bytes": 488912,
-      "sha256": "0c6c4e6c5ffac3c96d738e5a79ee28c98aeaaa3cd44e75c2332d444559f0db9f",
+      "bytes": 488765,
+      "sha256": "39d978705b1332a2195c44c60f491315cf87f9652055c640f6d0c13b433e7dcd",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -349,8 +349,8 @@
     },
     {
       "relative_path": "light/expressions/19_casual_determined.png",
-      "bytes": 487872,
-      "sha256": "52a39e31631a6526cd7b68b782af9b5747220d65087ff04d23fa5d52b1a86154",
+      "bytes": 487626,
+      "sha256": "2671d79b9e91a9c39ea58c6af7602590362f41c27610c0767e1159dfa679721e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -365,8 +365,8 @@
     },
     {
       "relative_path": "light/expressions/20_casual_empty.png",
-      "bytes": 486086,
-      "sha256": "4718d5545647b591a7a79e718d1f2ed379cebe9976bf9d0aec21e66ada81c33b",
+      "bytes": 485879,
+      "sha256": "d92648851fe5db70ac8e6ca16e31422fde5ffda0cf029a7de6490d14d6d0ec41",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -381,8 +381,8 @@
     },
     {
       "relative_path": "light/expressions/21_casual_disgusted.png",
-      "bytes": 487201,
-      "sha256": "857c9cda0be856d6735a00e6743559f1f418e03055afa27db249dda7cf7500c6",
+      "bytes": 487052,
+      "sha256": "7812df74ffd0b816114f2af7c98d39439a297b63facaa59e504f38542798cd4a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -413,8 +413,8 @@
     },
     {
       "relative_path": "light/expressions/23_work_happy.png",
-      "bytes": 483318,
-      "sha256": "59bffce6208e9212fce8f7629c2ea73b389e9f30384b856c50aa8d2f467374f7",
+      "bytes": 483057,
+      "sha256": "dadc3cf25f46a562a69cf2eea608e535b2d81070af0ff3165efa7973f6ac758a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -429,8 +429,8 @@
     },
     {
       "relative_path": "light/expressions/24_work_smug.png",
-      "bytes": 482437,
-      "sha256": "b1fa21b0c41b2903821d980cd85cec935468be2f14ab6c30d2f1ae942c9010f1",
+      "bytes": 482146,
+      "sha256": "ffe0bce4b9148b13bc3a53c3b3d687cb0249a4eeec8791dee95358ee3bd196f7",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -445,8 +445,8 @@
     },
     {
       "relative_path": "light/expressions/25_work_teasing.png",
-      "bytes": 482573,
-      "sha256": "a39843a2abb6aaeede7f3363fe6bdeb17085eded3072267abae377d91943e1cd",
+      "bytes": 482243,
+      "sha256": "d79e7271f8d51d17fb9d258b24bf5fcf999e71c8135fe253a2629987be13bcdc",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -461,8 +461,8 @@
     },
     {
       "relative_path": "light/expressions/26_work_thinking.png",
-      "bytes": 482837,
-      "sha256": "215b1ef1f9d05ace83f12a6236e7573da9ff28dc4b177a9c2ef7814a39e51c74",
+      "bytes": 482478,
+      "sha256": "8ceeda0c70e4a1b813a69a8a0f748a2863933169d43b64ff0a29c6de27c3095e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -477,8 +477,8 @@
     },
     {
       "relative_path": "light/expressions/27_work_curious.png",
-      "bytes": 482883,
-      "sha256": "006d6e20b0c5c3e72924e58b594a43bed0010476274b548f98f847f88930f329",
+      "bytes": 482559,
+      "sha256": "1fae41a0195c2255c954d4e1479e9d060b667c4f4ff86193332b31a203477967",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -493,8 +493,8 @@
     },
     {
       "relative_path": "light/expressions/28_work_unamused.png",
-      "bytes": 481653,
-      "sha256": "ada687acc33fc1fc43f3bc95e6ce524f4147744b1ea907e196c50746955e6188",
+      "bytes": 481237,
+      "sha256": "40b6f8d91bc6c6894bc05142b88ac0c1b304e9bc3e9a2cdb28294c05470553fa",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -509,8 +509,8 @@
     },
     {
       "relative_path": "light/expressions/29_work_annoyed.png",
-      "bytes": 482558,
-      "sha256": "5a34269c0295758e19079fc1cbaaa4e616a506cc1247496ad9e4548e07911b49",
+      "bytes": 482132,
+      "sha256": "434a8773831ad0ef48d7b41a243980608edfb4c895f1034b1041869923f7bdfe",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -525,8 +525,8 @@
     },
     {
       "relative_path": "light/expressions/30_work_frustrated.png",
-      "bytes": 483002,
-      "sha256": "99653132f97e28802a9b5c4cceb4b3c504b8c2cbc8c3d74e2f56b4a116b218d7",
+      "bytes": 482656,
+      "sha256": "4d9b02e0f4a93863f71e5b4d6d1f37dc940ae4e1f30541cb3d5746df8b3c7971",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -541,8 +541,8 @@
     },
     {
       "relative_path": "light/expressions/31_work_angry.png",
-      "bytes": 482849,
-      "sha256": "022b8150c9d417afe8feacd660566f9c1d4c3d45c520eeb2fb5ee3d8ec9955e3",
+      "bytes": 482534,
+      "sha256": "6e22cd35f3fe05948b9452d0c02af3101b294f926abfebba78dc8ff96de8ec90",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -557,8 +557,8 @@
     },
     {
       "relative_path": "light/expressions/32_work_sad.png",
-      "bytes": 482454,
-      "sha256": "0e9da70d7e11deb6b0211b867cd3d6c4fab235d789a2570b3785a79faae52c69",
+      "bytes": 481996,
+      "sha256": "9af7a09521304dc63a9851b366fc4223edbd6158be530ba525e4c39b19311c85",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -573,8 +573,8 @@
     },
     {
       "relative_path": "light/expressions/33_work_crying.png",
-      "bytes": 483146,
-      "sha256": "4bc69c1bdf915b47fccc2a36072463576c76007b54e261e7370336e978f6b03e",
+      "bytes": 482666,
+      "sha256": "df20584d96751c60ad055600b2685ed96d4d9c733e76a83614eb1b20a8a168ad",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -589,8 +589,8 @@
     },
     {
       "relative_path": "light/expressions/34_work_embarrassed.png",
-      "bytes": 483114,
-      "sha256": "adec7e53ed1de8128a15fadeaa414a0913bd424ba9acf00750a4ca3de9287820",
+      "bytes": 482813,
+      "sha256": "ef84708de67a9f0c04f3a770c200d8ffe7b5beb5c5f0de2d898c092df4f38446",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -605,8 +605,8 @@
     },
     {
       "relative_path": "light/expressions/35_work_nervous.png",
-      "bytes": 482470,
-      "sha256": "c17d108afdda80393c52babe8377fe1ec808a88f5cc360c55a48f257804dc8ef",
+      "bytes": 482073,
+      "sha256": "d0eb299fc98211d5251b77087bd873f8d20d95d4ee718cc220c7e5800b5c6144",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -621,8 +621,8 @@
     },
     {
       "relative_path": "light/expressions/36_work_worried.png",
-      "bytes": 482655,
-      "sha256": "a8a44bcd6e6458467d2be6123d6d1ee18ad217417e4435d705333d734defe5c9",
+      "bytes": 482227,
+      "sha256": "ad3bb355660bc47b0a7c3db0cf25564b0dc019b0ec6e6bd0c7d8aee70426de40",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -637,8 +637,8 @@
     },
     {
       "relative_path": "light/expressions/37_work_shocked.png",
-      "bytes": 483482,
-      "sha256": "f40567ee6431724109d282ffb4991f87707dff77ecf058e8fcb702756b9ff057",
+      "bytes": 483330,
+      "sha256": "0022e12048187b64c40a13266ed20fca892522b88a562de858bd7167c5eb5e97",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -653,8 +653,8 @@
     },
     {
       "relative_path": "light/expressions/38_work_afraid.png",
-      "bytes": 483572,
-      "sha256": "d3e9d5b2ced91bfa5ab679e2f5eddf01566ac2a4da462323a3fe4345427c1ffc",
+      "bytes": 483283,
+      "sha256": "ef91a31edcf5fdd04aab97e15311978eed497087b4750257aec05c5c2bb124aa",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -669,8 +669,8 @@
     },
     {
       "relative_path": "light/expressions/39_work_panicked.png",
-      "bytes": 483972,
-      "sha256": "66973c0df2b03ef0f6598e119585de04bcc0c60d460320dde5c581f37251d685",
+      "bytes": 483617,
+      "sha256": "1de37abfb6eb41f9b1b7a2be2e7f52f84ab8c77fc5c05599b051eddbddfc806d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -685,8 +685,8 @@
     },
     {
       "relative_path": "light/expressions/40_work_determined.png",
-      "bytes": 482901,
-      "sha256": "788037857df4d9c05964177e995d734b602d0ffbfc78e57ecf4c2e01ba020801",
+      "bytes": 482498,
+      "sha256": "e11c24f0e33684fa9bcfb3a46c7395e3d29d8eb3edbdb2de82485fe481586099",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -701,8 +701,8 @@
     },
     {
       "relative_path": "light/expressions/41_work_empty.png",
-      "bytes": 481255,
-      "sha256": "cc7a341ccab28f76906bb2a2992c1d5f2a2db7245be8a7d2cda4ec79757c494a",
+      "bytes": 480782,
+      "sha256": "bc6c4339497c3cfac206cd7ac71c5503c252519f635e6b43c183e1edc8aa1705",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -717,8 +717,8 @@
     },
     {
       "relative_path": "light/expressions/42_work_disgusted.png",
-      "bytes": 482204,
-      "sha256": "51f947b6b4168683b56c8b5e650a28268cc4af26dcf1b000cf84cf4c569985c1",
+      "bytes": 481805,
+      "sha256": "26400c710960c1285a377b92dd0e895e7dbcd2aa676f4dd7d3d08b8ec59eb015",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -797,8 +797,8 @@
     },
     {
       "relative_path": "dark/expressions/02_casual_happy.png",
-      "bytes": 488368,
-      "sha256": "8ac9087a6502c02e69f315f9bb28b2b0cf1e80bb74b1b27ef8dee31d07408c75",
+      "bytes": 488043,
+      "sha256": "01aff9df2cb73611c35c1219cfce26d514467b961c5c94817da8c54bdcfe3ca5",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -813,8 +813,8 @@
     },
     {
       "relative_path": "dark/expressions/03_casual_smug.png",
-      "bytes": 488337,
-      "sha256": "47a2cc30369da708cffd50afe63d356823e80d0828270658eba24f929f076eea",
+      "bytes": 488102,
+      "sha256": "c0b0f59309c644420f9f1ae4a3877312ee70bb3ae68a2b4b0ce0e9bc3c141243",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -829,8 +829,8 @@
     },
     {
       "relative_path": "dark/expressions/04_casual_teasing.png",
-      "bytes": 488609,
-      "sha256": "79a4712708aad554fc8216c384374b11b3e4b4fcafdafb143ace77b77a17bd39",
+      "bytes": 488449,
+      "sha256": "c364b9da8b8f26bcdcc1c9fa95bb6a6f38b22de77cbb8f847b1863da4ec16742",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -845,8 +845,8 @@
     },
     {
       "relative_path": "dark/expressions/05_casual_thinking.png",
-      "bytes": 488764,
-      "sha256": "5822bc36fec4ea0727d410e3bce70190d418a1fd5abb318e3ff4c868cb73a11b",
+      "bytes": 488536,
+      "sha256": "390629fdc82ee41162a9c0ded457c5eb340f22bcb96410ad2b72d923bb6ff78b",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -861,8 +861,8 @@
     },
     {
       "relative_path": "dark/expressions/06_casual_curious.png",
-      "bytes": 488828,
-      "sha256": "71cb8099891e1d6396f77214e7bb11311469220e02eda110cd22b99bc6c7fbec",
+      "bytes": 488685,
+      "sha256": "c96d56111a80786d0a5f954dfbf78896b24e19869d2c36b436e80060a52a9d9c",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -877,8 +877,8 @@
     },
     {
       "relative_path": "dark/expressions/07_casual_unamused.png",
-      "bytes": 487659,
-      "sha256": "4a68802f417bf2659a68a3234b0026cfb9a2d06df837b4156d771ad5846f17c6",
+      "bytes": 487350,
+      "sha256": "9083ec510e4472eb0a6de7a0231dcff7c87bfe01d3e809ff7ef1bd227faa5bb6",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -893,8 +893,8 @@
     },
     {
       "relative_path": "dark/expressions/08_casual_annoyed.png",
-      "bytes": 488491,
-      "sha256": "988240fdf5f584dfa0befaf64c54338a80a0cca9b132a252629ca4f19cd1f30b",
+      "bytes": 488191,
+      "sha256": "1279929b6b3c3e3eaaf02580c570087ac3ae69d5d995fb6aa3d55a8ffce3d1e0",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -909,8 +909,8 @@
     },
     {
       "relative_path": "dark/expressions/09_casual_frustrated.png",
-      "bytes": 488514,
-      "sha256": "a7258425460110fd6f170664a1e01f619555f136ececbfede6ebd951f21e1ae3",
+      "bytes": 488130,
+      "sha256": "03acace0ae7ccf0a469a8ff1f43ee6a2ef3cf9ec6fae877598ec332193041a91",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -925,8 +925,8 @@
     },
     {
       "relative_path": "dark/expressions/10_casual_angry.png",
-      "bytes": 488606,
-      "sha256": "470c7f4a03b789479b855d22c8af50ef10557cde1ef40e6e5948af4a04baa85c",
+      "bytes": 488396,
+      "sha256": "78ac21d925e705794abb1f598cc185ae74f307ae23382dbae62934bedd5ad9b0",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -941,8 +941,8 @@
     },
     {
       "relative_path": "dark/expressions/11_casual_sad.png",
-      "bytes": 488282,
-      "sha256": "ffdbbcaeb28eae28a883e625ed49fd14befb183889926ddc1e14409fc35a9f33",
+      "bytes": 487989,
+      "sha256": "515b8a3241a18f8edb9d855130e941667e0a24a83b0ab4652e99fc5d8918ebef",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -957,8 +957,8 @@
     },
     {
       "relative_path": "dark/expressions/12_casual_crying.png",
-      "bytes": 489503,
-      "sha256": "e21e9ff1367b08b6b1c03d49e3779fff8378f5e4ea8732aeb9ce8eaf4ff94fdd",
+      "bytes": 489234,
+      "sha256": "bcd0dca288d615ee050829888ed319d9c40b61ea813798077c1db48264304497",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -973,8 +973,8 @@
     },
     {
       "relative_path": "dark/expressions/13_casual_embarrassed.png",
-      "bytes": 489041,
-      "sha256": "ae4eeaa7a1be4ad22a2fab74e5ed0c147dfdd2aa26743c2e51b3aba4f5a42898",
+      "bytes": 488838,
+      "sha256": "3c19d600a8d3767b61cc3ad48847ea10dadfcd640c0d349fd908bf5fa6ae2036",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -989,8 +989,8 @@
     },
     {
       "relative_path": "dark/expressions/14_casual_nervous.png",
-      "bytes": 488420,
-      "sha256": "7d712987d3e4c7fb22ed8012b590e782a60d20baad5ff4d40c840783d400c2dc",
+      "bytes": 488128,
+      "sha256": "f45308215dc6557f9dfe54a4b97c4897160579b69c4b9e7b38ace5f929a6bea3",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1005,8 +1005,8 @@
     },
     {
       "relative_path": "dark/expressions/15_casual_worried.png",
-      "bytes": 488732,
-      "sha256": "7339ba6b10d4b5b2525d1c39c54a9edd601e29e0c72ff2d3bd7e66593a3f830c",
+      "bytes": 488465,
+      "sha256": "ba3586cbd106d1d2518325ca3a34c028121d7479d80809bdd39f9e52e7fc180b",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1021,8 +1021,8 @@
     },
     {
       "relative_path": "dark/expressions/16_casual_shocked.png",
-      "bytes": 488930,
-      "sha256": "02611c0db97be3740b5da91c4302246f3d4555e012ee6e648a8cce3b3ebb86c6",
+      "bytes": 488892,
+      "sha256": "3c5a51b1b38a101b89ea623a6d618331fab8dbcb8e0feed4025094eb4c97cf21",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1037,8 +1037,8 @@
     },
     {
       "relative_path": "dark/expressions/17_casual_afraid.png",
-      "bytes": 489059,
-      "sha256": "f339d465c481fbdc43ff02319a22def1ee066a08ebbba1f63c189c104ac38471",
+      "bytes": 488844,
+      "sha256": "e822b97e33119469f6d30312a6545f3474e376bd4aef1a0756b2dd5c03ea8c9d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1053,8 +1053,8 @@
     },
     {
       "relative_path": "dark/expressions/18_casual_panicked.png",
-      "bytes": 489996,
-      "sha256": "a4dd610d5cb1a9dc035f9c3eb6383e4a4742f0f8afb90ac113c6f2b54ff173f9",
+      "bytes": 489805,
+      "sha256": "6f63dba7489374efadc914a0d3267db381fd27af40843672483e5011d30cbe06",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1069,8 +1069,8 @@
     },
     {
       "relative_path": "dark/expressions/19_casual_determined.png",
-      "bytes": 488921,
-      "sha256": "56aa3f44e26507bd4efd525f7f3d6cc8a9e2ed99e1c1e305a4c0b9ea7415b77d",
+      "bytes": 488678,
+      "sha256": "804b56a592c06fb7da9b08639b61a07cdcdcd65623176c53ad63f8592801203a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1085,8 +1085,8 @@
     },
     {
       "relative_path": "dark/expressions/20_casual_empty.png",
-      "bytes": 487261,
-      "sha256": "a19aa2270acffbc331407bbc9a9e9b9d530b6941193f337a87b33b003f5f9bd9",
+      "bytes": 487018,
+      "sha256": "2f7aaf0bf9e4887be8fc11222a7162d07200c7ec2d0610ce123e9afc3ec3b5c9",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1101,8 +1101,8 @@
     },
     {
       "relative_path": "dark/expressions/21_casual_disgusted.png",
-      "bytes": 488377,
-      "sha256": "a5c7bb929dd914e5f6beae686a8271e9dbe7bae72c33c62a9ae928de8dfeb24e",
+      "bytes": 488203,
+      "sha256": "314164e4d9187ed79f198629ef4bd709e977f771529c54f05d92555b1b64f720",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1133,8 +1133,8 @@
     },
     {
       "relative_path": "dark/expressions/23_work_happy.png",
-      "bytes": 484747,
-      "sha256": "8d8fd4b7f7969baa9b8c17e6e4e4b3cf99a3f8f36bbcb00d070ccc1a20938b6b",
+      "bytes": 484466,
+      "sha256": "b5c7bf3df3d16b451fa791cc0d113129b7dea0c3544d923511bb14e137db0a82",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1149,8 +1149,8 @@
     },
     {
       "relative_path": "dark/expressions/24_work_smug.png",
-      "bytes": 483842,
-      "sha256": "ca646262ffb5db8ac149bae6a93b87517216cb9ee46ec5d1de8177cf5895bc62",
+      "bytes": 483516,
+      "sha256": "512c62e5220e3b8892f4ed0006d00f589ae8ad8718fa8daf36c3d4d6c66a7fd6",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1165,8 +1165,8 @@
     },
     {
       "relative_path": "dark/expressions/25_work_teasing.png",
-      "bytes": 484000,
-      "sha256": "e1ff1083baa3f01e045e3e0decd18d56dd918eeb141ed2c81aa4a5648b1ef914",
+      "bytes": 483645,
+      "sha256": "73f2b2df970412abe8ebd33c1dc92da469ed6d4b2cda56cc0f937baaf28f2d18",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1181,8 +1181,8 @@
     },
     {
       "relative_path": "dark/expressions/26_work_thinking.png",
-      "bytes": 484325,
-      "sha256": "306b603c20637d806976c9843260d89d5a567fed6b489eb6cb7dec05f0716ff1",
+      "bytes": 483879,
+      "sha256": "64e0725d0b17befdd9bbbbde8916efcfde430d6d36a7301bfca2ce1571c4c96d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1197,8 +1197,8 @@
     },
     {
       "relative_path": "dark/expressions/27_work_curious.png",
-      "bytes": 484223,
-      "sha256": "444b20f310fc1bce4917d323acf0fae9dbdfc0db6b42345c9fd653c19aff5c5b",
+      "bytes": 483880,
+      "sha256": "e8338d5d72fa2f2f9bbe66ab7f39aa45e3a9e777fb666c235b7551f8ffcbb1e0",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1213,8 +1213,8 @@
     },
     {
       "relative_path": "dark/expressions/28_work_unamused.png",
-      "bytes": 483011,
-      "sha256": "504ebc038d5cbfd6b2e13ffbefc09d4b5d838be180cbc1e3bb4f878a597f8a9a",
+      "bytes": 482610,
+      "sha256": "d45d94a74eb6a7b1af62319f63ad58b5e63baffc62edde0f8ab27592a65b1a06",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1229,8 +1229,8 @@
     },
     {
       "relative_path": "dark/expressions/29_work_annoyed.png",
-      "bytes": 483896,
-      "sha256": "8bd6f8d68493cb6c26768c3448cbddb21a9e3a81d8927b2683646222a4d8f1c3",
+      "bytes": 483505,
+      "sha256": "236d552becd77f3b04bfa6fd288faf0e44779fd53347e6f58d474cdc8807ea07",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1245,8 +1245,8 @@
     },
     {
       "relative_path": "dark/expressions/30_work_frustrated.png",
-      "bytes": 484408,
-      "sha256": "63ec4c534ac766626ddd6124321bf2ade51eb090253ddd422336ed4714b8a55b",
+      "bytes": 484023,
+      "sha256": "2f8256078535178a1f2e33eea9662217e6d9294594b446382c17a4b63127a171",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1261,8 +1261,8 @@
     },
     {
       "relative_path": "dark/expressions/31_work_angry.png",
-      "bytes": 484128,
-      "sha256": "9db542db9176c2f6384dcfe1c0d0c184474f356efa808fd2d4c1ddd28a7b6694",
+      "bytes": 483829,
+      "sha256": "a8ed8358773ec530a09d4e81e7803bcc87e23a40e9d71356a12897accf2be890",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1277,8 +1277,8 @@
     },
     {
       "relative_path": "dark/expressions/32_work_sad.png",
-      "bytes": 483861,
-      "sha256": "4ac48ed23e54f14f21bba5b401b224b6d1fb73f53a8eb1cfa444f7c68f660bdb",
+      "bytes": 483410,
+      "sha256": "396369505f52d0d412a8ba410200378bb1313eb3c2a3cd11b16f15f476510ec3",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1293,8 +1293,8 @@
     },
     {
       "relative_path": "dark/expressions/33_work_crying.png",
-      "bytes": 484488,
-      "sha256": "c486473fad83aabd17b061ef09b9a5ba15017e1d69df1efea807a7f4c4d46bbc",
+      "bytes": 484001,
+      "sha256": "83184270ad55a2da8d5de03114ab28723a8e2ee3908a81384ae6dea6f6b691f8",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1309,8 +1309,8 @@
     },
     {
       "relative_path": "dark/expressions/34_work_embarrassed.png",
-      "bytes": 484457,
-      "sha256": "8d7a78f7ced803fd7d5c5361ae33f61942d0fa03db84eba5cdc298b70b08cd62",
+      "bytes": 484152,
+      "sha256": "94379eda06bfb3e8f086f6bd66ff46b1e6266ad1849dc85e6911c333a6d8d0d5",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1325,8 +1325,8 @@
     },
     {
       "relative_path": "dark/expressions/35_work_nervous.png",
-      "bytes": 483856,
-      "sha256": "b93801f7e9c4d3511f5526e8e1d976d131e4e5c28726117029938d2529e99dc5",
+      "bytes": 483476,
+      "sha256": "001ad5a331025cff64914ae3d150a3758da01f6823d3a64a1bc57fb30c933199",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1341,8 +1341,8 @@
     },
     {
       "relative_path": "dark/expressions/36_work_worried.png",
-      "bytes": 484012,
-      "sha256": "efaedf05ae2c718aadb66e88671043726ba83957e4f69d96aa66183c6e16921f",
+      "bytes": 483556,
+      "sha256": "6e66f89f8a7044bdea187d5a55f50a43f58270be728acea927c5f000d792c42e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1357,8 +1357,8 @@
     },
     {
       "relative_path": "dark/expressions/37_work_shocked.png",
-      "bytes": 484876,
-      "sha256": "ebf105f1618aaefa0fe498a0f1250d0dd7a2fe21eee550caaa3bf7f7823f9344",
+      "bytes": 484717,
+      "sha256": "c4ae6c4d7e1500e80049dd0333f47eb483e487fea1982ecdc005cf9cb4090a53",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1373,8 +1373,8 @@
     },
     {
       "relative_path": "dark/expressions/38_work_afraid.png",
-      "bytes": 484902,
-      "sha256": "e6ab2a1d25d53ea2b88f481ee785c3f1f019a405d69c020c36102ee31a09057b",
+      "bytes": 484589,
+      "sha256": "cd1e7e06aa0b3ca5b6f16ec92949857c71395143346f5424ea9ad9a9c82160e7",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1389,8 +1389,8 @@
     },
     {
       "relative_path": "dark/expressions/39_work_panicked.png",
-      "bytes": 485332,
-      "sha256": "5a200ddb2185393411a1a65bfaafbad3ec2ce5d08539a773f2e2d151d51df904",
+      "bytes": 484995,
+      "sha256": "b5d1025088c6d3e55928ae6a874711c2bc443f6efc37a180e8dce8686fad71ba",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1405,8 +1405,8 @@
     },
     {
       "relative_path": "dark/expressions/40_work_determined.png",
-      "bytes": 484249,
-      "sha256": "5dc7c473ae5382ff8c433eb96f24b0f2d3d111fefb966fd4c679e729d1e87020",
+      "bytes": 483797,
+      "sha256": "1ef086e6ec190ead0755e0a3bb956d5db4c1cad2171241f96a2c70a557856844",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1421,8 +1421,8 @@
     },
     {
       "relative_path": "dark/expressions/41_work_empty.png",
-      "bytes": 482626,
-      "sha256": "d9697da50f9948bdc2373b1a55fb2f7f596879831a47bf412d13a56b4a8336b9",
+      "bytes": 482135,
+      "sha256": "4150a282ef2f22d36fbb363818ec26233052d237adac8513c253f62890b08174",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1437,8 +1437,8 @@
     },
     {
       "relative_path": "dark/expressions/42_work_disgusted.png",
-      "bytes": 483614,
-      "sha256": "de7f0e6a4b876ba6b656efa8fa92846c350590dd7d8cfc0501cbe5e078643797",
+      "bytes": 483212,
+      "sha256": "7c2c10e3809bcd0794ca76e4f4ecec4f89b1da2682aff1ea47838c46d386a8f0",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1517,8 +1517,8 @@
     },
     {
       "relative_path": "checker/expressions/02_casual_happy.png",
-      "bytes": 489314,
-      "sha256": "7e4a162f9a15ed928bd187944639142b49cae5c07ba504b60c40f2435ab3909d",
+      "bytes": 488997,
+      "sha256": "08a5c86bb366c3c21e6219544185c1ca5bc700e8190a9a73c60a6b3007b74b1f",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1533,8 +1533,8 @@
     },
     {
       "relative_path": "checker/expressions/03_casual_smug.png",
-      "bytes": 489234,
-      "sha256": "3a03fdaca63e6c4ffd2c93ba6c799e859d157aea0157ef975bf01e2446a57ff6",
+      "bytes": 488965,
+      "sha256": "5b781ca9af6d29416bec3fdb080393b85694b435b07f9bdff17939aba91c9daa",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1549,8 +1549,8 @@
     },
     {
       "relative_path": "checker/expressions/04_casual_teasing.png",
-      "bytes": 489596,
-      "sha256": "ed3add0b5c6fbae29e6ff1cfb223c34f157faa0a962e96da127e97c2a62922e8",
+      "bytes": 489450,
+      "sha256": "a0b2e1072e21f59154712400cb6f04bbc33d32463c357de9150d63d425e9939e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1565,8 +1565,8 @@
     },
     {
       "relative_path": "checker/expressions/05_casual_thinking.png",
-      "bytes": 489811,
-      "sha256": "d10b0d22f93fcbf7529159b7a65a68f14a11a5a00faa456e58ebd25b8eda4e05",
+      "bytes": 489579,
+      "sha256": "404ed3e8df5e1f2f738604e1cd7fd8467e8d39ddb4b5b68dd2bb16cef54959e4",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1581,8 +1581,8 @@
     },
     {
       "relative_path": "checker/expressions/06_casual_curious.png",
-      "bytes": 489853,
-      "sha256": "c7d40ce4ed30b0f753bb0a0fe0db44480b1c08c0fef438e405632b23094ea2a0",
+      "bytes": 489712,
+      "sha256": "256a1df28b771e7503e69f4cfd1501e65a7d295db2b6b4e4e0e43df98dc209e1",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1597,8 +1597,8 @@
     },
     {
       "relative_path": "checker/expressions/07_casual_unamused.png",
-      "bytes": 488494,
-      "sha256": "88f366069e57ab5d3a9cc7d6fe90d89a0b1f8c9f4db1bbf5d41295703376c113",
+      "bytes": 488154,
+      "sha256": "776e1e9bc159fa5b66999a96f552b339dfe297ad5ef8e79c570946d1020d333b",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1613,8 +1613,8 @@
     },
     {
       "relative_path": "checker/expressions/08_casual_annoyed.png",
-      "bytes": 489421,
-      "sha256": "f4dd0cfcf855afb0251d8dfeceddf480577f79d6fb2ff146f69175bc06967b17",
+      "bytes": 489119,
+      "sha256": "08c238cddfa2baf49a49a6a191b576815f1fdf618e60c8b9cedf5fe0eccf64b6",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1629,8 +1629,8 @@
     },
     {
       "relative_path": "checker/expressions/09_casual_frustrated.png",
-      "bytes": 489473,
-      "sha256": "b80923e362f47238ccdc608fb5712026e95b704418b98cf8385bedb917a99446",
+      "bytes": 489108,
+      "sha256": "9d06715a4d333d1a44bc2021d441ad61e461c2fc3faf039b2d684046031e9f67",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1645,8 +1645,8 @@
     },
     {
       "relative_path": "checker/expressions/10_casual_angry.png",
-      "bytes": 489583,
-      "sha256": "81367614d8bd9fe13d2d8972fcf08f05abd4296e047bd5af2db75896c3e350e0",
+      "bytes": 489325,
+      "sha256": "2221abf094174719f9d3e6585b0a6a2239c2505da6cdd1d6637d16bfe2b53310",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1661,8 +1661,8 @@
     },
     {
       "relative_path": "checker/expressions/11_casual_sad.png",
-      "bytes": 489224,
-      "sha256": "5146af3523d31a294a5fc79540894444b6e029316b13ffb2465b1fc0570d998e",
+      "bytes": 488926,
+      "sha256": "882d8f3b925ba811e1af7ee39944080d2f2f902074be9960fd6daf5bcc8245ea",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1677,8 +1677,8 @@
     },
     {
       "relative_path": "checker/expressions/12_casual_crying.png",
-      "bytes": 490478,
-      "sha256": "4d1fa9842653bad427e77d4d392f8fb517b604e792609a5baf626695fe5bceaf",
+      "bytes": 490239,
+      "sha256": "4d0bffa8c130be022a63a729c23a993d75179d2f6bc5e78d482e59f8038d66f2",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1693,8 +1693,8 @@
     },
     {
       "relative_path": "checker/expressions/13_casual_embarrassed.png",
-      "bytes": 489937,
-      "sha256": "6a51434d476cd3d7181bfbfb130b0f11a990bab8f9a2aa162e8335ed2c577319",
+      "bytes": 489787,
+      "sha256": "6298802c96a46807768ec2d32a4afdf65936f1ba02a04595218d0a45763da845",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1709,8 +1709,8 @@
     },
     {
       "relative_path": "checker/expressions/14_casual_nervous.png",
-      "bytes": 489372,
-      "sha256": "45195e3e9bc0a6528d5ddf48ec0e94e401ddd62f19fd613ab58857e7102d0346",
+      "bytes": 489064,
+      "sha256": "f5d2daf3e7da3d02a4ce8cfb20f67a8f3d24e6fd25aabae7047fd5a9a6b76174",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1725,8 +1725,8 @@
     },
     {
       "relative_path": "checker/expressions/15_casual_worried.png",
-      "bytes": 489780,
-      "sha256": "56c62e81b8f9c8bed8a8d91a6744048c1df55b18b854565432b62c9c1163b90a",
+      "bytes": 489502,
+      "sha256": "e2787d27016e9990660c3b575f3f51d305b20beab9ec32fbab286330f86cc328",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1741,8 +1741,8 @@
     },
     {
       "relative_path": "checker/expressions/16_casual_shocked.png",
-      "bytes": 490001,
-      "sha256": "a2b9aa232b3c211535c25e85eb93cb712ee707bc7098a384ebf436e0624afca8",
+      "bytes": 489986,
+      "sha256": "9f809b52a3ccf5ee8efd752411763a12ab2f52ed86411fe39a1e45bfc0c7b5f3",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1757,8 +1757,8 @@
     },
     {
       "relative_path": "checker/expressions/17_casual_afraid.png",
-      "bytes": 490054,
-      "sha256": "33a43db8fa1a8900f20171ec58efe3673e62a2feea4d5067076dd1f9330e572e",
+      "bytes": 489811,
+      "sha256": "3754ef117faaf7f0bf2e7105ac219ba17c845f604511b012901a7d33f95371ac",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1773,8 +1773,8 @@
     },
     {
       "relative_path": "checker/expressions/18_casual_panicked.png",
-      "bytes": 490995,
-      "sha256": "5941e75cd87da6f1fcd12bbc625c5666314e11b45344ddeca87e8f0c826d6407",
+      "bytes": 490835,
+      "sha256": "18c16a00c5ea97c1cac7101c95e5d786fce0434ea7c40f969f4448794d57867f",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1789,8 +1789,8 @@
     },
     {
       "relative_path": "checker/expressions/19_casual_determined.png",
-      "bytes": 489891,
-      "sha256": "1eaa11858237101a03c2b073b822e1d38271fb0a775b77b68600917cda89d061",
+      "bytes": 489676,
+      "sha256": "592b96f5bb2112218534cc2b7d9b01e5f9d0e2da18d3045bc6277bbf1f99ddc8",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1805,8 +1805,8 @@
     },
     {
       "relative_path": "checker/expressions/20_casual_empty.png",
-      "bytes": 488072,
-      "sha256": "93decc50728012a9b0d1970ca8971767f05e9557bfe3e851cbdd0416c1c3fed3",
+      "bytes": 487837,
+      "sha256": "dd12aeef3e15f789ec858173b023b3a056d5c744a0632dc6439f488938ae099c",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1821,8 +1821,8 @@
     },
     {
       "relative_path": "checker/expressions/21_casual_disgusted.png",
-      "bytes": 489340,
-      "sha256": "1117a529c7e4d24f0de7154205c9eb4b6ccfdde19f51e5857edbb99ea0728c9b",
+      "bytes": 489155,
+      "sha256": "b1986041c45e8c3babee1ae65a92b39cb2d225e5bc10d1bfc5a9f915e992709a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         434,
@@ -1853,8 +1853,8 @@
     },
     {
       "relative_path": "checker/expressions/23_work_happy.png",
-      "bytes": 484804,
-      "sha256": "7b17975465b6f9caee1ec1620322eccfae7b5372479490e5976bd4e7b3929bfd",
+      "bytes": 484548,
+      "sha256": "712a9c793e3648de8bd2c59dbc059dcc0778571e8a485863c03017d4d77302f3",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1869,8 +1869,8 @@
     },
     {
       "relative_path": "checker/expressions/24_work_smug.png",
-      "bytes": 483909,
-      "sha256": "491ac1f667558f2df36c673bcf5fd2ab2de2c8bc10f3e2aa829c56423a5f37de",
+      "bytes": 483614,
+      "sha256": "560b98a74d71e148799c868526b4ca5066a47959756c8294b67bf9d13bd2b54a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1885,8 +1885,8 @@
     },
     {
       "relative_path": "checker/expressions/25_work_teasing.png",
-      "bytes": 484073,
-      "sha256": "6bd9b2caf03d52009dd8cd4da998737092a191e46fe95db21afb761151e93668",
+      "bytes": 483752,
+      "sha256": "b2e11061c54f9429659f339e326923fe29e7fd076b99f9ffee09a097d2cc6e46",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1901,8 +1901,8 @@
     },
     {
       "relative_path": "checker/expressions/26_work_thinking.png",
-      "bytes": 484364,
-      "sha256": "5c6103d57def5d867d97a4bbbd16f999b09068f160d7c17cbb0162cef46a6484",
+      "bytes": 483984,
+      "sha256": "d5c4a1c94f7948f316d18ee8d1a09f6d2f8fa043d6d0ef77775e6482267bfc79",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1917,8 +1917,8 @@
     },
     {
       "relative_path": "checker/expressions/27_work_curious.png",
-      "bytes": 484359,
-      "sha256": "e694026706861a94dc1e485f6ead2c68acd37d62e82cb1b09b0571d87e840417",
+      "bytes": 484025,
+      "sha256": "a64e40c511369bc690c6ace8ce8a8fdd00ee2f033afa52fb1f5691e4aa72e64a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1933,8 +1933,8 @@
     },
     {
       "relative_path": "checker/expressions/28_work_unamused.png",
-      "bytes": 483129,
-      "sha256": "ddd035cf8c9cde9805e6473895a4fa02fbe3166ae12658182f04aea33db7d3fa",
+      "bytes": 482698,
+      "sha256": "3068e1b390be57e2f35e93592cfa1bc95647acaea128dcb3fb4bc2456c1cb71b",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1949,8 +1949,8 @@
     },
     {
       "relative_path": "checker/expressions/29_work_annoyed.png",
-      "bytes": 484063,
-      "sha256": "8428cea6a60205008f8310f94284246c40c9bcb6f109d5d0e2cf297eb220dee3",
+      "bytes": 483655,
+      "sha256": "f45c47647b1092229363ecc4eeba3af42cb32e8d426cfed1428f9ac10ea17006",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1965,8 +1965,8 @@
     },
     {
       "relative_path": "checker/expressions/30_work_frustrated.png",
-      "bytes": 484455,
-      "sha256": "3eb5a18c53edd3677f1d0780d7824c6819c667c656a25a9d3f55212eed694236",
+      "bytes": 484125,
+      "sha256": "6184f715a365702341ebd2df2d47ee23f285b4a773382852b005ca1249db2ec2",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1981,8 +1981,8 @@
     },
     {
       "relative_path": "checker/expressions/31_work_angry.png",
-      "bytes": 484344,
-      "sha256": "01081f3b89915ce1f74f5aa9c420fee26986ec9972156653333d9abd20694626",
+      "bytes": 484028,
+      "sha256": "3b8ff5439a3b7ee8163bc4f126ddb6b8fe9bd4b799b1b7ec77ffbabc176d4723",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -1997,8 +1997,8 @@
     },
     {
       "relative_path": "checker/expressions/32_work_sad.png",
-      "bytes": 484000,
-      "sha256": "bdc803841d233609985b35df671b9775564ade88ffe5b27b44850098cc344e34",
+      "bytes": 483565,
+      "sha256": "3877f3d1bda33da9c8584e8a78d62d3de37ea1e4569c3d710620307d2cf76e7e",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2013,8 +2013,8 @@
     },
     {
       "relative_path": "checker/expressions/33_work_crying.png",
-      "bytes": 484680,
-      "sha256": "d8edc8d8198fcf6e90946a5a827269a93059d433e846d8d415dc16b8e1644a8b",
+      "bytes": 484170,
+      "sha256": "acdf3817f6945612df06420c87bd37485b530493638b35a93c38c777ece73d4d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2029,8 +2029,8 @@
     },
     {
       "relative_path": "checker/expressions/34_work_embarrassed.png",
-      "bytes": 484636,
-      "sha256": "929debff9a9490b1f1d70e9fa41d7336ae9071e6f9e27d3555a85483ca9a6d49",
+      "bytes": 484343,
+      "sha256": "dcce2e1b38f0cab6ee1029e79687250f858cecede871771841c67b7e7e7e5af7",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2045,8 +2045,8 @@
     },
     {
       "relative_path": "checker/expressions/35_work_nervous.png",
-      "bytes": 483965,
-      "sha256": "7b3081865597b9c3ec56d788200b502951e2e02ed58b6672fe0d770744153648",
+      "bytes": 483590,
+      "sha256": "f8a5c9d8f064b534fe44d8387395b8ee89d210bb9aad37555b0f858a94e30a6a",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2061,8 +2061,8 @@
     },
     {
       "relative_path": "checker/expressions/36_work_worried.png",
-      "bytes": 484173,
-      "sha256": "f44ecbde341f1ed2b0875084469afb6598667fd92568fa430c8396350cca21ac",
+      "bytes": 483729,
+      "sha256": "0117288329252ef999a51d75b51208dfffb99b9d77e491b39b33eb15a5196222",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2077,8 +2077,8 @@
     },
     {
       "relative_path": "checker/expressions/37_work_shocked.png",
-      "bytes": 485043,
-      "sha256": "30bc5a5f532acff2c2ccc22f55424e06689c361132f9c4b0c029f3d1ee75d04c",
+      "bytes": 484871,
+      "sha256": "f63aa5f9d195239a458ebf8fc7c97968bea91827fce497fc0084e7e2f38b2531",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2093,8 +2093,8 @@
     },
     {
       "relative_path": "checker/expressions/38_work_afraid.png",
-      "bytes": 485096,
-      "sha256": "5053c8c14d850a7ac823058245f916bd9eb21e8f00d6c03ee6cfe101136ec5d3",
+      "bytes": 484755,
+      "sha256": "a7e34149c3bfadba5851569ce6f65ef0ff412e1049fbf5ee996db194e084cd84",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2109,8 +2109,8 @@
     },
     {
       "relative_path": "checker/expressions/39_work_panicked.png",
-      "bytes": 485539,
-      "sha256": "0f878b07f7eb5822103f3fa5bd95d8668fe7111aeef730ec7cad7b26e5f9fe70",
+      "bytes": 485164,
+      "sha256": "4a1f0c2e8baffbc88dc01566932a93f44910d330ca8d0780bfefac65653aa868",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2125,8 +2125,8 @@
     },
     {
       "relative_path": "checker/expressions/40_work_determined.png",
-      "bytes": 484412,
-      "sha256": "b36df323e90c38961331f998f8edc11fcdff47ec9b6f9f93bd06ed2effd4b31b",
+      "bytes": 483968,
+      "sha256": "e369f520bdc873351578690694e25e0e4734de600c3ba80c6d3194e673b4430d",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2141,8 +2141,8 @@
     },
     {
       "relative_path": "checker/expressions/41_work_empty.png",
-      "bytes": 482758,
-      "sha256": "032d7373ef8a8b7937e97ee7559c1a44f609673d967e5cedbe48ec00640b503e",
+      "bytes": 482291,
+      "sha256": "1f9eedcba715203fc14644a77bc7f603bfda8c6c5afa327c4a1170851b0059f1",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,
@@ -2157,8 +2157,8 @@
     },
     {
       "relative_path": "checker/expressions/42_work_disgusted.png",
-      "bytes": 483742,
-      "sha256": "64dd08c3653d7f2fcfbb50ab2ab07301818db99628a02a55035224963fdd7d01",
+      "bytes": 483331,
+      "sha256": "c9a8c4c2a66f4d403561e9bc269b234b34ac3b46d2a4d87e214ed103c67e90b7",
       "background_samples_verified": 30,
       "foreground_bbox_xyxy_exclusive": [
         433,

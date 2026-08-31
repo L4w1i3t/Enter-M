@@ -250,15 +250,6 @@ init python:
         persistent.exam_guard_key = key
         persistent.exam_guard_subject = subject
 
-        # Lock in the save-scum achievements NOW, while the scum is still counted.
-        # This state (exam_save_scum_subjects) is wiped by exam_guard_reset_for_new_game()
-        # on the next New Game, so waiting for the Archive to sync would lose it.
-        # ach_lock writes into the permanent persistent.ach_earned set; running it
-        # before save_persistent() below means it is saved in the same pass.
-        _ach_lock = globals().get("ach_lock", None)
-        if _ach_lock:
-            _ach_lock("caught_once", "scum_two")
-
         renpy.save_persistent()
         renpy.block_rollback()
 

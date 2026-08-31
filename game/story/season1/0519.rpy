@@ -6,7 +6,6 @@ label a0519:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     # SFX SUGGESTION: A phone alarm that repeats insistently rather than stopping after one ring.
     "The alarm goes off at the responsible hour, and I meet it the way I meet most responsible things: by ignoring it until that's no longer an option. My phone buzzes against the nightstand like it already knows it'll win."
     "I drag it off the charger and squint at a screen brighter than anything else at this hour."
@@ -118,7 +117,6 @@ label a0519:
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
     play music quiz
-    window auto
     "Monday officially enters the room wearing fluorescent lights and a lecture schedule."
     "Civics is already underway by the time my brain accepts that the weekend is over."
     "The teacher has written two annoying words on the board, then underlined them until the chalk started giving up."
@@ -207,7 +205,8 @@ label a0519:
     mc "..."
     mc "...Are you good?"
     show monika forward uniform dist cm oe nobl rdown ldown
-    m forward uniform dist cm oe nobl rdown ldown "Always."
+    m forward uniform dist om oe nobl rdown ldown "Always."
+    show monika forward uniform dist cm oe nobl rdown ldown
     "The answer arrives before the question has finished settling. I keep looking at her until she lowers her eyes to the bread wrapper."
     mc "That's not what I asked."
     "Her thumb smooths a crease that is already flat. Her eyes return to the hallway clock."
@@ -310,7 +309,7 @@ label a0519:
     mc "...No."
     show matsuda uniform teasing
     ma "Then I accept your apology."
-    mc "I didn't apologize???"
+    mc "I didn't apologize?!"
     ma "Spiritually, you did."
     "There she is again, but quieter. Manageable, at the very least."
     mc "It's good. The combat feels better than the demo, and the story's doing that thing where it pretends to be simple before showing a knife."
@@ -323,6 +322,9 @@ label a0519:
     show matsuda happy
     "Her smile returns without Saturday's stage lights."
     ma "Good to know."
+    ma curious "Should I document the approved volume settings?"
+    mc "Please don't make a spreadsheet about me."
+    ma teasing "Right. A field guide, then."
     show matsuda neut
     ma "Anyway. I'm heading to the store before it closes."
     mc "...The store's open until nine."
@@ -340,7 +342,7 @@ label a0519:
     "Seeing as how I have no pressing concerns, I follow suit. At least, that is until the front door."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "I asked Matsuda to dial it down. She actually did, and what felt like twenty years later she verbally contorted into a different persona entirely."
+    nier "I asked Matsuda to dial it down. She actually did, and the conversation survived without the bard doing most of the lifting."
     call nier_clear from _call_nier_clear_0519_5
     stop music fadeout 1.0
     pause 2.0

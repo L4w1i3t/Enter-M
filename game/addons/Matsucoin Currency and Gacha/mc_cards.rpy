@@ -21,10 +21,10 @@
 #          run when you last saw it.
 #
 # ART IS REFERENCED, NEVER COPIED
-#   Cards point at sprites and mode art that already ship. Nothing in this
-#   feature adds an image file, which is why a 42-card set was affordable at
-#   all -- and it means a card is automatically consistent with the thing it
-#   depicts, because it IS the thing it depicts.
+#   Card ILLUSTRATIONS point at sprites and mode art that already ship. The
+#   collection screen owns one separate binder-prop asset, but the 41 faces do
+#   not duplicate source art. That keeps the set small and makes every card
+#   consistent with the thing it depicts, because it IS the thing it depicts.
 #
 # PIXEL SOURCES
 #   Three cards (the 16-bit Kotonoha and both marionette Tsubaki phases) use
@@ -95,9 +95,9 @@ init -4 python:
         id      : permanent ledger key. Never recycle or rename a shipped one.
         rarity  : "r" / "sr" / "ssr".
         name    : what the card is called.
-        subject : grouping key for the binder's sidebar -- normally a roster id,
-                but "seer"/"archivist"/"school" for the ones that are not a
-                cast member in their own right.
+        subject : grouping key for the binder's dividers -- normally a roster
+                id, but "seer"/"archivist"/"school" for the ones that are not
+                a cast member in their own right.
         flavor  : one line under the art. Written to be readable by someone who
                 has not reached that content yet: no card spoils its own
                 source, the same rule the Side Stories list follows.
@@ -179,18 +179,6 @@ init -4 python:
         McCard("r_matsuda_uniform", "r", "School Uniform", "matsuda",
             "Second period. She has already decided how today goes.",
             "matsuda uniform smug", focus=0.02),
-        McCard("r_matsuda_chuuni", "r", "Full Chuuni", "matsuda",
-            "The pose came first. The reason will be along shortly.",
-            "matsuda uniform pose_chuuni", focus=0.05),
-        McCard("r_matsuda_facepalm", "r", "Not Again", "matsuda",
-            "You did the thing. She saw you do the thing.",
-            "matsuda uniform pose_facepalm", focus=0.05),
-        McCard("r_matsuda_shrug", "r", "Search Me", "matsuda",
-            "An answer shaped exactly like not having one.",
-            "matsuda uniform pose_shrug", focus=0.05),
-        McCard("r_matsuda_laughing", "r", "Genuinely Funny", "matsuda",
-            "Rare, and over before you can check whether it was real.",
-            "matsuda casual pose_laughing", focus=0.05),
         McCard("r_matsuda_convention", "ssr", "Forever Young", "matsuda",
                 "Gotta go all out on anime conventions, right?",
                 "assets/characters/matsuda/convention_fullbody.png"),
@@ -289,32 +277,11 @@ init -4 python:
         # The two superseded archetype plates. They are in the build, they are
         # real art, and they are no longer what those two look like -- which is
         # exactly the kind of thing this Archive keeps.
-        McCard("sr_arch_mc_old", "sr", "The Spellblade (Revision A)", "mc",
-            "An earlier draft of the same swordsman. Still filed.",
-            MC_ARCH + "mcspellbladeold.png", focus=0.03, aspect=MC_A_TALL),
-        McCard("sr_arch_asahina_old", "sr", "The Halberdier (Revision A)", "asahina",
-            "Before the redesign. She kept the reach.",
-            MC_ARCH + "asahalberdierold.png", focus=0.03, aspect=MC_A_TALL),
 
         McCard("sr_koto_16bit", "sr", "Sixteen Bits", "kotonoha",
             "Sixty pixels tall and the hardest read in the building.",
             MC_KOTO + "archive/kotobosssprite_legacy.png",
             focus=0.0, aspect=60.0 / 102.0, pixel=True),
-
-        McCard("sr_tsubaki_post", "sr", "Metamorphosis", "tsubaki",
-            "Whatever was being saved up finished arriving.",
-            "tsubaki post_neut", focus=0.02),
-        McCard("sr_tsubaki_revelation", "sr", "Revelation", "tsubaki",
-            "She worked something out. It did not improve her mood.",
-            "tsubaki post_revelation", focus=0.02),
-
-        McCard("sr_asahina_terror", "sr", "Come Home Immediately", "asahina",
-            "One text. She has read it four times.",
-            "asahina uniform terror", focus=0.02),
-
-        McCard("sr_mom_cardigan", "sr", "Off the Clock", "mom",
-            "The cardigan, the couch, and nobody left to be composed for.",
-            "mom wasted", focus=0.02),
 
         McCard("sr_purg_girl", "sr", "The Girl in Purgatorium", "purg",
             "She has been in this classroom longer than the classroom has.",
@@ -322,9 +289,6 @@ init -4 python:
         McCard("sr_purg_day7", "sr", "Day Seven", "purg",
             "Six days of composure, spent.",
             "purg_girl_day7", focus=0.03, aspect=1024.0 / 1536.0),
-        McCard("sr_purg_yukata", "sr", "Festival Night", "purg",
-            "A summer that is not going to happen, dressed for.",
-            "purg_girl_yukata", focus=0.03, aspect=1024.0 / 1296.0),
 
         # ===== SSR -- what was at the other end of a fight ===================
         McCard("ssr_seer_1", "ssr", "Ontological Seer", "seer",
@@ -357,15 +321,18 @@ init -4 python:
             aspect=376.0 / 336.0, scale=0.86, fit="contain"),
 
         McCard("ssr_inv_biography", "ssr", "BIOGRAPHY", "archivist",
-            "It is not trying to kill her. It is trying to finish the entry.",
+            "It is trying to finish the entry.",
             MC_INV + "biography.png", focus=0.03, aspect=MC_A_TALL),
         McCard("ssr_inv_horror", "ssr", "HORROR", "archivist",
-            "It is not wearing anyone. It brought its own light.",
+            "It brought its own light.",
             MC_INV + "horror.png", focus=0.05, scale=1.05, aspect=1.0),
         McCard("ssr_inv_nonfiction", "ssr", "NONFICTION", "archivist",
             "Whatever it cannot corroborate does not get to have happened.",
             MC_INV + "nonfiction.png", focus=0.03,
             aspect=1024.0 / 1536.0),
+        McCard("ssr_inv_mystery", "ssr", "MYSTERY", "archivist",
+            "Elucidation.",
+            MC_INV + "mystery.png", focus=0.05, scale=1.05, aspect=MC_A_TALL),
     ]
 
     MC_CARD_BY_ID = {c.id: c for c in MC_CARDS}
@@ -377,7 +344,7 @@ init -4 python:
         for rarity in MC_RARITY_ORDER
     }
 
-    # -- SUBJECT GROUPS (the binder's sidebar) --------------------------------
+    # -- SUBJECT GROUPS (the binder's divider index) --------------------------
     # Ordered deliberately, not alphabetically: the cast in roster order, then
     # the three groups that are not a single cast member.
     MC_SUBJECTS = [
@@ -394,6 +361,21 @@ init -4 python:
         ("purg",      "PURGATORIUM"),
         ("school",    "SCHOOL"),
     ]
+    MC_SUBJECT_LABEL = dict(MC_SUBJECTS)
+
+    # Binder groupings are immutable catalog data. Build and sort them once at
+    # init instead of filtering and allocating the same lists every interaction.
+    _MC_CARD_RARITY_SORT = {
+        rarity: index for index, rarity in enumerate(reversed(MC_RARITY_ORDER))
+    }
+    MC_CARDS_BY_SUBJECT = {
+        subject: tuple(sorted(
+            (card for card in MC_CARDS if card.subject == subject),
+            key=lambda card: (
+                _MC_CARD_RARITY_SORT.get(card.rarity, 9), card.name),
+        ))
+        for subject, _label in MC_SUBJECTS
+    }
 
     # -------------------------------------------------------------------------
     # COLLECTION ACCESS
@@ -459,24 +441,24 @@ init -4 python:
     # -- census ---------------------------------------------------------------
     def mc_collection_counts(rarity=None):
         """(owned, total) over the whole catalog or one tier."""
+        _mc_ensure_cards()
         pool = MC_CARDS if rarity is None else MC_CARDS_BY_RARITY.get(rarity, [])
-        return (sum(1 for c in pool if mc_card_owned(c.id)), len(pool))
+        owned = persistent.mc_cards_owned
+        return (sum(1 for c in pool if c.id in owned), len(pool))
 
     def mc_subject_counts(subject):
-        pool = [c for c in MC_CARDS if c.subject == subject]
-        return (sum(1 for c in pool if mc_card_owned(c.id)), len(pool))
+        _mc_ensure_cards()
+        pool = MC_CARDS_BY_SUBJECT.get(subject, ())
+        owned = persistent.mc_cards_owned
+        return (sum(1 for c in pool if c.id in owned), len(pool))
 
     def mc_cards_for(subject):
         """A subject's cards, rarest first, so a group's best sits at the top."""
-        order = {r: i for i, r in enumerate(reversed(MC_RARITY_ORDER))}
-        return sorted(
-            (c for c in MC_CARDS if c.subject == subject),
-            key=lambda c: (order.get(c.rarity, 9), c.name),
-        )
+        return MC_CARDS_BY_SUBJECT.get(subject, ())
 
 
     # -------------------------------------------------------------------------
-    # CARD ART
+    # CARD ART + PHYSICAL EXTERIOR
     # One builder for both the machine and the binder, so a card is framed
     # identically wherever it is drawn.
     #
@@ -499,7 +481,20 @@ init -4 python:
     # against.
     # -------------------------------------------------------------------------
     MC_CARD_BASE = "#0b0818"
+
+    # The illustration is only one layer of a card now. These authored shells
+    # provide the printed stock, corner hardware, engraved tier language and
+    # footer seal; names and archive metadata stay live in mc_card_face so they
+    # remain sharp at every runtime size. All three masters share this aperture.
+    MC_CARD_SHELLS = {
+        "r": "assets/gui/cards/card_shell_r.png",
+        "sr": "assets/gui/cards/card_shell_sr.png",
+        "ssr": "assets/gui/cards/card_shell_ssr.png",
+    }
+    MC_CARD_ART_BOX = (0.119, 0.111, 0.762, 0.602)
+
     _MC_ART_CACHE = {}
+    _MC_FRONT_CACHE = {}
 
     def _mc_cover(img, w, h, aspect, focus, xfocus, zoom):
         """Scale `img` so it COVERS (w, h) (times `zoom`), then crop back to
@@ -569,6 +564,85 @@ init -4 python:
         )
         _MC_ART_CACHE[key] = out
         return out
+
+    def mc_card_front(card, w, h):
+        """A complete physical card front, exactly ``(w, h)`` and opaque.
+
+        Shells are shared per rarity rather than baked per card. The existing
+        crop cache therefore still does the expensive source work once per
+        card/size, while this second cache prevents rebuilding the same
+        Composite during screen prediction and interaction restarts.
+        """
+        w, h = int(w), int(h)
+        key = (card.id, w, h)
+        hit = _MC_FRONT_CACHE.get(key)
+        if hit is not None:
+            return hit
+
+        ax = int(round(w * MC_CARD_ART_BOX[0]))
+        ay = int(round(h * MC_CARD_ART_BOX[1]))
+        aw = max(1, int(round(w * MC_CARD_ART_BOX[2])))
+        ah = max(1, int(round(h * MC_CARD_ART_BOX[3])))
+
+        # Clamp rounding at tiny sizes so the art can never cross the card edge.
+        aw = min(aw, w - ax)
+        ah = min(ah, h - ay)
+        shell_path = MC_CARD_SHELLS.get(
+            card.rarity, MC_CARD_SHELLS["r"])
+        shell = Transform(shell_path, xysize=(w, h), fit="fill")
+        # Composite declares a canvas size but does not clip a child that renders
+        # beyond it. Crop is the actual aperture boundary; without it tall
+        # sprites escaped over the shell footer in the inspection overlay.
+        art = Crop((0, 0, aw, ah), mc_card_art(card, aw, ah))
+
+        out = Composite(
+            (w, h),
+            (0, 0), Solid(MC_CARD_BASE, xysize=(w, h)),
+            (0, 0), shell,
+            (ax, ay), art,
+        )
+        _MC_FRONT_CACHE[key] = out
+        return out
+
+    def mc_card_title_size(card, h):
+        """Tier-independent title sizing for the optional on-card nameplate."""
+        # The binder's physical 3x4 sleeves are only 96 px wide. Its compact
+        # title treatment uses a one-pixel outline; inspection cards retain the
+        # full display size and heavier glow.
+        if h < 200:
+            return 6
+
+        size = max(6, int(round(float(h) * 0.050)))
+        length = len(card.name)
+        if length > 34:
+            size = max(5, int(round(size * 0.72)))
+        elif length > 24:
+            size = max(6, int(round(size * 0.84)))
+        return size
+
+    def mc_card_display_title(card, h):
+        """Return a binder-safe title without changing the canonical card name."""
+        name = card.name
+        if h >= 200:
+            return name
+
+        # Separators denote editions, so the edition is the useful distinction
+        # at thumbnail scale ("Encore", "Second M.", and so on).
+        if "//" in name:
+            name = name.rsplit("//", 1)[1].strip()
+        if name.lower().startswith("the "):
+            name = name[4:]
+
+        # Tiny nameplates should look intentionally abbreviated, never like a
+        # full title that was accidentally sheared by the shell rails.
+        if len(name) > 12:
+            words = [word for word in name.replace(":", " ").split()
+                    if word.lower() not in ("a", "in")]
+            if len(words) > 1:
+                name = words[0][:9] + " " + words[-1][0] + "."
+            elif words:
+                name = words[0][:12]
+        return name
 
     # -------------------------------------------------------------------------
     # DEV

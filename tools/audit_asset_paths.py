@@ -28,11 +28,13 @@ LEGACY_COMPATIBILITY_FILES = {
 LEGACY_DIRECTORIES = (
     "game/mod_assets",
     "game/images",
+    "game/assets/images",
     "game/gui",
     "game/bgm",
     "game/sfx",
 )
 LEGACY_LITERAL_PREFIXES = (
+    "assets/images/",
     "mod_assets/",
     "images/",
     "gui/",

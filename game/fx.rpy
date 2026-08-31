@@ -81,40 +81,40 @@
 
 image noise:
     truecenter
-    "assets/images/bg/noise1.jpg"
+    "assets/backgrounds/noise1.jpg"
     pause 0.1
-    "assets/images/bg/noise2.jpg"
+    "assets/backgrounds/noise2.jpg"
     pause 0.1
-    "assets/images/bg/noise3.jpg"
+    "assets/backgrounds/noise3.jpg"
     pause 0.1
-    "assets/images/bg/noise4.jpg"
+    "assets/backgrounds/noise4.jpg"
     pause 0.1
     xzoom -1
-    "assets/images/bg/noise1.jpg"
+    "assets/backgrounds/noise1.jpg"
     pause 0.1
-    "assets/images/bg/noise2.jpg"
+    "assets/backgrounds/noise2.jpg"
     pause 0.1
-    "assets/images/bg/noise3.jpg"
+    "assets/backgrounds/noise3.jpg"
     pause 0.1
-    "assets/images/bg/noise4.jpg"
+    "assets/backgrounds/noise4.jpg"
     pause 0.1
     yzoom -1
-    "assets/images/bg/noise1.jpg"
+    "assets/backgrounds/noise1.jpg"
     pause 0.1
-    "assets/images/bg/noise2.jpg"
+    "assets/backgrounds/noise2.jpg"
     pause 0.1
-    "assets/images/bg/noise3.jpg"
+    "assets/backgrounds/noise3.jpg"
     pause 0.1
-    "assets/images/bg/noise4.jpg"
+    "assets/backgrounds/noise4.jpg"
     pause 0.1
     xzoom 1
-    "assets/images/bg/noise1.jpg"
+    "assets/backgrounds/noise1.jpg"
     pause 0.1
-    "assets/images/bg/noise2.jpg"
+    "assets/backgrounds/noise2.jpg"
     pause 0.1
-    "assets/images/bg/noise3.jpg"
+    "assets/backgrounds/noise3.jpg"
     pause 0.1
-    "assets/images/bg/noise4.jpg"
+    "assets/backgrounds/noise4.jpg"
     pause 0.1
     yzoom 1
     repeat
@@ -125,9 +125,18 @@ transform noise_alpha:
 # THE project vignette. One definition, project-wide. atmosphere.rpy also draws
 # a vignette, but as a term inside its grade shader rather than as a
 # displayable -- that is not a duplicate and must not be "unified" with this.
+#
+# SOURCED AT 480x270 AND SCALED ON THE GPU. The full-size file is a pure alpha
+# ramp -- RGB is zero across every pixel, and it is smooth enough that a 480px
+# source reconstructs it to a MEASURED maximum error of 2/255, before the 0.34
+# alpha every call site draws it at takes even that below one part in 255. At
+# 1280x720 it cost 15.5ms to decode, which was the second largest single item
+# in the Arcade hub's cold open; at 480x270 it is under 2ms, on all three
+# screens that use it. assets/backgrounds/vignette.png is the original and is
+# no longer loaded -- kept because it is the only copy, not because it is used.
 image vignette:
     truecenter
-    "assets/images/bg/vignette.png"
+    Transform("assets/backgrounds/vignette_soft.png", xysize=(1280, 720))
 
 transform yuripupils_move:
     function yuripupils_function

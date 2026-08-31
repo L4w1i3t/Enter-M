@@ -26,7 +26,6 @@ label a0520:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "I stand at the counter with a glass of water and a packet of allergy medicine."
     "{i}Trees reproduce one time and suddenly they've chosen violence.{/i}"
     mc "You can do it, pill. Just like we practiced..."
@@ -302,6 +301,9 @@ label a0520:
     show asahina teasing
     ah "Pretty firetruckin' hard."
     mc "The committee has spoken. Thank you both."
+    "The third-party controller drops another input. Sam watches it happen, then holds out his own."
+    sa casual teasing "Trade. If you lose now, it can be personal."
+    "I take it. The next input lands."
     "My phone buzzes against my leg. Probably Matsuda, sending another progress report from whatever digital battlefield she has thrown herself into."
     "I leave it alone."
     "The round ends with Asahina winning by a margin that feels medically suspicious."
@@ -360,7 +362,7 @@ label a0520:
     ah "It was fine."
     mc "That's your it-was-fun voice."
     show asahina embarrassed
-    ah "Shut your whole mouth!"
+    ah "Shut your whole freaking mouth!"
     "I am four steps up the stairs by the time she recovers."
     $ hide_calendar()
     scene black with wipeleft_scene
@@ -382,7 +384,7 @@ label a0520:
         ]
     call phone_text_conversation("Matsuda Akai", _phone_messages, append=True) from _call_phone_text_conversation_0520_3
     "I put the thread down and rub my eyes."
-    "Tomorrow has track practice, and next Monday has midterms. Somewhere downstairs, Asahina is probably texting Sam the parts of tonight I did not need to hear in real time."
+    "Tomorrow has track practice for the first time in a while, and next Monday has midterms. Somewhere downstairs, Asahina is probably texting Sam the parts of tonight I did not need to hear in real time."
     play sound moddooropen
     "Mom finally gets home. I only catch the front door through the small gap beneath mine."
     $ hide_calendar()

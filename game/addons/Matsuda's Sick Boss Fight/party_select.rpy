@@ -413,8 +413,8 @@ screen msbf_party_select():
 
     use msbf_arena_static(1, 0.68)
 
-    key "game_menu" action ShowMenu("save")
-    key "K_ESCAPE" action ShowMenu("save")
+    key "game_menu" action ShowMenu("data_bank", start_mode="write")
+    key "K_ESCAPE" action ShowMenu("data_bank", start_mode="write")
     use msbf_nav_keys(_nav_up, _nav_down, _nav_prev, _nav_next, _act_confirm, _act_back)
 
     # =========================================================================

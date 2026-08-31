@@ -3,45 +3,37 @@
 # =============================================================================
 #
 # WHAT THIS FILE IS
-#   The sixth Archive module: a tiered achievement / completion checklist. It is
-#   reached from the Archive hub (game/archive.rpy) just like Roster, CG Gallery,
-#   Music Room, Side Stories and Lost Records, and it deliberately reuses that
-#   hub's shared chrome (archive_backdrop / archive_header / the archive_sv
-#   scrollbar / the chip + meta text styles) so it reads as the same subsystem.
+#   The sixth Archive module: a deliberately small trophy list for the content
+#   that is actually playable right now. It is reached from the Archive hub
+#   (game/archive.rpy) and reuses that hub's shared chrome.
 #
 # TWO KINDS OF ACHIEVEMENT, ONE CODE PATH
 #   * DERIVED  -- an `earned` predicate (or a `flag` name) evaluated against state
-#                 the game already persists (exam-guard scum flags, kotomode
-#                 records, id_mode_unlocked, the cs_*_unlocked and
-#                 archive_unlocked_music flags, and the Archive's three
-#                 collections: CGs seen, outfits worn, roster slots identified).
-#                 These need NO extra hooks: they light up the moment their
-#                 underlying state is met and ach_sync() next runs.
-#   * EXPLICIT -- granted by a single ach_grant("id") call dropped at a story beat
-#                 for things nothing else persists (the Id Mode superboss clear;
-#                 the Monika date-mode win). These fire an instant toast.
+#                 the game already persists. These let old saves and developer
+#                 state reconcile safely whenever ach_sync() runs.
+#   * EXPLICIT -- granted by ach_grant("id") at the exact ending, victory or
+#                 collection beat. Every live trophy has BOTH paths: the exact
+#                 event makes the award immediate, while the derived condition
+#                 makes it impossible for a completed objective to stay missed.
 #
-# HOW EARNING WORKS (persistence + platinum)
+# HOW EARNING WORKS
 #   persistent.ach_earned is a *set of ids that have been locked in*. Once an id
 #   is in that set it stays earned forever, even if the underlying derived flag
-#   later resets (the exam-guard flags, for instance, are wiped on a new game).
-#   ach_sync() evaluates every condition, locks in the newly-true ones, and queues
-#   a toast for each. PLATINUM is defined as "every non-platinum achievement is in
-#   ach_earned", so it auto-fires the instant the last other one is earned.
+#   later resets. ach_sync() evaluates every condition, locks in newly-true ones,
+#   and queues a toast for each. There is intentionally no Platinum yet: the UI's
+#   "more trophies on the way" readout is an indicator, not an earnable row.
 #
 # WHERE SYNC IS TRIGGERED (so derived unlocks are never missed)
 #   * config.after_load_callbacks -> ach_sync   (loading a save)
 #   * screen archive() / achievements() on "show" -> ach_sync
 #     (returning to the hub after a fight / side story catches those unlocks)
-#   * ach_grant() runs ach_sync afterwards so granting the last one trips platinum.
+#   * ach_grant() runs ach_sync afterwards so derived state from the same beat lands.
 #   Any system that wants an INSTANT derived toast can just call ach_sync() right
 #   after it flips its flag (see the cs_matsuda_02 victory hook for the pattern).
 #
 # EDITING THE CATALOG
-#   The whole catalog is the ACHIEVEMENTS list below -- add/cut/retier by editing
-#   one Achievement(...) line. Tiers: "bronze" / "silver" / "gold" / "platinum".
-#   Platinum is reserved for the single 100%-completion entry. Threshold targets
-#   marked "# TUNE" are first-pass guesses meant to be adjusted.
+#   The whole live catalog is the ACHIEVEMENTS list below. Retired ids may remain
+#   in old persistent sets, but only ids in this list render, count, toast or pay.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -63,12 +55,10 @@ default persistent.ach_earned = set()
 # just because the earned set was reset. REVOKE is the hard relock: it removes
 # the id from BOTH sets so the real trigger can be re-tested from scratch.
 default persistent.ach_history = set()
-# Toasts owed to the player that could not be shown when they were earned:
-# ach_lock() fires inside the exam-guard catch labels, which end in
-# renpy.utter_restart()/full_restart() -- that destroys any live toast AND
-# resets _ach_rt. Ids parked here (plain strings, safe to pickle) are drained
-# into the toast queue at the next main-menu interaction / after a load.
-default persistent.ach_toast_pending = []
+# Dedicated story-completion signal. Older builds used the Music Room unlock as
+# a proxy; _ach_ensure_store migrates that one-time historical state below.
+default persistent.chapter05_completed = False
+default persistent.ach_chapter05_migration_done = False
 
 init python:
 
@@ -81,19 +71,22 @@ init python:
             # version of this flag could be left OFF and silently kill all
             # derived earning (and every toast) in every later session.
             self.autounlock = True
+            # DEV, session-only: ids hard-revoked in the shop stay locked even
+            # when their persistent objective flag is already true. Every live
+            # objective has an exact ach_grant event hook; replaying that event
+            # clears the latch and proves the real award path still works.
+            self.retest = set()
 
     _ach_rt = _AchRuntime()
 
     # -- TIER TABLE -----------------------------------------------------------
     # color : the badge / rail fill.  glow : the brighter accent (progress fill,
-    # toast label).  Platinum is your UI's own cyan so it literally glows like
-    # the rest of the console.
-    ACH_TIER_ORDER = ["bronze", "silver", "gold", "platinum"]
+    # toast label).
+    ACH_TIER_ORDER = ["bronze", "silver", "gold"]
     ACH_TIERS = {
         "bronze":   {"label": "BRONZE",   "short": "B", "color": "#b9793f", "glow": "#e2a768"},
         "silver":   {"label": "SILVER",   "short": "S", "color": "#9fb0bd", "glow": "#dbe7ef"},
         "gold":     {"label": "GOLD",     "short": "G", "color": "#e0ac33", "glow": "#ffd45e"},
-        "platinum": {"label": "PLATINUM", "short": "P", "color": "#5fd3ef", "glow": "#a8f0ff"},
     }
 
     class Achievement(object):
@@ -119,236 +112,76 @@ init python:
             self.progress = progress
             self.cat = cat
 
-    # -- FLAG GROUPS the predicates lean on -----------------------------------
-    # Every group is READ FROM ITS OWNING CATALOG rather than copied here.
-    # A hand-kept copy goes stale the moment a story, a CG or an outfit is added
-    # or commented out, and a listed flag that no live content can ever flip
-    # makes its "collect them all" achievement -- and therefore platinum --
-    # unearnable.
-    #
-    # These are functions, not lists, because this file inits BEFORE the catalogs
-    # they read (same init priority, earlier filename), so nothing exists yet at
-    # definition time. Every caller is a predicate lambda evaluated later, so the
-    # lazy read costs nothing.
-    def _ach_side_story_flags():
-        return tuple(
-            story.persistent_key
-            for category in (globals().get("character_story_catalog") or ())
-            for story in category.stories
-            if story.persistent_key
-        )
+    # -- LIVE PROGRESS HELPERS ------------------------------------------------
+    ACH_CARD_TARGET = 30
 
-    # The stricter half of the same catalog: read-to-the-end, not just held.
-    def _ach_side_story_done_flags():
-        return tuple(
-            story.completed_key
-            for category in (globals().get("character_story_catalog") or ())
-            for story in category.stories
-            if story.completed_key
-        )
-
-    # The three collections that replaced "bring Archive modules online" once the
-    # Archive shell started shipping open (game/archive.rpy). Same lazy-read rule
-    # as the two groups above: this file inits before their owning catalogs.
-    def _ach_cg_flags():
-        fn = globals().get("cg_all_keys", None)
-        return fn() if fn else ()
-
-    def _ach_outfit_flags():
-        fn = globals().get("roster_outfit_keys", None)
-        return fn() if fn else ()
-
-    def _ach_roster_ids():
-        fn = globals().get("roster_gated_ids", None)
-        return fn() if fn else ()
-
-    def _ach_roster_progress(target=None):
-        ids = _ach_roster_ids()
-        met = getattr(persistent, "roster_met_ids", None) or ()
-        total = len(ids) if target is None else target
-        return (min(sum(1 for i in ids if i in met), total), total)
-
-    def _ach_count_true(flags):
-        return sum(1 for f in flags if getattr(persistent, f, False))
-
-    # `flags_fn` is one of the group readers above. Resolving it once per call
-    # keeps the "collect them all" pairs (earned + progress) from disagreeing,
-    # and the total > 0 guard means an empty catalog reads as 0/0 UNEARNED
-    # rather than trivially complete.
-    def _ach_progress(flags_fn, target=None):
-        flags = flags_fn()
-        total = len(flags) if target is None else target
-        return (min(_ach_count_true(flags), total), total)
-
-    def _ach_complete(flags_fn, target=None):
-        done, total = _ach_progress(flags_fn, target)
-        return total > 0 and done >= total
-
-    # A "get some of them" achievement must be a FRACTION of the catalog, never a
-    # hard number. side_half shipped asking for 5 side stories when 8 existed;
-    # at 20 stories that is a participation trophy, and if stories were ever cut
-    # below 5 it would be unearnable and would take platinum down with it.
-    def _ach_fraction_target(flags_fn, fraction):
-        total = len(flags_fn())
-        if not total:
-            return 0
-        return max(1, int(total * fraction + 0.5))
-
-    # Same "0/0 is UNEARNED, not trivially complete" rule, for the collections
-    # that hand back a (done, total) pair directly instead of a list of flags.
-    def _ach_complete_pair(progress_fn, *args):
-        done, total = progress_fn(*args)
-        return total > 0 and done >= total
-
-    def _ach_scum_count():
-        # exam_guard.rpy owns this; fall back to counting the flags directly so
-        # this module never hard-depends on that file loading first.
-        fn = globals().get("exam_guard_scum_count", None)
-        if fn:
+    def _ach_unique_card_count():
+        """Count owned cards against the live catalog when it is available."""
+        census = globals().get("mc_collection_counts", None)
+        if census is not None:
             try:
-                return fn()
+                return int(census()[0])
             except Exception:
                 pass
-        return len(getattr(persistent, "exam_save_scum_subjects", None) or [])
+        # Early-init/dev fallback for an interaction before mc_cards.rpy exists.
+        owned = getattr(persistent, "mc_cards_owned", None) or ()
+        if isinstance(owned, dict):
+            owned = owned.keys()
+        try:
+            return len(set(owned))
+        except Exception:
+            return 0
 
-    # -- THE CATALOG (first pass -- edit freely) ------------------------------
-    # TUNE targets: these two thresholds are placeholders until playtested.
-    ACH_KOTO_SCORE_TARGET = 15000000     # TUNE: Kotonoha-mode high score goal
-    ACH_KOTO_WAVE_TARGET  = 10         # TUNE: Endless-mode wave goal
+    def _ach_card_progress():
+        return (min(_ach_unique_card_count(), ACH_CARD_TARGET), ACH_CARD_TARGET)
+
+    def _ach_tsubaki_route_cleared(route):
+        """Read exact route history, with the old last-clear field as migration."""
+        cleared = getattr(persistent, "tsubamode_routes_cleared", None) or ()
+        return (route in cleared
+                or getattr(persistent, "tsubamode_outcome", None) == route)
+
+    # -- THE LIVE CATALOG ------------------------------------------------------
+    # Keep this list honest about the current build. More rows arrive alongside
+    # playable content; the roadmap indicator in the screen is not a trophy.
 
     ACHIEVEMENTS = [
-        # --- BRONZE : early / participation --------------------------------
-        # ARCHIVE tier, rewritten 2026-08. These used to count Archive MODULES
-        # ("bring any/every panel online"), which stopped meaning anything the
-        # moment five of the six panels started shipping open -- arch_first would
-        # have been earned on the title screen of a brand new save, and arch_full
-        # would have collapsed into a duplicate of music_on. The Archive's real
-        # progression now lives one level down, in what is inside each panel, so
-        # that is what these count.
-        Achievement("arch_first", "bronze", "Signal Acquired",
-            "Recover your first CG.",
-            earned=lambda: _ach_count_true(_ach_cg_flags()) >= 1, cat="ARCHIVE"),
-        Achievement("music_on", "bronze", "Now Playing",
-            "Restore the Music Room.",
-            flag="archive_unlocked_music", cat="ARCHIVE"),
-        # Was "records_open" (Lost Records access), which is now unconditional
-        # and so was free at boot. Renamed rather than repointed in place: an old
-        # profile keeps the retired id sitting in ach_earned, which is harmless
-        # (platinum only ever asks whether the LIVE ids are all present), and the
-        # new one correctly starts unearned.
-        Achievement("roster_all", "bronze", "Names to Faces",
-            "Put a name to everyone the registry has a slot for.",
-            earned=lambda: _ach_complete_pair(_ach_roster_progress),
-            progress=_ach_roster_progress, cat="ARCHIVE"),
-        Achievement("side_first", "bronze", "Between the Lines",
-            "Recover your first Side Story.",
-            earned=lambda: _ach_count_true(_ach_side_story_flags()) >= 1, cat="STORIES"),
-        Achievement("caught_once", "bronze", "The Exam Remembers",
-            "Try to take back an answer you already gave.",   # vague: exam save-scum
-            earned=lambda: _ach_scum_count() >= 1, cat="SECRET"),
-        Achievement("hina_donotread", "bronze", "obviously read",
-            "Some filenames are dares.",                       # vague: Hina's World DO_NOT_READ file
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("hina_donotread")
+        # --- BRONZE : main-story completion ---------------------------------
+        Achievement("music_on", "bronze", "Curtain Call (For Now)",
+            "Complete Chapter 0.5.",
+            flag="chapter05_completed", cat="STORY"),
 
-        # --- SILVER : real effort / hidden content -------------------------
-        Achievement("arch_full", "silver", "Full Spectrum",
-            "Recover every CG on record.",
-            earned=lambda: _ach_complete(_ach_cg_flags),
-            progress=lambda: _ach_progress(_ach_cg_flags),
-            cat="ARCHIVE"),
-        Achievement("wardrobe_all", "silver", "Costume Department",
-            "Catch every last one of them in every last thing they own.",
-            earned=lambda: _ach_complete(_ach_outfit_flags),
-            progress=lambda: _ach_progress(_ach_outfit_flags),
-            cat="ARCHIVE"),
-        Achievement("side_half", "silver", "Supporting Cast",
-            "Recover over half of the Side Stories.",
-            earned=lambda: _ach_complete(_ach_side_story_flags, _ach_fraction_target(_ach_side_story_flags, 0.5)),
-            progress=lambda: _ach_progress(_ach_side_story_flags, _ach_fraction_target(_ach_side_story_flags, 0.5)),
-            cat="STORIES"),
+        # --- SILVER : mode clears / collection milestone --------------------
         Achievement("beat_matsuda", "silver", "Boss? What Boss?",
-            "Win a fight some people insist never happened.",  # vague: Matsuda boss fight
+            "Beat the Matsuda boss fight on Normal Mode.",
             flag="id_mode_unlocked", cat="SECRET"),
         Achievement("koto_clear", "silver", "Eight Bars",
-            "Read the pattern all the way to the last one.",   # vague: Kotonoha Touhou mode
+            "Beat the Kotonoha Touhou mode.",
             flag="kotomode_cleared", cat="SECRET"),
-        Achievement("scum_two", "silver", "Pattern of Behavior",
-            "Push the same luck one time too many.",           # vague: exam bad-end path
-            earned=lambda: _ach_scum_count() >= 2, cat="SECRET"),
         Achievement("date_win", "silver", "Hard Pass",
-            "Mean every word of it, right to the end.",        # vague: Monika date mode (reject-to-win)
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("date_win")
-        Achievement("hina_tender", "silver", "Let Her Be Little",
-            "Leave the site the way you found her.",           # vague: Hina's World "tender" ending tone
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("hina_tender")
-        Achievement("same_coin", "silver", "Same Coin",
-            "See both faces.",                                 # vague: FINISH Tsubaki's "Heads" + "Tails"
-            # _completed, NOT _unlocked: the unlock flags are availability and
-            # get force-set by the dev all-content unlocks at boot / 0531.
-            earned=lambda: bool(getattr(persistent, "cs_tsubaki_01_completed", False)) and bool(getattr(persistent, "cs_tsubaki_02_completed", False)),
-            progress=lambda: (sum(1 for _f in ("cs_tsubaki_01_completed", "cs_tsubaki_02_completed") if getattr(persistent, _f, False)), 2),
-            cat="STORIES"),
-        Achievement("msbf_genres", "silver", "Genre Savvy",
-            "Beat the script at all three of its own games.",  # vague: phase-3 genre-shift microgames
-            earned=lambda: len(set(getattr(persistent, "msbf_micro_wins", None) or [])) >= 3,
-            progress=lambda: (min(len(set(getattr(persistent, "msbf_micro_wins", None) or [])), 3), 3),
-            cat="SECRET"),
-        Achievement("tsuba_fell", "silver", "Camellias Fall Whole",
-            "End the act nobody wrote the way camellias end.", # vague: Tsubaki mode, violence route
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("tsuba_fell")
-        Achievement("tsuba_spare", "silver", "Unstrung",
-            "Cut all five strings.",                            # Tsubaki mode, string-cut route
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("tsuba_spare")
+            "Beat the Monika date mode.",
+            flag="arcade_monika_cleared", cat="SECRET"),       # EXPLICIT + derived recovery
+        Achievement("cards_30", "silver", "Thirty of a Kind",
+            "Pull at least 30 unique cards.",
+            earned=lambda: _ach_unique_card_count() >= ACH_CARD_TARGET,
+            progress=_ach_card_progress, cat="COLLECTION"),
 
-        # --- GOLD : mastery / completion sweeps ----------------------------
-        # READ, not merely recovered. side_first and side_half are about
-        # collecting; the gold sweep should be about actually going through
-        # them, and recovery no longer distinguishes anybody -- the end of
-        # Chapter 0.5 hands over the whole catalog in one beat, so an
-        # availability-gated "The Whole Story" was earned by finishing the
-        # prologue without opening a single side story. Same reasoning as
-        # same_coin, which has always used the _completed flags.
-        Achievement("side_all", "gold", "The Whole Story",
-            "Read every Side Story to the end.",
-            earned=lambda: _ach_complete(_ach_side_story_done_flags),
-            progress=lambda: _ach_progress(_ach_side_story_done_flags),
-            cat="STORIES"),
-        Achievement("koto_score", "gold", "Pro Gamer",
-            "Post a frankly unreasonable score in the endless mode.",  # endless-mode score (matches blurb)
-            earned=lambda: int(getattr(persistent, "kotomode_endless_hiscore", 0) or 0) >= ACH_KOTO_SCORE_TARGET,
-            progress=lambda: (min(int(getattr(persistent, "kotomode_endless_hiscore", 0) or 0), ACH_KOTO_SCORE_TARGET), ACH_KOTO_SCORE_TARGET),
-            cat="SECRET"),
-        Achievement("koto_endless", "gold", "No Curtain Call",
-            "Refuse to let the encore end.",                   # vague: Endless-mode waves
-            earned=lambda: int(getattr(persistent, "kotomode_endless_wave", 0) or 0) >= ACH_KOTO_WAVE_TARGET,
-            progress=lambda: (min(int(getattr(persistent, "kotomode_endless_wave", 0) or 0), ACH_KOTO_WAVE_TARGET), ACH_KOTO_WAVE_TARGET),
-            cat="SECRET"),
+        # --- GOLD : alternate or route-specific clears ----------------------
         Achievement("matsuda_id", "gold", "She Swore She'd Never Build It",
-            "Beat the version that wasn't supposed to exist.", # vague: Id Mode superboss
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("matsuda_id")
-        Achievement("hina_guard", "gold", "No New Messages",
-            "See everything, let nothing in.",                 # vague: full Hina's World run, guest never warmed
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("hina_guard")
-        Achievement("msbf_no_downs", "gold", "No One Gets Written Out",
-            "Win the fight that never happened with the whole party still standing.",
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("msbf_no_downs")
-        Achievement("koto_nomiss", "gold", "Untouched",
-            "Read every bar without dropping a single life.",  # vague: Kotonoha-mode no-miss clear
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("koto_nomiss")
-        Achievement("koto_allcaps", "gold", "Eight Seals",
-            "Capture every spell card in a single reading.",   # vague: Kotonoha-mode all captures
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("koto_allcaps")
-        Achievement("date_flawless", "gold", "Never Once",
-            "Say no every time. All night.", # vague: date mode, zero slips
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("date_flawless")
-        Achievement("tsuba_mended", "gold", "The Needle of Noticing",
-            "Cut every string without FIGHT or reset.",         # Tsubaki pacifist, no FIGHT selection or re-entry
-            cat="SECRET"),                                     # EXPLICIT: ach_grant("tsuba_mended")
-
-        # --- PLATINUM : reserved for 100% ----------------------------------
-        Achievement("platinum", "platinum", "ENTER: Mastered",
-            "Earn every other achievement.",
-            cat="COMPLETION"),                                 # condition is special-cased
+            "Beat the Matsuda boss fight on Id Mode.",
+            flag="arcade_id_cleared", cat="SECRET"),           # EXPLICIT + derived recovery
+        Achievement("tsuba_spare", "gold", "Unstrung",
+            "Beat Tsubaki Soul through pacifism.",
+            earned=lambda: _ach_tsubaki_route_cleared("pacifist"),
+            cat="SECRET"),                                     # EXPLICIT + derived migration
+        Achievement("tsuba_violence", "gold", "Camellias Fall Whole",
+            "Beat Tsubaki Soul through violence.",
+            earned=lambda: _ach_tsubaki_route_cleared("violence"),
+            cat="SECRET"),                                     # EXPLICIT + derived migration
+        Achievement("tsuba_betrayal", "gold", "The Last Thread",
+            "Beat Tsubaki Soul through betrayal.",
+            earned=lambda: _ach_tsubaki_route_cleared("betrayal"),
+            cat="SECRET"),                                     # EXPLICIT + derived migration
     ]
 
     ACH_BY_ID = {a.id: a for a in ACHIEVEMENTS}
@@ -363,17 +196,26 @@ init python:
             persistent.ach_earned = set(getattr(persistent, "ach_earned", None) or [])
         if not isinstance(getattr(persistent, "ach_history", None), set):
             persistent.ach_history = set(getattr(persistent, "ach_history", None) or [])
+        # Full restarts construct this on the class, but keep Shift+R/hot-reload
+        # sessions safe when an older _AchRuntime instance is still alive.
+        if not isinstance(getattr(_ach_rt, "retest", None), set):
+            _ach_rt.retest = set(getattr(_ach_rt, "retest", None) or ())
         persistent.ach_history.update(persistent.ach_earned)
-        # MIGRATION (2026-07): "same_coin" briefly shipped keyed to the
-        # cs_tsubaki_*_unlocked AVAILABILITY flags, which the dev all-content
-        # unlocks force-set at boot -- so it self-granted on polluted saves.
-        # Revoke it (earned AND history, or history would re-earn it on the
-        # next sync) unless both _completed flags are honestly set.
-        if ("same_coin" in persistent.ach_earned or "same_coin" in persistent.ach_history):
-            if not (getattr(persistent, "cs_tsubaki_01_completed", False) and getattr(persistent, "cs_tsubaki_02_completed", False)):
-                persistent.ach_earned.discard("same_coin")
-                persistent.ach_history.discard("same_coin")
-
+        # Pre-rebuild profiles completed 0531 by unlocking the Music Room. Copy
+        # that historical fact ONCE, so moving the room's unlock later cannot
+        # move this trophy with it. The sentinel is also important in developer
+        # builds: after migration has been considered, using ALL SIDE CONTENT to
+        # open the Music Room cannot masquerade as completing Chapter 0.5.
+        if not getattr(persistent, "ach_chapter05_migration_done", False):
+            legacy_music_trophy = "music_on" in (
+                set(getattr(persistent, "ach_earned", None) or ())
+                | set(getattr(persistent, "ach_history", None) or ())
+            )
+            if (not getattr(persistent, "chapter05_completed", False)
+                    and getattr(persistent, "archive_unlocked_music", False)
+                    and (not config.developer or legacy_music_trophy)):
+                persistent.chapter05_completed = True
+            persistent.ach_chapter05_migration_done = True
     def ach_is_earned(a):
         _ach_ensure_store()
         aid = a.id if hasattr(a, "id") else a
@@ -390,19 +232,13 @@ init python:
                 counts[a.tier][0] += 1
         return counts
 
-    def ach_condition_met(a):
-        # Evaluate the achievement's OWN condition (not the locked-in set).
-        # Platinum stays strictly "all others CURRENTLY earned" -- it never
-        # carries over from history on its own.
-        if a.tier == "platinum":
-            return all(x.id in persistent.ach_earned
-                        for x in ACHIEVEMENTS if x.tier != "platinum")
-        # Ever earned before = the thing HAPPENED; a dev clear (or a volatile
-        # flag being wiped) doesn't un-happen it. This is what makes previously
-        # earned explicit/volatile achievements read READY after CLEAR ALL and
-        # re-earn on the next sync instead of demanding a replay.
-        if a.id in (getattr(persistent, "ach_history", None) or ()):
-            return True
+    def ach_raw_condition_met(a):
+        """Evaluate only the objective's persisted condition.
+
+        This deliberately ignores ach_history. Exact event hooks use it before
+        calling ach_grant(), so a developer clearing the card collection cannot
+        re-award Thirty of a Kind merely because it was earned in an older run.
+        """
         try:
             if a.earned is not None:
                 return bool(a.earned())
@@ -410,16 +246,35 @@ init python:
                 return bool(getattr(persistent, a.flag, False))
         except Exception:
             return False
-        return False   # explicit-only: only ever set via ach_grant
+        return False
+
+    def ach_condition_met(a):
+        # Evaluate the achievement's OWN condition (not the locked-in set), with
+        # history as the soft-reset recovery latch used by CLEAR ALL.
+        # Ever earned before = the thing HAPPENED; a dev clear (or a volatile
+        # flag being wiped) doesn't un-happen it. This is what makes previously
+        # earned explicit/volatile achievements read READY after CLEAR ALL and
+        # re-earn on the next sync instead of demanding a replay.
+        if config.developer and a.id in _ach_rt.retest:
+            return False
+        if a.id in (getattr(persistent, "ach_history", None) or ()):
+            return True
+        return ach_raw_condition_met(a)
+
+    def _ach_save_persistent():
+        """Best-effort durability for the handful of lifetime trophy writes."""
+        try:
+            renpy.save_persistent()
+        except Exception:
+            pass
 
     def ach_sync(notify=True):
         """Auto-unlock pass: evaluate all conditions and lock in newly-true ones
-        (non-platinum first so platinum can see them in the same pass).
-        EVERY newly-earned achievement gets a toast -- the queue plays them one
+        in catalog order. EVERY newly-earned achievement gets a toast -- the queue plays them one
         at a time -- UNLESS the pass unlocks more than ACH_TOAST_BATCH_MAX at
         once. That is a reconciliation (retrofitted save, dev reset with content
         already unlocked), not a moment, so it stays silent. One action tripping
-        two conditions (a story unlock + side_first, say) toasts both.
+        two conditions still toasts both.
         DEV: a no-op in developer builds while the dev shop's session-only
         AUTO-UNLOCK toggle is off; release builds always sync."""
         _ach_ensure_store()
@@ -427,17 +282,15 @@ init python:
             return []
         newly = []
         for a in ACHIEVEMENTS:
-            if a.tier == "platinum":
-                continue
             if a.id not in persistent.ach_earned and ach_condition_met(a):
                 persistent.ach_earned.add(a.id)
                 newly.append(a)
-        for a in ACHIEVEMENTS:
-            if a.tier != "platinum":
-                continue
-            if a.id not in persistent.ach_earned and ach_condition_met(a):
-                persistent.ach_earned.add(a.id)
-                newly.append(a)
+        if newly:
+            # Keep the two ledgers atomic. Previously history only absorbed a
+            # derived award on the *next* achievement interaction, leaving a
+            # small crash/quit window in which CLEAR ALL forgot it had happened.
+            persistent.ach_history.update(a.id for a in newly)
+            _ach_save_persistent()
         if notify and newly and len(newly) <= ACH_TOAST_BATCH_MAX:
             for a in newly:
                 ach_push_toast(a)
@@ -455,40 +308,44 @@ init python:
         return None
 
     def ach_grant(aid, notify=True):
-        """Explicit unlock from a story beat. Idempotent."""
+        """Explicit unlock from a story beat. Idempotent and durable."""
         _ach_ensure_store()
         a = ACH_BY_ID.get(aid, None)
-        if a is None or aid in persistent.ach_earned:
-            return
-        persistent.ach_earned.add(aid)
-        if notify:
-            ach_push_toast(a)
-        # A grant can complete the set -> let sync trip platinum (and anything
-        # else that just became true).
+        if a is None:
+            return False
+        newly = aid not in persistent.ach_earned
+        if newly:
+            persistent.ach_earned.add(aid)
+            persistent.ach_history.add(aid)
+            if notify:
+                ach_push_toast(a)
+        _ach_rt.retest.discard(aid)
+        # Always pick up derived conditions changed by the same story beat. The
+        # old early return skipped this cascade on a replay of an earned event.
         ach_sync(notify=notify)
+        if newly:
+            _ach_save_persistent()
+        return newly
 
-    def ach_lock(*ids):
-        """Lock in specific achievements whose condition is CURRENTLY met, and
-        DEFER their toasts. For VOLATILE derived state that gets wiped before
-        the Archive can sync -- the exam-guard scum flags are cleared on the
-        next New Game, so a caught save-scum must be recorded into the permanent
-        ach_earned set the instant it happens (see exam_guard_mark_scummed).
-        The toast CANNOT play here: the catch labels end in renpy.utter_restart()
-        (bad ending: full_restart), which kills a live toast mid-animation and
-        rebuilds _ach_rt -- and once the id sits in ach_earned, no later
-        ach_sync would ever toast it. So the ids are parked in the persistent
-        ach_toast_pending list and _ach_drain_pending() plays them at the title
-        screen the restart lands on (or right after a load).
-        Conditional on ach_condition_met so e.g. scum_two only locks at 2+."""
+    def ach_grant_if_met(aid, notify=True):
+        """Exact-event bridge for a derived objective.
+
+        The caller identifies the real completion beat (the card reveal closing,
+        for example); the persisted predicate remains the authority on whether
+        the objective is actually satisfied. Other derived state is reconciled
+        either way so this is a drop-in replacement for ach_refresh(). This is
+        intentionally a VOID wrapper: it is called through a screen Function
+        action, where a non-None result can terminate the interaction.
+        """
         _ach_ensure_store()
-        pending = list(getattr(persistent, "ach_toast_pending", None) or [])
-        for aid in ids:
-            a = ACH_BY_ID.get(aid, None)
-            if a is not None and aid not in persistent.ach_earned and ach_condition_met(a):
-                persistent.ach_earned.add(aid)
-                if aid not in pending:
-                    pending.append(aid)
-        persistent.ach_toast_pending = pending
+        a = ACH_BY_ID.get(aid, None)
+        if a is None:
+            return None
+        if ach_raw_condition_met(a):
+            ach_grant(aid, notify=notify)
+        else:
+            ach_sync(notify=notify)
+        return None
 
     def ach_dev_clear(notify=True):
         """DEV: wipe the earned set so toasts can be re-tested WITHOUT touching
@@ -501,13 +358,10 @@ init python:
         _ach_ensure_store()
         n = len(persistent.ach_earned)
         persistent.ach_earned = set()
-        persistent.ach_toast_pending = []
+        _ach_rt.retest.clear()
         del _ach_rt.queue[:]
         _ach_rt.started = None
-        try:
-            renpy.save_persistent()
-        except Exception:
-            pass
+        _ach_save_persistent()
         if notify:
             try:
                 renpy.notify("Cleared %d achievement(s)." % n)
@@ -534,25 +388,50 @@ init python:
         a = ACH_BY_ID.get(aid, None)
         if a is not None and aid not in persistent.ach_earned:
             persistent.ach_earned.add(aid)
+            persistent.ach_history.add(aid)
+            _ach_rt.retest.discard(aid)
             ach_push_toast(a)
+            _ach_save_persistent()
+        return None
+
+    def ach_dev_grant_all(notify=True):
+        """DEV: unlock the complete live catalog in one deterministic pass."""
+        _ach_ensure_store()
+        newly = [a for a in ACHIEVEMENTS if a.id not in persistent.ach_earned]
+        persistent.ach_earned.update(a.id for a in newly)
+        persistent.ach_history.update(a.id for a in newly)
+        _ach_rt.retest.clear()
+        del _ach_rt.queue[:]
+        _ach_rt.started = None
+        _ach_save_persistent()
+        if notify:
             try:
-                renpy.save_persistent()
+                renpy.notify("Granted %d achievement(s)." % len(newly))
             except Exception:
                 pass
+        renpy.restart_interaction()
         return None
 
     def ach_dev_revoke(aid):
-        """DEV: HARD relock -- removes the id from ach_earned AND ach_history,
-        so the achievement reads LOCKED and its REAL trigger must fire again.
-        (CLEAR ALL is the soft reset: it keeps history, so everything previously
-        earned stays READY and carries back over on sync.)"""
+        """DEV: hard relock for this session.
+
+        Removes both persistent ledgers and suppresses derived reconciliation
+        until the objective's exact ach_grant event runs again. The suppression
+        is intentionally session-only so a forgotten dev latch cannot leak into
+        a later player session. CLEAR ALL is the soft reset: it keeps history,
+        so everything previously earned stays READY and carries back on sync.
+        """
         _ach_ensure_store()
         persistent.ach_earned.discard(aid)
         persistent.ach_history.discard(aid)
-        try:
-            renpy.save_persistent()
-        except Exception:
-            pass
+        if aid in ACH_BY_ID:
+            _ach_rt.retest.add(aid)
+        was_current = bool(_ach_rt.queue and _ach_rt.queue[0] == aid)
+        _ach_rt.queue[:] = [queued for queued in _ach_rt.queue if queued != aid]
+        if was_current:
+            _ach_rt.started = None
+        _ach_save_persistent()
+        renpy.restart_interaction()
         return None
 
     def ach_dev_toggle_autounlock():
@@ -598,28 +477,6 @@ init python:
         # so a toast pushed mid-interaction appears immediately.
         renpy.restart_interaction()
 
-    def _ach_drain_pending(force=False):
-        """Play the toasts ach_lock() parked in persistent.ach_toast_pending.
-        Runs at the start of every interaction (config.interact_callbacks) but
-        only fires ON THE MAIN MENU -- the exam-guard catch labels still say a
-        couple of lines between ach_lock and their utter_restart, and draining
-        there would start a toast the restart then destroys, losing it for good.
-        Both restarts land on the title screen, so that is where delivery is
-        guaranteed. force=True (the after-load path) skips the gate: a load can
-        only happen from a menu, and afterwards the game is safely interactive."""
-        pending = getattr(persistent, "ach_toast_pending", None)
-        if not pending:
-            return
-        if not force and not renpy.get_screen("main_menu"):
-            return
-        persistent.ach_toast_pending = []
-        try:
-            renpy.save_persistent()
-        except Exception:
-            pass
-        for aid in pending:
-            ach_push_toast(aid)
-
     def _ach_toast_anim(trans, st, at):
         """ATL function on the toast card. Runs once per frame while a card is
         on screen: positions/fades it from wall-clock elapsed time, then pops
@@ -661,13 +518,12 @@ init python:
     if "achievement_toaster" not in config.always_shown_screens:
         config.always_shown_screens.append("achievement_toaster")
 
-    if _ach_drain_pending not in config.interact_callbacks:
-        config.interact_callbacks.append(_ach_drain_pending)
-
     # -- SYNC ON LOAD ---------------------------------------------------------
     def _ach_after_load():
         ach_sync()
-        _ach_drain_pending(force=True)
+        # Official Ren'Py guidance requires after-load callbacks that migrate or
+        # reconcile data to block rollback across the migration boundary.
+        renpy.block_rollback()
     if _ach_after_load not in config.after_load_callbacks:
         config.after_load_callbacks.append(_ach_after_load)
 
@@ -750,7 +606,6 @@ screen achievements():
     $ _ach_pct = int(round(100.0 * _ach_done / _ach_total)) if _ach_total else 0
     $ _ach_tc = ach_tier_counts()
     $ _ach_shown = [a for a in _ach_all if ach_filter == "all" or a.tier == ach_filter]
-    $ _ach_plat_done = ach_is_earned("platinum")
 
     frame:
         style "archive_shell_frame"
@@ -785,7 +640,7 @@ screen achievements():
                     xpos 0
                     yalign 0.5
 
-                    for _fk, _flabel in [("all", "ALL"), ("bronze", "BRONZE"), ("silver", "SILVER"), ("gold", "GOLD"), ("platinum", "PLATINUM")]:
+                    for _fk, _flabel in [("all", "ALL"), ("bronze", "BRONZE"), ("silver", "SILVER"), ("gold", "GOLD")]:
                         textbutton _flabel:
                             style "ach_filter_button"
                             action SetScreenVariable("ach_filter", _fk)
@@ -801,9 +656,9 @@ screen achievements():
                     # more. A dev affordance cut into a player screen is one the
                     # player can see the shape of; it lives on the Developer Hub
                     # (main menu, top-right, or F9) instead.
-                    text ("PLATINUM SECURED" if _ach_plat_done else "PLATINUM // LOCKED"):
+                    text "MORE TROPHIES // ON THE WAY":
                         style "archive_meta_text"
-                        color (ACH_TIERS["platinum"]["glow"] if _ach_plat_done else "#5d7886")
+                        color "#75f7ff"
                         yalign 0.5
 
             # ---- scrolling achievement list --------------------------------
@@ -896,6 +751,50 @@ screen achievements():
 
                                 null width 18
 
+                    # Roadmap indicator only: deliberately absent from
+                    # ACHIEVEMENTS, so it never counts against completion.
+                    if ach_filter == "all":
+                        frame:
+                            xsize 1116
+                            ysize 86
+                            background Solid("#07131acc")
+                            padding (0, 0)
+
+                            hbox:
+                                yfill True
+                                xfill True
+
+                                add Solid("#75f7ff") xysize (6, 86)
+                                null width 16
+
+                                vbox:
+                                    yalign 0.5
+                                    xsize 104
+                                    frame:
+                                        background Solid("#163746")
+                                        padding (10, 4)
+                                        xalign 0.5
+                                        text "FUTURE" style "archive_chip_off_text"
+
+                                null width 18
+
+                                vbox:
+                                    yalign 0.5
+                                    xsize 604
+                                    spacing 3
+                                    text "More Trophies on the Way" style "ach_row_title"
+                                    text "The trophy index will expand as new chapters and modes arrive." style "ach_row_blurb"
+
+                                null width 1 xfill True
+
+                                frame:
+                                    yalign 0.5
+                                    background Solid("#163746")
+                                    padding (12, 5)
+                                    text "IN DEVELOPMENT" style "archive_chip_off_text"
+
+                                null width 18
+
             # ---- footer ----------------------------------------------------
             fixed:
                 xsize 1150
@@ -906,7 +805,7 @@ screen achievements():
                     style "archive_footer_text"
                     xpos 13
                     yalign 0.5
-                text "PLATINUM = 100% COMPLETION":
+                text "MORE TROPHIES ARE ON THE WAY":
                     style "archive_footer_text"
                     xanchor 1.0
                     xpos 1150
@@ -971,13 +870,17 @@ screen ach_dev_shop():
                     style "ach_filter_button"
                     action Function(ach_dev_clear)
 
+                textbutton "GRANT ALL":
+                    style "ach_filter_button"
+                    action Function(ach_dev_grant_all)
+
                 textbutton "SYNC NOW":
                     style "ach_filter_button"
                     action Function(ach_refresh)
 
                 null width 1 xfill True
 
-                text "EARNED [_done]/%d  //  AUTO-UNLOCK is session-only  //  CLEAR ALL keeps READY history; REVOKE hard-relocks" % len(ACHIEVEMENTS):
+                text "EARNED [_done]/%d  //  AUTO is session-only  //  CLEAR keeps READY history" % len(ACHIEVEMENTS):
                     style "archive_footer_text"
                     yalign 0.5
 
@@ -1153,12 +1056,9 @@ style ach_toast_title:
 # =============================================================================
 # CONTENT REACHABILITY AUDIT  (developer builds only)
 # -----------------------------------------------------------------------------
-# WHY THIS EXISTS. Three of the achievements above -- and therefore platinum --
-# are "collect every X" sweeps read live from their catalogs, which is what makes
-# them scale for free when content is added. The flip side is that adding a
-# catalogue ENTRY without also adding the thing that unlocks it makes that sweep,
-# and platinum, quietly impossible: the CG simply never appears, and nothing
-# anywhere says why. That failure is invisible in play and invisible to lint.
+# WHY THIS EXISTS. Archive catalogs can silently acquire entries that no story
+# beat ever unlocks. That leaves apparently obtainable CGs, stories, outfits or
+# tracks permanently dark, a failure that ordinary script lint cannot see.
 #
 # So this walks the project's own source at init and checks that every
 # catalogued item has somewhere it can actually come from:
@@ -1241,8 +1141,17 @@ init python:
         def quoted_args(func):
             """Every string literal passed to `func(...)` anywhere in the source."""
             found = set()
+            literal_pattern = re.compile(
+                r'"([^"\\]*(?:\\.[^"\\]*)*)"|'
+                r"'([^'\\]*(?:\\.[^'\\]*)*)'"
+            )
             for call in re.findall(r"\b%s\s*\(([^)]*)\)" % func, blob):
-                for literal in re.findall(r"""["']([^"']+)["']""", call):
+                # Respect the delimiter that opened the literal. The old
+                # character-class pattern stopped a double-quoted title at an
+                # apostrophe (for example, "Hina's World") and produced a false
+                # unreachable warning even though the call site was present.
+                for match in literal_pattern.finditer(call):
+                    literal = match.group(1) if match.group(1) is not None else match.group(2)
                     found.add(literal.strip().lower())
             return found
 
@@ -1250,6 +1159,20 @@ init python:
 
         # --- CGs --------------------------------------------------------------
         unlocked_names = quoted_args("cg_unlock")
+        # The OP routes its unlocks through a soft wrapper so that pulling a CG
+        # out of the gallery cannot crash the opening (see enter_m_op_cg_unlock
+        # in Sick Ass Anime OP/op.rpy). Those are real call sites, but the
+        # word-boundary anchor in the scan above cannot match the suffixed name,
+        # so ask for it by name too.
+        unlocked_names.update(quoted_args("enter_m_op_cg_unlock"))
+        # Archive panel CGs unlock from a data-driven module-flag table rather
+        # than seven hand-written calls. Count those declared titles as real
+        # reachability sites while retaining the ordinary call-site audit for
+        # every authored story CG.
+        unlocked_names.update(
+            str(title).strip().lower()
+            for _archive_key, title in globals().get("archive_panel_cg_unlocks", ())
+        )
         for act in globals().get("cg_gallery_catalog", ()):
             for chapter in act.chapters:
                 for cg in chapter.cgs:
@@ -1321,7 +1244,7 @@ init python:
                 for line in problems:
                     print("  WARN  " + line)
             print("  %d unreachable item(s) across %d source files."
-                  % (len(problems), len(sources)))
+                % (len(problems), len(sources)))
             print("=" * 42 + "\n")
 
         return problems

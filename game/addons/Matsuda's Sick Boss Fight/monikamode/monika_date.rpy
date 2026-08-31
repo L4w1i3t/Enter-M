@@ -88,28 +88,14 @@ define mm_reject_dmg = 22
 # MATSUDA IS DELIBERATELY NOT CONVERTED. Her four lines at the very end come
 # out of the ordinary box, because that is the moment the date is over and the
 # game is the game again.
-define mmd = DynamicCharacter('m_name', image='monika', what_prefix='"', what_suffix='"', screen="mm_say")
+define mmd = DynamicCharacter('m_name', image='monika', what_prefix='"', what_suffix='"', screen="mm_say", statement_name="say-custom")
 
-# THE EMPTY WINDOW BELONGS TO HER TOO, FOR AS LONG AS THE MODE RUNS.
+# THE STOCK EMPTY WINDOW NEVER ENTERS THE DATE.
 #
-# Between lines Ren'Py can draw an "empty window" -- the dialogue box with no
-# text in it -- so the box does not flicker off across `show`, `pause` and
-# transitions. WHICH box it draws is a guess: config.empty_window scries ahead
-# for the next say statement and borrows that character's screen. Inside the
-# date that scry has to cross the round controller's `call expression`, and
-# when it comes up empty the fallback is the narrator -- so what gets drawn is
-# the ordinary DDLC textbox, on the default zorder, underneath every one of the
-# mode's screens. It is wider than the mm_say card and it sits lower, so its
-# edges peek out around the card in exactly the places the card does not cover.
-#
-# Every line in the date is hers, so there is nothing to guess at: pin the empty
-# window to mmd while the mode owns the screen. mm_victory puts the stock one
-# back before Matsuda speaks -- her four closing lines are deliberately in the
-# ordinary box (see above).
-init python:
-
-    def _mm_empty_window():
-        store.mmd.empty_window()
+# `statement_name="say-custom"` routes her lines through the shared window-auto
+# policy in options.rpy. Ren'Py therefore keeps its narrator-owned empty window
+# hidden while mm_say is the sole text surface. This also avoids changing
+# config.empty_window at runtime and makes every exit path restore-free.
 
 # Scene pools, one per desperation phase. Phase 3 mixes a couple of specific
 # beats with short repeatable generics so the spiral can loop without seams.
@@ -268,7 +254,7 @@ image mm_arena_dim = ConditionSwitch(
 # The base `monika g1` ATL falls back to `monika 3` after 1.25s. The barrage
 # needs the same broken sprite pinned until the sequence resolves.
 image monika mm_lr_g1:
-    "assets/images/monika/g1.png"
+    "assets/characters/monika/g1.png"
     xoffset 35 yoffset 55
     parallel:
         zoom 1.00
@@ -789,7 +775,6 @@ label mm_apply_music:
 # the mode's whole thesis in one at_list -- she treats the image first, the room
 # ruins it second.
 label mm_to_vn(bgname="bg monika_room"):
-    window hide
     hide screen mm_stage
     $ mm_scene_count += 1
     $ mm_static_on()
@@ -799,12 +784,10 @@ label mm_to_vn(bgname="bg monika_room"):
     $ mm_static_off()
     stop sound
     show screen mm_sparkle
-    window auto
     return
 
 # Snap back to the dim arena (where the gauge lives).
 label mm_to_arena:
-    window hide
     $ mm_static_on()
     scene black
     $ renpy.show("bg monika_room", at_list=mm_bg_at(), tag="bg")
@@ -814,7 +797,6 @@ label mm_to_arena:
     show mm_arena_dim
     show screen mm_sparkle
     show screen mm_stage
-    window auto
     return
 
 # You turned her down: chip her bar, snap to the arena, pop the number + a
@@ -859,13 +841,8 @@ label mm_intro:
     hide screen archive
     hide screen character_stories
 
-    # The date owns the box from here. `window hide` clears whatever the caller
-    # left on screen -- arcade_launch_prep hands off with one still up -- and
-    # the override makes every empty window drawn inside the mode her card
-    # rather than a default box peeking out from under the mode's UI.
-    window hide
-    $ config.empty_window = _mm_empty_window
-
+    # The opening scene clears the caller's box, and mmd's `say-custom`
+    # statement name keeps the stock box out of the mode from then on.
     scene black
     stop music fadeout 1.0
     pause 2.0
@@ -886,7 +863,6 @@ label mm_intro:
     show screen mm_corruption
     show screen mm_stage
     $ mm_show("1d")
-    window auto
 
     # ARCADE: drop straight into the rounds -- skip the intro chatter. (The rounds
     # themselves ARE the dialogue-QTE mechanic, so only this framing is stripped.)
@@ -955,7 +931,6 @@ label mm_scene_cafe:
     $ mm_show("2b")
     mmd "Hey, don't be shy! Take a seat, tell me about your day. I want to hear about your escapades~"
     mmd "I keep saying this, you really don't need to clam up all the time..."
-    window hide
     call screen mm_timed_choice("How do you answer?", [
         ("\"...That's really sweet of you.\"", "warm"),
         ("\"You don't know me.\"", "reject"),
@@ -980,7 +955,6 @@ label mm_scene_park:
     $ mm_show("1f")
     mmd "It's about a girl who knows she's inside a predetermined story, and falls in love anyway. ...No idea where I found it."
     mmd "Mind if I play it for you?"
-    window hide
     call screen mm_timed_choice("She's waiting.", [
         ("Take the earbud.", "warm"),
         ("Walk away.", "reject"),
@@ -1006,7 +980,6 @@ label mm_scene_walk:
     $ mm_show("1e")
     mmd "But, ah...slow down a little? Just so it lasts. The morning, I mean. Not--well, you know what I mean."
     mmd "You know my little legs can't keep up with you."
-    window hide
     call screen mm_timed_choice("She waits for you to slow.", [
         ("Slow down for her.", "warm"),
         ("Keep your own pace.", "reject"),
@@ -1031,7 +1004,6 @@ label mm_scene_arcade:
     $ mm_show("2a")
     mmd "Loser buys the winner something sweet. That's the rule. ...Though I may have rigged your controller."
     mmd "No worries for you, though, right? Didn't you say you were a pro gamer?"
-    window hide
     call screen mm_timed_choice("Press start?", [
         ("Play with her.", "warm"),
         ("Step back.", "reject"),
@@ -1057,7 +1029,6 @@ label mm_scene_rooftop:
     mmd "I love you. So very much..."
     mmd "Seriously, I don't know what I'd do without you."
     mmd "So, do you think you could...?"
-    window hide
     call screen mm_timed_choice("Answer her.", [
         ("\"I don't love you.\"", "reject"),
         ("\"I love you too.\"", "warm"),
@@ -1090,7 +1061,6 @@ label mm_scene_save:
     $ mm_show("1b")
     mmd "But hey, they're all organized now. And this one...this one is extra special."
     mmd "I hope you like it!"
-    window hide
     call screen mm_timed_choice("React.", [
         ("\"Put them back.\"", "reject"),
         ("\"You really didn't have to...\"", "warm"),
@@ -1118,7 +1088,6 @@ label mm_scene_festival:
     $ mm_show("1e")
     mmd "You know, people hold hands during these. It's a long-standing tradition that I read about. I, um...I practiced."
     mmd "So...?"
-    window hide
     call screen mm_timed_choice("The sky lights up.", [
         ("Pocket your hands.", "reject"),
         ("Take her hand.", "warm"),
@@ -1147,7 +1116,6 @@ label mm_scene_rain:
     $ mm_show("2f")
     mmd "...You're keeping that gap on purpose, aren't you? That exact inch. Don't think I don't notice..."
     mmd "You know, you don't have to clam up so much around me. I'm your girlfriend, right...?"
-    window hide
     call screen mm_timed_choice("The umbrella tilts toward you.", [
         ("Step under with her.", "warm"),
         ("Stay in the rain.", "reject"),
@@ -1174,7 +1142,6 @@ label mm_scene_message:
     $ mm_show("1d")
     mmd "You don't have to read all of it. Just let me see your face while you read the first line. That's all. Just the first line."
     mmd "But hey, if you go through the whole thing, tell me what you think~"
-    window hide
     call screen mm_timed_choice("She offers the letter.", [
         ("Read the first line.", "warm"),
         ("Don't take it.", "reject"),
@@ -1202,7 +1169,6 @@ label mm_scene_movie:
     mmd "It's a quiet film. The kind where, halfway through, people forget about the screen and just...lean. A little. Toward each other."
     mmd "Totally no ulterior motive, haha..."
     mmd "...What? Did you forget the popcorn?"
-    window hide
     call screen mm_timed_choice("Where do you sit?", [
         ("Sit beside her.", "warm"),
         ("Take a seat across the aisle.", "reject"),
@@ -1229,7 +1195,6 @@ label mm_scene_gift:
     $ mm_show("1p")
     mmd "...Let me. Please? It's not about the thing. It's about you keeping something I gave you... Carrying it around... Thinking of me when you see it..."
     mmd "Seriously! Money isn't an issue at all."
-    window hide
     call screen mm_timed_choice("She waits to pay.", [
         ("Let her buy something.", "warm"),
         ("\"You're not buying anything.\"", "reject"),
@@ -1257,7 +1222,6 @@ label mm_scene_promise:
     $ mm_show("g1")
     mmd "You don't even have to mean it. I'll take a lie. I have gotten {i}so good{/i} at living on the ones people don't mean."
     mmd "...Please!"
-    window hide
     call screen mm_timed_choice("Make her a promise.", [
         ("\"...Maybe tomorrow.\"", "warm"),
         ("\"I promise you nothing.\"", "reject"),
@@ -1285,7 +1249,6 @@ label mm_scene_justmonika:
     $ mm_show("4d")
     mmd "You don't need the rest of this game. You never did. You could just...stay. With me. For as long as there's a 'here' left to stay in."
     mmd "...JUST ME, OKAY?!"
-    window hide
     call screen mm_timed_choice("...", [
         ("\"No. I'm leaving.\"", "reject"),
         ("\"...Forever, eh?\"", "warm"),
@@ -1310,7 +1273,6 @@ label mm_gen_anything:
     call mm_to_vn("bg club_day") from _call_mm_to_vn_13
     $ mm_show("g1")
     mmd "Pick one. {i}Any{/i} one. The coffee, the rooftop, the song, the rain -- I'll run it again, I'll run {i}all{/i} of them, just point at the one you'll say yes to!"
-    window hide
     call screen mm_timed_choice("She offers everything at once.", [
         ("\"None of them.\"", "reject"),
         ("\"...The coffee.\"", "warm"),
@@ -1333,7 +1295,6 @@ label mm_gen_onemore:
     call mm_to_vn("bg club_day") from _call_mm_to_vn_14
     $ mm_show("1r")
     mmd "One more. {i}One more scene.{/i} I know I keep saying that, I know. But this time I've got it right, I swear! Just give me one more and--"
-    window hide
     call screen mm_timed_choice("\"One more. Please.\"", [
         ("\"No more.\"", "reject"),
         ("\"...Fine. One more.\"", "warm"),
@@ -1355,7 +1316,6 @@ label mm_gen_dontleave:
     call mm_to_vn("bg class_day") from _call_mm_to_vn_15
     $ mm_show("g1")
     mmd "You're reaching for it. The exit. I can {i}feel{/i} you reaching for it. Don't, {i}don't,{/i} I'll be better, I'll be anything, I'll be quieter, I'll be smaller--"
-    window hide
     call screen mm_timed_choice("Your hand is near the door.", [
         ("Reach for the exit.", "reject"),
         ("Let go of the door.", "warm"),
@@ -1378,7 +1338,6 @@ label mm_gen_lie:
     call mm_to_vn("bg club_day") from _call_mm_to_vn_16
     $ mm_show("4p")
     mmd "Just smile. That's all. Don't say anything, don't mean anything -- just give me a face that isn't trying to get away. I'll do the rest. I'll believe enough for both of us."
-    window hide
     call screen mm_timed_choice("She searches your face.", [
         ("Give her nothing.", "reject"),
         ("Smile for her.", "warm"),
@@ -1418,10 +1377,8 @@ label mm_last_resort:
     $ renpy.play(audio.sfx_static)
     call mm_to_arena from _call_mm_to_arena_4
     $ mm_show("4d")
-    window auto
     mmd "...No. No! I'm not -- I am NOT done, I have {i}more,{/i} I always have more--"
     mmd "{i}Keep up. Keep up keep up keep UP--{/i} don't you {i}DARE{/i} blink, not now, not when I'm this close--"
-    window hide
 
     # arm the meter, kick off the earthquake + white overlay
     $ mm_lr_white = 0.0
@@ -1478,20 +1435,15 @@ label mm_victory:
     # Entered from mm_lr_win at FULL white. Settle the chaos behind the whiteout,
     # then melt the white away to reveal the quiet, resolved room.
     $ mm_lr_active = False
-    # Reject-to-win: the Monika date-mode clear. Explicit -- nothing else stores it.
-    $ ach_grant("date_win")
-    # Flawless: never fed her a heal, never slipped in the last-resort gauntlet.
-    if mm_slips == 0:
-        $ ach_grant("date_flawless")
-
-    # Open the Monika tile in the Arcade (its beaten-once gate).
+    # Open the Monika tile in the Arcade first. That persistent clear flag is the
+    # derived recovery path; the exact event grant makes this run immediate.
     $ persistent.arcade_monika_cleared = True
+    $ ach_grant("date_win")
 
     # ARCADE: skip the ending dialogue -> clean results card. Minimal teardown so
     # the mm_* overlays never bleed onto the card. Inert in the in-story path.
     if arcade_active:
         $ ach_sync()
-        $ config.empty_window = _default_empty_window
         stop music fadeout 1.0
         hide screen mm_corruption
         hide screen mm_sparkle
@@ -1539,13 +1491,10 @@ label mm_victory:
     $ mm_static_off()
     pause 2.0
     play music enterm
-    # The mode is over: give the empty window back to the stock scry before
-    # Matsuda speaks, so her lines and the gaps between them are both the
-    # ordinary box.
-    $ config.empty_window = _default_empty_window
+    # The mode is over. Matsuda uses an ordinary `say` statement, so automatic
+    # window management restores the standard box before she speaks.
     scene bg ether with dissolve_scene_full
     show matsuda neut at t11 zorder 2
-    window auto
 
     ma "...Huh. You actually walked her all the way back down. Color me impressed."
     ma "Most people fold the second she gets that {i}voice{/i} going. Makes 'forever' sound like a reasonable Tuesday."

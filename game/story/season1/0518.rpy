@@ -185,7 +185,7 @@ label a0518_showtime_pick:
     "She hands me one ticket. Her fingers brush mine, then draw back."
     mc "And the other half of the crowd?"
     m forward casual nerv om ce blaw rdown ldown "Here to be scared on purpose...or something...maybe."
-    mc "You know that it's alright to not have the answer to everything, right?"
+    mc "You know that it's alright to {i}not{/i} have the answer to everything, right?"
     "I look down at the ticket, then at the poster beside us."
     "The longer I stare at both, the more it starts looking like something waiting to move."
     mc "...Right. Anyway..."
@@ -195,6 +195,7 @@ label a0518_showtime_pick:
     mc "I ran into someone last night."
     m forward casual curi om oe nobl rdown ldown "Ran into, as in...?"
     mc "Literally. My brain took the night off."
+    show monika forward casual worr cm oe nobl rdown ldown
     "Monika's mouth tightens, then settles."
     m forward casual worr cm oe nobl rdown ldown "Well...are you good?"
     mc "Yeah. Just a little sore, no need for vapor rub or anything like that."
@@ -337,10 +338,10 @@ label a0518_showtime_pick:
     "About an hour in, the lead climbs into a maintenance tunnel he has no business entering."
     "The score thins down to a single held note. His flashlight finds a wall of something that should not be behind a wall."
     "Then a low, wet sound comes from off-screen, far too close. The whole theater flinches and goes rigid with plausible deniability."
+    show monika forward casual nerv cm oe blaw rdown ldown
     "Monika's hand closes around my sleeve."
     "Not even my hand, my {i}sleeve{/i} of all things."
     "I don't move, partly because the tunnel sound is genuinely doing numbers on my spine."
-    show monika forward casual nerv cm oe blaw rdown ldown
     "On the next cut to daylight she lets go and smooths the fabric like she can erase the evidence, staring very hard at the screen the whole time."
     "Neither of us says a word about it while the movie is still happening."
     $ hide_calendar()
@@ -371,7 +372,7 @@ label a0518_showtime_pick:
     mc "Talk about a grippy half-second, then."
     m forward casual flus om ce blaw rhip ldown "Okay, okay! Fine, it got me {i}once{/i}!"
     "She folds her empty straw wrapper into a tiny rectangle, then folds it again."
-    m forward casual pout om oe nobl rdown lpoint "But you jumped at the opening thunder."
+    m forward casual pout om oe nobl rdown lpoint "But {i}you{/i} jumped at the opening thunder."
     mc "Just a louder audio mix than I expected..."
     show monika forward casual laug cm ce nobl rdown ldown at t11
     m forward casual laug cm ce nobl rdown ldown "Suuuuuuuure, let's go with that."

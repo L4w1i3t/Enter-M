@@ -72,7 +72,6 @@ label a0530:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "Mom's chair is empty, and a note has been pinned under the sugar bowl to stand in for her."
     "Her handwriting leans harder to the right when she writes in a hurry. This one looks like it nearly outran the paper."
     call enter_m_show_sticky_note(("Early client meeting.", "Rice is warm.", "Eat something with a color.", "Home late.", "Love you both."), signature="Mom") from _call_enter_m_show_sticky_note_0530_1

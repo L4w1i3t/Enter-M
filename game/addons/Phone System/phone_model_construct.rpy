@@ -44,21 +44,30 @@
 # AUDIO HOOKS
 #   phone_text_in / phone_text_out : the received / sent message SFX, wired into
 #     the animated message thread -- each bubble plays its sound as it reveals
-#     (see phone_play_reveal_sound in text.rpy). phone_ringtone loops on the
-#     dedicated "phone_ring" channel while an incoming call rings (see phone_call
-#     in call.rpy). phone_open stays a None placeholder (no "raise phone" SFX yet).
+#     (see phone_play_reveal_sound in text.rpy). phone_notification deliberately
+#     reuses the received-message cue for the small in-game availability alert.
+#     phone_ringtone loops on the dedicated "phone_ring" channel while an incoming
+#     call rings (see phone_call in call.rpy). phone_open stays a None placeholder
+#     (no "raise phone" SFX yet).
 # =============================================================================
 
 define -50 audio.phone_text_in = "assets/audio/sfx/phone/messagereceive.ogg"
 define -50 audio.phone_text_out = "assets/audio/sfx/phone/messagesend.ogg"
+define -50 audio.phone_notification = "assets/audio/sfx/phone/messagereceive.ogg"
 define -50 audio.phone_open = None
 define -50 audio.phone_ringtone = "assets/audio/sfx/phone/ringtone.ogg"
 
 
 init python:
-    # Dedicated looping channel for the incoming-call ringtone, on the sfx mixer
-    # so the SFX volume slider governs it. try/except keeps autoreload from
-    # erroring on a re-register (same pattern as planner_display.rpy).
+    # Dedicated channels keep a notification cue from cutting off a story SFX,
+    # and keep the incoming-call ringtone isolated until answer/decline. Both use
+    # the sfx mixer, so the player's SFX volume still governs them. try/except
+    # keeps autoreload from erroring on a re-register.
+    try:
+        renpy.music.register_channel("phone_alert", mixer="sfx", loop=False)
+    except Exception:
+        pass
+
     try:
         renpy.music.register_channel("phone_ring", mixer="sfx", loop=True)
     except Exception:
@@ -197,6 +206,12 @@ init -2 python:
         if len(parts) == 1:
             return parts[0][0].upper()
         return (parts[0][0] + parts[1][0]).upper()
+
+    # Notification counts are normally one or two digits, but developer tools
+    # can expose a much larger catalog. Size badges from the actual text instead
+    # of clipping the count or turning it into an inaccurate "99+" shorthand.
+    def phone_badge_width(count, min_width=18, digit_width=7, padding=10):
+        return max(int(min_width), len(str(max(0, int(count)))) * int(digit_width) + int(padding))
 
 
 # -----------------------------------------------------------------------------
@@ -516,6 +531,26 @@ screen phone_avatar(name, size=44, text_style="phone_contact_avatar_text"):
             yalign 0.5
 
 
+# A tiny smartphone silhouette shared by the quick-menu notification badge and
+# its short-lived alert chip. Drawing it from the phone's existing panel toolkit
+# keeps it crisp at the game's native resolution without adding another asset.
+screen phone_notification_glyph(color="#ffffff"):
+    fixed:
+        xysize (18, 25)
+
+        add PhonePanel(16, 24, "#00000000", radius=4, border=2.0, border_color=color):
+            xpos 1
+            ypos 0
+
+        add PhonePanel(5, 2, color, radius=1):
+            xpos 7
+            ypos 3
+
+        add PhonePanel(4, 2, color, radius=1):
+            xpos 7
+            ypos 19
+
+
 # A home-screen app icon: a gradient "squircle" with a soft shadow under it,
 # the short glyph centered, and the label beneath. Decorative (no action wired).
 screen phone_app_icon(short_label, label, color):
@@ -615,11 +650,9 @@ style phone_app_label:
     outlines [(1, "#000000", 0, 0)]
 
 
-# Story/script helper: open the home screen as a blocking call (hides the
-# dialogue window, plays the open SFX, restores `window auto` on return).
+# Story/script helper: open the home screen as a blocking call. Automatic window
+# management owns the dialogue box while the screen is active.
 label phone_home(title="Phone", subtitle=None):
-    window hide
     play sound phone_open
     call screen phone_home_screen(title, subtitle)
-    window auto
     return

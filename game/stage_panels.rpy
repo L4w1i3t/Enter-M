@@ -279,6 +279,15 @@ define ENTER_M_PANEL_LEAN = 0.55
 
 define ENTER_M_PANEL_EXPAND = 0.036   # extra width the speaker's panel claims
 
+# THE EXIT SLIDE. How far past the frame the last cut is carried as the panel
+# beyond it finishes collapsing, as a fraction of the screen. A cut that merely
+# converges ON the edge still shows its gutter and its 26px of shading INSIDE
+# the frame, and then loses them all at once when the panel is finally dropped;
+# this is the extra distance that takes the whole gutter -- half the gap, the
+# falloff, and the slant's own excursion (about 71px together) -- off-screen
+# before that happens.
+define ENTER_M_PANEL_EXIT = 0.12
+
 # CLEARANCE. A cut never comes closer than this -- as a fraction of the screen --
 # to the character on either side of it, whatever the speaker's claim or a
 # hand-placed sprite would otherwise do. 0.085 is 109px, comfortably outside the
@@ -343,6 +352,16 @@ init python:
         "frame": None,       # last frame_time the ease advanced on
         "snap": False,       # next advance lands instantly (cut, load, restage)
         "signature": None,   # last target set handed to the driver
+        # HOW FAR THE PLATE IS PUSHED INTO, AND HOW HARD THE CUTS LEAN. Both are
+        # properties of the SETTLED layout (see _stage_panels_retarget), eased
+        # like everything else rather than read off the live panel list -- a
+        # panel that is opening or collapsing is momentarily the narrowest thing
+        # on screen and the whole layout used to follow it there. See the note
+        # on the ease below.
+        "zoomv": 1.0,        # eased ENTER_M_PANEL_ZOOM for the live stage
+        "zoom_target": 1.0,
+        "narrowv": 1.0,      # eased narrowest TARGET panel, as a screen fraction
+        "narrow_target": 1.0,
     }
 
     def _stage_panels_active():
@@ -571,6 +590,37 @@ init python:
 
         return _stage_panel_normalise(widths)
 
+    def _stage_panel_retire(panel):
+        """Mark a panel dead, remembering the width it is leaving FROM.
+
+        `ref` is frozen here and nowhere else, so _stage_panel_exit can report
+        progress through the exit as a clean 0..1 no matter how wide the panel
+        happened to be when its character was hidden. A panel that is already
+        dead keeps the ref it was retired with -- retargeting again while it
+        collapses must not restart its exit.
+        """
+        if panel["alive"]:
+            panel["ref"] = max(panel["cw"], 1e-4)
+            panel["alive"] = False
+
+        panel["w"] = 0.0
+
+    def _stage_panel_exit(panel):
+        """0 the moment a panel is retired, 1 once it has finished collapsing.
+
+        Live panels never slide: an established panel that is merely resizing
+        (everyone widens when someone leaves) must not be read as leaving, and a
+        newborn does not need it -- one frame of the ease already carries its
+        cut 86px in from the edge, while a dying panel's exponential tail parks
+        its cut ON the edge for the better part of half a second.
+        """
+        if panel["alive"]:
+            return 0.0
+
+        ref = max(panel.get("ref", 0.0), 1e-4)
+
+        return min(1.0, max(0.0, 1.0 - panel["cw"] / ref))
+
     def _stage_panels_retarget():
         """Re-derive every panel's target from who is on stage right now."""
         stage = _stage_panels_scan() if _stage_panels_active() else []
@@ -584,8 +634,7 @@ init python:
             _stage_state["amt_target"] = 0.0
 
             for panel in _stage_panels:
-                panel["alive"] = False
-                panel["w"] = 0.0
+                _stage_panel_retire(panel)
 
             _stage_panels_wake()
 
@@ -595,6 +644,12 @@ init python:
 
         speaker = _stage_state["speaker"]
         widths = _stage_panel_widths(stage, speaker)
+
+        # The framing targets belong to the stage that is ARRIVING, so they are
+        # read from the live cast and its settled widths -- never from the panel
+        # list, which also carries whatever is still collapsing.
+        _stage_state["zoom_target"] = _stage_panel_zoom(len(stage))
+        _stage_state["narrow_target"] = min(widths) if widths else 1.0
 
         # Dying panels are candidates too, so a character who is re-shown
         # before their panel has finished closing REVIVES it -- otherwise the
@@ -615,7 +670,7 @@ init python:
 
             if panel is None:
                 panel = {"tag": tag, "x": x, "cx": x, "w": 0.0, "cw": 0.0,
-                        "alive": True}
+                        "alive": True, "ref": 0.0}
                 _stage_panels.append(panel)
 
             panel["x"] = x
@@ -627,8 +682,7 @@ init python:
 
         for panel in _stage_panels:
             if id(panel) not in keep:
-                panel["alive"] = False
-                panel["w"] = 0.0
+                _stage_panel_retire(panel)
 
         # Left to right, dying panels included, so a panel collapses in place.
         _stage_panels.sort(key=lambda p: p["x"] if p["alive"] else p["cx"])
@@ -706,6 +760,11 @@ init python:
         _stage_state["amt"] += (
             _stage_state["amt_target"] - _stage_state["amt"]) * opening
 
+        _stage_state["zoomv"] += (
+            _stage_state["zoom_target"] - _stage_state["zoomv"]) * blend
+        _stage_state["narrowv"] += (
+            _stage_state["narrow_target"] - _stage_state["narrowv"]) * blend
+
         for panel in _stage_panels:
             panel["cw"] += (panel["w"] - panel["cw"]) * blend
             panel["cx"] += (panel["x"] - panel["cx"]) * blend
@@ -716,6 +775,12 @@ init python:
 
     def _stage_panels_settled():
         if abs(_stage_state["amt_target"] - _stage_state["amt"]) > 0.0015:
+            return False
+
+        if abs(_stage_state["zoom_target"] - _stage_state["zoomv"]) > 0.0004:
+            return False
+
+        if abs(_stage_state["narrow_target"] - _stage_state["narrowv"]) > 0.0015:
             return False
 
         for panel in _stage_panels:
@@ -768,7 +833,7 @@ init python:
     # therefore draws the untouched background no matter how many panels exist,
     # and a room that splits appears to CRACK APART from the frame the player
     # was already looking at instead of cutting to a rearranged one.
-    def _stage_panel_frames(spans, zoom, amt):
+    def _stage_panel_frames(spans, zoom, amt, presence=None):
         count = len(spans)
         sizes = [max(right - left, 1e-5) / max(zoom, 0.01)
             for left, right, _x in spans]
@@ -778,14 +843,75 @@ init python:
         # plate no panel shows, so two adjacent shots read as two angles on a
         # room rather than one photograph with a line drawn down it. It can only
         # ever spend a share of the free space the zoom actually opened up.
-        if count > 1:
-            separation = min(
-                ENTER_M_PANEL_SEPARATION * amt,
-                free * ENTER_M_PANEL_SEP_SHARE / (count - 1))
-        else:
-            separation = 0.0
+        #
+        # ONE GAP PER BOUNDARY, NOT ONE SEPARATION FOR THE WHOLE ROW. `count`
+        # is a step function -- a panel that is collapsing is still one of them
+        # right up until it is dropped -- so a single shared separation, charged
+        # `count - 1` times against the margin, redistributed itself across
+        # every surviving gap on the one frame a ghost left the list. Measured
+        # 47px of plate lurching sideways, three quarters of a second after the
+        # character had walked off: the pop at the end of an exit.
+        #
+        # THE TOTAL is one separation per REAL boundary, and the number of real
+        # boundaries is `sum(presence) - 1` -- a count that slides from 4 to 3
+        # as a panel goes instead of stepping. At rest that is exactly the old
+        # `separation * (count - 1)`.
+        #
+        # THE SHAPE comes from prefix/suffix presence, NOT from the two panels
+        # either side. A dying panel does not always sit at the end of the row:
+        # a survivor's slot slides ACROSS the ghosts on its way to a new centre,
+        # so a layout is routinely [live, ghost, ghost, live, ghost], where the
+        # first three slots are all really the ONE boundary between the two
+        # survivors and only the last hangs off the end with nothing beyond it.
+        # min() of the two neighbours reads every one of those as unreal and
+        # collapsed the whole budget to nothing (measured 54px). Asking instead
+        # whether anything substantial survives on EACH SIDE of a slot gets it
+        # right: interior slots stay real and share the budget -- they are
+        # stacked at one point once the ghosts reach zero width, so their sum is
+        # the single gap that replaces them -- while an end slot goes to zero.
+        if presence is None:
+            presence = [1.0] * count
 
-        margin = max(0.0, (free - separation * (count - 1)) * 0.5)
+        prefix = []
+        suffix = [0.0] * count
+        run = 0.0
+
+        for index in range(count):
+            run = max(run, presence[index])
+            prefix.append(run)
+
+        run = 0.0
+
+        for index in range(count - 1, -1, -1):
+            run = max(run, presence[index])
+            suffix[index] = run
+
+        # Each slot is worth the average presence of the two panels it parts,
+        # gated by whether anything substantial survives on each side of it.
+        # The average is what makes a RUN of slots add up correctly: two ghosts
+        # of presence p between the same pair of survivors give slots of
+        # (1+p)/2, p and (p+1)/2, which sum to 1 + 2p -- three boundaries when
+        # they are real panels, ONE once they have collapsed onto a single
+        # point. The min() gate is what zeroes a slot with nothing but ghosts
+        # beyond it, which is a gap spent off the end of the row. Taking one or
+        # the other alone leaves a step of a third of a gap (24px measured) on
+        # the frame the ghosts are dropped; at rest both are 1 and every slot is
+        # worth exactly one separation, as before.
+        weights = [
+            (presence[i] + presence[i + 1]) * 0.5
+                * min(prefix[i], suffix[i + 1])
+            for i in range(count - 1)]
+        spread = sum(weights)
+        budget = min(
+            ENTER_M_PANEL_SEPARATION * amt * max(0.0, sum(presence) - 1.0),
+            free * ENTER_M_PANEL_SEP_SHARE)
+
+        if spread > 1e-6:
+            gaps = [budget * (weight / spread) for weight in weights]
+        else:
+            gaps = [0.0] * max(count - 1, 0)
+
+        margin = max(0.0, (free - budget) * 0.5)
 
         centres = []
         cursor = margin
@@ -796,21 +922,36 @@ init python:
             # (the speaker's claim widened it, or the sprite was hand-placed)
             # drags their window the same way, so the panel keeps looking at the
             # part of the room they are standing in.
-            lean = (char_x - (left + right) * 0.5) * ENTER_M_PANEL_LEAN * amt
+            #
+            # SCALED BY PRESENCE, or a panel that is no longer there hijacks the
+            # ones that are. A dying panel keeps its character's old position
+            # while its span collapses to a sliver somewhere else entirely --
+            # a slot at 0.70 with a span centred on 0.50 leans by 0.11 of the
+            # whole plate -- and the clamp passes below then push that straight
+            # into its neighbours. Measured on a 5 -> 2 exit: the surviving
+            # right-hand panel was looking 54px off, and snapped back the frame
+            # the ghosts were dropped. A panel with no width has nothing to
+            # look at, so it gets no say in where anything points.
+            lean = ((char_x - (left + right) * 0.5)
+                * ENTER_M_PANEL_LEAN * amt * presence[index])
             centres.append(cursor + size * 0.5 + lean)
-            cursor += size + separation
+            cursor += size
+
+            if index < count - 1:
+                cursor += gaps[index]
 
         # Put anything the lean pushed into a neighbour, or off the plate, back
         # where it fits. Forward pass first, then backward: the backward pass
         # walks right to left reading the neighbour it has already settled, so
         # it cannot undo the forward pass's work. A solution always exists --
-        # sum(sizes) + separation * (count - 1) <= 1.0 by construction.
+        # sum(sizes) is 1/zoom, sum(gaps) is capped at a share of the free space
+        # the zoom opened, so sum(sizes) + sum(gaps) < 1.0 by construction.
         low = sizes[0] * 0.5
 
         for index in range(count):
             if index:
                 low = (centres[index - 1]
-                    + (sizes[index - 1] + sizes[index]) * 0.5 + separation)
+                    + (sizes[index - 1] + sizes[index]) * 0.5 + gaps[index - 1])
 
             centres[index] = max(centres[index], low)
 
@@ -819,7 +960,7 @@ init python:
         for index in range(count - 1, -1, -1):
             if index < count - 1:
                 high = (centres[index + 1]
-                    - (sizes[index] + sizes[index + 1]) * 0.5 - separation)
+                    - (sizes[index] + sizes[index + 1]) * 0.5 - gaps[index])
 
             centres[index] = min(centres[index], high)
 
@@ -850,18 +991,23 @@ init python:
         spans = []
         cursor = 0.0
 
+        exits = []
+
         for panel in panels:
             share = (max(panel["cw"], 0.0) / total) if total > 1e-4 else even
             spans.append((cursor, cursor + share, panel["cx"]))
+            exits.append(_stage_panel_exit(panel))
             cursor += share
 
         if not spans:
             spans.append((0.0, 1.0, 0.5))
+            exits.append(0.0)
 
         # Belt and braces: _stage_panels_retarget already trims the list, and
         # the uniform block has nowhere to put a seventh panel -- a silently
         # dropped one would leave the right-hand edge of the screen ungoverned.
         del spans[_SP_SHADER_PANELS:]
+        del exits[_SP_SHADER_PANELS:]
 
         # Floating point drift would otherwise leave a hairline of the last
         # panel's gutter down the right-hand edge of the screen.
@@ -871,14 +1017,65 @@ init python:
         spans[-1] = (last[0], 1.0, last[2])
 
         count = len(spans)
-        zoom = 1.0 + (_stage_panel_zoom(count) - 1.0) * amt
-        centres = _stage_panel_frames(spans, zoom, amt)
+
+        # HOW MUCH OF A PANEL IS ACTUALLY THERE, 0..1. A settled layout never
+        # produces one narrower than ENTER_M_PANEL_MIN_W (_stage_panel_widths
+        # floors it), so anything under that is necessarily mid-transition and
+        # is counted in proportionally. Resizing panels stay at 1 throughout --
+        # only the one that is arriving or leaving fades -- which is what makes
+        # this safe to hang the framing budget on.
+        presence = [
+            min(1.0, (right - left) / max(ENTER_M_PANEL_MIN_W, 1e-4))
+            for left, right, _x in spans]
+
+        # ZOOM RIDES THE EASE, NOT THE PANEL COUNT. `spans` still carries every
+        # panel that is collapsing, so len(spans) is a step function that only
+        # falls when the last ghost is finally dropped -- three quarters of a
+        # second after the character actually left, and a whole ZOOM step in a
+        # single frame. That was the pop on an exit. zoomv is the same table
+        # read against the LIVE stage and eased, so the plate pushes in and out
+        # as one continuous move that starts when the cast changes.
+        # Still multiplied by amt, so zoom is exactly 1.0 -- the identity, and
+        # the reason a split is seamless -- whenever the layout is retracted.
+        zoom = 1.0 + (_stage_state["zoomv"] - 1.0) * amt
+        centres = _stage_panel_frames(spans, zoom, amt, presence)
+
+        # THE EXIT SLIDE. A cut whose whole remaining row is on its way out has
+        # nothing left to divide, so it leaves the frame rather than converging
+        # on the edge and parking there. Without this the last gutter ends up
+        # against the screen edge with its shading still inside the picture and
+        # then vanishes in one frame -- the border that "doesn't go completely
+        # out before it pops".
+        #
+        # out_r[i] is how far gone EVERY panel to the right of boundary i is
+        # (product, so one panel that is staying puts a hard stop on it), out_l
+        # the mirror. A ghost between two live panels therefore never slides:
+        # its two cuts converge and merge into the one boundary that replaces
+        # them, which is already seamless. Both products are empty at the outer
+        # ends, i.e. 1, which is the -1.0 / 2.0 overhang the format already had.
+        edges = [spans[0][0]] + [right for _l, right, _x in spans]
+        out_r = [1.0] * (count + 1)
+        out_l = [1.0] * (count + 1)
+
+        for index in range(count - 1, -1, -1):
+            out_r[index] = out_r[index + 1] * exits[index]
+
+        for index in range(1, count + 1):
+            out_l[index] = out_l[index - 1] * exits[index - 1]
+
+        # Monotonic by construction: out_r only ever falls left to right and
+        # out_l only ever falls right to left, so no boundary can overtake its
+        # neighbour and the shader's cascading panel pick stays well ordered.
+        edges = [
+            edge + ENTER_M_PANEL_EXIT * (out_r[index] - out_l[index])
+            for index, edge in enumerate(edges)]
+
         values = []
 
         for index, (left, right, _char_x) in enumerate(spans):
             values.append((
-                -1.0 if index == 0 else left,
-                2.0 if index == count - 1 else right,
+                -1.0 if index == 0 else edges[index],
+                2.0 if index == count - 1 else edges[index + 1],
                 centres[index],
                 (left + right) * 0.5))
 
@@ -889,7 +1086,15 @@ init python:
         # at two people and most of a panel at six, so past a certain narrowness
         # the slant comes off proportionally -- otherwise the busiest layouts are
         # the ones whose gutters eat the most of each shot.
-        narrowest = min(right - left for left, right, _x in spans) * width
+        #
+        # MEASURED AGAINST THE SETTLED LAYOUT, NOT THE LIVE SPANS. There is one
+        # slant uniform for the whole screen, so taking it from the narrowest
+        # span meant a single panel opening or collapsing -- momentarily a
+        # hairline, and never wider than the layout it is heading for -- dragged
+        # EVERY cut on screen upright with it. Measured on a 3 -> 2 exit: all
+        # gutters rotated from 74px to 0.4px (vertical) over ~0.6s and then
+        # snapped back to 74px in one frame when the ghost was dropped.
+        narrowest = max(_stage_state["narrowv"], 0.0) * width
         slant = ENTER_M_PANEL_SLANT * min(
             1.0, narrowest / max(ENTER_M_PANEL_SLANT_FIT, 1.0))
 

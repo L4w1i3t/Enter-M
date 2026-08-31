@@ -144,7 +144,7 @@ style vslider:
 
 style frame:
     padding gui.frame_borders.padding
-    background Frame("assets/gui/enter_m/frame.png", gui.frame_borders, tile=gui.frame_tile)
+    background Frame("assets/gui/frame.png", gui.frame_borders, tile=gui.frame_tile)
 
 screen say(who, what):
     style_prefix "say"
@@ -191,7 +191,7 @@ init python:
         # Map slider 0..1 to alpha 0.2..1.0 so the box stays faintly visible at
         # the low end -- the text never floats over a fully transparent panel.
         a = 0.2 + 0.8 * a
-        return Transform("assets/gui/enter_m/textbox.png", alpha=a, xalign=0.5, yalign=1.0), None
+        return Transform("assets/gui/textbox.png", alpha=a, xalign=0.5, yalign=1.0), None
 
 image enter_m_textbox_bg = DynamicDisplayable(_enter_m_textbox_bg)
 
@@ -213,7 +213,7 @@ style namebox:
     ypos gui.name_ypos
     ysize gui.namebox_height
 
-    background Frame("assets/gui/enter_m/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
+    background Frame("assets/gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
     padding gui.namebox_borders.padding
 
 style say_label:
@@ -377,6 +377,8 @@ screen quick_menu():
 
     if quick_menu:
 
+        $ _phone_quick_count = phone_notification_count()
+
         vbox:
             style_prefix "quick"
 
@@ -390,9 +392,40 @@ screen quick_menu():
             textbutton _("Auto") action Preference("auto-forward", "toggle")
             # textbutton _("Save") action ShowMenu('save')
             # textbutton _("Load") action ShowMenu('load')
-            textbutton _("Phone") action Show("phone_contacts_screen")
+            button:
+                style "quick_button"
+                action [Hide("phone_notification_alert"), Show("phone_contacts_screen")]
+
+                fixed:
+                    xysize (72, 21)
+
+                    text _("Phone") style "quick_button_text":
+                        xalign (0.0 if _phone_quick_count else 0.5)
+                        yalign 0.5
+
+                    if _phone_quick_count:
+                        $ _phone_quick_badge_width = phone_badge_width(_phone_quick_count, min_width=18)
+
+                        fixed:
+                            xalign 1.0
+                            yalign 0.5
+                            xysize (_phone_quick_badge_width, 18)
+                            at phone_notification_badge_arrive
+
+                            add PhonePanel(_phone_quick_badge_width, 18, "#0a84ff", bottom="#0066d6", radius=9)
+
+                            text str(_phone_quick_count) style "phone_badge_text":
+                                xalign 0.5
+                                yalign 0.5
+
             textbutton _("People") action Show("character_thoughts_screen")
             textbutton _("Settings") action ShowMenu('preferences')
+
+        # Polling is cheap (the current catalog is tiny) and action-driven, so
+        # no sound or saved-state mutation happens during screen prediction.
+        # The Function action must stay void: a False/True result would end the
+        # active say interaction and make dialogue advance without Auto enabled.
+        timer 0.5 repeat True action Function(phone_notification_poll_action, _update_screens=False)
 
 default quick_menu = True
 
@@ -445,9 +478,18 @@ screen navigation(menu_context=None, embedded=False):
 
         spacing gui.navigation_spacing
 
+        # ONE DOOR WHERE THERE WERE TWO. Save and Load were never two ideas --
+        # they were one list of slots drawn twice, and only the click differed.
+        # Both now open the RECORD BANK (game/data_bank.rpy), which restores,
+        # writes, copies, re-labels and erases off that one list. The door is
+        # still called "Load Game" at the title, because with no session
+        # running that is the only one of the five it can do; in-game it is
+        # "Records", because from there it can do all of them.
         if nav_main:
 
             textbutton _("New Game") action Start()
+
+            textbutton _("Load Game") action ShowMenu("data_bank", start_mode="restore") sensitive (renpy.get_screen("data_bank") == None)
 
         else:
 
@@ -455,9 +497,7 @@ screen navigation(menu_context=None, embedded=False):
             # Custom Calendar button
             textbutton _("Calendar") action ShowMenu("calendar_menu") sensitive renpy.get_screen("calendar_menu") == None
 
-            textbutton _("Save Game") action ShowMenu("save") sensitive (not _msbf_save_load_locked and renpy.get_screen("save") == None)
-
-        textbutton _("Load Game") action ShowMenu("load") sensitive (not _msbf_save_load_locked and renpy.get_screen("load") == None)
+            textbutton _("Records") action ShowMenu("data_bank", start_mode="write") sensitive (not _msbf_save_load_locked and renpy.get_screen("data_bank") == None)
 
         if nav_main:
 
@@ -500,11 +540,13 @@ style navigation_button_text:
     outlines [(2, "#02050a", 0, 1)]
     hover_outlines [(2, "#02050a", 0, 1), (1, "#ff315b99", 0, 0)]
     insensitive_outlines [(1, "#02050a", 0, 1)]
-    hover_xoffset 8
 
 # -----------------------------------------------------------------------------
-# MAIN MENU -- "the main terminal", laid out as a BROADCAST DESK rather than as
-# the visual-novel column of buttons it used to be.
+# LEGACY MAIN MENU -- the former broadcast-desk treatment.
+#
+# The live title screen now lives in ``main_menu_room.rpy``. This authored
+# version remains available under an explicit legacy name for comparison and
+# rollback, but nothing invokes it during normal play.
 #
 # THE LAYOUT, AND WHY IT IS THIS ONE
 #   Nearly every VN puts its options in a vertical list down one side. This one
@@ -797,14 +839,10 @@ define MM_MW = 620
 define MM_MH = 356
 
 
-# The channel-card plate. The source is a 1024x1024 square -- a 30px cyan bezel
-# around a blue gradient -- so it is DOWNSCALED FIRST and framed second: a
-# Frame's borders are measured in the source image's own pixels, and framing
-# the file at full size would put a 30px bezel on a 142px card. 205 is the
-# scale that lands that bezel on a whole pixel (30 * 205 / 1024 = 6.006), and
-# 6px is about the weight the accent bar and the lip used to carry between
-# them. Only the middle stretches, which a vertical gradient survives cleanly.
-define MM_PLATE = Frame(im.Scale("assets/gui/enter_m/menubutton.png", 205, 205), 6, 6)
+# The channel-card plate is authored at its 205px nine-slice source size. This
+# avoids decoding and scaling the old 1024px placeholder on the title screen;
+# only its quiet gradient centre stretches into the 142x130 card face.
+define MM_PLATE = Frame("assets/gui/menu/channel_plate.png", 6, 6)
 
 
 # The step wedge on the stage monitor's test card: light to dark, warm white
@@ -832,7 +870,7 @@ init python:
     def enter_m_mm_wedge(bar_w=18, pitch=22, bar_h=82):
         return Fixed(
             *[Solid(c, xysize=(bar_w, bar_h), xpos=i * pitch, ypos=0)
-              for i, c in enumerate(MM_TEST_WEDGE)],
+            for i, c in enumerate(MM_TEST_WEDGE)],
             xysize=((len(MM_TEST_WEDGE) - 1) * pitch + bar_w, bar_h)
         )
 
@@ -846,7 +884,7 @@ init python:
         bars = [
             Transform(
                 At(Solid("#56d7ff", xysize=(bar_w, bar_h)),
-                   mm_eq_bar(phase, 0.62 + 0.04 * j, 0.18)),
+                mm_eq_bar(phase, 0.62 + 0.04 * j, 0.18)),
                 xpos=j * pitch, ypos=bar_h, yanchor=1.0,
             )
             for j, phase in enumerate(MM_SIGNAL_PHASE)
@@ -863,7 +901,7 @@ init python:
 # now the pure factories `enter_m_readout_row` / `enter_m_legend_row` further
 # down this file, for the reason documented alongside them.
 
-screen main_menu():
+screen main_menu_terminal_legacy():
 
     tag menu
 
@@ -878,7 +916,7 @@ screen main_menu():
         #   (button label, the line the monitor prints, what clicking it does)
         mm_channels = [
             (_("New Game"),  _("START A NEW RECORDING."),             Start()),
-            (_("Load Game"), _("RESUME A SAVED RECORDING."),          ShowMenu("load")),
+            (_("Load Game"), _("RESUME A SAVED RECORDING."),          ShowMenu("data_bank")),
             (_("Arcade"),    _("CABINET FLOOR. NO STORY ATTACHED."),  ShowMenu("arcade_hub")),
             (_("Archive"),   _("EVERYTHING THE TERMINAL HAS KEPT."),  ShowMenu("archive")),
             (_("Credits"),   _("WHO IS RESPONSIBLE FOR ALL THIS."),   ShowMenu("credits_menu")),
@@ -905,10 +943,12 @@ screen main_menu():
         mm_cur_x = mm_rail_x + mm_cur * (mm_card_w + mm_card_gap)
 
     # --- background field ---
-    add "menu_bg"
-    add Solid("#02050ad2")
+    add gui.main_menu_background
+    # The control-room plate is already dark. A restrained grade keeps the
+    # cyan/red interface readable without burying the physical set dressing.
+    add Solid("#02050a63")
     add "vignette":
-        alpha 0.55
+        alpha 0.40
     add "noise" at mm_grain
     add Solid("#56d7ff20") xysize (1280, 2) at menu_scanline_slow
     add Solid("#ff2f5f14") xysize (1280, 1) at mm_scanline_up
@@ -1043,7 +1083,7 @@ screen main_menu():
         add enter_m_mm_wedge() xpos (MM_MX + 30) ypos (MM_MY + 198)
 
         add Solid("#56d7ff26") xysize (1, 94) xpos (mm_mx + 366) ypos (mm_my + 192)
-        add "assets/gui/enter_m/logo.png":
+        add "assets/gui/logo.png":
             xcenter (mm_mx + 476)
             ycenter (mm_my + 232)
             zoom 0.17
@@ -1490,125 +1530,50 @@ transform console_blink:
         repeat
 
 screen game_menu_m():
-    add "game_menu_bg"
+    add gui.game_menu_background
     add Solid("#02050add")
     timer 0.3 action Hide("game_menu_m")
 
-screen game_menu(title, scroll=None):
+screen game_menu(title, scroll=None, current_screen="menu"):
 
-    if main_menu:
+    # About, Calendar, and any future standard game-menu consumer inherit the
+    # domestic shell here. Arcade and Archive never use this helper and keep
+    # their authored interfaces. The shell's content aperture is the same
+    # 836x520 box the terminal frame exposed, so existing transclusions retain
+    # their measured layout.
+    use room_menu_shell(title, current_screen):
 
-        add gui.main_menu_background
+        if scroll == "viewport":
 
-    else:
-
-        key "mouseup_3" action Return()
-        add gui.game_menu_background
-
-    add Solid("#02050acc")
-    add Solid("#56d7ff1c") xysize (1280, 2) at menu_scanline_slow
-
-    style_prefix "game_menu"
-
-    frame:
-        style "game_menu_outer_frame"
-        at menu_panel_enter(0.0, -28, 0)
-
-        hbox:
-            spacing 16
-
-            frame:
-                style "game_menu_navigation_frame"
+            viewport:
+                style_prefix "room_game_menu_sv"
+                xysize (836, 520)
+                scrollbars "vertical"
+                mousewheel True
+                draggable True
+                yinitial 0.0
+                side_yfill True
 
                 vbox:
-                    xfill True
-                    spacing 12
-
-                    text "ENTER-M":
-                        style "game_menu_nav_title"
-
-                    text "TERMINAL LS":
-                        style "game_menu_nav_subtitle"
-
-                    null height 1
-                    add Solid("#56d7ff3a") xysize (224, 2)
-                    null height 1
-
-                    use navigation(main_menu, embedded=True)
-
-                    null height 8
-
-                    textbutton _("Return"):
-                        style "return_button"
-                        action Return()
-
-                    null height 4
-
-                    hbox:
-                        spacing 7
-                        add Solid("#ff315b") xysize (5, 5) yalign 0.5 at console_blink
-                        text "CONNECTION STABLE":
-                            style "game_menu_nav_footer"
-
-            frame:
-                style "game_menu_content_frame"
-
-                if scroll == "viewport":
-
-                    viewport:
-
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable True
-                        yinitial 1.0
-                        side_yfill True
-                        has vbox
-                        transclude
-
-                elif scroll == "vpgrid":
-
-                    vpgrid:
-
-                        cols 1
-                        yinitial 1.0
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable True
-                        side_yfill True
-                        transclude
-
-                else:
-
+                    xsize 810
                     transclude
 
-    # --- Console chrome layered over the content panel ----------------------
-    use console_brackets(332, 42, 904, 636, "#56d7ff7a", 22, 2)
+        elif scroll == "vpgrid":
 
-    label title
+            vpgrid:
+                style_prefix "room_game_menu_sv"
+                cols 1
+                xysize (836, 520)
+                yinitial 0.0
+                scrollbars "vertical"
+                mousewheel True
+                draggable True
+                side_yfill True
+                transclude
 
-    text "ENTER-M // SYSTEM CONSOLE":
-        style "game_menu_subtitle"
+        else:
 
-    add Solid("#56d7ff2e") xysize (868, 2) xpos 348 ypos 118
-
-    frame:
-        style "game_menu_badge"
-
-        hbox:
-            spacing 8
-            add Solid("#56d7ff") xysize (6, 6) yalign 0.5 at console_blink
-            text "LINK 0x4D // STABLE":
-                style "game_menu_badge_text"
-
-    hbox:
-        style "game_menu_footer"
-        spacing 7
-        add Solid("#345a6b") xysize (5, 5) yalign 0.5
-        text "ENTER-M.SYS  ::  STATUS NOMINAL":
-            style "game_menu_footer_text"
-
-    if main_menu:
-        key "game_menu" action ShowMenu("main_menu")
+            transclude
 
 style game_menu_outer_frame is empty
 style game_menu_navigation_frame is empty
@@ -1727,7 +1692,7 @@ screen about():
 
     tag menu
 
-    use game_menu(_("About"), scroll="viewport"):
+    use game_menu(_("About"), scroll="viewport", current_screen="about"):
 
         style_prefix "about"
 
@@ -1747,171 +1712,33 @@ style about_label_text is gui_label_text
 style about_text is gui_text
 
 style about_label_text:
-    size gui.label_text_size
+    font gui.default_font
+    size 24
+    color ROOM_MENU_INK
+    outlines [(2, "#05090db8", 0, 1)]
 
-screen save():
+style about_text:
+    font gui.default_font
+    size 16
+    color ROOM_MENU_PAPER
+    line_spacing 4
+    outlines [(1, "#05090daa", 0, 1)]
 
-    tag menu
-    if msbf_save_load_locked() and not main_menu:
-        use locked_file_menu(_("Save"), _("Saving is unavailable during Matsuda's boss fight."))
-    else:
-        use file_slots(_("Save"))
+# -----------------------------------------------------------------------------
+# SAVE / LOAD  --  moved out to game/data_bank.rpy
+# -----------------------------------------------------------------------------
+# `screen save`, `screen load`, `screen file_slots` and the page/slot styles
+# that dressed them used to live here. They are gone: both doors now open the
+# RECORD BANK, one screen that restores, writes, copies, re-labels and erases
+# saves off a single list, and both old screen names survive there as thin
+# shims onto it. Read the header of data_bank.rpy for the why.
+#
+# The two styles below stay behind because they are the only part of the old
+# file menu the bank still uses -- `bank_locked` borrows them, so the panel the
+# boss fight puts up is lettered exactly as it always was.
 
-
-screen load():
-
-    tag menu
-    if msbf_save_load_locked() and not main_menu:
-        use locked_file_menu(_("Load"), _("Loading is unavailable during Matsuda's boss fight."))
-    else:
-        use file_slots(_("Load"))
-
-screen locked_file_menu(title, message):
-    use game_menu(title):
-        frame:
-            xalign 0.5
-            yalign 0.5
-            xsize 650
-            ysize 150
-            background Solid("#050811e8")
-            padding (24, 22)
-
-            vbox:
-                spacing 12
-                text message style "locked_file_menu_text":
-                    xalign 0.5
-                    text_align 0.5
-                text _("Finish or leave the battle before using save files.") style "locked_file_menu_hint":
-                    xalign 0.5
-                    text_align 0.5
-
-init python:
-    def FileActionMod(name, page=None, **kwargs):
-        if msbf_save_load_locked():
-            return NullAction()
-        return FileAction(name)
-
-
-screen file_slots(title):
-
-    default page_name_value = FilePageNameInputValue()
-
-    use game_menu(title):
-
-        fixed:
-
-            order_reverse True
-
-            button:
-                style "page_label"
-
-
-                xalign 0.5
-
-
-                input:
-                    style "page_label_text"
-                    value page_name_value
-
-
-            grid gui.file_slot_cols gui.file_slot_rows:
-                style_prefix "slot"
-
-                xalign 0.5
-                yalign 0.5
-
-                spacing gui.slot_spacing
-
-                for i in range(gui.file_slot_cols * gui.file_slot_rows):
-
-                    $ slot = i + 1
-
-                    button:
-                        action FileActionMod(slot)
-
-                        has vbox
-
-                        add FileScreenshot(slot) xalign 0.5
-
-                        text FileTime(slot, format=_("{#file_time}%A, %B %d %Y, %H:%M"), empty=_("empty slot")):
-                            style "slot_time_text"
-
-                        text FileSaveName(slot):
-                            style "slot_name_text"
-
-                        key "save_delete" action FileDelete(slot)
-
-
-            hbox:
-                style_prefix "page"
-
-                xalign 0.5
-                yalign 1.0
-
-                spacing gui.page_spacing
-
-
-
-
-
-
-
-
-                for page in range(1, 10):
-                    textbutton "[page]" action FilePage(page)
-
-
-
-
-style page_label is gui_label
-style page_label_text is gui_label_text
-style page_button is gui_button
-style page_button_text is gui_button_text
-
-style slot_button is gui_button
-style slot_button_text is gui_button_text
-style slot_time_text is slot_button_text
-style slot_name_text is slot_button_text
 style locked_file_menu_text is gui_text
 style locked_file_menu_hint is gui_text
-
-style page_label:
-    xpadding 50
-    ypadding 3
-
-style page_label_text:
-    color "#f2fbff"
-    outlines [(1, "#02050a", 0, 1)]
-    text_align 0.5
-    layout "subtitle"
-    hover_color gui.hover_color
-
-style page_button:
-    properties gui.button_properties("page_button")
-    background "#071019cc"
-    hover_background "#2a1020f2"
-    selected_background "#183447f2"
-
-style page_button_text:
-    properties gui.button_text_properties("page_button")
-    color "#b8c7cf"
-    hover_color "#ff315b"
-    selected_color "#8bd7ff"
-    outlines [(1, "#02050a", 0, 1)]
-
-style slot_button:
-    properties gui.button_properties("slot_button")
-    background "#071019dd"
-    hover_background "#2a1020f2"
-    selected_background "#183447f2"
-    insensitive_background "#03070baa"
-
-style slot_button_text:
-    properties gui.button_text_properties("slot_button")
-    color "#b8c7cf"
-    hover_color "#ff315b"
-    selected_color "#8bd7ff"
-    outlines [(1, "#02050a", 0, 1)]
 
 style locked_file_menu_text:
     font "assets/fonts/SF Automaton Extended.ttf"
@@ -2053,7 +1880,7 @@ screen pref_section(pref_key, pref_title, pref_accent="#56d7ff", pref_delay=0.0)
     $ _pref_open = enter_m_pref_section_is_open(pref_key)
 
     frame:
-        style "pref_panel"
+        style "room_pref_panel"
         at pref_panel_enter(pref_delay)
 
         # Spacing 0 and a header that spans the WHOLE panel: give the panel its
@@ -2064,7 +1891,7 @@ screen pref_section(pref_key, pref_title, pref_accent="#56d7ff", pref_delay=0.0)
             spacing 0
 
             button:
-                style "pref_section_button"
+                style "room_pref_section_button"
                 action Function(enter_m_pref_section_toggle, pref_key)
 
                 # This `fixed` is the button's ONLY child on purpose -- the same
@@ -2075,7 +1902,7 @@ screen pref_section(pref_key, pref_title, pref_accent="#56d7ff", pref_delay=0.0)
 
                     add Solid(pref_accent) xysize (4, 22) xpos 0 ypos 3
                     text pref_title:
-                        style "pref_section_title"
+                        style "room_pref_section_title"
                         xpos 14
                         ypos 0
 
@@ -2083,13 +1910,13 @@ screen pref_section(pref_key, pref_title, pref_accent="#56d7ff", pref_delay=0.0)
                     # section is shut. Drawn out of Solids rather than set as a
                     # caret glyph because every triangle in the three fonts this
                     # game ships is tofu.
-                    add Solid("#8bd7ff") xysize (14, 2) xpos 550 ypos 13
+                    add Solid(pref_accent) xysize (14, 2) xpos 550 ypos 13
                     if not _pref_open:
-                        add Solid("#8bd7ff") xysize (2, 14) xpos 556 ypos 7
+                        add Solid(pref_accent) xysize (2, 14) xpos 556 ypos 7
 
             if _pref_open:
                 frame:
-                    style "pref_section_body"
+                    style "room_pref_section_body"
                     at pref_body_open
 
                     vbox:
@@ -2106,10 +1933,15 @@ screen preferences():
     on "show" action Function(enter_m_pref_sections_close)
     on "replace" action Function(enter_m_pref_sections_close)
 
-    use game_menu(_("Settings")):
+    use room_menu_shell(_("Settings"), "preferences"):
 
         viewport:
-            xsize 620
+            # 620px belongs to the controls, not to the scrollbar side. Give
+            # Ren'Py a separate 8px bar plus a 12px gutter so the right edge of
+            # a section never sits underneath the side container when a tall
+            # accordion panel activates scrolling.
+            style_prefix "room_pref_sv"
+            xsize 640
             ysize 520
             xalign 0.5
             yalign 0.5
@@ -2137,25 +1969,24 @@ screen preferences():
                     at pref_panel_enter(0.00)
 
                     text _("CONFIGURATION INDEX"):
-                        style "pref_index_label"
+                        style "room_pref_index_label"
                         xpos 2
                         ypos 7
 
                     textbutton _("Collapse All"):
-                        style "pref_index_button"
+                        style "room_pref_index_button"
                         xpos 490
                         ypos 1
                         action Function(enter_m_pref_sections_close)
-                        at pref_button_hover
 
                 # --- DISPLAY: the window and what the hardware is doing --
-                use pref_section("display", _("Display"), "#56d7ff", 0.03):
+                use pref_section("display", _("Display"), ROOM_MENU_TEAL, 0.03):
 
                     if renpy.variant("pc"):
                         hbox:
-                            style "pref_button_row"
-                            textbutton _("Window") style "radio_button" action Preference("display", "window") at pref_button_hover
-                            textbutton _("Fullscreen") style "radio_button" action Preference("display", "fullscreen") at pref_button_hover
+                            style "room_pref_button_row"
+                            textbutton _("Window") style "room_pref_radio_button" action Preference("display", "window")
+                            textbutton _("Fullscreen") style "room_pref_radio_button" action Preference("display", "fullscreen")
 
                     # THE FRAME RATE CAP AND THE VSYNC PICKER USED TO LIVE HERE
                     # and are gone (Aug 27 2026). The game runs at the display's
@@ -2171,145 +2002,139 @@ screen preferences():
                         timer 1.0 repeat True action Function(enter_m_fps_sample)
                         $ _enter_m_fps_now = enter_m_fps_measured()
                         $ _enter_m_hz = enter_m_refresh_rate_label()
-                        text _("measured: [_enter_m_fps_now!t] fps  //  display: [_enter_m_hz!t]") style "pref_note_label"
+                        text _("measured: [_enter_m_fps_now!t] fps  //  display: [_enter_m_hz!t]") style "room_pref_note_label"
 
                 # --- GRAPHICS: what the picture costs -------------------
-                use pref_section("graphics", _("Graphics"), "#56d7ff", 0.06):
+                use pref_section("graphics", _("Graphics"), ROOM_MENU_CORAL, 0.06):
 
-                    text _("Scene Transitions") style "pref_row_label"
+                    text _("Scene Transitions") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Full") style "radio_button" action Preference("transitions", "all") selected (_preferences.transitions == 2) at pref_button_hover
-                        textbutton _("Off") style "radio_button" action Preference("transitions", "none") selected (_preferences.transitions == 0) at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("Full") style "room_pref_radio_button" action Preference("transitions", "all") selected (_preferences.transitions == 2)
+                        textbutton _("Off") style "room_pref_radio_button" action Preference("transitions", "none") selected (_preferences.transitions == 0)
 
-                    text _("Atmosphere") style "pref_row_label"
+                    text _("Atmosphere") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Full") style "pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "full"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "full") at pref_button_hover
-                        textbutton _("Light") style "pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "light"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "light") at pref_button_hover
-                        textbutton _("Off") style "pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "off"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "off") at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("Full") style "room_pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "full"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "full")
+                        textbutton _("Light") style "room_pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "light"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "light")
+                        textbutton _("Off") style "room_pref_small_button" action [SetField(persistent, "enter_m_atmos_quality", "off"), Function(atmos_refresh)] selected (persistent.enter_m_atmos_quality == "off")
 
-                    text _("Story Panels") style "pref_row_label"
+                    text _("Story Panels") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("On") style "radio_button" action Function(stage_panels_set_enabled, True) selected persistent.enter_m_panels at pref_button_hover
-                        textbutton _("Off") style "radio_button" action Function(stage_panels_set_enabled, False) selected (not persistent.enter_m_panels) at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("On") style "room_pref_radio_button" action Function(stage_panels_set_enabled, True) selected persistent.enter_m_panels
+                        textbutton _("Off") style "room_pref_radio_button" action Function(stage_panels_set_enabled, False) selected (not persistent.enter_m_panels)
 
                     # The boss fights only. Every stop still draws every
                     # effect; what changes is the internal resolution the
                     # procedural layers are rendered at before being scaled to
                     # the frame. Sprites, text and UI are never touched. See
                     # addons/Matsuda's Sick Boss Fight/perf.rpy.
-                    text _("Fight Effects") style "pref_row_label"
+                    text _("Fight Effects") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Native") style "pref_small_button" action SetField(persistent, "msbf_gfx", "ultra") selected (msbf_gfx_level() == "ultra") at pref_button_hover
-                        textbutton _("720p") style "pref_small_button" action SetField(persistent, "msbf_gfx", "high") selected (msbf_gfx_level() == "high") at pref_button_hover
-                        textbutton _("Fast") style "pref_small_button" action SetField(persistent, "msbf_gfx", "performance") selected (msbf_gfx_level() == "performance") at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("Native") style "room_pref_small_button" action SetField(persistent, "msbf_gfx", "ultra") selected (msbf_gfx_level() == "ultra")
+                        textbutton _("720p") style "room_pref_small_button" action SetField(persistent, "msbf_gfx", "high") selected (msbf_gfx_level() == "high")
+                        textbutton _("Fast") style "room_pref_small_button" action SetField(persistent, "msbf_gfx", "performance") selected (msbf_gfx_level() == "performance")
 
-                    text _("Textbox Opacity") style "pref_row_label"
-                    bar value FieldValue(persistent, "textbox_opacity", range=1.0, max_is_zero=False, style="slider") style "pref_full_slider"
+                    text _("Textbox Opacity") style "room_pref_row_label"
+                    bar value FieldValue(persistent, "textbox_opacity", range=1.0, max_is_zero=False, style="slider") style "room_pref_full_slider"
 
                 # --- AUDIO ----------------------------------------------
-                use pref_section("audio", _("Audio"), "#56d7ff", 0.09):
+                use pref_section("audio", _("Audio"), ROOM_MENU_OCHRE, 0.09):
 
                     if config.has_music:
-                        text _("Music Volume") style "pref_row_label"
-                        bar value Preference("music volume") style "pref_full_slider"
+                        text _("Music Volume") style "room_pref_row_label"
+                        bar value Preference("music volume") style "room_pref_full_slider"
 
                     if config.has_sound:
-                        text _("Sound Volume") style "pref_row_label"
+                        text _("Sound Volume") style "room_pref_row_label"
                         hbox:
-                            style "pref_audio_row"
-                            bar value Preference("sound volume") style ("pref_full_audio_slider" if config.sample_sound else "pref_full_slider")
+                            style "room_pref_audio_row"
+                            bar value Preference("sound volume") style ("room_pref_full_audio_slider" if config.sample_sound else "room_pref_full_slider")
 
                             if config.sample_sound:
-                                textbutton _("Test") style "pref_test_button" action Play("sound", config.sample_sound) at pref_button_hover
+                                textbutton _("Test") style "room_pref_test_button" action Play("sound", config.sample_sound)
 
                     if config.has_voice:
-                        text _("Voice Volume") style "pref_row_label"
+                        text _("Voice Volume") style "room_pref_row_label"
                         hbox:
-                            style "pref_audio_row"
-                            bar value Preference("voice volume") style ("pref_full_audio_slider" if config.sample_voice else "pref_full_slider")
+                            style "room_pref_audio_row"
+                            bar value Preference("voice volume") style ("room_pref_full_audio_slider" if config.sample_voice else "room_pref_full_slider")
 
                             if config.sample_voice:
-                                textbutton _("Test") style "pref_test_button" action Play("voice", config.sample_voice) at pref_button_hover
+                                textbutton _("Test") style "room_pref_test_button" action Play("voice", config.sample_voice)
 
                     if config.has_music or config.has_sound or config.has_voice:
                         hbox:
-                            style "pref_button_row"
-                            textbutton _("Mute All") style "mute_all_button" action Preference("all mute", "toggle") at pref_button_hover
-                            textbutton _("Max Volume") style "pref_action_button" action Function(enter_m_max_volume) at pref_button_hover
+                            style "room_pref_button_row"
+                            textbutton _("Mute All") style "room_pref_check_button" action Preference("all mute", "toggle")
+                            textbutton _("Max Volume") style "room_pref_action_button" action Function(enter_m_max_volume)
 
                 # --- TEXT: the speed the prose arrives at ---------------
-                use pref_section("text", _("Text"), "#ff315b", 0.12):
+                use pref_section("text", _("Text"), ROOM_MENU_LAVENDER, 0.12):
 
-                    text _("Text Speed") style "pref_row_label"
-                    bar value FieldValue(_preferences, "text_cps", range=180, max_is_zero=False, style="slider", offset=20) style "pref_full_slider"
-
-                    hbox:
-                        style "pref_preset_row"
-                        textbutton _("Slow") style "pref_preset_button" action SetField(_preferences, "text_cps", 20) selected (_preferences.text_cps == 20) at pref_button_hover
-                        textbutton _("Normal") style "pref_preset_button" action SetField(_preferences, "text_cps", 60) selected (_preferences.text_cps == 60) at pref_button_hover
-                        textbutton _("Fast") style "pref_preset_button" action SetField(_preferences, "text_cps", 120) selected (_preferences.text_cps == 120) at pref_button_hover
-                        textbutton _("Instant") style "pref_preset_button" action SetField(_preferences, "text_cps", 0) selected (_preferences.text_cps == 0) at pref_button_hover
+                    text _("Text Speed") style "room_pref_row_label"
+                    bar value FieldValue(_preferences, "text_cps", range=180, max_is_zero=False, style="slider", offset=20) style "room_pref_full_slider"
 
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Auto Mode") style "check_button" action Preference("auto-forward", "toggle") at pref_button_hover
-                        textbutton _("After Click") style "check_button" action Preference("auto-forward after click", "toggle") at pref_button_hover
+                        style "room_pref_preset_row"
+                        textbutton _("Slow") style "room_pref_preset_button" action SetField(_preferences, "text_cps", 20) selected (_preferences.text_cps == 20)
+                        textbutton _("Normal") style "room_pref_preset_button" action SetField(_preferences, "text_cps", 60) selected (_preferences.text_cps == 60)
+                        textbutton _("Fast") style "room_pref_preset_button" action SetField(_preferences, "text_cps", 120) selected (_preferences.text_cps == 120)
+                        textbutton _("Instant") style "room_pref_preset_button" action SetField(_preferences, "text_cps", 0) selected (_preferences.text_cps == 0)
 
-                    text _("Auto-Forward Delay") style "pref_row_label"
-                    bar value Preference("auto-forward time") style "pref_full_slider"
+                    hbox:
+                        style "room_pref_button_row"
+                        textbutton _("Auto Mode") style "room_pref_check_button" action Preference("auto-forward", "toggle")
+                        textbutton _("After Click") style "room_pref_check_button" action Preference("auto-forward after click", "toggle")
+
+                    text _("Auto-Forward Delay") style "room_pref_row_label"
+                    bar value Preference("auto-forward time") style "room_pref_full_slider"
 
                 # --- GAME: how far the player is allowed to jump --------
-                use pref_section("game", _("Game"), "#ff315b", 0.15):
+                use pref_section("game", _("Game"), ROOM_MENU_CORAL, 0.15):
 
-                    text _("Skip") style "pref_row_label"
+                    text _("Skip") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Unseen Text") style "check_button" action Preference("skip", "toggle") at pref_button_hover
-                        textbutton _("After Choices") style "check_button" action Preference("after choices", "toggle") at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("Unseen Text") style "room_pref_check_button" action Preference("skip", "toggle")
+                        textbutton _("After Choices") style "room_pref_check_button" action Preference("after choices", "toggle")
 
                     if config.developer:
-                        text _("Rollback Edge") style "pref_row_label"
+                        text _("Rollback Edge") style "room_pref_row_label"
                         hbox:
-                            style "pref_button_row"
-                            textbutton _("Off") style "pref_small_button" action Preference("rollback side", "disable") at pref_button_hover
-                            textbutton _("Left") style "pref_small_button" action Preference("rollback side", "left") at pref_button_hover
-                            textbutton _("Right") style "pref_small_button" action Preference("rollback side", "right") at pref_button_hover
+                            style "room_pref_button_row"
+                            textbutton _("Off") style "room_pref_small_button" action Preference("rollback side", "disable")
+                            textbutton _("Left") style "room_pref_small_button" action Preference("rollback side", "left")
+                            textbutton _("Right") style "room_pref_small_button" action Preference("rollback side", "right")
 
                 # --- ASSIST ---------------------------------------------
-                use pref_section("assist", _("Assist"), "#56d7ff", 0.18):
+                use pref_section("assist", _("Assist"), ROOM_MENU_TEAL, 0.18):
 
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("Cursor Assist") style "check_button" action Preference("automatic move", "toggle") at pref_button_hover
-                        textbutton _("Audio Focus") style "check_button" action Preference("emphasize audio", "toggle") at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("Cursor Assist") style "room_pref_check_button" action Preference("automatic move", "toggle")
+                        textbutton _("Audio Focus") style "room_pref_check_button" action Preference("emphasize audio", "toggle")
 
-                    text _("Speaker Focus") style "pref_row_label"
+                    text _("Speaker Focus") style "room_pref_row_label"
                     hbox:
-                        style "pref_button_row"
-                        textbutton _("None") style "pref_small_button" action Function(autofocus_set_dim_mode, "none") selected (persistent.autofocus_dim_mode == "none") at pref_button_hover
-                        textbutton _("Opaque") style "pref_small_button" action Function(autofocus_set_dim_mode, "opaque") selected (persistent.autofocus_dim_mode == "opaque") at pref_button_hover
-                        textbutton _("Darken") style "pref_small_button" action Function(autofocus_set_dim_mode, "darken") selected (persistent.autofocus_dim_mode == "darken") at pref_button_hover
+                        style "room_pref_button_row"
+                        textbutton _("None") style "room_pref_small_button" action Function(autofocus_set_dim_mode, "none") selected (persistent.autofocus_dim_mode == "none")
+                        textbutton _("Opaque") style "room_pref_small_button" action Function(autofocus_set_dim_mode, "opaque") selected (persistent.autofocus_dim_mode == "opaque")
+                        textbutton _("Darken") style "room_pref_small_button" action Function(autofocus_set_dim_mode, "darken") selected (persistent.autofocus_dim_mode == "darken")
 
                 # --- the footer, which never collapses ------------------
                 vbox:
                     spacing 10
                     at pref_panel_enter(0.21)
 
-                    add Solid("#56d7ff26") xysize (620, 1)
+                    add Solid("#d6a3543d") xysize (620, 1)
 
                     textbutton _("Reset to Defaults"):
-                        style "pref_reset_button"
+                        style "room_pref_reset_button"
                         action Function(enter_m_restore_default_preferences)
-                        at pref_button_hover
-
-    text "v[config.version]":
-        xalign 1.0 yalign 1.0
-        xoffset -10 yoffset -10
-        style "main_menu_version"
 
 style pref_label is gui_label
 style pref_label_text is gui_label_text
@@ -2583,164 +2408,133 @@ screen history():
     $ history_count = len(_history_list)
     $ history_count_text = _("{count} ENTRIES").format(count=history_count)
 
-    if main_menu:
-        add gui.main_menu_background
-    else:
-        key "mouseup_3" action Return()
-        add gui.game_menu_background
+    use room_menu_shell(_("History"), "history"):
 
-    add Solid("#02050acc")
-    add Solid("#56d7ff1c") xysize (1280, 2) at menu_scanline_slow
+        fixed:
+            xysize (836, 520)
 
-    style_prefix "history"
+            vbox:
+                xalign 0.5
+                spacing 8
 
-    frame:
-        style "history_outer_frame"
-        at menu_panel_enter(0.0, -28, 0)
+                fixed:
+                    style "history_header"
+                    xalign 0.5
 
-        hbox:
-            spacing 16
+                    vbox:
+                        spacing 1
 
-            frame:
-                style "game_menu_navigation_frame"
+                        text _("SESSION TRANSCRIPT"):
+                            style "history_title"
 
-                vbox:
-                    xfill True
-                    spacing 14
+                        text _("DIALOGUE, NARRATION, AND THE ORDER THEY ARRIVED"):
+                            style "history_subtitle"
 
-                    text "ENTER-M":
-                        style "game_menu_nav_title"
+                    frame:
+                        style "history_count_badge"
+                        xalign 1.0
+                        yalign 0.5
 
-                    use navigation(main_menu, embedded=True)
+                        hbox:
+                            spacing 8
 
-                    null height 10
+                            add Solid(ROOM_MENU_OCHRE):
+                                xysize (6, 6)
+                                yalign 0.5
 
-                    textbutton _("Return"):
-                        style "return_button"
-                        action Return()
+                            text history_count_text:
+                                style "history_count_text"
 
-            frame:
-                style "history_content_frame"
+                fixed:
+                    xsize 812
+                    ysize 2
+                    xalign 0.5
 
-                vbox:
-                    spacing 8
+                    add Solid("#e8dbc536") xysize (812, 1) ypos 1
+                    add Solid(ROOM_MENU_TEAL) xysize (92, 2)
+                    add Solid(ROOM_MENU_CORAL) xysize (48, 2) xpos 96
 
-                    fixed:
-                        style "history_header"
+                viewport:
+                    id "history_viewport"
+                    style "history_viewport"
+                    scrollbars "vertical"
+                    mousewheel True
+                    draggable True
+                    yinitial 1.0
+                    side_yfill True
 
-                        vbox:
-                            spacing 1
+                    vbox:
+                        style "history_list"
 
-                            text _("HISTORY"):
-                                style "history_title"
+                        if _history_list:
+                            for history_index, h in enumerate(_history_list):
+                                $ history_entry_number = "{:03d}".format(history_index + 1)
 
-                            text _("SESSION TRANSCRIPT // ACTIVE MEMORY"):
-                                style "history_subtitle"
+                                # Spoken lines and narration are the same
+                                # entry with four things swapped, so the
+                                # differences are resolved up front rather
+                                # than duplicating the whole entry layout.
+                                $ history_named = bool(h.who)
+                                $ history_entry_color = h.who_args.get("color", ROOM_MENU_TEAL) if history_named else "#718b88"
+                                $ history_label_color = history_entry_color if history_named else ROOM_MENU_MUTED
+                                $ history_speaker_style = "history_speaker" if history_named else "history_narrator"
+                                $ history_body_style = "history_dialogue" if history_named else "history_narration_text"
 
-                        frame:
-                            style "history_count_badge"
-                            xalign 1.0
-                            yalign 0.5
-
-                            hbox:
-                                spacing 8
-
-                                add Solid("#56d7ff"):
-                                    xysize (6, 6)
-                                    yalign 0.5
-
-                                text history_count_text:
-                                    style "history_count_text"
-
-                    add Solid("#56d7ff55"):
-                        xysize (812, 2)
-
-                    viewport:
-                        id "history_viewport"
-                        style "history_viewport"
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable True
-                        yinitial 1.0
-                        side_yfill True
-
-                        vbox:
-                            style "history_list"
-
-                            if _history_list:
-                                for history_index, h in enumerate(_history_list):
-                                    $ history_entry_number = "{:03d}".format(history_index + 1)
-
-                                    # Spoken lines and narration are the same
-                                    # entry with four things swapped, so the
-                                    # differences are resolved up front rather
-                                    # than by writing the whole 25-line entry
-                                    # out twice and keeping the shared header
-                                    # geometry in sync by hand.
-                                    $ history_named = bool(h.who)
-                                    $ history_entry_color = h.who_args.get("color", gui.accent_color) if history_named else "#607d8c"
-                                    # The narration label keeps history_narrator's own grey; only a
-                                    # named speaker takes their character colour.
-                                    $ history_label_color = history_entry_color if history_named else "#8ba4b0"
-                                    $ history_speaker_style = "history_speaker" if history_named else "history_narrator"
-                                    $ history_body_style = "history_dialogue" if history_named else "history_narration_text"
+                                frame:
+                                    style "history_entry_rail"
+                                    background Solid(history_entry_color)
 
                                     frame:
-                                        style "history_entry_rail"
-                                        background Solid(history_entry_color)
+                                        style ("history_entry" if history_named else "history_entry_narration")
 
-                                        frame:
-                                            style ("history_entry" if history_named else "history_entry_narration")
+                                        vbox:
+                                            style "history_entry_body"
 
-                                            vbox:
-                                                style "history_entry_body"
+                                            fixed:
+                                                xsize 776
+                                                ysize 25
 
-                                                fixed:
-                                                    xsize 777
-                                                    ysize 25
-
-                                                    text (h.who if history_named else _("NARRATION")):
-                                                        style history_speaker_style
-                                                        color history_label_color
-                                                        substitute False
-
-                                                    text history_entry_number:
-                                                        style "history_entry_number"
-                                                        xalign 1.0
-
-                                                text h.what:
-                                                    style history_body_style
+                                                text (h.who if history_named else _("NARRATION")):
+                                                    style history_speaker_style
+                                                    color history_label_color
                                                     substitute False
 
-                            else:
-                                frame:
-                                    style "history_empty"
+                                                text history_entry_number:
+                                                    style "history_entry_number"
+                                                    xalign 1.0
 
-                                    vbox:
+                                            text h.what:
+                                                style history_body_style
+                                                substitute False
+
+                        else:
+                            frame:
+                                style "history_empty"
+
+                                vbox:
+                                    xalign 0.5
+                                    yalign 0.5
+                                    spacing 8
+
+                                    text _("Nothing here yet."):
+                                        style "history_empty_title"
                                         xalign 0.5
-                                        yalign 0.5
-                                        spacing 8
 
-                                        text "NO TRANSCRIPT DATA":
-                                            style "history_empty_title"
-                                            xalign 0.5
+                                    text _("Dialogue will be kept here as you play."):
+                                        style "history_empty_text"
+                                        xalign 0.5
 
-                                        text _("Dialogue will be archived here as you play."):
-                                            style "history_empty_text"
-                                            xalign 0.5
+                fixed:
+                    style "history_footer"
+                    xalign 0.5
 
-                    fixed:
-                        style "history_footer"
+                    text _("MOUSE WHEEL / DRAG  •  REVIEW"):
+                        style "history_footer_text"
 
-                        text _("MOUSE WHEEL / DRAG  •  REVIEW TRANSCRIPT"):
-                            style "history_footer_text"
-
-                        text _("ESC / RMB  •  RETURN"):
-                            style "history_footer_text"
-                            xalign 1.0
-
-    if main_menu:
-        key "game_menu" action ShowMenu("main_menu")
+                    text _("ESC / RMB  •  RETURN"):
+                        style "history_footer_text"
+                        xpos 720
+                        xanchor 1.0
 
 
 style history_outer_frame is game_menu_outer_frame
@@ -2762,42 +2556,48 @@ style history_content_frame:
     xsize 904
     ysize 636
     padding (30, 20, 22, 18)
-    background "#071019ed"
+    background ROOM_MENU_PANEL
 
 style history_header:
     xsize 812
-    ysize 56
+    ysize 44
 
 style history_title is gui_text:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 34
-    color "#f2fbff"
-    outlines [(2, "#02050a", 0, 1), (1, "#56d7ff88", 0, 0)]
+    font gui.default_font
+    size 22
+    color ROOM_MENU_INK
+    outlines [(2, "#05090db8", 0, 1)]
 
 style history_subtitle is gui_text:
     font gui.interface_font
-    size 11
-    color "#7895a3"
-    kerning 1.5
+    size 9
+    color ROOM_MENU_MUTED
+    kerning 1.1
+    outlines [(1, "#05090d99", 0, 1)]
 
 style history_count_badge:
-    padding (12, 7, 12, 7)
-    background "#102b3ae6"
+    padding (12, 6, 12, 6)
+    background ROOM_MENU_SELECTOR_IDLE
 
 style history_count_text is gui_text:
     font gui.interface_font
-    size 12
-    color "#bfeeff"
+    size 10
+    color ROOM_MENU_PAPER
+    kerning 0.8
+    outlines [(1, "#05090d99", 0, 1)]
 
 style history_viewport:
-    xsize 834
-    ysize 494
+    xsize 836
+    ysize 424
 
 style history_vscrollbar:
-    unscrollable gui.unscrollable
+    xsize 8
+    base_bar Frame(Solid("#172126b8"), 0, 0, 0, 0)
+    thumb Frame(Solid(ROOM_MENU_TEAL + "d8"), 2, 2, 2, 2)
+    unscrollable "hide"
 
 style history_side:
-    spacing 10
+    spacing 12
 
 style history_list:
     xsize 812
@@ -2806,47 +2606,48 @@ style history_list:
 
 style history_entry_rail:
     xsize 812
-    padding (3, 0, 0, 0)
+    padding (4, 0, 0, 0)
 
 style history_entry:
-    xsize 809
+    xsize 808
     padding (16, 11, 16, 12)
-    background "#0a1722e8"
+    background ROOM_MENU_SELECTOR_IDLE
 
 style history_entry_narration:
-    background "#08131cce"
+    background "#0c1619d6"
 
 style history_entry_body:
-    xsize 777
+    xsize 776
     spacing 5
 
 style history_speaker is gui_text:
-    font gui.name_font
-    size 20
-    outlines [(1, "#02050a", 0, 1)]
+    font gui.default_font
+    size 18
+    outlines [(1, "#05090db8", 0, 1)]
 
 style history_narrator is gui_text:
     font gui.interface_font
-    size 12
-    color "#8ba4b0"
-    kerning 1.5
+    size 11
+    color ROOM_MENU_MUTED
+    kerning 1.2
+    outlines [(1, "#05090d99", 0, 1)]
 
 style history_entry_number is gui_text:
     font gui.interface_font
     size 10
-    color "#4e6875"
+    color "#718b88"
     yalign 0.5
 
 style history_dialogue is gui_text:
     font gui.default_font
-    size 20
-    color "#edf6f7"
-    xsize 777
+    size 18
+    color ROOM_MENU_PAPER
+    xsize 776
     line_spacing 3
-    outlines [(1, "#02050a99", 0, 1)]
+    outlines [(1, "#05090d99", 0, 1)]
 
 style history_narration_text is history_dialogue:
-    color "#c8d6d9"
+    color ROOM_MENU_MUTED
     italic True
 
 style history_footer:
@@ -2856,23 +2657,25 @@ style history_footer:
 style history_footer_text is gui_text:
     font gui.interface_font
     size 9
-    color "#58727f"
-    kerning 1.0
+    color "#718b88"
+    kerning 0.8
 
 style history_empty:
     xsize 812
-    ysize 460
-    background "#08131c99"
+    ysize 400
+    background ROOM_MENU_SELECTOR_IDLE
 
 style history_empty_title is gui_text:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 24
-    color "#76919d"
+    font gui.default_font
+    size 22
+    color ROOM_MENU_PAPER
+    outlines [(1, "#05090db8", 0, 1)]
 
 style history_empty_text is gui_text:
     font gui.interface_font
-    size 14
-    color "#58727f"
+    size 13
+    color ROOM_MENU_MUTED
+    outlines [(1, "#05090d99", 0, 1)]
 
 
 
@@ -3128,33 +2931,55 @@ screen confirm(message, yes_action, no_action):
 
     zorder 200
 
-    style_prefix "confirm"
+    style_prefix "room_confirm"
 
-    add Solid("#02050ad9")
+    key "game_menu" action no_action
+
+    add Solid("#031015bd")
+    add Solid("#d6a3540b")
 
     frame:
 
         has vbox:
             xalign .5
             yalign .5
-            spacing 22
+            spacing 18
 
-        text "// ENTER-M  SYSTEM QUERY":
-            style "confirm_tag"
+        add "assets/gui/logo.png":
+            xysize (54, 54)
             xalign 0.5
 
-        add Solid("#56d7ff4a") xysize (360, 2) xalign 0.5
+        text _("A MOMENT TO BE SURE"):
+            style "room_confirm_tag"
+            xalign 0.5
 
-        label _(message):
-            style "confirm_prompt"
+        fixed:
+            xysize (520, 2)
+            xalign 0.5
+
+            add Solid(ROOM_MENU_TEAL) xysize (240, 2)
+            add Solid(ROOM_MENU_CORAL) xysize (160, 2) xpos 240
+            add Solid(ROOM_MENU_OCHRE) xysize (120, 2) xpos 400
+
+        text _(message):
+            style "room_confirm_prompt_text"
+            xsize 600
             xalign 0.5
 
         hbox:
             xalign 0.5
-            spacing 48
+            spacing 14
 
-            textbutton _("Yes") action yes_action
-            textbutton _("No") action no_action
+            textbutton _("Yes"):
+                style "room_confirm_yes_button"
+                text_style "room_confirm_yes_button_text"
+                action yes_action
+
+            textbutton _("No"):
+                style "room_confirm_no_button"
+                text_style "room_confirm_no_button_text"
+                action no_action
+                default_focus True
 
 
 
@@ -3209,6 +3034,83 @@ style confirm_button_text:
     selected_color "#8bd7ff"
     outlines [(2, "#02050a", 0, 1)]
     hover_outlines [(2, "#02050a", 0, 1), (1, "#ff315b99", 0, 0)]
+    xalign 0.5
+    yalign 0.5
+    text_align 0.5
+
+
+# The room-family confirmation is deliberately isolated from ``name_input``
+# and ``dialog``, which still use the legacy ``confirm_*`` style namespace.
+style room_confirm_frame is empty
+style room_confirm_prompt is gui_prompt
+style room_confirm_prompt_text is gui_prompt_text
+style room_confirm_button is gui_medium_button
+style room_confirm_button_text is gui_medium_button_text
+style room_confirm_tag is gui_text
+
+style room_confirm_frame:
+    xsize 680
+    padding (40, 30, 40, 34)
+    xalign 0.5
+    yalign 0.5
+    background ROOM_MENU_PANEL
+
+style room_confirm_tag:
+    font gui.interface_font
+    size 10
+    color ROOM_MENU_OCHRE
+    kerning 1.4
+    text_align 0.5
+    outlines [(1, "#05090d99", 0, 1)]
+
+style room_confirm_prompt:
+    xsize 600
+
+style room_confirm_prompt_text:
+    font gui.default_font
+    color ROOM_MENU_INK
+    size 21
+    xsize 600
+    xalign 0.5
+    text_align 0.5
+    layout "subtitle"
+    outlines [(2, "#05090db8", 0, 1)]
+
+style room_confirm_button:
+    xsize 250
+    ysize 46
+    padding (14, 7, 14, 8)
+    background ROOM_MENU_SELECTOR_IDLE
+    hover_background ROOM_MENU_SELECTOR_HOVER
+    insensitive_background ROOM_MENU_SELECTOR_IDLE
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style room_confirm_yes_button is room_confirm_button:
+    background ROOM_MENU_SELECTOR_DANGER
+    hover_background ROOM_MENU_SELECTOR_YES_HOVER
+    selected_hover_background ROOM_MENU_SELECTOR_YES_HOVER
+
+style room_confirm_yes_button_text is room_confirm_button_text:
+    hover_color "#fffdf5"
+    hover_outlines [(2, "#ff9d87cc", 0, 0), (1, "#05090db8", 0, 1)]
+
+style room_confirm_no_button is room_confirm_button:
+    background ROOM_MENU_SELECTOR_SELECTED
+    hover_background ROOM_MENU_SELECTOR_NO_HOVER
+    selected_hover_background ROOM_MENU_SELECTOR_NO_HOVER
+
+style room_confirm_no_button_text is room_confirm_button_text:
+    hover_color "#fffdf5"
+    hover_outlines [(2, "#70bbb3cc", 0, 0), (1, "#05090db8", 0, 1)]
+
+style room_confirm_button_text:
+    font gui.default_font
+    size 18
+    color ROOM_MENU_PAPER
+    hover_color "#fff8ea"
+    insensitive_color "#71807e"
+    outlines [(1, "#05090db8", 0, 1)]
     xalign 0.5
     yalign 0.5
     text_align 0.5

@@ -1,0 +1,6 @@
+worried: seed=2162 candidate=3613 recovered=3419
+unamused: seed=1602 candidate=1784 recovered=1526
+disgusted: seed=1714 candidate=2742 recovered=2449
+sad: seed=1719 candidate=2697 recovered=2487
+angry: seed=1804 candidate=3362 recovered=3083
+shocked: seed=3127 candidate=5306 recovered=4844

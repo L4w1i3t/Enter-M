@@ -20,10 +20,10 @@
 #              the conversation has been used, so renaming one makes it replay.
 #     contact  any name/alias the phone knows ("Asa", "Matsuda Akai", "Mom").
 #     kind     "text" | "call" | "facetime".
-#     unlock   see phone_random_unlocked below. Defaults to "met", but almost
-#              nothing should actually use that -- prefer ("open", channel) for
-#              a first conversation and ("seen", id) for a follow-up, so the
-#              chatter arrives after the story has earned it.
+#     unlock   see phone_random_unlocked below. Defaults to "met", but prefer an
+#              ("open", channel) and/or date gate so the chatter arrives after
+#              the story has earned it. Runtime entries stay independent: never
+#              gate one on another random conversation's seen state.
 #     body     for kind "text": a list of phone_msg/phone_thumb.
 #              for "call"/"facetime": a list of phone_call_line/phone_call_note.
 #     sprite   "facetime" only, and optional -- defaults to the contact's own
@@ -34,10 +34,11 @@
 #   character by the compose animation, and a half-typed "[play" is a Matsu'Py
 #   parse error rather than a typo on screen.
 #
-# ONE-SHOT BY DESIGN
+# ONE-SHOT AND INDEPENDENT BY DESIGN
 #   Each conversation plays once per save (phone_random_seen) and text ones are
 #   appended to the real thread, so the history the player scrolls back through
-#   is the history they actually made.
+#   is the history they actually made. Catalog entries may wait for a story beat
+#   or date, but none depends on another random conversation being played first.
 # =============================================================================
 
 # Phone-only art stays outside Matsuda's strict layered-image pose contract.
@@ -102,16 +103,18 @@ init 1 python:
     #   mom_call       0525  her first actual phone call
     #   monika         0518  her first out-of-hours text
     #   monika_call    0521  her first call
+    #   monika_video   0525  their long study day and night check-in make an
+    #                        unplanned video call a natural next step
     #   matsuda        0520  the first time she reaches out that ISN'T May 17 --
     #                        May 17 is the introduction, and a number taken off a
     #                        sidewalk collision is not yet an open line
     #   matsuda_video  0529  by now she is sending unprompted bits; a camera is
     #                        the natural next escalation for her specifically
     #
-    # All seven land inside Chapter 0.5, so a player who finishes the prologue has
+    # All eight land inside Chapter 0.5, so a player who finishes the prologue has
     # had the chance at every idle conversation currently written.
     PHONE_OPEN_CHANNELS = (
-        "asa", "mom", "mom_call", "monika", "monika_call", "matsuda", "matsuda_video",
+        "asa", "mom", "mom_call", "monika", "monika_call", "monika_video", "matsuda", "matsuda_video",
     )
 
     # Saves created before this system existed never ran the phone_open() calls
@@ -124,6 +127,7 @@ init 1 python:
         "mom_call": "0525",
         "monika": "0518",
         "monika_call": "0521",
+        "monika_video": "0525",
         "matsuda": "0520",
         "matsuda_video": "0529",
     }
@@ -330,498 +334,342 @@ init 1 python:
     # answering, then establish why he rang. Date gates keep follow-ups from all
     # piling into the first evening their channel opens.
     # =========================================================================
+    # Old saves may still contain these strings in phone_random_seen. Keeping
+    # only the IDs documents that harmless state without constructing retired
+    # message bodies or calling phone_msg helpers during init.
+    PHONE_RANDOM_RETIRED_IDS = (
+        "asa_leftovers",
+        "asa_spider",
+        "asa_wrong_chat",
+        "asa_controller",
+        "asa_poster_rescue",
+        "mom_discoverable",
+        "mom_laundry_receipt",
+        "mom_mug_inquiry",
+        "monika_waypoint",
+        "monika_asterisk",
+        "monika_four_bars",
+        "monika_bookmark_number",
+        "matsuda_omen",
+        "matsuda_patch_notes",
+        "matsuda_dice_test",
+        "matsuda_hat_setup",
+        "asa_tier_argument",
+        "mom_big_pot",
+        "mom_house_rule",
+        "monika_paragraph",
+        "monika_two_versions",
+        "matsuda_boss_name",
+        "matsuda_hat",
+    )
+
+    # The 2026-08-30 rebuild. These twelve entries are the only runtime random
+    # conversations. Their fresh IDs ensure existing saves can see the rewritten
+    # material even if they completed a retired conversation with a similar idea.
     PHONE_RANDOM_CONVERSATIONS = [
 
+        # --- Asahina ---------------------------------------------------------
+
         {
-            "id": "asa_leftovers",
+            "id": "rc2_asa_ashen_vow",
             "contact": "Asa",
             "kind": "text",
             "unlock": ("open", "asa"),
             "body": [
-                phone_msg("me", "Were you saving the rice in the fridge?"),
-                phone_msg("them", "why"),
-                phone_msg("me", "Just asking."),
-                phone_msg("them", "why are u asking like a cop"),
-                phone_msg("me", "I ate it."),
-                phone_msg("them", "i KNEW it"),
-                phone_msg("me", "I'll make more."),
-                phone_msg("them", "with egg"),
-                phone_msg("me", "Fine."),
+                phone_msg("me", "How's Ashen Vow going?"),
+                phone_msg("them", "bell widow killed me again"),
+                phone_msg("them", "her grab hitbox is actual fraud"),
+                phone_msg("me", "Git gud."),
+                phone_msg("them", "i asked for SUPPORT"),
+                phone_msg("me", "That was support."),
+                phone_msg("them", "i hope ur next boss has 4 phases"),
             ],
         },
 
         {
-            "id": "asa_spider",
+            "id": "rc2_asa_mr_toast",
             "contact": "Asa",
             "kind": "text",
-            "unlock": [("seen", "asa_leftovers"), ("date", "0521")],
+            "unlock": [("open", "asa"), ("date", "0523")],
             "body": [
-                phone_msg("me", "Whatever happened to the sink spider?"),
-                phone_msg("them", "it moved itself"),
-                phone_msg("me", "Where?"),
+                phone_msg("me", "Did you find Mr. Toast?"),
+                phone_msg("them", "NO"),
+                phone_msg("them", "and dont act innocent"),
+                phone_msg("me", "I haven't touched your stuffed rabbit."),
+                phone_msg("them", "he was on my pillow and now hes GONE"),
+                phone_msg("me", "Check under the blanket."),
+                phone_msg("them", "checked"),
+                phone_msg("me", "Laundry basket?"),
+                phone_msg("them", "CHECKED"),
+                phone_msg("them", "if u hid him i swear"),
+                phone_msg("me", "Look between the bed and the wall."),
                 phone_msg("them", "..."),
-                phone_msg("me", "Asa."),
-                phone_msg("them", "ur room maybe"),
-                phone_msg("me", "Why would it go to my room?"),
-                phone_msg("them", "ur older"),
-                phone_msg("me", "That's not how spiders work."),
-                phone_msg("them", "its how siblings work"),
-                phone_msg("me", "I'm changing the locks."),
+                phone_msg("me", "Well?"),
+                phone_msg("them", "he fell"),
+                phone_msg("me", "The kidnapping case collapses."),
+                phone_msg("them", "he was scared and alone asshole"),
+                phone_msg("me", "Tell him I'm sorry gravity did that."),
+                phone_msg("them", "tell him urself"),
             ],
         },
 
         {
-            "id": "asa_wrong_chat",
+            "id": "rc2_asa_soup_store",
             "contact": "Asa",
-            "kind": "text",
-            # Legacy ID retained because it may already be stored in old saves.
-            "unlock": [("seen", "asa_spider"), ("date", "0524")],
+            "kind": "call",
+            "unlock": ["met", ("date", "0527")],
+            "status": "Connected",
             "body": [
-                phone_msg("me", "Did you tell Sam I couldn't play tonight?"),
-                phone_msg("them", "maybe"),
-                phone_msg("me", "I didn't say no."),
-                phone_msg("them", "i know"),
-                phone_msg("me", "Then why'd you tell him that?"),
-                phone_msg("them", "because u were doing homework"),
-                phone_msg("me", "...Thanks, I think."),
-                phone_msg("them", "ur welcome. dont make it weird"),
+                phone_call_line("them", "What?"),
+                phone_call_line("me", "You left for detergent forty minutes ago. Where are you?"),
+                phone_call_line("them", "The store."),
+                phone_call_line("me", "Which part of the store?"),
+                phone_call_line("them", "Clothes."),
+                phone_call_line("me", "Why do I hear cans?"),
+                phone_call_note("Metal clatters somewhere on her end."),
+                phone_call_line("them", "Because I'm by the soup."),
+                phone_call_line("me", "Why are you shopping for clothes in the soup aisle?"),
+                phone_call_line("them", "I'm not! I thought the sign said apparel!"),
+                phone_call_line("me", "The sign led you to soup?"),
+                phone_call_line("them", "That's why I followed the arrow!"),
+                phone_call_line("me", "Read it again."),
+                phone_call_note("A long silence. A cart squeaks past."),
+                phone_call_line("them", "...It says appetizers."),
+                phone_call_line("me", "Come home."),
+                phone_call_line("them", "I still need detergent!"),
+                phone_call_line("me", "Then stop buying imaginary clothes next to the soup!"),
+                phone_call_line("them", "I'M LOOKING FOR THE EXIT!"),
             ],
         },
 
-        {
-            "id": "asa_controller",
-            "contact": "Asa",
-            "kind": "text",
-            "unlock": [("seen", "asa_wrong_chat"), ("date", "0527")],
-            "body": [
-                phone_msg("me", "Why is jump on R3 now?"),
-                phone_msg("them", "idk"),
-                phone_msg("me", "You were the last one using it."),
-                phone_msg("them", "prove it"),
-                phone_msg("me", "You inverted the camera too."),
-                phone_msg("them", "thats better"),
-                phone_msg("me", "So you did it."),
-                phone_msg("them", "that proves nothing"),
-                phone_msg("me", "Put it back."),
-                phone_msg("them", "after this match"),
-            ],
-        },
+        # --- Matsuda ---------------------------------------------------------
 
         {
-            "id": "asa_poster_rescue",
-            "contact": "Asa",
-            "kind": "text",
-            "unlock": [("seen", "asa_controller"), ("date", "0530")],
-            "body": [
-                phone_msg("me", "I'm fixing the club flyer. Left-aligned or centered?"),
-                phone_msg("them", "send both"),
-                phone_msg("me", "That bad?"),
-                phone_msg("them", "worse"),
-                phone_msg("them", "why are there 4 fonts"),
-                phone_msg("me", "There are two."),
-                phone_msg("them", "still 1 too many"),
-                phone_msg("them", "send me the file"),
-                phone_msg("me", "You're fixing it?"),
-                phone_msg("them", "im preventing an incident"),
-            ],
-        },
-
-        {
-            "id": "mom_discoverable",
-            "contact": "Mom",
-            "kind": "text",
-            # This lands after the May 24 curry dinner it refers back to.
-            "unlock": [("open", "mom"), ("date", "0525")],
-            "body": [
-                phone_msg("me", "Asa called the curry 'mid.'"),
-                phone_msg("them", "I heard."),
-                phone_msg("me", "Are you taking feedback?"),
-                phone_msg("them", "From you, yes."),
-                phone_msg("me", "She added hot sauce before tasting it."),
-                phone_msg("them", "Exactly. Her feedback has been assigned the appropriate weight."),
-                phone_msg("me", "Which is?"),
-                phone_msg("them", "Very little."),
-                phone_msg("me", "I'll keep that to myself."),
-                phone_msg("them", "Please do."),
-            ],
-        },
-
-        {
-            "id": "mom_laundry_receipt",
-            "contact": "Mom",
-            "kind": "text",
-            "unlock": [("seen", "mom_discoverable"), ("date", "0527")],
-            "body": [
-                phone_msg("me", "Was the receipt in your black jacket important?"),
-                phone_msg("them", "Why?"),
-                phone_msg("me", "It went through the wash."),
-                phone_msg("them", "...Can you still read it?"),
-                phone_msg("me", "It says '8' and nothing else."),
-                phone_msg("them", "Then apparently it cost eight."),
-                phone_msg("me", "That's very calm."),
-                phone_msg("them", "I'm choosing to believe it was lunch."),
-                phone_msg("me", "Sorry."),
-                phone_msg("them", "I know. You checked the other pockets?"),
-                phone_msg("me", "After that, yes."),
-                phone_msg("them", "Good."),
-            ],
-        },
-
-        {
-            "id": "mom_mug_inquiry",
-            "contact": "Mom",
-            "kind": "text",
-            "unlock": [("seen", "mom_laundry_receipt"), ("date", "0530")],
-            "body": [
-                phone_msg("me", "I need to confess something about your work mug."),
-                phone_msg("them", "What happened?"),
-                phone_msg("me", "The handle chipped. Sharp edge."),
-                phone_msg("them", "All right. Throw it out."),
-                phone_msg("me", "Already did."),
-                phone_msg("them", "You could have led with that."),
-                phone_msg("me", "Would that have helped?"),
-                phone_msg("them", "No."),
-                phone_msg("me", "That sounded painful."),
-                phone_msg("them", "It was a very good mug..."),
-            ],
-        },
-
-        {
-            "id": "monika_waypoint",
-            "contact": "Monika",
-            "kind": "text",
-            "unlock": ("open", "monika"),
-            "body": [
-                phone_msg("me", "How's the book?"),
-                phone_msg("them", "Finished!!"),
-                phone_msg("them", "Where are you now?"),
-                phone_msg("me", "Page 212."),
-                phone_msg("them", "THE WINDOW SCENE!!"),
-                phone_msg("them", "Did it work for you?"),
-                phone_msg("me", "Annoyingly, yes."),
-                phone_msg("them", "Okay. Good."),
-                phone_msg("them", "Wait--what did you think of the last line?"),
-                phone_msg("me", "I need the rest of the chapter first."),
-                phone_msg("them", "Right. Sorry!! I'll stop hovering. Enjoy~"),
-            ],
-        },
-
-        {
-            "id": "monika_asterisk",
-            "contact": "Monika",
-            "kind": "text",
-            # Legacy ID retained; the old multi-asterisk routine was too visibly
-            # constructed, but saves may already know it by this name.
-            "unlock": [("seen", "monika_waypoint"), ("date", "0520")],
-            "body": [
-                phone_msg("me", "Do you still have the handout from class?"),
-                phone_msg("them", "I think so! Give me a sec"),
-                phone_msg("them", "Found--"),
-                phone_msg("them", "No, that's a debate outline."),
-                phone_msg("them", "Okay. Now I found it."),
-                phone_msg("me", "Take your time."),
-                phone_msg("them", "I'm sending it before I open anything else."),
-                phone_msg("me", "Probably safest."),
-            ],
-        },
-
-        {
-            "id": "monika_four_bars",
-            "contact": "Monika",
-            "kind": "text",
-            "unlock": [("seen", "monika_asterisk"), ("date", "0524")],
-            "body": [
-                phone_msg("me", "How'd piano go?"),
-                phone_msg("them", "Bad!"),
-                phone_msg("them", "Not bad bad. Just..."),
-                phone_msg("them", "I have four bars that hate me"),
-                phone_msg("me", "Only four?"),
-                phone_msg("them", "They repeat."),
-                phone_msg("me", "Take a break?"),
-                phone_msg("them", "I did!"),
-                phone_msg("them", "I spent the break thinking about bar three."),
-                phone_msg("me", "That's not a break."),
-                phone_msg("them", "I know :("),
-                phone_msg("me", "Send me both versions when you have them."),
-                phone_msg("them", "Can I call instead? It'll sound awful in voice notes."),
-                phone_msg("me", "Sure."),
-            ],
-        },
-
-        {
-            "id": "monika_bookmark_number",
-            "contact": "Monika",
-            "kind": "text",
-            "unlock": [("seen", "monika_four_bars"), ("date", "0529")],
-            "body": [
-                phone_msg("me", "What's the 47 on the bookmark you lent me?"),
-                phone_msg("them", "Oh no."),
-                phone_msg("me", "Helpful."),
-                phone_msg("them", "It could be a page number?"),
-                phone_msg("me", "It was sitting at page 86."),
-                phone_msg("them", "Wait--does it have a circle around it?"),
-                phone_msg("me", "No."),
-                phone_msg("them", "Then I have absolutely no idea."),
-                phone_msg("me", "Okay."),
-                phone_msg("them", "Sorry!! I really don't remember"),
-                phone_msg("me", "It's fine. I was just checking."),
-            ],
-        },
-
-        {
-            "id": "matsuda_omen",
+            "id": "rc2_matsuda_ui_review",
             "contact": "Matsuda Akai",
             "kind": "text",
-            "unlock": ("open", "matsuda"),
-            "body": [
-                phone_msg("me", "Still playing?"),
-                phone_msg("them", "More importantly, the vending machine gave me two drinks."),
-                phone_msg("me", "That's unrelated."),
-                phone_msg("them", "Nothing is unrelated when the universe is paying attention."),
-                phone_msg("me", "Loose spring."),
-                phone_msg("them", "Omen."),
-                phone_msg("me", "What flavor?"),
-                phone_msg("them", "Coffee and melon soda."),
-                phone_msg("them", "Do you want the soda or not"),
-                phone_msg("me", "Yeah."),
-            ],
-        },
-
-        {
-            "id": "matsuda_patch_notes",
-            "contact": "Matsuda Akai",
-            "kind": "text",
-            "unlock": [("seen", "matsuda_omen"), ("date", "0522")],
+            "unlock": [("open", "matsuda"), ("date", "0521")],
             "body": [
                 phone_msg("me", "Final verdict on the game?"),
-                phone_msg("them", "PATCH NOTES:"),
-                phone_msg("them", "combat: delicious"),
-                phone_msg("them", "story: suspiciously literate"),
-                phone_msg("them", "menu: still ass"),
-                phone_msg("me", "You sound invested."),
-                phone_msg("them", "I found the fishing minigame."),
-                phone_msg("me", "There is no water in that game."),
-                phone_msg("them", "THERE IS ONE FOUNTAIN."),
-                phone_msg("me", "How long?"),
-                phone_msg("them", "..."),
-                phone_msg("them", "irrelevant"),
+                phone_msg("them", "Combat sings. Story has teeth. Soundtrack could resurrect a mall."),
+                phone_msg("me", "That's positive."),
+                phone_msg("them", "HOWEVER"),
+                phone_msg("them", "the inventory sort resets every time you equip something"),
+                phone_msg("them", "the map cursor snaps back to the shrine whenever i breathe"),
+                phone_msg("them", "and it asks me to confirm closing the menu"),
+                phone_msg("me", "That last one sounds considerate."),
+                phone_msg("them", "No. The UI can eat my fat ass."),
+                phone_msg("me", "Score?"),
+                phone_msg("them", "Nine out of ten"),
+                phone_msg("me", "Despite the jank?"),
+                phone_msg("them", "I didn't say the jank was bad"),
+                phone_msg("me", "You...just said it could eat your ass though?"),
+                phone_msg("them", "Not the same thing, don't make it weird"),
+                phone_msg("me", "???????????????"),
             ],
         },
 
         {
-            "id": "matsuda_dice_test",
+            "id": "rc2_matsuda_wrong_person",
             "contact": "Matsuda Akai",
             "kind": "text",
-            "unlock": [("seen", "matsuda_patch_notes"), ("date", "0526")],
+            "unlock": [("open", "matsuda"), ("date", "0525")],
             "body": [
-                phone_msg("me", "Do those dice earrings actually roll?"),
-                phone_msg("them", "Only one way to find out."),
-                phone_msg("them", "hold on"),
+                phone_msg("them", "if he calls the game fine again put me out of my misery"),
+                phone_msg("me", "Do I want to know who that was meant for?"),
+                phone_msg("them", "What was meant for whom"),
+                phone_msg("me", "The message directly above this one."),
                 phone_msg("them", "..."),
-                phone_msg("them", "it rolled"),
-                phone_msg("me", "What'd you get?"),
-                phone_msg("them", "under the dresser"),
-                phone_msg("me", "That's not a number."),
-                phone_msg("them", "idk i cant see it"),
-                phone_msg("me", "Need help?"),
-                phone_msg("them", "No. Preserve my dignity."),
-                phone_msg("them", "actually yes do you have a flashlight"),
-                phone_msg("me", "You're holding one."),
-                phone_msg("them", "..."),
-                phone_msg("them", "dont say anything"),
+                phone_msg("them", "Kareda."),
+                phone_msg("me", "Thought so."),
+                phone_msg("them", "Why were you in her contact slot?"),
+                phone_msg("me", "I wasn't. You selected me."),
+                phone_msg("them", "Your names occupy adjacent spiritual territory."),
+                phone_msg("me", "They aren't alphabetically adjacent either."),
+                phone_msg("them", "Then your phone number was standing suspiciously close to hers."),
+                phone_msg("me", "On your phone."),
+                phone_msg("them", "At last, we locate the crime scene."),
+                phone_msg("me", "You texted the wrong person and somehow I'm at fault."),
+                phone_msg("them", "I'm glad you understand."),
             ],
         },
 
         {
-            "id": "matsuda_hat_setup",
-            "contact": "Matsuda Akai",
-            "kind": "text",
-            # Old saves may already have seen the original hat call. Do not give
-            # those players a new text that points at a camera key with no call.
-            "unlock": [("open", "matsuda_video"), ("seen", "matsuda_dice_test"), ("unseen", "matsuda_hat")],
-            "body": [
-                phone_msg("me", "Did you find the earring?"),
-                phone_msg("them", "Yes. More importantly, I own something greater."),
-                phone_msg("me", "That sounds expensive."),
-                phone_msg("them", "Worse. Words would reduce it."),
-                phone_msg("me", "That's never stopped you before."),
-                phone_msg("them", "Camera. Now."),
-            ],
-        },
-
-        # --- voice calls ------------------------------------------------------
-
-        {
-            "id": "asa_tier_argument",
-            "contact": "Asa",
-            "kind": "call",
-            "unlock": [("seen", "asa_controller"), ("date", "0529")],
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Why are you calling me?"),
-                phone_call_line("me", "Because typing this is taking too long. The healer isn't S-tier."),
-                phone_call_line("them", "Wrong."),
-                phone_call_line("me", "You spend every fight on the floor."),
-                phone_call_line("them", "Because nobody protects me!"),
-                phone_call_line("me", "You're the healer."),
-                phone_call_line("them", "I can't heal if I'm dead!"),
-                phone_call_line("me", "That's my point."),
-                phone_call_line("them", "No, your point is--wait. I had a point."),
-                phone_call_note("Buttons click rapidly on her end."),
-                phone_call_line("me", "Are you playing right now?"),
-                phone_call_line("them", "Maybe."),
-                phone_call_line("me", "You're dead again, aren't you?"),
-                phone_call_note("The buttons stop."),
-                phone_call_line("them", "...Yeah."),
-            ],
-        },
-
-        {
-            "id": "mom_big_pot",
-            "contact": "Mom",
-            "kind": "call",
-            "unlock": ("open", "mom_call"),
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Hi. Everything okay?"),
-                phone_call_line("me", "Yeah. What's the actual name of the big pot?"),
-                phone_call_line("them", "The stockpot."),
-                phone_call_line("me", "Then why don't we call it that?"),
-                phone_call_line("them", "I did. Asahina asked what stock we kept in it."),
-                phone_call_line("me", "She was joking."),
-                phone_call_line("them", "She maintained eye contact for an uncomfortable amount of time."),
-                phone_call_line("me", "So...maybe not."),
-                phone_call_line("them", "Exactly. Big pot."),
-                phone_call_line("me", "That's all I needed."),
-                phone_call_line("them", "I'm glad we resolved this."),
-            ],
-        },
-
-        {
-            "id": "mom_house_rule",
-            "contact": "Mom",
-            "kind": "call",
-            "unlock": [("open", "mom_call"), ("seen", "mom_big_pot"), ("date", "0530")],
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Hello?"),
-                phone_call_line("me", "Copper Crown. If the market locks, do you still draw?"),
-                phone_call_line("them", "No."),
-                phone_call_line("me", "Asa says yes."),
-                phone_call_line("them", "Asahina also buys every attack card she sees."),
-                phone_call_line("me", "That's not evidence."),
-                phone_call_line("them", "It's character evidence."),
-                phone_call_note("Cardboard scrapes against wood. Pages turn."),
-                phone_call_line("them", "Oh. No, wait--that's the solo rule. One second."),
-                phone_call_note("Another page turns."),
-                phone_call_line("them", "Yes. She was right."),
-                phone_call_line("me", "I'll tell her."),
-                phone_call_line("them", "You don't need to sound that pleased."),
-                phone_call_line("me", "I really do."),
-            ],
-        },
-
-        {
-            "id": "monika_paragraph",
-            "contact": "Monika",
-            "kind": "call",
-            "unlock": ("open", "monika_call"),
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Hey! What's up?"),
-                phone_call_line("me", "Quick question. If a poem doesn't rhyme, when does it turn into a paragraph?"),
-                phone_call_line("them", "Is this about something you're writing?"),
-                phone_call_line("me", "That's not an answer."),
-                phone_call_line("them", "You called me with a poem question. It counts."),
-                phone_call_line("me", "I'm working on nothing."),
-                phone_call_line("them", "Mm-hm."),
-                phone_call_note("A page turns on her end."),
-                phone_call_line("them", "Can I read the nothing when it's done?"),
-                phone_call_line("me", "...Maybe."),
-            ],
-        },
-
-        {
-            "id": "monika_two_versions",
-            "contact": "Monika",
-            "kind": "call",
-            "unlock": [("open", "monika_call"), ("seen", "monika_paragraph"), ("seen", "monika_four_bars"), ("date", "0528")],
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Hi!"),
-                phone_call_line("me", "I have headphones. Go ahead."),
-                phone_call_line("them", "Perfect! Okay, don't say anything until you hear both."),
-                phone_call_note("Four quiet piano bars play through the speaker."),
-                phone_call_line("them", "That's one."),
-                phone_call_note("The same four bars play again."),
-                phone_call_line("them", "And...two."),
-                phone_call_line("me", "They were the same."),
-                phone_call_line("them", "No, they weren't."),
-                phone_call_line("me", "Play two again."),
-                phone_call_note("The phrase repeats. A bench creaks, then nothing."),
-                phone_call_line("them", "...I opened the wrong recording."),
-                phone_call_line("me", "I was about to lie politely."),
-                phone_call_line("them", "Don't! Give me one second--"),
-                phone_call_note("The phone touches down. A different ending follows; the last chord lifts instead of falling."),
-                phone_call_line("them", "Okay. That was two."),
-                phone_call_line("me", "Two."),
-                phone_call_line("them", "That fast?"),
-                phone_call_line("me", "Yeah."),
-                phone_call_line("them", "Okay...good. I need to play it again. Thanks!"),
-            ],
-        },
-
-        {
-            "id": "matsuda_boss_name",
-            "contact": "Matsuda Akai",
-            "kind": "call",
-            "unlock": [("seen", "matsuda_hat"), ("date", "0530")],
-            "status": "Connected",
-            "body": [
-                phone_call_line("them", "Speak."),
-                phone_call_line("me", "What was the name of that boss you hated?"),
-                phone_call_line("them", "...Give me a second."),
-                phone_call_line("me", "You forgot."),
-                phone_call_line("them", "I remember the fight. Names are ornamental."),
-                phone_call_line("me", "I need it to find a guide."),
-                phone_call_line("them", "The magistrate...something."),
-                phone_call_note("Rapid tapping, then a muffled groan."),
-                phone_call_line("them", "Do NOT look it up before I do."),
-                phone_call_line("me", "Too late."),
-                phone_call_line("them", "Was it Geryon?"),
-                phone_call_line("me", "No."),
-                phone_call_line("them", "Don't tell me."),
-            ],
-        },
-
-        # --- video calls ------------------------------------------------------
-
-        {
-            "id": "matsuda_hat",
+            "id": "rc2_matsuda_duck_hat",
             "contact": "Matsuda Akai",
             "kind": "facetime",
-            # The preceding text explicitly sends the player to the camera key.
-            "unlock": [("open", "matsuda_video"), ("seen", "matsuda_hat_setup")],
+            "unlock": ("open", "matsuda_video"),
             "sprite": "phone_matsuda_duck_hat",
             "body": [
                 phone_call_line("them", "Can you see the whole thing?"),
-                phone_call_line("me", "I can see a duck."),
-                phone_call_line("them", "Good. The duck is the whole thing."),
-                phone_call_note("The feed drops to her jacket, then jerks back up."),
-                phone_call_line("them", "Wait--there. Better?"),
-                phone_call_line("me", "You bought that?"),
-                phone_call_line("them", "Tsubaki said I wouldn't wear it in public."),
+                phone_call_line("me", "I can see one enormous duck eye."),
+                phone_call_note("The feed jerks back. A yellow beak, two soft wings, and Matsuda's grin come into frame."),
+                phone_call_line("them", "Behold. The apex of modern headwear."),
+                phone_call_line("me", "You called me to show off a duck hat."),
+                phone_call_line("them", "I called because text cannot carry its majesty."),
+                phone_call_line("me", "Did you buy it?"),
+                phone_call_line("them", "Tsubaki said I lacked the courage to wear it in public."),
                 phone_call_line("me", "So you bought it out of spite."),
-                phone_call_line("them", "No. I bought it because I have vision."),
-                phone_call_line("me", "Are you wearing that outside?"),
-                phone_call_line("them", "...Depends."),
-                phone_call_line("me", "On?"),
-                phone_call_line("them", "Whether you say it looks good."),
+                phone_call_line("them", "No. I bought it because doubt demands rebuttal."),
+                phone_call_line("me", "Are you actually wearing it outside?"),
+                phone_call_line("them", "...That depends."),
+                phone_call_line("me", "On what?"),
+                phone_call_line("them", "Whether it looks good."),
                 phone_call_line("me", "It looks good."),
-                phone_call_line("them", "...Good."),
-                phone_call_note("She reaches for the end-call button, misses, and fills the feed with one yellow wing."),
+                phone_call_note("Her grin goes still for half a beat."),
+                phone_call_line("them", "Correct answer."),
+                phone_call_note("She reaches for the end-call button, misses, and fills the camera with one yellow wing."),
                 phone_call_line("them", "How do I--"),
                 phone_call_note("The feed cuts out."),
+            ],
+        },
+
+        # --- Himeko ----------------------------------------------------------
+
+        {
+            "id": "rc2_mom_mid",
+            "contact": "Mom",
+            "kind": "text",
+            "unlock": ("open", "mom"),
+            "body": [
+                phone_msg("me", "Why did you ask if dinner was mid?"),
+                phone_msg("them", "Asahina used the word. I am establishing what she meant before I respond."),
+                phone_msg("me", "It means average. Mediocre."),
+                phone_msg("them", "I see."),
+                phone_msg("them", "She had seconds."),
+                phone_msg("me", "Then her testimony conflicts with the physical evidence."),
+                phone_msg("them", "Precisely."),
+                phone_msg("me", "Are you going to confront her?"),
+                phone_msg("them", "No. I am making the same dinner Thursday."),
+                phone_msg("me", "Cold."),
+                phone_msg("them", "Apparently only mid."),
+            ],
+        },
+
+        {
+            "id": "rc2_mom_autocorrect",
+            "contact": "Mom",
+            "kind": "text",
+            "unlock": [("open", "mom"), ("date", "0526")],
+            "body": [
+                phone_msg("me", "Did you mean to ask me to 'defrost the witness'?"),
+                phone_msg("them", "Chicken. I typed chicken."),
+                phone_msg("me", "Your keyboard has been at work too long."),
+                phone_msg("them", "Please take the client breasts out of the freezer."),
+                phone_msg("them", "CHICKEN BREASTS."),
+                phone_msg("me", "I was going to give context a chance."),
+                phone_msg("them", "Put them in the sink. Do not cook the children."),
+                phone_msg("them", "CHICKEN."),
+                phone_msg("me", "This is becoming discoverable."),
+                phone_msg("them", "Please disregard every sentence my phone has offered into evidence."),
+                phone_msg("me", "I'll defrost the chicken."),
+                phone_msg("them", "Thank you. I am turning autocorrect off before it ends my career."),
+            ],
+        },
+
+        {
+            "id": "rc2_mom_work_opinion",
+            "contact": "Mom",
+            "kind": "call",
+            "unlock": [("open", "mom_call"), ("date", "0528")],
+            "status": "Connected",
+            "body": [
+                phone_call_line("them", "Good timing. I need a civilian opinion."),
+                phone_call_line("me", "That's a comforting way to describe your son."),
+                phone_call_line("them", "The firm is doing a free tenant-rights workshop. Which title would make you attend?"),
+                phone_call_line("them", "'Residential Tenancy Rights and Obligations,' or 'Know Your Lease Before You Sign'?"),
+                phone_call_line("me", "The second one, easily."),
+                phone_call_line("them", "Why?"),
+                phone_call_line("me", "The first sounds like homework assigned by a building."),
+                phone_call_note("A pen scratches across paper on her end."),
+                phone_call_line("them", "Good. That is almost exactly what I told my partner."),
+                phone_call_line("me", "So I'm not giving an opinion. I'm supplying ammunition."),
+                phone_call_line("them", "Independent corroboration."),
+                phone_call_line("me", "Do I get credit?"),
+                phone_call_line("them", "You get dinner and the satisfaction of improving public outreach."),
+                phone_call_line("me", "Dinner was already in the contract."),
+                phone_call_line("them", "Then I raised you to negotiate. I'm very proud."),
+            ],
+        },
+
+        # --- Monika ----------------------------------------------------------
+
+        {
+            "id": "rc2_monika_vague_draft",
+            "contact": "Monika",
+            "kind": "text",
+            "unlock": [("open", "monika"), ("date", "0519")],
+            "body": [
+                phone_msg("me", "You said you wanted an opinion on your draft?"),
+                phone_msg("them", "Yes! Do you think the opening is too quiet?"),
+                phone_msg("me", "What happens in it?"),
+                phone_msg("them", "It establishes the mood."),
+                phone_msg("me", "What mood?"),
+                phone_msg("them", "The one the rest of the piece complicates."),
+                phone_msg("me", "Genre?"),
+                phone_msg("them", "It would bias you if I said."),
+                phone_msg("me", "Length?"),
+                phone_msg("them", "Longer than the opening, shorter than it might be."),
+                phone_msg("me", "Have I read a single word of this?"),
+                phone_msg("them", "Not yet! It's not ready."),
+                phone_msg("me", "Then my official opinion is that it certainly exists."),
+                phone_msg("them", "I knew you'd understand."),
+                phone_msg("me", "I understand nothing."),
+                phone_msg("them", "Perfect. Fresh eyes~"),
+            ],
+        },
+
+        {
+            "id": "rc2_monika_horror_verdict",
+            "contact": "Monika",
+            "kind": "text",
+            "unlock": [("open", "monika"), ("date", "0524")],
+            "body": [
+                phone_msg("me", "Why did the horror committee send me a verdict?"),
+                phone_msg("them", "Because you were tried in absentia."),
+                phone_msg("me", "For what?"),
+                phone_msg("them", "You said practical effects don't automatically make a movie good."),
+                phone_msg("me", "They don't."),
+                phone_msg("them", "Count one: aggravated bad taste."),
+                phone_msg("them", "Count two: reckless indifference to texture."),
+                phone_msg("them", "Count three: disrespecting a model train that took six weeks to build."),
+                phone_msg("me", "The model train was excellent. The movie wasn't."),
+                phone_msg("them", "The court recognizes no distinction."),
+                phone_msg("me", "Sentence?"),
+                phone_msg("them", "You have to watch the director's cut with me."),
+                phone_msg("me", "This committee is corrupt."),
+                phone_msg("them", "Objection overruled~"),
+            ],
+        },
+
+        {
+            "id": "rc2_monika_vp_rant",
+            "contact": "Monika",
+            "kind": "facetime",
+            "unlock": ("open", "monika_video"),
+            "body": [
+                phone_call_line("them", "Oh, good. You're here. I need a neutral witness."),
+                phone_call_line("me", "I thought this was a normal video call."),
+                phone_call_line("them", "It was, until the vice president sent me meeting minutes with no minutes in them."),
+                phone_call_line("me", "An empty file?"),
+                phone_call_line("them", "Worse. A title page, three decorative lines, and 'Monika will fill in the details.'"),
+                phone_call_note("She lifts a printed page to the camera. Most of it is, indeed, blank."),
+                phone_call_line("them", "He also approved the basketball club and drama club for the gym at the same time."),
+                phone_call_line("me", "Joint production?"),
+                phone_call_line("them", "Don't give him ideas! He'll call it interdisciplinary and leave me to schedule it."),
+                phone_call_line("me", "Have you told him any of this?"),
+                phone_call_line("them", "I used calm words. He said we'd circle back."),
+                phone_call_line("them", "If he says circle back one more time, I'm making him physically circle the building."),
+                phone_call_line("me", "Very presidential."),
+                phone_call_line("them", "I am off the clock and he is bad at his job."),
+                phone_call_note("Her eyes narrow at something below the camera."),
+                phone_call_line("them", "Are you reaching for the end-call button?"),
+                phone_call_line("me", "No."),
+                phone_call_line("them", "Your thumb is in frame."),
+                phone_call_line("me", "I was adjusting morale."),
+                phone_call_line("them", "Great. Morale can stay for the budget story."),
+                phone_call_line("me", "There's a budget story?"),
+                phone_call_line("them", "There are three."),
             ],
         },
     ]
@@ -839,6 +687,7 @@ default phone_open_mom = False
 default phone_open_mom_call = False
 default phone_open_monika = False
 default phone_open_monika_call = False
+default phone_open_monika_video = False
 default phone_open_matsuda = False
 default phone_open_matsuda_video = False
 

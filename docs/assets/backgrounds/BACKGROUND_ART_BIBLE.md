@@ -6,7 +6,7 @@ and the prompt set used for the August 26-27, 2026 replacement pass.
 
 ## Authority and scope
 
-- **STORY-CANON** assets live in `game/assets/images/bg/` or `game/assets/backgrounds/` and
+- **STORY-CANON** assets live in `game/assets/backgrounds/` or `game/assets/backgrounds/` and
   are defined as `bg ...` images. Their geometry is authoritative.
 - **OP-DERIVED** shots may crop, pan, or grade a story-canon plate, but may not
   invent a second version of the same location. The OP aliases now consume the
@@ -285,12 +285,12 @@ resized once with Lanczos to 1280x720 RGB PNGs.
 
 | Runtime target | Selected raw output ID |
 |---|---|
-| `game/assets/images/bg/bedroom.png` | `exec-988e1c99-b227-42f8-a60c-423d783d0484` |
+| `game/assets/backgrounds/bedroom.png` | `exec-988e1c99-b227-42f8-a60c-423d783d0484` |
 | `game/assets/backgrounds/bedroom_night.png` | `exec-52322a42-97b7-4c3b-ae18-ca5d3ce8785c` |
-| `game/assets/images/bg/house.png` | `exec-ef4f1aa9-7e12-441c-8f0c-2c5c106ddbdf` |
+| `game/assets/backgrounds/house.png` | `exec-ef4f1aa9-7e12-441c-8f0c-2c5c106ddbdf` |
 | `game/assets/backgrounds/house_evening.png` | `exec-b6ef1b9b-9430-4e43-bbfc-7f30baecb82f` |
 | `game/assets/backgrounds/house_night.png` | `exec-41485795-9fb8-4a91-861a-5d297146ce53` |
-| `game/assets/images/bg/kitchen.png` | `exec-743157b1-5876-402e-aca9-c70c7df9034d` |
+| `game/assets/backgrounds/kitchen.png` | `exec-743157b1-5876-402e-aca9-c70c7df9034d` |
 | `game/assets/backgrounds/kitchen_evening.png` | `exec-b3169a0e-2429-4f49-96d3-e760c12ee1d9` |
 | `game/assets/backgrounds/kitchen_night.png` | `exec-b4a4af9e-59bc-4379-a541-504b6f94d2c8` |
 | `game/assets/backgrounds/home_entry_day.png` | `exec-4e53fa43-5a27-44d8-afaf-d8542d00a791` |
@@ -299,7 +299,7 @@ resized once with Lanczos to 1280x720 RGB PNGs.
 | `game/assets/backgrounds/living_room_night.png` | `exec-d08623e2-288c-438a-a1a6-68a84cea0ab1` |
 | `game/assets/backgrounds/dining_table.png` | `exec-9595736c-e20c-42c5-96d5-b61ef6b3ffff` |
 | `game/assets/backgrounds/dining_table_night.png` | `exec-96b048a5-2b03-4d0f-92b6-86513145b6be` |
-| `game/assets/images/bg/residential.png` | `exec-2bc0cf30-8a56-4f35-955f-366347a6aa7f` |
+| `game/assets/backgrounds/residential.png` | `exec-2bc0cf30-8a56-4f35-955f-366347a6aa7f` |
 | `game/assets/backgrounds/residential_night.png` | `exec-7d90f9b6-04ef-4f9b-8b43-545c1a50a002` |
 | `game/assets/backgrounds/city_morning.png` | `exec-3766f1bd-113c-43f0-83fb-dbc4be0fffa9` |
 | `game/assets/backgrounds/city_day.png` | `exec-c5a94541-2298-4d0c-9d43-39ffcf9524f7` |

@@ -2727,8 +2727,23 @@ init python:
                 blit_text("ESC  RESUME        Q  QUIT", 16, MY_DIM,
                         640, 372, anchor=(0.5, 0.5), w=800, h=44)
 
+            # THE DRAW RATE IS THE TICK RATE. Every pixel above is a pure
+            # function of the simulation state: nothing in this method reads
+            # self.acc and nothing interpolates between ticks, so between two
+            # 1/60s ticks this stage paints a byte-identical picture. Asking
+            # for the next frame IMMEDIATELY meant a 165Hz or 240Hz panel ran
+            # the entire draw -- every python-side blit, every full-screen
+            # shader pass, and the mark-and-sweep over every Render they make
+            # -- two to four times per tick and threw the extra frames away.
+            #
+            # Handing redraw() the time remaining until the next tick lets the
+            # engine's scheduler wake us exactly when there is something new to
+            # draw. It wakes at the first vblank at or after the delay, so a
+            # 60Hz display is unaffected and only a high-refresh one stops
+            # paying. Input is unchanged: the key latch is polled inside
+            # step(), on the tick. Same governor as kototouhou.rpy.
             if g.result is None and not g.paused:
-                renpy.redraw(self, 0)
+                renpy.redraw(self, max(0.0, INV_TICK - self.acc))
             return rv
 
         # ----- the room --------------------------------------------------------
@@ -3324,7 +3339,6 @@ label archivist_invasion_mystery:
     $ my_retry = False
 
 label inv_mystery_fight:
-    window hide
     $ renpy.block_rollback()
 
     $ my_game = MYGame(retry=my_retry, deaths=my_deaths,
@@ -3366,12 +3380,10 @@ label inv_mystery_victory:
 label inv_mystery_defeat:
     $ my_deaths += 1
     $ my_retry = True
-    window auto
 
     menu:
         "AGAIN":
             scene black
-            window hide
             jump inv_mystery_fight
 
         "STOP":

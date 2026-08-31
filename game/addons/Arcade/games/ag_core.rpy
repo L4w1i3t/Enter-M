@@ -689,22 +689,31 @@ init -1 python:
             if g.paused:
                 self._pause_overlay(c, g)
 
-            # A realtime game wants every frame it can get -- WHILE IT IS
-            # RUNNING. A paused or finished cabinet is a still picture, and
-            # asking for frames at 0 held the whole stack (this render, the
-            # ArcadePanel shader behind it, every cached texture blit) at the
-            # monitor's full rate for as long as the player left the pause card
-            # up. On a 240Hz panel that is a static overlay costing 240 full
-            # redraws a second.
+            # THE DRAW RATE IS THE TICK RATE. Every pixel g.draw() produces is
+            # a pure function of the simulation state -- nothing in any cabinet
+            # reads self.acc, and nothing interpolates between ticks -- so
+            # between two 1/60s ticks this method paints a byte-identical
+            # picture. Asking for the next frame IMMEDIATELY meant a 165Hz or
+            # 240Hz panel ran the whole canvas (hundreds of python-side blits,
+            # the ArcadeField shader behind it, the mark-and-sweep over every
+            # Render they make) two to four times per tick and threw the extra
+            # frames away.
             #
-            # Dropping the request is safe because the screen -- not this
+            # Handing redraw() the time remaining until the next tick lets the
+            # engine's own scheduler wake us exactly when there is something new
+            # to draw: it wakes at the first vblank at or after the delay, so a
+            # 60Hz display is completely unaffected and only a high-refresh one
+            # stops paying. Input is unchanged either way -- the key latch is
+            # polled inside step(), on the tick, and mouse cabinets read events
+            # as they arrive.
+            #
+            # A paused or finished cabinet is a still picture and asks for
+            # nothing at all. That is safe because the screen -- not this
             # displayable -- owns the way out: ag_screen binds K_ESCAPE and
             # mouseup_3 to game.toggle_pause and branches on `game.paused`, so
-            # unpausing restarts the interaction and rebuilds the stage. This
-            # is the same guard the four Archivist Invasions stages and
-            # tsubaki_soul.rpy already use; this cabinet was the outlier.
+            # unpausing restarts the interaction and rebuilds the stage.
             if g.result is None and not g.paused:
-                renpy.redraw(self, 0)
+                renpy.redraw(self, max(0.0, AG_TICK - self.acc))
             return rv
 
         def _pause_overlay(self, c, g):
@@ -1060,7 +1069,6 @@ label ag_play(ag_kind="snake", ag_variant=None):
 # The retry loop. Retry re-enters HERE, so it skips the controls card and keeps
 # the chosen variant -- one keypress from a finished run back into a fresh one.
 label ag_play_loop:
-    window hide
     # Rollback through a live realtime game is nonsense: it would restore script
     # state without restoring the input timing the player just performed.
     $ renpy.block_rollback()

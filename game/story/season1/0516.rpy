@@ -21,7 +21,6 @@ label a0516:
     $ atmos("home")
     with dissolve_scene_full
     play music dailyleisure
-    window auto
     "Last night's reminder goes off before my alarm gets a turn, so Asahina's errand reaches my brain before anything of mine does."
     # SFX SUGGESTION: A phone vibrating against wood, followed by a distant toaster pop.
     "The phone buzzes its way toward the edge of the desk. I nearly kick the corner of the bed reaching for it, and downstairs the toaster announces that the rest of the house has already accepted reality."
@@ -174,7 +173,7 @@ label a0516:
     m "That's the one~"
     m forward uniform neut cm oe nobl rhip ldown "The brackets are useful, actually. Take that first stanza: I think the metacommentary works in your favor."
     mc "You're making my bad habits sound organized."
-    m forward uniform wry cm oe nobl rhip ldown "Only because they are. That's why I can find them so easily."
+    m forward uniform wry cm oe nobl rhip ldown "Only because they {i}are{/i}. That's why I can find them so easily."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Monika reads with the focused little frown she gets when she's trying not to rewrite an entire paragraph in her head. Much to my chagrin, she crosses out an entire section I thought was clever."
@@ -201,7 +200,7 @@ label a0516:
     m forward uniform laug om ce nobl rdown ldown "Saturday classes, at least. TGIS, am I right?"
     m forward uniform wry om oe nobl rhip ldown "No club afterward, though. I'm not spending my free afternoon pretending to be responsible."
     m forward uniform happ cm oe nobl rhip ldown "And text me Sunday morning so we can pick a time."
-    "I take a deep sigh."
+    "I let out a long sigh."
     mc "...Will do."
     m forward uniform wry om oe nobl rdown lpoint "Now go home before I find another responsibility to hand you."
     mc "Before the list grows, then. Later, Monika."
@@ -301,6 +300,10 @@ label a0516:
     show sam uniform teasing
     sa "You said he was smart, sarcastic, and impossible in the morning."
     mc "Hey, that's more of a profile than I expected. I'd think she'd completely drag my name through the mud."
+    sa "She also said you save every healing item until after the final boss."
+    mc "That's called resource discipline."
+    show asahina uniform teasing
+    ah "That's called ending the game with ninety potions."
     "He offers his hand. The handshake is firm and brief."
     show sam uniform neut
     "I hate that I notice that."
@@ -386,7 +389,7 @@ label a0516:
     show sam uniform neut
     mom curious "Think Asahina will take this for lunch tomorrow? She barely touched dinner."
     "Sam dries the glass and glances toward the living room. The towel stops in his hands."
-    sa neut "She's been working hard, you know."
+    sa uniform thinking "She's been working hard, you know."
     mc "At volleyball? School?"
     sa uniform thinking "That too, but..."
     sa uniform nervous "I probably shouldn't be the one saying this."
@@ -397,6 +400,7 @@ label a0516:
     sa uniform worried "I want to support her. I just don't want to make it weird."
     mc "Yeah. She's modest like that."
     sa uniform determined "I noticed. Still, you gotta respect someone who wants to better themself."
+    show mom worried
     "Mom presses the lid onto the container. It takes her two tries."
     $ mark_character_met("sam")
     $ hide_calendar()

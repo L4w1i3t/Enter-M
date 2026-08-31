@@ -102,7 +102,6 @@ label a0524:
     $ atmos("morning")
     with dissolve_scene_full
     play music schooldays
-    window auto
     "The gym smells like floor wax and several hundred people who did not consent to being awake."
     "The whole student body has been arranged by year and class across the floor, standing in lines that look straight from a distance and unravel up close."
     "{i}Morning pep assembly.{/i}"
@@ -199,7 +198,7 @@ label a0524:
     mc "Too late. It's already in writing and in all our brains."
     show tsubaki uniform embarrassed
     "Tsubaki lowers her eyes toward the sheet like it might hide her face if she stares at it properly."
-    ts "It was just a nice poster."
+    ts "It was {i}just{/i} a nice poster."
     show sam uniform happy
     sa "Still. Good eye."
     show tsubaki uniform nervous
@@ -404,7 +403,7 @@ label a0524:
     m forward uniform nerv om oe awkw rdown ldown "Not as, like, a big thing, just...exams are coming up, track is back, you have college stuff probably, and your family, and..."
     "She stops herself there."
     "Her grip loosens on the folder. When she speaks again, the practiced brightness is gone."
-    m forward uniform flus cm oe blus rdown ldown "I missed talking to you without the school day pulling at our sleeves."
+    m forward uniform flus cm oe blus rdown ldown "I {i}missed{/i} talking to you without the school day pulling at our sleeves."
     mc "Didn't we just go to the movies last weekend?"
     m "I mean, yeah, but I just wanna make it more of a regular occurrence, y'know?"
     m "We've known each other for...how many months now? Eight? Nine?"
@@ -566,7 +565,7 @@ label a0524:
     mc "This is..."
     "Her eyes lift."
     m forward uniform worr om oe nobl rdown ldown "Too much?"
-    mc "No. It's good, just a bit specific and on the nose."
+    mc "No. It's {i}good{/i}. Just a bit specific and on the nose."
     mc "It feels like the table exists. Or am I off the mark and that was just symbolic?"
     m forward uniform happ cm oe nobl rhip ldown "That was the hope."
     "She grins, then looks back down at my notebook instead of her own."
@@ -603,7 +602,7 @@ label a0524:
         call enter_m_showpoem(poem_0524_mc_revised_vinyl) from _call_enter_m_showpoem_0524_3
     "She reads over my shoulder. I feel her attention before I see her reaction."
     m forward uniform happ cm ce blus rdown ldown "There."
-    "One syllable, and she means all of it."
+    "Her fingertip stays beside the new line. She doesn't reach for another correction."
     mc "Yeah?"
     m "...Yeah."
     "We sit with that a second too long."
@@ -635,9 +634,9 @@ label a0524:
     "The room is almost empty when Monika stacks the last loose paper."
     m forward uniform nerv om oe awkw rdown ldown "Sorry about earlier. I didn't mean for...whatever that awkward moment was."
     mc "It wasn't that bad. I've been through worse."
-    m "Still..."
+    m "I know."
     mc "The club noticed a thing and moved on. You know how people are."
-    m forward uniform flus om ce blaw rdown ldown "Still embarrassing, though..."
+    m forward uniform flus om ce blaw rdown ldown "It was still embarrassing, though."
     "She slides her notebook into her bag and squares the zipper with both hands."
     m forward uniform nerv om oe blus rhip ldown "Anyway! Tomorrow at nine, then?"
     mc "Tomorrow at nine. Green awning near the old bank."
@@ -649,9 +648,7 @@ label a0524:
     mc "Catch ya later."
     show monika at thide
     hide monika
-    window hide
     pause 2.0
-    window auto
     mc "..."
     mc "Heh."
     "I leave before the goodbye can pick up any extra weight."

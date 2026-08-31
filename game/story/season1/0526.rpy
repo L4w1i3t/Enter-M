@@ -6,7 +6,6 @@ label a0526:
     $ atmos("afternoon")
     with dissolve_scene_full
     play music quiz
-    window auto
     # Three days of exams. Day 1: morning Civics, afternoon Language Arts.
     #
     # CONTRACT ORDER IS LOAD-BEARING. The proctor states the in-world rule and

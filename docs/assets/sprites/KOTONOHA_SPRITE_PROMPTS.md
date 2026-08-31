@@ -220,8 +220,10 @@ deterministic. The production builder:
 5. median-matches stable facial-skin samples independently to each canonical
    outfit and repairs any magenta that reaches the mask. Canonical lavender
    detail is restored only from connected hair regions of at least 1,000
-   pixels; the much smaller lavender eyebrow and iris islands are explicitly
-   excluded so the neutral face cannot be painted back over an alternate;
+   pixels. A reviewed two-brow ownership mask is then subtracted from that
+   restoration guard, including the viewer-right neutral brow where flattened
+   ink touches the diagonal bang, so no neutral brow can be painted back over
+   an alternate;
 6. exports 21 full-canvas RGBA face layers for `casual` and the same 21 for
    `work`, for exactly 42 outfit-conditioned files; the two `neut` layers are
    intentionally transparent compatibility layers because each base already
@@ -237,10 +239,12 @@ deterministic. The production builder:
 
 The first generated expression pass was rejected after runtime review exposed
 double-brow and lash artifacts. Every non-neutral master was regenerated from
-the canonical neutral sprite as a complete face-feature replacement, and the
-current production set supersedes that pass. Registered expression plates use
-bilinear resampling to avoid high-contrast ringing around thin brow and lash
-lines.
+the canonical neutral sprite as a complete face-feature replacement.
+Registered expression plates use bilinear resampling to avoid high-contrast
+ringing around thin brow and lash lines. A later 2026-08-28 audit established
+that these selected masters were clean, but the deterministic canonical-detail
+guard had reintroduced one connected neutral brow during export; the repair
+below supersedes that faulty export bank.
 
 Production face-layer paths are:
 
@@ -296,3 +300,54 @@ all 42 outfit/token composites, all three pose files, exact runtime wiring,
 distinctness, face registration, mid-thigh framing, clean hands/anatomy, and
 absence of magenta, black, white, or periodic checker residue on light, dark,
 and checker review backgrounds.
+
+## 2026-08-28 duplicate-feature regression repair
+
+The visible second eyebrows were not authored into the selected expression
+masters and were not caused by Ren'Py stacking two face attributes. The
+flattened casual/work bases connect part of the viewer-right neutral eyebrow to
+the diagonal hair bang. The former color/component classifier therefore owned
+that brow segment as canonical hair and painted it over all 20 alternate faces
+in both outfits after registration.
+
+The production repair is deliberately pipeline-level:
+
+- `tools/build_kotonoha_sprites.py` now defines reviewed casual-space brow
+  ownership ellipses, registers that ownership to the work base, and forbids
+  the canonical detail guard from intersecting either corridor;
+- schema-v2 build metrics record each ownership mask, zero guard overlap, and
+  `canonical_brow_pixels_preserved == 0` for every one of the 40 non-neutral
+  outfit/expression builds;
+- `tools/validate_kotonoha_sprites.py` now hash-locks the builder, all 23 clean
+  masters, all 45 staged generated assets, and the installed runtime copies.
+  It rejects a staging-only build, a stale install, or any canonical brow pixel
+  restored inside reviewed ownership;
+- all 40 alternate production face layers were rebuilt and installed. The two
+  blank neutral compatibility layers, both byte-exact canonical bases, the
+  selected expression masters, and all three standalone poses were retained;
+  and
+- a built-in image edit was used only as a diagnostic on `afraid`. Comparing
+  that clean result with the composited output proved that regeneration was not
+  the remedy; no generated diagnostic variant replaced a selected master.
+
+The pre-install bank review, root-cause close-up, and corrected installed-bank
+review are preserved under `tmp/kotonoha_brow_diagnosis/`. Final deterministic
+review sheets are under `tmp/kotonoha_sprite_build/review/`. Actual Ren'Py GL2
+output is under `tmp/kotonoha_render_probe/`, including 42-expression head sheets on
+light, dark, and checker backgrounds.
+
+Verification completed on 2026-08-28:
+
+```text
+python -m py_compile tools/build_kotonoha_sprites.py tools/validate_kotonoha_sprites.py tools/build_kotonoha_render_probe.py
+python tools/build_kotonoha_sprites.py --install
+python tools/validate_kotonoha_sprites.py
+python tools/build_kotonoha_render_probe.py --run
+matsupy.exe "<project>" compile
+matsupy.exe "<project>" lint
+```
+
+The validator passed the exact 47-file runtime bank and the schema-v2
+provenance chain. The render probe rendered and verified 135 GL2 screenshots
+(42 layered expressions plus three poses over three backgrounds). Project
+compile and lint both completed successfully with the installed MatsuPy SDK.

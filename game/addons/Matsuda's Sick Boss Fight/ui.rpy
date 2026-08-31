@@ -1702,7 +1702,17 @@ init python:
                     sblit(rect("#f5fbff" + ("%02x" % int(flash * 100)), W, H), (0, 0))
 
             # Clip to the stage (bullets live 64px past the lip) and mount it.
-            rv.blit(stage.subsurface((0, 0, W, H)), (0, 0))
+            # The clip is a FLAG, not a subsurface: Render.subsurface walks every
+            # child, computes two sublines apiece and wraps each in a fresh
+            # cropped Render (recursing once more into the blitted texture's own
+            # Render), so a busy cast was minting a four-figure count of
+            # throwaway Render objects per frame -- each one appended to
+            # renpy.display.render.live_renders and walked and killed again by
+            # the next mark_sweep -- for pixels identical to these two lines.
+            # gl2 turns xclipping/yclipping into a clip polygon on its own side.
+            stage.xclipping = True
+            stage.yclipping = True
+            rv.blit(stage, (0, 0))
 
             # DRAW RATE CEILING. Unlike the Kotonoha and Tsubaki stages this one
             # DOES interpolate -- bullets are drawn at x + vx * frac -- so it
@@ -2074,9 +2084,9 @@ screen msbf_battle_screen(battle):
     # no alpha: the break and reveal sequences animate their cover and the room
     # legitimately shows through them.
     $ _world_on = not (getattr(battle, "defeat_blackout", False)
-                       or getattr(battle, "final_victory_whiteout", False)
-                       or (battle.phase_transition_active and not battle.fx_event
-                           and not getattr(battle, "phase2_reveal_started", False)))
+                    or getattr(battle, "final_victory_whiteout", False)
+                    or (battle.phase_transition_active and not battle.fx_event
+                        and not getattr(battle, "phase2_reveal_started", False)))
     $ _deck_on = _hud_on and _actor is not None and battle.turn_phase == "player"
 
     if battle.result:
@@ -2332,11 +2342,6 @@ screen msbf_battle_screen(battle):
                     spacing MSBF_PRESS_TURN_SLOT_SPACING
                     for _idx, icon in enumerate(battle.active_press_turn_icons):
                         use msbf_press_turn_icon(icon, _idx)
-            else:
-                text battle.press_turn_empty_label style "msbf_turn_empty":
-                    xanchor 1.0
-                    xpos _pt_w
-                    yalign 0.5
 
             $ _turn_fx_side = "enemy" if battle.enemy_phase_active else "player"
             $ _turn_fx_events = getattr(battle, "press_turn_fx_events", [])

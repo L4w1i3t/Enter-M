@@ -6,7 +6,6 @@ label a0521:
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
     play music quiz
-    window auto
     # CRITIQUE (ADDRESSED): Thinned the narrator quips at the open (and consolidated the three single-word italic lines) so the omitted-agency idea -- a direct mirror of the story's own evasions, and of MC's narration -- gets room to breathe before the lesson begins.
     "Sleep took its time last night, so I walk into language arts running at about seventy percent. Naturally, this is the day the class is asked whether a comma can be morally implicated."
     "The teacher has already filled half the board before the bell finishes surrendering."
@@ -90,7 +89,7 @@ label a0521:
     "A warm breeze moves over the fence and turns the plastic around my food, making it rattle like some sort of instrument."
     "{i}Mom packed rice and vegetables before bolting out the door.{/i}"
     "I get two bites in before the rooftop door opens."
-    show asahina uniform neut at l11
+    show asahina uniform happy at l11
     ah "There you are!"
     mc "Uh oh, that sounded like a threat."
     ah "I've been trying to find you everywhere!"
@@ -128,7 +127,7 @@ label a0521:
     mc "Seems like people have good taste, then."
     show asahina uniform annoyed
     ah "Don't make it weird."
-    mc "...I say ONE nice thing, and you get defensive."
+    mc "...I say {i}one{/i} nice thing, and you get defensive."
     show asahina uniform smug
     ah "Exactly! Historically suspicious."
     "I put a piece of carrot in my mouth and consider launching it at her."
@@ -147,7 +146,7 @@ label a0521:
     mc "Mostly fine, anyway."
     mc "Coach said light practice, so today is warmups and a few drills. The hard part is not getting overzealous."
     ah "...Good."
-    mc "Wooooow. You meant that.~"
+    mc "Wooooow. You meant that~"
     show asahina uniform embarrassed
     ah "Don't make it a thing! I'll take it all back!"
     mc "No takebacks, it's already in the history books."
@@ -506,7 +505,7 @@ label a0521:
     ah "Sister tax."
     mc "For...?"
     show asahina disgusted
-    ah "Making me eat LITERALLY my least favorite vegetable."
+    ah "Making me eat {i}literally{/i} my least favorite vegetable."
     mc "...This government is corrupt."
     show asahina smug
     ah "Sounds like a you problem~"
@@ -585,7 +584,7 @@ label a0521:
             phone_call_line("them", "Anyway, I'm going to rescue what's left of my notes and let you do the same."),
             phone_call_line("me", "A voluntary adjournment. Look at us."),
             phone_call_line("them", "Go ice your foot properly, track boy."),
-            phone_call_line("me", "Call me that again and your head's on a pike."),
+            phone_call_line("me", "Call me that again and track gets full custody."),
             phone_call_line("them", "Hahaha~"),
             phone_call_line("me", "Goodnight, Monika."),
             phone_call_line("them", "Goodnight, " + player + "!"),

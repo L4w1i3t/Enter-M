@@ -53,7 +53,8 @@
 # Music -- main story and menus
 # -----------------------------------------------------------------------------
 
-define -50 audio.canyoufeel = "assets/audio/bgm/canyoufeel.ogg"           # main menu
+define -50 audio.mainmenu = "assets/audio/bgm/mainmenu.ogg"               # main menu
+define -50 audio.canyoufeel = "assets/audio/bgm/canyoufeel.ogg"           
 define -50 audio.roster_place = "assets/audio/bgm/roster_place.ogg"       # archive
 
 define -50 audio.daily = "assets/audio/bgm/daily.ogg"                     # day, bustling/public

@@ -93,11 +93,11 @@ init python:
                 "Slice-of-Life",
                 thumbnail="lost_records/Mika/nothumbnail.png",
                 creation_date="082021",
-                can_play=True,
-                variants=[
-                    ("Original Record", "ch_mika"),
-                    #("Rewritten Record", "ch_mika_rewrite"),
-                ],
+                # can_play=True,
+                # variants=[
+                #     ("Original Record", "ch_mika"),
+                #     #("Rewritten Record", "ch_mika_rewrite"),
+                # ],
             ),
             RecordsProfile(
                 "Doki Doki Funni Club",

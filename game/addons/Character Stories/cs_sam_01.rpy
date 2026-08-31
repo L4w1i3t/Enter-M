@@ -991,7 +991,6 @@ label cs_sam_01:
     stop music fadeout 1.0
     stop sound
     scene black
-    window hide
     pause 1.0
     show text "DISCLAIMER: This story contains flashing lights and disturbing imagery. Reader discretion is advised." at truecenter
     $ pause()
@@ -1032,7 +1031,6 @@ label cs_sam_01:
     with dissolve_scene_half
     play music twelveam
 
-    window auto
     "1:36 AM."
     "The ceiling fan clicks on every third rotation."
     "Sam picks up his phone. The screen is still warm."
@@ -1055,7 +1053,6 @@ label cs_sam_01:
 
     stop music fadeout 1.5
     scene black
-    window hide
     pause 1.0
 
     # -- Fake Title Screen --
@@ -1081,8 +1078,6 @@ label cs_sam_01:
     scene bg corridor
     with dissolve_scene_full
     play music beautiful
-
-    window auto
 
     "You are a transfer student at a new school."
     "Today is your first day. Sunlight pours through the corridor windows in warm, golden sheets."
@@ -1180,7 +1175,6 @@ label .day1_choice:
 
     stop music fadeout 1.0
     scene black with dissolve
-    window hide
     pause 0.5
 
     show text "{size=+15}{b}LEVEL COMPLETE{/b}{/size}\n\n\n{color=#999999}Affection: 60{/color}\n{color=#999999}Trust: 40{/color}\n{color=#999999}Desire: 15{/color}\n\n{color=#666666}Rank: E{/color}" at truecenter with dissolve
@@ -1195,13 +1189,11 @@ label .day1_choice:
         alpha 0.3
     with dissolve_scene_half
 
-    window auto
     "Sam scrolls back through the dialogue. He skips everything she said about the clubs, the courtyard, the cherry blossoms, everything."
     "He pauses on her character art and zooms in."
     "He screenshots it for later."
     "Desire: 15. That's low. He wonders how to get it higher."
 
-    window hide
     show screen purg_phone_overlay(1)
     scene black with dissolve
     pause 0.5
@@ -1218,8 +1210,6 @@ label .day1_choice:
     scene bg classroom_purg
     with dissolve_scene_full
     play music beautiful
-
-    window auto
 
     "Morning again -- the same corridor, the same golden light."
     "She's at the lockers, in the exact same spot as yesterday."
@@ -1280,7 +1270,6 @@ label .day1_choice:
 
     stop music fadeout 1.0
     scene black with dissolve
-    window hide
     pause 0.5
 
     show text "{size=+15}{b}LEVEL COMPLETE{/b}{/size}\n\n\n{color=#999999}Affection: 78{/color}\n{color=#999999}Trust: 60{/color}\n{color=#999999}Desire: 35{/color}\n\n{color=#666666}Rank: D{/color}" at truecenter with dissolve
@@ -1295,7 +1284,6 @@ label .day1_choice:
         alpha 0.3
     with dissolve_scene_half
 
-    window auto
     "Desire: 35, and still climbing."
     "Sam opens the pause menu and checks her character profile. Height, weight, measurements. The game lists all three."
     "He doesn't check her hobbies tab."
@@ -1305,7 +1293,6 @@ label .day1_choice:
     "..."
     "He opens the app again."
 
-    window hide
     show screen purg_phone_overlay(2)
     scene black with dissolve
     pause 0.5
@@ -1326,8 +1313,6 @@ label .day1_choice:
         alpha 0.02
     with dissolve_scene_full
     play music beautiful
-
-    window auto
 
     "It's festival day. Paper lanterns hang from the eaves and hand-painted banners line the walkway."
     "The courtyard feels thinner than yesterday, with fewer faces filling it."
@@ -1380,7 +1365,6 @@ label .day1_choice:
 
     stop music fadeout 1.0
     scene black with dissolve
-    window hide
     pause 0.5
 
     show text "{size=+15}{b}LEVEL COMPLETE{/b}{/size}\n\n\n{color=#999999}Affection: 85{/color}\n{color=#999999}Trust: 70{/color}\n{color=#999999}Desire: 55{/color}\n\n{color=#666666}Rank: C{/color}" at truecenter with dissolve
@@ -1395,13 +1379,11 @@ label .day1_choice:
         alpha 0.3
     with dissolve_scene_half
 
-    window auto
     "Sam's phone buzzes; it's the girl from two weeks ago again. Five messages sit unread, and he deletes the entire thread."
     "He reopens Purgatorium instead for the umpteenth time."
     "Desire: 55. The robe helped, and he wonders if there are other outfits."
     "He remembers the duplicate girl from the festival, standing by the wall. He thinks about it for a second."
 
-    window hide
     show screen purg_phone_overlay(2)
     scene black with dissolve
     pause 0.5
@@ -1423,8 +1405,6 @@ label .day1_choice:
     with dissolve_scene_full
     show screen purg_popup_ads(4)
     play music beautiful
-
-    window auto
 
     "The corridor looks exactly the same as yesterday, down to the light filtering through the windows."
     "The background students are the same three silhouettes, copy-pasted and slightly translucent."
@@ -1496,7 +1476,6 @@ label .day1_choice:
 
     stop music fadeout 1.0
     scene black with dissolve
-    window hide
     pause 0.5
 
     show text "{size=+15}{b}LEVEL COMPLETE{/b}{/size}\n\n\n{color=#999999}Affection: 92{/color}\n{color=#999999}Trust: 80{/color}\n{color=#999999}Desire: 75{/color}\n\n{color=#666666}Rank: B{/color}\n\n{color=#555555}New stat unlocked: Dependency{/color}" at truecenter with dissolve
@@ -1512,7 +1491,6 @@ label .day1_choice:
         alpha 0.3
     with dissolve_scene_half
 
-    window auto
     "The Desire stat reads 75."
     "Sam tries to find a walkthrough for the game, but there isn't one. No results, no wiki, no community guides, nothing at all."
     "Dependency: 40 -- a new stat. He doesn't know what it does, and he doesn't care. It's not the stat he's watching."
@@ -1523,7 +1501,6 @@ label .day1_choice:
     "She wrote two paragraphs, but he read only the first sentence."
     "He picks up his phone and opens the app...again."
 
-    window hide
     show screen purg_phone_overlay(2)
     scene black with dissolve
     pause 0.5
@@ -1545,8 +1522,6 @@ label .day1_choice:
     with dissolve_scene_full
     show screen purg_popup_ads(5)
     play music audio.beautifulwrong
-
-    window auto
 
     "The classroom is dimmer than it should be, and the light from the windows doesn't reach as far."
     "She's standing at the door, wearing your jacket."
@@ -1583,7 +1558,6 @@ label .day1_choice:
     # The player's click literally cuts her off.
     window hide(None)
     pause 1.2
-    window auto
 
     _purg_girl "After graduation, we could get a little apartment."
     _purg_girl "I'd cook for you every day, clean...make sure everything is perfect when you come home."
@@ -1637,14 +1611,12 @@ label .day1_choice:
         alpha 1.0
     with dissolve_scene_half
 
-    window auto
     "The Desire stat reads 90."
     "Sam knows the confession is coming. The structure is obvious; he's played enough of these kinds of games to see it."
     "He's not interested in what she'll say, but rather what comes after."
     "At this point, there's no rationale to quit the game now."
     "He keeps playing."
 
-    window hide
     show screen purg_phone_overlay(3)
     scene black with dissolve
     pause 0.5
@@ -1667,8 +1639,6 @@ label .day1_choice:
         alpha 0.5
     with dissolve_scene_full
     play music apology
-
-    window auto
 
     "The corridor is dark."
     "The windows are there, but the light stops before it reaches the floor."
@@ -1749,7 +1719,6 @@ label .day1_choice:
         alpha 0.3
     with Dissolve(0.4)
 
-    window auto
     "Sam's neck aches."
     "He's been lying in the same position for two hours."
     "The screen is at maximum brightness. He can feel the warmth of it pressed against his cheek in the dark."
@@ -1770,7 +1739,6 @@ label .day1_choice:
     show purg_girl at t11 zorder 10
     with Dissolve(0.3)
 
-    window auto
     "The tear animation is a single white streak copy-pasted on both cheeks, slightly offset."
 
     _purg_girl "I'll never let you go."
@@ -1897,8 +1865,6 @@ label .day1_choice:
         alpha 0.5
     with dissolve_scene_full
     play music apology
-
-    window auto
 
     "The proportions are wrong. The ceiling is too low. The far end stretches into a vanishing point that doesn't converge."
     "There are no windows anymore, only rectangular patches of wall where they used to be."
@@ -2121,7 +2087,7 @@ label .day1_choice:
     #  THE CRASH
     # =================================================================
 
-    window hide
+    window hide(None)
     stop music
     hide purg_girl_day7 at thide
     show screen tear(20, 0.3, 0.3, -150, 150)
@@ -2158,8 +2124,6 @@ label .day1_choice:
     with Dissolve(2.0)
     play music hb
 
-    window auto
-
     "You are in a room."
     "The walls are close, with no texture -- just a flat color stretching in every direction."
     "The progress bar said MAX. Every flag was tripped, every condition met."
@@ -2190,7 +2154,6 @@ label .day1_choice:
 
     "It has always been smiling."
 
-    window hide
     pause 2.0
 
     # =================================================================
@@ -2202,7 +2165,6 @@ label .day1_choice:
     # The final stat reveal is on bare black so the numbers land.
 
     stop music fadeout 2.0
-    window hide
     scene black
     with Dissolve(0.6)
     pause 0.35
@@ -2671,7 +2633,7 @@ label .day1_choice:
     # Everything dies at once.
 
     stop music
-    window hide
+    window hide(None)
     hide noise
     hide glitch_color
     hide glitch_color2
@@ -2690,8 +2652,6 @@ label .day1_choice:
 
     pause 3.0
 
-    window auto
-
     "The phone screen is dark."
     "The app is gone. No icon, no download history, no cache, nothing."
     "He notices the battery percentage has dipped during the time he was playing, and the phone feels faintly warm to the touch, as if something had been running in the background."
@@ -2709,13 +2669,11 @@ label .day1_choice:
     pause 0.5
 
     "The ceiling fan clicks once more."
-    window hide
     pause 4.0
 
     scene black with Dissolve(2.0)
     pause 2.0
 
-    window auto
     "Something is on the screen."
     "He doesn't remember opening it."
 

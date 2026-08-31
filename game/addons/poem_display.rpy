@@ -11,10 +11,10 @@
 #
 # PUBLIC ENTRY POINT
 #   call enter_m_showpoem(poem)   -- poem is a Poem(author, title, text, ...).
-#   Used by the main story (e.g. game/story/season1/0524.rpy, 0530.rpy). It hides
-#   the dialogue window, disables auto-forward, shows the poem, waits for a click,
-#   then restores window auto. The FIRST time ever (persistent.first_poem) it also
-#   shows a one-off "click to dismiss" hint image.
+#   Used by the main story (e.g. game/story/season1/0524.rpy, 0530.rpy). It clears
+#   the dialogue window immediately, disables auto-forward, shows the poem, and
+#   waits for a click. The FIRST time ever (persistent.first_poem) it also shows a
+#   one-off "click to dismiss" hint image.
 #
 # AUTHOR -> FONT
 #   The screen picks a handwriting style by poem.author: "monika" -> m1.TTF,
@@ -40,7 +40,7 @@ init -2 python:
                 self.yuri_2 = yuri_2
                 self.yuri_3 = yuri_3
 
-image enter_m_poem_paper = "assets/images/bg/poem.jpg"
+image enter_m_poem_paper = "assets/backgrounds/poem.jpg"
 
 transform enter_m_poem_paper_position:
     truecenter
@@ -109,14 +109,14 @@ screen enter_m_poem(currentpoem, paper="enter_m_poem_paper"):
 
 
 # PUBLIC: present a poem and block until the player clicks it away.
-# Saves/disables auto-forward (afm) so a poem can't auto-advance, shows the
-# one-time dismiss hint on the very first poem, then restores window auto.
+# Saves/disables auto-forward (afm) so a poem can't auto-advance and shows the
+# one-time dismiss hint on the very first poem.
 label enter_m_showpoem(poem=None):
     if poem == None:
         return
 
     play sound page_turn
-    window hide
+    window hide(None)
     $ _enter_m_poem_prev_afm = renpy.game.preferences.afm_enable
     $ renpy.game.preferences.afm_enable = False
 
@@ -136,5 +136,4 @@ label enter_m_showpoem(poem=None):
     hide poem_dismiss
     $ renpy.game.preferences.afm_enable = _enter_m_poem_prev_afm
     with Dissolve(.5)
-    window auto
     return
