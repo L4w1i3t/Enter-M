@@ -1,54 +1,9 @@
-# =============================================================================
-# mc_collection.rpy  --  THE CARD BINDER (Archive module 7)
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   The album of everything the prize machine has handed over. It is the seventh
-#   Archive module, reached from the Archive hub exactly like Roster, CG Gallery,
-#   Music Room, Side Stories, Lost Records and Achievements, and it deliberately
-#   reuses that hub's shared chrome -- archive_header / archive_readout /
-#   archive_shell_frame / the archive_sv scrollbar / the chip and meta text
-#   styles -- over its own static preservation-table backdrop, so it reads as
-#   the same subsystem rather than as the Arcade leaking into the Archive.
-#
-# WHY THE BINDER IS HERE AND THE MACHINE IS NOT
-#   The machine is a coin-op object and lives on the Arcade floor
-#   (mc_gacha.rpy). What it dispenses is a COLLECTION, and every other
-#   collection in this game -- CGs, tracks, roster slots, side stories -- is
-#   already in the Archive. Splitting them puts each half in the room whose
-#   language it actually speaks, and the two are one click apart from each hub.
-#
-# WHAT IS GATED
-#   Nothing about the shell. The binder ships open and shows every card's SLOT
-#   from the first launch, silhouetted until it is pulled -- the same reasoning
-#   the Archive flag block gives for the CG Gallery and the Roster: an unowned
-#   card is visibly a card, the same size and in the same place it will occupy
-#   once it is yours, because a grid of identical "???" tells a first-time
-#   player nothing about what is in there.
-#
-# THE CARD FACE ITSELF
-#   screen mc_card_face + the enter_m.mc_card shader live in mc_gacha.rpy, and
-#   this file calls them unchanged. A card therefore looks identical in the
-#   machine that gave it to you and in the album it ends up in, which is the
-#   entire point of having one widget.
-# =============================================================================
+# Archive card binder, using mc_gacha's shared mc_card_face widget.
+# The shell and slots are visible immediately; ownership controls card visibility.
+# A raster binder underlay supplies paper/rings while pockets remain interactive.
+# Sleeve order is well -> card -> plastic: a raised card emerges above the mouth
+# while its lower portion remains behind the film. Preserve that layer order.
 
-# =============================================================================
-# THE PAGE ITSELF -- RASTER BINDER AND LIVE SLEEVES
-# =============================================================================
-# The leather, paper, page edges, gutter, and metal rings live in one optimized
-# transparent raster underlay. Card pockets remain live displayables so their
-# ownership, hover, and pull states can change without duplicating the binder.
-#
-# WHY A POCKET IS THREE LAYERS AND NOT ONE
-#   well -> card -> plastic. The card is a real displayable sandwiched between
-#   two shader passes, and that is what buys the whole effect for nothing: raise
-#   the card and its top emerges ABOVE the pocket's mouth with no film over it,
-#   while its lower half stays behind the plastic and the empty well is revealed
-#   underneath. Nothing has to be clipped, masked or recomputed -- the layer
-#   order does it. It is also why the hover lift earns more here than it did on
-#   a bare grid: the same few pixels of travel now read as starting to draw a
-#   card out of its sleeve.
 init -10 python:
 
     def _mc_register_binder_shaders():
@@ -211,7 +166,6 @@ define MC_CARD_W = 96
 define MC_CARD_H = 134
 define MC_SLEEVE_PAD = 3              # plastic either side of the card
 define MC_SLEEVE_MOUTH = 3            # the lip band above a seated card
-define MC_SLEEVE_FOOT = 3
 define MC_POCKET_W = 102              # 3 + 96 + 3
 define MC_POCKET_H = 140              # 3 mouth + 134 card + 3 foot
 define MC_SLEEVE_LIFT = 7             # how far hover draws a card out
@@ -230,7 +184,14 @@ define MC_POCKET_Y_GAP = 1
 define MC_BINDER_GRID_Y = 34
 define MC_BINDER_COLS = 2
 define MC_BINDER_ROWS = 3
-define MC_BINDER_SLOTS_PER_LEAF = 6
+# The category accordion is a plain vbox -- one 28px row per divider, spaced 3
+# -- inside a frame that CANNOT size itself, so its plate has to be measured by
+# hand against the divider COUNT. Measured at nine dividers: 21 title row + 9 +
+# 1 rule + 9 + (9 * 28 + 8 * 3) + 32 padding = 348. Re-measure whenever
+# MC_SUBJECTS changes length -- too short does not clip, it hangs the last row
+# off the bottom of the dark plate.
+define MC_CATALOG_PANEL_H = 370
+
 define MC_BINDER_SLOTS_PER_SPREAD = 12
 # Slots are numbered row-major across the open spread. Each leaf's local grid
 # therefore takes alternating pairs rather than the old leaf-major 1-6 / 7-12
@@ -296,12 +257,6 @@ transform mc_index_enter:
 # wherever the card currently is -- in both directions, and correctly even if
 # the pointer crosses several cards quickly.
 transform mc_card_seat(off=0):
-    subpixel True
-    easeout 0.17 yoffset off
-
-# The caption follows at a fraction of the distance, so the cell keeps its shape
-# while still acknowledging the card being drawn out above it.
-transform mc_caption_seat(off=0):
     subpixel True
     easeout 0.17 yoffset off
 
@@ -499,16 +454,16 @@ screen mc_collection():
             SetScreenVariable("mc_catalog_open", not mc_catalog_open),
         ]
         if mc_catalog_open:
-            _mcb_footer_text = "UP/DOWN  CHOOSE CATEGORY // ENTER  SELECT // C / ESC  CLOSE"
+            _mcb_footer_text = "UP/DOWN  CHOOSE CATEGORY  /  ENTER  SELECT  /  C OR ESC  CLOSE"
         elif _mcb_hovered_card is not None:
-            _mcb_footer_text = "CLICK TO INSPECT // %s" % _mcb_hovered_card.name.upper()
+            _mcb_footer_text = "CLICK TO INSPECT  /  %s" % _mcb_hovered_card.name.upper()
         elif _mcb_page_count > 1:
-            _mcb_footer_text = "C  CHANGE CATEGORY // LEFT/RIGHT  TURN SPREAD // CLICK A CARD TO INSPECT"
+            _mcb_footer_text = "C  CHANGE CATEGORY  /  LEFT/RIGHT  TURN SPREAD  /  CLICK A CARD TO INSPECT"
         else:
-            _mcb_footer_text = "C  CHANGE CATEGORY // CLICK A CARD TO INSPECT"
+            _mcb_footer_text = "C  CHANGE CATEGORY  /  CLICK A CARD TO INSPECT"
 
-    key "game_menu" action (SetScreenVariable("mc_catalog_open", False) if mc_catalog_open else Hide("mc_collection"))
-    key "K_ESCAPE" action (SetScreenVariable("mc_catalog_open", False) if mc_catalog_open else Hide("mc_collection"))
+    key "game_menu" action (SetScreenVariable("mc_catalog_open", False) if mc_catalog_open else Hide("mc_collection", transition=enter_m_menu_doorway))
+    key "K_ESCAPE" action (SetScreenVariable("mc_catalog_open", False) if mc_catalog_open else Hide("mc_collection", transition=enter_m_menu_doorway))
     key "K_c" action _mcb_catalog_toggle_action
     key "K_i" action _mcb_catalog_toggle_action
 
@@ -527,13 +482,13 @@ screen mc_collection():
         vbox:
             spacing 8
 
-            use archive_header("CARD COLLECTION", Hide("mc_collection"), static=True)
+            use archive_header("CARD COLLECTION", Hide("mc_collection", transition=enter_m_menu_doorway), static=True)
 
             # Census strip. The right slot carries the wallet, because the
             # binder is the one place a player looks up "how close am I" and
             # "can I afford to keep going" in the same glance.
             use archive_readout(
-                "CARD ARCHIVE // %d/%d COLLECTED" % (_mcb_owned, _mcb_total),
+                "THE BINDER / %d OF %d COLLECTED" % (_mcb_owned, _mcb_total),
                 right_slot=True, static=True):
 
                 use mc_balance_chip(15, light=True)
@@ -646,7 +601,7 @@ screen mc_collection():
                     # prevents blank panel clicks from closing through to the
                     # full-spread dimmer.
                     button:
-                        xysize (420, 460)
+                        xysize (420, MC_CATALOG_PANEL_H)
                         xpos 92
                         ypos 30
                         background Solid("#00000000")
@@ -668,7 +623,7 @@ screen mc_collection():
                                 null width 1 xfill True
                                 text "C / ESC  CLOSE" style "mc_binder_index_hint" yalign 0.5
 
-                            add Solid("#345a6b") xysize (380, 1)
+                            add Solid("#d9cdb633") xysize (380, 1)
 
                             vbox:
                                 spacing 3
@@ -695,7 +650,7 @@ screen mc_collection():
                                         fixed:
                                             xysize (376, 26)
 
-                                            add Solid("#56d7ff" if _idx == mc_sel_subject else "#345a6b") xysize (4, 22) xpos 0 yalign 0.5
+                                            add Solid(IM_GOLD if _idx == mc_sel_subject else "#5a554f") xysize (4, 22) xpos 0 yalign 0.5
 
                                             hbox:
                                                 spacing 6
@@ -724,8 +679,7 @@ screen mc_collection():
 
                     fixed:
                         xysize (420, 38)
-                        add Solid("#48b9d4") xysize (4, 22) xpos 12 yalign 0.5
-                        add Solid("#73c8dc88") xysize (420, 1) ypos 37
+                        add Solid(IM_GOLD) xysize (4, 22) xpos 12 yalign 0.5
 
                         hbox:
                             spacing 10
@@ -746,7 +700,7 @@ screen mc_collection():
                 xsize 1150
                 ysize 16
 
-                add Solid("#345a6b") xysize (5, 5) xpos 0 yalign 0.5
+                add Solid(IM_PLUM) xysize (5, 5) xpos 0 yalign 0.5 rotate 45
                 text _mcb_footer_text:
                     style "archive_footer_text"
                     xpos 13
@@ -757,7 +711,7 @@ screen mc_collection():
                     xpos 1150
                     yalign 0.5
 
-    add enter_m_brackets(1200, 690, "#56d7ff7a", 24, 2) xpos 40 ypos 15
+    use archive_shell_brackets()
 
 
 # -----------------------------------------------------------------------------
@@ -820,7 +774,6 @@ screen mc_card_detail(card):
 
     frame:
         style "archive_panel"
-        background Frame(Solid("#070f1af7"), 0, 0)
         xalign 0.5
         yalign 0.5
         xysize (920, 570)
@@ -853,13 +806,13 @@ screen mc_card_detail(card):
 
                 hbox:
                     xfill True
-                    text ("ARCHIVE ENTRY // " + _mcd_subject):
+                    text ("THE BINDER  /  " + _mcd_subject):
                         style "mc_detail_kicker"
-                        color "#79a9b8"
+                        color IM_PLUM
                     null width 1 xfill True
                     text ("ENTRY %d / %d" % (_mcd_index + 1, _mcd_total)):
                         style "mc_detail_kicker"
-                        color "#79a9b8"
+                        color IM_PLUM
 
                 hbox:
                     spacing 9
@@ -880,8 +833,8 @@ screen mc_card_detail(card):
                 add Solid(card.color + "aa") xysize (220, 2) at enter_m_accent_grow
 
                 frame:
-                    background Solid("#0b1825b8")
-                    padding (16, 13)
+                    background IM_PAPER_PANEL
+                    padding (18, 15)
                     xfill True
 
                     text card.flavor:
@@ -905,7 +858,7 @@ screen mc_card_detail(card):
                 # with the physical card instead of floating below the notes.
                 null height 1 yfill True
 
-                add Solid("#345a6b") xysize (486, 1)
+                add Solid("#d9cdb633") xysize (486, 1)
 
                 hbox:
                     spacing 12
@@ -926,79 +879,74 @@ screen mc_card_detail(card):
                         sensitive (_mcd_next is not None)
                         action _mcd_next_action
 
-    add enter_m_brackets(924, 574, "#56d7ff5a", 20, 2) xpos 178 ypos 73
+    use archive_bookplate_corners(180, 75, 920, 570)
 
 
 # =============================================================================
 # STYLES
-# Archive chrome: near-black panels, cyan accents. The only warm ink in here is
-# the coin and the NEW badge -- both of which are Arcade objects that have
-# wandered in, and should read that way.
+# Archive chrome: the illustrated catalogue's dark panels, paper ink and cloth
+# tabs. The coin and the NEW badge keep their own colours -- both are Arcade
+# objects that have wandered in, and should read that way.
 # =============================================================================
 style mc_binder_nav_button:
     xysize (52, 64)
     padding (0, 0)
-    background Solid("#08121cee")
-    hover_background Solid("#17415ff2")
-    insensitive_background Solid("#08121c66")
+    background IM_TAB_IDLE
+    hover_background IM_TAB_HOVER
+    insensitive_background IM_TAB_IDLE
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 style mc_binder_nav_text is gui_text:
     font gui.interface_font
-    size 30
-    color "#dff8ff"
+    size 28
+    color IM_PAPER
     hover_color "#ffffff"
-    insensitive_color "#53616c"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    insensitive_color "#6f6a63"
+    outlines []
 
+# The divider tab: a strip of the same cloth the Archive's index tabs are cut
+# from, standing proud of the binder's pale leaf.
 style mc_binder_category_tab:
     xysize (420, 38)
     padding (0, 0)
-    background Solid("#cfdae1f7")
-    hover_background Solid("#e8f1f5fc")
-    selected_background Solid("#cfdae1f7")
-    selected_hover_background Solid("#e8f1f5fc")
+    background Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 # These are deliberately standalone styles. Inheriting gui_text here lets
-# unrelated global UI colour/state changes darken the paper tab's children.
+# unrelated global UI colour/state changes darken the tab's children.
 style mc_binder_category_label:
     font gui.interface_font
     size 9
-    color "#3f7689"
-    bold True
-    kerning 1.0
-    hover_color "#1c657f"
-    outlines [(1, "#f1f8fa66", 0, 0)]
+    color "#d9c9a8"
+    kerning 1.6
+    hover_color IM_PAPER
+    outlines []
 
 style mc_binder_category_name:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 16
-    color "#28677e"
-    bold True
+    font gui.default_font
+    size 18
+    color IM_PAPER
     xmaximum 150
-    hover_color "#075d79"
-    outlines [(1, "#eff8fb88", 0, 0)]
+    hover_color "#ffffff"
+    outlines []
 
 style mc_binder_category_meta:
     font gui.interface_font
     size 10
-    color "#47798a"
-    bold True
-    hover_color "#246a82"
-    outlines [(1, "#f1f8fa55", 0, 0)]
+    color "#d9c9a8"
+    kerning 1.0
+    hover_color IM_PAPER
+    outlines []
 
 style mc_binder_category_action:
     font gui.interface_font
     size 10
-    color "#087e9f"
-    hover_color "#005e7b"
-    bold True
-    kerning 0.5
-    outlines [(1, "#effaff66", 0, 0)]
+    color IM_GOLD
+    hover_color "#ffffff"
+    kerning 1.0
+    outlines []
 
 style mc_binder_leaf_label is gui_text:
     font gui.interface_font
@@ -1016,59 +964,46 @@ style mc_binder_spread_stamp is gui_text:
     kerning 1.4
     outlines [(1, "#dce4ea88", 0, 0)]
 
-style mc_binder_index_panel is empty:
-    xysize (870, 344)
-    align (0.5, 0.5)
-    padding (24, 20)
-    background Solid("#07111df5")
-
 style mc_catalog_panel is empty:
-    xysize (420, 460)
+    xysize (420, MC_CATALOG_PANEL_H)
     padding (20, 16)
-    background Solid("#07111df8")
+    background IM_DARK_PANEL
 
 style mc_binder_index_title is gui_text:
-    font "assets/fonts/SF Automaton Extended.ttf"
+    font gui.default_font
     size 21
-    color "#f4fbff"
-    bold True
+    color IM_PAPER
+    outlines []
 
 style mc_binder_index_hint is gui_text:
     font gui.interface_font
     size 9
-    color "#79a9b8"
-
-style mc_binder_index_button:
-    xysize (260, 58)
-    padding (10, 7)
-    background Solid("#0b1825dc")
-    hover_background Solid("#12314aee")
-    selected_background Solid("#17415ff2")
-    selected_hover_background Solid("#1b4d70f2")
-    hover_sound gui.hover_sound
-    activate_sound gui.activate_sound
+    kerning 1.0
+    color IM_PLUM
+    outlines []
 
 style mc_catalog_button:
     xysize (380, 28)
     padding (2, 1)
-    background Solid("#0b1825b8")
-    hover_background Solid("#12314aee")
-    selected_background Solid("#17415ff2")
-    selected_hover_background Solid("#1b4d70f2")
+    background None
+    hover_background Solid("#d9cdb614")
+    selected_background Solid("#d9cdb622")
+    selected_hover_background Solid("#d9cdb62e")
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 style mc_binder_index_name is gui_text:
-    font gui.interface_font
-    size 15
-    color "#dff8ff"
-    bold True
+    font gui.default_font
+    size 17
+    color IM_PAPER
     xmaximum 255
+    outlines []
 
 style mc_binder_index_count is gui_text:
     font gui.interface_font
     size 11
-    color "#79a9b8"
+    color "#bdb4a6"
+    outlines []
 
 style mc_thumb_button:
     background Solid("#07111d00")
@@ -1076,20 +1011,6 @@ style mc_thumb_button:
     padding (0, 0)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
-
-style mc_thumb_name is gui_text:
-    font gui.interface_font
-    size 12
-    color "#102433"
-    bold True
-    outlines [(1, "#e8edf188", 0, 0)]
-
-style mc_thumb_name_locked is gui_text:
-    font gui.interface_font
-    size 11
-    color "#53616c"
-    kerning 1.0
-    outlines [(1, "#eef2f455", 0, 0)]
 
 # Amber ink on a dark plate, not near-black on an amber plate. It reads just as
 # loudly -- amber is still the colour that means "new" -- and it keeps the rule
@@ -1116,19 +1037,6 @@ style mc_empty_slot_label is gui_text:
     kerning 1.5
     outlines [(1, "#eef2f433", 0, 0)]
 
-style mc_side_name is gui_text:
-    font gui.interface_font
-    size 15
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style mc_side_count is gui_text:
-    font gui.interface_font
-    size 11
-    color "#7fcfe0"
-    kerning 1.0
-
 style mc_detail_chip:
     font gui.interface_font
     size 14
@@ -1145,26 +1053,23 @@ style mc_detail_kicker is gui_text:
     outlines [(1, "#02040b", 0, 0)]
 
 style mc_detail_section:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 19
-    color "#f4fbff"
-    bold True
-    kerning 0.5
-    outlines [(1, "#02040b", 0, 0)]
+    font gui.default_font
+    size 22
+    color IM_PAPER
+    outlines []
 
 style mc_detail_flavor is gui_text:
-    font gui.interface_font
-    size 15
-    color "#9fc9d6"
+    font gui.default_font
+    size 16
+    color IM_INK
     line_spacing 3
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
 style mc_detail_stat is gui_text:
     font gui.interface_font
     size 17
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    color IM_PAPER
+    outlines []
 
 style mc_detail_nav_button is archive_return_button:
     xsize 140

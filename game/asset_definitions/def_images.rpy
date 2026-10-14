@@ -1,33 +1,6 @@
-# =============================================================================
-# def_images.rpy  --  ENTER M backgrounds and CGs
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   Every `bg` and `cg` image the main story and side stories can `scene` or
-#   `show`. Vanilla DDLC's own backgrounds stay in game/definitions.rpy.
-#
-# NAMING
-#   `image bg <place>[_<time>]` -- time suffix only when more than one lighting
-#   variant of the same place exists (city_morning / city_day / city_night).
-#   Lighting grade on top of these comes from atmosphere.rpy's atmos() helper,
-#   NOT from more image variants.
-#
-# WHERE THE FILES LIVE
-#   assets/backgrounds/  finished backgrounds
-#   assets/cg/           finished CGs
-#   assets/dump/         art not yet sorted into backgrounds or CGs; entries
-#                        pointing here are the ones still waiting on a home.
-#
-# RELATED FILES
-#   def_characters.rpy -- cast sprites and Characters
-#   def_audio.rpy      -- music / SFX aliases and extra audio channels
-#   CG View/cg_gallery.rpy -- the gallery; add unlockable CGs there too
-# =============================================================================
-
-
-# -----------------------------------------------------------------------------
-# Home
-# -----------------------------------------------------------------------------
+# Background and CG image aliases. Core reused backgrounds are in definitions.rpy.
+# Finished art lives in assets/backgrounds/ and assets/cg/; assets/dump/ holds
+# the remaining cataloged imports. Atmosphere grades add scene lighting.
 
 # The house has two separate rooms and they are not interchangeable: vanilla
 # `bg kitchen` is a galley with counters, stove and sink and NO table, so any
@@ -52,6 +25,7 @@ image bg sam_room_night = "assets/backgrounds/sam_room_night.png"
 image bg doorday = "assets/backgrounds/doorday.png"
 image bg doornight = "assets/backgrounds/doornight.png"
 image bg doordark = "assets/backgrounds/doordark.png"
+image bg matsudavr = "assets/backgrounds/matsudavr.png"
 
 
 # -----------------------------------------------------------------------------
@@ -101,7 +75,7 @@ image bg town_day = "assets/backgrounds/town_day.png"
 image bg residential_night = "assets/backgrounds/residential_night.png"
 image bg cafe = "assets/backgrounds/cafe_stationery.png"
 image bg bookstore = "assets/dump/bookstore.png"
-image bg arcade = "assets/dump/arcade.png"
+image bg arcade = "assets/backgrounds/arcade.png"
 image bg store_techsection = "assets/backgrounds/store_techsection.png"
 image bg store_checkout = "assets/backgrounds/store_checkout.png"
 image bg library = "assets/backgrounds/library.png"
@@ -137,6 +111,13 @@ image bg classroom_purg = "assets/backgrounds/classroom_purg.png"     # Purgator
 image bg courtyard_purg = "assets/backgrounds/courtyard_purg.png"
 image bg roof_purg = "assets/backgrounds/roof_purg.png"
 image bg monika_room = "assets/cg/monika/monika_room.png"        # carried over from vanilla
+
+# The records vault off the title screen. Not a story location: it is the
+# room the Vault menu is set in, and the only thing that scenes it is the
+# one-time Kotonoha greeting in Vault/vault.rpy. The art is deliberately
+# filthy and the Vault's own grade makes it filthier -- do not reach for it
+# as a generic basement.
+image bg vault = "assets/backgrounds/vault_initial.png"
 
 
 # -----------------------------------------------------------------------------

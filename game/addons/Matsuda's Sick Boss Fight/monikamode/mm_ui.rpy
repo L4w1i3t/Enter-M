@@ -418,9 +418,6 @@ init -1 python:
             u_mm_gloss=float(skin["gloss"] if gloss is None else gloss),
         )
 
-    def mm_scene_no():
-        return int(getattr(store, "mm_scene_count", 0) or 0)
-
     def mm_bg_at(deal=True):
         """
         The at_list every background in the date is shown with.
@@ -519,11 +516,6 @@ transform mm_fan_lift:
         easeout 0.16 yoffset -16 zoom 1.04
     on idle:
         easeout 0.22 yoffset 0 zoom 1.0
-
-# The gauge's fill, which does not snap. A number that moves instantly reads as
-# a variable; a number that eases reads as something being taken.
-transform mm_gauge_ease:
-    subpixel True
 
 # The nameplate's small constant unsteadiness, once she is past pretending.
 transform mm_plate_slip(amount=0.0):

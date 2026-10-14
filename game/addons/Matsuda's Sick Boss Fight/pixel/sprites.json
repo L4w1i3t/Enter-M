@@ -1,0 +1,336 @@
+{
+ "party": {
+  "seeker": {
+   "file": "pixel/party/seeker.png",
+   "hq": {
+    "file": "pixel/hq/party/seeker.png",
+    "unit": 3.0
+   },
+   "size": [
+    97,
+    111
+   ],
+   "scale": 2,
+   "foot": [
+    57,
+    106
+   ],
+   "head": [
+    57,
+    24
+   ],
+   "chest": [
+    57,
+    48
+   ],
+   "bbox": [
+    14,
+    11,
+    82,
+    106
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/seeker.png",
+   "source_sha256": "0fa4461968cdf75ea75562dfae5463a2ee366623d140fafc17de75e28b3c376e"
+  },
+  "monika": {
+   "file": "pixel/party/monika.png",
+   "hq": {
+    "file": "pixel/hq/party/monika.png",
+    "unit": 3.0
+   },
+   "size": [
+    114,
+    88
+   ],
+   "scale": 2,
+   "foot": [
+    68,
+    83
+   ],
+   "head": [
+    68,
+    25
+   ],
+   "chest": [
+    68,
+    42
+   ],
+   "bbox": [
+    14,
+    10,
+    99,
+    83
+   ],
+   "mirrored": true,
+   "source": "archetypes/v2/monika.png",
+   "source_sha256": "b853d186ca8336e1bb786acca99ed11e8e506330b799d6bd88b5920003f60a34"
+  },
+  "kotonoha": {
+   "file": "pixel/party/kotonoha.png",
+   "hq": {
+    "file": "pixel/hq/party/kotonoha.png",
+    "unit": 3.0
+   },
+   "size": [
+    91,
+    102
+   ],
+   "scale": 2,
+   "foot": [
+    43,
+    97
+   ],
+   "head": [
+    43,
+    21
+   ],
+   "chest": [
+    43,
+    44
+   ],
+   "bbox": [
+    15,
+    10,
+    76,
+    97
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/kotonoha.png",
+   "source_sha256": "8f9934ac971c571b751373bc0c7abc7256fb99f9075a1527d899f8cbe24d2523"
+  },
+  "asahina": {
+   "file": "pixel/party/asahina.png",
+   "hq": {
+    "file": "pixel/hq/party/asahina.png",
+    "unit": 3.0
+   },
+   "size": [
+    93,
+    111
+   ],
+   "scale": 2,
+   "foot": [
+    49,
+    106
+   ],
+   "head": [
+    49,
+    26
+   ],
+   "chest": [
+    49,
+    50
+   ],
+   "bbox": [
+    15,
+    11,
+    78,
+    106
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/asahina.png",
+   "source_sha256": "fdbce30cb3606d7be47af98b8b1cec5af7c62a50dc4218fa7887006c23f576db"
+  },
+  "sam": {
+   "file": "pixel/party/sam.png",
+   "hq": {
+    "file": "pixel/hq/party/sam.png",
+    "unit": 3.0
+   },
+   "size": [
+    96,
+    119
+   ],
+   "scale": 2,
+   "foot": [
+    43,
+    114
+   ],
+   "head": [
+    43,
+    27
+   ],
+   "chest": [
+    43,
+    53
+   ],
+   "bbox": [
+    14,
+    10,
+    81,
+    114
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/sam.png",
+   "source_sha256": "de6805d1644627e04f07e75a58fe46469c4b3087296151924b1a53c4b4eb70f6"
+  },
+  "tsubaki": {
+   "file": "pixel/party/tsubaki.png",
+   "hq": {
+    "file": "pixel/hq/party/tsubaki.png",
+    "unit": 3.0
+   },
+   "size": [
+    98,
+    107
+   ],
+   "scale": 2,
+   "foot": [
+    55,
+    102
+   ],
+   "head": [
+    55,
+    25
+   ],
+   "chest": [
+    55,
+    48
+   ],
+   "bbox": [
+    14,
+    10,
+    83,
+    102
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/tsubaki.png",
+   "source_sha256": "3587dd1bc08f3cff402dac5a964a18c745ca9c9e17efb24f998e3fe1e58a646f"
+  },
+  "himeko": {
+   "file": "pixel/party/himeko.png",
+   "hq": {
+    "file": "pixel/hq/party/himeko.png",
+    "unit": 3.0
+   },
+   "size": [
+    89,
+    108
+   ],
+   "scale": 2,
+   "foot": [
+    46,
+    103
+   ],
+   "head": [
+    46,
+    19
+   ],
+   "chest": [
+    46,
+    44
+   ],
+   "bbox": [
+    14,
+    10,
+    74,
+    103
+   ],
+   "mirrored": false,
+   "source": "archetypes/v2/himeko.png",
+   "source_sha256": "acaadf2296c32677e0b0bd26a9c83b96b3df6e50ea14941c466c9d4a92e04165"
+  }
+ },
+ "boss": {
+  "1": {
+   "file": "pixel/boss/form1.png",
+   "hq": {
+    "file": "pixel/hq/boss/form1.png",
+    "unit": 4.5
+   },
+   "size": [
+    193,
+    234
+   ],
+   "scale": 3,
+   "foot": [
+    98,
+    225
+   ],
+   "head": [
+    98,
+    32
+   ],
+   "core": [
+    98,
+    90
+   ],
+   "bbox": [
+    25,
+    21,
+    168,
+    225
+   ],
+   "mirrored": false,
+   "source": "phase1.png",
+   "source_sha256": "b5bd333147649c0fca74361394fe356d0960b9ae594266b7a9838ab7d7f9b63f"
+  },
+  "2": {
+   "file": "pixel/boss/form2.png",
+   "hq": {
+    "file": "pixel/hq/boss/form2.png",
+    "unit": 4.5
+   },
+   "size": [
+    334,
+    262
+   ],
+   "scale": 3,
+   "foot": [
+    166,
+    251
+   ],
+   "head": [
+    166,
+    76
+   ],
+   "core": [
+    166,
+    129
+   ],
+   "bbox": [
+    25,
+    20,
+    308,
+    251
+   ],
+   "mirrored": false,
+   "source": "phase2.png",
+   "source_sha256": "3d8a4cd955408518609c9834ab0f905f96ed22bc791887fa368c9d7d15dc0da4"
+  },
+  "3": {
+   "file": "pixel/boss/form3.png",
+   "hq": {
+    "file": "pixel/hq/boss/form3.png",
+    "unit": 4.5
+   },
+   "size": [
+    359,
+    266
+   ],
+   "scale": 3,
+   "foot": [
+    179,
+    255
+   ],
+   "head": [
+    179,
+    76
+   ],
+   "core": [
+    179,
+    130
+   ],
+   "bbox": [
+    28,
+    22,
+    332,
+    255
+   ],
+   "mirrored": false,
+   "source": "idmode/idphase.png",
+   "source_sha256": "c54980ed33e86f82fcf8364ed0ad44c60c6972362f4e44171b6372f502f7c528"
+  }
+ }
+}

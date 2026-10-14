@@ -1,81 +1,23 @@
-# =============================================================================
-# ARCADE HUB
-# =============================================================================
-# A main-menu shortcut straight into every finished game mode, with NO story
-# framing: no Matsuda intro, no roster menu, no per-mode preamble. Modes are
-# available immediately; launching one before its story encounter has been
-# cleared first presents an explicit spoiler/immersion warning.
-# The hub is a retro "classic edition" library -- a featured cartridge + info
-# panel over a highlighted thumbnail rail (screen arcade_hub), with its own warm
-# indigo/amber palette (NOT the Archive's cyan terminal). Selecting a game drops
-# the player right into gameplay; a run ends on a clean results card (Retry /
-# Leave) instead of the story's post-fight dialogue.
+# Main-menu Arcade library and direct gameplay/result wrappers.
+# Finished modes are immediately available; missing story-clear flags route
+# through arcade_story_warning before launch. Persistent clear keys stay stable.
+# Arcade contexts preserve the caller and return to the hub after results.
+# arcade_active selects gameplay-only ending branches and is cleared on exit.
 #
-# BOX ART  (drop-in, no code needed)
-#   A cartridge is a SQUARE jewel-case card that carries NOTHING but its artwork
-#   -- no title, no genre band -- so the shelf reads like a real game collection.
-#   To give a mode its cover, drop a square image at:
-#       game/addons/Arcade/art/<slug>.png      (.jpg / .jpeg / .webp also work)
-#   where <slug> is the catalog title lowercased with non-alphanumerics turned
-#   into underscores ("Ontological Seer: Id" -> "ontological_seer_id"). Every
-#   shipped cartridge uses that convention. A tile may still name an explicit
-#   path in its tuple (that wins) for art living outside art/. With no art
-#   found, the card falls back to its plain accent color, drawn as a blank case.
-#
-# LOOK  (three GLSL shaders, gl2 -- see the SHADERS block below)
-#   enter_m.arcade_field : the whole-screen gradient field (indigo->black, twin
-#                          accent blooms keyed to the selected game, shelf shade,
-#                          CRT scanlines, vignette).
-#   enter_m.arcade_panel : rounded-rect gradient panel w/ border -- every page,
-#                          badge, meter and button plate in the hub.
-#   enter_m.arcade_cart  : the card face -- rounded corners, jewel-case gloss,
-#                          accent edge, greyed-out unavailable state, and hover
-#                          brighten + travelling specular sweep.
-#
-# COST  (measured on this project, not guessed)
-#   The whole hub -- field shader + 6 mesh cards + ~9 panel plates -- draws at
-#   ~240fps, i.e. the entire frame including Matsu'Py's Python loop costs under
-#   4ms. Every surface is STATIC apart from the hovered card, so with nothing
-#   under the pointer the hub asks for no frames at all and idles free. The only
-#   continuous work is one card's glint, and it stops the moment you move off.
-#   Keep it that way: if you add ambient motion here, animate it from ATL (which
-#   schedules its own redraws) rather than from u_time.
-#
-# WHY IT WORKS
-#   Every roster fight already terminates with `return` and keeps its retry loops
-#   in-context (main cs_matsuda_02.rpy:225/286, Kotonoha kototouhou_*, Tsubaki
-#   tsubamode_*, Monika mm_victory). So a fight can be launched from a menu the
-#   exact same way the Archive's "Replay OP" button does -- via
-#   renpy.call_in_new_context(<label>) -- and it unwinds cleanly back to the hub.
-#
-# THE arcade_active GUARD
-#   Each mode's fight-invocation label (kototouhou_fight / tsubamode_fight /
-#   cs_matsuda_02_battle / mm_intro+mm_victory) has ONE guarded branch:
-#       if arcade_active: jump arcade_<mode>_result
-#   inserted right where it would otherwise dispatch into story dialogue. When
-#   arcade_active is False (every in-story path), those guards are inert and the
-#   story flow is byte-for-byte unchanged. This file is the ONLY place that sets
-#   arcade_active True, and it is reset to False on every exit (arcade_return +
-#   the hub's on-show), so a later in-story fight can never take an arcade branch.
-#
-# CONTENT-CLEAR CHECK (warning only; it never locks a finished game mode)
-#   Main Fight : persistent.id_mode_unlocked        (set on first Normal clear)
-#   Id Mode    : persistent.arcade_id_cleared        (NEW; set in Id-victory branch)
-#   Monika     : persistent.arcade_monika_cleared    (NEW; set in mm_victory)
-#   Kotonoha   : persistent.kotomode_cleared         (set by KTGame._finish)
-#   Tsubaki    : persistent.tsubamode_outcome is not None (set by tsuba victories)
-# These existing persistent signals keep old saves compatible. A false signal
-# routes PLAY through arcade_story_warning; a true signal launches directly.
-# =============================================================================
+# Shipped covers use explicit optimized assets; discovery also supports title
+# slugs under addons/Arcade/art and an engraved fallback. Cached lobby artwork
+# shares the illustrated menu palette. Hover glints finish and idle poses stop
+# requesting redraws; retain this when extending the library.
 
-# --- STATE -------------------------------------------------------------------
-# Two persistent clear signals (the other three are declared by their modes).
 default persistent.arcade_id_cleared = False
 default persistent.arcade_monika_cleared = False
 
 # Global "we are inside an arcade run" flag. Rollback-managed default; the fight
 # labels read it to pick the arcade branch. Reset to False on every exit.
 default arcade_active = False
+
+# Same clipped ticket silhouette and nine-slice geometry as IM_TAB_SELECTED.
+define -2 ARCADE_PLAY_HOVER = Frame("assets/gui/menu/illustrated/arcade/play_hover.svg", 20, 16)
 
 
 # =============================================================================
@@ -278,21 +220,6 @@ init -10 python:
 # =============================================================================
 init -2 python:
     # --- color helpers -------------------------------------------------------
-    # The cartridges each carry a per-game accent, and some (mid purple, warm
-    # tan) killed legibility when text was hard-coded dark. These pick text/edge
-    # colors OFF the accent so every band and button stays readable.
-    def _arcade_lum(hexcol):
-        # Rough perceptual luminance, 0..1.
-        try:
-            h = hexcol.lstrip("#")
-            r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
-            return (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
-        except Exception:
-            return 0.0
-
-    def _arcade_ink(hexcol, dark="#0a0713", light="#fbf6ee"):
-        # Legible text color to lay directly on `hexcol`.
-        return dark if _arcade_lum(hexcol) > 0.62 else light
 
     def _arcade_mix(hexcol, target="#ffffff", t=0.26):
         # Linear blend of `hexcol` toward `target` (used for hover-brighten and
@@ -328,17 +255,32 @@ init -2 python:
             u_accent=_arcade_vec4(accent),
         )
 
+    # MEMOIZED: the same arguments hand back the SAME plate. A Transform has no
+    # value equality, so a screen that re-executes (a reveal timer ticking, a
+    # hover restarting the interaction) could never reuse a freshly built one --
+    # every update built a new shader Transform and paid a new render for it.
+    # Arguments here come from UI code, so the set is small; the clear is a
+    # backstop, not an eviction policy.
+    _ARCADE_PANEL_CACHE = {}
+
     @renpy.pure
     def ArcadePanel(width, height, top="#1e1742ee", bottom=None, radius=16.0,
                     border=0.0, border_color="#00000000", horiz=False):
         # A rounded gradient plate: pages, badges, keycap plates, meters, the
         # PLAY button, the modal panels. `horiz` runs the gradient left->right
         # (the header/rail accent rules).
+        key = (int(round(width)), int(round(height)), top, bottom, float(radius),
+               float(border), border_color, bool(horiz))
+        hit = _ARCADE_PANEL_CACHE.get(key)
+        if hit is not None:
+            return hit
+        if len(_ARCADE_PANEL_CACHE) > 1024:
+            _ARCADE_PANEL_CACHE.clear()
         top_rgba = _arcade_vec4(top)
         bot_rgba = _arcade_vec4(bottom) if bottom is not None else top_rgba
-        return Transform(
+        hit = _ARCADE_PANEL_CACHE[key] = Transform(
             Solid("#000000"),
-            xysize=(int(round(width)), int(round(height))),
+            xysize=(key[0], key[1]),
             mesh=True,
             shader="enter_m.arcade_panel",
             u_radius=float(radius),
@@ -348,15 +290,40 @@ init -2 python:
             u_border=float(border),
             u_bcolor=_arcade_vec4(border_color),
         )
+        return hit
 
-    def ArcadeCartFace(size, color, art=None):
+    # The MATSUCOM console badge: a gold faceplate with slanted block letters,
+    # after the Famicom's colours. Saved at 3x its 279x47 layout size and
+    # declared OVERSAMPLED, so it stays sharp in big windows without a zoom.
+    ARCADE_LOGO = Image("assets/gui/menu/illustrated/arcade/matsucom_logo.png", oversample=3)
+
+    def ArcadeCartFace(size, color, art=None, case_trim=False):
         # A cartridge's picture plane, pre-sized square so the cart shader sees
         # u_model_size == (size, size). Box art if we have it, flat accent (which
         # the shader turns into a lit blank case) if we don't.
         s = int(round(size))
         if art:
-            return Transform(art, xysize=(s, s), fit="cover")
-        return Solid(color, xysize=(s, s))
+            # fit="cover" SCALES but never CROPS. A 512x768 poster came out
+            # 320x480, and the featured card -- which has no case trim to hold
+            # it -- painted all of it, straight past the bottom of its frame.
+            # (The shelf only looked right because its Composite happened to
+            # clip.) Seat the covered art in an exact square and crop to it:
+            # centred across, pinned to the TOP, since a poster's title lives
+            # there.
+            face = Transform(
+                Fixed(Transform(art, xysize=(s, s), fit="cover",
+                                xalign=0.5, yalign=0.0),
+                      xysize=(s, s)),
+                crop=(0, 0, s, s))
+        else:
+            face = Solid(color, xysize=(s, s))
+        if case_trim:
+            # Print fittings belong to the card, so selection/hover poses and
+            # rounded clipping move the art and fittings as one surface.
+            return Composite((s, s),
+                (0, 0), face,
+                (0, 0), Transform("assets/gui/menu/illustrated/arcade/cartridge_trim.svg", xysize=(s, s)))
+        return face
 
     # --- box art resolution --------------------------------------------------
     # Convention: game/addons/Arcade/art/<slug>.png (see the file header). A tile
@@ -460,17 +427,17 @@ init python:
             "Matsuda's four-on-one press-turn boss battle. Read her tempo, exploit the weakness, and grind down one absurd health bar.",
             "#e0455e", "addons/Arcade/art/ontological_seer_classic.webp",
             lambda: persistent.id_mode_unlocked,
-            Function(renpy.call_in_new_context, "arcade_play_msbf")),
+            Function(arcade_launch, "arcade_play_msbf")),
         ("Ontological Seer: Id", "SUPERBOSS REMATCH",
             "The rematch with every safety off -- Matsuda throws every genre into a blender. Her no-warmup superboss form.",
             "#8a5cff", "addons/Arcade/art/ontological_seer_id_classic.webp",
             lambda: persistent.arcade_id_cleared,
-            Function(renpy.call_in_new_context, "arcade_play_msbf", id_mode=True)),
+            Function(arcade_launch, "arcade_play_msbf", id_mode=True)),
         ("A Fine Date", "ANTI-DATING SIM",
             "One evening, one exit. Every honest 'no' walks her a step closer to the open door.",
             "#4fbf7a", "addons/Arcade/art/a_fine_date_classic.webp",
             lambda: persistent.arcade_monika_cleared,
-            Function(renpy.call_in_new_context, "arcade_play_monika")),
+            Function(arcade_launch, "arcade_play_monika")),
         ("Embodiment of Violet Ink", "BULLET HELL",
             "Kotonoha's danmaku recital. Dodge every word. Normal, Endless, or Practice.",
             "#ff6fae", "addons/Arcade/art/embodiment_of_violet_ink_doujin.webp",
@@ -480,7 +447,13 @@ init python:
             "Tsubaki's SOUL box duel. Cut the strings -- violently or passively.",
             "#d9c68a", "addons/Arcade/art/the_unwritten_act_ui.webp",
             lambda: persistent.tsubamode_outcome is not None,
-            Function(renpy.call_in_new_context, "arcade_play_tsubaki")),
+            Function(arcade_launch, "arcade_play_tsubaki")),
+        ("Asarhythm", "FOUR-KEY RHYTHM BATTLE",
+            "Asahina has the stage and a hunger for a revolution. "
+            "Press to the beat and defeat her in a battle of song.",
+            "#f36bc3", "addons/Arcade/art/asahina_rhythm.webp",
+            lambda: persistent.asahina_rhythm_cleared,
+            Function(arcade_launch, "arcade_play_asahina_rhythm")),
 
         # --- MATSUCOM ORIGINALS ----------------------------------------------
         # Cabinets with no story attachment: they exist only here, so their
@@ -491,38 +464,45 @@ init python:
         # All four run on the shared cabinet in addons/Arcade/games/ag_core.rpy
         # and launch through one label with the cabinet named as a parameter.
         ("Ouroboros Protocol", "GRID SURVIVAL",
-            "Snake, except the samples rot where they sit. Eat them fresh to "
-            "keep the chain -- and hold Shift to sprint, if you can afford to "
-            "boil off your own length to get there.",
+            "Samples rot where they sit. Eat them fresh, loop your body "
+            "around the rot to clear it, and hold Shift to sprint if you "
+            "can spare the length.",
             "#57d6a8", "addons/Arcade/art/ouroboros_protocol_classic.webp",
             lambda: True,
-            Function(renpy.call_in_new_context, "ag_play", ag_kind="snake")),
+            Function(arcade_launch, "ag_play", ag_kind="snake")),
         ("Peer Review", "BRICK BREAKER",
-            "Demolish a manuscript one claim at a time. Some are cited and "
-            "come back, some are redacted, and one power-up is a trap.",
+            "A brick breaker on a page of claims. Knock out a gold source "
+            "and everything tethered to it collapses, and stamp your returns "
+            "for a harder hit.",
             "#ff8f5e", "addons/Arcade/art/peer_review_classic.webp",
             lambda: True,
-            Function(renpy.call_in_new_context, "ag_play", ag_kind="brick")),
+            Function(arcade_launch, "ag_play", ag_kind="brick")),
         ("Intake", "FALLING BLOCKS",
-            "Rack the samples and clear the shelf. Standard controls, except "
-            "the backlog keeps pushing contaminated rows up from the bottom.",
+            "Stack racks of three, four and five cells and clear full rows. "
+            "Flip a rack instead of holding one, and keep the mold down.",
             "#5ec8e0", "addons/Arcade/art/intake_classic.webp",
             lambda: True,
-            Function(renpy.call_in_new_context, "ag_play", ag_kind="intake")),
+            Function(arcade_launch, "ag_play", ag_kind="intake")),
         ("Containment Sweep", "DEDUCTION",
-            "Read the floor, label the incidents, don't stand on one. Three "
-            "floor sizes and a par time to beat.",
+            "Find every incident without stepping on one. Some numbers count "
+            "two tiles out, and a hazmat suit covers one mistake.",
             "#e0c05e", "addons/Arcade/art/containment_sweep_classic.webp",
             lambda: True,
-            Function(renpy.call_in_new_context, "ag_play", ag_kind="sweep")),
+            Function(arcade_launch, "ag_play", ag_kind="sweep")),
         ("Board Meeting", "CHESS",
-            "Real chess against four people who all want this over with. An "
+            "Chess against four people who all want this over with. An "
             "intern who thinks out loud, a professional on a clock, a "
             "grandmaster on the same clock, and a model that reads you while "
             "you play and forgets you when you leave.",
             "#8fa8ff", "addons/Arcade/art/board_meeting_classic.webp",
             lambda: True,
-            Function(renpy.call_in_new_context, "ag_play", ag_kind="chess")),
+            Function(arcade_launch, "ag_play", ag_kind="chess")),
+        ("Outlier", "PEG SHOOTER",
+            "Aim, fire, and let it fall. Clear all twenty-two outliers with "
+            "fifteen balls, and save a few for the bonus round.",
+            "#46c7e8", "ag:peg",
+            lambda: True,
+            Function(arcade_launch, "ag_play", ag_kind="peg")),
 
         # "Coming soon" slot (action None). When it is ready, give it a launch
         # action and use `lambda: True` if no story prerequisite applies.
@@ -538,10 +518,30 @@ init python:
         "Intake",
         "Containment Sweep",
         "Board Meeting",
+        "Outlier",
     ))
 
     def arcade_entry_is_original(entry):
         return entry[0] in ARCADE_ORIGINAL_TITLES
+
+    def arcade_asahina_rhythm_award(result):
+        """Pay one completed rhythm attempt through the boss-cabinet economy."""
+        # Core results come from an imported .py module; Ren'Py's rollback dict
+        # class does not recognize ordinary Python dictionaries as instances.
+        if not isinstance(result, python_dict):
+            return 0
+        if result.get("_arcade_rewarded"):
+            return result.get("coins", 0)
+        result["_arcade_rewarded"] = True
+        result["coins"] = 0
+        if (result.get("outcome") not in ("clear", "failed")
+                or result.get("practice") or result.get("autoplay")
+                or not result.get("eligible", False)):
+            return 0
+        result["coins"] = mc_award_mode(
+            "asahina_rhythm", "ASARHYTHM",
+            result["outcome"] == "clear")
+        return result["coins"]
 
     def arcade_prerequisite_is_cleared(prerequisite_cleared_fn):
         """Return whether a mode's prerequisite content has been experienced."""
@@ -592,23 +592,26 @@ init python:
 # the button's one and only child, and the coming-soon badge has to be a SIBLING
 # of the button rather than sitting inside it. (Badges are not focusable, so they
 # do not steal the click.) Nest the face deeper and u_hover silently never fires.
-screen arcade_cart(accent_color, available, card_size, artwork=None, edge_strength=0.35, click_action=None, pose_transform=None):
+screen arcade_cart(accent_color, available, card_size, artwork=None, edge_strength=0.35, click_action=None, pose_transform=None, cart_id=None, case_trim=False):
     python:
-        _display_accent = accent_color if available else "#5f5878"
+        _display_accent = accent_color if available else "#6d6860"
         _dim_strength = 0.0 if available else 0.86
         _corner_radius = max(6.0, round(card_size * 0.055))
-        _has_artwork = 1.0 if artwork else 0.0
+        _display_artwork = artwork or "assets/gui/menu/illustrated/arcade/coming_soon.svg"
+        _has_artwork = 1.0
         _accent_vector = _arcade_vec4(_display_accent)
-        _badge_size = max(30, int(card_size * 0.30))
+        _badge_size = max(24, int(card_size * 0.20))
+        _badge_inset = max(8, int(card_size * 0.045))
     fixed:
         xysize (card_size, card_size)
         align (0.5, 0.5)
         button:
             style "arcade_blank_button"
+            id (cart_id or "arcade_cart")
             xysize (card_size, card_size)
             action click_action
             at pose_transform
-            add ArcadeCartFace(card_size, _display_accent, artwork) at arcade_cart_fx(
+            add ArcadeCartFace(card_size, _display_accent, _display_artwork, case_trim) at arcade_cart_fx(
                 _corner_radius,
                 _accent_vector,
                 _has_artwork,
@@ -616,12 +619,16 @@ screen arcade_cart(accent_color, available, card_size, artwork=None, edge_streng
                 edge_strength,
             )
         if not available:
-            use arcade_coming_soon_badge(_badge_size)
+            fixed:
+                xysize (_badge_size, _badge_size)
+                pos (card_size - _badge_size - _badge_inset, card_size - _badge_size - _badge_inset)
+                use arcade_coming_soon_badge(_badge_size)
 
 
 # --- COMING-SOON BADGE -------------------------------------------------------
-# A dark disc carrying a wordless ellipsis, centred on the only unavailable
-# catalog slot. Story prerequisites never affect cartridge availability.
+# A small lower-right ellipsis stamp marks the unavailable catalog slot without
+# covering its engraved joystick artwork. Story prerequisites never affect
+# cartridge availability.
 screen arcade_coming_soon_badge(badge_size):
     python:
         _dot_size = max(3, int(round(badge_size * 0.11)))
@@ -646,15 +653,14 @@ screen arcade_coming_soon_badge(badge_size):
 
 
 # --- BACKDROP ----------------------------------------------------------------
-# A painted after-school console room anchors the hub in the same visual-novel
-# world as the story. The static field is retained at low opacity so selecting a
-# cartridge can tint the room without replacing it or forcing ambient redraws.
+# The painted console room remains visible behind engraved brass and coral
+# cabinet fittings. Chrome is cached SVG/Frame artwork; the old full-screen
+# scanline/gradient shader no longer runs over the room on every drawn frame.
 screen arcade_backdrop(accent):
-    add "assets/gui/menu/arcade_vn.png"
-    add ArcadeField(accent):
-        alpha 0.18
+    add "assets/backgrounds/matsudavr.png"
     add "vignette":
-        alpha 0.34
+        alpha 0.22
+    add "assets/gui/menu/illustrated/arcade/surround.svg"
 
 
 # --- KEYCAP CHIP -------------------------------------------------------------
@@ -675,15 +681,14 @@ screen arcade_story_warning(mode_title, proceed_action):
     zorder 90
     use enter_m_input_lock()
     use arcade_backdrop("#ffb454")
-    add Solid("#05030bdc")
+    add Solid("#14212ade")
 
     frame:
         xalign 0.5
         yalign 0.5
         xysize (760, 360)
         padding (0, 0, 0, 0)
-        background ArcadePanel(760, 360, top="#241b43f4", bottom="#100b20fa",
-                                radius=18, border=1.5, border_color="#ffb45488")
+        background IM_DARK_PANEL
 
         vbox:
             xpos 34
@@ -694,26 +699,25 @@ screen arcade_story_warning(mode_title, proceed_action):
             hbox:
                 spacing 12
                 add Solid("#ffb454") xysize (5, 18) yalign 0.5
-                text "CONTENT NOTICE" style "arcade_kicker" color "#ffcf88" yalign 0.5
+                text "CONTENT NOTICE" style "arcade_kicker" color IM_GOLD yalign 0.5
 
             text mode_title:
                 style "arcade_feature_title"
                 size 34
-                color "#fbf6ee"
+                color IM_PAPER
 
-            add ArcadePanel(692, 2, top="#ffb45488", bottom="#ffb45400",
-                            radius=1, horiz=True)
+            add Solid("#e1bf8070") xysize (692, 1)
 
             text ("This mode appears later in the story. Playing it now may reveal events or undercut its intended introduction."):
                 style "arcade_feature_blurb"
                 size 18
-                color "#c9c1d8"
+                color IM_MUTED
                 xsize 692
 
             text "Continue into the standalone mode anyway?":
                 style "arcade_prompt_hint"
                 size 16
-                color "#9f96b8"
+                color IM_MUTED
 
             null height 6
 
@@ -723,11 +727,10 @@ screen arcade_story_warning(mode_title, proceed_action):
 
                 button:
                     xysize (190, 54)
+                    id "arcade_warning_back"
                     padding (0, 0)
-                    background ArcadePanel(190, 54, top="#2c2542", bottom="#191427",
-                                        radius=10, border=1.0, border_color="#8d83a666")
-                    hover_background ArcadePanel(190, 54, top="#403653", bottom="#252036",
-                                                radius=10, border=1.5, border_color="#bcb3cf99")
+                    background IM_TAB_IDLE
+                    hover_background IM_TAB_HOVER
                     hover_sound gui.hover_sound
                     activate_sound gui.activate_sound
                     action Hide("arcade_story_warning")
@@ -735,11 +738,10 @@ screen arcade_story_warning(mode_title, proceed_action):
 
                 button:
                     xysize (246, 54)
+                    id "arcade_warning_play"
                     padding (0, 0)
-                    background ArcadePanel(246, 54, top="#684922", bottom="#332117",
-                                        radius=10, border=1.5, border_color="#ffb454bb")
-                    hover_background ArcadePanel(246, 54, top="#8a6130", bottom="#493020",
-                                                radius=10, border=2.0, border_color="#ffe0a4")
+                    background IM_TAB_IDLE
+                    hover_background IM_TAB_HOVER
                     hover_sound gui.hover_sound
                     activate_sound gui.activate_sound
                     action [Hide("arcade_story_warning"), proceed_action]
@@ -753,8 +755,8 @@ screen arcade_story_warning(mode_title, proceed_action):
 # `tag menu` -> shown via ShowMenu from the main menu; Escape pops back with the
 # menu BGM. A "classic edition" library: a big featured cartridge + description
 # page over a highlighted shelf of cards. `sel` is the selected index; the
-# gradient field, the page's border and every accent in the chrome key off the
-# selected game.
+# cartridge border and genre marker retain the selected game's accent within
+# the shared paper-and-ink cabinet fittings.
 #
 # NAVIGATION: there are no arrows -- every shelf card is a full-square selection
 # target. Launch from the large featured cover, PLAY, or Enter; this prevents a
@@ -817,45 +819,22 @@ screen arcade_hub():
     key "K_RIGHT" action SetScreenVariable("sel", (sel + 1) % n)
     key "K_RETURN" action cur_enter
     key "K_KP_ENTER" action cur_enter
+    key "K_p" action Show("mc_gacha")
 
-    # --- top bar: logo + edition badge + the prize machine + catalog census ---
+    # Engraved coin/joystick mark and stamped edition ticket share the opening
+    # programme's paper-and-ink treatment while keeping MATSUCOM's own identity.
+    add "assets/gui/menu/illustrated/arcade/joystick.svg" xpos 43 ypos 28
     hbox:
-        xpos 62 ypos 30
+        xpos 98 ypos 31
         spacing 18
-        text "MATSUCOM" style "arcade_logo"
+        add ARCADE_LOGO
         fixed:
             xysize (188, 28)
             yalign 1.0
             yoffset -11
-            add ArcadePanel(188, 28, top="#2b2250", bottom="#191330", radius=14, border=1.0, border_color=(cur_color + "88"))
+            add IM_TAB_IDLE xysize (188, 28)
             text "CLASSIC EDITION" style "arcade_logo_sub" align (0.5, 0.5)
 
-        # THE PRIZE MACHINE. It is a lobby fixture, not a cartridge, so it sits
-        # in the header rather than on the LIBRARY shelf -- putting it among the
-        # covers would have made it look like a game you can play, and it would
-        # have eaten a shelf slot from the seven the windowed rail allows.
-        # It carries the live wallet, which is why it is worth the header space:
-        # this is where a player finds out that the run they just finished paid.
-        # NB the balance chip is a direct child of the button, not wrapped in a
-        # spare container -- Matsu'Py dispatches hover to transforms INSIDE a
-        # button, and an intermediate holder is what breaks that (the same
-        # button-direct-child rule the cartridge cards follow).
-        button:
-            style "arcade_prize_button"
-            yalign 1.0
-            yoffset -4
-            xysize (250, 42)
-            action Show("mc_gacha")
-            background ArcadePanel(250, 42, top="#3a2c5e", bottom="#1d1636", radius=12, border=1.0, border_color="#ffb45477")
-            hover_background ArcadePanel(250, 42, top="#5c3f2a", bottom="#2e1f1c", radius=12, border=2.0, border_color="#ffd98a")
-
-            hbox:
-                align (0.5, 0.5)
-                spacing 9
-                add MatsucoinIcon(20) yalign 0.5
-                text mc_num(mc_balance()) style "arcade_prize_amount" yalign 0.5
-                add Solid("#ffffff26") xysize (1, 20) yalign 0.5
-                text "PRIZES" style "arcade_prize_label" yalign 0.5
 
     vbox:
         xpos 1218 ypos 32
@@ -871,13 +850,12 @@ screen arcade_hub():
         fixed:
             xysize (210, 6)
             xalign 1.0
-            add ArcadePanel(210, 6, top="#ffffff12", bottom="#ffffff0c", radius=3)
+            add Solid("#c3ac7930") xysize (210, 6)
             if ac_cleared:
-                add ArcadePanel(max(6, int(210.0 * ac_cleared / max(ac_story, 1))), 6,
-                                top=_arcade_mix(cur_color, "#ffffff", 0.40), bottom=cur_color, radius=3)
+                add Solid(IM_GOLD) xysize (max(6, int(210.0 * ac_cleared / max(ac_story, 1))), 6)
 
-    # header rule: an accent gradient that fades out to the right
-    add ArcadePanel(1156, 3, top=(cur_color + "aa"), bottom=(cur_color + "00"), radius=1.5, horiz=True):
+    # Fine brass rule seats the header above the featured admission ticket.
+    add Solid(IM_GOLD) xysize (1156, 1):
         xpos 62
         ypos 98
 
@@ -886,7 +864,7 @@ screen arcade_hub():
         xysize (1152, 374)
         xalign 0.5
         ypos 104
-        add ArcadePanel(1152, 374, top="#221a4ad8", bottom="#100b22e8", radius=20, border=1.5, border_color=(cur_color + "55"))
+        add "assets/gui/menu/illustrated/arcade/feature_mat.svg"
 
         hbox:
             xpos 32
@@ -905,6 +883,7 @@ screen arcade_hub():
                     edge_strength=1.0,
                     click_action=cur_enter,
                     pose_transform=arcade_feature_pop,
+                    cart_id="arcade_feature_cover",
                 )
 
             # FIXED-HEIGHT TEMPLATE: the title and blurb each live in a reserved
@@ -921,13 +900,17 @@ screen arcade_hub():
                 hbox:
                     spacing 10
                     text "FEATURED CARTRIDGE" style "arcade_kicker" yalign 0.5
-                    add ArcadePanel(180, 2, top=(cur_color + "88"), bottom=(cur_color + "00"), radius=1, horiz=True) yalign 0.5
+                    add Solid(cur_color + "70") xysize (180, 1) yalign 0.5
 
                 fixed:
                     xysize (700, 92)
                     text cur_title:
                         style "arcade_feature_title"
                         yalign 1.0
+                        # Outlines draw in list order, FIRST AT THE BACK (text.py's
+                        # figure_outlines appends the letters themselves last):
+                        # accent shadow, then the ink edge, then the text.
+                        outlines [(3, _arcade_mix(cur_color, "#1d1418", 0.35), 3, 4), (3, "#1d1418", 0, 0)]
 
                 # The two chips carry different content (one has an accent bar
                 # beside its text, the other is text alone), so left to size
@@ -942,10 +925,10 @@ screen arcade_hub():
                         yalign 0.5
                         hbox:
                             spacing 8
-                            add Solid(cur_color if cur_playable else "#8f86a8") xysize (4, 15) yalign 0.5
+                            add Solid(cur_color if cur_playable else IM_MUTED) xysize (4, 15) yalign 0.5
                             text cur_tag:
                                 style "arcade_chip_accent"
-                                color (cur_color if cur_playable else "#8f86a8")
+                                color (_arcade_mix(cur_color, IM_PAPER, 0.30) if cur_playable else IM_MUTED)
                                 yalign 0.5
                     frame:
                         style "arcade_chip"
@@ -961,25 +944,20 @@ screen arcade_hub():
                         yalign 0.0
 
                 # --- the PLAY button (mouse), plus the keyboard hint ---
-                # Rounded accent plate: a deep-accent gradient with a light label
-                # (never dark-on-bright) and a bright accent ring that flares on
-                # hover.
+                # A textured admission ticket is cached once; the selected
+                # cartridge keeps its accent in the title's genre marker.
                 python:
-                    _play_top = _arcade_mix(cur_color, "#140f28", 0.34) if cur_playable else "#302949"
-                    _play_bot = _arcade_mix(cur_color, "#140f28", 0.62) if cur_playable else "#211b36"
-                    _play_htop = _arcade_mix(cur_color, "#ffffff", 0.18) if cur_playable else "#413a63"
-                    _play_hbot = _arcade_mix(cur_color, "#140f28", 0.30) if cur_playable else "#2b2445"
-                    _play_edge = (cur_color + "cc") if cur_playable else "#6a6284aa"
-                    _play_ink = "#fbf6ee" if cur_playable else "#b9b1cc"
+                    _play_ink = IM_INK if cur_playable else IM_MUTED
                     _play_label = "PLAY" if cur_playable else "COMING SOON"
 
                 hbox:
                     spacing 18
                     button:
                         style "arcade_play_button"
+                        id "arcade_play"
                         action cur_enter
-                        background ArcadePanel(236, 62, top=_play_top, bottom=_play_bot, radius=11, border=1.5, border_color=_play_edge)
-                        hover_background ArcadePanel(236, 62, top=_play_htop, bottom=_play_hbot, radius=11, border=2.5, border_color=_arcade_mix(cur_color, "#ffffff", 0.45))
+                        background (IM_TAB_SELECTED if cur_playable else IM_TAB_IDLE)
+                        hover_background (ARCADE_PLAY_HOVER if cur_playable else IM_TAB_IDLE)
                         at arcade_play_bob
                         text _play_label:
                             style "arcade_play_text"
@@ -1003,17 +981,19 @@ screen arcade_hub():
         xpos 64
         ypos 492
         spacing 12
-        text "LIBRARY" style "arcade_rail_label" yalign 0.5
-        add ArcadePanel(140, 2, top="#ffffff30", bottom="#ffffff00", radius=1, horiz=True) yalign 0.5
+        text "THE COLLECTION" style "arcade_rail_label" yalign 0.5
+        add Solid("#e1bf8066") xysize (140, 1) yalign 0.5
 
-    # WINDOWED SHELF: seven 156px slots is 1164px, which is the most that fits
-    # across 1280 without shrinking the cards. Past seven catalog entries the
+    add "assets/gui/menu/illustrated/arcade/shelf.svg" xpos 64 ypos 508
+
+    # WINDOWED SHELF: six 156px slots, left-aligned on the shelf art, leave its
+    # right end for the prize machine to stand on (below). Past six catalog entries the
     # shelf shows a WINDOW centred on the selection instead of every card, and
     # the counts at either end say how much is off-shelf. The window is clamped
     # to the ends, so browsing to the first or last game parks the row rather
     # than scrolling past nothing.
     python:
-        _shelf_span = 7
+        _shelf_span = 6
         if n <= _shelf_span:
             _shelf_start = 0
         else:
@@ -1032,12 +1012,11 @@ screen arcade_hub():
         text ("+%d" % _shelf_right):
             style "arcade_rail_label"
             size 15
-            xpos 1250
-            xanchor 1.0
+            xpos 1066
             ypos 578
 
     hbox:
-        xalign 0.5
+        xpos 64
         ypos 508
         spacing 12
         for index, entry in enumerate(arcade_items[_shelf_start:_shelf_end], _shelf_start):
@@ -1058,11 +1037,54 @@ screen arcade_hub():
                     edge_strength=(1.0 if index == sel else 0.30),
                     click_action=SetScreenVariable("sel", index),
                     pose_transform=arcade_thumb(index == sel),
+                    cart_id=("arcade_cartridge_%d" % index),
+                    case_trim=True,
                 )
+
+    # --- THE PRIZE MACHINE ----------------------------------------------------
+    # The actual cabinet, standing on the floor at the end of the shelf, at a
+    # size nobody walks past -- and with nothing blinking to say so. It used to
+    # be a wallet chip in the header, which read as a readout, not a door. It is
+    # the same sprite the prize screen opens on, and its brass plate carries the
+    # wallet, which is where a player looks for what a run just paid.
+    button:
+        style "arcade_machine_button"
+        id "arcade_prize_machine"
+        # Explicit size: the house button style caps a button's height, and
+        # under that cap the cabinet was clamped to a sliver of the corner.
+        xysize (160, 266)
+        xpos 1152
+        ypos 698
+        anchor (0.5, 1.0)
+        action Show("mc_gacha")
+
+        fixed:
+            xysize (160, 266)
+
+            add McMachine(236) xalign 0.5 at arcade_machine_idle
+
+            fixed:
+                xysize (150, 26)
+                xalign 0.5
+                ypos 240
+                add IM_TAB_IDLE xysize (150, 26)
+                hbox:
+                    align (0.5, 0.5)
+                    spacing 7
+                    add MatsucoinIcon(15) yalign 0.5
+                    text mc_num(mc_balance()) style "arcade_prize_amount" yalign 0.5
+
+    # Pointer, keyboard, and controller users all have a visible way home.
+    textbutton "Back":
+        style "arcade_return_button"
+        id "arcade_back"
+        xpos 42
+        ypos 673
+        action [EnterMMenuMusic(audio.mainmenu), Return()]
 
     # --- footer controls ---
     hbox:
-        xalign 0.5
+        xalign 0.55
         ypos 684
         spacing 9
         use arcade_keycap_chip("<")
@@ -1074,6 +1096,20 @@ screen arcade_hub():
         text "//" style "arcade_footer_sep" yalign 0.5
         use arcade_keycap_chip("ESC")
         text "BACK" style "arcade_footer" yalign 0.5
+        text "//" style "arcade_footer_sep" yalign 0.5
+        use arcade_keycap_chip("P")
+        text "PRIZES" style "arcade_footer" yalign 0.5
+
+
+# The prize machine on the floor rises to meet the pointer, as a cartridge does,
+# and catches a little light. No idle motion: it is a fixture, not an advert.
+# No zoom either: it is pixel art at a whole-number scale (see McMachine).
+transform arcade_machine_idle:
+    subpixel True
+    on idle:
+        easein_quad 0.20 yoffset 0 zoom 1.0 matrixcolor BrightnessMatrix(0.0)
+    on hover:
+        easein_quad 0.22 yoffset -8 zoom 1.0 matrixcolor BrightnessMatrix(0.09)
 
 
 # --- KOTONOHA VARIANT PICKER -------------------------------------------------
@@ -1085,16 +1121,15 @@ screen arcade_koto_variant():
     modal True
     zorder 80
 
-    add Solid("#0a0713dc")
-    add Solid("#ff6fae1c") xpos 250 ypos 120 xysize (780, 480)
+    add Solid("#14212ade")
 
     frame:
         style "arcade_panel"
-        background ArcadePanel(780, 486, top="#241b46f2", bottom="#120c24f7", radius=20, border=1.5, border_color="#ff6fae66")
+        background IM_DARK_PANEL
         xalign 0.5
         yalign 0.5
         xsize 780
-        ysize 486
+        ysize 556
         at arcade_pop
 
         vbox:
@@ -1109,9 +1144,10 @@ screen arcade_koto_variant():
 
             button:
                 style "arcade_variant_button"
-                background ArcadePanel(640, 64, top="#2a2148", bottom="#1c1636", radius=12, border=1.0, border_color="#ff6fae44")
-                hover_background ArcadePanel(640, 64, top="#43336a", bottom="#2a1f4a", radius=12, border=2.0, border_color="#ff6faecc")
-                action [Hide("arcade_koto_variant"), Function(renpy.call_in_new_context, "arcade_play_koto")]
+                id "arcade_variant_normal"
+                background IM_TAB_IDLE
+                hover_background IM_TAB_HOVER
+                action [Hide("arcade_koto_variant"), Function(arcade_launch, "arcade_play_koto")]
                 vbox:
                     spacing 2
                     yalign 0.5
@@ -1119,9 +1155,10 @@ screen arcade_koto_variant():
                     text "8 bars  //  5 lives  //  records count" style "arcade_variant_sub"
             button:
                 style "arcade_variant_button"
-                background ArcadePanel(640, 64, top="#2a2148", bottom="#1c1636", radius=12, border=1.0, border_color="#ff6fae44")
-                hover_background ArcadePanel(640, 64, top="#43336a", bottom="#2a1f4a", radius=12, border=2.0, border_color="#ff6faecc")
-                action [Hide("arcade_koto_variant"), Function(renpy.call_in_new_context, "arcade_play_koto", endless=True)]
+                id "arcade_variant_endless"
+                background IM_TAB_IDLE
+                hover_background IM_TAB_HOVER
+                action [Hide("arcade_koto_variant"), Function(arcade_launch, "arcade_play_koto", endless=True)]
                 vbox:
                     spacing 2
                     yalign 0.5
@@ -1129,20 +1166,33 @@ screen arcade_koto_variant():
                     text "random forever  //  survival records" style "arcade_variant_sub"
             button:
                 style "arcade_variant_button"
-                background ArcadePanel(640, 64, top="#2a2148", bottom="#1c1636", radius=12, border=1.0, border_color="#ff6fae44")
-                hover_background ArcadePanel(640, 64, top="#43336a", bottom="#2a1f4a", radius=12, border=2.0, border_color="#ff6faecc")
-                action [Hide("arcade_koto_variant"), Function(renpy.call_in_new_context, "arcade_play_koto", practice=True)]
+                id "arcade_variant_practice"
+                background IM_TAB_IDLE
+                hover_background IM_TAB_HOVER
+                action [Hide("arcade_koto_variant"), Function(arcade_launch, "arcade_play_koto", practice=True)]
                 vbox:
                     spacing 2
                     yalign 0.5
                     text "PRACTICE" style "arcade_variant_head"
                     text "unlimited lives  //  no records" style "arcade_variant_sub"
+            button:
+                style "arcade_variant_button"
+                id "arcade_variant_endless_practice"
+                background IM_TAB_IDLE
+                hover_background IM_TAB_HOVER
+                action [Hide("arcade_koto_variant"), Function(arcade_launch, "arcade_play_koto", practice=True, endless=True)]
+                vbox:
+                    spacing 2
+                    yalign 0.5
+                    text "ENDLESS PRACTICE" style "arcade_variant_head"
+                    text "random forever  //  unlimited lives  //  no records" style "arcade_variant_sub"
 
             null height 12
             textbutton _("Back"):
                 style "arcade_result_button"
-                background ArcadePanel(190, 54, top="#2a2148", bottom="#1c1636", radius=10, border=1.0, border_color="#ffffff22")
-                hover_background ArcadePanel(190, 54, top="#43336a", bottom="#2a1f4a", radius=10, border=2.0, border_color="#ffffff55")
+                id "arcade_variant_back"
+                background IM_RETURN_IDLE
+                hover_background IM_RETURN_HOVER
                 xalign 0.5
                 action Hide("arcade_koto_variant")
 
@@ -1159,11 +1209,11 @@ screen arcade_result(rtitle, routcome, rrows, raccent="#ffb454"):
     zorder 90
 
     use arcade_backdrop(raccent)
-    add Solid("#0a0713b8")
+    add Solid("#111d26b8")
 
     frame:
         style "arcade_panel"
-        background ArcadePanel(900, 560, top="#241b46f2", bottom="#120c24f7", radius=20, border=1.5, border_color=(raccent + "66"))
+        background IM_DARK_PANEL
         xalign 0.5
         yalign 0.5
         xsize 900
@@ -1187,7 +1237,7 @@ screen arcade_result(rtitle, routcome, rrows, raccent="#ffb454"):
                 background Solid(raccent)
                 text routcome style "arcade_outcome_text"
 
-            add ArcadePanel(760, 2, top=(raccent + "00"), bottom=(raccent + "88"), radius=1, horiz=True) xalign 0.5
+            add Solid(raccent + "70") xysize (760, 1) xalign 0.5
             null height 6
 
             # Stat rows: label pinned to the left edge, value pinned to the right,
@@ -1222,13 +1272,13 @@ screen arcade_result(rtitle, routcome, rrows, raccent="#ffb454"):
                 spacing 28
                 textbutton _("Retry"):
                     style "arcade_result_button"
-                    background ArcadePanel(190, 54, top="#2a2148", bottom="#1c1636", radius=10, border=1.0, border_color=(raccent + "55"))
-                    hover_background ArcadePanel(190, 54, top="#43336a", bottom="#2a1f4a", radius=10, border=2.0, border_color=(raccent + "dd"))
+                    background IM_TAB_IDLE
+                    hover_background IM_TAB_HOVER
                     action Return("retry")
                 textbutton _("Leave"):
                     style "arcade_result_button"
-                    background ArcadePanel(190, 54, top="#2a2148", bottom="#1c1636", radius=10, border=1.0, border_color="#ffffff22")
-                    hover_background ArcadePanel(190, 54, top="#43336a", bottom="#2a1f4a", radius=10, border=2.0, border_color="#ffffff66")
+                    background IM_RETURN_IDLE
+                    hover_background IM_RETURN_HOVER
                     action Return("leave")
 
     key "K_ESCAPE" action Return("leave")
@@ -1250,6 +1300,7 @@ screen arcade_result(rtitle, routcome, rrows, raccent="#ffb454"):
 label arcade_launch_prep(blackout=True):
     hide screen arcade_hub
     hide screen arcade_koto_variant
+    hide screen arcade_story_warning
     hide screen archive
     hide screen character_stories
     if blackout:
@@ -1265,14 +1316,19 @@ label arcade_play_msbf(id_mode=False):
     call arcade_launch_prep from _call_arcade_launch_prep
     # Controls notice + party select (both self-contained gameplay screens, not VN).
     call screen msbf_keyboard_notice
+    if _return == "cancel_setup":
+        jump msbf_cancel_setup
     call screen msbf_party_select
+    if _return == "cancel_setup":
+        jump msbf_cancel_setup
     $ _msbf_party_ids = _return
     # cs_matsuda_02_battle builds the fight, plays the entrance cinematic (the
     # arcade gets it now -- it is the mode's opening shot, not story), and
     # (guarded) jumps to arcade_msbf_result on finish.
     jump cs_matsuda_02_battle
 
-# --- Kotonoha (three variants -> one launcher) -------------------------------
+# --- Kotonoha (four variants -> one launcher) --------------------------------
+# practice + endless together is Endless Practice.
 label arcade_play_koto(practice=False, endless=False):
     $ arcade_active = True
     $ kt_practice = practice
@@ -1294,6 +1350,15 @@ label arcade_play_tsubaki:
     call arcade_launch_prep from _call_arcade_launch_prep_2
     call screen koto_keyboard_notice
     jump tsubamode_fight
+
+# --- Asahina -----------------------------------------------------------------
+# The mode owns its stage-styled result card and retry/setup loop. Every
+# completed eligible attempt invokes arcade_asahina_rhythm_award there once.
+label arcade_play_asahina_rhythm:
+    $ arcade_active = True
+    call arcade_launch_prep from _call_arcade_launch_prep_asahina_rhythm
+    call asahina_rhythm_mode(arcade=True) from _call_arcade_asahina_rhythm_mode
+    jump arcade_return
 
 # --- Monika ------------------------------------------------------------------
 # Monika's rounds ARE the dialogue-QTE mechanic, so "strip VN" means only the
@@ -1346,7 +1411,15 @@ label arcade_koto_result:
         _ac_win = (_kt_result == "victory")
         _ac_outcome = "VICTORY" if _ac_win else ("ABANDONED" if _kt_result == "quit" else "DEFEAT")
         _ac_rows = [("SCORE", format(kt_last_score, ","))]
-        if kt_last_endless:
+        if kt_last_endless and kt_last_practice:
+            # Endless Practice can only end by leaving, so leaving is not
+            # abandoning it, and it has no record to compare against -- the
+            # falls it took are the stat.
+            _ac_outcome = "RUN ENDED"
+            _ac_rows.append(("MODE", "ENDLESS PRACTICE"))
+            _ac_rows.append(("WAVE REACHED", str(kt_last_endless_wave + 1)))
+            _ac_rows.append(("FALLS", str(kt_last_deaths)))
+        elif kt_last_endless:
             _ac_rows.append(("MODE", "ENDLESS"))
             _ac_rows.append(("WAVES SURVIVED", str(kt_last_endless_wave + 1)))
             _ac_rows.append(("BEST WAVES", str((persistent.kotomode_endless_wave or 0) + 1)))
@@ -1354,14 +1427,14 @@ label arcade_koto_result:
             _ac_rows.append(("MODE", "PRACTICE" if kt_last_practice else "NORMAL"))
             _ac_rows.append(("REACHED BAR", "%d / 8" % (kt_last_bar_index + 1)))
             _ac_rows.append(("SPELLS CAPTURED", "%d / 8" % kt_last_captures))
-        # PRACTICE pays nothing: it is the variant with unlimited lives and no
-        # records, so paying it would make it the cheapest possible coin farm
-        # and quietly make the other two variants pointless.
+        # PRACTICE (either kind) pays nothing: unlimited lives and no records,
+        # so paying it would make it the cheapest possible coin farm and
+        # quietly make the other variants pointless.
         _ac_coins = 0 if kt_last_practice else mc_award_mode(
             "koto", "EMBODIMENT OF VIOLET INK", _ac_win)
         if _ac_coins:
             _ac_rows.append(("MATSUCOINS EARNED", "+%s" % mc_num(_ac_coins)))
-    call screen arcade_result("EMBODIMENT OF VIOLET INK", _ac_outcome, _ac_rows, ("#4fbf7a" if _ac_win else "#e0455e"))
+    call screen arcade_result("EMBODIMENT OF VIOLET INK", _ac_outcome, _ac_rows, ("#4fbf7a" if (_ac_win or _ac_outcome == "RUN ENDED") else "#e0455e"))
     if _return == "retry":
         $ kt_continue_bar = 0
         $ kt_continues = 0
@@ -1442,14 +1515,10 @@ label arcade_return:
 # position across the face). Matsu'Py dispatches hover/idle to any transform living
 # INSIDE a button, which is exactly where these sit.
 #
-# WHY THE GLINT IS ATL-DRIVEN, NOT u_time: a frame only exists if some
-# displayable asked Matsu'Py to draw it. Nothing on this hub asks continuously --
-# the menu scanline sleeps 2.2s out of every ~6.5s -- so a glint keyed to the
-# ambient u_time froze solid through that window and then snapped (measured:
-# 0-20fps in the dead window, ~240fps outside it). A running `linear` requests a
-# redraw every frame, so interpolating u_sweep makes the sweep pay for its own
-# smoothness, and ONLY while a card is actually hovered. `pause` between passes
-# is deliberately cheap: nothing is moving then, so no redraws are needed.
+# The ATL interpolation requests frames for one complete sweep when hover
+# begins. It then rests beyond the card edge while the pointer remains parked.
+# Idle restores the original brightness and sweep position; entering the card
+# again starts a new sweep. No ambient clock or repeating hover redraw is used.
 transform arcade_cart_fx(rad=14.0, acc=(1.0, 1.0, 1.0, 1.0), art=1.0, dim=0.0, edge=0.35):
     mesh True
     shader "enter_m.arcade_cart"
@@ -1466,8 +1535,6 @@ transform arcade_cart_fx(rad=14.0, acc=(1.0, 1.0, 1.0, 1.0), art=1.0, dim=0.0, e
         parallel:
             u_sweep -0.40
             linear 1.05 u_sweep 1.40
-            pause 0.5
-            repeat
     on idle:
         parallel:
             linear 0.28 u_hover 0.0
@@ -1508,77 +1575,70 @@ transform arcade_pop:
         easeout_quad 0.18 alpha 0.0
 
 # --- header / meta ---
-style arcade_logo:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 46
-    color "#f7f0e6"
-    bold True
-    outlines [(2, "#0a0713", 0, 0), (2, "#ffb45488", 2, 2)]
 
 style arcade_logo_sub is gui_text:
     font gui.interface_font
     size 14
-    color "#ffb454"
-    kerning 3.0
-    outlines [(1, "#0a0713", 0, 0)]
+    color IM_GOLD
+    kerning 1.8
+    outlines []
 
-style arcade_prize_button:
+style arcade_machine_button:
     padding (0, 0)
+    background None
+    hover_background None
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
 
 style arcade_prize_amount:
     font gui.interface_font
-    size 19
-    color "#ffd98a"
-    bold True
-    outlines [(1, "#0a0713", 0, 0)]
-
-style arcade_prize_label:
-    font gui.interface_font
-    size 12
-    color "#f7f0e6"
-    kerning 1.6
+    size 16
+    color IM_GOLD
     bold True
     outlines [(1, "#0a0713", 0, 0)]
 
 style arcade_pos is gui_text:
     font gui.interface_font
     size 24
-    color "#f7f0e6"
+    color IM_PAPER
     bold True
 
 style arcade_meta is gui_text:
     font gui.interface_font
     size 12
-    color "#8f86a8"
-    kerning 1.5
+    color IM_MUTED
+    kerning 0.8
 
 # --- featured panel ---
 style arcade_feature_title:
     font "assets/fonts/SF Automaton Extended.ttf"
     size 40
-    color "#fbf6ee"
-    bold True
+    color IM_PAPER
+    # No faux bold: emboldening an already heavy extended face closed up its
+    # counters, and cream on the mauve mat did the rest (user, Sep 11 2026:
+    # "hard to read"). The ink outline lifts the letters off the mat; the
+    # hub adds a drop shadow in the selected cartridge's own accent.
+    bold False
+    kerning 1.5
     xmaximum 700
     line_spacing -4
-    outlines [(2, "#0a0713", 0, 0)]
+    outlines [(3, "#1d1418", 0, 0)]
 
 style arcade_feature_blurb is gui_text:
     font gui.interface_font
     size 18
-    color "#cbc2de"
+    color "#ded6c7"
     xmaximum 700
     line_spacing 4
 
 style arcade_prompt_unavailable is gui_text:
     font gui.interface_font
     size 16
-    color "#8f86a8"
+    color IM_MUTED
 
 # --- chips ---
 style arcade_chip:
-    background Solid("#241d3a")
+    background IM_TAB_IDLE
     padding (12, 6)
 
 style arcade_chip_accent:
@@ -1590,7 +1650,7 @@ style arcade_chip_accent:
 style arcade_chip_dim is gui_text:
     font gui.interface_font
     size 12
-    color "#c9c0dc"
+    color IM_MUTED
     bold True
     kerning 1.0
 
@@ -1598,27 +1658,26 @@ style arcade_chip_dim is gui_text:
 style arcade_footer is gui_text:
     font gui.interface_font
     size 13
-    color "#8f86a8"
-    kerning 2.0
+    color IM_MUTED
+    kerning 1.1
 
 # --- panels (variant picker / result card) ---
-# The background is supplied per use site as an ArcadePanel of the panel's exact
-# size (rounded + gradient + accent border); the Solid here is only a fallback.
+# Cached nine-slice artwork preserves the engraved border at every panel size.
 style arcade_panel:
-    background Solid("#171129")
+    background IM_DARK_PANEL
     padding (34, 26)
 
 style arcade_panel_title:
     font "assets/fonts/SF Automaton Extended.ttf"
     size 34
-    color "#f7f0e6"
+    color IM_PAPER
     bold True
-    outlines [(2, "#0a0713", 0, 0)]
+    outlines []
 
 style arcade_panel_sub is gui_text:
     font gui.interface_font
     size 15
-    color "#a99fc4"
+    color IM_MUTED
 
 style arcade_outcome_text:
     font gui.interface_font
@@ -1630,12 +1689,12 @@ style arcade_outcome_text:
 style arcade_row_label is gui_text:
     font gui.interface_font
     size 16
-    color "#a99fc4"
+    color IM_MUTED
 
 style arcade_row_value is gui_text:
     font gui.interface_font
     size 20
-    color "#f7f0e6"
+    color IM_PAPER
     bold True
 
 # --- buttons ---
@@ -1649,8 +1708,8 @@ style arcade_variant_button:
     xsize 640
     ysize 64
     xalign 0.5
-    background Solid("#221a3a")
-    hover_background Solid("#33285a")
+    background IM_TAB_IDLE
+    hover_background IM_TAB_HOVER
     padding (22, 10)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
@@ -1658,20 +1717,20 @@ style arcade_variant_button:
 style arcade_variant_head:
     font gui.interface_font
     size 20
-    color "#f7f0e6"
+    color IM_PAPER
     bold True
     kerning 1.0
 
 style arcade_variant_sub is gui_text:
     font gui.interface_font
     size 13
-    color "#a99fc4"
+    color IM_MUTED
 
 style arcade_result_button:
     xsize 190
     ysize 54
-    background Solid("#221a3a")
-    hover_background Solid("#33285a")
+    background IM_TAB_IDLE
+    hover_background IM_TAB_HOVER
     padding (18, 10)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
@@ -1679,15 +1738,14 @@ style arcade_result_button:
 style arcade_result_button_text:
     font gui.interface_font
     size 22
-    color "#f7f0e6"
+    color IM_PAPER
     hover_color "#ffffff"
     bold True
 
 
 # =============================================================================
 # CATALOG CHROME  (kicker, PLAY button, keycaps, shelf label)
-# The plates themselves are ArcadePanels built at each use site (they need their
-# exact pixel size for the shader), so what is left here is type + geometry.
+# The plates use the shared cached paper/ink Frames; styles carry type/geometry.
 # =============================================================================
 transform arcade_play_bob:
     alpha 0.0
@@ -1701,11 +1759,11 @@ transform arcade_play_bob:
 style arcade_kicker is gui_text:
     font gui.interface_font
     size 12
-    color "#ffca7a"
+    color IM_GOLD
     bold True
     kerning 3.0
 
-# --- PLAY button (size must match the ArcadePanel plate behind it) ---
+# --- PLAY ticket ------------------------------------------------------------
 style arcade_play_button:
     xsize 236
     ysize 62
@@ -1720,34 +1778,50 @@ style arcade_play_text:
     kerning 2.0
     xalign 0.5
     yalign 0.5
-    outlines [(1, "#00000066", 0, 0)]
+    outlines []
 
 # --- keycap chips (footer legend + the hint beside PLAY) ---
 style arcade_keycap:
-    background Solid("#2a2245")
+    background IM_TAB_IDLE
     padding (10, 4)
 
 style arcade_keycap_text is gui_text:
     font gui.interface_font
     size 12
-    color "#f0e8ff"
+    color IM_PAPER
     bold True
     kerning 1.5
 
 style arcade_prompt_hint is gui_text:
     font gui.interface_font
     size 15
-    color "#9a90b4"
+    color IM_MUTED
 
 # --- shelf label ---
 style arcade_rail_label is gui_text:
     font gui.interface_font
     size 12
-    color "#8078a0"
+    color IM_GOLD
     bold True
     kerning 4.0
 
 style arcade_footer_sep is gui_text:
     font gui.interface_font
     size 13
-    color "#463f5c"
+    color "#978363"
+
+style arcade_return_button:
+    xysize (120, 36)
+    padding (10, 3)
+    background IM_RETURN_IDLE
+    hover_background IM_RETURN_HOVER
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style arcade_return_button_text:
+    font gui.interface_font
+    size 18
+    color IM_PAPER
+    hover_color "#ffffff"
+    align (0.5, 0.5)
+    outlines []

@@ -1,0 +1,11418 @@
+{
+  "version": 1,
+  "id": "home",
+  "title": "Home",
+  "audio": "addons/Asahina Rhythm/songs/home.ogg",
+  "bpm": 200.0,
+  "offset": 0.0,
+  "duration": 229.0,
+  "notes": [
+    {
+      "time": 9.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 10.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 10.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 11.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 11.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 12.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 12.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 12.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 12.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 13.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 13.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 13.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 13.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 13.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 13.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 14.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 14.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 14.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 15.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 15.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 15.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 15.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 15.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 16.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 16.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 16.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 16.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 17.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 17.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 17.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 18.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 18.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 18.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 18.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 19.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 19.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 19.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 19.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 19.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 20.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 20.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 21.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 21.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 21.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 21.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 21.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 22.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 22.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 22.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 22.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 23.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 23.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 24.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 24.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 24.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 24.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 24.75,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 24.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 25.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 25.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 25.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 25.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 25.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 26.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 26.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 26.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 27.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 27.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 27.15,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 27.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 27.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 27.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 27.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 28.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 28.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 28.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 28.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 28.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 29.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 30.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 30.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 31.2,
+      "lane": 0,
+      "side": "player",
+      "length": 1.8
+    },
+    {
+      "time": 32.475,
+      "lane": 1,
+      "side": "player",
+      "length": 1.05
+    },
+    {
+      "time": 37.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 38.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 38.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 38.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 39.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 39.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 39.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 39.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 40.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 40.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 40.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 40.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 41.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 41.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 41.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 42.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 42.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 42.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 42.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 42.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 42.75,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 42.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 43.05,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 43.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 43.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 43.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 43.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 43.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 44.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 44.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 44.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 44.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 45.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 45.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 45.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 45.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 46.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 46.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 46.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 46.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 46.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 46.95,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 46.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.25,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.55,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 47.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 47.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.15,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.45,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.75,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.75,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 48.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 48.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.35,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.65,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 49.875,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 49.95,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 49.95,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.25,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.55,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 50.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 50.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.15,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 51.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.75,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.75,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 51.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 51.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.35,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 52.95,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 52.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.55,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 53.85,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 53.85,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 54.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.15,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 54.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 54.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.75,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 54.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 54.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 55.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 55.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 55.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 55.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 56.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 56.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 56.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 56.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.45
+    },
+    {
+      "time": 56.4,
+      "lane": 1,
+      "side": "player",
+      "length": 1.575
+    },
+    {
+      "time": 57.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.45
+    },
+    {
+      "time": 57.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 57.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 58.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.575,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 58.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.875,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 58.95,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.025,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.25,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.55,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 59.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.075,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.15,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.375,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.45,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.525,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 60.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 60.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 60.975,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.05,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 61.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.35,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.65,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 61.95,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.475,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.55,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.625,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.775,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 62.925,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.075,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.15,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.225,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.375,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.525,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.75,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 63.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.35,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.65,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 64.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.55,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 65.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.075,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.15,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.4125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.45,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.4875,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.525,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.675,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 66.975,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.05,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.125,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.35,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.65,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 67.95,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 68.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 68.25,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 68.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.6
+    },
+    {
+      "time": 68.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 68.475,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 68.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 68.625,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 68.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 68.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.45,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.75,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.825,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 69.975,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.125,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 70.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 70.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.575,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 70.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 70.95,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.1,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.25,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.55,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 71.85,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 72.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 73.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 74.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 74.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 75.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 75.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 75.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 75.9375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.0875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 76.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 76.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.5375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.6875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 76.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 76.95,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 77.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.175,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.325,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.475,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.55,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.5875,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.625,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 77.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 77.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 78.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 78.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.5625
+    },
+    {
+      "time": 78.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 78.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 79.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 79.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 80.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 80.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 81.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 81.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 81.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 81.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 81.45,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 81.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 81.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 82.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 82.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 82.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 82.275,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 82.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 82.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 82.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 82.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 83.25,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 83.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 83.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 83.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 83.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 84.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 84.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.375
+    },
+    {
+      "time": 84.0375,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 84.075,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 84.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 84.45,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 84.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 84.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 84.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 85.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 85.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.375
+    },
+    {
+      "time": 85.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 85.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 85.65,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 85.65,
+      "lane": 0,
+      "side": "player",
+      "length": 0.375
+    },
+    {
+      "time": 85.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 85.95,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 86.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 86.1,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 86.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 86.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 86.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 86.4375,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 86.475,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1875
+    },
+    {
+      "time": 86.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 86.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 87.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 87.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.2625
+    },
+    {
+      "time": 87.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 87.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 87.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 87.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.825,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.9375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 87.975,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.05,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 88.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.125,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.275,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.425,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 88.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.575,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.725,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.875,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 88.95,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.025,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 89.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.175,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.325,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.475,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.55,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 89.55,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.625,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.775,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 89.925,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 90.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 90.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 90.15,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 90.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.2625
+    },
+    {
+      "time": 90.45,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 90.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 90.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 90.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 90.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 90.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 91.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 91.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 91.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 91.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 91.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 91.95,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.375
+    },
+    {
+      "time": 91.95,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.2625
+    },
+    {
+      "time": 92.475,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.55,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.625,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.775,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.775,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.85,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 92.925,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 92.925,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 93.075,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.15,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.225,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 93.375,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.45,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.525,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.675,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.75,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.825,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.825,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 93.975,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 93.975,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.125,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.125,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.275,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.275,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.425,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.425,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.575,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.575,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.725,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 94.725,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 94.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 94.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 95.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 95.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.55,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.55,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 95.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 95.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 96.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.075,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.15,
+      "lane": 3,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 96.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 96.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 96.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 96.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.825,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 96.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 96.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 97.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 97.2,
+      "lane": 0,
+      "side": "player",
+      "length": 1.125
+    },
+    {
+      "time": 97.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 98.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 98.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 99.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 99.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 99.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 99.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 100.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 100.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 100.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 100.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 101.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 101.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 102.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 102.0375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 102.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 102.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 102.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 103.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 103.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 103.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 103.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 103.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 104.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 105.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 105.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 105.45,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 105.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 105.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 106.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 106.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 107.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 107.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 107.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 107.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 108.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 108.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 108.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 108.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 109.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 109.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 109.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 109.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 109.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 109.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 109.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 109.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 109.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 109.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 110.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 110.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 110.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 110.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 110.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 110.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 111.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 111.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 111.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 111.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 111.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 111.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 112.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 112.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 112.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 112.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 112.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 112.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 112.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 112.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 113.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 113.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 113.25,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 113.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 113.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 113.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 113.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 113.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 114.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 114.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 114.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 114.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 115.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 115.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 115.35,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 115.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 115.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 115.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 115.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 115.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 116.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 116.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 116.55,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 116.55,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 116.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 116.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 116.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 116.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 117.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 117.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 117.15,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 117.15,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 117.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 117.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 117.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 117.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 117.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 117.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 118.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 118.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 118.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 118.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.1875
+    },
+    {
+      "time": 119.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 119.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 119.25,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 119.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 119.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 119.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 119.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 119.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 119.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 119.85,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 120.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 120.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 120.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 120.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 121.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 121.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 121.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 121.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 121.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 121.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 121.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 122.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 122.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 122.25,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 122.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 122.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 122.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 123.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 123.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 123.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 123.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 123.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 123.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 123.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 123.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 124.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 124.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 124.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 124.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 124.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 124.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 125.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 125.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 126.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.15,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.15,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.45,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.45,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.675,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.675,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 126.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 126.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 127.05,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 127.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 127.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 127.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 127.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 127.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 127.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 127.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 128.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 128.1,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 128.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.1875
+    },
+    {
+      "time": 128.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.1875
+    },
+    {
+      "time": 128.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 128.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 128.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 128.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 129.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 129.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 129.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 129.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 129.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 129.45,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 129.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 129.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 129.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 129.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 130.05,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 130.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 130.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 130.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 130.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 130.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 130.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 130.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.25,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.55,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.55,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 131.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 131.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 132.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 132.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 132.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 132.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 132.375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 132.375,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 132.45,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 132.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 132.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 132.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 132.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 132.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 133.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 133.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 133.35,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 133.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 133.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 133.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 133.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 133.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 134.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 134.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 134.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 134.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 134.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 134.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 135.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 135.675,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 135.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 135.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.825,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 135.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 135.975,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 135.975,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.125,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.275,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.275,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.35,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.425,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.425,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.575,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.575,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.65,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.65,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.725,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.725,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.875,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 136.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 136.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.025,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.025,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.1,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.175,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.175,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.25,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.325,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.325,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.475,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.475,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.55,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.55,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.625,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.625,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.775,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.775,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.85,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 137.925,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 137.925,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.075,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.075,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.15,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.15,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.225,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.375,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.45,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.525,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.525,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.6375,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.6375,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.675,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.675,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.75,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.825,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.825,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 138.975,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 138.975,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.05,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.125,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.125,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.275,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.275,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.35,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.425,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.425,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.575,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.575,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.725,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.725,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.8375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.8375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.875,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.95,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 139.9875,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 139.9875,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.025,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.025,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.175,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.175,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.25,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.325,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.325,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.475,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.475,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.55,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.625,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.625,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.775,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.775,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 140.925,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 140.925,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.075,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.075,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.15,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.225,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.225,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.375,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.375,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.45,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.45,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.525,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.525,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.675,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.825,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 141.975,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 141.975,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.125,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.275,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.275,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.425,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.425,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.575,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.575,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.725,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 142.725,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 142.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 142.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 143.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 143.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 143.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 143.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 144.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 144.075,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.15,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.15,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 144.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 144.375,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.45,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.525,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 144.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 144.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 144.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 145.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 145.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 145.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 145.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 145.425,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 145.425,
+      "lane": 3,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 145.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 145.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 145.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 145.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 146.025,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 146.025,
+      "lane": 0,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 146.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 146.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 146.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 146.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 146.625,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 146.625,
+      "lane": 3,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 146.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 146.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 147.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 147.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 147.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 147.225,
+      "lane": 0,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 147.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 147.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 147.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 147.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 147.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 147.825,
+      "lane": 3,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 148.05,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 148.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 148.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 148.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 148.425,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 148.425,
+      "lane": 0,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 148.65,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 148.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 148.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 148.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 149.025,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 149.025,
+      "lane": 3,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 149.25,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 149.25,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 149.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 149.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 149.625,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 149.625,
+      "lane": 1,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 149.85,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 149.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.075,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.075,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.15,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.225,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.225,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.375,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.375,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.45,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.525,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.525,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.675,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.675,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.75,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.825,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.825,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 150.975,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 150.975,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.125,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.2375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.2375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.275,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.275,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.35,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.35,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.425,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.425,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.575,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.575,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.65,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.725,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.725,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.875,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 151.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 151.95,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.025,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.025,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.175,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.175,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.25,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.325,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.325,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.475,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.475,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.55,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.55,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.625,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.625,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.775,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.775,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 152.925,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 152.925,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.075,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.075,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.15,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.15,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.225,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.225,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.375,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.375,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.45,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.525,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 153.525,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 153.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 153.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 153.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 153.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 154.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 154.2,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 154.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 154.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 154.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 154.8375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 154.875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.15
+    },
+    {
+      "time": 155.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.175,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.325,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 155.55,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 155.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 156.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.275,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.425,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.575,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.725,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 157.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.175,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.25,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.55,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 158.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 159.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 159.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 159.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 159.675,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 159.75,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 159.825,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 159.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 159.975,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.125,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.275,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.35,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.425,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.575,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.725,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.875,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 160.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.025,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.175,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.25,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.325,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.475,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.55,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.625,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.775,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.85,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 161.925,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.075,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.75,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 162.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.35,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.65,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 163.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 164.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 164.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 164.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 164.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 164.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 164.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 165.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 165.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 165.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 165.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 165.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 165.675,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.675,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 165.75,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.75,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 165.825,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.825,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 165.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 165.975,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 165.975,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.05,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.05,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.125,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.275,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.275,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.35,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.35,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.425,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.425,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.575,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.575,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.65,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.725,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.725,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.8375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.8375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.875,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.875,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 166.95,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 166.95,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.025,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.025,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.1,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.1375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.1375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.175,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.175,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.25,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.325,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.325,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.475,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.475,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.55,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.1125
+    },
+    {
+      "time": 167.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.1125
+    },
+    {
+      "time": 167.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 167.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 167.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.075,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.075,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.15,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.15,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.225,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.375,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.375,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.45,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.45,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.525,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.525,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.675,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.675,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.75,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.825,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 168.975,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 168.975,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.05,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.125,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.125,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.35,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.65,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.725,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.725,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.875,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.875,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 169.95,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 169.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.025,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.025,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.175,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.175,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.25,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.325,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.325,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.475,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.475,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.55,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.55,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.625,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.625,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.775,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.775,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.85,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 170.925,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 170.925,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.075,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.075,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.15,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.15,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.225,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.225,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.375,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.375,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.45,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.45,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.525,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 171.525,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 171.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 171.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 171.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 171.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 172.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 172.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 172.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 172.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 173.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 173.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 174.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 1.125
+    },
+    {
+      "time": 174.0,
+      "lane": 2,
+      "side": "player",
+      "length": 1.125
+    },
+    {
+      "time": 177.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 177.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 177.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 178.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 178.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 178.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 178.65,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 178.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 178.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 179.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 179.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 179.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 179.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 179.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 179.85,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 180.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 180.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.1875
+    },
+    {
+      "time": 180.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 180.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 180.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 180.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 180.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 180.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 181.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 181.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 181.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 181.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 181.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 181.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 182.025,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 182.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 182.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 182.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 182.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 182.4,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 182.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 182.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 182.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 183.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 183.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 183.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 183.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 183.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 183.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 183.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.9
+    },
+    {
+      "time": 183.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.1875
+    },
+    {
+      "time": 183.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 184.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 184.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 184.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 184.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 184.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.45
+    },
+    {
+      "time": 184.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 184.65,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 184.8,
+      "lane": 1,
+      "side": "player",
+      "length": 1.125
+    },
+    {
+      "time": 184.95,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 185.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 185.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 185.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 185.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 186.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 1.125
+    },
+    {
+      "time": 186.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 186.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 186.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 186.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 186.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 186.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 187.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 1.125
+    },
+    {
+      "time": 187.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 187.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 187.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 187.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 188.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 188.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 188.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 188.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.45
+    },
+    {
+      "time": 188.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 188.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 188.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 188.85,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 189.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 189.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 189.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 189.45,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 189.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 189.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 189.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 189.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 189.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 190.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 190.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 190.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 190.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 190.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.6
+    },
+    {
+      "time": 190.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 190.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 191.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 191.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 191.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 191.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 191.7,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 191.85,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 192.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 192.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.45
+    },
+    {
+      "time": 192.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 192.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 192.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 192.45,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 192.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 192.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 192.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 192.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 193.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.9
+    },
+    {
+      "time": 193.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 193.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 193.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 194.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 194.1,
+      "lane": 1,
+      "side": "player",
+      "length": 1.425
+    },
+    {
+      "time": 194.25,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 194.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.6
+    },
+    {
+      "time": 194.55,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 194.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 195.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 195.075,
+      "lane": 2,
+      "side": "player",
+      "length": 0.45
+    },
+    {
+      "time": 195.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 195.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 195.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 195.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 195.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 195.9,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.05,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 196.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.35,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 196.5,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 196.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 196.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 196.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 196.8,
+      "lane": 1,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 197.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 197.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 197.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 197.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 197.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 197.7,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 198.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 198.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 198.0,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 198.3,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 198.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 198.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 198.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 198.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 198.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 198.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 198.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 198.9,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 199.05,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 199.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 199.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 199.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 199.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.6
+    },
+    {
+      "time": 199.5,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 199.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 200.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 200.4,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.9
+    },
+    {
+      "time": 200.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 200.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 200.55,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 200.7,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 200.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 200.85,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 201.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 201.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 201.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 201.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 201.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 201.3,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 201.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 201.525,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 201.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 201.6,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 201.825,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 201.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 202.125,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 202.425,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 202.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 202.5,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 202.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 202.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 202.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 202.8,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 202.95,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 203.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 203.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 203.1,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 203.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 203.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 203.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 203.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 203.7,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 203.7,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 203.925,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 204.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 204.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 204.225,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 204.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 204.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 204.525,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 204.825,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 205.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 205.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 205.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 205.2,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 205.35,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 205.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 205.5,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 205.65,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 205.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 205.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 205.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 205.8,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 205.95,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 206.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 206.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 206.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 206.25,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 206.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 206.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 206.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 206.4,
+      "lane": 0,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 206.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 207.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 207.0,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 207.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 207.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 207.3,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 207.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 207.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 207.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 207.6,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 207.9,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 207.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 207.9,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 208.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 208.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 208.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 208.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 208.2,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 208.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 208.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 208.5,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 208.65,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 208.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 208.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 208.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 208.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 209.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 209.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 209.1,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 209.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 209.325,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.075
+    },
+    {
+      "time": 209.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 209.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 209.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 209.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 210.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 210.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.15,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.3,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 210.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.45,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.525,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 210.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.6,
+      "lane": 0,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.75,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 210.825,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.825,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 210.9,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 210.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 211.05,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 211.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.2,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 211.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 211.425,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.5,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 211.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 211.8,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 212.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 212.1,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 212.1,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 212.1,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 212.4,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 212.4,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 212.4,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 212.4,
+      "lane": 3,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 212.55,
+      "lane": 1,
+      "side": "player",
+      "length": 0.0
+    },
+    {
+      "time": 212.7,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 212.7,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 212.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 213.0,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 213.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 213.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 213.0,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 213.3,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 213.3,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 213.3,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 213.6,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 213.6,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 213.6,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.3
+    },
+    {
+      "time": 213.6,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 213.9,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 213.9,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 213.9,
+      "lane": 2,
+      "side": "player",
+      "length": 0.825
+    },
+    {
+      "time": 214.2,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 214.2,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 214.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 214.5,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.0
+    },
+    {
+      "time": 214.5,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.15
+    },
+    {
+      "time": 214.8,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.9
+    },
+    {
+      "time": 214.8,
+      "lane": 1,
+      "side": "opponent",
+      "length": 0.9
+    },
+    {
+      "time": 214.8,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 214.8,
+      "lane": 0,
+      "side": "player",
+      "length": 0.9
+    },
+    {
+      "time": 216.0,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 216.0,
+      "lane": 0,
+      "side": "player",
+      "length": 0.9
+    },
+    {
+      "time": 217.2,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 217.2,
+      "lane": 0,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 217.65,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.225
+    },
+    {
+      "time": 217.65,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 218.1,
+      "lane": 0,
+      "side": "opponent",
+      "length": 0.825
+    },
+    {
+      "time": 218.1,
+      "lane": 0,
+      "side": "player",
+      "length": 0.525
+    },
+    {
+      "time": 218.4,
+      "lane": 2,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 218.7,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 219.0,
+      "lane": 2,
+      "side": "opponent",
+      "length": 0.525
+    },
+    {
+      "time": 219.0,
+      "lane": 3,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 219.3,
+      "lane": 1,
+      "side": "player",
+      "length": 0.225
+    },
+    {
+      "time": 219.6,
+      "lane": 3,
+      "side": "opponent",
+      "length": 0.975
+    },
+    {
+      "time": 219.6,
+      "lane": 2,
+      "side": "player",
+      "length": 1.125
+    }
+  ],
+  "effects": [
+    {
+      "time": 9.6,
+      "kind": "blackout",
+      "length": 25.2
+    },
+    {
+      "time": 9.6,
+      "kind": "fracture",
+      "length": 25.2,
+      "side": "both"
+    },
+    {
+      "time": 34.8,
+      "kind": "dread",
+      "length": 21.6
+    },
+    {
+      "time": 34.8,
+      "kind": "rot",
+      "length": 2.4
+    },
+    {
+      "time": 34.8,
+      "kind": "gutter",
+      "length": 2.4
+    },
+    {
+      "time": 37.2,
+      "kind": "arrhythmia",
+      "length": 19.2
+    },
+    {
+      "time": 56.4,
+      "kind": "pulse",
+      "length": 21.6
+    },
+    {
+      "time": 56.4,
+      "kind": "strobe",
+      "length": 12.0,
+      "side": "opponent"
+    },
+    {
+      "time": 58.8,
+      "kind": "quake",
+      "length": 9.6,
+      "side": "opponent"
+    },
+    {
+      "time": 58.8,
+      "kind": "dread",
+      "length": 19.2
+    },
+    {
+      "time": 58.8,
+      "kind": "static",
+      "length": 19.2
+    },
+    {
+      "time": 58.8,
+      "kind": "rot",
+      "length": 19.2
+    },
+    {
+      "time": 58.8,
+      "kind": "tear",
+      "length": 0.0
+    },
+    {
+      "time": 78.0,
+      "kind": "watchers",
+      "length": 19.2
+    },
+    {
+      "time": 78.0,
+      "kind": "footlights",
+      "length": 19.2
+    },
+    {
+      "time": 78.0,
+      "kind": "cut",
+      "length": 0.0
+    },
+    {
+      "time": 78.0,
+      "kind": "tear",
+      "length": 0.0
+    },
+    {
+      "time": 97.2,
+      "kind": "blackout",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "pulse",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "strobe",
+      "length": 19.2,
+      "side": "both"
+    },
+    {
+      "time": 116.4,
+      "kind": "watchers",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "static",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "footlights",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "tear",
+      "length": 0.0
+    },
+    {
+      "time": 116.4,
+      "kind": "veins",
+      "length": 19.2
+    },
+    {
+      "time": 116.4,
+      "kind": "redwash",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "fanfare",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "pulse",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "strobe",
+      "length": 19.2,
+      "side": "both"
+    },
+    {
+      "time": 135.6,
+      "kind": "footlights",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "doubles",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "recoil",
+      "length": 19.2,
+      "side": "both"
+    },
+    {
+      "time": 135.6,
+      "kind": "veins",
+      "length": 19.2
+    },
+    {
+      "time": 135.6,
+      "kind": "redwash",
+      "length": 19.2
+    },
+    {
+      "time": 154.8,
+      "kind": "pulse",
+      "length": 20.4
+    },
+    {
+      "time": 154.8,
+      "kind": "strobe",
+      "length": 20.4,
+      "side": "player"
+    },
+    {
+      "time": 154.8,
+      "kind": "watchers",
+      "length": 20.4
+    },
+    {
+      "time": 154.8,
+      "kind": "rot",
+      "length": 19.2
+    },
+    {
+      "time": 154.8,
+      "kind": "doubles",
+      "length": 20.4
+    },
+    {
+      "time": 154.8,
+      "kind": "gutter",
+      "length": 20.4
+    },
+    {
+      "time": 154.8,
+      "kind": "redwash",
+      "length": 20.4
+    },
+    {
+      "time": 154.8,
+      "kind": "invert",
+      "length": 0.0
+    },
+    {
+      "time": 176.4,
+      "kind": "haze",
+      "length": 52.575
+    },
+    {
+      "time": 176.4,
+      "kind": "blackout",
+      "length": 52.575
+    },
+    {
+      "time": 214.8,
+      "kind": "quake",
+      "length": 14.2,
+      "side": "both"
+    },
+    {
+      "time": 214.8,
+      "kind": "strobe",
+      "length": 14.2,
+      "side": "both"
+    }
+  ],
+  "camera": [
+    {
+      "time": 117.0,
+      "focus": "opponent"
+    },
+    {
+      "time": 118.2,
+      "focus": "player"
+    },
+    {
+      "time": 119.4,
+      "focus": "opponent"
+    },
+    {
+      "time": 120.6,
+      "focus": "player"
+    },
+    {
+      "time": 121.8,
+      "focus": "opponent"
+    },
+    {
+      "time": 123.0,
+      "focus": "player"
+    },
+    {
+      "time": 124.2,
+      "focus": "opponent"
+    },
+    {
+      "time": 125.4,
+      "focus": "player"
+    },
+    {
+      "time": 126.6,
+      "focus": "opponent"
+    },
+    {
+      "time": 127.8,
+      "focus": "player"
+    },
+    {
+      "time": 129.0,
+      "focus": "opponent"
+    },
+    {
+      "time": 130.2,
+      "focus": "player"
+    },
+    {
+      "time": 131.4,
+      "focus": "opponent"
+    },
+    {
+      "time": 132.6,
+      "focus": "player"
+    },
+    {
+      "time": 133.8,
+      "focus": "opponent"
+    },
+    {
+      "time": 135.0,
+      "focus": "player"
+    }
+  ]
+}

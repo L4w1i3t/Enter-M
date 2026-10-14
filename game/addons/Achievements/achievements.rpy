@@ -1,52 +1,11 @@
-# =============================================================================
-# achievements.rpy  --  THE ACHIEVEMENTS MODULE (Archive slot 6)
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   The sixth Archive module: a deliberately small trophy list for the content
-#   that is actually playable right now. It is reached from the Archive hub
-#   (game/archive.rpy) and reuses that hub's shared chrome.
-#
-# TWO KINDS OF ACHIEVEMENT, ONE CODE PATH
-#   * DERIVED  -- an `earned` predicate (or a `flag` name) evaluated against state
-#                 the game already persists. These let old saves and developer
-#                 state reconcile safely whenever ach_sync() runs.
-#   * EXPLICIT -- granted by ach_grant("id") at the exact ending, victory or
-#                 collection beat. Every live trophy has BOTH paths: the exact
-#                 event makes the award immediate, while the derived condition
-#                 makes it impossible for a completed objective to stay missed.
-#
-# HOW EARNING WORKS
-#   persistent.ach_earned is a *set of ids that have been locked in*. Once an id
-#   is in that set it stays earned forever, even if the underlying derived flag
-#   later resets. ach_sync() evaluates every condition, locks in newly-true ones,
-#   and queues a toast for each. There is intentionally no Platinum yet: the UI's
-#   "more trophies on the way" readout is an indicator, not an earnable row.
-#
-# WHERE SYNC IS TRIGGERED (so derived unlocks are never missed)
-#   * config.after_load_callbacks -> ach_sync   (loading a save)
-#   * screen archive() / achievements() on "show" -> ach_sync
-#     (returning to the hub after a fight / side story catches those unlocks)
-#   * ach_grant() runs ach_sync afterwards so derived state from the same beat lands.
-#   Any system that wants an INSTANT derived toast can just call ach_sync() right
-#   after it flips its flag (see the cs_matsuda_02 victory hook for the pattern).
-#
-# EDITING THE CATALOG
-#   The whole live catalog is the ACHIEVEMENTS list below. Retired ids may remain
-#   in old persistent sets, but only ids in this list render, count, toast or pay.
-# =============================================================================
+# Archive trophy catalog, earned ledgers, toast queue and developer controls.
+# ach_grant() records explicit events; ach_sync() reconciles persistent predicates
+# on load and Archive entry. Earned IDs remain recorded after their source flags
+# reset. Only live ACHIEVEMENTS entries appear, count, notify and pay rewards.
+# _ach_rt is init-time NoRollback runtime state; its queue holds plain ID strings,
+# keeping pending UI and callable predicates out of save data.
+# The developer source reachability audit runs after catalogs initialize.
 
-# -----------------------------------------------------------------------------
-# PERSISTENT / RUNTIME STATE
-# persistent.ach_earned : the locked-in set of earned ids (survives forever).
-# _ach_rt : toast queue + dev toggle. Deliberately a NoRollback object created
-#   at init, NOT `default` store variables: the old store-variable queue was
-#   rolled back with the game (a rollback could vaporize or resurrect pending
-#   toasts) and was written into every save -- and once it held Achievement
-#   objects (whose predicates are lambdas) the save itself crashed on pickling.
-#   An init-time NoRollback object is never saved and never rolled back, and
-#   the queue holds plain id strings besides.
-# -----------------------------------------------------------------------------
 default persistent.ach_earned = set()
 # Every id EVER earned, across dev clears. ach_earned answers "is it unlocked
 # right now"; ach_history answers "has the player ever done the thing". The
@@ -302,8 +261,9 @@ init python:
         # EVENT action that returns a non-None value ends the interaction and
         # bubbles that value up like Return() -- which closed the Archive the
         # instant it opened and the main-menu context read the non-None result as
-        # "start the game" (-> the dev date picker in developer builds). Always
-        # return None here so the show event is a pure side effect.
+        # "start the game" (-> Chapter Select; it was the dev date picker when
+        # this was found). Always return None here so the show event is a pure
+        # side effect.
         ach_sync()
         return None
 
@@ -535,6 +495,41 @@ transform ach_toast_drive:
     subpixel True
     function _ach_toast_anim
 
+# One struck medal per tier (60x84, ribbon on top), and the empty mount a medal
+# not yet earned would hang in.
+define ACH_MEDALS = {
+    "bronze": "assets/gui/menu/illustrated/archive/medal_bronze.svg",
+    "silver": "assets/gui/menu/illustrated/archive/medal_silver.svg",
+    "gold": "assets/gui/menu/illustrated/archive/medal_gold.svg",
+}
+define ACH_MEDAL_LOCKED = "assets/gui/menu/illustrated/archive/medal_locked.svg"
+
+# A medal hangs from its ribbon, so it swings in and settles, pivoting on the
+# ribbon's top edge (anchor 0.5, 0.0 + transform_anchor). `key` is unused in
+# the body; a new value restarts the swing. Comes to rest.
+transform ach_medal_swing(delay=0.0, key=None):
+    subpixel True
+    anchor (0.5, 0.0)
+    transform_anchor True
+    alpha 0.0
+    rotate -16
+    pause delay
+    parallel:
+        easeout_quad 0.16 alpha 1.0
+    parallel:
+        ease 0.22 rotate 9
+        ease 0.20 rotate -4
+        ease 0.18 rotate 1.5
+        ease 0.16 rotate 0
+
+# A row of the case: fades up into place, staggered by `delay`.
+transform ach_row_enter(delay=0.0):
+    subpixel True
+    alpha 0.0
+    yoffset 10
+    pause delay
+    easeout_quad 0.26 alpha 1.0 yoffset 0
+
 screen achievement_toaster():
     # Hosted by config.always_shown_screens -- present in every context, renders
     # NOTHING while the queue is empty. Above the dev shop (300) so GRANTs are
@@ -546,7 +541,7 @@ screen achievement_toaster():
         if _a is not None:
             $ _t = ACH_TIERS.get(_a.tier, ACH_TIERS["bronze"])
 
-            # Fixed-size card, two tight lines: [tier] UNLOCKED / title.
+            # Fixed-size card, two tight lines beside the medal just struck.
             # NOTE: no yfill anywhere -- a fill inside this size-less frame is
             # what stretched the old toast down the whole right edge of the
             # screen (same gotcha as the custom say UI's themed frames).
@@ -554,38 +549,43 @@ screen achievement_toaster():
                 style "ach_toast_frame"
                 anchor (1.0, 1.0)
                 pos (0.988, 0.965)
-                ysize 62
+                ysize 66
                 at ach_toast_drive
 
                 hbox:
                     spacing 0
 
                     # tier rail
-                    add Solid(_t["color"]) xysize (5, 62)
-                    null width 14
+                    add Solid(_t["color"]) xysize (4, 66)
+                    null width 12
+
+                    # The medal swings in with the card; keyed on the
+                    # achievement so each queued toast gets its own swing.
+                    fixed:
+                        xysize (40, 66)
+                        add Transform(ACH_MEDALS.get(_a.tier, ACH_MEDALS["bronze"]), zoom=0.62):
+                            xpos 20
+                            ypos 5
+                            at ach_medal_swing(0.05, _a.id)
+
+                    null width 10
 
                     vbox:
                         yalign 0.5
                         spacing 2
 
-                        hbox:
-                            spacing 7
-                            frame:
-                                background Solid(_t["color"])
-                                padding (6, 1)
-                                yalign 0.5
-                                text _t["label"] style "ach_toast_chip"
-                            text "UNLOCKED" style "ach_toast_kicker" yalign 0.5
-
+                        text ("%s  /  UNLOCKED" % _t["label"]) style "ach_toast_kicker" color _t["glow"]
                         text _a.title style "ach_toast_title" layout "nobreak"
 
-                    null width 16
+                    null width 18
 
 
 # =============================================================================
-# THE ACHIEVEMENTS SCREEN  (Archive slot 6)
+# THE ACHIEVEMENTS SCREEN  (Archive slot 6) -- the medal case
 # Modal overlay shown OVER the archive hub, mirroring character_stories: return
-# is Hide("achievements"), which reveals the hub underneath.
+# is Hide("achievements"), which reveals the hub underneath. Every achievement
+# is a medal on its ribbon beside its engraved line; one not yet earned is the
+# empty mount it will hang in.
 # =============================================================================
 screen achievements():
     modal True
@@ -597,8 +597,8 @@ screen achievements():
 
     use archive_backdrop
 
-    key "game_menu" action Hide("achievements")
-    key "K_ESCAPE" action Hide("achievements")
+    key "game_menu" action Hide("achievements", transition=enter_m_menu_doorway)
+    key "K_ESCAPE" action Hide("achievements", transition=enter_m_menu_doorway)
 
     $ _ach_all = ACHIEVEMENTS
     $ _ach_total = len(_ach_all)
@@ -615,197 +615,115 @@ screen achievements():
         vbox:
             spacing 12
 
-            use archive_header("ACHIEVEMENTS", Hide("achievements"))
+            use archive_header("ACHIEVEMENTS", Hide("achievements", transition=enter_m_menu_doorway))
 
             # ---- readout strip: overall + per-tier tally --------------------
             # The shared strip (archive.rpy), transcluding the tier tally into
             # its right slot -- the layout gotchas live there, once.
-            use archive_readout("TROPHY INDEX // %d/%d UNLOCKED // %d%%" % (_ach_done, _ach_total, _ach_pct), right_slot=True):
+            use archive_readout("THE MEDAL CASE / %d OF %d STRUCK / %d%%" % (_ach_done, _ach_total, _ach_pct), right_slot=True):
                 for _tk in ACH_TIER_ORDER:
                     text "%s %d/%d" % (ACH_TIERS[_tk]["short"], _ach_tc[_tk][0], _ach_tc[_tk][1]):
                         style "archive_meta_text"
                         color ACH_TIERS[_tk]["glow"]
                         yalign 0.5
 
-            # ---- tier filter chips -----------------------------------------
-            # The chip row keeps its own hbox (it wants the spacing), but it and the
-            # right-hand status sit in a `fixed` so the status actually reaches the
-            # right edge -- see the note on the readout strip above.
-            fixed:
-                xsize 1150
-                ysize 40
+            # ---- tier filter tabs (Credits' cloth index tabs) ---------------
+            hbox:
+                spacing 10
 
-                hbox:
-                    spacing 10
-                    xpos 0
-                    yalign 0.5
+                for _fk, _flabel in [("all", "ALL"), ("bronze", "BRONZE"), ("silver", "SILVER"), ("gold", "GOLD")]:
+                    textbutton _flabel:
+                        style "ach_filter_button"
+                        action SetScreenVariable("ach_filter", _fk)
+                        selected (ach_filter == _fk)
 
-                    for _fk, _flabel in [("all", "ALL"), ("bronze", "BRONZE"), ("silver", "SILVER"), ("gold", "GOLD")]:
-                        textbutton _flabel:
-                            style "ach_filter_button"
-                            action SetScreenVariable("ach_filter", _fk)
-                            selected (ach_filter == _fk)
-
-                hbox:
-                    spacing 12
-                    xanchor 1.0
-                    xpos 1150
-                    yalign 0.5
-
-                    # The grant/revoke shop below is NOT reachable from here any
-                    # more. A dev affordance cut into a player screen is one the
-                    # player can see the shape of; it lives on the Developer Hub
-                    # (main menu, top-right, or F9) instead.
-                    text "MORE TROPHIES // ON THE WAY":
-                        style "archive_meta_text"
-                        color "#75f7ff"
-                        yalign 0.5
-
-            # ---- scrolling achievement list --------------------------------
+            # ---- the case --------------------------------------------------
             viewport:
                 xsize 1150
-                ysize 396
+                ysize 440
                 mousewheel True
                 scrollbars "vertical"
                 style_prefix "archive_sv"
 
                 vbox:
-                    spacing 8
+                    spacing 0
 
-                    for a in _ach_shown:
+                    # Keyed on (filter, achievement): changing the filter hangs a
+                    # fresh set, so every medal swings in again rather than the
+                    # survivors sitting still while only the newcomers move.
+                    for _i, a index (ach_filter, a.id) in enumerate(_ach_shown):
                         $ _e = ach_is_earned(a)
                         $ _t = ACH_TIERS[a.tier]
-                        $ _rail = _t["glow"] if _e else "#33414d"
 
                         frame:
                             xsize 1116
-                            ysize 86
-                            background Solid("#08131fdd" if _e else "#060b12b0")
+                            ysize 94
                             padding (0, 0)
+                            background (Solid("#d9cdb60b") if _e else None)
+                            at ach_row_enter(_i * 0.05)
 
-                            hbox:
-                                yfill True
-                                # xfill so the `null width 1 xfill True` below has
-                                # somewhere to expand into -- without it this hbox
-                                # shrink-wraps and the status chip ends up butted
-                                # against the objective text instead of sitting on
-                                # the row's right edge.
-                                xfill True
+                            fixed:
+                                xysize (1116, 94)
 
-                                add Solid(_rail) xysize (6, 86)
-                                null width 16
+                                add Solid("#d9cdb622") xysize (1116, 1) ypos 93
 
-                                # tier badge
-                                vbox:
-                                    yalign 0.5
-                                    xsize 104
-                                    frame:
-                                        background Solid(_t["color"] if _e else "#1a2731")
-                                        padding (10, 4)
-                                        xalign 0.5
-                                        text _t["label"]:
-                                            style ("archive_chip_on_text" if _e else "archive_chip_off_text")
+                                if _e:
+                                    add ACH_MEDALS[a.tier] xpos 56 ypos 5 at ach_medal_swing(0.10 + _i * 0.05, ach_filter)
+                                else:
+                                    add ACH_MEDAL_LOCKED xpos 56 ypos 5 xanchor 0.5
 
-                                null width 18
+                                text a.title style ("ach_row_title" if _e else "ach_row_title_locked") xpos 116 ypos 14
+                                text a.blurb style "ach_row_blurb" xpos 116 ypos 47
 
-                                # title + objective (+ progress)
-                                vbox:
-                                    yalign 0.5
-                                    xsize 604
-                                    spacing 3
+                                if a.progress is not None:
+                                    $ _cur, _tgt = a.progress()
+                                    $ _frac = 0.0 if not _tgt else max(0.0, min(1.0, float(_cur) / float(_tgt)))
+                                    add Solid("#d9cdb633") xpos 116 ypos 77 xysize (240, 1)
+                                    add Solid(_t["glow"]) xpos 116 ypos 76 xysize (max(0, int(240 * _frac)), 3)
+                                    text "%d/%d" % (_cur, _tgt) style "ach_progress_text" xpos 366 ypos 71
 
-                                    text a.title:
-                                        style ("ach_row_title" if _e else "ach_row_title_locked")
-                                    text a.blurb style "ach_row_blurb"
-
-                                    if a.progress is not None:
-                                        $ _cur, _tgt = a.progress()
-                                        $ _frac = 0.0 if not _tgt else max(0.0, min(1.0, float(_cur) / float(_tgt)))
-                                        hbox:
-                                            spacing 10
-                                            yalign 0.5
-                                            fixed:
-                                                xysize (240, 6)
-                                                yalign 0.5
-                                                add Solid("#0e1c26") xysize (240, 6)
-                                                add Solid(_t["glow"]) xysize (max(0, int(240 * _frac)), 6)
-                                            text "%d/%d" % (_cur, _tgt) style "ach_progress_text" yalign 0.5
-
-                                null width 1 xfill True
-
-                                # status chip
-                                vbox:
-                                    yalign 0.5
-                                    if _e:
-                                        frame:
-                                            background Solid(_t["color"])
-                                            padding (12, 5)
-                                            xalign 1.0
-                                            text "UNLOCKED" style "archive_chip_on_text"
-                                    else:
-                                        frame:
-                                            background Solid("#12202a")
-                                            padding (12, 5)
-                                            xalign 1.0
-                                            text "LOCKED" style "archive_chip_off_text"
-
-                                null width 18
+                                # tier + status, pinned right
+                                text _t["label"]:
+                                    style "ach_row_tier"
+                                    color (_t["glow"] if _e else "#77716a")
+                                    xanchor 1.0
+                                    xpos 1092
+                                    ypos 26
+                                text ("UNLOCKED" if _e else "LOCKED"):
+                                    style ("ach_row_state" if _e else "ach_row_state_locked")
+                                    xanchor 1.0
+                                    xpos 1092
+                                    ypos 48
 
                     # Roadmap indicator only: deliberately absent from
                     # ACHIEVEMENTS, so it never counts against completion.
                     if ach_filter == "all":
                         frame:
                             xsize 1116
-                            ysize 86
-                            background Solid("#07131acc")
+                            ysize 94
                             padding (0, 0)
+                            background None
+                            at ach_row_enter(len(_ach_shown) * 0.05)
 
-                            hbox:
-                                yfill True
-                                xfill True
+                            fixed:
+                                xysize (1116, 94)
 
-                                add Solid("#75f7ff") xysize (6, 86)
-                                null width 16
-
-                                vbox:
-                                    yalign 0.5
-                                    xsize 104
-                                    frame:
-                                        background Solid("#163746")
-                                        padding (10, 4)
-                                        xalign 0.5
-                                        text "FUTURE" style "archive_chip_off_text"
-
-                                null width 18
-
-                                vbox:
-                                    yalign 0.5
-                                    xsize 604
-                                    spacing 3
-                                    text "More Trophies on the Way" style "ach_row_title"
-                                    text "The trophy index will expand as new chapters and modes arrive." style "ach_row_blurb"
-
-                                null width 1 xfill True
-
-                                frame:
-                                    yalign 0.5
-                                    background Solid("#163746")
-                                    padding (12, 5)
-                                    text "IN DEVELOPMENT" style "archive_chip_off_text"
-
-                                null width 18
+                                add ACH_MEDAL_LOCKED xpos 56 ypos 5 xanchor 0.5 alpha 0.6
+                                text "More Medals on the Way" style "ach_row_title_locked" xpos 116 ypos 14
+                                text "The case will fill as new chapters and modes arrive." style "ach_row_blurb" xpos 116 ypos 47
+                                text "IN DEVELOPMENT" style "ach_row_state_locked" xanchor 1.0 xpos 1092 ypos 48
 
             # ---- footer ----------------------------------------------------
             fixed:
                 xsize 1150
                 ysize 16
 
-                add Solid("#345a6b") xysize (5, 5) xpos 0 yalign 0.5
-                text "ACHIEVEMENTS.SYS :: [_ach_done] OF [_ach_total] SECURED":
+                add Solid(IM_PLUM) xysize (5, 5) xpos 0 yalign 0.5 rotate 45
+                text "MEDALS ARE STRUCK AS THEY ARE EARNED":
                     style "archive_footer_text"
                     xpos 13
                     yalign 0.5
-                text "MORE TROPHIES ARE ON THE WAY":
+                text "MORE ARE ON THE WAY":
                     style "archive_footer_text"
                     xanchor 1.0
                     xpos 1150
@@ -948,64 +866,64 @@ screen ach_dev_shop():
 
 # =============================================================================
 # STYLES  (reuses archive_* styles where possible; adds only what's new)
+# Paper ink on the case's dark lining; the tiers keep their own metals.
 # =============================================================================
-style ach_row_title:
-    font gui.interface_font
-    color "#eafcff"
+style ach_row_title is gui_text:
+    font gui.default_font
+    color IM_PAPER
     size 22
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    outlines []
 
 style ach_row_title_locked is ach_row_title:
-    color "#8195a2"
-    outlines [(2, "#02040b", 0, 0)]
+    color "#8f8a86"
 
-style ach_row_blurb:
-    font gui.interface_font
-    color "#9fc9d6"
+style ach_row_blurb is gui_text:
+    font gui.default_font
+    color "#bdb4a6"
     size 15
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
-style ach_progress_text:
+style ach_progress_text is gui_text:
     font gui.interface_font
-    color "#7fcfe0"
-    size 12
-    kerning 1.0
-    outlines [(1, "#02040b", 0, 0)]
+    color "#d9c9a8"
+    size 10
+    kerning 1.2
+    outlines []
+
+style ach_row_tier is gui_text:
+    font gui.interface_font
+    size 11
+    kerning 2.0
+    outlines []
+
+style ach_row_state is ach_row_tier:
+    size 10
+    kerning 1.4
+    color IM_PAPER
+
+style ach_row_state_locked is ach_row_state:
+    color "#77716a"
 
 style ach_filter_button:
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
-    selected_background Solid("#12314af2")
+    ysize 40
+    xminimum 112
+    background Frame("assets/gui/menu/illustrated/credits/section_tab.svg", 12, 10, 12, 10)
+    hover_background Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
+    selected_background Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
-    padding (16, 6)
+    padding (20, 6)
 
 style ach_filter_button_text:
     font gui.interface_font
-    color "#9fc0cd"
+    color "#d9c9a8"
     hover_color "#ffffff"
-    selected_color "#eafcff"
-    size 15
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-# ---- dev-only pill (opens the shop from the achievements menu) ----
-style ach_dev_pill:
-    background Solid("#2a0d16")
-    hover_background Solid("#5b1526")
-    hover_sound gui.hover_sound
-    activate_sound gui.activate_sound
-    padding (12, 5)
-
-style ach_dev_pill_text:
-    font gui.interface_font
-    color "#ff9fb4"
-    hover_color "#ffffff"
-    size 13
-    bold True
-    kerning 1.0
-    outlines [(1, "#02040b", 0, 0)]
+    selected_color IM_PAPER
+    size 14
+    kerning 1.4
+    xalign 0.5
+    yalign 0.5
+    outlines []
 
 # ---- dev shop grant/revoke button ----
 style ach_shop_btn:
@@ -1028,52 +946,26 @@ style ach_shop_btn_text:
 
 # ---- toast ----
 style ach_toast_frame is empty:
-    background Solid("#05090ff2")
+    background IM_DARK_PANEL
     padding (0, 0)
-
-style ach_toast_chip:
-    font gui.interface_font
-    color "#04121a"
-    size 10
-    bold True
 
 style ach_toast_kicker:
     font gui.interface_font
-    color "#7fcfe0"
     size 10
     kerning 2.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
 style ach_toast_title:
-    font gui.interface_font
-    color "#eafcff"
-    size 17
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    font gui.default_font
+    color IM_PAPER
+    size 19
+    outlines []
 
 
-# =============================================================================
-# CONTENT REACHABILITY AUDIT  (developer builds only)
-# -----------------------------------------------------------------------------
-# WHY THIS EXISTS. Archive catalogs can silently acquire entries that no story
-# beat ever unlocks. That leaves apparently obtainable CGs, stories, outfits or
-# tracks permanently dark, a failure that ordinary script lint cannot see.
-#
-# So this walks the project's own source at init and checks that every
-# catalogued item has somewhere it can actually come from:
-#     CG            -> a `cg_unlock("Title")` call site
-#     side story    -> a `cs_mark_completed("label")` call site, and something
-#                      that sets its _unlocked flag
-#     outfit        -> a `show <tag> ... <attr>` somewhere
-#     track         -> a `play`/`queue` naming its audio alias or its path
-# It reports and never raises: a warning is right for content that is merely
-# not wired up yet (a story written before its unlock beat exists), and a hard
-# error here would block booting the game to work on exactly that.
-#
-# Run it any time with `ach_audit_content()` from the console. It is skipped
-# entirely in release builds -- it reads every .rpy in the project.
-# =============================================================================
+# Developer source audit for catalog unlock/completion/show/play references.
+# This is a heuristic reachability warning, not proof that a route is playable.
+# Runs after catalogs initialize in developer builds; ach_audit_content() can
+# also be called from the console. Missing/unreadable source files are skipped.
 
 init python:
     def ach_audit_content(verbose=True):
@@ -1093,23 +985,8 @@ init python:
 
         blob = "\n".join(text for _name, text in sources)
 
-        # --- the indexes every check below reads from -------------------------
-        # Two of the four checks ask a line-scoped question -- "is there a line
-        # that PLAYS this track?", "is there a line that SHOWS this tag wearing
-        # this attribute?" -- and each one used to answer it with its own regex
-        # sweep of the whole 4 MB blob: `\b(play|queue)\b[^\n]*\b<needle>\b`,
-        # once per needle, ~4 needles per track, 56 tracks. That pattern makes
-        # the engine walk to the end of the line and backtrack at every one of
-        # the 485 play/queue keywords in the project, and the miss case then
-        # rebuilt a 4 MB blob.lower() on top. Measured: 8.5 SECONDS of every
-        # single boot, which is most of the game's startup time.
-        #
-        # The questions are line-scoped, so the answers live in two small
-        # indexes built in ONE pass: the text following each play/queue keyword
-        # (~11 KB), and the text following each `show <tag>` keyed by tag. Same
-        # answers, measured at 0.06s. The plain `in line` guards are C-speed
-        # substring tests that keep the regexes off the ~110k lines that cannot
-        # match. Keep any new check line-scoped and it costs nothing.
+        # Index play/queue lines and sprite show lines once. Per-item checks
+        # then search these small indexes instead of the whole source corpus.
         blob_lower = blob.lower()
 
         play_keyword = re.compile(r"\b(?:play|queue)\b")
@@ -1139,17 +1016,15 @@ init python:
             return re.search(r"\b%s\b" % re.escape(needle), haystack) is not None
 
         def quoted_args(func):
-            """Every string literal passed to `func(...)` anywhere in the source."""
+            """Approximate quoted call arguments; nested calls are not parsed."""
             found = set()
             literal_pattern = re.compile(
                 r'"([^"\\]*(?:\\.[^"\\]*)*)"|'
                 r"'([^'\\]*(?:\\.[^'\\]*)*)'"
             )
             for call in re.findall(r"\b%s\s*\(([^)]*)\)" % func, blob):
-                # Respect the delimiter that opened the literal. The old
-                # character-class pattern stopped a double-quoted title at an
-                # apostrophe (for example, "Hina's World") and produced a false
-                # unreachable warning even though the call site was present.
+                # Match the opening delimiter so apostrophes inside double-quoted
+                # titles (for example, "Hina's World") remain part of the title.
                 for match in literal_pattern.finditer(call):
                     literal = match.group(1) if match.group(1) is not None else match.group(2)
                     found.add(literal.strip().lower())

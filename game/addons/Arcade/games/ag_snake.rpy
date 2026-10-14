@@ -1,8 +1,10 @@
 # =============================================================================
 # ag_snake.rpy  --  OUROBOROS PROTOCOL   (Arcade Original #1)
 # =============================================================================
-# Snake, with the one change that turns a nostalgia piece into a game about
-# Matsuda's actual working habits: THE FOOD ROTS.
+# A grid crawler, with the change that turns a nostalgia piece into a game about
+# Matsuda's actual working habits: THE FOOD ROTS. Two more rules sit on top of
+# that one -- THE SEAL and THE SPRINT, both below -- and the three together are
+# what make this cabinet its own game rather than a reskin of the genre.
 #
 # THE TWIST
 #   Every culture on the floor carries a timer. Reach it in the first half of
@@ -28,6 +30,27 @@
 #   being readable. Speed is expressed as a PERIOD IN TICKS rather than a
 #   cells-per-second rate so movement lands exactly on the 60Hz simulation grid
 #   and never stutters between two frame counts.
+#
+# THE SEAL  (close a ring of body around the spoilage)
+#   Rot is only permanent for a player who will not go back for it. Close a
+#   loop of the specimen's own body around spoiled tiles and they are SEALED:
+#   every hazard inside the ring burns off at once, and the pay grows with the
+#   SQUARE of how many went together, so one patient ring around a bad corner
+#   beats four hurried ones. The board edge is never part of a seal -- only the
+#   body is -- so a seal is always something the player drew.
+#
+#   It is the counterweight to the rot. The incinerator rewards SPEED; the seal
+#   rewards LENGTH and nerve, because a ring big enough to matter has to be
+#   steered around the very tiles that kill on contact.
+#
+#   DETECTION is a flood from the rim. Every non-body cell reachable from the
+#   board's edge by 8-connected steps is OUTSIDE; a hazard the flood never
+#   reaches is inside a ring. The body is a 4-connected path, and a closed
+#   4-connected curve always splits the grid into separate 8-connected pieces,
+#   so a diagonal near-miss LEAKS and only a real closure counts -- which is
+#   exactly the line a player can see. The flood is ~480 cells and only runs on
+#   a move that could have closed something: spoilage on the floor, and the
+#   head now touching its own body somewhere past the neck.
 #
 # THE SPRINT  (hold Shift)
 #   Three things happen at once, and they are meant to be felt as one decision.
@@ -104,6 +127,34 @@ init python:
     AGS_COOL = 1.6                  # heat shed per tick once the key is up
     AGS_LEN_BONUS = 5               # +1 to a sample's base value per N segments
 
+    # --- the seal ------------------------------------------------------------
+    AGS_SEAL_VALUE = 25             # x (hazards sealed) squared
+    AGS_SEAL_MIN_LEN = 8            # the smallest ring that has an inside
+    AGS_SEAL_FX = 30                # ticks the sealed region glows
+
+    def _ags_seal_tables():
+        """Neighbour lists for the seal flood, built once: the 8-connected
+        neighbours of every cell, and the rim cells the flood starts from."""
+        neigh = []
+        rim = []
+        for i in range(AGS_COLS * AGS_ROWS):
+            x = i % AGS_COLS
+            y = i // AGS_COLS
+            if x in (0, AGS_COLS - 1) or y in (0, AGS_ROWS - 1):
+                rim.append(i)
+            around = []
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    nx = x + dx
+                    ny = y + dy
+                    if ((dx or dy) and 0 <= nx < AGS_COLS
+                            and 0 <= ny < AGS_ROWS):
+                        around.append(ny * AGS_COLS + nx)
+            neigh.append(tuple(around))
+        return tuple(neigh), tuple(rim)
+
+    AGS_NEIGH8, AGS_RIM = _ags_seal_tables()
+
     # Body gradient, quantized to 8 steps so a 120-segment snake still draws out
     # of 8 cached textures instead of 120.
     AGS_BODY_STEPS = 8
@@ -112,15 +163,17 @@ init python:
 
 
     class AGSnake(AGGame):
-        """Ouroboros Protocol: grid snake with decaying food."""
+        """Ouroboros Protocol: a grid crawler with decaying food, body-ring
+        seals and a sprint that spends length."""
 
         KIND = "snake"
         TITLE = "OUROBOROS PROTOCOL"
         ACCENT = AGS_ACCENT
         MOUSE = False
         CONTROLS = [
-            ("ARROWS / WASD", "steer the specimen"),
-            ("SHIFT  (hold)", "sprint -- faster, clumsier, burns length"),
+            ("ARROWS / WASD", "steer"),
+            ("SHIFT  (hold)", "sprint -- faster, harder to turn, costs length"),
+            ("CLOSE A LOOP", "clears any rot inside it"),
             ("ESC", "pause"),
             ("Q  (while paused)", "give up"),
         ]
@@ -163,6 +216,13 @@ init python:
             self.eaten = 0
             self.spoiled = 0
             self.purged = 0
+
+            # The seal: running totals, plus the region last sealed (cell
+            # indices, ticks left) for its glow.
+            self.sealed = 0
+            self.best_seal = 0
+            self.seals = 0
+            self.seal_fx = None
 
             self._spawn_sample()
 
@@ -263,7 +323,7 @@ init python:
                 # Nothing left to burn. Said once per press, not once a tick.
                 if not self.thin_warned:
                     self.thin_warned = True
-                    self._say("TOO THIN TO RUN", "#ff9a4d", 50)
+                    self._say("TOO SHORT TO SPRINT", "#ff9a4d", 50)
                     ag_se("ui_no", 0.5)
                 want = False
             if not self.held(keys, *AGS_SPRINT_KEYS):
@@ -340,7 +400,7 @@ init python:
                         # Nothing left to give: the sprint cuts out on its own.
                         self.heat = 0.0
                         self.sprinting = False
-                        self._say("TOO THIN TO RUN", "#ff9a4d", 50)
+                        self._say("TOO SHORT TO SPRINT", "#ff9a4d", 50)
                         break
             else:
                 self.sprint_ticks = 0
@@ -361,6 +421,10 @@ init python:
         def _step_fx(self):
             if self.flash > 0:
                 self.flash -= 1
+            if self.seal_fx is not None:
+                self.seal_fx[1] -= 1
+                if self.seal_fx[1] <= 0:
+                    self.seal_fx = None
             if self.note is not None:
                 self.note[1] -= 1
                 if self.note[1] <= 0:
@@ -418,7 +482,7 @@ init python:
             hy = self.body[0][1] + self.dir[1]
 
             if hx < 0 or hy < 0 or hx >= AGS_COLS or hy >= AGS_ROWS:
-                self._die("WALL")
+                self._die("HIT THE WALL")
                 return
 
             # The tail cell is only a wall if the tail is NOT about to vacate it.
@@ -427,12 +491,12 @@ init python:
             if self.grow <= 0 and len(self.body) > 1:
                 body_cells.discard(tuple(self.body[-1]))
             if (hx, hy) in body_cells:
-                self._die("ITSELF")
+                self._die("HIT YOURSELF")
                 return
 
             for haz in self.hazards:
                 if haz[0] == hx and haz[1] == hy:
-                    self._die("CONTAMINATION")
+                    self._die("HIT THE ROT")
                     return
 
             self.body.insert(0, [hx, hy])
@@ -444,6 +508,8 @@ init python:
             s = self.sample
             if s is not None and s["x"] == hx and s["y"] == hy:
                 self._eat(s)
+
+            self._try_seal()
 
         def _eat(self, s):
             age = (self.tick - s["born"]) / float(max(1, s["ttl"]))
@@ -485,10 +551,10 @@ init python:
             # itself, without another readout on the HUD.
             if s["priority"]:
                 ag_se("bonus")
-                self._say("PRIORITY   +%d" % value, "#ffd45e", 55)
+                self._say("BONUS   +%d" % value, "#ffd45e", 55)
             elif purged:
                 ag_se("burn")
-                self._say("+%d   PURGED" % value, "#ff9a4d", 55)
+                self._say("+%d   ROT CLEARED" % value, "#ff9a4d", 55)
             elif fresh and self.chain >= 4:
                 ag_se("chain")
                 self._say("+%d" % value, AGS_HEAD_COL, 45)
@@ -513,6 +579,61 @@ init python:
             self._spark(hx, hy, "#ff9a4d", n=12, spread=2.2)
             return True
 
+        def _try_seal(self):
+            """THE SEAL: burn off every hazard inside a closed ring of body.
+            See the header for why the flood is 8-connected, and why it only
+            runs once the head has touched its own body past the neck."""
+            if not self.hazards or len(self.body) < AGS_SEAL_MIN_LEN:
+                return
+            hx, hy = self.body[0]
+            for sx, sy in self.body[3:]:
+                if abs(sx - hx) + abs(sy - hy) == 1:
+                    break
+            else:
+                return
+
+            cols = AGS_COLS
+            size = cols * AGS_ROWS
+            wall = bytearray(size)
+            for sx, sy in self.body:
+                wall[sy * cols + sx] = 1
+            seen = bytearray(size)
+            stack = []
+            for i in AGS_RIM:
+                if not wall[i]:
+                    seen[i] = 1
+                    stack.append(i)
+            neigh = AGS_NEIGH8
+            while stack:
+                for j in neigh[stack.pop()]:
+                    if not wall[j] and not seen[j]:
+                        seen[j] = 1
+                        stack.append(j)
+
+            inside = [h for h in self.hazards if not seen[h[1] * cols + h[0]]]
+            if not inside:
+                return
+            self.hazards = [h for h in self.hazards
+                            if seen[h[1] * cols + h[0]]]
+
+            n = len(inside)
+            value = AGS_SEAL_VALUE * n * n
+            self.score += value
+            self.sealed += n
+            self.purged += n
+            self.seals += 1
+            self.best_seal = max(self.best_seal, n)
+            self.seal_fx = [[i for i in range(size)
+                             if not wall[i] and not seen[i]], AGS_SEAL_FX]
+            for zx, zy, _born in inside:
+                self._spark(zx, zy, AGS_ACCENT, n=10, spread=2.0)
+            self.flash = 12
+            ag_se("bonus")
+            ag_se("burn", 0.6)
+            # Said after _eat's callout on purpose: a move that eats AND seals
+            # reports the seal, which is the rarer and the bigger event.
+            self._say("SEALED  x%d   +%d" % (n, value), AGS_HEAD_COL, 75)
+
         def _die(self, cause):
             if self.dying:
                 return
@@ -528,6 +649,7 @@ init python:
 
         def draw(self, c):
             self._draw_board(c)
+            self._draw_seal(c)
             self._draw_hazards(c)
             self._draw_sample(c)
             self._draw_body(c)
@@ -555,6 +677,21 @@ init python:
                 a = int(ag_clamp(self.flash * 12, 0, 120))
                 c.frame("%s%02x" % (AGS_ACCENT, a), AGS_X - 2, AGS_Y - 2,
                         AGS_W + 4, AGS_H + 4, 2)
+
+        def _draw_seal(self, c):
+            """The ring just closed: its whole inside washes bright and fades.
+            Alpha is quantized to four steps, so fading a large region is still
+            one cached texture per step."""
+            if self.seal_fx is None:
+                return
+            cells, left = self.seal_fx
+            step = int(ag_clamp(left / float(AGS_SEAL_FX), 0.0, 1.0) * 4 + 0.5)
+            if step <= 0:
+                return
+            col = "%s%02x" % (AGS_ACCENT, 34 * step)
+            for i in cells:
+                c.rect(col, self._px(i % AGS_COLS) + 1,
+                       self._py(i // AGS_COLS) + 1, AGS_CELL - 2, AGS_CELL - 2)
 
         def _draw_hazards(self, c):
             for hx, hy, born in self.hazards:
@@ -657,12 +794,12 @@ init python:
             chain_col = ag_mix(AGS_ACCENT, "#ffd45e",
                                 (self.chain - 1) / float(AGS_CHAIN_MAX - 1))
 
-            c.header("OUROBOROS PROTOCOL", "MATSUCOM  //  SPECIMEN LOOP",
+            c.header("OUROBOROS PROTOCOL", "MATSUCOM",
                     AGS_ACCENT)
-            # One row, right-aligned. FLOOR carries spoiled/purged as a single
-            # pair rather than two more columns of chrome down at the rail.
+            # One row, right-aligned. ROT is what is on the board right now;
+            # the rotted/cleared totals are on the results card.
             c.stat_row([
-                ("FLOOR", "%d / %d" % (self.spoiled, self.purged),
+                ("ROT", str(len(self.hazards)),
                     ("#c65cff" if self.hazards else AG_FAINT)),
                 # LENGTH carries what a sample is currently worth, because
                 # length IS that number -- the sprint's cost is only legible if
@@ -686,8 +823,8 @@ init python:
                 c.text(text, AG_W / 2, AGS_Y + 24, size=20, color=col,
                         bold=True, kerning=2.0, anchor=(0.5, 0.5), alpha=a)
 
-            c.legend("ARROWS STEER   //   SHIFT SPRINT   //   ESC PAUSE"
-                    "   //   SPEED %d%%"
+            c.legend("ARROWS STEER   //   SHIFT SPRINT   //   LOOP AROUND ROT TO "
+                    "CLEAR IT   //   ESC PAUSE   //   SPEED %d%%"
                     % int(round(AGS_START_PERIOD / self._period() * 100)))
 
         def _draw_heat(self, c):
@@ -716,17 +853,17 @@ init python:
 
         def _draw_ready(self, c):
             pulse = 0.55 + 0.45 * math.sin(self.tick * 0.16)
-            c.text("SPECIMEN LIVE", AG_W / 2, AGS_Y + AGS_H / 2 - 16,
+            c.text("READY", AG_W / 2, AGS_Y + AGS_H / 2 - 16,
                     size=44, color=AG_INK, font=AG_FONT, bold=True,
                     anchor=(0.5, 0.5), alpha=pulse)
-            c.text("don't let everything rot", AG_W / 2,
+            c.text("eat samples before they rot", AG_W / 2,
                     AGS_Y + AGS_H / 2 + 26, size=16, color=AGS_ACCENT,
                     anchor=(0.5, 0.5), alpha=pulse)
 
         def _draw_death(self, c):
             a = ag_clamp(self.dying / 24.0, 0.0, 1.0)
             c.rect("#12040c%02x" % int(150 * a), 0, 0, AG_W, AG_H)
-            c.text("CONTAINMENT LOST", AG_W / 2, AG_H / 2 - 18, size=48,
+            c.text("GAME OVER", AG_W / 2, AG_H / 2 - 18, size=48,
                     color="#ff6b7f", font=AG_FONT, bold=True,
                     anchor=(0.5, 0.5), alpha=a)
             c.text(getattr(self, "death_cause", "-"), AG_W / 2, AG_H / 2 + 26,
@@ -738,13 +875,14 @@ init python:
         def record(self):
             self.new_record = ag_set_best("snake_score", self.score)
             ag_set_best("snake_length", len(self.body))
+            ag_set_best("snake_seal", self.best_seal)
 
         def outcome(self, kind):
             if kind == "quit":
                 return "ABANDONED"
             if kind == "perfect":
-                return "FLOOR FULL"
-            return "CONTAINMENT LOST"
+                return "BOARD FULL"
+            return "GAME OVER"
 
         def card_accent(self, kind):
             if kind == "quit":
@@ -757,9 +895,11 @@ init python:
             return [
                 ("SCORE", ag_num(self.score)),
                 ("BEST", ag_num(max(self.score, ag_best("snake_score")))),
-                ("SAMPLES PROCESSED", str(self.eaten)),
+                ("SAMPLES EATEN", str(self.eaten)),
                 ("LONGEST CHAIN", "x%d" % self.best_chain),
-                ("SPOILED / PURGED", "%d / %d" % (self.spoiled, self.purged)),
+                ("ROTTED / CLEARED", "%d / %d" % (self.spoiled, self.purged)),
+                ("SEALED  (BIGGEST LOOP)", "%d  (%d)"
+                    % (self.sealed, self.best_seal)),
                 ("LENGTH BURNED SPRINTING", "%d  (%s)"
                     % (self.burned, ag_time(self.sprint_total / 60.0))),
             ]
@@ -794,7 +934,7 @@ init python:
                                     pos=(46 + cx * 40, 30 + cy * 40)))
         parts.append(Transform(Solid("#ffe08a", xysize=(22, 22)),
                                 pos=(130, 114)))
-        parts += ag_cover_title("SPECIMEN LOOP", "OUROBOROS PROTOCOL",
+        parts += ag_cover_title("GRID SURVIVAL", "OUROBOROS PROTOCOL",
                                 AGS_ACCENT)
         return Fixed(*parts, xysize=(AG_COVER_SIZE, AG_COVER_SIZE))
 
@@ -803,9 +943,10 @@ init python:
         "snake", AGSnake,
         title="Ouroboros Protocol",
         accent=AGS_ACCENT,
-        blurb="Snake, except the samples rot. Eat them fresh to keep the "
-                "chain and burn off the mess. Hold Shift to sprint -- faster, "
-                "much clumsier, and it boils off your own length to do it.",
+        blurb="Samples rot where they sit. Eat them fresh to keep your "
+                "chain going, loop your body around rot to clear it, and hold "
+                "Shift to sprint -- faster, harder to turn, and it costs "
+                "length.",
         controls=AGSnake.CONTROLS,
         music=audio.tetris,
         cover=ag_snake_cover,

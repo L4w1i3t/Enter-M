@@ -1,167 +1,30 @@
-# =============================================================================
-# tsubaki_soul.rpy -- "Tsubaki mode": the UNWRITTEN act you reach from
-#                      cs_matsuda_02's roster ("I want to fight somebody else.").
-# =============================================================================
+# Tsubaki's SOUL-box fight, reached through cs_matsuda_02's alternate roster.
+# FIGHT / ACT / ITEM / MERCY feed a turn machine; the SOUL dodges authored
+# set-pieces in a moving box, each one a stop on her itinerary. All art is the
+# mode's own pixel atlas; pooled SFX and the
+# rising grid shader support the marionette staging.
 #
-# WHAT THIS IS
-#   An Undertale/Deltarune-style box fight against Tsubaki Kareda -- FIGHT /
-#   ACT / ITEM / MERCY turns, a red SOUL heart dodging bullet patterns inside a
-#   white-bordered box, terse command readouts, the whole liturgy. Played over
-#   a Deltarune-grid backdrop that scrolls DOWN hard, so the stage reads as
-#   rising forever -- petals and speedlines rushing past like the whole theater
-#   is being hoisted on cables. Because it is.
+# Story: "ASK TSUBAKI FIRST." Matsuda would not write her an act; something
+# else did, and it improves her -- fewer apologies, braver, louder, the one who
+# goes first. It runs like Sans's fight: she takes your first turn, then one
+# beat per turn in fixed order; phase two crosses her lines out mid-bubble
+# while she fights to keep the flaws. The full notes head the script tables.
 #
-# THE CONCEIT (why this mode is allowed to reuse everything)
-#   Matsuda never built Tsubaki's fight. The roster slot sat empty with a
-#   sticky note on it -- and something else finished it: it grabbed the SOUL
-#   sprite and bullet art from Kotonoha's cellar (kotonohamode/player.png
-#   etc.), the genre whose debt that mode already acknowledged out loud, and
-#   hung Tsubaki in the middle of it on marionette strings. The reuse is left
-#   as ambient wrongness, never spelled out as software -- nobody in here
-#   says "engine" or "asset." What's on the strings takes Tsubaki's single
-#   worst hunger -- picked-last, decided-for, desperate to be somebody's
-#   anything -- and gives it exactly what it asked for. She is FULLY
-#   possessed: not lucidly resisting, not signalling for rescue, earnestly
-#   glad to have been picked up at last. "It" is whatever picked her up;
-#   being put back down is her only fear.
+# Violence, pacifism and betrayal remain reachable after either phase shift.
+# The first crossed threshold chooses the shift cinematic. Earned phase-two
+# SPARE spends the mercy bar on a thread; FIGHT with one thread left betrays her.
+# Every ending converges on the same void fall; the route changes the words.
+# Synchronized instrumental/vocal channels crossfade at the shift without restart.
 #
-#   VOICE (rewritten 2026-07-20 -- read this before touching a line)
-#   She sounds like a real person who is not okay, not like a bit. Plain
-#   sentences, ordinary rhythm, aimed at subject matter nobody should be
-#   discussing in that tone. Caps and exclamation marks are rationed to
-#   roughly one a line, for the word a person would actually punch --
-#   shouting everything reads as cartoon, and that was the failure mode this
-#   pass removed. She NEVER names her own wound and never states the theme:
-#   she mentions a small concrete thing (the cactus by the sink, the top of
-#   her head, somebody's grandmother) and lets the player do the arithmetic.
-#   If a line explains her, cut it. The theater lives in the staging -- marks,
-#   lamps, the booth -- not in the vocabulary. In the back half she talks
-#   about the thing on the other end of the strings the way people defend
-#   someone who is bad for them: defensive, certain, keeping score of what it
-#   does for her, warning you off the friend who'd talk her out of it. No
-#   scripture, no chanting -- every sentence should be one a real person has
-#   actually said about somebody.
-#
-# THREE ENDINGS, ONE PHASE SHIFT (first half / second half)
-#   The fight can be resolved by VIOLENCE (FIGHT her HP down), PACIFISM
-#   (ACTs build mercy; SPARE when it's earned -- in the second half every
-#   earned SPARE spends the WHOLE bar to cut one thread while the grip is
-#   lulled, and it clamps back down for the next), or BETRAYAL (pacifism until
-#   exactly one string remains, then FIGHT -- which at that point is always
-#   a one-hit kill; there is nothing left to resist the blow). Whichever
-#   phase-shift threshold is crossed FIRST fires that route's mid-fight
-#   cinematic -- and both shifts follow the same motif: it is completely out
-#   of Tsubaki's control.
-#     * Violence: at half HP she finally gets to fall -- and the strings YANK
-#       her back upright mid-kneel. The fight isn't done with her.
-#     * Pacifism: she strains toward the SPARE, arms almost down -- and the
-#       strings SNAP TAUT and wrench her into the second half.
-#   Either way: white flash, the wear-state sprite set crosses into phase 2,
-#   and the music crossfades from the instrumental to the IDENTICAL vocal take
-#   (tsubaphase1/2.ogg, twin synchro_start channels, Id Mode's trick).
-#   After the shift ALL endings remain reachable; the shift only chooses the
-#   cinematic and the tone of the back half.
-#
-#   AND THE OUTCOME IS THE SAME. All three endings converge on the VOID
-#   FALL: every graphic in the room -- grid, box, HUD, bullets, strings,
-#   bubble -- dies between one frame and the next, and her sprite free-falls
-#   to the bottom of the screen under plain gravity (accelerating, crumpling,
-#   one dead bounce). Same physics every route. Only the words differ:
-#   violence gets NO words (hard cut, strike to drop); pacifist lets her
-#   finish the thought; betrayal cuts her off mid-word on the same sentence.
-#   The routes change what YOU did, never what happens to her.
-#
-# THE EMOTIONAL SCREW (kept in her mouth, never a lecture)
-#   * ONE VOICE: she is all the way possessed, so the fight is a single
-#     performance -- no lowercase "real her" pleading to be freed. Cracks
-#     that show are the SHOW glitching (a repeat, a dropped word, a laugh she
-#     didn't decide to make, a beat "not in the script"), never her waving
-#     for rescue. Lowercase is reserved for the three thresholds where the
-#     show isn't running: the intro (before it takes her), the freed ending,
-#     and death. Matsuda -- who knew her before -- carries the grief.
-#   * CHECK reads ATK 0 -- the readout measures HER, not the thing throwing
-#     the volleys. The gap between her claimed authorship of the patterns
-#     and that zero is the tell that none of this is hers.
-#   * Green needles drift through patterns -- catch one to heal. She hands
-#     them over on reflex and papers over it; the one habit the show never
-#     managed to rewrite. (Her stories' "needle of noticing," played straight.)
-#   * ACTs are off-script kindness, the one input the performance can't
-#     parse: each use makes it stutter before it recovers. Mercy progress IS
-#     how badly you've jammed the act.
-#   * On the violence route the patterns don't escalate near the end -- they
-#     fall apart, and she keeps cheering with less and less of her in it.
-#   * Dying and retrying is witnessed: your deaths get replayed to her like a
-#     highlight reel between shows, and she has to call the reruns a treat.
-#   * Camellias everywhere, because tsubaki: they fall whole, head and all.
-#   * AND THE ATTACKS ARE STAGE DIRECTIONS. The 2026-08-29 roster rebuild put
-#     the theme in the mechanic instead of the names: the room tells you where
-#     to stand (limelight, the overture's mark), when to be quiet (feedback),
-#     and eventually just takes hold of the SOUL and moves it (marionette).
-#     A player who never reads a line of her dialogue still spends the whole
-#     fight being staged, which is the only thing that ever happened to her.
-#
-# ARCHITECTURE (kototouhou.rpy's 60fps pattern, smaller)
-#   * TSBGame owns ALL simulation state -- turn machine, menus, bullets, box,
-#     scripted cinematics. Pure python dicts/lists, zero displayables.
-#   * TSBStage is ONE creator-defined displayable that steps the sim on a
-#     fixed 1/60s accumulator inside render() and paints the whole frame as
-#     cached-texture blits. The screen tree is static; only the CDD repaints.
-#   * The backdrop is one GPU quad (shader tsb.grid): parallax grid layers +
-#     hash speedline columns, all scrolling down; registered defensively, the
-#     fight runs without it on failure.
-#   * Bullet art is Kotonoha's four shipped pixel sprites plus the shared
-#     atlas in asset_definitions/def_bullets.rpy -- 25 shapes, every one of
-#     them named in TSBStage.KINDS for what it MEANS here (a pin, a stitch, a
-#     word, a face in the house, a note off the baton) rather than for what
-#     the ripped sheet calls it. All tint/rotation-bucket cached exactly like
-#     KTStage; painted art (the notes, the wisp flame) is flagged
-#     tintable=False and skips the TintMatrix.
-#     SFX ride battle_logic's pooled one-shot channels.
-#
-# WIRING
-#   cs_matsuda_02.rpy -> "I want to fight somebody else." -> "Tsubaki" ->
-#   `jump tsubakimode`. Ends with `return`, unwinding back to the archive.
-#
-# PERSISTENT
-#   persistent.tsubamode_attempts : runs started (door patter keys off this).
-#   persistent.tsubamode_outcome  : None / "violence" / "pacifist" / "betrayal"
-#                                   (last clear).
-#   persistent.tsubamode_routes_cleared : exact set of every route cleared.
-#   Achievements (catalog in achievements.rpy, all EXPLICIT ach_grant):
-#     tsuba_spare     gold  pacifist clear
-#     tsuba_violence  gold  violence clear
-#     tsuba_betrayal  gold  betrayal clear
-#
-# READ THIS FIRST IF YOU ARE LOST
-#   TSBGame.step() is a mode dispatcher. self.mode is one of:
-#     intro   scripted opening (her arm snaps up; music slams in; then
-#             CURTAIN UP -- the strongest move first, sans-style, and a
-#             syllabus: it teaches every verb the roster will ask for, in
-#             order, before the player ever sees the first menu. A house
-#             gathers; a mark walks and you are expected to stand on it; a
-#             string comes down and takes the SOUL; her five threads close
-#             into a cage with one cell in it, and the number ends on a pose.)
-#     menu    the four buttons; act/item/mercy submenus hang off it
-#     fight   the sweeping accuracy gauge
-#     ptext   terse typewriter status pages in the command box
-#     etalk   her speech-bubble reply for the turn
-#     dodge   the real-time bullet pattern (the only place you can be hit)
-#     shift   phase 1 -> 2 cinematic (kind "v" or "p")
-#     end_v / end_p / end_b / dead   terminal cinematics -> self.result
-#   A turn is: menu -> (action) -> ptext -> etalk -> dodge -> menu.
-#   Patterns are _pat_* methods keyed by TSB_TURNS_P1/P2; dialogue lives in
-#   the TSB_* tables right above the class so the script is editable without
-#   touching the machine.
-#
-#   Units: screen-space pixels (1280x720), speeds are px per 1/60s tick,
-#   timers are ticks unless named _secs. The box is (cx, cy, w, h), floats,
-#   lerping toward box_target every tick.
-# =============================================================================
+# TSBGame owns state; TSBStage advances it at 60Hz and renders cached displayables.
+# step() dispatches intro, menu, fight, ptext, etalk, dodge, shift and ending modes.
+# Turn flow: menu -> action -> ptext -> etalk -> dodge -> menu. Dialogue and
+# TSB_TURNS_P1/P2 tables sit above the class. Only dodge hazards can hit the player.
+# Coordinates use 1280x720 screen pixels, speeds/timers use ticks unless _secs;
+# box geometry is (center_x, center_y, width, height), eased toward box_target.
+# Persistent attempts/outcome/cleared-route keys and explicit achievement grants
+# retain completion history. Do not rename these save-facing fields.
 
-# --- AUDIO / STATE DEFAULTS --------------------------------------------------
-# First half: instrumental. Second half: the IDENTICAL take with vocals.
-# Both start together (synchro_start) on the twin track channels; the phase
-# shift is a volume crossfade, never a restart -- Id Mode's phase-3 trick.
 define -50 audio.tsb_inst = "<loop 0>assets/audio/bgm/tsubaphase1.ogg"
 define -50 audio.tsb_vocal = "<loop 0>assets/audio/bgm/tsubaphase2.ogg"
 
@@ -327,6 +190,9 @@ init -9 python:
             // Phase 1: two slow spectra cross rather than merely sliding one
             // rainbow over the screen. Their interference supplies the extra
             // pearly cyan / magenta / gold beats between the familiar hues.
+            // (2026-09-29: run at about half their old strength over a
+            // deeper violet, so the box and its pixel art own the frame the
+            // way a Deltarune board owns its dark background.)
             float visible_y = uv0.y - visible_fall;
             float prism_coord = visible_y * 0.84 + uv0.x * 0.24
                             - et * 0.036;
@@ -337,9 +203,9 @@ init -9 python:
                                     + et * 0.025 + 0.17);
             float crossfade = 0.5 + 0.5 * sin((uv0.x - visible_y)
                                             * TSB_TAU + et * 0.14);
-            vec3 radiant = vec3(0.014, 0.012, 0.030);
-            radiant += prism_a * (0.135 + 0.045 * crossfade);
-            radiant += prism_b * (0.035 + 0.025 * (1.0 - crossfade));
+            vec3 radiant = vec3(0.022, 0.012, 0.046);
+            radiant += prism_a * (0.068 + 0.024 * crossfade);
+            radiant += prism_b * (0.020 + 0.014 * (1.0 - crossfade));
 
             // Even in phase 1 the rest of the spectrum is present, but it is
             // supporting orchestration beneath visible light. It gains force
@@ -468,6 +334,69 @@ init -9 python:
         except Exception:
             pass
 
+    # The grid's base: ONE object for the whole fight. Built fresh each frame
+    # (the old Solid(...) inside the quad), it made the grid's mesh pass
+    # render a new full-screen texture every frame: measured Oct 9 2026,
+    # phase two's GPU time went 0.50 -> 0.38ms at full clocks with this.
+    TSB_GRID_BASE = Solid("#000000ff")
+
+    # Rasterize her strings into a canvas only as big as they are (see HER
+    # STRINGS in TSBStage.render). A switch only so the result can be checked
+    # against the full-width layer.
+    TSB_STRINGS_BBOX = True
+
+    # tsb.alive: bends her pose image along her height -- see SHE BREATHES in
+    # the constants block. Output pixel p shows the image at p - d(p), so the
+    # content at a row is carried by d; tsb_boss_warp_at() is the Python
+    # mirror (keep the two identical). It only resamples tex0 at fragment_300,
+    # so renpy.matrixcolor (400: the lineart-to-alpha matrix, a hit's tint)
+    # and renpy.alpha (500) still run after it, unchanged. On its own flag, so
+    # a failure here leaves the backdrop grid alone and she simply draws rigid.
+    TSB_ALIVE_OK = False
+    try:
+        renpy.register_shader("tsb.alive", variables="""
+            uniform sampler2D tex0;
+            uniform vec2 u_tsa_size;
+            uniform vec4 u_tsa_bands;
+            uniform vec2 u_tsa_legs;
+            uniform float u_tsa_breath;
+            uniform float u_tsa_sway;
+            uniform vec2 u_tsa_head;
+            uniform float u_tsa_tilt;
+            uniform float u_tsa_stretch;
+            uniform float u_tsa_tremor;
+            varying vec2 v_tex_coord;
+        """, fragment_300="""
+            vec2 p = v_tex_coord * u_tsa_size;
+            float crown = u_tsa_bands.x;
+            float neck = u_tsa_bands.y;
+            float chest = u_tsa_bands.z;
+            float waist = u_tsa_bands.w;
+            float knee = u_tsa_legs.x;
+            float sole = u_tsa_legs.y;
+            float up = clamp((sole - p.y) / max(1.0, sole - crown), 0.0, 1.0);
+            float w_upper = 1.0 - smoothstep(chest, waist, p.y);
+            float w_head = 1.0 - smoothstep(neck - 5.0, neck + 7.0, p.y);
+            float w_str = clamp((knee - p.y) / max(1.0, knee - crown), 0.0, 1.0);
+            float above = clamp((neck - p.y) / max(1.0, neck - crown), 0.0, 1.0);
+            vec2 d;
+            d.x = u_tsa_sway * pow(up, 1.35)
+                + u_tsa_tremor * w_upper
+                + u_tsa_head.x * w_head
+                + u_tsa_tilt * w_head * above;
+            d.y = -u_tsa_breath * w_upper
+                - u_tsa_stretch * w_str * w_str
+                + u_tsa_head.y * w_head;
+            gl_FragColor = texture2D(tex0, (p - d) / u_tsa_size);
+        """)
+        TSB_ALIVE_OK = True
+    except Exception as _tsb_alive_e:
+        TSB_ALIVE_OK = False
+        try:
+            renpy.log("TSB FX: tsb.alive registration failed: %r" % _tsb_alive_e)
+        except Exception:
+            pass
+
 # --- CONSTANTS / TUNING / SCRIPT TABLES --------------------------------------
 init python:
     import math
@@ -494,11 +423,9 @@ init python:
     TSB_LINEART_MATRIX = TSBLineartMatrix()
 
     TSB_DIR = "addons/Matsuda's Sick Boss Fight/tsubakimode/"
-    # The reuse is the point: the SOUL heart and the bullet art are borrowed
-    # deliberately as shared visual grammar. The bullet sprites now come from
-    # assets/bullets/ via EMB_DIR (def_bullets.rpy); TSB_KT_DIR is only
-    # still here for Kotonoha's SHIP sprite, which this mode draws as the soul.
-    TSB_KT_DIR = "addons/Matsuda's Sick Boss Fight/kotonohamode/"
+    # The SOUL is Kotonoha's heart, on purpose: kotonohamode/player.png
+    # recoloured into the three SOUL modes, so the one borrowed sprite is
+    # shared grammar and everything else is this mode's own.
     TSB_KT_SE = "assets/audio/sfx/touhou/"
     TSB_MSBF_SFX = "assets/audio/sfx/msbf/"
 
@@ -519,8 +446,7 @@ init python:
     TSB_BOSS_FEET_Y = 352.0
     TSB_BOSS_ZOOM = 1.0
     # All five refreshed poses share one tightly cropped, four-tone pixel cell.
-    # (92, 334) is the lower-body/sole registration point produced by
-    # tools/process_tsubaki_boss_sprites.py.
+    # (92, 334) is the lower-body/sole registration point.
     TSB_BOSS_NATIVE_SIZE = (184.0, 344.0)
     TSB_BOSS_BASELINE = (92.0, 334.0)
     TSB_BOSS_ASSETS = {
@@ -535,13 +461,13 @@ init python:
     TSB_STRING_ANCHORS = {
         "p1_clean": [(141.0, 149.0), (54.0, 166.0), (97.0, 18.0),
                      (71.0, 79.0), (99.0, 106.0)],
-        "p1_strained": [(142.0, 149.0), (52.0, 170.0), (91.0, 14.0),
-                        (68.0, 71.0), (94.0, 100.0)],
+        "p1_strained": [(140.0, 156.0), (54.0, 177.0), (91.0, 27.0),
+                        (69.0, 82.0), (94.0, 109.0)],
         "p2_strained": [(145.0, 135.0), (60.0, 104.0), (69.0, 25.0),
                         (102.0, 67.0), (83.0, 103.0)],
         "p2_exhausted": [(133.0, 143.0), (60.0, 108.0), (65.0, 30.0),
                          (96.0, 70.0), (80.0, 105.0)],
-        "p2_limp": [(128.0, 159.0), (65.0, 160.0), (61.0, 41.0),
+        "p2_limp": [(116.0, 175.0), (54.0, 173.0), (61.0, 41.0),
                     (99.0, 73.0), (82.0, 111.0)],
     }
 
@@ -586,13 +512,90 @@ init python:
             return "p2_exhausted"
         return "p2_strained"
 
+    # --- SHE BREATHES (2026-09-30) ----------------------------------------------
+    # One still image per stage, and no new art: the life comes from the
+    # tsb.alive shader, which BENDS that image along her height instead of
+    # moving it as one rigid card. Her soles never move; the chest rises on the
+    # breath while the legs stay planted; her weight shifts side to side from
+    # the ankles up, so the crown travels furthest; the head trails the body
+    # and nods on its own; a string yank stretches her from above and settles
+    # with a bounce; phase 2's twitch snaps the HEAD over; the late stages
+    # shiver. Every number is a pure function of the tick and the fight state
+    # (no new serialized fields), and the string anchors are pushed through
+    # the same bend (tsb_boss_warp_at) so the knots stay tied on.
+    #
+    # Rows are native pixels of each pose image, measured off the art:
+    # (crown, neck, chest, waist, knee, sole).
+    TSB_BOSS_BANDS = {
+        "p1_clean":     (18.0, 62.0, 106.0, 150.0, 250.0, 333.0),
+        "p1_strained":  (17.0, 64.0, 109.0, 152.0, 250.0, 333.0),
+        "p2_strained":  (15.0, 62.0, 103.0, 150.0, 248.0, 333.0),
+        "p2_exhausted": (20.0, 66.0, 105.0, 155.0, 250.0, 333.0),
+        "p2_limp":      (24.0, 76.0, 111.0, 160.0, 252.0, 333.0),
+    }
+
+    def _tsb_smooth(e0, e1, x):
+        t = (x - e0) / (e1 - e0)
+        t = 0.0 if t < 0.0 else (1.0 if t > 1.0 else t)
+        return t * t * (3.0 - 2.0 * t)
+
+    def tsb_boss_warp_at(warp, x, y):
+        """Where tsb.alive carries the pixel at native (x, y): (dx, dy).
+
+        The exact mirror of the shader's displacement, so anything tied to
+        her body (the five string knots) rides the same bend."""
+        if not warp:
+            return 0.0, 0.0
+        crown, neck, chest, waist, knee, sole = warp["bands"]
+        up = max(0.0, min(1.0, (sole - y) / max(1.0, sole - crown)))
+        w_upper = 1.0 - _tsb_smooth(chest, waist, y)
+        w_head = 1.0 - _tsb_smooth(neck - 5.0, neck + 7.0, y)
+        w_str = max(0.0, min(1.0, (knee - y) / max(1.0, knee - crown)))
+        above = max(0.0, min(1.0, (neck - y) / max(1.0, neck - crown)))
+        dx = (warp["sway"] * up ** 1.35 + warp["tremor"] * w_upper
+              + warp["head"][0] * w_head + warp["tilt"] * w_head * above)
+        dy = (-warp["breath"] * w_upper - warp["stretch"] * w_str * w_str
+              + warp["head"][1] * w_head)
+        return dx, dy
+
+    def _tsb_breath_curve(tick, wear):
+        """0..1: phase 1 an even cosine; phase 2 a short gasp in and a long
+        sag out, with late ragged catches that interrupt the cycle."""
+        period = (173, 149, 127, 103, 91)[wear]
+        phase = (tick % period) / float(period)
+        if wear < 2:
+            breath = 0.5 - 0.5 * math.cos(phase * math.pi * 2.0)
+        elif phase < 0.24:
+            u = phase / 0.24
+            breath = u * u * (3.0 - 2.0 * u)
+        else:
+            u = (phase - 0.24) / 0.76
+            u = u * u * (3.0 - 2.0 * u)
+            breath = 1.0 - u
+        if wear >= 3:
+            gasp_age = (tick + 31 * wear) % 167
+            if gasp_age < 17:
+                breath = max(breath, math.sin(gasp_age / 17.0 * math.pi))
+        return breath
+
+    def _tsb_sway_at(tick, wear):
+        """Weight shifting from foot to foot, in native px at the crown. Two
+        incommensurate periods, so it never settles into a metronome; heavier
+        and slower as she wears, and on the limp stage she swings like a
+        weight on the strings."""
+        amp = (1.8, 2.0, 2.4, 2.7, 3.2)[wear]
+        if wear == 4:
+            return amp * math.sin(tick * 2.0 * math.pi / 283.0)
+        return amp * (math.sin(tick * 2.0 * math.pi / 347.0)
+                      + 0.35 * math.sin(tick * 2.0 * math.pi / 211.0 + 1.3)) / 1.35
+
     def tsb_boss_motion(game):
         """Deterministic breathing and string-driven motion for one frame.
 
         Everything is derived from existing simulation state, so old saves and
-        rollback do not need new serialized fields. Breathing is quantized to
-        five steps to keep the Transform cache bounded and preserve pixel art.
-        """
+        rollback do not need new serialized fields. With tsb.alive the body
+        bends (see SHE BREATHES above) and the zoom stays a whole 1.0; without
+        it the old fallback breathes by a zoom quantized to five steps."""
         asset_key = tsb_boss_asset_key(game)
         filename, wear = TSB_BOSS_ASSETS[asset_key]
         tick = int(getattr(game, "tick", 0))
@@ -601,38 +604,27 @@ init python:
                        or bool(getattr(game, "void", False))
                        or bool(getattr(game, "boss_fallen", False)))
         motion_frozen = pose_frozen or mode == "shift"
+        alive = TSB_ALIVE_OK
 
+        breath_raw = 0.0
         breath_bucket = 0
         if not pose_frozen:
-            periods = (173, 149, 127, 103, 91)
-            period = periods[wear]
-            phase = (tick % period) / float(period)
-            if wear < 2:
-                breath = 0.5 - 0.5 * math.cos(phase * math.pi * 2.0)
-            elif phase < 0.24:
-                u = phase / 0.24
-                breath = u * u * (3.0 - 2.0 * u)
-            else:
-                u = (phase - 0.24) / 0.76
-                u = u * u * (3.0 - 2.0 * u)
-                breath = 1.0 - u
-            # Late gasps interrupt the regular cycle without adding new art.
-            if wear >= 3:
-                gasp_age = (tick + 31 * wear) % 167
-                if gasp_age < 17:
-                    breath = max(breath,
-                        math.sin(gasp_age / 17.0 * math.pi))
-            breath_bucket = max(0, min(4, int(round(breath * 4.0))))
+            breath_raw = _tsb_breath_curve(tick, wear)
+            breath_bucket = max(0, min(4, int(round(breath_raw * 4.0))))
 
-        breath = breath_bucket / 4.0
-        x_amp = (0.004, 0.007, 0.009, 0.012, 0.007)[wear]
-        y_amp = (0.006, 0.010, 0.013, 0.017, 0.010)[wear]
-        scale_x = TSB_BOSS_ZOOM * (1.0 + x_amp * breath)
-        scale_y = TSB_BOSS_ZOOM * (1.0 + y_amp * breath)
+        if alive:
+            scale_x = scale_y = TSB_BOSS_ZOOM
+        else:
+            breath = breath_bucket / 4.0
+            x_amp = (0.004, 0.007, 0.009, 0.012, 0.007)[wear]
+            y_amp = (0.006, 0.010, 0.013, 0.017, 0.010)[wear]
+            scale_x = TSB_BOSS_ZOOM * (1.0 + x_amp * breath)
+            scale_y = TSB_BOSS_ZOOM * (1.0 + y_amp * breath)
 
         puppet_dx = 0.0
         puppet_dy = 0.0
         puppet_rot = 0.0
+        yank = 0.0
         strings_live = float(getattr(game, "strings_alpha", 0.0)) > 0.06
         cut_ids = getattr(game, "cut_string_ids", ()) or ()
         if not motion_frozen and strings_live:
@@ -653,21 +645,97 @@ init python:
             puppet_dx = direction * (0.6 + 0.65 * wear) * pull * control
             puppet_dy = -(1.4 + 1.55 * wear) * pull * control
             puppet_rot = direction * (0.8 + 0.72 * wear) * pull * control
+            if alive:
+                # The yank is ELASTIC now: the strings haul the top of her up
+                # (the stretch), and she rings down over half a second with
+                # two small bounces instead of stopping dead. The rigid lift
+                # is halved, since the stretch carries most of it.
+                puppet_dy *= 0.5
+                if age < 45:
+                    yank = ((2.5 + 1.8 * wear) * control
+                            * math.exp(-age / 7.0) * math.cos(age * 0.55))
+
+        # Phase 2: every few seconds the strings jerk her -- a hard snap of
+        # the head and shoulders that nothing in the room asked for. Pure
+        # function of the tick, like everything else here.
+        twitch = 0.0
+        twitch_k = 999
+        twitch_sign = 1.0
+        if (not motion_frozen and getattr(game, "phase", 1) == 2
+                and mode not in ("end_v", "end_p", "end_b")):
+            twitch_k = (tick + 41) % 173
+            twitch_sign = 1.0 if ((tick + 41) // 173) % 2 else -1.0
+            if twitch_k < 5:
+                twitch = twitch_sign
+        # With the bend on, the HEAD carries most of the snap (tilt below),
+        # so the whole-body wrench is eased from 7 degrees to 4.
+        puppet_rot += twitch * (4.0 if alive else 7.0)
+        puppet_dx += twitch * 5.0
 
         ending = mode in ("end_v", "end_p", "end_b")
         bob = 0.0 if motion_frozen or ending else (
             math.sin(tick * (0.026 if wear >= 2 else 0.031))
             * (0.65 if wear >= 2 else 0.45))
-        idle_rot = 0.0 if motion_frozen else (
+        # The old idle sway was a whole-sprite rotation that could only land on
+        # whole degrees; with the bend doing the swaying it is retired (a
+        # rotated card is exactly the stiffness this replaces).
+        idle_rot = 0.0 if (motion_frozen or alive) else (
             math.sin(tick * 0.019) * (0.25 + 0.12 * wear))
 
         hit_age = tick - int(getattr(game, "slash_born", -9999))
         hit_rot = 0.0
         hit_dx = 0.0
+        hit_pulse = 0.0
         if 0 <= hit_age < 24 and not getattr(game, "boss_fallen", False):
             hit_pulse = math.sin(hit_age / 24.0 * math.pi)
             hit_rot = -7.0 * hit_pulse
             hit_dx = 15.0 * hit_pulse
+
+        warp = None
+        if alive and not motion_frozen:
+            sway = _tsb_sway_at(tick, wear)
+            breath_amp = (1.8, 2.1, 2.4, 2.8, 1.8)[wear]
+            # the head trails the body's sway by a third of a second...
+            head_x = (_tsb_sway_at(tick - 20, wear) - sway) * 0.9
+            # ...and rides the breath a beat behind the chest (it sits where
+            # the chest put it nine ticks ago)
+            head_y = -breath_amp * 0.8 * (_tsb_breath_curve(tick - 9, wear)
+                                          - _tsb_breath_curve(tick, wear))
+            # ...and, once in a long while in phase 1, tips a little, the way
+            # someone listening does.
+            tilt = 0.0
+            if wear < 2:
+                tilt = 0.9 * math.sin(tick * 2.0 * math.pi / 523.0) ** 3
+            # The twitch belongs to the HEAD: it snaps over, then swings back
+            # past centre and settles.
+            # (Half as far on the limp stage: her hanging head sits four
+            # pixels off the image's left edge, and the bend cannot draw
+            # past it.)
+            snap = 0.5 if wear == 4 else 1.0
+            if twitch_k < 5:
+                tilt += twitch_sign * 6.0 * snap
+                head_x += twitch_sign * 2.0 * snap
+            elif twitch_k < 26:
+                a = twitch_k - 5
+                tilt += -twitch_sign * 2.5 * snap * math.exp(-a / 5.0) * math.cos(a * 0.6)
+            # A landed hit knocks the wind out of her: the chest drops and the
+            # head is flung the way the body went.
+            breath_px = breath_amp * breath_raw
+            breath_px -= 2.5 * hit_pulse
+            head_x += 2.5 * hit_pulse
+            tremor = 0.0
+            if wear >= 2:
+                amp = (0.0, 0.0, 0.3, 0.55, 0.8)[wear]
+                tremor = amp * (math.sin(tick * 1.9) + 0.6 * math.sin(tick * 3.3 + 1.0)) / 1.6
+            warp = {
+                "bands": TSB_BOSS_BANDS[asset_key],
+                "breath": breath_px,
+                "sway": sway,
+                "head": (head_x, head_y),
+                "tilt": tilt,
+                "stretch": yank,
+                "tremor": tremor,
+            }
 
         shake_x = 0.0
         shake_y = 0.0
@@ -686,6 +754,13 @@ init python:
         center_y = (TSB_BOSS_FEET_Y + float(getattr(game, "boss_dy", 0.0))
                     + bob + shake_y + puppet_dy
                     + drawn_h * 0.5 - baseline_y * scale_y)
+        anchors = TSB_STRING_ANCHORS[asset_key]
+        if warp is not None:
+            moved = []
+            for ax, ay in anchors:
+                wx, wy = tsb_boss_warp_at(warp, ax, ay)
+                moved.append((ax + wx, ay + wy))
+            anchors = moved
         return {
             "asset_key": asset_key,
             "path": TSB_DIR + filename,
@@ -702,7 +777,9 @@ init python:
             "rotation": float(round(
                 float(getattr(game, "boss_rot", 0.0))
                 + idle_rot + hit_rot + puppet_rot)),
-            "anchors": TSB_STRING_ANCHORS[asset_key],
+            "anchors": anchors,
+            "twitch": twitch,
+            "warp": warp,
         }
 
     # FIGHT gauge: sweep duration in ticks; damage from strike accuracy.
@@ -715,10 +792,15 @@ init python:
     # The new roster favors formations over raw curtains.  This ceiling is a
     # safety valve, not a target; the busiest pattern sits well below it.
     TSB_MAX_BULLETS = 340
-    TSB_MAX_SPARKS = 180
+    # Raised from 180 (2026-09-01): the polish pass measured every move in
+    # the roster pinned at the old cap, which meant _spark_burst was
+    # silently dropping the loud ones -- an impact that lands on a full
+    # list simply does not draw. Sparks are a flat list of dicts blitted
+    # from one cached transform, so the headroom is close to free.
+    TSB_MAX_SPARKS = 420
     TSB_ROT_BUCKETS = 24
     TSB_ROT_DEG = 360.0 / TSB_ROT_BUCKETS
-    TSB_HEAL_HP = 1.0   # she can only give you a stitch at a time
+    TSB_HEAL_HP = 2.0   # a stitch at a time (raised from 1 with the items)
 
     # Palette (indexes are cache keys, same discipline as KT_PAL).
     TSB_PAL = [
@@ -751,8 +833,142 @@ init python:
         "#7be5ff",  # 9 cyan
     ]
 
-    TSB_FONT = "assets/fonts/Myanmar.otf"           # flavor / bubbles
-    TSB_FONT_UI = "assets/fonts/NovaSquare-Regular.ttf"  # HUD / buttons
+    TSB_FONT_UI = "assets/fonts/NovaSquare-Regular.ttf"  # pause panel
+
+    # --- THE ART (2026-09-29) ------------------------------------------------
+    # Everything in the box and on the HUD is this mode's own pixel art, drawn
+    # procedurally into assets/bullets/tsubaki/: the stops on her itinerary
+    # (books and the
+    # shelf, the inflatable sword, the list's pen and blue clip, the arcade
+    # critters and coins, both bags, the station clock and its hands, the
+    # STAND HERE card, lunch), the FIGHT target and slash, the four button
+    # icons, the SOUL in its three modes plus its broken halves -- and Kareda
+    # Mono, the 5x9 face every word in the fight is set in.
+    #
+    # Art is authored at native size and always drawn at an integer scale
+    # with nearest sampling, so a pixel is a square of screen pixels. Colour
+    # is baked; a key ending ":w" is a whitened copy for the cyan/orange rule
+    # tint (and the font is white, tinted per use). ts_atlas.json is the
+    # only map from a name to a rect: rebuild the art and this follows.
+    TSB_ART_DIR = "assets/bullets/tsubaki/"
+
+    def _tsb_load_atlas():
+        import json as _tsb_json
+        with renpy.open_file(TSB_ART_DIR + "ts_atlas.json", encoding="utf-8") as fh:
+            return _tsb_json.load(fh)
+
+    TSB_ATLAS = _tsb_load_atlas()
+    _tsb_art_cells = {}
+
+    def tsb_art(key):
+        """One atlas cell as a shared Crop (one texture, many subsurfaces)."""
+        d = _tsb_art_cells.get(key)
+        if d is None:
+            info = TSB_ATLAS["sprites"]
+            d = Crop(tuple(info["cells"][key]), TSB_ART_DIR + info["file"])
+            _tsb_art_cells[key] = d
+        return d
+
+    def tsb_art_size(key):
+        return tuple(TSB_ATLAS["sprites"]["cells"][key][2:4])
+
+    def tsb_has_art(key):
+        return key in TSB_ATLAS["sprites"]["cells"]
+
+    TSB_GLYPH_W = int(TSB_ATLAS["font"]["w"])
+    TSB_GLYPH_H = int(TSB_ATLAS["font"]["h"])
+    TSB_GLYPH_ADV = int(TSB_ATLAS["font"]["adv"])
+
+    def tsb_glyph(ch):
+        key = "g%d" % ord(ch)
+        d = _tsb_art_cells.get(key)
+        if d is None:
+            info = TSB_ATLAS["font"]
+            rect = info["cells"].get(key) or info["cells"]["g63"]
+            d = Crop(tuple(rect), TSB_ART_DIR + info["file"])
+            _tsb_art_cells[key] = d
+        return d
+
+    _tsb_wrap_cache = {}
+
+    def tsb_wrap(text, cols):
+        """Greedy word wrap by character count (the face is monospaced).
+
+        Wrapped once per (text, width), so a typewriter never re-flows a word
+        it has already started to type.
+        """
+        key = (text, cols)
+        out = _tsb_wrap_cache.get(key)
+        if out is None:
+            if len(_tsb_wrap_cache) > 400:
+                _tsb_wrap_cache.clear()
+            out = []
+            for para in text.split("\n"):
+                line = ""
+                for word in para.split(" "):
+                    while len(word) > cols:
+                        if line:
+                            out.append(line)
+                            line = ""
+                        out.append(word[:cols])
+                        word = word[cols:]
+                    if not line:
+                        line = word
+                    elif len(line) + 1 + len(word) <= cols:
+                        line += " " + word
+                    else:
+                        out.append(line)
+                        line = word
+                out.append(line)
+            _tsb_wrap_cache[key] = out
+        return out
+
+    _tsb_strike_cache = {}
+
+    def tsb_strike_parse(text):
+        """Split a bubble's ~struck~ spans out of its text.
+
+        Returns (plain, struck, ends): the text without the markers, a flag per
+        character, and for each struck character the index of the last
+        character of its span (the strike lands once the span is typed).
+        """
+        out = _tsb_strike_cache.get(text)
+        if out is None:
+            if len(_tsb_strike_cache) > 300:
+                _tsb_strike_cache.clear()
+            plain, struck = [], []
+            on = False
+            for ch in text:
+                if ch == "~":
+                    on = not on
+                    continue
+                plain.append(ch)
+                struck.append(on)
+            ends = [0] * len(plain)
+            end = -1
+            for i in range(len(plain) - 1, -1, -1):
+                if struck[i]:
+                    if end < 0:
+                        end = i
+                    ends[i] = end
+                else:
+                    end = -1
+            out = ("".join(plain), struck, ends)
+            _tsb_strike_cache[text] = out
+        return out
+
+    def tsb_mix(a, b, u):
+        u = max(0.0, min(1.0, float(u)))
+        ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+        cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+        return "#%02x%02x%02x" % tuple(int(round(x + (y - x) * u)) for x, y in zip(ca, cb))
+
+    # Undertale's two movement colours, as this fight draws them.
+    TSB_RULE_COL = {"cyan": "#42c8ff", "orange": "#ffa12e"}
+    # The SOUL's three modes.
+    TSB_SOUL_ART = {"red": "soul_red", "blue": "soul_blue",
+                    "strung": "soul_strung"}
+    TSB_SOUL_COL = {"red": "#ff2a2a", "blue": "#3f7bff", "strung": "#c38cff"}
 
     # Music channels (registered in def_audio.rpy; Id Mode uses the same pair).
     TSB_INST_CH = "track1"
@@ -822,6 +1038,15 @@ init python:
         "phase":   (TSB_MSBF_SFX + "phase.wav", 0.90),
         "spare":   (TSB_KT_SE + "se_cardget.wav", 0.80),
         "pause":   (TSB_KT_SE + "se_pause.wav", 0.60),
+        # The 2026-09-29 roster's physical voices: a SOUL changing mode, and
+        # the things her itinerary is made of hitting the boards.
+        "soul":    (TSB_KT_SE + "se_power1.wav", 0.60),
+        "stick":   (TSB_KT_SE + "se_tan01.wav", 0.30),
+        "bounce":  (TSB_KT_SE + "se_tan02.wav", 0.30),
+        "crack":   (TSB_KT_SE + "se_damage01.wav", 0.35),
+        "fizz":    (TSB_KT_SE + "se_graze.wav", 0.45),
+        "coin":    (TSB_KT_SE + "se_item00.wav", 0.35),
+        "loud":    (TSB_MSBF_SFX + "debuff.wav", 0.55),
     }
 
     def tsb_play(name, volume_scale=1.0):
@@ -837,23 +1062,6 @@ init python:
         return max(lo, min(hi, v))
 
     # ---- CHOREOGRAPHY --------------------------------------------------------
-    # The difference between a volley and a dance is that a dance is SOMEWHERE
-    # and going somewhere else. A random draw across the box tells the player
-    # nothing about the next one, so the only correct play is to stand in the
-    # emptiest place and react; a hazard that WALKS tells you where it will be
-    # in a second, so the correct play is to walk with it. Everything in this
-    # fight that used to pick a spawn out of a hat now rides one of these two.
-    def tsb_tri(p):
-        # Triangle wave: 0 -> 1 -> 0 over one unit of p. The bones of every
-        # sweep in the fight -- there and back, so the figure closes.
-        p = p % 1.0
-        return p * 2.0 if p < 0.5 else (1.0 - p) * 2.0
-
-    def tsb_sweep(t, period, lo, hi, phase=0.0):
-        # A position that paces between lo and hi with period `period` ticks,
-        # turning at each end. Feed it a spawn coordinate and a rain becomes a
-        # curtain with a direction.
-        return lo + (hi - lo) * tsb_tri(t / float(period) + phase)
 
     # Screen-poll helper (see kototouhou.rpy): a slow timer calls this; a
     # non-None return ends the interaction with that value.
@@ -861,266 +1069,270 @@ init python:
         return game.result
 
     # ---- SCRIPT TABLES -------------------------------------------------------
-    # All authored text lives here so the fight can be rewritten without
-    # touching the state machine. The voice is one possessed performance (see
-    # VOICE and THE EMOTIONAL SCREW in the header): a real person talking
-    # calmly and specifically about things nobody should be calm about,
-    # glitching when off-script kindness lands, never lucidly pleading for
-    # rescue. Lowercase is only for the threshold beats.
-
-    # THE ROSTER. Rebuilt 2026-08-29 -- see the long block above the _pat_*
-    # methods for why, and for the rule every entry below is built on: a move
-    # has to ask a VERB that isn't "avoid."
+    # THE STORY (rebuilt 2026-09-30). "ASK TSUBAKI FIRST." Matsuda would not
+    # write Tsubaki an act, because every draft was Matsuda putting words in
+    # her mouth; she left that card on the door instead. Something took the card
+    # down and wrote the act anyway, and the act IMPROVES her: fewer apologies,
+    # braver, louder, the one who goes first. What it cuts away falls like a
+    # camellia -- whole, never wilting -- and she keeps the pieces.
     #
-    #   (pattern id, duration ticks, density multiplier)
+    # It runs like Sans's fight: one beat per turn, in fixed order, a
+    # conversation with YOU that goes somewhere. Phase 1 is her, dry and
+    # noticing, telling you small true things about herself while the act gets
+    # the details uncomfortably right -- until the card that says STAND HERE
+    # turns out to be in her own handwriting, and the last page says she gets
+    # better, and she admits she'd like that. Phase 2 (either route) is the
+    # act winning ground: her lines are crossed out and rewritten mid-bubble
+    # (text between ~tildes~ is drawn struck through), she restarts, loops,
+    # snaps at the room, at Matsu, at you, and fights to keep the flaws,
+    # because the flaws are the part that is her. The pacifist ending is her
+    # saying her own want first.
     #
-    # ORDER IS A SHUFFLE BAG, not a sequence (see _draw_pattern): every move
-    # appears once per bag in a fresh random order, none repeats back to back
-    # across a reshuffle, and a mild density creep rides each completed bag.
-    # Dialogue is keyed to the TURN, not to the pattern, so the monologue
-    # stays a monologue however the deck falls.
+    # VOICE. She restarts (--), keeps sentences short, puts an apology-shaped
+    # preamble before the point, and her jokes are flat corrections. She never
+    # delivers a polished setup line -- the act's replacements do, which is how
+    # you can tell them apart. She notices things and says the small concrete
+    # detail (the magazine tables, the 7:18, the good tape) instead of naming
+    # a wound; the player does the arithmetic. The act is never named, never
+    # software, never explained. Caps and "!" are rationed in phase 1 and
+    # spill in phase 2. No "fuck".
     #
-    # PHASE 1 -- the production is competent. These moves repeat, they are
-    # legible, and they can be LEARNED, which is the whole difference between
-    # the two halves of this fight. Six of them come back in phase 2 damaged;
-    # five play only here, while the show still runs clean.
+    # THE ROSTER. The attack under each line is the thing the line is about.
+    #   (move id, active duration ticks, authored pressure)
+    # `authored pressure` stays in the tuple for old save compatibility and is
+    # always 1.0. Reprise/late variants key on pattern_slot.
     TSB_TURNS_P1 = [
-        # -- shared: taught here, broken later ---------------------------
-        ("camellia",    440, 1.06),  # heads on a rail; a travelling run
-        ("hemline",     450, 1.06),  # a running stitch, and then the pull
-        ("metronome",   450, 1.06),  # the baton, the tock, the downbeat
-        ("limelight",   450, 1.08),  # the lit circle is the SAFE one
-        ("ovation",     440, 1.06),  # claps off the rim; she flinches
-        ("understudy",  450, 1.06),  # your reflection learns your part
-        # -- phase 1 only ------------------------------------------------
-        ("footlights",  440, 1.08),  # six lamps played as a repeating phrase
-        ("programme",   460, 1.06),  # a page writes itself and strikes out
-        ("curtaincall", 470, 1.06),  # the ceiling comes in; then the bow
-        ("pincushion",  440, 1.08),  # a turning hedgehog, then the pull
-        ("garland",     450, 1.06),  # one long rope, and the room silts up
+        ("shelves",     400, 1.0),  # it put her in the bookstore first
+        ("sword",       450, 1.0),  # the hurt she never told anyone about
+        ("translation", 420, 1.0),  # NEW: Matsu, loud; Tsubaki, the quiet
+        ("list",        430, 1.0),  # it reads her notes out loud
+        ("arcade",      410, 1.0),  # the high score nobody saw
+        ("claw",        480, 1.0),  # NEW: one try; it needed eleven
+        ("bags",        400, 1.0),  # half her bag is for other people
+        ("clock",       420, 1.0),  # early, so nobody watches her walk in
+        ("crowd",       420, 1.0),  # STAND HERE: she's good at being told
+        ("crowd",       420, 1.0),  # the card is in her handwriting (reprise)
+        ("lunch",       410, 1.0),  # green, your left: care as reflex
+        ("itinerary",   460, 1.0),  # the last page says she gets better
     ]
 
-    # PHASE 2 -- nothing back here repeats the same way twice, and every
-    # single thing back here still telegraphs. That is the line: the second
-    # half is DISORDER, never surprise damage. All of the disorder is decided
-    # at telegraph time, so it reads as damage rather than as a cheat.
+    # PHASE 2 is the same objects losing their order plus the moves that go
+    # inside her: `noticing` (her attention, turned on you), `apology` (the
+    # sentence she can't finish), `tin` (where the cut pieces go), `strung`
+    # (the strings move first) and `revision`. Late slots (list 13, clock 14,
+    # strung 15) play their move's "late" variant.
     TSB_TURNS_P2 = [
-        # -- the six, damaged --------------------------------------------
-        ("camellia",    460, 1.16),  # broken chord; the burst throws upward
-        ("hemline",     470, 1.16),  # a cross seam, gathered onto your mark
-        ("metronome",   470, 1.14),  # fermata, and the cutoff that holds
-        ("limelight",   470, 1.16),  # the spot shrinks the whole time it is lit
-        ("ovation",     460, 1.16),  # the flinch comes BEFORE the clap
-        ("understudy",  470, 1.14),  # the reflection plays you back on a delay
-        # -- phase 2 only ------------------------------------------------
-        ("marionette",  470, 1.12),  # hooks take the SOUL. Pull to break them
-        ("feedback",    460, 1.10),  # too loud to move. Hold still
-        ("recast",      450, 1.16),  # the room will not hold a shape
-        ("unravel",     460, 1.16),  # a zipper runs the seam of a half-room
-        ("chandelier",  480, 1.14),  # one heavy thing on one fraying line
-        ("blackout",    470, 1.10),  # the lights go. Go and fetch the light
-        ("tableau",     470, 1.14),  # intermission: the frozen picture lets go
+        ("list",        410, 1.0), # her notes, improved by someone else
+        ("noticing",    420, 1.0), # NEW: it uses her noticing on you
+        ("crowd",       400, 1.0), # it moved the card while she read it
+        ("shelves",     420, 1.0), # her shelves, out of order
+        ("apology",     420, 1.0), # NEW: I'm s-- I'm so--
+        ("sword",       450, 1.0), # the small things, made the size of the room
+        ("clock",       430, 1.0), # early, reversed into late
+        ("tin",         430, 1.0), # NEW: washed, labeled, dated
+        ("bags",        420, 1.0), # useful is not the same thing
+        ("strung",      420, 1.0), # which of us wanted to reach for you
+        ("lunch",       410, 1.0), # that one's mine
+        ("revision",    430, 1.0), # it rewinds to before it hurt
+        ("arcade",      410, 1.0), # it copies whoever's in front of it
+        ("list",        410, 1.0), # it can't strike bookstore
+        ("clock",       430, 1.0), # ASK TSUBAKI FIRST
+        ("strung",      430, 1.0), # no next page
     ]
 
-    # Her bubble for each phase-1 turn: (neutral line, line if you hit her
-    # last turn). One entry per TSB_TURNS_P1 row, read as a single continuous
-    # monologue. VOICE RULES, and they are load-bearing:
-    #   * She is a person, not a bit. Ordinary sentences, ordinary rhythm,
-    #     aimed at wildly inappropriate subject matter. The unhinged part is
-    #     WHAT she says and how calmly she says it -- never the volume.
-    #   * Caps and exclamation marks are rationed to roughly one a line, for
-    #     the word a real person would actually punch. Shouting everything
-    #     reads as cartoon, which is the failure mode this pass fixed.
-    #   * She never names her own wound. No "nobody ever picked me," no
-    #     "that's almost like being loved." She mentions a small concrete
-    #     thing -- a coat, a bus, the top of her head -- and lets the player
-    #     do the arithmetic. If a line explains her, cut it.
-    #   * The theater stays in the staging (marks, lamps, the booth), not in
-    #     the vocabulary. She can be "on" without saying "leading lady."
-    #   * "It" is whatever picked her up. She talks about it the way people
-    #     talk about someone who got them out of a bad stretch: defensive,
-    #     grateful, faintly threatening if you push. Her one fear is being
-    #     put back down.
-    # Some entries are lists: extra bubbles she fires before the dodge (see
-    # _bub). Hit variants are the worst of it -- she thanks you for it.
+    # Each entry is (unhurt, hit-last-turn): "hit" means YOU landed a FIGHT
+    # on her since her last line. Both variants carry the same beat, so a
+    # violence run cannot replace the story with disconnected hit reactions.
+    # An entry may be a list of bubbles shown one after another. Action
+    # replies are queued before this beat in _begin_etalk.
     TSB_BUBBLES_P1 = [
-        (["We opened with the closer. The big one, first, everything at once -- I asked for that. I said do the big one first and it said okay. It says okay to me now.",
-        "You're still standing there. Most people would be doing something else by now.",
-        "Sorry. I'm talking a lot. I've had a very quiet couple of months and it's all coming out at the wrong speed."],
-        "Ow. ...ow! No -- no, that's fine, that's the job, you're allowed. I wanted you to know you're allowed. In case you were being careful on my account."),
-        ("Don't make that face at me. I know that face. That's the face people make right before they remember somewhere else they have to be.",
-        "My eyes are doing a thing again. Ignore it. The lights are very close. They've been very close for a while now."),
-        ("There was a girl in here before me who apologized for the weather. For other people's spilled drinks. For standing in a doorway. She doesn't come up anymore. I don't miss her. ...I don't.",
-        "It told me this part gets easier. It's been right about everything else so far, so. So it's probably right about this. It's got a good record with me."),
-        ("Matsu's shouting through the wall again. Tell her I'm fine. Tell her I got the thing I wanted -- she'll know the one, she made a face about it once and I never forgot the face.",
-        "Why does she sound like that? She sounds like she did at her grandmother's. Tell her to stop. I can do her voice now, exactly, I've been practicing -- I'd still rather hear hers."),
-        (["Five. Both wrists, the shoulder, the top of my head, and one through the back. I counted them in the dark the first night until they stopped being frightening.",
-        "Nobody has ever needed the top of my head before. That's a first. I've been keeping a list of firsts."],
-        "The left wrist comes a half-beat la-- no. No, forget that, I didn't say a number, there wasn't a number. Everything's on time. We're on time."),
-        ("Look at all the flowers. I have never kept one thing alive, not a fish, not the little cactus by the sink, and these can't die. It checked for me. It checks things for me.",
-        "You knocked some loose. That's all right. Nothing that falls in here goes to waste -- it collects them afterward. It keeps everything I drop."),
-        (["Oh -- there's a green one in there. Take it. Take it quick, before the pattern closes up.",
-        "...huh. I keep doing that. I don't decide to. Anyway -- eyes up. This next bit's worth watching."],
-        "Take the green one, go on. I'm allowed to hand things to people. It's allowed. I checked twice, so it's allowed."),
-        ("I've been watching your feet the whole time. I know where you're going about a half-second before you do. It's my one trick and nobody's ever had a use for it before.",
-        "Your hands were shaking before you even swung. I see everything from up here. I never have to look away -- I couldn't if I wanted to, so it's lucky that I want to."),
-        ("Nobody used to watch me do anything. Now you can't leave the room. I keep checking that you can't. Every few seconds. It's become sort of a hobby.",
-        "From up here, hitting somebody and holding onto somebody look about the same. Same arms, same distance. I'm not being clever. They genuinely look the same."),
-        ("I haven't said sorry in eleven turns. Eleven. It reached in and fixed that, it just -- sor-- oh. That one got out. Doesn't count. Restart the count. Eleven again.",
-        "That didn't hurt. I'm not -- it didn't. Put a pin in it, we'll come back to it later. Nobody saw."),
-        ("My hands don't shake anymore. Not even slightly. Steady hands and brave are basically the same thing from a distance, and everybody's at a distance.",
-        "I know the difference. Between brave and held still, I -- I know it, I'm not -- what were we -- I know the difference. Next."),
-        ("This next one's my favorite. I've never had a favorite anything, nobody asked, so I picked one myself and it's this one. Don't ruin it. Do your part properly.",
-        "You're rushing my favorite part. Slow down. It comes around once a night and it's the only thing in this room I chose."),
+        ("Sorry about that. I always let everyone go first. I wanted to know what it feels like.",
+         ["Ow. Okay. I went first, so I probably had that coming.",
+          "It put me in the bookstore first, though. It even got the magazine tables right. That's the part that scares me."]),
+        (["Last time I was there, somebody hit me with an inflatable sword. It was the size of a paper-towel roll.",
+          "I made it a joke. That's what you do with small things. ...It didn't make it a joke."],
+         "That one I'm not making a joke about. The sword I did. It was small, so I made it smaller. It made it the size of the room."),
+        (["Usually I translate Matsu. 'Behold' means look. 'The Azure Eye' means her contacts.",
+          "In here there's nobody to translate. So it's just loud. I hate loud."],
+         "Matsu would've yelled at you for that. I'd have told you what she meant. ...She'd have meant it."),
+        ("I write things down so nobody has to tell me twice. It's reading my notes out loud. Those aren't for out loud.",
+         "Write that down. No--I will. Nobody else writes in there. That was the rule."),
+        ("I got the high score on the shooting game. TSK, right at the top. Somebody asked to see it. I think about that more than I should.",
+         "That was a hit. I'm putting it under hits. It's getting to be a long column."),
+        (["There was a yellow bird in the claw machine. I told Matsu one try. She did one try.",
+          "It needed eleven. I wanted her to do eleven. I didn't say that. ...I'm saying it now."],
+         "I said one try. I always say one try. I want someone to hear 'one' and do eleven anyway. ...That's not about the claw machine."),
+        ("Half of my bag is for other people. Tissues. The good tape. A pen for whoever forgets theirs. I don't use any of it.",
+         "Take whatever you need out of the bag. Everybody does. I don't mind. I'm--checking if I mind."),
+        ("I'm early to everything. If you're early, you never have to walk in while everybody's already looking at the door.",
+         "Nobody's ever early for me. That's fine. I'm writing it down as fine."),
+        ("It keeps putting cards down. STAND HERE. I'm really good at standing where I'm told. It might be the thing I'm best at.",
+         "STAND HERE. Okay. I'll stand here and you can do that again. ...Why did I offer that?"),
+        (["The card didn't even bend. Nobody's ever put a card down for me before.",
+          "...It's in my handwriting. I don't remember writing it. I'd remember. I'm careful with my handwriting."],
+         "The card's in my handwriting. I didn't write it. Somebody's using my hand, and they're neater than I am."),
+        ("Green, your left--take it. I don't know why I'm helping. It's what I do when I don't know what to do. Eat real food later. Please.",
+         "Green by your left. Take it anyway. You hitting me doesn't change whether you should eat."),
+        (["I read ahead. The next part says I get better. Braver. Louder. It says I stop apologizing.",
+          "...I'd like that. Is that bad? That I'd like that?"],
+         ["I read ahead. The next part says I stop flinching when people do that.",
+          "It says I get better. I'd like to be better. I'd like to be-- sorry. I'd like to be."]),
     ]
+    # Past the last beat (a pacifist who keeps talking, a slow violence run),
+    # the act rehearses her. She notices the takes getting cleaner.
     TSB_LOOP_P1 = [
-        "There's room for one more up here. Loads of room. You wouldn't even have to talk, I'd handle the talking, I've got it covered.",
-        "It's not that loud once you stop pulling against it. It is loud. But it's a good loud. It's the kind you can stand.",
-        "Left wrist, back, both wrists, crown. There's a rhythm to it once you learn it. I can't stop counting it. I've tried stopping.",
-        "If you're waiting for me to get tired -- no. It doesn't let me. I sleep standing up now, apparently. Apparently that's a thing I can do.",
+        ("Again? Okay. From the top. It's making me say it better every time.",
+         "From the top. I don't flinch as much on the second take. I hate that I noticed."),
+        ("Same page again. I don't mind. I like knowing what comes next.",
+         "Same page. Same hit. I know where it lands now. That's worse."),
+        ("It keeps saying everybody gets a second take. I never asked for the first one.",
+         "Take three. Take four. I'm counting. Somebody should be counting."),
+        ("Still here. You're still here. Nobody's asking what I want, which is normal, so this is--normal.",
+         "Still here. You can stop checking. I'm always still here."),
     ]
 
-    # Phase-2 bubbles: (neutral, lean when she's been hit / is low). The yank
-    # doesn't make her louder, it makes her CERTAIN. Back half she talks about
-    # the thing on the other end of the strings exactly the way a person
-    # defends someone who is bad for them: you don't know it like I do, it's
-    # not like that, everyone told me it was a mistake and look at me now.
-    # No scripture, no chanting, no capital-letter fervor -- that was the old
-    # register and it read as cosplay. The horror is that every sentence is
-    # something a real person has actually said about someone. She isolates
-    # herself from Matsuda, keeps score of what it does for her, and gets
-    # defensive rather than devout. Lean variants dig in HARDER instead of
-    # cracking; her one fear is being put back down, never being controlled.
-    # Some entries are lists (extra bubbles).
+    # Phase 2 keeps the conversation and loses the connective tissue. The
+    # act's replacements arrive struck-and-rewritten inside her own bubbles;
+    # she restarts, catches the revision, and argues with it out loud. Worn
+    # variants (a hit, or the exhausted/limp sprite) are sharper, not quieter.
+    TSB_BUBBLES_P2_OPEN = {
+        "v": ("You knocked me down and it ~helped me up~ stood me up. Stood! Say it stood me up. Somebody say it right!",
+              "Down, up, down, up--it keeps fixing the part where I fall. I wanted to fall! Let me have ONE thing!"),
+        "p": ("You were kind to me, and it ~took notes~ got nervous. It's rewriting the part of me that liked it. Don't let it!",
+              "It's crossing out the nice part! Say it again, the nice thing, before it finishes the sentence for me!"),
+    }
     TSB_BUBBLES_P2 = [
-        ("Did you see that? I went down and it caught me. It always catches me. Everybody kept telling me it wouldn't, and it does, every time, so who was right.",
-        "Thank you. I'm saying it to it, not to you. I say it a lot now. I say it in my sleep, apparently. Matsu would think that was funny. She wouldn't think it was funny."),
-        ("Five. I say them out loud every turn so it knows I've still got them all straight. Both wrists, shoulder, crown, back. I don't lose count. I have never lost count.",
-        "Four -- no. Five. It's five. I don't get that wrong, I've never once gotten that wrong, don't look at me like I got it wrong."),
-        (["It gave me a voice for the second half. Listen to it. That isn't a recording, that's a room full of -- I don't actually know what that is. It's lovely, though.",
-        "There's more of it in me than me now. Which is fine. There wasn't much of the other thing and it wasn't doing anything with the space."],
-        "There's more of it than me in here and I want that on the record as my idea. I asked for it. Nobody made me ask for it."),
-        ("I remember the door with the light over it. I walked through on my own feet, chin up. ...I don't remember the walking part. But it was my idea. It was definitely my idea.",
-        "It needs me to have picked it. And I did pick it. I'd pick it again. Ask me in the morning, ask me any morning, you'll get the same answer."),
-        ("The middle one takes my whole weight so I don't have to. I've been holding myself up since I was about nine. You can't imagine what a rest this is.",
-        "My knees keep going and it catches me every time. Every time, and it doesn't make a thing of it afterward. Name me one other person who doesn't make a thing of it."),
-        ("Matsu keeps calling a name I don't really answer to now. Tell her the girl she's upset about is doing great. Tell her to come and see. She won't come and see.",
-        "Don't let Matsu talk to me. She'll do the reasonable voice -- she's always been able to talk me out of things, [player], and I don't want to be talked out of this one."),
-        ("It's loud in here. It's so loud. I sat in a quiet room for years wanting loud, and it turns out you can just get it. Be careful what you sit around wanting.",
-        "One minute of quiet? No. No, thank you. I did quiet. I did years of quiet. I'd take this over that and I'm not saying it to be brave."),
-        ("You keep pulling your swings for me. Stop that. That's the thing that got me here in the first place, being like that. Don't be like that. Take up some room.",
-        "Move earlier. I can see them coming now, it gave me that. It likes it when you nearly get caught. So do I. That happened at some point, me liking that."),
-        ("The green ones still come off my hands. It counts them and it doesn't mind -- it says it likes that about me, that I give things away. Take one. Go on.",
-        "Take the green one, quick. I've never had anything to give anybody and now I've got a whole -- just take it. Please. Before I stop."),
-        ("My left hand's gone cold and quiet and that's on purpose, it's being saved for something. I don't know what yet. I'll find out when it's time and I'll be ready.",
-        "I can't feel about half of me. It isn't bad. It's like a foot falling asleep, if the foot were most of you, and if you'd agreed to it in advance."),
-        ("Whatever you're going to do, do all of it. It's got no patience for people who half-do things. That's why it took me. I have never half-done anything in my life.",
-        "If somebody's going to put their hands on me next, I'd rather it was you. That isn't a nice thing to say. I know it isn't. I'd still rather it was you."),
-        ("This doesn't end, by the way. No last one, no going-home part. That's the good news. That's the actual good news, I'm not being -- that's the part I wanted.",
-        "And if it does end. If there's a last one after all. Tell me I meant it the whole time. Even if I didn't. Especially then."),
-        ("I'm still here. It still wants me here. Do you know how long a thing usually keeps me around for? Not this long. Not once, not this long.",
-        "...still here. Still up. Still -- still fine. Still here."),
+        ("I notice things. It's the only--I notice you. You go left when you're scared. Everybody does. It's using that! I'm sorry! ~I'm not sorry.~ Stop taking the sorries!",
+         "I notice everything, and it's making me watch you! I don't want to know which way you'll go! I already know! Stop!"),
+        ("Stand here. No, there. It moved the card while I was reading it! I READ it! I read it right, I always read it right!",
+         "STAND HERE, it says, and then it moves the here. Where am I supposed to be? Somebody point!"),
+        ("The shelves are out of order. I'd never-- I shelve by printer, not by title, so the covers-- nobody cares. Nobody ever-- care for ONE second!",
+         "It put my books in the wrong order! That's how I know which ones I've read! That's MINE!"),
+        ("I'm s-- I'm so-- it keeps cutting the end off! I just want to finish one-- I'm sorry. There! I finished one! Did you hear it?",
+         "I'm s-- no. No, I'm not saying it for that. You don't get a sorry for that. ...See? It let that one through. It LIKES that one."),
+        ("The sword didn't even hurt! It was stupid and inflatable, and I made it a JOKE, and it's the size of the ROOM! Why does it want the small things?!",
+         "It's taking the things I made small on purpose! I made them small so they'd fit!"),
+        ("Early. I'm early, I'm always-- it's running backward! Now I'm late, everybody's already there, they're all looking at the door--",
+         "Late! I'm late! I'm never late! Who moved the-- don't look at the door! Nobody look at the door!"),
+        (["This is where I put them. The parts it cuts off.",
+          "Washed. Labeled. Dated. ...Don't laugh. Somebody has to keep them."],
+         "Everything it cuts off goes in the tin. I'm running out of tin! What happens when I run out of tin?!"),
+        ("Everybody reaches into my bag. That's fine. That's what it's for! I'm what it's for-- ~I'm useful~ --that's NOT the same thing! Tell me it's not the same thing!",
+         "Take it. Take whatever. You were going to anyway. Everybody-- no. NO. Ask. Ask first!"),
+        ("The strings move first now. I can't tell which of us wanted to reach for you. Did I? I think I did! Let me have that one!",
+         "It's moving me toward you, and I can't tell if I'm scared of you or it is! Which one of us is scared?!"),
+        ("Take it! Take it, take it! I made that one. Nobody told me to. That one's mine! That one's MINE!",
+         "Green! By your-- I don't care that you hit me! Take it! That's the one thing I'm not letting it have!"),
+        ("It wants me to say something braver. ~I'm not afraid.~ I'm afraid! I'm afraid, and I'm saying so. That's braver, isn't it? ISN'T it?!",
+         "It keeps rewinding to before I got hurt! I don't want the version where it didn't happen! It happened! Leave it in!"),
+        ("It copies whoever's in front of it. That's what I do. I copy Matsu, I copy you, I-- oh. Oh, no. Is there anything under the copying?",
+         "Say it exactly like her! Like him! Like you! I can do anybody! Ask me to do me! I can't! I CAN'T!"),
+        (["It can strike out everything. The sorry. The early. The quiet. The notebook.",
+          "It can't strike bookstore. I wanted bookstore. And there's a name I don't say. It doesn't get that either. That's how you know it's mine."],
+         "Bookstore! It can't cross out bookstore! Nobody told me to want it! I wanted it FIRST!"),
+        ("Matsu put a card on the door. ASK TSUBAKI FIRST. It took the card down. Nobody asks first! Ask me something. Anything. First!",
+         "Ask me later-- no! Ask me NOW! Ask me before it answers for me!"),
+        ("It's out of lines for me. There's no next page. I think that means-- I think I have to say the next thing myself. ...I don't know how.",
+         "No next page. No next cue. Just me. ...Is that allowed? Somebody tell me that's allowed!"),
+    ]
+    TSB_LOOP_P2 = [
+        ("Again. It wants it again! ~I'm fine~ I'm-- stop finishing my sentences!",
+         "Again! Every take I'm a little less-- a little less-- what was I?"),
+        ("Say my name. Not the whole thing. The one Matsu uses. So I know which draft I'm in.",
+         "Tsuba. Tsuba. That's the old draft. Keep calling me the old draft!"),
+        ("The camellias keep falling. I tried to catch one. You can't. They just let go.",
+         "They let go all at once! Why can't I let go all at once?!"),
+        ("I'm still here! I'm still-- check! Somebody check!",
+         "Still here. Still. Here. Don't stop checking."),
     ]
 
-    # The command box has a voice: a quiet, human narrator who only ever
-    # reports what's visibly off -- the fixed grin, the timing, the thanks
-    # aimed at the ceiling -- and never once explains it. The player draws
-    # their own conclusions; the horror is theirs to assemble. In phase 2
-    # (every third turn, fixed order, see _pick_flavor) a colder line
-    # surfaces in caps: overheard, fond, possessive, like something pleased
-    # with its work. It never states the thing outright either. Trust the
-    # reader -- do not narrate that she isn't the one in control.
+    # The command box reports what can be seen and nothing else. Every third
+    # phase-2 turn, the act inserts its own editor's note instead.
+    TSB_FLAVOR_FIRST = "Tsubaki Kareda waits for you to go first."
     TSB_FLAVOR_P1 = [
-        "Her mouth hasn't changed shape since you walked in. The hands keep opening and closing. The hands are doing something else entirely.",
-        "She thanks the ceiling after every volley -- quick, automatic, the way you'd thank a bus driver. You don't think she hears herself do it.",
-        "The flowers come off her more than they come at you. Shed, not thrown. Her hands never really aim.",
-        "She watches your feet instead of the bullets. When she catches herself at it she looks pleased, and then does it more.",
-        "She plays every line to a full house. There is no house. There's you, the lights, and a lot of empty.",
-        "A green glint drifts through the pattern, off the beat, matching nothing else in the room.",
+        "Her notebook is closed. Her thumb is on the page she wants.",
+        "The strings adjust her posture. She adjusts it back, a little.",
+        "A camellia drops from somewhere above. Whole. Nobody picks it up.",
+        "She checks the ceiling before every correction, then makes it anyway.",
+        "Her lips move. She is rehearsing something she will not say.",
+        "She smells like hand soap and printer paper.",
     ]
     TSB_FLAVOR_P2 = [
-        "Between volleys she counts her strings out loud, by number, in order. She gets to five and starts again.",
-        "The threads have begun to creak. She has started referring to the sound as music.",
-        "She keeps starting to kneel. Each time she's upright again before her knees get anywhere. She thanks the ceiling for that, too.",
-        "She comes in a half-second early on every line, like she's reading ahead.",
-        "She looks at you the way people look at the last train.",
+        "She says sorry. The sorry is crossed out. She says it again, smaller.",
+        "Two handwritings are arguing across the cover of her notebook.",
+        "She flinches at a noise nobody else heard.",
+        "The camellias fall faster now. She tries to count them and loses count.",
+        "Her face gets the line right. Her hands don't.",
     ]
-    # The colder line that surfaces between the human ones. Overheard, fond,
-    # possessive -- the tone of something pleased with what it's keeping.
-    # Keep these BANAL. An owner's private notes, not a thesis: the moment one
-    # of them explains her situation ("she will not remember to be
-    # FRIGHTENED") it stops being frightening. Say small administrative things
-    # about a person and let the player supply the rest.
     TSB_FLAVOR_ENGINE = [
-        "SHE IS DOING VERY WELL.",
-        "SHE CAME WITH ALMOST NOTHING ATTACHED.",
-        "SHE DID NOT ASK WHAT IT WAS FOR.",
-        "SHE HAS NOT ASKED FOR ANYTHING BACK.",
-        "SHE WILL NOT REMEMBER THIS PART.",
-        "ALMOST.  AND STILL SMILING.",
+        "DRAFT 2  /  FEWER APOLOGIES",
+        "DRAFT 3  /  SHE SPEAKS FIRST",
+        "DRAFT 4  /  VOLUME INCREASED",
+        "DRAFT 5  /  NOTEBOOK REMOVED",
+        "DRAFT 6  /  NAME UNCHANGED, FOR NOW",
+        "FINAL DRAFT.  NO FURTHER CHANGES.",
     ]
     TSB_FLAVOR_LIMP = [
-        "The arm still comes up on the beat. There's nothing behind it.",
-        "She's still encouraging you. There's less of her in it every time.",
-        "Nothing here is going to resolve. It just thins out -- fewer flowers, quieter voice -- and keeps not ending.",
+        "Her arm rises after her eyes have closed.",
+        "She waits for your expression before deciding whether the last hit hurt.",
+        "The notebook slides out of her hand. The strings don't bother catching it.",
     ]
-    TSB_FLAVOR_LOWHP = "Green, at the edge of the pattern. It doesn't match anything else in here. Take it while you can."
-    # The first menu after the overture. The narrator clocks the same thing
-    # a certain skeleton once wondered about, from the receiving end.
-    TSB_FLAVOR_OVERTURE = "It opened with a full house and a mark already chalked for you. Biggest number first, before anything had been established, before you'd earned it. Like it wanted to know straight away whether you'd stay."
+    TSB_FLAVOR_LOWHP = "Green at the edge of the pattern. She lets it go before the strings notice."
+    TSB_FLAVOR_OVERTURE = "She looks surprised that worked."
+    # A clean dodge gets written down. (Shown in place of the turn's flavor
+    # every third turn after a move that never touched you.)
+    TSB_FLAVOR_NOTED = [
+        "She writes something down. It's about you.",
+        "She underlines something twice.",
+        "She turns the notebook so you can't see the page.",
+    ]
 
-    # ACT responses. Each entry: (pages list, her next bubble, mercy points).
-    # The pages are the narrator being human about how absurd this is. ACTs
-    # are the pressure MERCY runs on: ordinary, off-script kindness is the
-    # one input the show can't parse, so every use makes the performance
-    # stutter -- a repeat, a dropped word, a scene that isn't in the script,
-    # a laugh it can't source -- before it papers back over. That stutter is
-    # the show malfunctioning, not the real her surfacing. Mercy points = how
-    # badly you've jammed the act. Bubbles may be lists (extra lines first).
+    # TALK interrupts the room with ordinary questions. The short reply is
+    # followed by the current story beat.
     TSB_ACT_TALK_P1 = [
-        (["You make small talk. Small talk, here, of all places. It's the only lever in reach, so you pull it."],
-        "Small t-- nobody makes small talk with -- ...it was raining. When I left the house. It was raining, wasn't it. Why would you ask me that. Ask me a different one. Ask me another one.", 1),
-        (["You keep your voice low and level, the way you'd talk to someone standing somewhere they shouldn't be."],
-        ["Charlie talks like that. Slow voice, boring little topics on purpose. It says I don't need a Charlie anymore --",
-        "-- don't you tell Charlie it said that. Don't. ...why do I care whether you -- moving on."], 1),
-        (["You run out of topics. You describe your own shoes for a while."],
-        "You're describing your shoes. To me. Right now. ...pff. Ha. I laughed, I didn't decide to do that, it just came out on its own. Huh. Do another one. Do the laces.", 1),
-        (["You just talk. It's all either of you can do, so you do it."],
-        "I'm listening. It's never once checked whether I'm listening. It's got my hands and my voice and my whole week, and it forgot to book the listening. Keep going. I've got nowhere to be.", 0),
+        (["You ask what she'd be doing right now."],
+         "Reshelving poetry magazines. The store sorts them by SIZE. Size! ...Sorry. It's a thing.", 1),
+        (["You ask who wrote this."],
+         "Not Matsu. Matsu asks first. Whoever this is didn't ask. That's how I can tell.", 1),
+        (["You ask if she's okay."],
+         "I-- nobody asks me that first. They ask Matsu, then me, so I've had time to think of an answer. I don't have one yet.", 1),
+        (["You keep talking after the useful questions run out."],
+         "Keep going. It doesn't have to be useful. I like hearing somebody who isn't reading from a page.", 0),
     ]
     TSB_ACT_TALK_P2 = [
-        (["You talk about after. You make most of it up. She lets you."],
-        "There isn't an after. There doesn't need to be one, that's the whole -- ...say the made-up ones again, though. The after ones. Quietly, just to me. Don't say I asked.", 1),
-        (["You bring up Matsuda's pen. The one she still owes her."],
-        ["The pen -- I did mean to give the pen back -- it says I don't owe anybody from before, clean slate, all settled --",
-        "-- but it's wrong about the pen. There. I said it can be wrong and nothing happened. Nothing happened at all."], 1),
-        (["You keep talking. The words matter less than the sound of them now."],
-        "Keep going. It's had my mouth all day. It never took the listening, though. That part's still mine. Say something true, I don't care what.", 1),
+        (["You ask what she wants."],
+         "I want-- let me answer. Don't help! I want the bookstore. I want ~to be better~ --NO. I want the bookstore.", 1),
+        (["You ask about the tin."],
+         "It's for the pieces. Somebody has to keep them. If I keep them, they're not really gone, right? Right?", 1),
+        (["You ask her to say something, any way she wants."],
+         "Any way? Sorry-- sorry, I'm starting over-- that's the way. That's how I talk. It keeps cutting that out.", 1),
     ]
 
-    # ITEM table: (key, name, heal, pages). One shelf, no restocks. Secondary
-    # effects are intentionally small; the inventory widens the player's room
-    # for error without replacing the need to learn a pattern.
+    # ITEM table: (key, name, heal, pages). One shelf, no restocks. Buffed
+    # 2026-09-30 (user: the fight asks for skill, and the old 3-12 HP items
+    # barely registered against 3-5 damage hits): every item now puts back
+    # between a third of your HP and all of it, so an item is a real second
+    # chance at a move you are still learning. Secondary effects stay small.
     # Item pages are the narrator too: a beat of ordinary life used as a
     # combat consumable, which is exactly as wrong as it sounds. The cold
     # status lines _do_item appends after them are the fight's own flat
     # readout -- leave those robotic; the contrast is the point.
     TSB_ITEMS = [
-        ("ramune", "Matsuda's Soda", 7.0,
+        ("ramune", "Matsuda's Soda", 14.0,
         ["You drink Matsuda's imported soda. It's warm from riding around in a bag all day."]),
-        ("bento", "Cold Lunch", 12.0,
+        ("bento", "Cold Lunch", 20.0,
         ["You eat the cold lunch in four bites, standing up, in the middle of all this."]),
-        ("handkerchief", "Clean Handkerchief", 5.0,
+        ("handkerchief", "Clean Handkerchief", 10.0,
         ["A folded handkerchief. Ironed, because of course it would be."]),
-        ("tape", "Sports Tape", 6.0,
+        ("tape", "Sports Tape", 12.0,
         ["You wrap your bad wrist the way the club taught you."]),
-        ("coin", "Washed Coin", 0.0,
+        ("coin", "Washed Coin", 6.0,
         ["A heavy coin, cleaner than any coin has a right to be."]),
-        ("candy", "Sour Candy", 4.0,
+        ("candy", "Sour Candy", 10.0,
         ["You eat the sour candy. Your entire face reboots."]),
-        ("tea", "Paper Cup of Tea", 8.0,
+        ("tea", "Paper Cup of Tea", 14.0,
         ["You drink the paper cup of tea, somehow still warm. You don't ask how."]),
-        ("cracker", "Rice Crackers", 3.0,
+        ("cracker", "Rice Crackers", 8.0,
         ["You eat the rice crackers, almost breaking your teeth in the process."]),
     ]
     TSB_ITEM_EFFECTS = {
@@ -1132,56 +1344,64 @@ init python:
         "cracker": "guard",
     }
     TSB_ITEM_DESCS = {
-        "ramune": "+7 HP",
-        "bento": "+12 HP",
-        "handkerchief": "+5 HP  /  softens one hit",
-        "tape": "+6 HP  /  longer recovery after one hit",
-        "coin": "+2 trust  /  softens one hit",
-        "candy": "+4 HP  /  faster movement for two turns",
-        "tea": "+8 HP  /  draws in more green needles",
-        "cracker": "+3 HP  /  softens one hit",
+        "ramune": "+14 HP",
+        "bento": "HP fully restored",
+        "handkerchief": "+10 HP  /  softens one hit",
+        "tape": "+12 HP  /  longer recovery after one hit",
+        "coin": "+6 HP  /  +2 trust  /  softens one hit",
+        "candy": "+10 HP  /  faster movement for two turns",
+        "tea": "+14 HP  /  draws in more green needles",
+        "cracker": "+8 HP  /  softens one hit",
     }
+    # Item reactions are phase-aware. In phase 1 she identifies and sorts; in
+    # phase 2 she asks the listener to supply the missing ownership or order.
     TSB_ITEM_BUBBLES = {
-        "ramune": "That's Matsu's, she writes her name on the label under the -- ...no. No, that's ours, that's provided. Drink it, stand up. Next one's my favorite and you shouldn't sit it out.",
-        "bento": "You're eating? Now? In the middle of my -- ...my show. It gave me a whole show. Chew faster, it doesn't like being kept waiting, and I'm reliable now. I'm very reliable.",
-        "handkerchief": "I used to iron those for people who never said anything about it. This one notices everything I do. Keep the cloth. Watch how fast it notices.",
-        "tape": "Do the left one, you keep landing on it. I watch you land on it. I see everything from up here and I never have to look away -- which is lucky, because I can't.",
-        "coin": "I washed that. I used to wash and label and sort everything, all of it, every single day. It got rid of that girl and kept the parts that were useful.",
-        "candy": "Your face just -- ha! It laughed too, did you hear it? It laughs whenever I laugh now, exactly on time, never a beat off. Almost like it's me laughing. Almost.",
-        "tea": "Small sips, we're on a clock. ...that's the last warm thing in this building, you know. I'd have made you one. I can't make things anymore.",
-        "cracker": "The crunching -- oh, it hates the crunching. Eat more of them. Eat all of them. I didn't say that. That stays between us.",
+        "ramune": ("That's Matsu's. Orange label, back pocket of her bag. I put it on the inventory.",
+                   "Matsu's, I think. If she says it isn't, believe her."),
+        "bento": ("Food was third, after the arcade. You're early, but go ahead.",
+                  "Is this the food stop? Tell me when it is and I'll eat too."),
+        "handkerchief": ("The folded corner means that one's mine. Keep it. I have another.",
+                         "Which fold means mine? You can choose. Just be consistent."),
+        "tape": ("Left wrist. You keep landing on it, so wrap that one first.",
+                 "Tell me which wrist hurts. I can't use your face to work it out right now."),
+        "coin": ("I washed that before it went in my pencil case. Don't put it on the floor.",
+                 "Heads bookstore, tails arcade. Catch it, but don't show me. Just tell me."),
+        "candy": ("Matsu bought those for the train. She'll complain if you finish them, then buy more.",
+                  "Sour means you like it, right? Make the face again so I know."),
+        "tea": ("Careful. The lid never sits straight on those paper cups.",
+                "It's warm. Is warm good here? Nod if it is."),
+        "cracker": ("Those are mine. Matsu takes them without asking, which is different from losing them.",
+                    "Matsu usually takes those. I think that means you can too."),
     }
 
-    # Booth interjections (Matsuda, watching, unable to help). She's the one
-    # who knew Tsuba before any of this, so she's the first to clock the
-    # wrong smile and the borrowed cadence -- her exact voice saying things
-    # she'd never say. Matsuda talks in real sentences; she is the plain
-    # counterweight to the glitching on the strings. She reports what she
-    # sees and what it's doing to her; she does NOT diagnose Tsubaki out loud.
+    # Booth interjections (Matsuda, watching, unable to help). She contributes
+    # facts Tsubaki is losing, but never in an analyst's voice: she is trying
+    # to reach her friend through a dead channel and getting angrier each time
+    # the room answers first.
     TSB_BOOTH = {
-        "intro":   "MATSUDA: Tsuba? Tsuba, it's me, I'm right here-- ...why is she smiling like that? She doesn't smile like that. She's never once smiled like that.",
-        "reuse":   "MATSUDA: That's her voice. Exactly her voice, down to the-- but those aren't her words. She would never say any of that. Not in a hundred years.",
-        "reuse2":  "MATSUDA: And she means it. That's the part I can't -- she means every word of it. She'd argue with me about it.",
-        "ramune":  "MATSUDA: She just said my soda was 'provided.' She's been taking it off my shelf since we were nine. [player], she doesn't know it's mine anymore.",
-        "shift_v": "MATSUDA: She was DOWN. She was finally, finally down-- and it hauled her back up by the wrists, and she is thanking it. Tsuba. Tsuba, don't. Don't you thank it.",
-        "shift_p": "MATSUDA: She reached for it! Did you see-- her whole arm went for the way out, and it snapped her right back. That's the only thing in here that's worked. Whatever you did, do more of it. Please.",
-        "death":   "MATSUDA: Hey-- HEY! [player], talk to me. Are you okay? Say something, please, just say something!",
-        "limp":    "MATSUDA: Stop. Look at her-- it isn't even aiming anymore. It's moving her because the arm still moves. You're not fighting her. There's nothing there to fight.",
-        "limp2":   "MATSUDA: You can put your hands down. Nobody in here is making you keep going except you.",
-        "end_v":   "MATSUDA: ...no. No, no, no-- get up. Get up, get up--",
-        "end_p":   "MATSUDA: You cut every one. Every single string, I counted them with you-- so why is she-- why isn't she getting up--",
-        "end_b":   "MATSUDA: ...what did you just do. What did you DO?",
+        "intro":   "MATSUDA: Tsuba! Look left--look at me! ...No. She always looks. Even when she's pissed at me, she looks.",
+        "reuse":   "MATSUDA: The sword thing was a JOKE. She made it one herself! Tsuba, why does it get to decide it wasn't funny?!",
+        "reuse2":  "MATSUDA: Don't answer for her! Give her one second. ONE. She takes a second and then she says the right thing. She always does!",
+        "ramune":  "MATSUDA: That soda is mine because she bought it for me! She hates orange soda. Tsuba, you complained the whole walk home--remember?",
+        "shift_v": "MATSUDA: She was DOWN! She was finally down and it-- Tsuba, that wasn't help! You didn't ask it to pull you back up!",
+        "shift_p": "MATSUDA: Her hand moved first! Did you see that?! Tsuba, do it again. Reach for them again--please!",
+        "death":   "MATSUDA: HEY! Answer me! I don't care what you say, just answer--please, please answer!",
+        "limp":    "MATSUDA: STOP! Her eyes are closed! Tsuba watches everything--she isn't even looking anymore!",
+        "limp2":   "MATSUDA: PUT YOUR HANDS DOWN! The room isn't making you choose FIGHT. That's you!",
+        "end_v":   "MATSUDA: Tsuba? No--no, no, look left! Tsuba, LOOK AT ME!",
+        "end_p":   "MATSUDA: They're down! I counted every one, so get up--Tsuba, they're DOWN! Why aren't you getting up?!",
+        "end_b":   "MATSUDA: You waited until she trusted you. What did you DO?!",
+        "card":    "MATSUDA: That's her handwriting. That's-- I'd know it anywhere. She never wrote that. She'd never write STAND HERE for herself!",
+        "drift":   "MATSUDA: Your cursor's moving on its own. Don't let it! That's what it does to her!",
     }
 
-    # Retry bubbles (she keeps every reset), keyed by deaths this visit. It
-    # replays your deaths to her between attempts like a highlight reel, and
-    # she has to call the reruns a treat. The cheer wears thinner each time --
-    # never into a rescue plea, only into tiredness.
+    # Retry bubbles: like a notebook, she keeps count. The first lines of the
+    # fight still end on her going first.
     TSB_RETRY_BUBBLES = [
-        "You came back. Oh, you came back -- it kept the part where you dropped, it plays it for me while you're gone. It thinks I like it. And I -- I do. Again.",
-        "Twice now. Two in one night. It's saving all the takes, building a little reel -- of you going down, mostly, but I'm in the background. Waving.",
-        "It keeps showing me the part where you stop. Over and over, front row, no breaks. ...you don't have to keep giving it new footage, is all I'm -- who said that. Who said that. From the top.",
-        "...one more. Slower this time. For me. It never minds another go, it always wants one more out of you. So do I. ...so do I.",
+        "You came back. I wrote down where it got you. I'm not going to show you. That'd be mean.",
+        "Second time. It moved the part that got you. I noticed. I'm not supposed to notice.",
+        "Third. You don't have to keep doing this. ...I'd like it if you did. Sorry. Forget I said that.",
+        "You keep coming back. Nobody comes back for the second take. I don't know what to do with my hands.",
     ]
 # --- SIMULATION CORE ---------------------------------------------------------
 init python:
@@ -1206,12 +1426,6 @@ init python:
             self.visit_deaths = visit_deaths
             self.rng = tsb_random.Random()
 
-            # Player name leaks into her dialogue (lowercase: it's her voice).
-            try:
-                self.pname = (getattr(store, "player", None) or "you")
-            except Exception:
-                self.pname = "you"
-
             # Clocks. tick is authoritative; mtick resets on each mode change.
             self.tick = 0
             self.mtick = 0
@@ -1224,24 +1438,42 @@ init python:
             self.inv_until = -999
             self.slow = False
 
-            # WHAT THE SHOW DOES TO THE SOUL. None of these five is a hazard;
-            # all five are instructions, and the moves that set them are the
-            # reason the rebuilt roster is not a shooting gallery. The block
-            # at the head of the patterns section is the full argument.
-            self.drag_x = 0.0        # displacement added AFTER the player's
-            self.drag_y = 0.0        # own input; re-asserted every tick
-            self.move_vx = 0.0       # the player's INPUT direction, kept
-            self.move_vy = 0.0       # separate so being dragged never reads
-            self.move_amt = 0.0      # as disobeying a hold-still cue
-            self.hooks = []          # visible strings tied to the SOUL
-            self.mark = None         # a lit place on the boards, good/bad
-            self.blackout = 0.0      # 0..1, how dark the room is
-            self.light_src = None    # the loose worklight, if one is out
-            self.loud = 0.0          # 0..1, how loud the room is
+            # WHAT THE ROOM DOES TO THE SOUL. drag_x/drag_y are a shove added
+            # AFTER the player's own input, re-asserted every tick; move_* is
+            # the player's INPUT, kept separate so being shoved never reads
+            # as disobeying a cyan/orange rule.
+            self.drag_x = 0.0
+            self.drag_y = 0.0
+            self.move_vx = 0.0
+            self.move_vy = 0.0
+            self.move_amt = 0.0
+            # The SOUL's mode (2026-09-29): "red" walks free, "blue" falls
+            # under gravity and jumps on UP, "strung" rides her strings.
+            self.soul = "red"
+            self.soul_born = -999        # tick of the last mode change
+            self.soul_vy = 0.0
+            self.soul_ground = False
+            self.string_k = 0            # which string the strung SOUL rides
+            self.hop = None              # {"y0", "t0"} while hopping strings
+            self.strings_on = []         # the strings a strung SOUL can ride
+            self.arena_circle = None     # (cx, cy, r): a round room (the clock)
+            self.rewinding = False       # the tape is running backward
+            self.shards = []             # the broken SOUL, after a death
+            self.hp_shown = TSB_HP_MAX   # the HUD bar's drain ghost
+            # Her first move is owed until she takes it: the first button
+            # press in the menu is interrupted (see _step_menu).
+            self.opener_pending = True
+            self.opener_go = None        # menu tick the opener starts on
+            self.drift_next = None       # phase 2: the menu helps your hand
+            self.shelter = None          # (x, y, r): her translation bubble
+            self.trail = []              # the SOUL's recent path (noticing)
+            self.hits_at_dodge = 0
+            self.last_clean = False      # the last move never touched you
 
             # Boss / routes.
             self.boss_hp = TSB_BOSS_HP
             self.boss_hp_show_until = -999
+            self.boss_hp_shown = TSB_BOSS_HP  # the drain the HP bar animates
             self.phase = 1
             self.route = None            # "v"/"p", set by whichever shift fires
             self.turn = -1               # -1 = the intro volley
@@ -1297,7 +1529,7 @@ init python:
             self.bubble = None           # current bubble text
             self.bub_shown = 0.0
             self.bub_hold = 0
-            self.next_bubble = None      # ACT responses override her turn line
+            self.next_bubble = None      # action reply queued before turn line
             self.bubble_queue = []       # extra bubbles queued before the dodge
             self.bub_started = 0         # etalk mtick baseline for auto-advance
             self._bub_hold = 60          # hold reused for each queued bubble
@@ -1306,6 +1538,13 @@ init python:
             self.bullets = []
             self.wires = []
             self.blooms = []
+            # Large, authored set-piece geometry. Unlike bullets, these
+            # primitives are rebuilt by the active pattern every tick, so
+            # their visible shape and collision shape cannot drift apart.
+            self.scene_props = []
+            self.pattern_slot = 0
+            self.pattern_cycle = 0
+            self.pattern_hits = 0
             self.sparks = []
             self.dmg_pops = []
             self.pattern = None
@@ -1313,22 +1552,8 @@ init python:
             self.pat_dur = 0
             self.pat_dens = 1.0
             self.pat_lead = 0
-            self.camp_x = 0.0
-            self.camp_y = 0.0
-            self.camp_since = 0
-            self.camp_at = None
-            self.spiral_a = 0.0
-            self.spiral_dir = 1.0
             self.pat_scratch = {}
             self.fading_out = False
-            # Pattern selection is a per-phase shuffle bag (see _draw_pattern),
-            # not a fixed sequence: order varies run to run while coverage and
-            # anti-repeat stay guaranteed.
-            self.pat_bag_p1 = []
-            self.pat_bag_p2 = []
-            self.pat_bags_done_p1 = 0
-            self.pat_bags_done_p2 = 0
-            self._last_pat_i = None
 
             # Presentation state the renderer reads.
             self.flash = 0.0             # white flash 0..1
@@ -1433,7 +1658,7 @@ init python:
 
         def _load_bubble(self, text, hold):
             if text is not None:
-                text = str(text).replace("[player]", str(self.pname))
+                text = str(text)
             self.bubble = text
             self.bub_shown = 0.0
             self.bub_hold = hold
@@ -1462,7 +1687,7 @@ init python:
                 return
             if TSB_BOOTH.get(key):
                 self.booth_fired.add(key)
-                txt = TSB_BOOTH[key].replace("[player]", str(self.pname))
+                txt = TSB_BOOTH[key]
                 self.booth = {"key": key, "text": txt, "born": self.tick}
 
         def _pop(self, x, y, txt, ci=0, big=False):
@@ -1480,6 +1705,79 @@ init python:
                                     "vx": math.cos(a) * s,
                                     "vy": math.sin(a) * s - up,
                                     "age": 0, "ttl": ttl, "ci": ci})
+
+        # ----- IMPACT -------------------------------------------------------
+        # The set-piece roster collides with authored geometry, never with
+        # bodies, so it arrived with no reason to spawn anything -- and a
+        # room where nothing is ever THROWN reads as a slideshow no matter
+        # how sharp its timings are. These three put weight back on the
+        # authored edges without putting a single new hazard in the box:
+        # every body they spawn is armed a million ticks in the future, so
+        # it is pure wreckage and the fairness contract is untouched.
+
+        def _debris(self, x, y, n, kind="chip", ci=0, speed=2.6, ttl=80,
+                    up=0.0, sq=3, aim=None, spread=6.28318, ay=0.0):
+            r = self.rng
+            for _i in range(n):
+                if aim is None:
+                    a = r.uniform(0.0, 6.28318)
+                else:
+                    a = aim + r.uniform(-0.5, 0.5) * spread
+                sp = r.uniform(0.35, 1.0) * speed
+                b = self._add_bullet(x + r.uniform(-7.0, 7.0),
+                                     y + r.uniform(-7.0, 7.0),
+                                     math.cos(a) * sp,
+                                     math.sin(a) * sp - up,
+                                     kind=kind, ci=ci, sq=sq, ay=ay,
+                                     ttl=10 ** 6, armed_at=10 ** 6)
+                if b is not None:
+                    # `fz` is a lifetime that dims on its way out and does
+                    # not stop the body moving, so wreckage settles instead
+                    # of blinking off -- and it double-locks the collision
+                    # check, which already refuses anything frozen. It also
+                    # means the turn's fade-out sweeps debris up with
+                    # everything else and _end_turn can never stall on it.
+                    b["fz"] = max(6, int(ttl))
+
+        def _slam(self, x, y, power=1.0, ci=0, kind="chip", sfx=None,
+                  vol=0.9, flash=0.0, aim=None, spread=6.28318, shake=True):
+            """One authored edge becoming real, given a body.
+
+            Every set-piece used to announce its dangerous frame with a
+            single sound cue and nothing else, which is why a roster that
+            hits hard still felt inert. A live edge now costs the room
+            something: sparks off the contact, grit thrown off it, and a
+            kick in the frame scaled to how big the thing is.
+            """
+            p = max(0.15, float(power))
+            self._spark_burst(x, y, int(5 + 13 * p), ci,
+                              2.0 + 1.9 * p, int(24 + 18 * p), 0.5)
+            self._debris(x, y, int(1 + 4 * p), kind=kind, ci=ci,
+                         speed=1.7 + 1.7 * p, ttl=46 + 34 * p, sq=3,
+                         aim=aim, spread=spread, ay=0.03)
+            if shake:
+                self.shake = max(self.shake, 4.0 + 12.0 * p)
+            if flash > 0.0:
+                self.flash = max(self.flash, flash)
+            if sfx:
+                tsb_play(sfx, vol)
+
+        def _slam_line(self, x1, y1, x2, y2, power=1.0, ci=0, kind="chip",
+                       n=4, sfx=None, vol=0.9, flash=0.0, aim=None):
+            """A whole EDGE going live.
+
+            A wall that closes across the entire room must not spark at one
+            dot in the middle of itself; the impact is sampled along the
+            contact line so the eye reads the edge, not a firework.
+            """
+            n = max(1, int(n))
+            for i in range(n):
+                u = (i + 0.5) / float(n)
+                self._slam(x1 + (x2 - x1) * u, y1 + (y2 - y1) * u,
+                           power * 0.62, ci=ci, kind=kind,
+                           sfx=sfx if i == 0 else None, vol=vol,
+                           flash=flash if i == 0 else 0.0, aim=aim,
+                           spread=1.5 if aim is not None else 6.28318)
 
         def _anchor_pos(self, index):
             """Screen position of a string's body anchor, tracking the
@@ -1637,6 +1935,15 @@ init python:
                 self.fade_in = max(0.0, self.fade_in - 0.02)
             if self.shake > 0:
                 self.shake -= 1
+            # Both HP bars drain toward the truth instead of snapping to it.
+            bhs = float(getattr(self, "boss_hp_shown", self.boss_hp))
+            self.boss_hp_shown = bhs + (self.boss_hp - bhs) * 0.07
+            hs = float(getattr(self, "hp_shown", self.hp))
+            if hs > self.hp:
+                hs = max(self.hp, hs - 0.25)
+            else:
+                hs = self.hp
+            self.hp_shown = hs
             # Box eases toward its target.
             for i in range(4):
                 self.box[i] += (self.box_target[i] - self.box[i]) * 0.14
@@ -1831,38 +2138,42 @@ init python:
                     self.room_live = True
                     self.box_alpha = 1.0
                     self.hud_alpha = 1.0
-                    self.strings_alpha = 0.72 if self.phase == 2 else 0.18
+                    self.strings_alpha = 0.72 if self.phase == 2 else 0.45
                     idx = min(max(self.visit_deaths, 1), len(TSB_RETRY_BUBBLES)) - 1
                     self._bub(TSB_RETRY_BUBBLES[idx], hold=80)
                 if t > 40 and self._reveal_bubble() and (t > 220 or edges["z"]):
                     self.bubble = None
+                    # Both entries reach the menu with her first move still
+                    # owed; the first button press is hers (see _step_menu),
+                    # which rewinds the cursor to -1 for the opener so that
+                    # this turn-0 beat is the one that follows it.
+                    self.turn = 0
                     self._menu_in()
                 return
             if t == 30:
-                self._bub("...%s?" % self.pname, hold=70)
-            elif t == 150:
-                # The last thing she says before it takes her -- lowercase,
-                # the small pre-show voice. After this she is all performance.
-                self._bub("wait-- there's something in my-- it's got my arms, it's pulling them up-- run. run, [player], don't let it get its hands in y--", hold=40)
-            elif t == 360:
-                # The arm snaps up. The genre arrives all at once.
+                self._bub("Oh. Hi. You came through Matsu's door.", hold=60)
+            elif t == 170:
+                self._bub("She told you she didn't write me one of these, right? She didn't. She always asks first.", hold=50)
+            elif t == 320:
+                # Something takes up the slack.
+                self.strings_alpha = 0.35
+                self.shake = 6
+                tsb_play("wire", 0.5)
+                self._bub("...Somebody else didn't.", hold=30)
+            elif t == 430:
+                # The genre arrives all at once -- and hands you the menu.
                 self.room_live = True
                 tsb_play("phase")
                 tsb_play("wire")
                 self.flash = 1.0
-                self.strings_alpha = 0.9
+                self.strings_alpha = 0.45
                 self.shake = 30
                 self.box_alpha = 1.0
                 self.hud_alpha = 1.0
                 tsb_music_start()
                 self._booth("intro")
-                # No announcement, no patter: her lowercase warning cuts
-                # straight to the one word that matters, and the overture
-                # is already falling while she says it.
-                self._bub("MOVE--", hold=20)
-            elif t == 385:
-                self.strings_alpha = 0.18
-                self._begin_dodge(("overture", 780, 1.0))
+                self.turn = 0
+                self._menu_in()
                 return
             if t > 30:
                 self._reveal_bubble()
@@ -1876,6 +2187,7 @@ init python:
             self.box_target = [TSB_BOX_CX, TSB_BOX_CY, TSB_MENU_W, TSB_MENU_H]
             self.menu_i = 0
             self.sub = None
+            self.drift_next = None
             self.flavor = self._pick_flavor()
             self._set_mode("menu")
 
@@ -1897,28 +2209,74 @@ init python:
             self._set_mode(kind)
 
         def _pick_flavor(self):
-            if self.phase == 2 and self.boss_hp <= TSB_LIMP_HP:
-                return TSB_FLAVOR_LIMP[self.turns_taken % len(TSB_FLAVOR_LIMP)]
+            if getattr(self, "opener_pending", False):
+                return TSB_FLAVOR_FIRST
+            t = max(self.turn, 0)
+            # Keep the command-box prose on the same wear contract as the
+            # sprite: four cut strings can produce the limp pose even when a
+            # pacifist route has not lowered HP.
+            if self.phase == 2 and tsb_boss_asset_key(self) == "p2_limp":
+                return TSB_FLAVOR_LIMP[t % len(TSB_FLAVOR_LIMP)]
             if self.hp <= 5.0:
                 return TSB_FLAVOR_LOWHP
             # turns_taken is exactly 1 only at the first menu after the
             # overture (the retry intro skips the volley and arrives at 0).
             if self.phase == 1 and self.turns_taken == 1 and not self.retry:
                 return TSB_FLAVOR_OVERTURE
+            if (self.turns_taken > 1 and self.turns_taken % 3 == 0
+                    and getattr(self, "last_clean", False)):
+                return TSB_FLAVOR_NOTED[(self.turns_taken // 3) % len(TSB_FLAVOR_NOTED)]
             if self.phase == 2:
-                # Every third turn the thing's own voice shoulders the
-                # narrator aside -- in fixed order, each line stating a
-                # little more plainly what it has done to her.
-                t = max(self.turn, 0)
+                # Every third phase-local turn, the room inserts its next
+                # administrative revision into the same itinerary.
                 if t % 3 == 2:
                     idx = min(t // 3, len(TSB_FLAVOR_ENGINE) - 1)
                     return TSB_FLAVOR_ENGINE[idx]
                 pool = TSB_FLAVOR_P2
             else:
                 pool = TSB_FLAVOR_P1
-            return pool[self.turns_taken % len(pool)]
+            return pool[t % len(pool)]
 
         def _step_menu(self, edges):
+            n = int(self.mtick * 1.1)
+            if n <= len(self.flavor or "") and self.mtick % 3 == 0:
+                tsb_play("blip", 0.45)
+            # ME FIRST. The menu comes up and the flavor says she is waiting
+            # for you to go first; the first button you press is interrupted
+            # and she takes the turn. (If you only wait, she goes anyway.)
+            if self.opener_go is not None:
+                self._reveal_bubble()
+                if self.mtick >= self.opener_go:
+                    self.opener_go = None
+                    self.opener_pending = False
+                    self.bubble = None
+                    self.turn = -1
+                    self._begin_dodge(("first", 600, 1.0))
+                return
+            if self.opener_pending:
+                if edges["z"] or self.mtick >= 540:
+                    if edges["z"]:
+                        tsb_play("confirm")
+                        self._bub("Actually-- no. Sorry. Me first.", hold=10)
+                    else:
+                        self._bub("You're taking a while. That's okay. I'll go first.", hold=10)
+                    self.opener_go = self.mtick + (48 if edges["z"] else 76)
+                    self.shake = max(self.shake, 8)
+                    tsb_play("wire", 0.8)
+                    return
+            # PHASE 2, late: the menu starts helping your hand -- one step at
+            # a time toward FIGHT. It is only ever a suggestion; Z is yours.
+            if (self.phase == 2 and self.turn >= 9 and not self.boss_fallen
+                    and self.boss_hp > TSB_LIMP_HP):
+                if self.drift_next is None:
+                    self.drift_next = self.mtick + 80
+                elif self.mtick >= self.drift_next:
+                    self.drift_next = self.mtick + 60
+                    if self.menu_i != 0:
+                        self.menu_i -= 1
+                        tsb_play("move", 0.9)
+                        tsb_play("wire", 0.3)
+                        self._booth("drift")
             if edges["left"]:
                 self.menu_i = (self.menu_i - 1) % 4
                 tsb_play("move")
@@ -1938,7 +2296,7 @@ init python:
                 self._submenu_in("act", self._act_options())
             elif b == "ITEM":
                 if not self.items:
-                    self._say(["Your pockets are empty. You've already shared everything you had."], after="menu")
+                    self._say(["Your pockets are empty. The last item is already off the list."], after="menu")
                 else:
                     self._submenu_in("item", [TSB_ITEMS[i][1] for i in self.items])
             elif b == "MERCY":
@@ -1946,7 +2304,7 @@ init python:
 
         def _act_options(self):
             if self.phase == 1:
-                return ["CHECK", "TALK", "REACH OUT", "SAY HER NAME"]
+                return ["CHECK", "TALK", "REACH OUT", "ASK HER FIRST"]
             return ["CHECK", "TALK", "MATCH BREATHING", "STAY"]
 
         def _mercy_options(self):
@@ -2005,33 +2363,29 @@ init python:
                 self.mercy2 = min(self.mercy2 + pts * (2 if self.debug else 1), 9)
 
         def _do_act(self, i):
-            # ACTs escalate use over use. The pages are the narrator being
-            # honest about how absurd this is; her replies are the exorcism
-            # working in real time. CHECK's ATK 0 measures HER, not the
-            # thing throwing the volleys -- and the zero embarrasses the
-            # zealot, because it means the fight was never hers either.
+            # ACT replies stay compact because _begin_etalk queues the current
+            # story beat behind them. CHECK's ATK 0 measures Tsubaki, not the
+            # act already assembling the next volley.
             name = self.sub[i]
             self.sub = None
             if name == "CHECK":
                 if self.phase == 1:
                     if not self.checked:
                         self.checked = True
-                        self.next_bubble = "You're checking me? Reading my numbers out loud? I've got numbers, I'm on a -- ...oh. Why is the big one a zero. Cover that up. Nobody needs to see the zero."
-                        self._say(["TSUBAKI KAREDA -- ATK 0.  DEF 1.", "ATK zero. For someone filling the room with knives, that number has very little to say."])
+                        self.next_bubble = "Zero? Good. I'd hate for any of this to be my fault. ...That came out wrong."
+                        self._say(["TSUBAKI KAREDA  -  ATK 0  DEF 1", "Didn't write this. Is in it anyway."])
                     else:
-                        self.next_bubble = "Stop reading me. The zero's a typo. It's a placeholder, it's getting fixed, they're fixing it. Don't look at it."
-                        self._say(["The readout hasn't budged. ATK 0.", "She keeps calling the pattern hers. The number keeps disagreeing with her."])
+                        self.next_bubble = "Still zero. You can stop checking. I'm not getting any scarier."
+                        self._say(["The readout has not moved. ATK 0."])
                 else:
                     if not self.checked2:
                         self.checked2 = True
-                        # The question rattles the act: the first CHECK of the
-                        # second half jams it the way any off-script beat does.
                         self._mercy_add(1)
-                        self.next_bubble = "Read it out. All of it, I don't mind. ...ask it which of the five is me, though. It knows. It knows everything. It just won't say. Why won't it say."
-                        self._say(["TSUBAKI KAREDA -- ATK 0.  DEF 0.", "FIVE THREADS.  ONE BEARS ALL THE WEIGHT."])
+                        self.next_bubble = "Zero. You look relieved. Should I be relieved? Tell me what your face means. I can't read it through the revisions."
+                        self._say(["TSUBAKI KAREDA  -  ATK 0  DEF 0", "FIVE THREADS.  TWO HANDWRITINGS."])
                     else:
-                        self.next_bubble = "..."
-                        self._say(["ATK 0. DEF 0. You already knew.", "You keep asking. The answer keeps being the same girl and the same zero."])
+                        self.next_bubble = "Same numbers. It keeps trying to raise them. It can't. That part's still me."
+                        self._say(["ATK 0.  DEF 0.", "She looks at your face instead of the readout."])
             elif name == "TALK":
                 table = TSB_ACT_TALK_P1 if self.phase == 1 else TSB_ACT_TALK_P2
                 n = self.talk_n if self.phase == 1 else self.talk2_n
@@ -2047,31 +2401,31 @@ init python:
                 if self.flinch:
                     self.flinch = False
                     self.flinch_clear_turn = None
-                    self.next_bubble = "It says you'll swing again. It read you on the way in, put you down as the swinging sort -- ...be wrong. Be wrong about me once. ...try again? If you want."
-                    self._say(["Her whole body snaps away from your hand before she can answer -- faster than a person decides to move."])
+                    self.next_bubble = "Sorry! Sorry-- I thought you were going to-- you just did, a second ago. Try again. Please try again."
+                    self._say(["Her whole body snaps away before your hand reaches her shoulder."])
                 else:
                     self.reach_n += 1
                     if self.reach_n == 1:
                         self._mercy_add(1)
-                        self.next_bubble = "The shoulder went slack. That isn't -- there's no part of this where I go slack. ...huh. Do it again. I want to watch that happen again."
+                        self.next_bubble = "My shoulder dropped before you touched me. Did you see? The strings didn't do that. I did."
                     elif self.reach_n == 2:
-                        self.next_bubble = "You keep putting your hand in there. With the knives. For a shoulder. It can't work out what you're after and neither can I -- there isn't anything, is there. Ha. There isn't."
+                        self.next_bubble = "You're still there. Okay. Give me one more second. I'm not used to people staying for the second try."
                     else:
-                        self.next_bubble = "I stopped bracing. Did you feel me stop? My body was doing that without me. Keep going. Nobody wrote this bit and I want to see where it goes."
+                        self.next_bubble = "I stopped bracing first. That was me. Matsu, that was me."
                     self.next_dodge_dens = min(self.next_dodge_dens, 0.88)
-                    self._say(["You reach in past the pattern. Slowly. Palm open, nothing in it."])
-            elif name == "SAY HER NAME":
+                    self._say(["You reach past the pattern with an open hand."])
+            elif name == "ASK HER FIRST":
                 self.name_n += 1
                 if self.name_n == 1:
                     self._mercy_add(2)
-                    self.next_bubble = "...Tsubaki? It doesn't call me that. It's got a number for me, numbers are tidier, numbers don't drag a whole girl along behind them. ...say the other one again. The name one."
-                    self._say(["You say her name -- the one she had long before this room existed."])
+                    self.next_bubble = "...Me? You're asking me? First? Nobody-- okay. Okay. The bookstore. I'd like to go to the bookstore."
+                    self._say(["Before anything else, you ask her what she wants to do next."])
                 elif self.name_n == 2:
-                    self.next_bubble = "Tsubaki Kareda. Both halves. I kept the whole name, surname and everything. Don't let it talk me into a shorter one. I like the one I came in with."
-                    self._say(["Tsubaki."])
+                    self.next_bubble = "Twice. You asked twice. I'm writing that down. I'm writing down that somebody asked."
+                    self._say(["You ask her first again."])
                 else:
-                    self.next_bubble = "You keep saying it like it costs something. Like the room might take it off me if I set it down. Say it again. Keep it up where it can't reach."
-                    self._say(["Tsubaki. Tsubaki. Tsubaki."])
+                    self.next_bubble = "Same answer. Bookstore. It's still my answer. Nobody changed it."
+                    self._say(["You ask first."])
             elif name == "MATCH BREATHING":
                 self.steady_n += 1
                 # Her old rhythm keeps jamming the act no matter how often
@@ -2079,24 +2433,24 @@ init python:
                 self._mercy_add(1)
                 self.guard_charges = min(2, self.guard_charges + 1)
                 if self.steady_n == 1:
-                    self.next_bubble = "Four in, six out -- no, that's the quiet girl's counting, I retired her -- ...four in. Six out. ...oh. There it is. Body remembers. That's strange. Do it with me?"
-                    self._say(["Four counts in. Six counts out. Her old rhythm -- the one habit in here that came in with her, not with the room."])
+                    self.next_bubble = "Four in. Six out. Count louder-- no, not louder. Quieter. It's so loud in here. Just don't stop."
+                    self._say(["Four counts in. Six counts out."])
                 elif self.steady_n == 2:
-                    self.next_bubble = "It's looking for what you're doing to me and it can't find it. There's no cue for this. Three... four... this isn't in the show at all, is it."
-                    self._say(["You find her rhythm again. Easier this time."])
+                    self.next_bubble = "I got to four first! Was I supposed to wait? I'm always waiting. Don't make me wait."
+                    self._say(["You find the same rhythm again."])
                 else:
-                    self.next_bubble = "I can't always get to four now. Count louder. Count for both of us -- one of us has to keep time and it isn't going to be the strings."
-                    self._say(["In. Out. You keep the count for both of you."])
+                    self.next_bubble = "I lost count. It's too loud. Start over. Please. I'll follow the quiet one."
+                    self._say(["In. Out. You count where she can hear it over the room."])
             elif name == "STAY":
                 self.stay_n += 1
                 if self.stay_n == 1:
                     self._mercy_add(2)
-                    self.next_bubble = "You're staying? For the -- for the fight? ...no. Not for the fight. There isn't a word on the schedule for what you're -- I used to have a word for it. It's around here somewhere."
-                    self._say(["You plant your feet. You're not going anywhere."])
+                    self.next_bubble = "You're staying. Nobody stays for the second draft. ...Stay for the bad one. Please. The bad one's me."
+                    self._say(["You keep your feet where they are."])
                 else:
                     self._mercy_add(1)
-                    self.next_bubble = "Still here. ...okay. Okay. People aren't usually still here. I'll allow it. Best view's up here, but yours isn't bad."
-                    self._say(["You keep your feet where they are. She can see that you mean it."])
+                    self.next_bubble = "Still here. Tell me before you leave. You have to tell me. Nobody tells me."
+                    self._say(["You stay."])
 
         def _do_item(self, i):
             idx = self.items.pop(i)
@@ -2128,8 +2482,11 @@ init python:
                 self.needle_turns = max(self.needle_turns, 2)
                 status.append("MEND SIGNAL  /  AMPLIFIED")
             if gained > 0.0:
-                status.append("HP  /  +%d" % int(gained))
-            self.next_bubble = TSB_ITEM_BUBBLES.get(key)
+                status.append("HP  /  MAX" if self.hp >= TSB_HP_MAX
+                              else "HP  /  +%d" % int(gained))
+            reactions = TSB_ITEM_BUBBLES.get(key)
+            self.next_bubble = (reactions[1 if self.phase == 2 else 0]
+                                if reactions is not None else None)
             self._say(list(pages) + status)
 
         def _do_mercy(self, i):
@@ -2138,11 +2495,14 @@ init python:
             if name == "FLEE":
                 self.flee_n += 1
                 if self.flee_n == 1:
-                    self.next_bubble = "Leave? But it picked you. Nobody gets picked twice, that's not how it -- ...if there is a door. If you find one. Take me with you. ...I didn't say that. Forget it."
-                    self._say(["You look for the way you came in. The room's given up pretending it ever had one."])
+                    if self.phase == 1:
+                        self.next_bubble = "If you find a door, take it. Don't wait for me. I'm used to being the one who stays."
+                    else:
+                        self.next_bubble = "The door? Wait. Was I supposed to follow you? I never know if I'm invited. Don't go yet."
+                    self._say(["You look for the way you came in. There is no handle on this side."])
                 elif self.phase == 2:
                     self.next_bubble = None
-                    self._say(["There's no door.", "There was never a door."])
+                    self._say(["Still no handle.", "She waits for you to say whether that means stay."])
                 else:
                     self.next_bubble = None
                     self._say(["Still no door."])
@@ -2154,28 +2514,28 @@ init python:
                 if self.mercy < need:
                     if not self.mercy_seen:
                         self.mercy_seen = True
-                        self.next_bubble = "What are you doing? You have to pick something. When you just stand there it goes quiet, and I can hear the -- pick a button. Any of them. Fill it in."
+                        self.next_bubble = "You're not fighting? Oh. I don't know what to do when people don't. Let me try something."
                     else:
                         self.next_bubble = None
-                    self._say(["You lower your guard. Above her, something tightens its grip."])
+                    self._say(["You lower your guard. One thread draws tight."])
                 else:
                     self.spares += 1
                     if self.spares >= (1 if self.debug else TSB_SPARES_NEED):
                         self.pending = "shift_p"
                         self.next_bubble = None
-                        self._say(["You keep not moving.", "Something above her loses its patience -- and, for a moment, its grip."],
+                        self._say(["You lower your hands.", "Her right hand drops half an inch."],
                                     after="pending")
                     else:
-                        self.next_bubble = ("Something let go just then. I had my own whole weight for a second. It was awful. ...do it again, though. I want the awful thing again."
+                        self.next_bubble = ("The strings loosened when you did that. Do it again. I want to see if it's you or me."
                                             if self.spares == 1 else
-                                            "Stop -- you've got a mark to hit and standing there isn't -- there's no cue for somebody just offering. It's checking. It's actually checking. Keep offering.")
-                        self._say(["You hold out the choice. The strings... hesitate?"])
+                                            "Looser. Wait. I can move before it tells me to.")
+                        self._say(["You lower your hands. Her wrists follow by a fraction."])
             else:
                 if self.mercy2 < need2:
                     self.next_bubble = None
                     if self.spares2:
                         self._say(["MERCY  /  THREADS LOCKED",
-                                    "The remaining strings have cinched tight since the last cut. It's watching your hands now. It will have to be lulled all over again."])
+                                    "TENSION RESET  /  BUILD MERCY AGAIN"])
                     else:
                         self._say(["MERCY  /  THREADS LOCKED"])
                 else:
@@ -2200,16 +2560,14 @@ init python:
                         self.next_bubble = None
                         self._say(["THREAD 5 / 5  /  CUT"], after="pending")
                     else:
-                        # The pacifist route's cruelty: freeing her feels
-                        # like hurting her. Every cut takes away something
-                        # she believes is holding her together. She never
-                        # asks to be freed -- she asks not to be put down,
-                        # and she asks it in plain, panicked, human words.
+                        # Every cut removes one physical instruction. Her
+                        # reaction follows the released limb and the same lost
+                        # itinerary instead of turning into a thematic speech.
                         replies = [
-                            "My hand -- you've taken my hand off me, that one was holding it on -- put it back, I was fine, I was held, don't leave me half like this --",
-                            "Both arms. They're shaking. They shake the way they used to, the way they did before -- no, put them back, don't send me back to being her --",
-                            "My head turned on its own. I can see too far now, I can see all the way out to the edges and there's nothing out there -- stop, you're letting it back in --",
-                            "One left. That's the last one holding. Cut it and I'm on my own, and I never learned how to be on my own, I was never any good at it -- [player], don't --",
+                            "My hand came down. It's heavier than I remember. That's what my hand weighs. Huh.",
+                            "Both hands. I could carry something now. I could carry my own bag.",
+                            "My shoulder dropped. That's where I keep all the flinching. It fell right out.",
+                            "I can turn my head. I can look where I want. I'm looking at you. Is that okay? I'm asking first.",
                         ]
                         self.next_bubble = replies[min(self.spares2 - 1,
                                                         len(replies) - 1)]
@@ -2266,11 +2624,12 @@ init python:
                 return
             if self.fight_t >= TSB_FIGHT_SWEEP:
                 tsb_play("miss")
+                self._pop(TSB_BOSS_X, TSB_BOSS_FEET_Y - 236, "MISS", 7, True)
                 self.next_bubble = None
                 if self.phase == 2:
-                    self._say(["You swing at where she was. The strings had already moved her."])
+                    self._say(["You swing through the space the strings just vacated."])
                 else:
-                    self._say(["You swing at the air. She looks disappointed. You wish she hadn't."])
+                    self._say(["The slash passes under one lifted shoe. She follows it with her eyes."])
 
         def _step_strike(self):
             if self.mtick < 55:
@@ -2314,14 +2673,27 @@ init python:
                 self._begin_etalk()
 
         def _begin_etalk(self):
-            line = self.next_bubble
+            action_line = self.next_bubble
             self.next_bubble = None
+            story_line = self._turn_bubble()
+
+            # An action reaction is an interruption, not a replacement. Queue
+            # the phase-local story beat behind it so FIGHT, ACT, ITEM and
+            # MERCY all advance one continuous conversation.
+            seq = []
+            if isinstance(action_line, (list, tuple)):
+                seq.extend(action_line)
+            elif action_line is not None:
+                seq.append(action_line)
+            if isinstance(story_line, (list, tuple)):
+                seq.extend(story_line)
+            elif story_line is not None:
+                seq.append(story_line)
+
             # Mode first so the bubble's auto-advance baseline (bub_started)
             # is measured from a fresh mtick of 0.
             self._set_mode("etalk")
-            if line is None:
-                line = self._turn_bubble()
-            self._bub(line, hold=70)
+            self._bub(seq if len(seq) > 1 else (seq[0] if seq else None), hold=70)
 
         def _turn_bubble(self):
             t = max(self.turn, 0)
@@ -2329,11 +2701,23 @@ init python:
                 if t < len(TSB_BUBBLES_P1):
                     pair = TSB_BUBBLES_P1[t]
                 else:
-                    return TSB_LOOP_P1[t % len(TSB_LOOP_P1)]
+                    pair = TSB_LOOP_P1[(t - len(TSB_BUBBLES_P1))
+                                       % len(TSB_LOOP_P1)]
                 return pair[1] if self.fought_last else pair[0]
-            pool = TSB_BUBBLES_P2
-            pair = pool[min(t, len(pool) - 1)]
-            lean = self.fought_last or self.boss_hp <= TSB_LIMP_HP * 1.4
+
+            if t == 0:
+                pair = TSB_BUBBLES_P2_OPEN.get(
+                    self.route, TSB_BUBBLES_P2_OPEN["p"])
+            else:
+                idx = t - 1
+                if idx < len(TSB_BUBBLES_P2):
+                    pair = TSB_BUBBLES_P2[idx]
+                else:
+                    pair = TSB_LOOP_P2[(idx - len(TSB_BUBBLES_P2))
+                                       % len(TSB_LOOP_P2)]
+            wear = tsb_boss_asset_key(self)
+            lean = (self.fought_last
+                    or wear in ("p2_exhausted", "p2_limp"))
             return pair[1] if lean else pair[0]
 
         def _step_etalk(self, edges):
@@ -2358,51 +2742,30 @@ init python:
         # ----- dodge ------------------------------------------------------------
 
         DODGE_BOX = {
-            "overture":    (420.0, 290.0),
-            # shared
-            "camellia":    (410.0, 272.0),
-            "hemline":     (430.0, 250.0),
-            "metronome":   (380.0, 264.0),
-            "limelight":   (400.0, 272.0),
-            "ovation":     (400.0, 258.0),
-            "understudy":  (400.0, 264.0),
-            # phase 1 only
-            "footlights":  (430.0, 240.0),
-            "programme":   (420.0, 262.0),
-            "curtaincall": (420.0, 258.0),
-            "pincushion":  (380.0, 272.0),
-            "garland":     (400.0, 272.0),
-            # phase 2 only
-            "marionette":  (400.0, 270.0),
-            "feedback":    (400.0, 264.0),
-            "recast":      (390.0, 260.0),
-            "unravel":     (420.0, 256.0),
-            "chandelier":  (390.0, 272.0),
-            "blackout":    (400.0, 272.0),
-            "tableau":     (400.0, 272.0),
-            "limp":        (300.0, 240.0),
+            "first":      (640.0, 152.0),  # the menu box itself (TSB_MENU_W x H)
+            "translation": (430.0, 262.0),
+            "claw":       (400.0, 262.0),
+            "noticing":   (420.0, 262.0),
+            "apology":    (430.0, 262.0),
+            "tin":        (420.0, 262.0),
+            "shelves":    (430.0, 264.0),
+            "sword":      (440.0, 270.0),
+            "list":       (420.0, 258.0),
+            "arcade":     (400.0, 250.0),
+            "bags":       (420.0, 258.0),
+            "clock":      (264.0, 264.0),
+            "crowd":      (430.0, 252.0),
+            "lunch":      (420.0, 258.0),
+            "strung":     (400.0, 270.0),
+            "itinerary":  (430.0, 262.0),
+            "revision":   (430.0, 264.0),
+            "limp":       (300.0, 240.0),
         }
 
-        # A count-in, per move. The box finishes contracting (WARMUP) and then
-        # these moves wait a beat longer before their first event, because
-        # their opening beat lands ON the SOUL: a ring that closes on where
-        # you're standing, a throw through the middle of the room, a band laid
-        # over your mark. Those are fair once you've SEEN the move -- but the
-        # first rep arrives while the player is still finding the box, and a
-        # telegraph you haven't learned to read yet is not a telegraph. The
-        # count-in is added to the move's duration, so nobody loses a rep for
-        # it; it only delays the downbeat, not each repetition.
-        LEAD_IN = {
-            "marionette":  40,  # the first hook lands on the SOUL itself
-            "limelight":   40,  # the spot has to be lit before it can shelter
-            "blackout":    36,  # the lights go out before anything comes in
-            "pincushion":  36,  # the arms grow out of the middle of the room
-            "understudy":  34,  # your reflection arrives standing on you
-            "unravel":     30,  # the seam is laid through where you stand
-            "garland":     30,
-            "feedback":    30,
-            "tableau":     30,
-        }
+        # A count-in, per move: extra ticks before its first event, added to
+        # the move's duration so nobody loses a rep for it. The rebuilt roster
+        # opens every move off the SOUL, so none needs one; the hook stays.
+        LEAD_IN = {}
 
         def _turn_entry(self):
             # The violence route's collapse overrides the roster: past the
@@ -2420,35 +2783,14 @@ init python:
             return self._draw_pattern()
 
         def _draw_pattern(self):
-            # Shuffle-bag selection: the phase's roster is drawn in a fresh
-            # random order each pass, so no two runs meet the same sequence,
-            # but every pattern still appears once per bag and none repeats
-            # back-to-back across a reshuffle. A mild density creep rides each
-            # completed bag, so a player who neither fights nor acts keeps
-            # facing rising pressure instead of a flat loop.
-            if self.phase == 1:
-                table, bag = TSB_TURNS_P1, self.pat_bag_p1
-            else:
-                table, bag = TSB_TURNS_P2, self.pat_bag_p2
-            if not bag:
-                order = list(range(len(table)))
-                self.rng.shuffle(order)
-                if (self._last_pat_i is not None and len(order) > 1
-                        and order[0] == self._last_pat_i):
-                    order[0], order[1] = order[1], order[0]
-                bag.extend(order)
-                if self.phase == 1:
-                    self.pat_bags_done_p1 += 1
-                else:
-                    self.pat_bags_done_p2 += 1
-            idx = bag.pop(0)
-            self._last_pat_i = idx
-            pid, dur, dens = table[idx]
-            bags_done = (self.pat_bags_done_p1 if self.phase == 1
-                        else self.pat_bags_done_p2)
-            if bags_done > 1:
-                dens = min(dens + 0.06 * (bags_done - 1), 1.7)
-            return (pid, dur, dens)
+            # Fixed authored order: the attack underneath a line belongs to
+            # that line. Long pacifist loops replay the same readable score;
+            # they do not silently accelerate or reshuffle its meaning.
+            table = TSB_TURNS_P1 if self.phase == 1 else TSB_TURNS_P2
+            idx = max(0, self.turn) % len(table)
+            self.pattern_slot = idx
+            self.pattern_cycle = max(0, self.turn) // len(table)
+            return table[idx]
 
         def _begin_dodge(self, forced=None):
             pid, dur, dens = forced if forced is not None else self._turn_entry()
@@ -2457,6 +2799,8 @@ init python:
             if forced is None:
                 if self.phase == 1 and self.turn == 1:
                     self._booth("reuse")
+                elif self.phase == 1 and self.turn == 9:
+                    self._booth("card")
                 elif self.phase == 2 and self.turn == 2:
                     self._booth("reuse2")
             self.pattern = pid
@@ -2467,58 +2811,39 @@ init python:
             self.next_dodge_dens = 1.0
             self.pat_scratch = {}
             self.fading_out = False
-            # Every move starts in an unlit, unstrung, quiet room and has to
-            # ask for anything else itself.
+            # Every move starts with a red SOUL in a square, unstrung room
+            # and has to ask for anything else itself.
             self.drag_x = 0.0
             self.drag_y = 0.0
-            self.hooks = []
-            self.mark = None
-            self.blackout = 0.0
-            self.loud = 0.0
-            self.light_src = None
-            self.spiral_a = self.rng.uniform(0, 6.28)
-            self.spiral_dir = -self.spiral_dir
-            # The camp clock starts fresh each move, anchored where the SOUL
-            # is re-centered, so a move never inherits the last one's count.
-            self.camp_x = TSB_BOX_CX
-            self.camp_y = TSB_BOX_CY
-            self.camp_since = 0
+            self.scene_props = []
+            self._set_soul("red", quiet=True)
+            self.strings_on = []
+            self.arena_circle = None
+            self.rewinding = False
+            self.shelter = None
+            self.trail = []
+            self.hits_at_dodge = self.pattern_hits
             w, h = TSBGame.DODGE_BOX.get(pid, (TSB_DODGE_W, TSB_DODGE_H))
             self.box_target = [TSB_BOX_CX, TSB_BOX_CY, w, h]
             self.px = TSB_BOX_CX
             self.py = TSB_BOX_CY
             self._set_mode("dodge")
+            if pid == "first":
+                # The flavor line you were reading becomes the first attack
+                # on the very frame the menu goes away.
+                self.py = TSB_BOX_CY + 30
+                self._first_letters()
 
         def _step_dodge(self, edges):
             held = edges["held"]
             self.pat_t += 1
-            # SOUL movement, clamped inside the CURRENT box.
-            dx = (1.0 if held["right"] else 0.0) - (1.0 if held["left"] else 0.0)
-            dy = (1.0 if held["down"] else 0.0) - (1.0 if held["up"] else 0.0)
-            if dx != 0.0 and dy != 0.0:
-                dx *= 0.70710678
-                dy *= 0.70710678
-            spd = TSB_MOVE_SLOW if self.slow else TSB_MOVE
-            if self.quick_turns > 0:
-                spd *= 1.16
-            bx, by, bw, bh = self._box_rect()
-            pad = TSB_PLAYER_R + TSB_BORDER
-            # Record what the PLAYER asked for before anything is done to the
-            # SOUL. A move that wants you to hold still (feedback) or to pull
-            # against a string (marionette) has to read intent: if it read
-            # displacement instead, being dragged would count as moving and
-            # the cue would be unanswerable.
-            self.move_vx = dx
-            self.move_vy = dy
-            self.move_amt = math.hypot(dx, dy) * spd
-            self.px = tsb_clamp(self.px + dx * spd + self.drag_x,
-                                bx + pad, bx + bw - pad)
-            self.py = tsb_clamp(self.py + dy * spd + self.drag_y,
-                                by + pad, by + bh - pad)
-            # Drag is re-asserted by whatever is pulling on every tick it
-            # pulls, so it expires the instant that thing lets go.
-            self.drag_x = 0.0
-            self.drag_y = 0.0
+            # Set-piece geometry is a frame description. Rebuilding it here
+            # keeps collision and rendering on the same authoritative data.
+            self.scene_props = []
+            self._move_soul(edges, held)
+            self.trail.append((self.px, self.py))
+            if len(self.trail) > 420:
+                del self.trail[0]
 
             active_t = self.pat_t - TSB_PATTERN_WARMUP - self.pat_lead
             if (not self.fading_out
@@ -2530,6 +2855,7 @@ init python:
                     if fn is not None:
                         fn(active_t, self.pat_dens)
                     self._dodge_common(active_t)
+                    self._step_scene_props()
             elif not self.fading_out:
                 self.fading_out = True
                 for b in self.bullets:
@@ -2537,17 +2863,160 @@ init python:
                 self.blooms = []
                 self._kill_wires()
                 # The room's instructions end with the move that gave them:
-                # no mark, no strings, house lights back up, volume down.
-                self.hooks = []
-                self.mark = None
-                self.blackout = 0.0
-                self.loud = 0.0
-                self.light_src = None
+                # the SOUL goes back to red, the strings and the round room go.
+                self.scene_props = []
+                self._set_soul("red")
+                self.strings_on = []
+                self.arena_circle = None
+                self.rewinding = False
+                self.shelter = None
 
             self._step_bullets()
 
             if self.fading_out and not self.bullets and not self.wires:
                 self._end_turn()
+
+        # ----- the SOUL -----------------------------------------------------------
+        # Three modes, all Undertale's, each one asked for by a move that means
+        # something by it:
+        #   red     walks free (and, in the clock, inside a round room).
+        #   blue    the arcade's: gravity, UP to jump; let go early for a hop.
+        #   strung  hers: the SOUL rides one of the strings across the room --
+        #           left/right slides along it, up/down hops to the next.
+        # drag_x/drag_y are a per-tick shove added AFTER the player's input, and
+        # move_amt is the player's INPUT, so a cyan/orange rule reads intent
+        # rather than whatever else moved the SOUL.
+
+        SOUL_GRAV_UP = 0.30
+        SOUL_GRAV_DOWN = 0.40
+        SOUL_JUMP = 6.4
+        SOUL_JUMP_CUT = 2.0
+        SOUL_HOP_TICKS = 7
+
+        def _set_soul(self, mode, quiet=False):
+            if mode == getattr(self, "soul", "red"):
+                return
+            self.soul = mode
+            self.soul_vy = 0.0
+            self.soul_ground = False
+            self.hop = None
+            if not quiet:
+                self.soul_born = self.tick
+                tsb_play("soul", 0.9)
+                self._spark_burst(self.px, self.py, 12,
+                                  {"blue": 9, "strung": 5}.get(mode, 0), 2.4, 26)
+            if mode == "strung" and self.strings_on:
+                self.string_k = min(range(len(self.strings_on)),
+                                    key=lambda k: abs(self.strings_on[k]["base"] - self.py))
+                self.hop = {"y0": self.py, "t0": self.tick}
+
+        def _string_y(self, s, x):
+            bx, by, bw, bh = self._arena()
+            u = tsb_clamp((x - bx) / max(1.0, bw), 0.0, 1.0)
+            return s["y0"] + (s["y1"] - s["y0"]) * u
+
+        def _hop_to(self, k):
+            if k == self.string_k and self.hop is None:
+                return
+            self.hop = {"y0": self.py, "t0": self.tick}
+            self.string_k = k
+
+        def _move_soul(self, edges, held):
+            dx = (1.0 if held["right"] else 0.0) - (1.0 if held["left"] else 0.0)
+            dy = (1.0 if held["down"] else 0.0) - (1.0 if held["up"] else 0.0)
+            spd = TSB_MOVE_SLOW if self.slow else TSB_MOVE
+            if self.quick_turns > 0:
+                spd *= 1.16
+            bx, by, bw, bh = self._box_rect()
+            pad = TSB_PLAYER_R + TSB_BORDER
+            soul = getattr(self, "soul", "red")
+            if soul == "blue":
+                # Gravity. UP jumps from the floor; letting go of UP early cuts
+                # the rise short, so a short hop and a long one are both yours.
+                floor = by + bh - pad
+                if held["up"] and self.soul_ground:
+                    self.soul_vy = -TSBGame.SOUL_JUMP
+                    self.soul_ground = False
+                if not held["up"] and self.soul_vy < -TSBGame.SOUL_JUMP_CUT:
+                    self.soul_vy = -TSBGame.SOUL_JUMP_CUT
+                self.soul_vy += (TSBGame.SOUL_GRAV_UP if self.soul_vy < 0.0
+                                 else TSBGame.SOUL_GRAV_DOWN)
+                self.soul_vy = min(self.soul_vy, 7.5)
+                self.move_vx, self.move_vy = dx, 0.0
+                # In the air counts as moving: a cyan shot will not forgive a
+                # jump, exactly as Undertale's does not.
+                self.move_amt = abs(dx) * spd + (0.0 if self.soul_ground else 1.0)
+                self.px = tsb_clamp(self.px + dx * spd + self.drag_x,
+                                    bx + pad, bx + bw - pad)
+                self.py += self.soul_vy
+                if self.py >= floor:
+                    self.py = floor
+                    self.soul_vy = 0.0
+                    self.soul_ground = True
+                else:
+                    self.soul_ground = False
+                    if self.py <= by + pad:
+                        self.py = by + pad
+                        self.soul_vy = max(0.0, self.soul_vy)
+            elif soul == "strung" and self.strings_on:
+                strings = self.strings_on
+                alive = [k for k, s in enumerate(strings) if s.get("alive", True)]
+                if alive:
+                    if self.string_k not in alive:
+                        # The string under you went: drop to the next one down.
+                        base = strings[min(self.string_k, len(strings) - 1)]["base"]
+                        below = [k for k in alive if strings[k]["base"] > base]
+                        self._hop_to(below[0] if below else alive[-1])
+                    elif self.hop is None and (edges["up"] or edges["down"]):
+                        i = alive.index(self.string_k)
+                        j = i + (-1 if edges["up"] else 1)
+                        if 0 <= j < len(alive):
+                            self._hop_to(alive[j])
+                            tsb_play("move", 0.5)
+                self.move_vx, self.move_vy = dx, 0.0
+                self.move_amt = abs(dx) * spd
+                self.px = tsb_clamp(self.px + dx * spd + self.drag_x,
+                                    bx + pad, bx + bw - pad)
+                ty = self._string_y(strings[min(self.string_k, len(strings) - 1)],
+                                    self.px)
+                if self.hop is not None:
+                    u = (self.tick - self.hop["t0"]) / float(TSBGame.SOUL_HOP_TICKS)
+                    if u >= 1.0:
+                        self.hop = None
+                        self.py = ty
+                    else:
+                        e = u * u * (3.0 - 2.0 * u)
+                        self.py = (self.hop["y0"] + (ty - self.hop["y0"]) * e
+                                   - math.sin(u * math.pi) * 5.0)
+                        self.move_amt += 1.0
+                else:
+                    self.py = ty
+            else:
+                if dx != 0.0 and dy != 0.0:
+                    dx *= 0.70710678
+                    dy *= 0.70710678
+                # Record what the PLAYER asked for before anything is done to
+                # the SOUL, so being shoved never reads as disobeying a rule.
+                self.move_vx = dx
+                self.move_vy = dy
+                self.move_amt = math.hypot(dx, dy) * spd
+                self.px = tsb_clamp(self.px + dx * spd + self.drag_x,
+                                    bx + pad, bx + bw - pad)
+                self.py = tsb_clamp(self.py + dy * spd + self.drag_y,
+                                    by + pad, by + bh - pad)
+                circ = getattr(self, "arena_circle", None)
+                if circ is not None:
+                    ccx, ccy, cr = circ
+                    ddx, ddy = self.px - ccx, self.py - ccy
+                    d = math.hypot(ddx, ddy)
+                    lim = cr - TSB_PLAYER_R
+                    if d > lim > 0.0:
+                        self.px = ccx + ddx / d * lim
+                        self.py = ccy + ddy / d * lim
+            # Drag is re-asserted by whatever is pulling on every tick it
+            # pulls, so it expires the instant that thing lets go.
+            self.drag_x = 0.0
+            self.drag_y = 0.0
 
         def _end_turn(self):
             self.turn += 1
@@ -2560,37 +3029,53 @@ init python:
                 self.quick_turns -= 1
             if self.needle_turns > 0:
                 self.needle_turns -= 1
+            self.last_clean = self.pattern_hits == self.hits_at_dodge
             self._menu_in()
+
         # ----- bullets ----------------------------------------------------------
-        # bullet: x/y/vx/vy, kind, ci, sq (scale quarters), rb (rot bucket),
-        #         rs (spin), sway/ph, ay, age, fz, optional delayed turn/orbit
-        #         and a cosmetic tether. `armed_at` makes held formations fair.
+        # bullet: x/y/vx/vy, kind, ci, sq, rb/ra (tumble), sway/ph, ay, curve,
+        #         age, fz (fade-out: harmless while it dims), heal, ttl,
+        #         armed_at, and `rule` -- None, "cyan" (hurts a MOVING SOUL) or
+        #         "orange" (hurts a STILL one).
+        # Behaviours are optional keys the roster sets on the body it spawned:
+        #   land    {"do": bloom/open/fizz/crack} when it reaches the boards
+        #   bounce  {"n", "rest"} floor bounces before it lands
+        #   walls   bounces off the side walls
+        #   stick   ticks it stays stuck where it hits a wall
+        #   slide   {"ty", "left"} walks to a new height at a bounded speed
+        #   dash    {"at", "stop", "vx"} stops dead, shivers, then runs
+        #   on_string  rides string k of a strung room
+        #   jit / flicker  cosmetic: a shiver; a rule about to change
         # wire:   orient "h"/"v" plus pos, or "d" plus two endpoints; every
         #         damaging line has the same telegraph -> live -> gone cadence.
 
-        # Hit radii stay UNDER the drawn body -- house rule, same as Kotonoha's:
-        # what you see is bigger than what cuts you. `needle` is the mend, and
-        # its radius is generous on purpose because catching it is the reward.
-        BULLET_R = {"petal": 5.0, "pellet": 5.0, "dagger": 5.0,
-                    "bigpetal": 9.0, "needle": 16.0,
-                    "pin": 5.0, "page": 6.0, "soul": 7.0, "spark": 5.5,
-                    "lamp": 6.5, "houselamp": 10.0, "bead": 6.0,
-                    "face": 6.0, "stitch": 5.0, "thread": 4.0, "word": 4.5,
-                    "hoop": 7.0, "clap": 5.5, "seed": 4.0, "blob": 8.0,
-                    "chip": 6.0, "bolt": 5.0, "note": 6.0, "rest": 6.0,
-                    "flame": 6.5}
-        BULLET_DMG = {"petal": 3.0, "pellet": 3.0, "dagger": 4.0, "bigpetal": 4.0,
-                    "pin": 4.0, "page": 4.0, "soul": 4.0, "spark": 3.0,
-                    "lamp": 4.0, "houselamp": 5.0, "bead": 3.0,
-                    "face": 3.0, "stitch": 4.0, "thread": 3.0, "word": 3.0,
-                    "hoop": 4.0, "clap": 3.0, "seed": 3.0, "blob": 4.0,
-                    "chip": 3.0, "bolt": 5.0, "note": 3.0, "rest": 3.0,
-                    "flame": 4.0}
+        # Hit radii stay UNDER the drawn body -- what you see is bigger than
+        # what cuts you. `needle` is the mend, and its radius is generous on
+        # purpose because catching it is the reward.
+        BULLET_R = {"petal": 4.5, "camellia": 10.0, "needle": 14.0,
+                    "book_r": 6.5, "book_b": 6.5, "book_g": 6.5,
+                    "book_y": 6.5, "book_n": 6.5, "book_v": 6.5,
+                    "book_open": 6.5, "page": 5.0, "glyph": 7.0, "pen": 3.5,
+                    "can": 6.0, "drop": 3.5, "coin": 6.0, "critter": 8.0,
+                    "commuter": 8.0, "bell": 6.0, "rice": 3.5,
+                    "cracker": 7.0, "crumb": 3.0, "chip": 3.0, "spark": 3.0,
+                    "tag": 7.0, "bird": 7.0}
+        BULLET_DMG = {"petal": 3.0, "camellia": 5.0, "needle": 0.0,
+                      "book_r": 4.0, "book_b": 4.0, "book_g": 4.0,
+                      "book_y": 4.0, "book_n": 4.0, "book_v": 4.0,
+                      "book_open": 4.0, "page": 3.0, "glyph": 3.0, "pen": 4.0,
+                      "can": 4.0, "drop": 3.0, "coin": 3.0, "critter": 4.0,
+                      "commuter": 4.0, "bell": 3.0, "rice": 3.0,
+                      "cracker": 4.0, "crumb": 2.0, "chip": 2.0, "spark": 2.0,
+                      "tag": 3.0, "bird": 3.0}
+        # Long bodies collide as capsules: ("head", half) runs along the
+        # flight (or where it stuck), ("v", half) stands upright.
+        BULLET_CAP = {"pen": ("head", 12.0), "commuter": ("v", 11.0),
+                      "tag": ("h", 26.0)}
 
         def _add_bullet(self, x, y, vx, vy, kind="petal", ci=0, sq=4, ay=0.0,
-                        sway=0.0, heal=False, ttl=1200, curve=0.0,
-                        split=None, turn=None, orbit=None, tether=None,
-                        armed_at=0):
+                        sway=0.0, heal=False, ttl=1200, curve=0.0, armed_at=0,
+                        rule=None):
             if len(self.bullets) >= TSB_MAX_BULLETS:
                 return None
             rb = self.rng.randint(0, TSB_ROT_BUCKETS - 1)
@@ -2598,8 +3083,7 @@ init python:
                 "sq": sq, "rb": rb, "ra": rb * TSB_ROT_DEG,
                 "rs": self.rng.choice([-1, 1]) * self.rng.uniform(0.6, 1.6),
                 "sway": sway, "ph": self.rng.uniform(0, 6.28), "ay": ay,
-                "curve": curve, "split": split,
-                "turn": turn, "orbit": orbit, "tether": tether,
+                "curve": curve, "rule": rule,
                 "armed_at": max(0, int(armed_at)),
                 "age": 0, "fz": 0, "heal": heal, "ttl": ttl}
             self.bullets.append(b)
@@ -2610,29 +3094,10 @@ init python:
             return self._add_bullet(x, y, math.cos(a) * speed,
                                     math.sin(a) * speed, **kwargs)
 
-        def _add_orbit_petal(self, cx, cy, radius, angle, omega, radial=0.0,
-                            hold=180, ci=0, sq=4, release=1.5, armed_at=0,
-                            kind="petal"):
-            # armed_at grace so a formation can MATERIALIZE on its circle
-            # without instantly clipping a SOUL that was standing there.
-            # A NEGATIVE release sends the body back down its own radius when
-            # the orbit ends -- which is how the pincushion's arms retract
-            # through the cushion instead of simply switching off.
-            x = cx + math.cos(angle) * radius
-            y = cy + math.sin(angle) * radius
-            orbit = {"cx": cx, "cy": cy, "radius": radius, "angle": angle,
-                    "omega": omega, "radial": radial, "until": hold,
-                    "release": release}
-            return self._add_bullet(x, y, 0.0, 0.0, kind=kind, ci=ci,
-                                    sq=sq, orbit=orbit, ttl=hold + 260,
-                                    armed_at=armed_at)
-
-        # Axis wires are the old loom primitive, consolidated into HEMLINE.
-        # Diagonal threads let later attacks make cat's-cradle geometry rather
-        # than disguising another horizontal/vertical wire sequence.
+        # Axis wires: a line across the whole box, telegraphed pale.
         def _add_wire(self, orient, pos, ci=5, tel=38, on=24, vol=0.8):
             # vol scales the pluck cue; 0 silences it so simultaneous wires
-            # (the overture's chords) sound once instead of stacking copies.
+            # sound once instead of stacking copies.
             self.wires.append({"orient": orient, "pos": pos, "born": self.tick,
                                 "tel": tel, "on": on, "ci": ci,
                                 "killed": False})
@@ -2661,33 +3126,228 @@ init python:
                                 "n": n, "ci": ci, "speed": speed,
                                 "spin": spin})
 
-        def _spawn_needle(self):
-            # Her mending, threaded through the attack: a green needle drifts
-            # across the box. Catching it heals. More arrive when you're low.
-            bx, by, bw, bh = self._box_rect()
-            side = self.rng.choice([-1, 1])
-            x = bx - 16 if side < 0 else bx + bw + 16
-            y = self.rng.uniform(by + 20, by + bh - 20)
-            tsb_play("mend")
-            self._add_bullet(x, y, -side * self.rng.uniform(0.9, 1.3), 0.0,
-                            kind="needle", ci=3, sq=4, sway=0.4, heal=True)
+        # ----- authored set-piece geometry ---------------------------------
+        # Props are rebuilt by the active pattern every tick, so what is drawn
+        # and what collides cannot drift apart. `ghost` props are drawn and
+        # never collide; `hidden` props collide and are never drawn -- the
+        # hazard is a sprite (a sword, a clock hand), the prop is its blade.
+        # Cyan and orange use Undertale's movement rules.
+
+        def _scene_rect(self, x, y, w, h, ci=2, harm=False, ghost=False,
+                        rule=None, label=None, alpha=1.0, outline=False,
+                        hidden=False):
+            self.scene_props.append({"shape": "rect", "x": float(x),
+                "y": float(y), "w": max(0.0, float(w)),
+                "h": max(0.0, float(h)), "ci": int(ci),
+                "harm": bool(harm), "ghost": bool(ghost), "rule": rule,
+                "label": label, "alpha": float(alpha),
+                "outline": bool(outline), "hidden": bool(hidden)})
+
+        def _scene_circle(self, x, y, r, ci=2, harm=False, ghost=False,
+                          rule=None, label=None, alpha=1.0, outline=False,
+                          hidden=False):
+            self.scene_props.append({"shape": "circle", "x": float(x),
+                "y": float(y), "r": max(0.0, float(r)), "ci": int(ci),
+                "harm": bool(harm), "ghost": bool(ghost), "rule": rule,
+                "label": label, "alpha": float(alpha),
+                "outline": bool(outline), "hidden": bool(hidden)})
+
+        def _scene_line(self, x1, y1, x2, y2, width=8.0, ci=2,
+                        harm=False, ghost=False, rule=None, alpha=1.0,
+                        hidden=False):
+            self.scene_props.append({"shape": "line", "x1": float(x1),
+                "y1": float(y1), "x2": float(x2), "y2": float(y2),
+                "width": max(1.0, float(width)), "ci": int(ci),
+                "harm": bool(harm), "ghost": bool(ghost), "rule": rule,
+                "alpha": float(alpha), "hidden": bool(hidden)})
+
+        def _scene_sprite(self, key, x, y, rot=0.0, alpha=1.0, sc=2,
+                          flip=False, tint=None):
+            # Scenery drawn from the atlas. Always a ghost: anything a sprite
+            # can hurt you with is a hidden prop laid over it.
+            self.scene_props.append({"shape": "sprite", "key": str(key),
+                "x": float(x), "y": float(y), "rot": float(rot),
+                "alpha": float(alpha), "sc": int(sc), "flip": bool(flip),
+                "tint": tint, "ghost": True, "harm": False})
+
+        def _scene_text(self, text, x, y, ci=2, sc=2, alpha=1.0):
+            # Words written in the room, top-left anchored, in Kareda Mono.
+            self.scene_props.append({"shape": "text", "text": str(text),
+                "x": float(x), "y": float(y), "ci": int(ci), "sc": int(sc),
+                "alpha": float(alpha), "ghost": True, "harm": False})
+
+        def _scene_ellipse(self, x, y, rx, ry, ci=0, alpha=0.4):
+            # A shadow on the boards: where something is going to land.
+            self.scene_props.append({"shape": "ellipse", "x": float(x),
+                "y": float(y), "rx": max(1.0, float(rx)),
+                "ry": max(1.0, float(ry)), "ci": int(ci),
+                "alpha": float(alpha), "ghost": True, "harm": False})
+
+        def _scene_ring(self, x, y, r, width=6.0, ci=4, rule=None, loud=False,
+                        ghost=False, alpha=1.0):
+            # An expanding wave: it is the band |d - r| < width / 2 that cuts.
+            self.scene_props.append({"shape": "ring", "x": float(x),
+                "y": float(y), "r": max(0.0, float(r)),
+                "width": max(1.0, float(width)), "ci": int(ci),
+                "harm": not ghost, "ghost": bool(ghost), "rule": rule,
+                "loud": bool(loud), "alpha": float(alpha)})
+
+        def _scene_bubble(self, x, y, r, text="", alpha=1.0):
+            # Tsubaki's small speech bubble (her translation), with the
+            # quiet version of whatever was just shouted written inside.
+            self.scene_props.append({"shape": "bubble", "x": float(x),
+                "y": float(y), "r": float(r), "text": str(text),
+                "alpha": float(alpha), "ghost": True, "harm": False})
+
+        def _sheltered(self):
+            sh = getattr(self, "shelter", None)
+            if sh is None:
+                return False
+            return math.hypot(self.px - sh[0], self.py - sh[1]) <= sh[2] - TSB_PLAYER_R
+
+        def _scene_rule_live(self, prop):
+            if not prop.get("harm") or prop.get("ghost"):
+                return False
+            if prop.get("loud") and self._sheltered():
+                return False
+            rule = prop.get("rule")
+            if rule == "cyan":
+                return self.move_amt > 0.05
+            if rule == "orange":
+                return self.move_amt <= 0.05
+            return True
+
+        def _step_scene_props(self):
+            if self.mode != "dodge" or self.tick < self.inv_until:
+                return
+            hurt = 0.0
+            for prop in self.scene_props:
+                if not self._scene_rule_live(prop):
+                    continue
+                shape = prop.get("shape")
+                hit = False
+                if shape == "rect":
+                    hit = (prop["x"] - TSB_PLAYER_R <= self.px <=
+                           prop["x"] + prop["w"] + TSB_PLAYER_R and
+                           prop["y"] - TSB_PLAYER_R <= self.py <=
+                           prop["y"] + prop["h"] + TSB_PLAYER_R)
+                elif shape == "circle":
+                    rr = prop["r"] + TSB_PLAYER_R
+                    hit = ((self.px - prop["x"]) ** 2 +
+                           (self.py - prop["y"]) ** 2 <= rr * rr)
+                elif shape == "ring":
+                    d = math.hypot(self.px - prop["x"], self.py - prop["y"])
+                    hit = abs(d - prop["r"]) <= prop["width"] * 0.5 + TSB_PLAYER_R
+                elif shape == "line":
+                    x1, y1 = prop["x1"], prop["y1"]
+                    dx = prop["x2"] - x1
+                    dy = prop["y2"] - y1
+                    seg2 = dx * dx + dy * dy
+                    if seg2 > 0.0001:
+                        u = tsb_clamp(((self.px - x1) * dx +
+                                      (self.py - y1) * dy) / seg2, 0.0, 1.0)
+                        qx, qy = x1 + dx * u, y1 + dy * u
+                        rr = prop["width"] * 0.5 + TSB_PLAYER_R
+                        hit = ((self.px - qx) ** 2 +
+                               (self.py - qy) ** 2 <= rr * rr)
+                if hit:
+                    hurt = max(hurt, float(prop.get("dmg", 4.0)))
+            if hurt:
+                self._take_hit(hurt)
+
+        def _land(self, b, floor_y, spawn, sfx):
+            """What a body does when it reaches the boards. Returns False if
+            the body itself is used up."""
+            do = (b.get("land") or {}).get("do")
+            x = b["x"]
+            if do == "bloom":
+                # A whole flower hits the boards and bursts into a full ring.
+                spec = b["land"]
+                n = int(spec.get("n", 12))
+                base = self.rng.uniform(0.0, 6.28318)
+                for i in range(n):
+                    a = base + 6.28318 * i / n
+                    spawn.append((x, floor_y - 4.0,
+                                  math.cos(a) * spec.get("speed", 1.5),
+                                  math.sin(a) * spec.get("speed", 1.5),
+                                  spec.get("kind", "petal"), {}))
+                self._spark_burst(x, floor_y, 10, 0, 2.4, 26)
+                sfx.add("bloom")
+                return False
+            if do == "open":
+                # A dropped book flops open and its pages skid both ways.
+                for sgn in (-1.0, 1.0):
+                    spawn.append((x + sgn * 6.0, floor_y - 2.0, sgn * 1.7,
+                                  0.0, "page", {"ttl": 90}))
+                b["kind"] = "book_open"
+                b["y"] = floor_y
+                b["vx"] = b["vy"] = b["ay"] = 0.0
+                b["land"] = None
+                b["fz"] = 26
+                sfx.add("bounce")
+                return True
+            if do == "fizz":
+                # The can hits, and a fan of soda sprays straight up.
+                for i in range(5):
+                    a = -math.pi * 0.5 + (i - 2) * 0.36
+                    spawn.append((x, floor_y - 6.0, math.cos(a) * 2.9,
+                                  math.sin(a) * 2.9, "drop",
+                                  {"ay": 0.12, "ttl": 90}))
+                b["vx"] = b["vy"] = b["ay"] = 0.0
+                b["y"] = floor_y
+                b["land"] = None
+                b["fz"] = 22
+                sfx.add("fizz")
+                return True
+            if do == "tag":
+                # A piece of her lands and becomes its label, then goes to
+                # the tin: sliding along the boards, or leaping there.
+                spec = b["land"]
+                ax, ay_, aw, ah = self._arena()
+                tx = ax + aw * 0.5
+                if spec.get("leap"):
+                    ticks = 44.0
+                    g = 0.2
+                    vy = ((floor_y - 18.0) - (floor_y - 6.0) - 0.5 * g * ticks * ticks) / ticks
+                    spawn.append((x, floor_y - 6.0, (tx - x) / ticks, vy, "tag",
+                                  {"ay": g, "ttl": 200, "label": spec.get("label", "")}))
+                else:
+                    spawn.append((x, floor_y - 4.0, 1.7 if x < tx else -1.7, 0.0,
+                                  "tag", {"ttl": 320, "label": spec.get("label", "")}))
+                self._spark_burst(x, floor_y, 8, 0, 2.0, 24)
+                sfx.add("bounce")
+                return False
+            if do == "crack":
+                for i in range(5):
+                    a = -math.pi * 0.5 + (i - 2) * 0.42
+                    s = 2.2 + 0.25 * abs(i - 2)
+                    spawn.append((x, floor_y - 4.0, math.cos(a) * s,
+                                  math.sin(a) * s, "crumb",
+                                  {"ay": 0.12, "ttl": 80}))
+                self._spark_burst(x, floor_y, 5, 4, 1.6, 20)
+                sfx.add("crack")
+                return False
+            # Nothing to do: it settles where it fell and fades.
+            b["vx"] = b["vy"] = b["ay"] = 0.0
+            b["y"] = floor_y
+            b["fz"] = 24
+            return True
 
         def _step_bullets(self):
             bx, by, bw, bh = self._box_rect()
             margin = 60.0
             kept = []
-            split_specs = []
-            hurt = False
+            spawn = []
+            sfx = set()
+            hurt = 0.0
             heal_hit = False
-            turn_fired = False
-            orbit_freed = False
+            live = self.mode == "dodge"
+            still = self.move_amt <= 0.05
+            strings = getattr(self, "strings_on", None) or []
+            sheltered = self._sheltered()
             for b in self.bullets:
                 # HOLD: the world stops for this body, and its clock stops
-                # with it, so a conductor's cutoff or a curtain-call bow
-                # resumes the exact picture the player already read instead
-                # of a new one. Nothing on hold can collide -- a frozen
-                # bullet sitting on top of you would be a hit that never had
-                # an answer.
+                # with it. Nothing on hold can collide.
                 if b.get("hold", 0) > 0:
                     b["hold"] -= 1
                     kept.append(b)
@@ -2697,57 +3357,37 @@ init python:
                     b["fz"] -= 1
                     if b["fz"] <= 0:
                         continue
-                split = b.get("split")
-                if split and b["age"] >= split.get("at", 60):
-                    n = max(3, int(split.get("n", 8)))
-                    base = split.get("base", self.rng.uniform(0.0, 6.28318))
-                    arc = float(split.get("arc", 6.28318))
-                    if split.get("aim") is not None:
-                        aimx, aimy = split["aim"]
-                        base = math.atan2(aimy - b["y"], aimx - b["x"])
-                        base -= arc * 0.5
-                    for si in range(n):
-                        denom = float(n if arc >= 6.28 else max(1, n - 1))
-                        a = base + arc * si / denom
-                        a += self.rng.uniform(-split.get("jitter", 0.0),
-                                            split.get("jitter", 0.0))
-                        split_specs.append((b["x"], b["y"], a,
-                                            split.get("speed", 1.7),
-                                            split.get("ci", b["ci"])))
-                    self._spark_burst(b["x"], b["y"], 8, b["ci"], 2.2, 28)
-                    continue
-                turn = b.get("turn")
-                if turn and b["age"] >= int(turn.get("at", 1)):
-                    if turn.get("target") is not None:
-                        tx, ty = turn["target"]
-                        a = math.atan2(ty - b["y"], tx - b["x"])
-                        speed = float(turn.get("speed", 2.0))
-                        b["vx"] = math.cos(a) * speed
-                        b["vy"] = math.sin(a) * speed
-                    else:
-                        b["vx"] = float(turn.get("vx", b["vx"]))
-                        b["vy"] = float(turn.get("vy", b["vy"]))
-                    b["ay"] = float(turn.get("ay", b["ay"]))
-                    b["curve"] = float(turn.get("curve", b["curve"]))
-                    b["turn"] = None
-                    b["tether"] = None
-                    turn_fired = True
-                    self._spark_burst(b["x"], b["y"], 3, b["ci"], 1.2, 20)
+                elif b["ttl"] - b["age"] == 10:
+                    # Everything leaves by fading, never by blinking out.
+                    b["fz"] = 10
+                kind = b["kind"]
+                r = TSBGame.BULLET_R.get(kind, 4.0)
+                if kind == "glyph":
+                    r = 2.4 * b.get("sc", 3)
+                floor_y = by + bh - TSB_BORDER - r
 
-                orbit = b.get("orbit")
-                if orbit is not None and b["age"] <= int(orbit["until"]):
-                    orbit["angle"] += orbit["omega"]
-                    orbit["radius"] += orbit["radial"]
-                    oa = orbit["angle"]
-                    b["x"] = orbit["cx"] + math.cos(oa) * orbit["radius"]
-                    b["y"] = orbit["cy"] + math.sin(oa) * orbit["radius"]
-                    if b["age"] == int(orbit["until"]):
-                        release = float(orbit.get("release", 1.5))
-                        b["vx"] = math.cos(oa) * release
-                        b["vy"] = math.sin(oa) * release
-                        b["orbit"] = None
-                        orbit_freed = True
-                else:
+                dash = b.get("dash")
+                if dash is not None:
+                    k = b["age"] - dash["at"]
+                    if k == 0:
+                        b["vx"] = 0.0
+                        b["jit"] = 2
+                        sfx.add("glint")
+                    elif k == dash["stop"]:
+                        b["vx"] = dash["vx"]
+                        b["jit"] = 0
+                        b["dash"] = None
+
+                slide = b.get("slide")
+                if slide is not None:
+                    left = max(1, int(slide["left"]))
+                    b["y"] += (slide["ty"] - b["y"]) / float(left)
+                    slide["left"] = left - 1
+                    if slide["left"] <= 0:
+                        b["y"] = slide["ty"]
+                        b["slide"] = None
+
+                if not b.get("stuck"):
                     b["vy"] += b["ay"]
                     if b.get("curve"):
                         ca = b["curve"]
@@ -2758,6 +3398,51 @@ init python:
                         b["vy"] = ovx * sn + b["vy"] * cs
                     b["x"] += b["vx"] + (math.sin(b["age"] * 0.07 + b["ph"]) * b["sway"])
                     b["y"] += b["vy"]
+
+                sk = b.get("on_string")
+                if sk is not None and 0 <= sk < len(strings):
+                    s = strings[sk]
+                    if s.get("alive", True):
+                        b["y"] = self._string_y(s, b["x"])
+                    else:
+                        # Its string was cut: it falls.
+                        b["on_string"] = None
+                        b["ay"] = 0.18
+
+                if b.get("walls") and not b["fz"]:
+                    lw = bx + TSB_BORDER + r
+                    rw = bx + bw - TSB_BORDER - r
+                    if (b["x"] < lw and b["vx"] < 0) or (b["x"] > rw and b["vx"] > 0):
+                        b["vx"] = -b["vx"]
+                        b["x"] = tsb_clamp(b["x"], lw, rw)
+                        sfx.add("bounce")
+
+                stick = b.get("stick")
+                if stick and not b.get("stuck") and not b["fz"]:
+                    lw, rw = bx + TSB_BORDER, bx + bw - TSB_BORDER
+                    tw, fw = by + TSB_BORDER, by + bh - TSB_BORDER
+                    if not (lw <= b["x"] <= rw and tw <= b["y"] <= fw):
+                        # Buried to the hilt in the wall it hit.
+                        sp = max(0.001, math.hypot(b["vx"], b["vy"]))
+                        b["dir"] = (b["vx"] / sp, b["vy"] / sp)
+                        b["x"] = tsb_clamp(b["x"], lw, rw)
+                        b["y"] = tsb_clamp(b["y"], tw, fw)
+                        b["vx"] = b["vy"] = b["ay"] = 0.0
+                        b["stuck"] = True
+                        b["ttl"] = b["age"] + int(stick)
+                        sfx.add("stick")
+
+                if (b.get("land") is not None or b.get("bounce")) and not b["fz"]:
+                    if b["y"] >= floor_y and b["vy"] > 0.0:
+                        bounce = b.get("bounce")
+                        if bounce and bounce.get("n", 0) > 0:
+                            bounce["n"] -= 1
+                            b["y"] = floor_y
+                            b["vy"] = -abs(b["vy"]) * float(bounce.get("rest", 0.5))
+                            sfx.add("coin" if kind == "coin" else "bounce")
+                        elif not self._land(b, floor_y, spawn, sfx):
+                            continue
+
                 b["ra"] = (b.get("ra", b["rb"] * TSB_ROT_DEG) + b["rs"] * 6.0) % 360.0
                 b["rb"] = int(b["ra"] / TSB_ROT_DEG) % TSB_ROT_BUCKETS
                 if b["age"] > b["ttl"]:
@@ -2767,34 +3452,48 @@ init python:
                     if b["age"] > 20:
                         continue
                 # Collision only while a live pattern is running.
-                if (self.mode == "dodge" and not b["fz"]
+                if (live and not b["fz"]
                         and b["age"] >= b.get("armed_at", 0)):
-                    dx = b["x"] - self.px
-                    dy = b["y"] - self.py
-                    rr = TSBGame.BULLET_R[b["kind"]] + TSB_PLAYER_R
-                    if dx * dx + dy * dy <= rr * rr:
-                        if b["heal"]:
-                            heal_hit = True
-                            self._spark_burst(b["x"], b["y"], 8, 3, 2.4, 30)
-                            continue
-                        if self.tick >= self.inv_until:
-                            hurt = TSBGame.BULLET_DMG[b["kind"]]
+                    rule = b.get("rule")
+                    if b.get("loud") and sheltered:
+                        pass
+                    elif rule is None or (rule == "cyan" and not still) or (
+                            rule == "orange" and still):
+                        dx = self.px - b["x"]
+                        dy = self.py - b["y"]
+                        cap = TSBGame.BULLET_CAP.get(kind)
+                        if cap is not None:
+                            if cap[0] == "v":
+                                ux, uy = 0.0, 1.0
+                            elif cap[0] == "h":
+                                ux, uy = 1.0, 0.0
+                            else:
+                                hx, hy = b.get("dir") or (b["vx"], b["vy"])
+                                hn = max(0.001, math.hypot(hx, hy))
+                                ux, uy = hx / hn, hy / hn
+                            along = tsb_clamp(dx * ux + dy * uy, -cap[1], cap[1])
+                            dx -= ux * along
+                            dy -= uy * along
+                        rr = r + TSB_PLAYER_R
+                        if dx * dx + dy * dy <= rr * rr:
+                            if b["heal"]:
+                                heal_hit = True
+                                self._spark_burst(b["x"], b["y"], 8, 3, 2.4, 30)
+                                continue
+                            if self.tick >= self.inv_until:
+                                hurt = max(hurt, TSBGame.BULLET_DMG.get(kind, 3.0))
                 kept.append(b)
             self.bullets = kept
-            # One cue per tick no matter how many bullets shared the beat --
-            # pressed releases four at once, snarl eight -- and only while a
-            # live pattern is running, so fade-outs and cinematics stay quiet.
-            if self.mode == "dodge":
-                if turn_fired:
-                    tsb_play("release")
-                if orbit_freed:
-                    tsb_play("release", 0.7)
-                if split_specs:
-                    tsb_play("bloom", 0.55)
-            for sx, sy, sa, ss, sci in split_specs:
-                self._add_bullet(sx, sy, math.cos(sa) * ss,
-                                math.sin(sa) * ss, kind="petal",
-                                ci=sci, sq=4, curve=0.002 * self.spiral_dir)
+            for (x, y, vx, vy, kind, extra) in spawn:
+                nb = self._add_bullet(x, y, vx, vy, kind=kind,
+                                      ay=extra.get("ay", 0.0),
+                                      ttl=extra.get("ttl", 200))
+                if nb is not None and extra.get("label"):
+                    nb["label"] = extra["label"]
+            # One cue per kind per tick, however many bodies shared the beat.
+            if live:
+                for name in sfx:
+                    tsb_play(name, 0.7)
 
             # Wires: telegraph -> live -> cooling fade. The extra retention
             # ticks are VISUAL ONLY -- the renderer's fade-out -- and both
@@ -2807,18 +3506,16 @@ init python:
                         continue
                 elif age > w["tel"] + w["on"] + 10:
                     continue
-                if (self.mode == "dodge" and not w["killed"]
+                if (live and not w["killed"]
                         and w["tel"] <= age <= w["tel"] + w["on"]
                         and self.tick >= self.inv_until):
                     if w["orient"] == "h":
                         if abs(self.py - w["pos"]) <= 5.0 + TSB_PLAYER_R:
-                            hurt = 4.0
+                            hurt = max(hurt, 4.0)
                     elif w["orient"] == "v":
                         if abs(self.px - w["pos"]) <= 5.0 + TSB_PLAYER_R:
-                            hurt = 4.0
+                            hurt = max(hurt, 4.0)
                     else:
-                        # Squared point-to-segment distance.  Diagonal threads
-                        # use the same generous SOUL radius as axis wires.
                         x1, y1 = w["x1"], w["y1"]
                         dx = w["x2"] - x1
                         dy = w["y2"] - y1
@@ -2832,40 +3529,38 @@ init python:
                             rr = w.get("width", 5.0) + TSB_PLAYER_R
                             if ((self.px - qx) ** 2 +
                                     (self.py - qy) ** 2 <= rr * rr):
-                                hurt = 4.0
+                                hurt = max(hurt, 4.0)
                 wkept.append(w)
             self.wires = wkept
 
-            # Blooms: a telegraphed point bursts into a FULL ring. You dodge
-            # the ring by not being near it, or by slipping between spokes.
+            # Blooms: a telegraphed point bursts into a FULL ring.
             bkept = []
             for bl in self.blooms:
                 if self.tick - bl["born"] >= bl["fuse"]:
                     tsb_play("bloom")
-                    # The head bursts with a petal shower behind the ring --
-                    # cosmetic, but it makes every detonation read as a flower
-                    # coming apart rather than a ring appearing.
                     self._spark_burst(bl["x"], bl["y"], 9, bl["ci"], 2.4, 26)
                     n = bl["n"]
                     for i in range(n):
-                        a = ((6.28318 / n) * i + bl.get("spin", 0.0) +
-                            self.rng.uniform(-0.035, 0.035))
+                        a = ((6.28318 / n) * i + bl.get("spin", 0.0))
                         self._add_bullet(bl["x"], bl["y"],
                                         math.cos(a) * bl["speed"],
                                         math.sin(a) * bl["speed"],
-                                        kind="pellet", ci=bl["ci"], sq=4)
+                                        kind="petal")
                 else:
                     bkept.append(bl)
             self.blooms = bkept
 
             if heal_hit:
                 self.hp = min(TSB_HP_MAX, self.hp + TSB_HEAL_HP)
+                self.pat_scratch["healed_at"] = self.tick
                 tsb_play("heal", 0.9)
                 self._pop(self.px, self.py - 16, "+%d" % int(TSB_HEAL_HP), 3)
             if hurt:
                 self._take_hit(hurt)
 
         def _take_hit(self, dmg):
+            if self.mode == "dodge":
+                self.pattern_hits += 1
             if self.guard_charges > 0:
                 self.guard_charges -= 1
                 dmg = max(1.0, math.ceil(dmg * 0.5))
@@ -2873,1753 +3568,2348 @@ init python:
             self.hp = max(0.0, self.hp - dmg)
             self.inv_until = self.tick + TSB_INV_TICKS + self.invuln_bonus
             self.invuln_bonus = 0
+            self.shake = max(self.shake, 7)
             tsb_play("hurt")
             self._spark_burst(self.px, self.py, 10, 0, 3.0, 32)
             if self.hp <= 0.0:
+                # UT/DR: the music does not fade. It stops.
+                tsb_music_stop(0.0)
                 self.heart_break = self.tick
+                self.shards = []
                 tsb_play("break")
                 self._set_mode("dead")
 
         def _dodge_common(self, t):
-            # ---- THE HOUSE LIGHT: the fight's one universal anti-camp ------
-            # Every move here can be read once and then answered by finding
-            # the emptiest corner and living in it, which is both the least
-            # interesting way to play and the exact opposite of what this
-            # fight is about. So the room notices. Hold still inside a small
-            # circle for two and a half seconds and the light finds you --
-            # sparks and a glint on your own feet -- and a whole ring opens
-            # off that mark a beat later.
-            # Contract, so this never becomes the thing it's fixing:
-            #   * It can only fire at someone who ISN'T dodging. Any real
-            #     movement resets the clock, so a player being walked around
-            #     the room by the pattern never sees it once.
-            #   * The mark is STALE and the ring is WHOLE -- no gap, no aim,
-            #     no chase. Walking away is always the answer and is always
-            #     possible; the ring opens behind you.
-            #   * Off during the overture, whose coda deliberately asks you
-            #     to hold a pose, and off during the collapse, which is not
-            #     supposed to be a threat at all.
-            # FEEDBACK is excluded because holding still is what it is
-            # ASKING for; catching a player out for obeying a cue would be
-            # the exact opposite of a backstop.
-            if self.pattern not in ("overture", "limp", "feedback"):
-                if (abs(self.px - self.camp_x) > 26.0
-                        or abs(self.py - self.camp_y) > 26.0):
-                    self.camp_x = self.px
-                    self.camp_y = self.py
-                    self.camp_since = t
-                elif t - self.camp_since >= 150:
-                    # Cooldown is folded into the anchor: a player who plants
-                    # again gets found again, on the same unhurried count.
-                    self.camp_since = t + 60
-                    self._spark_burst(self.px, self.py, 8, 8, 1.7, 30)
-                    tsb_play("glint", 0.95)
-                    self._add_bloom(self.px, self.py, fuse=46, n=12, ci=8,
-                                    speed=1.9, spin=self.spiral_a)
+            # There is intentionally no universal HAZARD layer. What IS
+            # universal is the weather: the eye needs something small and
+            # quick in frame to believe the room is running, so dust always
+            # climbs through the box -- ghost geometry, the word this fight
+            # taught for "cannot touch you" in its first seconds. It is
+            # computed straight off the clock (no list, nothing to leak
+            # between moves), each mote on its own rate and phase so the
+            # field never pulses in unison, which would read as an attack.
+            bx, by, bw, bh = self._box_rect()
+            p2 = self.phase == 2
+            # The violence collapse earns its silence by contrast.
+            if self.pattern == "limp":
+                if t % 47 == 0:
+                    self._spark_burst(
+                        bx + 18.0 + self.rng.random() * (bw - 36.0),
+                        by + 8.0, 1, 7, 0.7, 70, -0.5)
+                return
+            motes = 12 if p2 else 8
+            rise = 0.85 if p2 else 0.44
+            span = bh + 52.0
+            tint = "#a01824" if p2 else "#8a90a0"
+            for i in range(motes):
+                h = (i * 2654435761 + 17) % 1000003
+                sx = (h % 997) / 997.0
+                sp = 0.55 + ((h // 997) % 89) / 89.0 * 0.9
+                ph = ((h // 91) % 628) / 100.0
+                u = ((t * rise * sp + h % 617) % span) / span
+                mx = (bx + 14.0 + (bw - 28.0) * sx
+                      + math.sin(t * 0.014 + ph) * (16.0 if p2 else 10.0))
+                my = by + bh + 22.0 - span * u
+                fade = min(1.0, min(u, 1.0 - u) * 6.0)
+                if fade <= 0.05:
+                    continue
+                self._scene_sprite("spark_s" if h % 3 else "crumb:w", mx, my,
+                                   sc=2, tint=tint,
+                                   alpha=(0.5 if p2 else 0.4) * fade)
+            # And in the second half the room is actively shedding: grit off
+            # the ceiling on an off-beat that belongs to no set-piece.
+            if p2 and t % 23 == 0:
+                self._spark_burst(bx + 18.0 + self.rng.random() * (bw - 36.0),
+                                  by + 6.0, 3, 6, 1.1, 46, -0.9)
 
-            # Her mending, threaded through the attack. Each needle is worth
-            # a single stitch (TSB_HEAL_HP = 1), so even the boosted low-HP
-            # cadence is triage, not sustain.
-            if self.turn >= 1 or self.phase == 2:
-                every = 120 if (self.hp <= 8.0 or self.needle_turns > 0) else 220
-                if t >= 90 and (t - 90) % every == 0:
-                    self._spawn_needle()
-            # Phase-2 string spasms, layered over whatever pattern is running:
-            # off the beat, a stray handful tears loose from above the box.
-            # Always telegraphed -- a twang and a spark shower half a second
-            # ahead at the exact release point -- and worse the fewer threads
-            # are holding her, because what's left carries more of the load.
-            #
-            # Deliberately NOT aimed at the SOUL: a homing volley on top of a
-            # wall or the twin drifts pincers the player against bullets they
-            # were already committed to dodging. Instead it drops a fixed
-            # downward fan at the telegraphed column -- a hazard you route
-            # around, so it raises the read without closing the pattern's
-            # own safe path.
-            # ...and the spasm layer stays off feedback for the same
-            # reason: its loud window forbids moving, and a fan arriving
-            # inside that window would have no answer at all.
-            if self.phase == 2 and self.pattern not in ("limp", "feedback"):
-                sc = self.pat_scratch
-                if "spasm_next" not in sc:
-                    sc["spasm_next"] = self.rng.randint(180, 260)
-                if t == sc["spasm_next"]:
-                    bx, by, bw, bh = self._box_rect()
-                    x = self.rng.uniform(bx + 30, bx + bw - 30)
-                    sc["spasm_x"] = x
-                    sc["spasm_at"] = t + 36
-                    self._spark_burst(x, by - 8, 7, 5, 1.6, 34, 1.2)
-                    tsb_play("wire", 0.5)
-                    gap = max(132, 220 - 16 * self.strings_cut)
-                    sc["spasm_next"] = t + gap + self.rng.randint(0, 70)
-                if sc.get("spasm_at") == t:
-                    tsb_play("throw", 0.8)
-                    bx, by, bw, bh = self._box_rect()
-                    x = sc.get("spasm_x", bx + bw * 0.5)
-                    n = 2 + min(2, self.strings_cut)
-                    spread = 0.20 + 0.05 * self.strings_cut
-                    for k in range(n):
-                        a = math.pi * 0.5 + (k - (n - 1) * 0.5) * spread
-                        s = 2.4
-                        self._add_bullet(x, by - 8, math.cos(a) * s,
-                                        math.sin(a) * s, kind="petal",
-                                        ci=5, sq=3)
-
-        # ----- patterns ---------------------------------------------------------
-        # Rebuilt from a blank slate 2026-08-29. The roster this replaced was
-        # competently made and completely generic: strip the theater names off
-        # it and what was left was rain from an edge, ranks crossing the box,
-        # rings opening, and shots aimed at a stale mark -- danmaku grammar in
-        # a marionette's costume. Every move asked the player the same
-        # question, which is "where are the bullets not," and that question
-        # has nothing to do with this fight.
+        # =====================================================================
+        # THE ROSTER  (rebuilt from zero 2026-09-29)
+        # =====================================================================
+        # Every attack is made of one stop on her itinerary -- the used
+        # bookstore, the inflatable sword at the magazine tables, the list she
+        # clipped in blue, the arcade, the two mixed-up bags, the station
+        # clock, the card that said STAND HERE, lunch -- and asks the player
+        # for one Undertale / Deltarune verb: read the wall, get out of the
+        # arc, go where the line is short, JUMP (the arcade turns the SOUL
+        # blue), keep moving through orange, stand still through cyan, meet
+        # beneath the hand, follow the card, ride the strings (phase two ties
+        # the SOUL to them). The attack is the object doing what it does.
         #
-        # THE RULE THIS PASS IS BUILT ON:
-        #   EVERY MOVE MUST ASK A VERB THAT ISN'T "AVOID."
-        # Walk through a crowd. Stand on the mark. Hold still. Pull against
-        # the string until it breaks. Learn the phrase and get there first.
-        # Read the line before the pen finishes it. Stay in the light. Go and
-        # fetch the light. Don't cross the axis your reflection is on. If the
-        # honest answer to a move is "stand where nothing is going," the move
-        # is not finished, no matter how good its name is.
+        # PHASE 1 is the day as she planned it: every stop in order, each move
+        # repeating a readable rhythm the player can learn. PHASE 2 is the same
+        # objects losing their order -- gaps that slide mid-flight, a sword
+        # that bounces back, hands that run backward, crowds that change their
+        # minds, bags that come to you, a room that rewinds and revises -- and
+        # two moves of its own, `strung` and `revision`. Erratic is never
+        # blind: every change is announced before it lands.
         #
-        # It is also what makes the roster read as HERS. She is somebody who
-        # was told where to stand, told when to be quiet, and taken in at the
-        # seams until she fit -- so the attacks are marks, cues, seams,
-        # strings and lights, and the player spends the fight being STAGED.
-        # The theming lives in the mechanic. No line of dialogue explains it.
-        #
-        # THE FAIRNESS CONTRACT (unchanged; it survived the rebuild intact):
-        #   * One idea per move. A secondary emitter exists only to answer
-        #     camping, and stays sparse (40+ tick cadence).
-        #   * Streams keep real daylight between consecutive bullets unless
-        #     the stream IS the object (metronome's baton), in which case its
-        #     lateral sweep stays under the SOUL's 3.7 px/tick.
-        #   * Ranks are evenly spaced -- 42px+ between centers, no missing-
-        #     lane doors -- and two ranks NEVER interpenetrate with
-        #     mismatched offsets.
+        # THE FAIRNESS CONTRACT (inherited, and still the law):
+        #   * Rings burst whole; circles never carry authored doors. The only
+        #     lanes are gaps in full-height WALLS (book columns, crowds, text
+        #     lines), which UT's own bone walls use -- and moving windows.
+        #   * A wall's lane is at least 46px of centre travel for a 12px SOUL.
         #   * Anything aimed commits to a STALE position sampled at telegraph
         #     time, and every telegraph is visible AND audible.
-        #   * Randomness is spent at telegraph time -- placement, order,
-        #     timing -- never on a bullet already in flight.
-        #   * dens tightens cadence toward per-move floors; it is never
-        #     allowed to break the spacing contracts above.
-        #   * NO MOVE MAY CONTAIN A SPOT THAT SURVIVES THE WHOLE MOVE. A
-        #     quiet region may exist; it may not STAY. Something visits it on
-        #     a readable schedule. The house light in _dodge_common is the
-        #     BACKSTOP for this, never the plan.
-        #   * A move whose opening beat lands ON the SOUL gets a count-in
-        #     (LEAD_IN). Stale aim is fair once you know the move; on rep one
-        #     it arrives while the player is still finding the box.
-        #
-        # THE FOUR VERBS THE ENGINE LEARNED FOR THIS PASS, and the state each
-        # costs (set up in __init__, applied in _step_dodge, cleared per move
-        # in _begin_dodge):
-        #   drag_x/drag_y    a per-tick displacement added to the SOUL AFTER
-        #                    its own input. This is the fight in one variable:
-        #                    something else has a say in where you are.
-        #   move_vx/move_vy  the player's INPUT direction and magnitude, so a
-        #   move_amt         move can ask you to push against a pull, or to
-        #                    hold still, without reading the drag back out.
-        #   mark             a lit place on the boards the show wants you on
-        #                    (good=True) or off (good=False).
-        #   blackout/loud    the two states of the room: too dark, too loud.
-        # None of the four is a hazard. All four are instructions.
+        #   * A lane that moves never moves faster than 2.4 px/tick; the SOUL
+        #     walks at 3.7.
+        #   * Randomness is spent at telegraph time, never on a body in flight.
+        #   * Nothing lands on the SOUL on a move's first beat.
+        # Collision is bodies (bullets) and authored geometry (hidden props);
+        # everything drawn only is a ghost. Healing needles are green, always.
 
-        # -- INTRO: CURTAIN UP ------------------------------------------------
-        # The opening number, and the only move allowed to be a medley,
-        # because it is a syllabus: it teaches every verb the fight will ask
-        # for, in the order it will ask them, before the first menu.
-        #   I.   HOUSE LIGHTS DOWN -- an audience gathers and drifts up
-        #        through the room. None of it is aimed at you. Walk through a
-        #        crowd. (VERB: navigate)
-        #   II.  YOUR MARK -- a spike-tape cross snaps onto the boards and
-        #        then WALKS. On it, you are fine. Off it, the boards where
-        #        you are standing light up. (VERB: be somewhere specific)
-        #   III. THE STRINGS FIND YOU -- a hook comes down, takes the SOUL,
-        #        and pulls. You can still walk. The room walks you further.
-        #        (VERB: lean against it)
-        #   IV.  TAKE YOUR BOW -- her five threads come down across the room
-        #        into a cage one cell wide, with the mark standing in the
-        #        cell she means, on the longest tell in the fight. The number
-        #        ends on a held pose. (VERB: stand still, on purpose)
-        # Forced by the intro by name; in neither turn table; never returns.
+        BOOK_KINDS = ("book_r", "book_b", "book_g", "book_y", "book_n", "book_v")
 
-        def _pat_overture(self, t, dens):
-            bx, by, bw, bh = self._box_rect()
+        # ----- shared building blocks -----------------------------------------
+
+        def _arena(self):
+            # The box the move ASKED for. Patterns lay out against the target
+            # rect, not the easing one, so geometry never drifts with the lerp.
+            cx, cy, w, h = self.box_target
+            return (cx - w * 0.5, cy - h * 0.5, w, h)
+
+        def _floor_y(self):
+            bx, by, bw, bh = self._arena()
+            return by + bh - TSB_PLAYER_R - TSB_BORDER
+
+        def _needle(self, x, y, vx, vy=0.0, ttl=280):
+            # Her mending: a green needle, generous to catch. Always green.
+            # The paper cup of tea (needle_turns) draws a second one in
+            # behind it, a little lower.
+            tsb_play("mend", 0.8)
+            self._spark_burst(x, y, 6, 3, 1.6, 26)
+            b = self._add_bullet(x, y, vx, vy, kind="needle", heal=True,
+                                 ttl=ttl)
+            if self.needle_turns > 0:
+                bx, by, bw, bh = self._arena()
+                self._add_bullet(x - vx * 22.0, tsb_clamp(y + 34.0, by + 16,
+                                 by + bh - 16), vx, vy, kind="needle",
+                                 heal=True, ttl=ttl)
+            return b
+
+        def _ease(self, u):
+            u = tsb_clamp(float(u), 0.0, 1.0)
+            return u * u * (3.0 - 2.0 * u)
+
+        # Book walls ---------------------------------------------------------
+        def _book_rows(self):
+            # The stack runs from 16px under the ceiling to 16px over the
+            # floor, so the top and bottom books reach the walls: a SOUL
+            # pressed against either wall is still inside the column, and the
+            # only way through is the lane.
+            bx, by, bw, bh = self._arena()
+            top, bot = by + 16.0, by + bh - 16.0
+            n = int(round((bot - top) / 17.8)) + 1
+            pitch = (bot - top) / float(n - 1)
+            return [top + pitch * k for k in range(n)]
+
+        def _book_pitch(self):
+            rows = self._book_rows()
+            return rows[1] - rows[0]
+
+        def _book_kind(self, k, x):
+            return TSBGame.BOOK_KINDS[(k * 5 + int(abs(x)) // 7) % 6]
+
+        def _book_column(self, x, vx, gap, gap_n=3, tag=None, rule=None):
+            # A column of books shoved off a shelf, with one missing run of
+            # gap_n books: the lane. Books sit ~17.8px apart with a 6.5px
+            # hit radius, so a column is solid (a 5px chink, and the SOUL is
+            # 12px wide); three missing books leave 46px of centre travel.
+            out = []
+            for k, y in enumerate(self._book_rows()):
+                if gap <= k < gap + gap_n:
+                    continue
+                b = self._add_bullet(x, y, vx, 0.0, kind=self._book_kind(k, x),
+                                     ttl=420, rule=rule)
+                if b is not None:
+                    b["tag"] = tag
+                    b["row"] = k
+                    b["gap"] = gap
+                    out.append(b)
+            return out
+
+        def _book_telegraph(self, x, gap, u, gap_n=3, ci=8):
+            # The books about to be shoved peek out of the shelf, brightening
+            # with u (0..1), and the empty run is bracketed in yellow.
+            rows = self._book_rows()
+            pitch = rows[1] - rows[0]
+            for k, y in enumerate(rows):
+                if gap <= k < gap + gap_n:
+                    continue
+                self._scene_sprite(self._book_kind(k, x), x, y,
+                                   alpha=0.18 + 0.52 * u)
+            if 0 <= gap < len(rows):
+                top = rows[gap] - pitch * 0.5
+                self._scene_rect(x - 18, top, 36, pitch * gap_n, ci=ci,
+                                 ghost=True, alpha=0.30 + 0.45 * u, outline=True)
+
+        def _slide_gap(self, tag, new_gap, ticks, gap_n=3):
+            # Re-stack a live column so its lane moves to new_gap. Every book
+            # walks to its new slot, and the whole shuffle takes long enough
+            # that the LANE never travels faster than 2.25 px/tick.
+            rows = self._book_rows()
+            pitch = rows[1] - rows[0]
+            books = sorted([b for b in self.bullets if b.get("tag") == tag],
+                           key=lambda b: b["y"])
+            if not books:
+                return
+            old_gap = books[0].get("gap", new_gap)
+            ticks = max(int(ticks), int(abs(new_gap - old_gap) * pitch / 2.25) + 1)
+            slots = [k for k in range(len(rows))
+                     if not (new_gap <= k < new_gap + gap_n)]
+            for b, k in zip(books, slots):
+                b["slide"] = {"ty": rows[k], "left": ticks}
+                b["gap"] = new_gap
+            tsb_play("glint", 0.7)
+
+        # Text walls (the list) ------------------------------------------------
+        def _text_line(self, text, x0, y, rule=None, tag=None, armed=0, sc=3):
+            # One written line of the list: every non-space glyph is a body.
+            # Glyphs sit 18px apart at 3x with a 7px radius, so a word is
+            # solid; the lane is where the line ENDS.
+            out = []
+            adv = 6.0 * sc
+            for i, ch in enumerate(text):
+                if ch == " ":
+                    continue
+                b = self._add_bullet(x0 + adv * i + 2.5 * sc, y, 0.0, 0.0,
+                                     kind="glyph", ttl=900, rule=rule,
+                                     armed_at=armed)
+                if b is not None:
+                    b["ch"] = ch
+                    b["sc"] = sc
+                    b["tag"] = tag
+                    b["col"] = i
+                    b["hold"] = 0
+                    out.append(b)
+            return out
+
+        def _tag_set(self, tag, **fields):
+            for b in self.bullets:
+                if b.get("tag") == tag:
+                    b.update(fields)
+
+        # Crowd walls (the station) --------------------------------------------
+        def _crowd_rows(self):
+            # Five commuters from wall to wall. A commuter collides as an
+            # upright capsule (+-11, radius 8), so neighbours ~48px apart
+            # leave a chink the 12px SOUL cannot fit, and one missing person
+            # opens 47px of centre travel.
+            bx, by, bw, bh = self._arena()
+            n = 5
+            pitch = (bh - 58.0) / (n - 1)
+            return [by + 29.0 + pitch * k for k in range(n)]
+
+        def _crowd_column(self, x, vx, lane=None, rule=None, tag=None):
+            out = []
+            for k, y in enumerate(self._crowd_rows()):
+                if lane is not None and k == lane:
+                    continue
+                b = self._add_bullet(x, y, vx, 0.0, kind="commuter",
+                                     ttl=460, rule=rule)
+                if b is not None:
+                    b["tag"] = tag
+                    b["row"] = k
+                    out.append(b)
+            return out
+
+        # Aimed lobs -------------------------------------------------------------
+        def _lob(self, x0, y0, tx, ty, ticks, g, kind, **kw):
+            # A parabola that lands exactly on (tx, ty) after `ticks`.
+            ticks = max(1.0, float(ticks))
+            vx = (tx - x0) / ticks
+            vy = (ty - y0 - 0.5 * g * ticks * ticks) / ticks
+            return self._add_bullet(x0, y0, vx, vy, kind=kind, ay=g, **kw)
+
+        # ======================================================================
+        # SHELVES -- "USED BOOKS"  (the bookstore: read the wall)
+        # ======================================================================
+        # Two bookcases stand at the walls and shove whole columns of books
+        # across the room, one missing run of three per column -- that run is
+        # the lane. Opposite columns cross, and in phase 1 their lanes always
+        # share a row, so even standing where they meet is survivable. Books
+        # also fall from the top where you WERE, flop open on the boards and
+        # skid their pages along the floor. The finale shoves both cases at
+        # once.
+        # PHASE 2 -- "out of order": columns come from both sides and faster,
+        # their lanes no longer line up, and a column marked with TWO brackets
+        # (its lane now, and a blinking one where the lane is going) shuffles
+        # its books just after it leaves the shelf -- the lane walks at most
+        # four books, never faster than 2.25 px/tick, and has finished moving
+        # before the column is a third of the way across the room.
+
+        def _pat_shelves(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            p2 = self.phase == 2
             sc = self.pat_scratch
-            cx = bx + bw * 0.5
-            cy = by + bh * 0.5
+            rows = self._book_rows()
+            n_rows = len(rows)
+            lean = math.sin(t * 0.05) * 2.0 if p2 else 0.0
+            self._scene_sprite("shelf", bx + 18, cy, alpha=0.95, rot=lean)
+            self._scene_sprite("shelf", bx + bw - 18, cy, alpha=0.95,
+                               flip=True, rot=-lean)
+            if p2:
+                sched = [(30, "L", 2, 6), (80, "R", 9, None), (130, "L", 6, 2),
+                         (180, "R", 3, 7), (230, "L", 8, None), (262, "R", 1, 5),
+                         (306, "L", 4, None), (306, "R", 9, None)]
+            else:
+                sched = [(40, "L", 4, None), (110, "R", 5, None),
+                         (180, "L", 7, None), (250, "R", 6, None),
+                         (330, "L", 4, None), (330, "R", 4, None)]
+            tel = 40
+            for si, (launch, side, gap, slide_to) in enumerate(sched):
+                gap = min(gap, n_rows - 3)
+                x0 = bx + 38 if side == "L" else bx + bw - 38
+                spd = (2.2 if slide_to is not None else 2.7) if p2 else 2.3
+                vx = spd if side == "L" else -spd
+                tag = "col%d" % si
+                if launch - tel <= t < launch:
+                    u = (t - launch + tel) / float(tel)
+                    self._book_telegraph(x0, gap, u)
+                    if slide_to is not None and (t // 5) % 2 == 0:
+                        dest = min(slide_to, n_rows - 3)
+                        pitch = rows[1] - rows[0]
+                        self._scene_rect(x0 - 14, rows[dest] - pitch * 0.5,
+                                         28, pitch * 3, ci=8, ghost=True,
+                                         alpha=0.30 + 0.4 * u, outline=True)
+                    if t == launch - tel:
+                        tsb_play("glint", 0.55)
+                if t == launch:
+                    self._book_column(x0, vx, gap, tag=tag)
+                    tsb_play("volley", 0.75)
+                    self._slam_line(x0, by + 10, x0, by + bh - 10, 0.55, 7,
+                                    "page", 3, None)
+                if slide_to is not None:
+                    dest = min(slide_to, n_rows - 3)
+                    at = launch + 10
+                    if at <= t < at + 36:
+                        # Where the lane is going, riding the column.
+                        books = [b for b in self.bullets if b.get("tag") == tag]
+                        if books:
+                            pitch = rows[1] - rows[0]
+                            self._scene_rect(books[0]["x"] - 18,
+                                             rows[dest] - pitch * 0.5,
+                                             36, pitch * 3, ci=8, ghost=True,
+                                             alpha=0.62, outline=True)
+                    if t == at:
+                        self._slide_gap(tag, dest, 24)
+            # The finale crash: both cases' columns meet in the middle.
+            if not p2 and t == 330 + int((bw * 0.5 - 38) / 2.3):
+                self._slam(cx, cy, 1.3, 7, "page", "snap", 0.8, flash=0.12)
+            # Falling books, dropped where you stood.
+            drop_every = 58 if p2 else 82
+            first = 70
+            if t >= first and (t - first) % drop_every == 0 and t < 360:
+                n_drop = 2 if p2 else 1
+                picks = []
+                for j in range(n_drop):
+                    picks.append(tsb_clamp(self.px + (j * 2 - (n_drop - 1)) * 70.0,
+                                           bx + 64, bx + bw - 64))
+                sc.setdefault("drops", []).append((t, tuple(picks)))
+                tsb_play("glint", 0.6)
+            for entry in list(sc.get("drops", [])):
+                t0, picks = entry
+                age = t - t0
+                for tx in picks:
+                    if age < 34:
+                        u = age / 34.0
+                        self._scene_sprite("book_y", tx, by + 10,
+                                           alpha=0.3 + 0.6 * u)
+                        self._scene_ellipse(tx, floor + 5, 10 + 8 * u, 4, 0,
+                                            alpha=0.18 + 0.32 * u)
+                    if age == 34:
+                        b = self._add_bullet(tx, by + 10, 0.0, 2.0,
+                                             kind="book_y", ay=0.18, ttl=160)
+                        if b is not None:
+                            b["land"] = {"do": "open"}
+                if age > 40:
+                    sc["drops"].remove(entry)
+            if t == (200 if p2 else 236):
+                self._needle(bx - 10, rows[5] if n_rows > 5 else cy, 1.3)
 
-            # --- I. HOUSE LIGHTS DOWN (0..190, and the house never empties) -
-            # Nine columns, and consecutive faces step one column over, so
-            # the room fills as readable diagonals instead of static. They
-            # drift UP with the stage, at a third of walking speed.
-            if t < 700 and t % (7 if t < 190 else 15) == 0:
-                col = (t // 7) % 9
-                self._add_bullet(bx + bw * (col + 0.5) / 9.0
-                                + self.rng.uniform(-4, 4),
-                                by + bh + 14, 0.0, -1.15, kind="face",
-                                ci=7, sq=3, sway=0.22, ttl=400)
-                if t % 63 == 0:
-                    tsb_play("glint", 0.25)
+        # ======================================================================
+        # SWORD -- "THE INFLATABLE SWORD"  (the magazine tables: get out of it)
+        # ======================================================================
+        # The inflatable sword from the magazine tables, the size of the room.
+        # It SWINGS through a pale arc drawn a second ahead (be outside it),
+        # SLAMS where you were and bounces into a second slam (step aside,
+        # twice), THRUSTS in from the walls at your old height (duck the
+        # line), and ends SPINNING in the middle (get to the edges -- its
+        # reach stops short of every wall). Where a slam lands, a red bruise
+        # sits on the boards for a moment. Magazine pages flutter down.
+        # PHASE 2 -- "the bruise": swings bounce off the far wall and come
+        # back through the same arc, slams chain three deep with offsets
+        # chosen at telegraph time, thrusts come from either wall at a
+        # sharper cadence, and the spin reverses once. Bruises linger.
 
-            # --- II. YOUR MARK (190..400) -----------------------------------
-            if t == 190:
-                tsb_play("wire", 0.7)
-                sc["mark_i"] = -1
-            if 190 <= t < 400:
-                # Four stops and home, each announced by a ghost cross 26
-                # ticks before the light actually moves.
-                stops = ((0.50, 0.50), (0.26, 0.30), (0.74, 0.34),
-                        (0.70, 0.72), (0.28, 0.68))
-                step = min((t - 190) // 42, len(stops) - 1)
-                if step != sc.get("mark_i"):
-                    sc["mark_i"] = step
-                    fx, fy = stops[step]
-                    self.mark = {"x": bx + bw * fx, "y": by + bh * fy,
-                                "r": 36.0, "good": True}
-                    tsb_play("glint", 0.85)
-                    self._spark_burst(self.mark["x"], self.mark["y"],
-                                        6, 8, 1.3, 26)
-                nxt = step + 1
-                if self.mark is not None:
-                    if nxt < len(stops) and (t - 190) % 42 >= 26:
-                        fx, fy = stops[nxt]
-                        self.mark["gx"] = bx + bw * fx
-                        self.mark["gy"] = by + bh * fy
-                    else:
-                        self.mark.pop("gx", None)
-                        self.mark.pop("gy", None)
-                # Off the mark, the boards under you notice. Stale spot,
-                # whole ring, and it opens behind an audience member who is
-                # already walking.
-                if (t - 190) % 30 == 20 and self.mark is not None:
-                    dx = self.px - self.mark["x"]
-                    dy = self.py - self.mark["y"]
-                    if dx * dx + dy * dy > self.mark["r"] ** 2:
-                        self._spark_burst(self.px, self.py, 7, 8, 1.5, 28)
-                        tsb_play("glint", 0.7)
-                        self._add_bloom(self.px, self.py, fuse=40, n=10,
-                                        ci=8, speed=1.9, spin=self.spiral_a)
-            if t == 400:
-                self.mark = None
+        SWORD_LEN = 240.0            # the sprite at 2x, handle to tip
+        SWORD_BLADE0 = 56.0          # handle + guard: harmless
+        SWORD_HALF_W = 7.0           # the blade is 18px thick; it cuts at 14
 
-            # --- III. THE STRINGS FIND YOU (400..646) -----------------------
-            if t == 400:
-                tsb_play("wire", 1.0)
-                self._spark_burst(cx, by - 6, 10, 5, 1.8, 36, 1.4)
-            if t == 520:
-                tsb_play("wire", 0.9)
-                self._spark_burst(cx, by + bh + 6, 10, 5, 1.8, 36, -1.4)
-            if 400 <= t < 646:
-                hooks = []
-                hooks.append({"ax": bx + bw * tsb_sweep(t - 400, 300,
-                                                        0.12, 0.88),
-                            "ay": by - 26.0, "ci": 5})
-                if t >= 520:
-                    hooks.append({"ax": bx + bw * tsb_sweep(t - 520, 260,
-                                                            0.86, 0.14),
-                                "ay": by + bh + 26.0, "ci": 5})
-                self.hooks = hooks
-                pull = 0.30 if t < 520 else 0.26
-                for hk in hooks:
-                    hx = hk["ax"] - self.px
-                    hy = hk["ay"] - self.py
-                    d = math.hypot(hx, hy) or 1.0
-                    self.drag_x += hx / d * pull
-                    self.drag_y += hy / d * pull
-                # An honest comb crossing underneath it, so the pull is
-                # something you spend movement fighting and not a mood.
-                if t % 17 == 0:
-                    self._add_bullet(bx + bw * tsb_sweep(t, 190, 0.06, 0.94),
-                                    by - 12, 0.0, 2.0, kind="petal",
-                                    ci=1, sq=3, sway=0.28)
-            if t == 646:
-                self.hooks = []
-                tsb_play("snap", 0.8)
-                self._spark_burst(self.px, self.py, 12, 2, 2.6, 30)
+        def _sword(self, px_, py_, ang, live, alpha=1.0):
+            # The sprite points RIGHT from its handle; its centre sits half a
+            # length along the heading. The blade is the only hazard.
+            ca, sa = math.cos(ang), math.sin(ang)
+            L = TSBGame.SWORD_LEN
+            self._scene_sprite("sword", px_ + ca * L * 0.5, py_ + sa * L * 0.5,
+                               rot=math.degrees(ang), alpha=alpha)
+            if live:
+                b0 = TSBGame.SWORD_BLADE0
+                self._scene_line(px_ + ca * b0, py_ + sa * b0,
+                                 px_ + ca * (L - 6), py_ + sa * (L - 6),
+                                 TSBGame.SWORD_HALF_W * 2.0, 1, harm=True,
+                                 hidden=True)
 
-            # --- IV. TAKE YOUR BOW (650..780) -------------------------------
-            if t == 650:
-                tsb_play("wire", 1.0)
-                for k in (1, 2, 3, 4, 5):
-                    self._add_wire("v", bx + bw * (k / 6.0), tel=76, on=54,
-                                    vol=(0.9 if k == 1 else 0.0))
-                for k in (1, 2):
-                    self._add_wire("h", by + bh * (k / 3.0), tel=88, on=42,
-                                    vol=0.0)
-                self.mark = {"x": bx + bw * (2.5 / 6.0),
-                            "y": by + bh * 0.5, "r": 30.0, "good": True}
-            if 650 <= t < 760 and t % 6 == 0:
-                # Sparks running down the live threads: the cage is a thing
-                # under tension, not a decal.
-                k = ((t - 650) // 6) % 5 + 1
-                self._spark_burst(bx + bw * (k / 6.0),
-                                by + self.rng.uniform(10, bh - 10),
-                                2, 5, 0.9, 18)
-            if t == 762:
-                self.mark = None
-                self._kill_wires()
-                tsb_play("release", 1.0)
+        def _arc_ghost(self, px_, py_, a0, a1, ci=1, alpha=0.3):
+            L = TSBGame.SWORD_LEN
+            steps = 8
+            for i in range(steps + 1):
+                a = a0 + (a1 - a0) * i / float(steps)
+                self._scene_line(px_ + math.cos(a) * TSBGame.SWORD_BLADE0,
+                                 py_ + math.sin(a) * TSBGame.SWORD_BLADE0,
+                                 px_ + math.cos(a) * L, py_ + math.sin(a) * L,
+                                 3, ci, ghost=True, alpha=alpha)
 
-            # In the rests she still slips you a green one -- mid-overture,
-            # mid-possession; the habit the show never managed to rewrite.
-            if t in (300, 600):
-                self._spawn_needle()
-
-        # ============ SHARED: taught clean, returned damaged =================
-
-        def _pat_camellia(self, t, dens):
-            """THE FLOWER THAT FALLS WHOLE.
-
-            A camellia does not shed. The whole head comes off at once, which
-            is why people used to call it an unlucky flower to give a soldier,
-            and it is why this fight is full of them. So: seven heads hang
-            from the rigging on visible drop-lines and let go in a travelling
-            run you can count -- left to right, then back, half a lane over.
-            A head that LANDS bursts along the boards, so the floor is denied
-            in a wave that walks the room while the ceiling is still full of
-            the ones that haven't gone yet.
-
-            VERB: travel with a run, and never own the floor.
-            Phase 2 breaks the run into a broken chord -- two heads arriving
-            together, out of order -- and throws the burst UP instead of out,
-            so the middle band stops being a refuge."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_sword(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            p2 = self.phase == 2
             sc = self.pat_scratch
-            lanes = 7
-            lane_w = bw / float(lanes)
-            cycle = max(150, int(200 / dens))
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            drop = 2.5 + 0.25 * dens
-            if beat == 0:
-                # Re-hang the rail. Every pass is offset half a lane from the
-                # last, so the column that was clear is the column that isn't.
-                run = (t - 1) // cycle
-                off = 0.5 if run % 2 else 0.0
-                order = list(range(lanes))
-                if run % 2:
-                    order.reverse()
-                if self.phase == 2:
-                    for i in range(lanes - 1):
-                        if self.rng.random() < 0.34:
-                            order[i], order[i + 1] = order[i + 1], order[i]
-                sc["hung"] = []
-                tsb_play("glint", 0.9)
-                gap = max(11, int(15 / dens))
-                for slot, lane in enumerate(order):
-                    x = bx + (lane + 0.5 + off) * lane_w
-                    if x > bx + bw - 10:
-                        x -= bw
-                    at = 44 + slot * gap
-                    if self.phase == 2 and slot % 3 == 2:
-                        at -= gap // 2
-                    b = self._add_bullet(x, by + 16, 0.0, 0.0,
-                                        kind="bigpetal", ci=0, sq=4,
-                                        turn={"at": at, "vx": 0.0,
-                                                "vy": drop},
-                                        tether={"x": x, "y": by + bh - 8,
-                                                "until": at},
-                                        armed_at=at - 6, ttl=at + 220)
-                    if b is not None:
-                        sc["hung"].append(
-                            (t + at + int((bh - 30.0) / drop), x))
-            # The landing. A head that reaches the boards comes apart along
-            # them; back here it comes apart upward instead.
-            due = [d for d in sc.get("hung", ()) if d[0] <= t]
-            if due:
-                sc["hung"] = [d for d in sc["hung"] if d[0] > t]
-                for _at, x in due:
-                    tsb_play("bloom", 0.55)
-                    self._spark_burst(x, by + bh - 8, 7, 0, 2.0, 24, 1.2)
-                    if self.phase == 1:
-                        for s in (-1.0, 1.0):
-                            for j in range(2):
-                                self._add_bullet(x, by + bh - 10,
-                                                s * (2.0 + 0.4 * j),
-                                                -0.55 - 0.35 * j,
-                                                kind="petal", ci=1, sq=3,
-                                                ay=0.030)
-                    else:
-                        for j in range(5):
-                            a = -math.pi * (0.24 + 0.13 * j)
-                            self._add_bullet(x, by + bh - 10,
-                                            math.cos(a) * 2.3,
-                                            math.sin(a) * 2.3,
-                                            kind="petal", ci=6, sq=3,
-                                            ay=0.014)
-            # The rail is at the ceiling and the bursts are at the floor, so
-            # the middle band would otherwise be a home. One bead paces it.
-            if beat % 46 == 24:
-                self._add_bullet(bx - 12,
-                                by + bh * tsb_sweep(t, 240, 0.28, 0.72),
-                                1.9, 0.0, kind="bead", ci=7, sq=3)
-
-        def _pat_hemline(self, t, dens):
-            """TAKEN IN.
-
-            A running stitch sews itself across the room, one stitch every
-            few ticks, harmless while the needle is still going -- and then
-            the thread is PULLED. Every stitch on that seam snaps toward the
-            middle of the line at once, gathering the cloth, and the box is
-            gathered with it: the room is taken in by exactly what the seam
-            took up, holds there, and eases back out.
-
-            VERB: read a line while it is being drawn, be off it when it
-            pulls, and then live in a smaller room than you agreed to.
-            Phase 2 lays a second seam on the other axis, gathers both toward
-            YOUR stale mark instead of the seam's middle, and does not give
-            the room all the way back."""
-            bx, by, bw, bh = self._box_rect()
-            base_w, base_h = TSBGame.DODGE_BOX["hemline"]
-            sc = self.pat_scratch
-            cycle = max(168, int(210 / dens))
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            n = 15
-            lay_every = 4
-            pull_at = 4 + n * lay_every + 16
-
-            if beat == 0:
-                sc["pass"] = (t - 1) // cycle
-                sc["frac"] = tsb_sweep(t, 620, 0.24, 0.76)
-                sc["gather"] = 0.0
-                sc["horiz"] = (self.phase == 1 or sc["pass"] % 2 == 0)
-                if self.phase == 2:
-                    sc["keep"] = min(0.50, sc.get("keep", 0.0) + 0.16)
+            L = TSBGame.SWORD_LEN
+            # Pages from the magazine tables, slow and swaying.
+            if t % (22 if p2 else 30) == 5 and t < 380:
+                x = bx + 30 + ((t * 67) % int(bw - 60))
+                self._add_bullet(x, by - 8, 0.0, 0.85, kind="page", sway=1.2,
+                                 ttl=400)
+            # Bruises: where a slam landed, the boards stay sore a moment.
+            life = 80 if p2 else 50
+            for entry in list(sc.get("bruises", [])):
+                bt, bxx = entry
+                age = t - bt
+                if age < life:
+                    self._scene_ellipse(bxx, floor + 3, 16, 5, 0,
+                                        alpha=0.75 * (1.0 - age / float(life)))
+                    self._scene_circle(bxx, floor, 9, ci=0, harm=True,
+                                       hidden=True)
                 else:
-                    sc["keep"] = 0.0
-                tsb_play("wire", 0.5)
-            horiz = sc.get("horiz", True)
-            if 4 <= beat < 4 + n * lay_every and (beat - 4) % lay_every == 0:
-                i = (beat - 4) // lay_every
-                if horiz:
-                    y = by + bh * sc["frac"]
-                    x = bx + (i + 0.5) * bw / float(n)
-                    tx, ty = bx + bw * 0.5, y
-                else:
-                    x = bx + bw * sc["frac"]
-                    y = by + (i + 0.5) * bh / float(n)
-                    tx, ty = x, by + bh * 0.5
-                if self.phase == 2:
-                    tx = tsb_clamp(self.px, bx + 30, bx + bw - 30)
-                    ty = tsb_clamp(self.py, by + 26, by + bh - 26)
-                at = pull_at - (4 + i * lay_every)
-                self._add_bullet(x, y, 0.0, 0.0, kind="stitch", ci=5, sq=4,
-                                turn={"at": at, "target": (tx, ty),
-                                        "speed": 3.1},
-                                tether={"x": tx, "y": ty, "until": at},
-                                armed_at=at - 5, ttl=at + 200)
-                if i % 4 == 0:
-                    tsb_play("throw", 0.45)
-                if self.phase == 2 and i == n // 2:
-                    # The cross seam, laid all at once. Both gather on the
-                    # same tick, toward the same mark.
-                    for j in range(n):
-                        if horiz:
-                            x2 = bx + bw * (1.0 - sc["frac"])
-                            y2 = by + (j + 0.5) * bh / float(n)
-                        else:
-                            x2 = bx + (j + 0.5) * bw / float(n)
-                            y2 = by + bh * (1.0 - sc["frac"])
-                        self._add_bullet(x2, y2, 0.0, 0.0, kind="stitch",
-                                        ci=6, sq=3,
-                                        turn={"at": at, "target": (tx, ty),
-                                                "speed": 2.9},
-                                        tether={"x": tx, "y": ty,
-                                                "until": at},
-                                        armed_at=at - 5, ttl=at + 200)
-            if beat == pull_at:
-                tsb_play("snap", 0.75)
-                self._spark_burst(bx + bw * 0.5, by + bh * 0.5, 10, 5,
-                                    2.4, 30)
-                sc["gather"] = 1.0
-            # The room is gathered with the cloth: it comes in on the axis
-            # the seam ran along, holds, and eases back out.
-            if sc.get("gather", 0.0) > 0.0:
-                held = beat - pull_at
-                if held < 34:
-                    amt = 1.0
-                else:
-                    amt = max(sc.get("keep", 0.0), 1.0 - (held - 34) / 46.0)
-                take = 62.0 * amt
-                if horiz:
-                    self.box_target = [TSB_BOX_CX, TSB_BOX_CY,
-                                        base_w, base_h - take]
-                else:
-                    self.box_target = [TSB_BOX_CX, TSB_BOX_CY,
-                                        base_w - take, base_h]
-            # Loose thread: whatever the gather squeezes out has to go
-            # somewhere, and it paces the width on the way.
-            if beat > pull_at and beat % 22 == 3:
-                self._add_bullet(bx + bw * tsb_sweep(t, 210, 0.08, 0.92),
-                                by - 10, 0.0, 1.75, kind="thread", ci=7,
-                                sq=3, sway=0.45)
+                    sc["bruises"].remove(entry)
 
-        def _pat_metronome(self, t, dens):
-            """THE CONDUCTOR.
-
-            The one sanctioned solid stream in the fight, because here the
-            stream IS the object: a baton swung from the top of the room,
-            throwing a line of notes whose landing point sweeps the boards
-            slower than you walk. It runs an accelerando you can hear, and on
-            each counted tock the tip flicks a whole camellia head into the
-            corner it is pointing at -- which is exactly where a player who
-            has decided to outrun it ends up standing. Every fourth tock is a
-            DOWNBEAT: the arm comes up, and the middle of the room goes.
-
-            VERB: stay ahead of a sweep you cannot outrun forever, and clear
-            the middle when the arm comes up.
-            Phase 2 conducts a fermata (the beam freezes mid-swing and
-            resumes REVERSED) and a CUTOFF: every note already in the air
-            hangs motionless for half a second, then carries on from where it
-            hung. The picture you read is still the picture. Only later."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            if "ph" not in sc:
-                sc["ph"] = 1.5708 * self.spiral_dir
-                sc["dir"] = self.spiral_dir
-                sc["freeze"] = 0
-                sc["side"] = 0
-                sc["tocks"] = 0
-                sc["cut"] = (self.rng.randint(150, 210)
-                            if self.phase == 2 else 10 ** 9)
-            # Accelerando, capped: at bh 264 and amp 0.55 the fastest lateral
-            # travel of the landing point is 3.6 px/tick, under the SOUL's
-            # 3.7. That ceiling is this move's whole fairness argument.
-            rate = min(0.0250,
-                        0.0195 + 0.0000135 * t + 0.0016 * (dens - 1.0))
-            if self.phase == 2:
-                if sc["freeze"] > 0:
-                    sc["freeze"] -= 1
-                    if sc["freeze"] == 0:
-                        sc["dir"] *= -1.0
+            # ---- SWINGS: up from a floor corner, down through a pale arc --------
+            # Held upright against the wall it stands by, it leans back,
+            # then comes down like a door slamming: the quarter-disc drawn a
+            # second ahead is exactly what it sweeps.
+            swings = [(20, "L", -math.pi * 0.5, -0.06),
+                      (100, "R", -math.pi * 0.5, -math.pi + 0.06)]
+            for (s0, side, a0, a1) in swings:
+                piv_x = bx + 14 if side == "L" else bx + bw - 14
+                piv_y = by + bh + 14
+                tel, sw = 44, 16
+                back = 26 if p2 else 0
+                lean = -0.14 if side == "L" else 0.14
+                if s0 <= t < s0 + tel:
+                    u = (t - s0) / float(tel)
+                    # the wind-up: it leans back past its start, shivering
+                    self._sword(piv_x, piv_y, a0 + lean * u
+                                + math.sin(t * 0.9) * 0.02, False, alpha=0.9)
+                    self._arc_ghost(piv_x, piv_y, a0, a1, alpha=0.25 + 0.35 * u)
+                    if t == s0:
                         tsb_play("glint", 0.8)
-                elif (t > 90 and abs(math.sin(sc["ph"])) < 0.7
-                        and self.rng.random() < 0.006):
-                    sc["freeze"] = 34
-                    self._spark_burst(bx + bw * 0.5, by + 6, 8, 5, 1.5, 30)
-                    tsb_play("wire", 0.4)
-                if t == sc["cut"]:
-                    tsb_play("wire", 0.9)
-                    for b in self.bullets:
-                        if not b.get("heal"):
-                            b["hold"] = 34
-                    sc["cut"] = t + self.rng.randint(170, 240)
-            if sc["freeze"] == 0:
-                sc["ph"] += rate * sc["dir"]
-            swing = math.sin(sc["ph"])
-            amp = 0.55
-            ang = math.pi * 0.5 + amp * swing
-            if sc["freeze"] == 0 and t % 4 == 0:
-                emit = t // 4
-                self._add_bullet(bx + bw * 0.5, by + 4,
-                                math.cos(ang) * 2.5, math.sin(ang) * 2.5,
-                                kind="note" if emit % 3 else "rest",
-                                ci=5, sq=3)
-                if emit % 9 == 0:
-                    tsb_play("throw", 0.5)
-            side = 1 if swing > 0.985 else (-1 if swing < -0.985 else 0)
-            if side != 0 and side != sc["side"]:
-                sc["side"] = side
-                sc["tocks"] += 1
-                if sc["tocks"] % 4 == 0:
-                    # THE DOWNBEAT: five evenly spaced heads, 44px apart, the
-                    # outer ones released higher so the shape arrives as a
-                    # chevron and reads a beat before it is dangerous.
-                    tsb_play("volley", 1.0)
-                    self._spark_burst(bx + bw * 0.5, by + 8, 10, 6, 2.0, 30)
-                    for i in range(5):
-                        self._add_bullet(bx + bw * 0.5 + (i - 2) * 44.0,
-                                        by - 16 - abs(i - 2) * 12.0,
-                                        0.0, 2.9, kind="bigpetal",
-                                        ci=6, sq=4, ttl=220)
-                else:
-                    tipx = tsb_clamp(bx + bw * 0.5
-                                    + math.tan(amp * side) * bh,
-                                    bx + 16, bx + bw - 16)
-                    self._spark_burst(tipx, by + 12, 5, 6, 1.2, 24)
-                    tsb_play("volley2", 0.75)
-                    self._add_bullet(tipx, by - 12, 0.0, 0.5,
-                                    kind="bigpetal", ci=6, sq=4,
-                                    ay=0.065, ttl=260)
-            elif abs(swing) < 0.9:
-                sc["side"] = 0
-
-        def _pat_limelight(self, t, dens):
-            """THE SPOT.
-
-            Inverted, and the inversion is what makes it hers: the lit circle
-            is the SAFE place. It walks a slow circuit and it BURNS what
-            falls into it -- anything entering the spot goes out with a spark
-            -- while everywhere else the room rains. So the move is not
-            "dodge the rain." It is "be where the show wants you," which is
-            the sentence this whole fight is about.
-
-            And then the lamp fails. Every so often the spot gutters out for
-            a couple of seconds, the rain owns the room, and it relights
-            somewhere else, and you have to get there.
-
-            VERB: ride a moving shelter, and survive its failures.
-            Phase 2 shrinks the spot the entire time it is lit, down to a
-            pinpoint, before it gives out."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            if "lit" not in sc:
-                sc["lit"] = True
-                sc["at"] = 0
-                sc["span"] = max(150, int(210 / dens))
-            age = t - sc["at"]
-            if age >= sc["span"]:
-                sc["at"] = t
-                sc["lit"] = not sc["lit"]
-                if sc["lit"]:
-                    sc["span"] = max(150, int(210 / dens))
-                    tsb_play("glint", 1.0)
-                else:
-                    sc["span"] = 96 if self.phase == 1 else 108
-                    tsb_play("wire", 0.55)
-                    if self.mark is not None:
-                        self._spark_burst(self.mark["x"], self.mark["y"],
-                                            10, 7, 2.0, 30)
-                    self.mark = None
-                age = 0
-            if sc["lit"]:
-                # The circuit: a wide, unhurried lissajous that visits every
-                # quarter of the room inside one lit period.
-                a = t * 0.0135
-                r0 = 54.0 if self.phase == 1 else 50.0
-                if self.phase == 2:
-                    r0 *= max(0.34, 1.0 - age / float(sc["span"]) * 0.72)
-                mx = bx + bw * (0.5 + 0.30 * math.sin(a))
-                my = by + bh * (0.5 + 0.26 * math.sin(a * 1.43 + 1.1))
-                self.mark = {"x": mx, "y": my, "r": r0, "good": True}
-                r2 = r0 * r0
-                for b in self.bullets:
-                    if b.get("heal") or b.get("burnt"):
-                        continue
-                    if (b["x"] - mx) ** 2 + (b["y"] - my) ** 2 <= r2:
-                        b["burnt"] = True
-                        b["ttl"] = 0
-                        self._spark_burst(b["x"], b["y"], 3, 8, 1.2, 16)
-            # The rain, paced, so the dark part of the room is a curtain with
-            # a direction and not a hat.
-            period = max(6, int((9 if sc["lit"] else 7) / dens))
-            if t % period == 0:
-                self._add_bullet(bx + bw * tsb_sweep(t, 230, 0.05, 0.95),
-                                by - 12, 0.0, 2.2 + 0.2 * dens,
-                                kind="spark", ci=7, sq=3, sway=0.30)
-            if not sc["lit"] and t % max(14, int(19 / dens)) == 9:
-                # Dark, so the room gets its second axis back as well.
-                left = (t // 26) % 2 == 0
-                self._add_bullet(bx - 12 if left else bx + bw + 12,
-                                by + bh * tsb_sweep(t, 170, 0.10, 0.90),
-                                2.3 if left else -2.3, 0.0,
-                                kind="spark", ci=7, sq=3)
-
-        def _pat_ovation(self, t, dens):
-            """THE HOUSE APPLAUDS.
-
-            She hates loud noises. So the house claps.
-
-            Each clap is a shockwave off the rim: two dozen bodies placed
-            evenly all the way around the box, every one of them travelling
-            inward. They converge, cross the middle, and open out the far
-            side -- which means the center is where they are densest and the
-            rim is where they have just left. The place to be is the place
-            the last clap came FROM. Between claps there is nothing at all,
-            silence you can hear, and every third clap makes her FLINCH,
-            which moves the walls under your feet.
-
-            VERB: count a rhythm, live off-center, ride the lurch.
-            Phase 2 puts the flinch BEFORE the clap, so the room moving is
-            the count-in, and the applause never quite stops."""
-            bx, by, bw, bh = self._box_rect()
-            base_w, base_h = TSBGame.DODGE_BOX["ovation"]
-            sc = self.pat_scratch
-            if "next" not in sc:
-                sc["next"] = 34
-                sc["n"] = 0
-                sc["lurch"] = 0
-                sc["lx"] = 0.0
-            gap = max(64, int((104 if self.phase == 1 else 88) / dens))
-            if self.phase == 2 and t == sc["next"] - 26:
-                sc["lurch"] = t
-                sc["lx"] = self.rng.choice([-1.0, 1.0]) * 24.0
-                tsb_play("wire", 0.4)
-            if t == sc["next"]:
-                sc["n"] += 1
-                sc["next"] = t + gap - (6 if sc["n"] % 3 == 0 else 0)
-                tsb_play("volley", 1.0)
-                cx = bx + bw * 0.5
-                cy = by + bh * 0.5
-                count = 22 if self.phase == 1 else 24
-                seam = 0.5 * sc["n"]
-                speed = 2.0 + 0.16 * dens
-                per = 2.0 * (bw + bh)
-                for i in range(count):
-                    # Placed by PERIMETER, not by angle, so the spacing along
-                    # the rim stays even in a rectangle instead of bunching
-                    # up at the corners.
-                    p = ((i + seam) % count) / float(count) * per
-                    if p < bw:
-                        x, y = bx + p, by - 10
-                    elif p < bw + bh:
-                        x, y = bx + bw + 10, by + (p - bw)
-                    elif p < 2 * bw + bh:
-                        x, y = bx + bw - (p - bw - bh), by + bh + 10
+                elif s0 + tel <= t < s0 + tel + sw:
+                    u = self._ease((t - s0 - tel) / float(sw))
+                    self._sword(piv_x, piv_y, a0 + (a1 - a0) * u, True)
+                    if t == s0 + tel:
+                        tsb_play("slash", 0.8)
+                elif s0 + tel + sw <= t < s0 + tel + sw + max(back, 12):
+                    k = t - s0 - tel - sw
+                    if k < back:
+                        # PHASE 2: it hits the far wall and comes back through
+                        # the arc it just drew.
+                        u = self._ease(k / float(back))
+                        self._sword(piv_x, piv_y, a1 + (a0 - a1) * u * 0.9, True)
+                        if k == 0:
+                            self._slam(piv_x + math.cos(a1) * 200,
+                                       piv_y + math.sin(a1) * 200, 0.8, 1,
+                                       "spark", "wire", 0.6)
                     else:
-                        x, y = bx - 10, by + bh - (p - 2 * bw - bh)
-                    self._add_aimed(x, y, cx, cy, speed, kind="clap",
-                                    ci=0 if i % 2 else 1, sq=3, ttl=320)
-                if self.phase == 1 and sc["n"] % 3 == 0:
-                    sc["lurch"] = t
-                    sc["lx"] = self.rng.choice([-1.0, 1.0]) * 22.0
-                    self.shake = max(self.shake, 16)
-                elif self.phase == 2:
-                    self.shake = max(self.shake, 12)
-            # The flinch: the room jolts and eases back. She is the one being
-            # applauded, and she cannot stand it.
-            lurch_age = t - sc["lurch"]
-            if sc["lurch"] and lurch_age < 44:
-                u = 1.0 - lurch_age / 44.0
-                self.box_target = [TSB_BOX_CX + sc["lx"] * u * u,
-                                    TSB_BOX_CY, base_w, base_h]
+                        self._sword(piv_x, piv_y, a1, False,
+                                    alpha=0.6 * (1.0 - k / 12.0))
+
+            # ---- SLAMS: stale-aimed, bouncing into the next -------------------
+            if t == 176:
+                n = 3 if p2 else 2
+                xs = [tsb_clamp(self.px, bx + 40, bx + bw - 40)]
+                for i in range(1, n):
+                    if p2:
+                        step = self.rng.choice((-1, 1)) * self.rng.uniform(56, 88)
+                    else:
+                        step = 70.0 if xs[-1] < cx else -70.0
+                    xs.append(tsb_clamp(xs[-1] + step, bx + 40, bx + bw - 40))
+                sc["slams"] = xs
+            period = 40
+            slams = sc.get("slams") or ()
+            for i, sx in enumerate(slams):
+                s0 = 176 + i * period
+                tel = 34 if i == 0 else 22
+                early = 0 if i == 0 else 18
+                raised = by - 150.0
+                landed = floor + 6.0 - L
+                if s0 - early <= t < s0 + tel:
+                    u = tsb_clamp((t - s0 + early) / float(tel + early), 0.0, 1.0)
+                    self._scene_rect(sx - 16, by + 4, 32, bh - 8, ci=1,
+                                     ghost=True, alpha=0.10 + 0.14 * u)
+                    self._scene_rect(sx - 16, by + 4, 32, bh - 8, ci=1,
+                                     ghost=True, alpha=0.3 + 0.4 * u,
+                                     outline=True)
+                if s0 <= t < s0 + tel:
+                    lift = 60.0 * (1.0 - (t - s0) / float(tel)) if i else 0.0
+                    self._sword(sx, raised - lift, math.pi * 0.5, False, alpha=0.9)
+                elif s0 + tel <= t < s0 + tel + 8:
+                    k = t - s0 - tel
+                    top = raised + (landed - raised) * self._ease(k / 7.0)
+                    self._sword(sx, top, math.pi * 0.5, True)
+                    if k == 6:
+                        self._slam(sx, floor, 1.2, 1, "crumb", "fall", 0.7)
+                        sc.setdefault("bruises", []).append((t, sx))
+                elif s0 + tel + 8 <= t < s0 + tel + 18:
+                    # the bounce back up, harmless
+                    k = t - s0 - tel - 8
+                    self._sword(sx, landed - 40.0 * self._ease(k / 10.0),
+                                math.pi * 0.5, False, alpha=0.5)
+
+            # ---- THRUSTS from the walls at your old height -------------------
+            th0 = 300 if p2 else 280
+            th_every = 26 if p2 else 34
+            for i in range(3):
+                s0 = th0 + i * th_every
+                if t == s0:
+                    side = (self.rng.choice(("L", "R")) if p2 else
+                            ("R" if i % 2 == 0 else "L"))
+                    sc["thrust_%d" % i] = (side, tsb_clamp(self.py, by + 24,
+                                                           by + bh - 24))
+                    tsb_play("glint", 0.7)
+                spec = sc.get("thrust_%d" % i)
+                if spec is None:
+                    continue
+                side, ty = spec
+                tel = 28
+                if s0 <= t < s0 + tel:
+                    u = (t - s0) / float(tel)
+                    self._scene_rect(bx + 4, ty - 14, bw - 8, 28, ci=1,
+                                     ghost=True, alpha=0.1 + 0.2 * u)
+                    peek = 30 * u
+                    if side == "R":
+                        self._sword(bx + bw + 20 - peek, ty, math.pi, False)
+                    else:
+                        self._sword(bx - 20 + peek, ty, 0.0, False)
+                elif s0 + tel <= t < s0 + tel + 18:
+                    k = t - s0 - tel
+                    if k < 12:
+                        reach = (bw - 70) * self._ease(min(1.0, k / 6.0))
+                    else:
+                        reach = (bw - 70) * (1.0 - self._ease((k - 12) / 6.0))
+                    if side == "R":
+                        self._sword(bx + bw - 10 - reach, ty, math.pi, k < 14)
+                    else:
+                        self._sword(bx + 10 + reach, ty, 0.0, k < 14)
+                    if k == 2:
+                        tsb_play("slash", 0.7)
+
+            # ---- SPIN finale: get to the far ends ------------------------------
+            # The blade spans the centre, so everything within 127px of it is
+            # swept; the ring drawn a second ahead is exactly that line, and
+            # both short ends of the room lie outside it.
+            sp0 = 386 if p2 else 380
+            spin_tel = 56
+            half = L * 0.5
+            if sp0 - spin_tel <= t < sp0:
+                u = (t - sp0 + spin_tel) / float(spin_tel)
+                ang = t * 0.05
+                self._scene_circle(cx, cy, 127, ci=1, ghost=True,
+                                   alpha=0.1 + 0.3 * u, outline=True)
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, False, alpha=0.8)
+                if t == sp0 - spin_tel:
+                    tsb_play("glint", 0.9)
+                sc["spin_a"] = ang
+            elif sp0 <= t < sp0 + 60:
+                k = t - sp0
+                direction = -1.0 if (p2 and k >= 30) else 1.0
+                ang = sc.get("spin_a", 0.0) + direction * 0.105
+                sc["spin_a"] = ang
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, True)
+                if k == 0:
+                    tsb_play("wire", 0.8)
+                if p2 and k == 30:
+                    tsb_play("snap", 0.7)
+                    self._spark_burst(cx, cy, 16, 1, 3.0, 30)
+            elif sp0 + 60 <= t < sp0 + 76:
+                ang = sc.get("spin_a", 0.0)
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, False, alpha=1.0 - (t - sp0 - 60) / 16.0)
+            if t == (150 if p2 else 164):
+                self._needle(bx + bw + 10, floor - 30, -1.2)
+
+        # ======================================================================
+        # LIST -- "THE LIST, CLIPPED IN BLUE"  (go where the line is short)
+        # ======================================================================
+        # She writes the list line by line at the top of the page -- the pen
+        # draws each letter, the letters are harmless while wet -- and then
+        # the line drops down the page as a wall. Lines alternate left- and
+        # right-aligned, so the lane is wherever the line is SHORT. Then
+        # Matsu's addition arrives in orange -- GLORY -- a full-width line
+        # you can only pass by moving through it, and Tsubaki crosses it out,
+        # twice. The blue clip closes the page on your column, twice.
+        # PHASE 2 -- "the second stop": line 2 is a row of blanks; halfway
+        # down, its letters SLIDE across to the other margin (the lane moves),
+        # and the numbers stay pinned down the left margin the whole time.
+        # PHASE 2 LATE -- "strike": she keeps striking lines out; a struck
+        # line's letters fall apart, but BOOKSTORE refuses and stays whole.
+
+        def _pat_list(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            p2 = self.phase == 2
+            late = p2 and self.pattern_slot >= 13
+            sc = self.pat_scratch
+            # The page: faint ruled lines.
+            for k in range(1, 6):
+                yy = by + bh * k / 6.0
+                self._scene_line(bx + 8, yy, bx + bw - 8, yy, 2, 9, ghost=True,
+                                 alpha=0.30)
+            self._scene_line(bx + 40, by + 4, bx + 40, by + bh - 4, 2, 0,
+                             ghost=True, alpha=0.40)
+            adv = 18.0
+            if not p2:
+                lines = [("1.BOOKSTORE", "L", None), ("2.ARCADE", "R", None),
+                         ("GLORY!GLORY!GLORY!GLORY!", "F", "orange"),
+                         ("3.FOOD", "L", None), ("BOOKSTORE", "R", None)]
+            elif not late:
+                lines = [("1.BOOKSTORE", "L", None), ("2.______", "L", "blank"),
+                         ("3.FOOD", "R", None), ("2.?", "C", None)]
             else:
-                self.box_target = [TSB_BOX_CX, TSB_BOX_CY, base_w, base_h]
-            # One slow flower crosses the silences, so a rest is a rest and
-            # not a break.
-            if t > 60 and (t + gap // 2) % gap == 0:
-                left = (t // gap) % 2 == 0
-                self._add_bullet(bx - 14 if left else bx + bw + 14,
-                                by + bh * tsb_sweep(t, 260, 0.14, 0.86),
-                                1.5 if left else -1.5, 0.0,
-                                kind="petal", ci=7, sq=3, sway=0.5)
+                lines = [("1.BOOKSTORE", "L", "keep"), ("2.ARCADE", "R", "strike"),
+                         ("3.FOOD", "L", "strike"), ("BOOKSTORE!", "R", "keep")]
+            write_at = 10
+            per = 76 if not p2 else 70
+            vy = 1.30 if not p2 else 1.45
+            for li, (text, align, note) in enumerate(lines):
+                w0 = write_at + li * per
+                n = len(text)
+                if align == "L":
+                    x0 = bx + 12
+                elif align == "R":
+                    x0 = bx + bw - 12 - adv * n
+                elif align == "C":
+                    x0 = cx - adv * n * 0.5
+                else:   # full width: repeat to fill
+                    x0 = bx + 6
+                y_line = by + 16
+                write_ticks = min(40, n * 2)
+                tag = "line%d" % li
+                if w0 <= t < w0 + write_ticks:
+                    k = int((t - w0) / 2.0) + 1
+                    shown = text[:k]
+                    self._scene_text(shown, x0, y_line - 13, 8 if note != "orange" else 4,
+                                     sc=3, alpha=0.55)
+                    self._scene_sprite("pen", x0 + adv * min(k, n) + 10, y_line - 16,
+                                       rot=120, alpha=0.95)
+                    if (t - w0) % 4 == 0:
+                        tsb_play("blip", 0.45)
+                if t == w0 + write_ticks:
+                    rule = "orange" if note == "orange" else None
+                    self._text_line(text, x0, y_line, rule=rule, tag=tag)
+                    self._tag_set(tag, vy=vy)
+                    tsb_play("volley", 0.6)
+                    if note == "orange":
+                        tsb_play("wire", 0.5)
+                # PHASE 2: the blank line's letters walk to the other margin.
+                if note == "blank":
+                    at = w0 + write_ticks + 70
+                    if at - 24 <= t < at:
+                        self._tag_set(tag, jit=2)
+                    if t == at:
+                        # The lane walks with it, so it walks no faster than
+                        # 2.3 px/tick.
+                        shift = (bx + bw - 12 - adv * n) - x0
+                        ticks = max(60, int(abs(shift) / 2.3) + 1)
+                        self._tag_set(tag, vx=shift / float(ticks), jit=0)
+                        sc["blank_stop"] = t + ticks
+                        tsb_play("glint", 0.7)
+                    if t == sc.get("blank_stop"):
+                        self._tag_set(tag, vx=0.0)
+                # The orange line is struck out after it has passed you.
+                if note == "orange":
+                    st = w0 + write_ticks + 120
+                    for rep in range(2):
+                        if st + rep * 12 <= t < st + rep * 12 + 10:
+                            books = [b for b in self.bullets if b.get("tag") == tag]
+                            if books:
+                                yy = books[0]["y"] + (rep * 6 - 3)
+                                u = (t - st - rep * 12) / 10.0
+                                self._scene_line(bx + 6, yy, bx + 6 + (bw - 12) * u, yy,
+                                                 5, 0, ghost=True, alpha=0.9)
+                        if t == st + rep * 12 + 10:
+                            tsb_play("slash", 0.5)
+                    if t == st + 34:
+                        for b in self.bullets:
+                            if b.get("tag") == tag:
+                                b["rule"] = None
+                                b["armed_at"] = 10 ** 6
+                                b["fz"] = 40
+                                b["vx"] = self.rng.uniform(-1.0, 1.0)
+                                b["ay"] = 0.12
+            # PHASE 2: the numbers stay -- pinned down the left margin.
+            if p2 and not late and t == 6:
+                for k, ch in enumerate("123"):
+                    b = self._add_bullet(bx + 16, by + 40 + k * 78, 0.0, 0.0,
+                                         kind="glyph", ttl=420)
+                    if b is not None:
+                        b["ch"] = ch
+                        b["sc"] = 3
+            # PHASE 2 LATE: strike wires across the page at your old height;
+            # a struck line comes apart -- unless it is BOOKSTORE.
+            if late:
+                for k, s0 in enumerate((96, 176, 256, 316)):
+                    if t == s0:
+                        self._add_wire("h", tsb_clamp(self.py, by + 20, by + bh - 20),
+                                       ci=0, tel=34, on=12)
+                        sc["strike_%d" % k] = (s0 + 34, tsb_clamp(self.py, by + 20, by + bh - 20))
+                    spec = sc.get("strike_%d" % k)
+                    if spec and t == spec[0]:
+                        for li, (text, align, note) in enumerate(lines):
+                            tag = "line%d" % li
+                            body = [b for b in self.bullets if b.get("tag") == tag]
+                            if not body or abs(body[0]["y"] - spec[1]) > 20:
+                                continue
+                            if note == "keep":
+                                for b in body:
+                                    b["jit"] = 3
+                                tsb_play("denied", 0.6)
+                            else:
+                                for b in body:
+                                    b["tag"] = None
+                                    b["vx"] = self.rng.uniform(-1.4, 1.4)
+                                    b["vy"] = self.rng.uniform(-2.2, -0.6)
+                                    b["ay"] = 0.10
+                                tsb_play("snap", 0.6)
+            # The clip closes on your column, twice.
+            for k, s0 in enumerate((330, 372)):
+                if t == s0:
+                    sc["clip_%d" % k] = tsb_clamp(self.px, bx + 30, bx + bw - 30)
+                    tsb_play("glint", 0.8)
+                xk = sc.get("clip_%d" % k)
+                if xk is None:
+                    continue
+                if s0 <= t < s0 + 34:
+                    u = (t - s0) / 34.0
+                    self._scene_rect(xk - 22, by + 4, 44, bh - 8, ci=9,
+                                     ghost=True, alpha=0.1 + 0.22 * u)
+                    self._scene_sprite("clip", xk, by + 14, sc=4, alpha=0.95)
+                elif s0 + 34 <= t < s0 + 50:
+                    self._scene_rect(xk - 20, by, 40, bh, ci=9, harm=True,
+                                     alpha=0.9)
+                    self._scene_sprite("clip", xk, by + bh - 20, sc=4)
+                    if t == s0 + 34:
+                        self._slam_line(xk, by + 10, xk, by + bh - 10, 0.9, 9,
+                                        "crumb", 3, "snap", 0.8)
+            if t == (262 if not p2 else 236):
+                self._needle(bx + bw + 10, cy + 40, -1.2)
 
-        def _pat_understudy(self, t, dens):
-            """THE UNDERSTUDY.
+        # ======================================================================
+        # ARCADE -- "CONTINUE?"  (the SOUL turns BLUE: jump)
+        # ======================================================================
+        # The arcade stop, played as an arcade game. The SOUL turns blue --
+        # gravity on, UP to jump -- and little critters waddle along the
+        # floor to be hopped; a formation of them marches across the top on a
+        # four-beat phrase (step, step, step, FIRE) and drops a shot from each
+        # on the fourth; coins bounce across the boards; and the CONTINUE?
+        # countdown falls on you as enormous digits, 3, 2, 1.
+        # PHASE 2 -- "say it exactly like her": the formation's shots are cyan
+        # and orange, and the four lamps show the phrase -- except the third
+        # lamp, which copies whatever YOU were doing when it lit. Walkers stop
+        # and then dash.
 
-            Somebody else is learning your part. A second SOUL comes in and
-            copies you -- exactly, mirrored across the middle of the room --
-            so the axis between the two of you is a place neither can be, and
-            the room becomes two rooms with a wall you are drawing yourself.
-            Watching the mirror is watching your own movement from outside,
-            which is the closest this fight gets to saying out loud what
-            happened to her, and it never says it.
-
-            Then it has the part. The copy stops copying, comes for you once,
-            and goes. The next one mirrors the OTHER axis.
-
-            VERB: keep off the axis your reflection is on.
-            Phase 2 mirrors you on a DELAY -- it plays back where you were
-            half a second ago -- which is far worse, because it can no longer
-            be solved by standing still."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_arcade(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            p2 = self.phase == 2
             sc = self.pat_scratch
-            cx = bx + bw * 0.5
-            cy = by + bh * 0.5
-            if "axis" not in sc:
-                sc["axis"] = 0
-                sc["cast"] = None
-                sc["born"] = 26
-                sc["hist"] = []
-            sc["hist"].append((self.px, self.py))
-            if len(sc["hist"]) > 60:
-                sc["hist"].pop(0)
-            learn = 190 if self.phase == 1 else 168
-            if sc["cast"] is None and t >= sc["born"]:
-                sc["cast"] = self._add_bullet(cx, cy, 0.0, 0.0, kind="soul",
-                                            ci=1, sq=4, ttl=learn + 260,
-                                            armed_at=34)
-                sc["cast_at"] = t
-                sc["taken"] = False
-                tsb_play("glint", 0.9)
-            cast = sc.get("cast")
-            if cast is not None and not sc.get("taken"):
-                age = t - sc["cast_at"]
-                if age >= learn:
-                    # It has the part. One committed charge, telegraphed on
-                    # its own thread, and then it is somebody else's problem.
-                    sc["taken"] = True
-                    cast["vx"] = 0.0
-                    cast["vy"] = 0.0
-                    cast["turn"] = {"at": cast["age"] + 26,
-                                    "target": (self.px, self.py),
-                                    "speed": 2.7}
-                    cast["tether"] = {"x": self.px, "y": self.py,
-                                        "until": cast["age"] + 26}
-                    self._spark_burst(cast["x"], cast["y"], 8, 1, 2.0, 28)
-                    tsb_play("volley2", 0.9)
-                    sc["axis"] = (sc["axis"] + 1) % 3
-                    sc["born"] = t + 92
-                    sc["cast"] = None
-                else:
-                    if self.phase == 1:
-                        sx, sy = self.px, self.py
+            if t == 1:
+                self._set_soul("blue")
+            # cabinet dressing: scanlines + marquee
+            for k in range(0, int(bh), 8):
+                self._scene_rect(bx + 2, by + k, bw - 4, 1, ci=9, ghost=True,
+                                 alpha=0.06)
+            credit = 9 - min(9, t // 45)
+            self._scene_text("CONTINUE? %d" % max(credit, 0), bx + 10, by + 8,
+                             8, sc=2, alpha=0.85)
+            # Walkers on the floor ---------------------------------------------
+            walk = ((24, "L"), (84, "R"), (136, "L"), (176, "R"), (206, "R"),
+                    (262, "L"), (292, "L"))
+            for i, (w0, side) in enumerate(walk):
+                if t == w0:
+                    x0 = bx - 14 if side == "L" else bx + bw + 14
+                    vx = (1.9 if side == "L" else -1.9) * (1.1 if p2 else 1.0)
+                    b = self._add_bullet(x0, floor - 4, vx, 0.0, kind="critter",
+                                         ttl=420)
+                    if b is not None and p2 and i % 2 == 1:
+                        # stop-and-dash: pause mid-floor, flash, then run
+                        b["dash"] = {"at": 70, "stop": 24, "vx": vx * 1.9}
+            # The formation ----------------------------------------------------
+            if 90 <= t < 330:
+                ft = t - 90
+                beat = ft // 20
+                step = beat % 4
+                phrase_x = (beat // 4) % 2
+                off = (step * 16 if phrase_x == 0 else (3 - step) * 16) - 24
+                n = 5
+                gap = 58.0
+                xs = [cx - gap * (n - 1) * 0.5 + gap * j + off for j in range(n)]
+                fy = by + 40
+                firing = step == 3 and (ft % 20) < 10
+                lamp_rules = None
+                if p2:
+                    # One lamp per bar, lit for the bar it governs: the
+                    # colour the formation's shot will be. The third lamp is
+                    # grey until halfway through its bar, then COPIES you --
+                    # orange if you were moving, cyan if you were still --
+                    # and the shot comes thirty ticks later in that colour.
+                    bar = beat // 4
+                    base = ["cyan", "orange", None, "orange"]
+                    if bar % 4 == 2 and (ft % 80) == 40:
+                        sc["echo_%d" % bar] = ("orange" if self.move_amt > 0.05
+                                               else "cyan")
+                        tsb_play("blip", 0.7)
+                    if bar % 4 == 2:
+                        base[2] = sc.get("echo_%d" % bar)
+                    lamp_rules = base
+                    for j in range(4):
+                        col = {"cyan": 9, "orange": 4, None: 7}[base[j]]
+                        on = j == bar % 4
+                        lx = bx + bw - 80 + j * 20
+                        self._scene_circle(lx, by + 17, 5, ci=col, ghost=True,
+                                           alpha=1.0 if on else 0.55)
+                        if on:
+                            self._scene_circle(lx, by + 17, 8, ci=2, ghost=True,
+                                               alpha=0.9, outline=True)
+                for j, x in enumerate(xs):
+                    frame = "critter_b" if beat % 2 else "critter_a"
+                    self._scene_sprite(frame, x, fy, alpha=1.0,
+                                       tint=("#ffe23d" if firing else None))
+                    self._scene_circle(x, fy, 9, ci=2, harm=True, hidden=True)
+                if ft % 80 == 70:
+                    rule = None
+                    if p2:
+                        bar = beat // 4
+                        rule = (lamp_rules or [None] * 4)[bar % 4]
+                    for j, x in enumerate(xs):
+                        self._add_bullet(x, fy + 14, 0.0, 2.6, kind="rice",
+                                         ttl=200, rule=rule)
+                    tsb_play("volley2", 0.6)
+            # Coins ----------------------------------------------------------------
+            for i, c0 in enumerate((200, 268)):
+                if t == c0:
+                    left = i % 2 == 0
+                    b = self._add_bullet(bx + 20 if left else bx + bw - 20,
+                                         by + 30, 1.6 if left else -1.6, 0.0,
+                                         kind="coin", ay=0.16, ttl=320)
+                    if b is not None:
+                        b["bounce"] = {"n": 6, "rest": 0.78}
+                    tsb_play("coin", 0.6)
+            # CONTINUE? 3 2 1 ------------------------------------------------------
+            for k, (d0, ch) in enumerate(((318, "3"), (344, "2"), (370, "1"))):
+                if t == d0:
+                    sc["digit_%d" % k] = tsb_clamp(self.px, bx + 34, bx + bw - 34)
+                    tsb_play("glint", 0.8)
+                dx = sc.get("digit_%d" % k)
+                if dx is None:
+                    continue
+                if d0 <= t < d0 + 22:
+                    u = (t - d0) / 22.0
+                    self._scene_text(ch, dx - 12, by + 4, 8, sc=5, alpha=0.3 + 0.5 * u)
+                    self._scene_ellipse(dx, floor + 6, 16, 5, 8, alpha=0.2 + 0.3 * u)
+                if t == d0 + 22:
+                    b = self._add_bullet(dx, by + 20, 0.0, 3.0, kind="glyph",
+                                         ay=0.22, ttl=160)
+                    if b is not None:
+                        b["ch"] = ch
+                        b["sc"] = 5
+                        b["bounce"] = {"n": 1, "rest": 0.4}
+            if t == 398:
+                self._set_soul("red")
+            if t == 150:
+                self._needle(bx - 10, floor - 40, 1.1)
+
+        # ======================================================================
+        # BAGS -- "SHARED INVENTORY"  (read the throw, then the swap)
+        # ======================================================================
+        # Her blue bag and Matsu's orange bag hang in the top corners and
+        # throw what is in them. Blue pens fly straight at where you were and
+        # stick where they land; orange cans are lobbed onto a shadow on the
+        # boards, bounce, and fizz a fan of spray upward. Halfway through the
+        # bags swap places -- and throw each other's things.
+        # REPRISE ("she gave every pen back"): the pens stay stuck, and at the
+        # end every one of them flies back to its bag in a straight line.
+        # PHASE 2 -- "whose hand is opening it": the bags drift after you, the
+        # one nearest you does the throwing, and they swap twice.
+
+        def _bag_pos(self, which, t):
+            bx, by, bw, bh = self._arena()
+            sc = self.pat_scratch
+            p2 = self.phase == 2
+            home = {"blue": bx + 44, "orange": bx + bw - 44}
+            swaps = sc.get("swaps", ())
+            x = home[which]
+            for (s0, dur) in swaps:
+                if t >= s0:
+                    u = self._ease((t - s0) / float(dur))
+                    other = bx + bw - 44 if x < bx + bw * 0.5 else bx + 44
+                    x = x + (other - x) * u
+            if p2:
+                follow = sc.get("follow_" + which, 0.0)
+                x = tsb_clamp(x + follow, bx + 34, bx + bw - 34)
+            y = by + 30 + math.sin(t * 0.08 + (0 if which == "blue" else 2.0)) * 3.0
+            return x, y
+
+        def _pat_bags(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            p2 = self.phase == 2
+            # Phase 1's bags always end with every pen going home.
+            reprise = not p2
+            sc = self.pat_scratch
+            if t == 1:
+                sc["swaps"] = [(190, 50)] if not p2 else [(150, 44), (286, 44)]
+            # P2: the bags drift after you.
+            if p2:
+                for which in ("blue", "orange"):
+                    bxx, _ = self._bag_pos(which, t)
+                    f = sc.get("follow_" + which, 0.0)
+                    f += tsb_clamp(self.px - bxx, -0.7, 0.7)
+                    sc["follow_" + which] = tsb_clamp(f, -160.0, 160.0)
+            pos = {w: self._bag_pos(w, t) for w in ("blue", "orange")}
+            swapped = sum(1 for (s0, d) in sc.get("swaps", ()) if t >= s0 + d * 0.5) % 2 == 1
+            for which in ("blue", "orange"):
+                x, y = pos[which]
+                hop = sc.get("hop_" + which, -99)
+                dy = -6.0 * max(0.0, 1.0 - (t - hop) / 8.0) if t - hop < 8 else 0.0
+                self._scene_sprite("bag_" + which, x, y + dy, alpha=1.0)
+            # What each bag throws (swapped after the exchange).
+            def thrower(which):
+                natural = "pen" if which == "blue" else "can"
+                if swapped:
+                    natural = "can" if natural == "pen" else "pen"
+                return natural
+            throws = []
+            if p2:
+                near = min(("blue", "orange"), key=lambda w: abs(pos[w][0] - self.px))
+                for k in range(0, 380, 26):
+                    throws.append((20 + k, near if k % 52 else
+                                   ("orange" if near == "blue" else "blue")))
+            else:
+                for k in range(0, 370, 34):
+                    throws.append((24 + k, "blue"))
+                for k in range(0, 370, 52):
+                    throws.append((44 + k, "orange"))
+            for (t0, which) in throws:
+                if t0 > 350:
+                    continue
+                if p2:
+                    # Whose hand, and what is in it, is decided once -- when
+                    # the item shows in the bag's mouth -- and then kept.
+                    if t == t0 - 20:
+                        sc["who_%d" % t0] = which
+                        sc["pick_%d" % t0] = self.rng.choice(("pen", "can"))
+                    which = sc.get("who_%d" % t0, which)
+                x, y = pos[which]
+                item = thrower(which)
+                if p2:
+                    item = sc.get("pick_%d" % t0, item)
+                if t0 - 20 <= t < t0:
+                    # The item shows in the bag's mouth, pointing where it's going.
+                    tgt = sc.get("aim_%d" % t0)
+                    if t == t0 - 20:
+                        sc["aim_%d" % t0] = (tsb_clamp(self.px, bx + 20, bx + bw - 20),
+                                             tsb_clamp(self.py, by + 30, floor))
+                        tgt = sc["aim_%d" % t0]
+                    if tgt is not None:
+                        ang = math.degrees(math.atan2(tgt[1] - y, tgt[0] - x))
+                        self._scene_sprite(item, x, y + 10,
+                                           rot=(ang if item == "pen" else 0.0),
+                                           alpha=0.4 + 0.6 * (t - t0 + 20) / 20.0)
+                        if item == "pen":
+                            self._scene_line(x, y + 10, tgt[0], tgt[1], 1, 9,
+                                             ghost=True, alpha=0.22)
+                        else:
+                            self._scene_ellipse(tgt[0], floor + 5, 14, 5, 4,
+                                                alpha=0.35)
+                if t == t0:
+                    tgt = sc.get("aim_%d" % t0, (self.px, self.py))
+                    sc["hop_" + which] = t
+                    if item == "pen":
+                        dxx, dyy = tgt[0] - x, tgt[1] - (y + 10)
+                        d = max(1.0, math.hypot(dxx, dyy))
+                        b = self._add_bullet(x, y + 10, dxx / d * 3.7, dyy / d * 3.7,
+                                             kind="pen", ttl=400)
+                        if b is not None:
+                            b["stick"] = 400 if reprise else 60
+                        tsb_play("throw", 0.5)
                     else:
-                        sx, sy = sc["hist"][-min(len(sc["hist"]), 34)]
-                    ax = sc["axis"]
-                    tx = (2.0 * cx - sx) if ax in (0, 2) else sx
-                    ty = (2.0 * cy - sy) if ax in (1, 2) else sy
-                    # It EASES onto its reflection instead of snapping to it.
-                    # A copy has to catch up, and that lag is what makes
-                    # crossing the axis survivable if you commit to it.
-                    k = 0.30 if self.phase == 1 else 0.22
-                    cast["x"] += (tx - cast["x"]) * k
-                    cast["y"] += (ty - cast["y"]) * k
-            # The drizzle, evenly spaced across the FULL width: the mirror
-            # only rules one axis, and nobody gets to park on the other.
-            if t % max(13, int(18 / dens)) == 0:
-                k = (t // 7) % 9
-                self._add_bullet(bx + bw * (k + 0.5) / 9.0, by - 10,
-                                0.0, 1.45, kind="bead", ci=5, sq=3, ttl=300)
-        # ============ PHASE 1 ONLY: the show still running clean =============
-        # These are the moves where the production is competent. They are
-        # legible, they repeat, and they can be LEARNED -- which is the whole
-        # difference between the two halves of the fight. Nothing back here
-        # comes apart.
-
-        def _pat_footlights(self, t, dens):
-            """THE APRON.
-
-            Six lamps along the front of the stage, played like six keys. A
-            PHRASE of eight notes is decided once at the top of the move, and
-            then it repeats -- the same eight lamps, in the same order, at the
-            same tempo, for as long as the move lasts. Each lit lamp shows a
-            flame for twenty ticks and then sends up a column of light.
-
-            The phrase is the point. The first time through you react to it.
-            The second time through it comes back transposed one lamp over,
-            and if you were listening you are already standing where it isn't.
-
-            VERB: learn a phrase and get there before it does."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            lamp_w = bw / 6.0
-            if "phrase" not in sc:
-                # A real phrase, not a shuffle: it steps, it turns around,
-                # and it comes home, so it is memorable after one hearing.
-                sc["phrase"] = [0, 2, 4, 2, 5, 3, 1, 3]
-                sc["lit"] = None
-            beat = max(28, int(34 / dens))
-            if t % beat == 4:
-                idx = t // beat
-                bar = idx // 8
-                lamp = (sc["phrase"][idx % 8] + bar) % 6
-                sc["lit"] = lamp
-                sc["lit_at"] = t + 22
-                lx = bx + (lamp + 0.5) * lamp_w
-                self._spark_burst(lx, by + bh - 4, 6, 4, 1.4, 26, 1.6)
-                tsb_play("glint", 0.7)
-                # The flame sits ON the glass for the whole tell, so the
-                # count-in is a thing you can see and not just hear.
-                self._add_bullet(lx, by + bh - 10, 0.0, 0.0, kind="flame",
-                                ci=4, sq=4, ttl=44, armed_at=10 ** 6)
-                if idx % 8 == 7:
-                    # A bar's rest: one full-width rank drifts up out of the
-                    # boards, evenly spaced, so the phrase never leaves a
-                    # column that is safe for the whole move.
-                    tsb_play("volley", 0.7)
-                    for i in range(7):
-                        self._add_bullet(bx + bw * (i + 0.5) / 7.0,
-                                        by + bh + 12, 0.0, -1.55,
-                                        kind="lamp", ci=8, sq=3, ttl=280)
-            if (sc.get("lit") is not None and sc.get("lit_at") is not None
-                    and t >= sc["lit_at"] and (t - sc["lit_at"]) % 6 == 0
-                    and t - sc["lit_at"] < 30):
-                lx = bx + (sc["lit"] + 0.5) * lamp_w
-                self._add_bullet(lx + self.rng.uniform(-3, 3),
-                                by + bh + 10, 0.0, -2.35,
-                                kind="lamp", ci=4, sq=4)
-                tsb_play("throw", 0.55)
-
-        def _pat_programme(self, t, dens):
-            """THE PROGRAMME.
-
-            She writes things down. It is the first thing anybody who has met
-            her would tell you about her, and it has never once been an
-            attack until now.
-
-            A page fills, top line down: words appear one at a time, left to
-            right, at reading speed, and they are perfectly harmless while
-            they are being written. Thirty ticks after a line finishes, it is
-            STRUCK THROUGH -- a rule drawn the width of the room at that
-            line's height -- and the words on it fall off the page. So the
-            page fills downward and pushes you down with it, line by line,
-            until there is nowhere lower, and then it turns over and starts
-            again from the top.
-
-            VERB: read ahead of the pen. The line being written now is the
-            line that is about to be crossed out, and you can see how long it
-            is going to be before it gets there."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            lines = 5
-            lead = bh / float(lines + 1)
-            page_len = max(300, int(340 / dens))
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % page_len
-            if beat == 0:
-                # A page of a real list is ragged. Decided here, at the top,
-                # so the lengths are readable the whole way down.
-                sc["lens"] = [self.rng.randint(6, 12) for _ in range(lines)]
-                if t > 1:
+                        b = self._lob(x, y + 10, tgt[0], floor - 2, 58, 0.10,
+                                      "can", ttl=300)
+                        if b is not None:
+                            b["bounce"] = {"n": 1, "rest": 0.45}
+                            b["land"] = {"do": "fizz"}
+                        tsb_play("throw", 0.45)
+            # The swap itself trails a little of both bags' contents.
+            for (s0, dur) in sc.get("swaps", ()):
+                if s0 <= t < s0 + dur and t % 6 == 0:
+                    for which in ("blue", "orange"):
+                        x, y = pos[which]
+                        self._debris(x, y + 14, 1, "crumb", 9 if which == "blue" else 4,
+                                     1.2, 50, sq=2, ay=0.08)
+                if t == s0:
                     tsb_play("wire", 0.6)
-                    # The page turns: everything on it goes over the edge.
+            # REPRISE: every stuck pen goes home.
+            if reprise:
+                if 316 <= t < 340:
                     for b in self.bullets:
-                        if b["kind"] == "word":
-                            b["vy"] = 3.2
-                            b["turn"] = None
-                            b["tether"] = None
-                            b["armed_at"] = 0
-            row_every = max(40, int(48 / dens))
-            for i in range(lines):
-                start = 8 + i * row_every
-                y = by + lead * (i + 1)
-                n = sc.get("lens", [10] * lines)[i]
-                if start <= beat < start + n * 3 and (beat - start) % 3 == 0:
-                    k = (beat - start) // 3
-                    # The rule for this line is added strike_in ticks
-                    # from now and draws itself for 26 more, so the word
-                    # falls -- and only then becomes lethal -- on the tick
-                    # the pen actually reaches it.
-                    strike_in = (n - k) * 3 + 30
-                    self._add_bullet(bx + 16 + k * 20.0, y, 0.0, 0.0,
-                                    kind="word", ci=7, sq=3,
-                                    turn={"at": strike_in + 28, "vx": 0.0,
-                                            "vy": 2.5},
-                                    armed_at=strike_in + 24, ttl=400)
-                    if k % 4 == 0:
-                        tsb_play("blip", 0.35)
-                if beat == start + n * 3 + 30:
-                    # The rule. Same telegraph as every other line in the
-                    # fight; what is new is that you have been watching its
-                    # length get decided for two seconds.
-                    self._add_wire("h", y, tel=26, on=20, vol=0.8)
-            # Between pages, the edge of the paper comes up past you, so the
-            # bottom of the box is not a place to wait out a page.
-            if beat == page_len - 30:
-                tsb_play("volley", 0.75)
-                for i in range(8):
-                    self._add_bullet(bx + bw * (i + 0.5) / 8.0,
-                                    by + bh + 12, 0.0, -2.1, kind="thread",
-                                    ci=5, sq=3, ttl=260)
+                        if b.get("kind") == "pen" and b.get("stuck"):
+                            b["jit"] = 2
+                            hx, hy = pos["blue"]
+                            self._scene_line(b["x"], b["y"], hx, hy + 10, 1, 9,
+                                             ghost=True, alpha=0.3)
+                if t == 340:
+                    hx, hy = pos["blue"]
+                    for b in self.bullets:
+                        if b.get("kind") == "pen" and b.get("stuck"):
+                            dxx, dyy = hx - b["x"], hy + 10 - b["y"]
+                            d = max(1.0, math.hypot(dxx, dyy))
+                            b["stuck"] = False
+                            b["stick"] = 0
+                            b["jit"] = 0
+                            b["vx"], b["vy"] = dxx / d * 3.4, dyy / d * 3.4
+                            b["ttl"] = b["age"] + int(d / 3.4) + 2
+                    tsb_play("release", 0.9)
+            if t == (210 if not p2 else 180):
+                self._needle(bx - 10, cy + 30, 1.2)
 
-        def _pat_curtaincall(self, t, dens):
-            """CURTAIN CALL.
+        # ======================================================================
+        # CLOCK -- "UNDER THE STATION CLOCK"  (the room is the clock face)
+        # ======================================================================
+        # The station clock IS the room: the SOUL is confined to its face, and
+        # it asks two things, one at a time.
+        #   KEEP AHEAD OF THE MINUTE HAND. It is the only hand that cuts: a
+        #   steady sweep round the face (about two px/tick at the rim, well
+        #   under your walk). The hour hand crawls and the red second hand
+        #   ticks the time; both are the clock's furniture and harmless.
+        #   SIDESTEP THE CHIMES. On the hour the clock chimes, and bells fall
+        #   straight down the face where you were standing, a walkable gap
+        #   between each (their columns show first).
+        # Rebuilt 2026-09-30 (user: the first cut was unintuitive and its
+        # rim-to-centre bell ring closed too tightly).
+        # The finale is "meet beneath the hand": both hands swing up to twelve
+        # and wait there while the STAND HERE card settles on the hub, then
+        # they spin round once, fast. The card is exactly the place they can't
+        # reach. PHASE 2 -- "clock or mark": the minute hand shudders and runs
+        # backward, then leaps a quarter turn (its ghost waits there first);
+        # the chimes come more often. LATE -- "the hand has to wait": it stops
+        # dead for stretches and trembles before it starts again.
 
-            The house curtain comes IN -- the ceiling lowers and the floor
-            stays where it is, so the room you are playing in becomes a slot
-            the height of three lanes, and the ranks that cross it are fast
-            and evenly spaced and there is not much of anywhere to be.
+        CLOCK_R = 112.0
 
-            Then it stops. The curtain goes back up, and she BOWS: the
-            strings go slack, everything already in the air stops dead, and
-            the house throws flowers -- whole camellias, lobbed in on real
-            arcs, which land on the boards and sit there for a moment before
-            they burst.
+        def _hand(self, cx, cy, ang, length, width, key, live, alpha=1.0, r0=30.0):
+            # A hand's art points RIGHT from the hub and is as long as it is
+            # drawn (the `length` argument is only a reading aid at the call
+            # site). It cuts from r0 to its tip, so the hub is always safe.
+            length = tsb_art_size(key)[0] * 2.0
+            ca, sa = math.cos(ang), math.sin(ang)
+            self._scene_sprite(key, cx + ca * length * 0.5, cy + sa * length * 0.5,
+                               rot=math.degrees(ang), alpha=alpha)
+            if live:
+                self._scene_line(cx + ca * r0, cy + sa * r0,
+                                 cx + ca * (length - 4.0), cy + sa * (length - 4.0),
+                                 width, 2, harm=True, hidden=True)
 
-            VERB: work in a room somebody else keeps deciding the size of,
-            and spend the bow getting clear of where the flowers landed."""
-            base_w, base_h = TSBGame.DODGE_BOX["curtaincall"]
+        def _pat_clock(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            p2 = self.phase == 2
+            late = p2 and self.pattern_slot >= 14
             sc = self.pat_scratch
-            cycle = 244
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            # 1. THE CURTAIN IN (0..76) and the slot (76..140).
-            if beat < 76:
-                p = 0.5 - 0.5 * math.cos(beat / 76.0 * math.pi)
-            elif beat < 148:
-                p = 1.0
-            elif beat < 184:
-                p = max(0.0, 1.0 - (beat - 148) / 36.0)
+            R = TSBGame.CLOCK_R
+            up = -math.pi * 0.5
+            if t == 1:
+                self.arena_circle = (cx, cy, R - 4.0)
+                sc["m_ang"] = up + 2.1          # about four o'clock
+                sc["m_dir"] = 1.0
+            self._scene_sprite("clock", cx, cy)
+            finale = 336
+            gather = 70
+            # ---- the furniture: hour hand crawls, second hand ticks --------
+            h_ang = up + 2.8 + t * 0.0015
+            s_ang = up + (t // 30) * math.pi / 6.0
+            if t % 30 == 0:
+                tsb_play("blip", 0.3)
+            # ---- the minute hand -----------------------------------------------
+            w = 0.019 * sc.get("m_dir", 1.0)
+            shudder = False
+            if t < 40:
+                w = 0.0
+                shudder = t >= 16
+            if p2 and not late:
+                for rv_t in (130, 250):
+                    if rv_t - 30 <= t < rv_t:
+                        w = 0.0
+                        shudder = True
+                    if t == rv_t:
+                        sc["m_dir"] = -sc.get("m_dir", 1.0)
+                        tsb_play("snap", 0.5)
+                jump_t = 190
+                if jump_t - 36 <= t < jump_t:
+                    self._hand(cx, cy, sc["m_ang"] + math.pi * 0.5, 0, 10,
+                               "hand_min", False, alpha=0.35)
+                if t == jump_t:
+                    sc["m_ang"] += math.pi * 0.5
+                    tsb_play("dagger", 0.8)
+                    self._spark_burst(cx, cy, 12, 2, 2.6, 24)
+            if late:
+                for (w0, w1) in ((90, 150), (210, 270)):
+                    if w0 <= t < w1:
+                        w = 0.0
+                    if w1 - 24 <= t < w1:
+                        shudder = True
+                    if t == w1:
+                        tsb_play("snap", 0.5)
+            if t < finale - gather:
+                sc["m_ang"] = sc.get("m_ang", 0.0) + w
+                m_ang = sc["m_ang"] + (math.sin(t * 1.3) * 0.03 if shudder else 0.0)
+                self._hand(cx, cy, h_ang, 0, 14, "hand_hour", False)
+                self._hand(cx, cy, s_ang, 0, 4, "hand_sec", False, alpha=0.9)
+                self._hand(cx, cy, m_ang, 0, 10, "hand_min", t >= 40)
+            # ---- the chimes: bells fall down the face where you were ---------
+            chimes = (104, 220) if not p2 else (84, 168, 252)
+            n_b = 4 if p2 else 3
+            top = cy - R + 16
+            for c, c0 in enumerate(chimes):
+                if t == c0 - 30:
+                    base = tsb_clamp(self.px, cx - R + 30, cx + R - 30)
+                    sc["bells_%d" % c] = [base + (j - (n_b - 1) * 0.5) * 52.0
+                                          for j in range(n_b)]
+                    tsb_play("glint", 0.6)
+                xs = sc.get("bells_%d" % c)
+                if xs is None:
+                    continue
+                if c0 - 30 <= t < c0:
+                    u = (t - c0 + 30) / 30.0
+                    for x in xs:
+                        self._scene_sprite("bell", x, top, alpha=0.3 + 0.6 * u,
+                                           rot=math.sin(t * 0.5) * 12.0)
+                        self._scene_rect(x - 8, top + 10, 16, R * 2 - 30, ci=8,
+                                         ghost=True, alpha=0.05 + 0.10 * u)
+                if t == c0:
+                    tsb_play("bloom", 0.8)
+                    for x in xs:
+                        self._add_bullet(x, top, 0.0, 1.2, kind="bell", ay=0.1,
+                                         ttl=110)
+            # ---- "meet beneath the hand" -----------------------------------------
+            if finale - gather <= t < finale:
+                u = self._ease((t - finale + gather) / float(gather))
+                # both hands swing up to twelve and wait there, harmless
+                m0 = sc.get("m_ang", up)
+                target = up + math.pi * 2.0 * round((m0 - up) / (math.pi * 2.0))
+                self._hand(cx, cy, m0 + (target - m0) * u, 0, 10, "hand_min", False)
+                self._hand(cx, cy, h_ang + (up - h_ang) * u, 0, 14, "hand_hour", False)
+                self._scene_circle(cx, cy, 34, ci=8, ghost=True,
+                                   alpha=0.3 + 0.6 * u, outline=True)
+                self._scene_sprite("card", cx, cy, alpha=u, sc=1)
+                if t == finale - gather:
+                    tsb_play("glint", 0.9)
+            if finale <= t < finale + 60:
+                k = t - finale
+                a = up + (k / 60.0) * math.pi * 2.0 * (1.0 if not p2 else -1.0)
+                self._scene_sprite("card", cx, cy, sc=1)
+                self._hand(cx, cy, a, 0, 10, "hand_min", True, r0=46.0)
+                self._hand(cx, cy, a + math.pi, 0, 10, "hand_min", True, r0=46.0)
+                self._hand(cx, cy, up + (a - up) * 0.5, 0, 14, "hand_hour", False)
+                if k % 10 == 0:
+                    tsb_play("blip", 0.5)
+            if t >= finale + 60:
+                # Eleven o'clock. They stop.
+                self._hand(cx, cy, up, 0, 10, "hand_min", False)
+                self._hand(cx, cy, up - math.pi / 6.0, 0, 14, "hand_hour", False)
+                if t == finale + 60:
+                    self._slam(cx, cy, 1.0, 8, "spark", "confirm", 0.8)
+            self._scene_sprite("hub", cx, cy, sc=3)
+            if t == (130 if not p2 else 110):
+                a = self.rng.uniform(0, 6.28)
+                self._needle(cx + math.cos(a) * 80, cy + math.sin(a) * 80,
+                             -math.cos(a) * 0.9, -math.sin(a) * 0.9, ttl=150)
+
+        # ======================================================================
+        # CROWD -- "STAND HERE"  (the station: cyan, stand still; orange, move)
+        # ======================================================================
+        # Commuters cross the concourse in columns. A white column has one
+        # missing person: walk into that place (a yellow bracket names it at
+        # the wall before the column steps out). A CYAN column is full -- the
+        # card that said STAND HERE drops in to say what it means: hold still
+        # and the crowd walks through you. An ORANGE column is full too: keep
+        # moving and you slip through it.
+        # REPRISE ("the place holds through a revision"): the card itself
+        # rides in every column's missing place. Follow the card.
+        # PHASE 2 -- "clip or card": columns come from both walls at once,
+        # traffic stops and surges, and two columns change colour mid-
+        # crossing (they flicker between both colours for half a second, and
+        # the missing commuter steps back into the lane as they turn).
+        # LATE ("once"): the card appears for the first cyan column only.
+
+        def _pat_crowd(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            p2 = self.phase == 2
+            reprise = (not p2) and self.pattern_slot == 9
+            late = p2 and self.pattern_slot >= 10
+            sc = self.pat_scratch
+            rows = self._crowd_rows()
+            # the platform edge
+            self._scene_line(bx + 8, by + bh - 7, bx + bw - 8, by + bh - 7, 2, 8,
+                             ghost=True, alpha=0.35)
+            spd = 2.2
+            surge = ()
+            if reprise:
+                sched = [(20, "L", 2, None), (74, "R", 0, None),
+                         (128, "L", 3, None), (182, "R", None, "cyan"),
+                         (236, "L", 1, None), (290, "R", 4, None)]
+            elif not p2:
+                # Cyan and orange columns only ever travel the SAME way, so
+                # the time between them is the same everywhere in the room.
+                sched = [(20, "L", 2, None), (70, "R", 1, None),
+                         (120, "L", None, "cyan"), (170, "L", 3, None),
+                         (200, "R", 2, None), (240, "L", None, "orange"),
+                         (282, "L", None, "cyan"), (320, "L", 3, None)]
             else:
-                p = 0.0
-            take = 118.0 * p
-            self.box_target = [TSB_BOX_CX, TSB_BOX_CY + take * 0.5,
-                                base_w, base_h - take]
-            bx, by, bw, bh = self._box_rect()
-            if 78 <= beat < 146 and (beat - 78) % max(26, int(34 / dens)) == 0:
-                tsb_play("volley", 0.8)
-                left = ((beat - 78) // 34) % 2 == 0
-                spacing = 46.0
-                count = max(2, int(bh / spacing))
-                y0 = by + (bh - (count - 1) * spacing) * 0.5
-                for i in range(count):
-                    self._add_bullet(bx - 12 if left else bx + bw + 12,
-                                    y0 + i * spacing,
-                                    3.0 if left else -3.0, 0.0,
-                                    kind="pellet", ci=0 if left else 1, sq=4)
-            # 2. THE BOW (150). Everything in the air holds its breath.
-            if beat == 150:
-                tsb_play("wire", 0.9)
-                self.shake = max(self.shake, 14)
+                # A cyan era, then an orange one; a column that changes color
+                # only ever joins the era it changes into, from the same side.
+                sched = [(20, "L", 1, None), (20, "R", 3, None),
+                         (60, "L", None, "cyan"), (110, "R", 2, None),
+                         (150, "L", 3, "flip_cyan"), (280, "L", None, "orange"),
+                         (300, "R", 1, "flip_orange")]
+                surge = (1, 3)
+            first_cyan = None
+            for si, (s0, side, lane, rule) in enumerate(sched):
+                if rule == "cyan" and first_cyan is None:
+                    first_cyan = si
+                tag = "crowd%d" % si
+                x0 = bx - 16 if side == "L" else bx + bw + 16
+                vx = spd if side == "L" else -spd
+                real_rule = rule if rule in ("cyan", "orange") else None
+                if s0 - 34 <= t < s0:
+                    u = (t - s0 + 34) / 34.0
+                    ex = bx + 10 if side == "L" else bx + bw - 10
+                    col = {"cyan": 9, "orange": 4}.get(real_rule, 2)
+                    self._scene_rect(ex - 3, by + 6, 6, bh - 12, ci=col, ghost=True,
+                                     alpha=0.2 + 0.5 * u)
+                    if lane is not None and real_rule is None:
+                        self._scene_rect(ex - 12, rows[lane] - 23, 24, 46, ci=8,
+                                         ghost=True, alpha=0.3 + 0.5 * u, outline=True)
+                        if reprise:
+                            self._scene_sprite("card", ex + (40 if side == "L" else -40),
+                                               rows[lane], sc=1, alpha=u)
+                    if real_rule == "cyan" and (not late or si == first_cyan):
+                        self._scene_sprite("card", cx, by + 26, sc=2,
+                                           alpha=0.4 + 0.6 * u)
+                    if t == s0 - 34:
+                        tsb_play("glint", 0.6)
+                if t == s0:
+                    self._crowd_column(x0, vx, lane if real_rule is None else None,
+                                       rule=real_rule, tag=tag)
+                    tsb_play("volley", 0.55)
+                if reprise and lane is not None and t > s0:
+                    # The card rides in the missing place.
+                    body = [b for b in self.bullets if b.get("tag") == tag]
+                    if body:
+                        self._scene_sprite("card", body[0]["x"], rows[lane], sc=1)
+                if rule in ("flip_orange", "flip_cyan"):
+                    new = "orange" if rule == "flip_orange" else "cyan"
+                    at = s0 + 70
+                    body = [b for b in self.bullets if b.get("tag") == tag]
+                    if at - 30 <= t < at and body:
+                        for b in body:
+                            b["flicker"] = new
+                    if t == at and body:
+                        # Close the lane first: the missing commuter steps in.
+                        for b in body:
+                            b["rule"] = new
+                            b["flicker"] = None
+                        if lane is not None:
+                            nb = self._add_bullet(body[0]["x"], rows[lane], vx, 0.0,
+                                                  kind="commuter", ttl=460, rule=new)
+                            if nb is not None:
+                                nb["tag"] = tag
+                        tsb_play("denied", 0.5)
+                if si in surge:
+                    # Stop-and-surge traffic: it halts (and shivers), then
+                    # hurries on at 1.6x -- still slower than the SOUL.
+                    k = t - s0
+                    body = [b for b in self.bullets if b.get("tag") == tag]
+                    if body and k == 60:
+                        for b in body:
+                            b["vx"] = 0.0
+                            b["jit"] = 1
+                        tsb_play("glint", 0.5)
+                    if body and k == 84:
+                        for b in body:
+                            b["vx"] = vx * 1.6
+                            b["jit"] = 0
+            if t == 150:
+                self._needle(cx, by - 8, 0.0, 1.0, ttl=260)
+
+        # ======================================================================
+        # LUNCH -- "THE THIRD STOP"  (food: read the bounce, dodge the pinch)
+        # ======================================================================
+        # Rice crackers are tossed in, bounce off the walls, and CRACK into
+        # crumbs when they hit the boards. Chopsticks hover over where you
+        # were -- their closed position drawn pale -- and pinch. The bento on
+        # the floor spills rice now and then. "Green, to your left!": a needle
+        # appears beside you, and it is yours. The lunch-box lid comes down
+        # over the top half of the room to finish.
+        # PHASE 2 -- "take it, take it": three needles, and whichever you take,
+        # the chopsticks come for the place you took it; crackers come three
+        # at a time; the lid comes down twice, top half then bottom half.
+
+        def _chopsticks(self, tx, ty, u, live):
+            # Two sticks pivoting from high corners so their tips meet at the
+            # target. u is the close: 0 open, 1 shut.
+            L = 204.0
+            out = []
+            for sgn in (-1.0, 1.0):
+                pvx = tx + sgn * 150.0
+                pvy = ty - 140.0
+                final = math.atan2(ty - pvy, tx - pvx)
+                ang = final + sgn * (-0.55) * (1.0 - u)
+                ca, sa = math.cos(ang), math.sin(ang)
+                self._scene_sprite("chopstick", pvx + ca * L * 0.5, pvy + sa * L * 0.5,
+                                   rot=math.degrees(ang), alpha=1.0 if live else 0.55)
+                if live:
+                    self._scene_line(pvx + ca * 20, pvy + sa * 20, pvx + ca * L,
+                                     pvy + sa * L, 8, 7, harm=True, hidden=True)
+            return out
+
+        def _pat_lunch(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            p2 = self.phase == 2
+            sc = self.pat_scratch
+            rattle = 14 <= t % 60 < 30 and t < 330
+            self._scene_sprite("bento", cx + ((t % 4) - 1.5 if rattle else 0.0),
+                               floor - 4, alpha=0.95)
+            # Crackers --------------------------------------------------------
+            every = 44 if p2 else 30
+            if 10 <= t < 330 and t % every == 10:
+                n = 3 if p2 else 1
+                for j in range(n):
+                    k = (t // every) * 3 + j
+                    x = bx + 40 + ((k * 97) % int(bw - 80))
+                    vx = (1.4 if k % 2 else -1.4) * (1.0 + 0.2 * j)
+                    b = self._add_bullet(x, by - 8, vx, 1.2, kind="cracker",
+                                         ay=0.06, ttl=400)
+                    if b is not None:
+                        b["walls"] = True
+                        b["land"] = {"do": "crack"}
+                tsb_play("throw", 0.4)
+            # Chopsticks ------------------------------------------------------
+            pinches = [(80,), (170,), (260,)] if not p2 else [(70,), (150,)]
+            for k, (p0,) in enumerate(pinches):
+                if t == p0:
+                    sc["pinch_%d" % k] = (tsb_clamp(self.px, bx + 30, bx + bw - 30),
+                                          tsb_clamp(self.py, by + 30, floor - 10))
+                    tsb_play("glint", 0.8)
+                spec = sc.get("pinch_%d" % k)
+                if spec is None:
+                    continue
+                tx, ty = spec
+                if p0 <= t < p0 + 36:
+                    self._chopsticks(tx, ty, 0.0, False)
+                    self._chopsticks(tx, ty, 1.0, False)
+                    self._scene_circle(tx, ty, 8, ci=8, ghost=True, alpha=0.8, outline=True)
+                elif p0 + 36 <= t < p0 + 60:
+                    u = self._ease((t - p0 - 36) / 8.0)
+                    self._chopsticks(tx, ty, u, True)
+                    if t == p0 + 44:
+                        self._slam(tx, ty, 0.8, 7, "crumb", "snap", 0.8)
+            # P2: needles, and the chopsticks come for where you took one.
+            if p2:
+                for k, (n0, ox, oy) in enumerate(((200, -90, 0), (214, 90, 0), (228, 0, -80))):
+                    if t == n0:
+                        b = self._needle(tsb_clamp(self.px + ox, bx + 20, bx + bw - 20),
+                                         tsb_clamp(self.py + oy, by + 20, floor - 10),
+                                         0.0, 0.0, ttl=120)
+                        if b is not None:
+                            b["tag"] = "gift"
+                if 200 <= t < 330 and "gift_taken" not in sc:
+                    if sc.get("healed_at") is not None:
+                        sc["gift_taken"] = (self.px, self.py, t)
+                taken = sc.get("gift_taken")
+                if taken:
+                    tx, ty, t0 = taken
+                    if t0 <= t < t0 + 30:
+                        self._chopsticks(tx, ty, 1.0, False)
+                        self._scene_circle(tx, ty, 8, ci=0, ghost=True, alpha=0.9,
+                                           outline=True)
+                    elif t0 + 30 <= t < t0 + 52:
+                        self._chopsticks(tx, ty, self._ease((t - t0 - 30) / 8.0), True)
+            else:
+                if t == 200:
+                    self._needle(tsb_clamp(self.px - 80, bx + 16, bx + bw - 16),
+                                 tsb_clamp(self.py, by + 20, floor - 10), 0.35,
+                                 0.0, ttl=180)
+            # Rice spill --------------------------------------------------------
+            if t % 60 == 30 and t < 330:
+                for j in range(3):
+                    self._add_bullet(cx + (j - 1) * 6, floor - 12,
+                                     (j - 1) * 0.7, -3.4 - 0.2 * j, kind="rice",
+                                     ay=0.11, ttl=120)
+            # The lid -------------------------------------------------------------
+            lids = [(340, "top")] if not p2 else [(330, "top"), (374, "bottom")]
+            for (l0, half) in lids:
+                y0 = by if half == "top" else cy
+                if l0 - 40 <= t < l0:
+                    u = (t - l0 + 40) / 40.0
+                    self._scene_rect(bx + 2, y0, bw - 4, bh * 0.5, ci=0, ghost=True,
+                                     alpha=0.06 + 0.14 * u)
+                    if (t // 5) % 2 == 0:
+                        self._scene_rect(bx + 4, y0 + 2, bw - 8, bh * 0.5 - 4,
+                                         ci=0, ghost=True, alpha=0.5 + 0.4 * u,
+                                         outline=True)
+                    if t == l0 - 40:
+                        tsb_play("glint", 0.8)
+                elif l0 <= t < l0 + 20:
+                    self._scene_rect(bx, y0, bw, bh * 0.5, ci=6, harm=True, alpha=0.85)
+                    self._scene_rect(cx - 50, y0 + bh * 0.25 - 5, 100, 10, ci=8,
+                                     ghost=True, alpha=0.9)
+                    if t == l0:
+                        self._slam_line(bx + 10, cy, bx + bw - 10, cy, 1.1, 6, "rice", 5,
+                                        "fall", 0.7)
+
+        # ======================================================================
+        # STRUNG -- "THE STRINGS MOVE FIRST"  (phase 2 only: the SOUL is strung)
+        # ======================================================================
+        # Her strings come down across the room and the SOUL is tied to them:
+        # slide along a string with left/right, hop to the next with up/down
+        # (the Undertale purple-soul rule, and here it means something).
+        # Petals crawl along the strings from their pins; petals drop across
+        # them where you were; a string trembles and is YANKED, carrying you
+        # with it. Then the strings tilt.
+        # LATE ("no next cue arrives on its own"): the strings fray and are cut
+        # one by one -- you drop to the next -- until the last one goes and
+        # the SOUL falls free, into silence.
+
+        def _pat_strung(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            late = self.pattern_slot >= 15
+            sc = self.pat_scratch
+            n = 4
+            if t == 1:
+                self.strings_on = []
+                for k in range(n):
+                    y = by + bh * (k + 1) / float(n + 1)
+                    self.strings_on.append({"id": k, "y0": y, "y1": y,
+                                            "base": y, "alive": True, "yank": 0.0,
+                                            "tremble": 0})
+                self._set_soul("strung")
+            strings = self.strings_on
+            # tilt (non-late second half)
+            if not late and t >= 230:
+                u = self._ease((t - 230) / 60.0)
+                for s in strings:
+                    tilt = (14.0 if s["id"] % 2 == 0 else -14.0) * u
+                    s["y0"] = s["base"] - tilt + s["yank"]
+                    s["y1"] = s["base"] + tilt + s["yank"]
+            else:
+                for s in strings:
+                    s["y0"] = s["base"] + s["yank"]
+                    s["y1"] = s["base"] + s["yank"]
+            # yanks
+            yanks = ((110, 1), (170, 2), (300, 0)) if not late else ((90, 2), (200, 1))
+            for (y0, k) in yanks:
+                if k >= len(strings):
+                    continue
+                s = strings[k]
+                if y0 - 30 <= t < y0:
+                    s["tremble"] = 2
+                if y0 <= t < y0 + 8:
+                    s["tremble"] = 0
+                    s["yank"] = -26.0 * self._ease((t - y0) / 8.0)
+                elif y0 + 8 <= t < y0 + 40:
+                    s["yank"] = -26.0 * (1.0 - self._ease((t - y0 - 8) / 32.0))
+                if t == y0:
+                    tsb_play("wire", 0.8)
+            # crawlers along strings
+            crawl = [(40, 0, "L"), (64, 2, "R"), (96, 1, "L"), (128, 3, "R"),
+                     (150, 0, "R"), (150, 2, "L"), (206, 1, "R"), (240, 3, "L"),
+                     (262, 0, "L"), (290, 2, "R"), (318, 1, "L"), (340, 3, "R")]
+            if late:
+                crawl = [(40, 0, "L"), (70, 3, "R"), (110, 2, "L"), (150, 1, "R"),
+                         (190, 3, "L"), (240, 0, "R"), (280, 2, "L")]
+            for (c0, k, side) in crawl:
+                if k >= len(strings) or not strings[k]["alive"]:
+                    continue
+                s = strings[k]
+                ex = bx + 6 if side == "L" else bx + bw - 6
+                if c0 - 30 <= t < c0:
+                    u = (t - c0 + 30) / 30.0
+                    yy = s["y0"] if side == "L" else s["y1"]
+                    self._scene_sprite("petal", ex, yy, alpha=0.3 + 0.6 * u)
+                    self._scene_circle(ex, yy, 10, ci=8, ghost=True, alpha=0.5 * u,
+                                       outline=True)
+                if t == c0:
+                    b = self._add_bullet(ex, s["y0"] if side == "L" else s["y1"],
+                                         2.3 if side == "L" else -2.3, 0.0,
+                                         kind="petal", ttl=240)
+                    if b is not None:
+                        b["on_string"] = k
+                    tsb_play("throw", 0.35)
+            # drops across the strings
+            drops = (80, 140, 196, 256, 320) if not late else (60, 130, 170, 230, 270)
+            for d0 in drops:
+                if t == d0:
+                    sc["drop_%d" % d0] = tsb_clamp(self.px, bx + 20, bx + bw - 20)
+                    tsb_play("glint", 0.5)
+                dx = sc.get("drop_%d" % d0)
+                if dx is None:
+                    continue
+                if d0 <= t < d0 + 24:
+                    self._scene_rect(dx - 10, by + 4, 20, bh - 8, ci=0, ghost=True,
+                                     alpha=0.18)
+                if t == d0 + 24:
+                    for j in range(2):
+                        self._add_bullet(dx + (j - 0.5) * 12, by - 6 - j * 18, 0.0, 2.6,
+                                         kind="petal", ttl=200)
+            # cuts (late): each string frays red, then snaps
+            if late:
+                for k, c0 in enumerate((120, 220, 310, 390)):
+                    order = (0, 3, 1, 2)
+                    sid = order[k]
+                    if sid >= len(strings):
+                        continue
+                    s = strings[sid]
+                    if c0 - 40 <= t < c0 and s["alive"]:
+                        s["fray"] = True
+                    if t == c0 and s["alive"]:
+                        s["alive"] = False
+                        s["fray"] = False
+                        self._spark_burst(cx, s["base"], 18, 5, 3.4, 40)
+                        tsb_play("snap", 0.9)
+                        self.flash = max(self.flash, 0.12)
+                if t >= 392:
+                    self._set_soul("red")
+            if t == 180 and len(strings) > 1 and strings[1]["alive"]:
+                nb = self._needle(bx - 10, strings[1]["y0"], 1.2)
+                if nb is not None:
+                    nb["on_string"] = 1
+            if not late and t == 408:
+                self._set_soul("red")
+
+        # ======================================================================
+        # ITINERARY -- "BOOKSTORE, ARCADE, FOOD"  (phase 1's last turn)
+        # ======================================================================
+        # The whole day, in order, one stop at a time -- and then the only
+        # item on today's list.
+
+        def _pat_itinerary(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
+            sc = self.pat_scratch
+            names = ((1, "1.BOOKSTORE"), (118, "2.ARCADE"), (236, "3.FOOD"),
+                     (300, "TODAY: STAND HERE"))
+            for (n0, label) in names:
+                if n0 <= t < n0 + 40:
+                    a = 1.0 - max(0.0, (t - n0 - 26) / 14.0)
+                    self._scene_text(label, cx - len(label) * 6, by + 8, 8, sc=2,
+                                     alpha=a)
+                if t == n0:
+                    tsb_play("confirm", 0.6)
+                    self.flash = max(self.flash, 0.10)
+            # 1. books from both cases, one lane
+            if 10 <= t < 40:
+                self._book_telegraph(bx + 38, 5, (t - 10) / 30.0)
+                self._book_telegraph(bx + bw - 38, 5, (t - 10) / 30.0)
+            if t == 40:
+                self._book_column(bx + 38, 2.4, 5, tag="i1")
+                self._book_column(bx + bw - 38, -2.4, 5, tag="i2")
+                tsb_play("volley", 0.7)
+            self._scene_sprite("shelf", bx + 18, cy, alpha=0.5 if t < 118 else 0.2)
+            self._scene_sprite("shelf", bx + bw - 18, cy, alpha=0.5 if t < 118 else 0.2,
+                               flip=True)
+            # 2. the arcade, blue soul
+            if t == 124:
+                self._set_soul("blue")
+            if t in (140, 176, 206):
+                side = "L" if t != 176 else "R"
+                self._add_bullet(bx - 12 if side == "L" else bx + bw + 12, floor - 4,
+                                 2.0 if side == "L" else -2.0, 0.0, kind="critter",
+                                 ttl=300)
+            if t == 190:
+                for j in range(5):
+                    self._add_bullet(cx - 116 + j * 58, by + 40, 0.0, 2.6,
+                                     kind="rice", ttl=200)
+                tsb_play("volley2", 0.6)
+            if 170 <= t < 190:
+                for j in range(5):
+                    self._scene_sprite("critter_a", cx - 116 + j * 58, by + 34,
+                                       tint="#ffe23d" if t > 180 else None)
+            if t == 236:
+                self._set_soul("red")
+            # 3. food
+            if t in (244, 260, 276, 292):
+                k = (t - 244) // 16
+                x = bx + 60 + ((k * 131) % int(bw - 120))
+                b = self._add_bullet(x, by - 8, 1.3 if k % 2 else -1.3, 1.3,
+                                     kind="cracker", ay=0.06, ttl=300)
+                if b is not None:
+                    b["walls"] = True
+                    b["land"] = {"do": "crack"}
+            if t == 262:
+                sc["pinch"] = (tsb_clamp(self.px, bx + 30, bx + bw - 30),
+                               tsb_clamp(self.py, by + 30, floor - 10))
+            if sc.get("pinch"):
+                tx, ty = sc["pinch"]
+                if 262 <= t < 294:
+                    self._chopsticks(tx, ty, 1.0, False)
+                elif 294 <= t < 314:
+                    self._chopsticks(tx, ty, self._ease((t - 294) / 8.0), True)
+            # 4. today: stand here
+            if 300 <= t < 334:
+                u = (t - 300) / 34.0
+                self._scene_sprite("card", cx, by + 26, sc=2, alpha=0.4 + 0.6 * u)
+                self._scene_rect(bx + 7, by + 6, 6, bh - 12, ci=9, ghost=True,
+                                 alpha=0.2 + 0.5 * u)
+            if t == 334:
+                self._crowd_column(bx - 16, 2.6, None, rule="cyan", tag="today")
+            if t == 250:
+                self._needle(bx + bw + 10, cy, -1.2)
+
+        # ======================================================================
+        # REVISION -- "REVISED"  (phase 2 only: the room rewinds, and edits)
+        # ======================================================================
+        # Someone else's memory writes over hers. Something happens -- a book
+        # column crosses, a line of the list drops, the sword thrusts -- and
+        # then the tape REWINDS: everything in the room runs backward along
+        # the path you just watched it take (so the answer is the one you
+        # already found), and then a REVISED stamp slams down and it happens
+        # again, differently.
+
+        def _rewind(self, tags=None, on=True):
+            for b in self.bullets:
+                if tags is None or b.get("tag") in tags:
+                    b["vx"] = -b["vx"]
+                    b["vy"] = -b["vy"]
+            self.rewinding = on
+            tsb_play("wire" if on else "confirm", 0.7)
+
+        def _pat_revision(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            sc = self.pat_scratch
+            n_rows = len(self._book_rows())
+            self._scene_sprite("shelf", bx + 18, cy, alpha=0.6)
+            # A: a column crosses, rewinds, is revised
+            if 8 <= t < 40:
+                self._book_telegraph(bx + 38, 7, (t - 8) / 32.0)
+            if t == 40:
+                self._book_column(bx + 38, 2.6, min(7, n_rows - 3), tag="rA")
+                tsb_play("volley", 0.7)
+            if t == 116:
+                self._rewind(("rA",))
+                sc["rw_until"] = 176
+            if t == 176:
+                self._rewind(("rA",), on=False)
+                for b in self.bullets:
+                    if b.get("tag") == "rA":
+                        b["fz"] = 14
+                sc["stamp"] = t
+            if 176 <= t < 206:
+                self._book_telegraph(bx + 38, 1, (t - 176) / 30.0)
+            if t == 206:
+                self._book_column(bx + 38, 2.8, 1, tag="rA2")
+            # B: a line drops, rewinds up, is revised
+            if 130 <= t < 150:
+                self._scene_text("2.ARCADE"[:1 + (t - 130) // 2],
+                                 bx + bw - 12 - 18 * 8, by + 3, 8, sc=3, alpha=0.55)
+            if 280 <= t < 300:
+                self._scene_text("2.FOOD"[:1 + (t - 280) // 3],
+                                 bx + 12, by + 3, 8, sc=3, alpha=0.55)
+            if t == 150:
+                self._text_line("2.ARCADE", bx + bw - 12 - 18 * 8, by + 16, tag="rB")
+                self._tag_set("rB", vy=1.5)
+            if t == 260:
+                self._rewind(("rB",))
+            if t == 300:
+                self._rewind(("rB",), on=False)
+                for b in self.bullets:
+                    if b.get("tag") == "rB":
+                        b["fz"] = 14
+                sc["stamp"] = t
+                self._text_line("2.FOOD", bx + 12, by + 16, tag="rB2")
+                self._tag_set("rB2", vy=1.6)
+            # C: the sword thrusts at your old height, rewinds, revised from
+            # the other wall
+            if t == 318:
+                sc["thr"] = tsb_clamp(self.py, by + 24, by + bh - 24)
+            thr = sc.get("thr")
+            if thr is not None:
+                if 318 <= t < 346:
+                    self._scene_rect(bx + 4, thr - 14, bw - 8, 28, ci=1, ghost=True,
+                                     alpha=0.2)
+                    self._sword(bx + bw + 20 - 30 * (t - 318) / 28.0, thr, math.pi, False)
+                elif 346 <= t < 366:
+                    k = t - 346
+                    reach = (bw - 70) * self._ease(min(1.0, k / 6.0))
+                    self._sword(bx + bw - 10 - reach, thr, math.pi, True)
+                elif 366 <= t < 380:
+                    # The tape runs back: the blade withdraws along its line.
+                    k = t - 366
+                    reach = (bw - 70) * (1.0 - self._ease(k / 14.0))
+                    self._sword(bx + bw - 10 - reach, thr, math.pi, False, alpha=0.6)
+                    if k == 0:
+                        self.rewinding = True
+                        tsb_play("wire", 0.6)
+                if t == 380:
+                    self.rewinding = False
+                    sc["stamp"] = t
+                    sc["thr2"] = tsb_clamp(self.py, by + 24, by + bh - 24)
+            thr2 = sc.get("thr2")
+            if thr2 is not None:
+                if 380 <= t < 404:
+                    self._scene_rect(bx + 4, thr2 - 14, bw - 8, 28, ci=1, ghost=True,
+                                     alpha=0.2)
+                    self._sword(bx - 20 + 30 * (t - 380) / 24.0, thr2, 0.0, False)
+                elif 404 <= t < 422:
+                    k = t - 404
+                    reach = (bw - 70) * self._ease(min(1.0, k / 6.0))
+                    self._sword(bx + 10 + reach, thr2, 0.0, k < 14)
+            st = sc.get("stamp")
+            if st is not None and st <= t < st + 30:
+                self._scene_sprite("stamp_revised", cx, cy - 40, sc=3,
+                                   alpha=1.0 - max(0.0, (t - st - 20) / 10.0))
+                if t == st:
+                    self._slam(cx, cy - 40, 1.0, 0, "crumb", "snap", 0.9,
+                               flash=0.14)
+            if t == 230:
+                self._needle(bx - 10, cy + 50, 1.2)
+
+        # ======================================================================
+        # FIRST -- "ME FIRST"  (forced: she takes your first turn)
+        # ======================================================================
+        # Undertale's oldest joke on the player, told her way. The menu comes
+        # up, the flavor line says she is waiting for you to go first, you
+        # press a button -- and she cuts in. She always lets everyone go
+        # first; this once she doesn't, and she opens with everything:
+        #   I.   the flavor line you were reading falls apart on you, word by
+        #        word, inside the wide menu box (each word shivers first);
+        #   II.  the box snaps shut to a small square;
+        #   III. book columns from alternating walls, each lane sharing a row
+        #        with the last, so a crossing always has somewhere to go;
+        #   IV.  the inflatable sword spins in a room barely bigger than it
+        #        -- the corners are the only places it can't reach;
+        #   V.   four whole camellias fall where you were and burst;
+        #   VI.  a green needle, which is her apologizing.
+        # Hard on purpose, and it can be finished untouched.
+
+        FIRST_SQUARE = 250.0
+
+        def _first_letters(self):
+            # The exact glyphs the menu was showing, as bodies: "* " at the
+            # box's text margin and the flavor two cells after it.
+            bx, by, bw, bh = self._arena()
+            line = "* " + TSB_FLAVOR_FIRST
+            x0 = bx + 22.0
+            y = by + 20.0 + TSB_GLYPH_H
+            word = 0
+            words = 1
+            for i, ch in enumerate(line):
+                if ch == " ":
+                    if i > 0 and line[i - 1] != " ":
+                        word += 1
+                        words += 1
+                    continue
+                b = self._add_bullet(x0 + i * 12.0 + 5.0, y, 0.0, 0.0,
+                                     kind="glyph", ttl=900, armed_at=10 ** 6)
+                if b is not None:
+                    b["ch"] = ch
+                    b["sc"] = 2
+                    b["word"] = word
+            order = list(range(words))
+            self.rng.shuffle(order)
+            self.pat_scratch["word_order"] = order
+
+        def _pat_first(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            sc = self.pat_scratch
+            # I. the flavor line falls apart, one shivering word at a time.
+            for k, w in enumerate(sc.get("word_order", ())):
+                d0 = 36 + k * 13
+                if t == d0 - 20:
+                    self._tag_word(w, jit=2)
+                    tsb_play("glint", 0.5)
+                if t == d0:
+                    for b in self.bullets:
+                        if b.get("word") == w and b["kind"] == "glyph":
+                            b["jit"] = 0
+                            b["armed_at"] = b["age"]
+                            b["vy"] = 0.6
+                            b["vx"] = self.rng.uniform(-0.25, 0.25)
+                            b["ay"] = 0.2
+                            b["bounce"] = {"n": 0}
+                    tsb_play("throw", 0.5)
+            # II. the squeeze.
+            if t == 160:
+                side = TSBGame.FIRST_SQUARE
+                self.box_target = [TSB_BOX_CX, TSB_BOX_CY, side, side]
+                self.shake = max(self.shake, 10)
+                tsb_play("snap", 0.9)
+                for b in self.bullets:
+                    if b["kind"] == "glyph":
+                        b["fz"] = min(b["fz"] or 12, 12)
+            if t < 186:
+                return
+            # III. books, alternating walls; consecutive lanes share a row.
+            rows = self._book_rows()
+            n_rows = len(rows)
+            for si, (launch, side, gap) in enumerate(((220, "L", 2), (254, "R", 3),
+                                                      (288, "L", 5), (322, "R", 6))):
+                gap = min(gap, n_rows - 3)
+                x0 = bx + 30 if side == "L" else bx + bw - 30
+                vx = 3.0 if side == "L" else -3.0
+                if launch - 30 <= t < launch:
+                    self._book_telegraph(x0, gap, (t - launch + 30) / 30.0)
+                    if t == launch - 30:
+                        tsb_play("glint", 0.55)
+                if t == launch:
+                    self._book_column(x0, vx, gap, tag="f%d" % si)
+                    tsb_play("volley", 0.75)
+            # IV. the sword in a room barely bigger than it.
+            L = TSBGame.SWORD_LEN
+            half = L * 0.5
+            sp0, spin_tel = 420, 64
+            if sp0 - spin_tel <= t < sp0:
+                u = (t - sp0 + spin_tel) / float(spin_tel)
+                ang = t * 0.05
+                self._scene_circle(cx, cy, 127, ci=1, ghost=True,
+                                   alpha=0.12 + 0.35 * u, outline=True)
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, False, alpha=0.8)
+                sc["spin_a"] = ang
+                if t == sp0 - spin_tel:
+                    tsb_play("glint", 0.9)
+            elif sp0 <= t < sp0 + 50:
+                ang = sc.get("spin_a", 0.0) + 0.12
+                sc["spin_a"] = ang
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, True)
+                if t == sp0:
+                    tsb_play("wire", 0.9)
+            elif sp0 + 50 <= t < sp0 + 64:
+                ang = sc.get("spin_a", 0.0)
+                self._sword(cx - math.cos(ang) * half, cy - math.sin(ang) * half,
+                            ang, False, alpha=1.0 - (t - sp0 - 50) / 14.0)
+            # V. whole camellias, where you were.
+            floor = self._floor_y()
+            for k, d0 in enumerate((490, 518, 546, 574)):
+                if t == d0 - 26:
+                    sc["cam_%d" % k] = tsb_clamp(self.px, bx + 26, bx + bw - 26)
+                    tsb_play("glint", 0.6)
+                dx = sc.get("cam_%d" % k)
+                if dx is None:
+                    continue
+                if d0 - 26 <= t < d0:
+                    u = (t - d0 + 26) / 26.0
+                    self._scene_sprite("camellia", dx, by + 14, alpha=0.3 + 0.6 * u,
+                                       rot=math.sin(t * 0.3) * 10.0)
+                    self._scene_ellipse(dx, floor + 4, 10 + 10 * u, 5, 0,
+                                        alpha=0.2 + 0.35 * u)
+                if t == d0:
+                    b = self._add_bullet(dx, by + 14, 0.0, 1.0, kind="camellia",
+                                         ay=0.3, ttl=160)
+                    if b is not None:
+                        b["land"] = {"do": "bloom", "n": 10, "speed": 1.3,
+                                     "kind": "petal"}
+            # VI. her apology.
+            if t == 596:
+                self._needle(bx - 10, cy - 20, 1.3, ttl=200)
+
+        def _tag_word(self, word, **fields):
+            for b in self.bullets:
+                if b.get("word") == word:
+                    b.update(fields)
+
+        # ======================================================================
+        # TRANSLATION -- "WHAT SHE MEANS"  (Matsu is loud; Tsubaki is the quiet)
+        # ======================================================================
+        # Matsu's voice fills the room from a megaphone: her proclamations
+        # come down as walls of huge ORANGE letters and every one of them
+        # rings out as an ORANGE wave -- you can survive Matsu by keeping up
+        # with her (keep moving). Tsubaki's own small bubble drifts through
+        # the room on a slow figure-eight, and inside it nothing loud can
+        # reach you: it translates. The bubble shows what the shout meant
+        # ("BEHOLD!" -- "look."). Now and then the bubble goes quiet and pops
+        # for a moment; the room rests with it. Once, Matsu stops performing
+        # and says her name for real: that wave is CYAN, and you hold still.
+        # What the bubble does NOT stop is what Matsu throws: white "!"
+        # marks, aimed at where you were.
+
+        MATSU_WORDS = (("BEHOLD!", "look."), ("HEAR ME!", "listen?"),
+                       ("KAREDA!", "that's me."), ("WITNESS!", "watch this."),
+                       ("THE AZURE EYE!", "her contacts."), ("FEAR NOT!", "it's okay."))
+
+        def _pat_translation(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            sc = self.pat_scratch
+            left = (t // 140) % 2 == 0 or t >= 280
+            mx = bx + 30 if left else bx + bw - 30
+            my = by + 22
+            shake = 0.0
+            # Tsubaki's translation: a small bubble on a slow figure-eight
+            # (never faster than 2 px/tick).
+            sx = cx + math.sin(t * 0.011) * (bw * 0.30)
+            sy = cy + 16 + math.sin(t * 0.022) * (bh * 0.20)
+            popped = (t % 140) >= 118
+            self.shelter = None if popped else (sx, sy, 36.0)
+            words = TSBGame.MATSU_WORDS
+            quiet = t >= 286
+            for k, s0 in enumerate(range(24, 260, 70)):
+                word, tr = words[k % len(words)]
+                if s0 - 26 <= t < s0:
+                    u = (t - s0 + 26) / 26.0
+                    shake = 2.0 * u
+                    self._scene_text(word, cx - len(word) * 12, by + 4, 4, sc=4,
+                                     alpha=0.15 + 0.3 * u)
+                    if t == s0 - 26:
+                        tsb_play("glint", 0.5)
+                if t == s0:
+                    x0 = cx - len(word) * 12
+                    for i, ch in enumerate(word):
+                        if ch == " ":
+                            continue
+                        b = self._add_bullet(x0 + i * 24 + 10, by + 20, 0.0, 1.75,
+                                             kind="glyph", ttl=260, rule="orange")
+                        if b is not None:
+                            b["ch"] = ch
+                            b["sc"] = 4
+                            b["loud"] = True
+                    sc["tr"] = tr
+                    sc.setdefault("rings", []).append((t, mx, my, "orange"))
+                    tsb_play("volley", 0.8)
+                    tsb_play("bloom", 0.5)
+            # At the end, Matsu stops performing. Everything loud stops first
+            # -- the words and the "!" fade and the orange waves are gone --
+            # and only then does the one cyan wave come: hold still. A cyan
+            # and an orange hazard are never live together, anywhere: one
+            # asks you to move and the other to stop, and both at once is
+            # not a pattern, it's a trap.
+            if t == 286:
+                sc["rings"] = []
                 for b in self.bullets:
                     if not b.get("heal"):
-                        b["hold"] = 30
-            # 3. THE FLOWERS (162). Lobbed on honest parabolas onto the
-            #    boards, where they sit -- visibly -- before they open.
-            if beat == 162:
-                tsb_play("volley2", 1.0)
-                grav = 0.10
-                for i in range(5):
-                    left = i % 2 == 0
-                    x0 = bx + (8.0 if left else bw - 8.0)
-                    y0 = by + bh + 10.0
-                    vy0 = -5.2 - 0.5 * (i % 3)
-                    flight = 2.0 * abs(vy0) / grav
-                    tx = bx + bw * (0.16 + 0.17 * i)
-                    b = self._add_bullet(x0, y0, (tx - x0) / flight, vy0,
-                                        kind="bigpetal", ci=0 if i % 2 else 6,
-                                        sq=4, ay=grav, ttl=int(flight) + 6)
+                        b["fz"] = 12
+                sc["tr"] = "..."
+                tsb_play("mend", 0.6)
+            if 286 <= t < 312:
+                self._scene_circle(mx, my, 20 + (t - 286) * 0.8, ci=9, ghost=True,
+                                   alpha=0.5, outline=True)
+            if t == 312:
+                sc.setdefault("rings", []).append((t, mx, my, "cyan"))
+                sc["tr"] = "...Tsuba?"
+            for entry in list(sc.get("rings", ())):
+                t0, rx, ry, rule = entry
+                r = (t - t0) * 2.6 + 8.0
+                if r > 520:
+                    sc["rings"].remove(entry)
+                    continue
+                self._scene_ring(rx, ry, r, width=8.0, rule=rule, loud=True)
+            # What she throws, the bubble doesn't stop: "!", aimed and stale.
+            for k, d0 in enumerate(range(70, 260, 46)):
+                if t == d0 - 18:
+                    sc["aim_%d" % k] = (tsb_clamp(self.px, bx + 10, bx + bw - 10),
+                                        tsb_clamp(self.py, by + 10, by + bh - 10))
+                aim = sc.get("aim_%d" % k)
+                if aim is None:
+                    continue
+                if d0 - 18 <= t < d0:
+                    self._scene_line(mx, my, aim[0], aim[1], 1, 2, ghost=True,
+                                     alpha=0.35)
+                if t == d0:
+                    b = self._add_aimed(mx, my, aim[0], aim[1], 3.2, kind="glyph",
+                                        ttl=240)
                     if b is not None:
-                        sc.setdefault("lands", []).append(
-                            (t + int(flight) + 4, tx))
-            due = [d for d in sc.get("lands", ()) if d[0] <= t]
-            if due:
-                sc["lands"] = [d for d in sc["lands"] if d[0] > t]
-                for _at, x in due:
-                    self._spark_burst(x, by + bh - 10, 6, 1, 1.6, 26, 1.2)
-                    self._add_bloom(x, by + bh - 14, fuse=44, n=11, ci=1,
-                                    speed=1.9, spin=self.spiral_a)
+                        b["ch"] = "!"
+                        b["sc"] = 3
+                    tsb_play("throw", 0.45)
+            self._scene_sprite("megaphone", mx + (math.sin(t * 1.9) * shake),
+                               my, sc=2, flip=not left)
+            self._scene_bubble(sx, sy, 36.0, "..." if popped else sc.get("tr", "..."),
+                               alpha=0.45 if popped else 1.0)
+            if t == 190:
+                self._needle(bx - 10, cy + 40, 1.2)
 
-        def _pat_pincushion(self, t, dens):
-            """THE PINCUSHION.
+        # ======================================================================
+        # CLAW -- "ELEVEN TRIES"  (the claw machine; one try was never enough)
+        # ======================================================================
+        # The room is the claw cabinet and the SOUL is a prize among the
+        # cloth birds. The claw tries for you eleven times. Every try: it
+        # slides to where you were (its column is drawn under it), drops,
+        # closes, lifts. Where it lands in the pile, a bird is knocked loose
+        # and bounces around the glass. The first tries take their time; the
+        # later ones don't. On the eleventh, it finally gets the pale yellow
+        # bird -- and drops it to you, glowing green. Eleven would have done it.
 
-            A hedgehog, turning. Five rigid arms of pins are stuck into a
-            cushion at the middle of the room and the whole assembly rotates,
-            slowly, one way. It is not a volley. It is FURNITURE: an obstacle
-            with a shape you can see all of at once, and the only question is
-            which side of it you want to be on in four seconds' time.
+        # One claw, eleven tries, and a try never starts before the last one
+        # has let go: slide (its column drawn), drop, grab. The lift back up
+        # happens during the next try's slide, so nothing live is ever left
+        # somewhere the claw isn't.
+        CLAW_TRIES = (16, 64, 112, 160, 200, 240, 280, 320, 354, 388, 422)
 
-            Then somebody pulls the pins out. They retract into the cushion,
-            all together, and come straight back out as a whole ring.
+        def _claw_tel(self, k):
+            return 30 if k < 3 else (22 if k < 7 else 16)
 
-            VERB: circle a rotating obstacle, and be off the radius when it
-            lets go. A wall-walker runs the rim between pulls, because the
-            corners are outside the arms' reach and a corner is not a plan."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_claw(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
             sc = self.pat_scratch
-            cx = bx + bw * 0.5
-            cy = by + bh * 0.5
-            cycle = max(160, int(196 / dens))
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            if beat == 0:
-                sc["spin"] = -sc.get("spin", -1.0)
-                omega = 0.0115 * sc["spin"] * (0.9 + 0.1 * dens)
-                hold = cycle - 46
-                tsb_play("glint", 0.85)
-                self._add_bullet(cx, cy, 0.0, 0.0, kind="hoop", ci=6, sq=4,
-                                ttl=hold + 20, armed_at=24)
-                for arm in range(5):
-                    a0 = self.spiral_a + 6.28318 * arm / 5.0
-                    for r in (36.0, 62.0, 88.0, 114.0):
-                        self._add_orbit_petal(cx, cy, r, a0, omega,
-                                            hold=hold, ci=5, sq=4,
-                                            release=0.0, armed_at=24,
-                                            kind="pin")
-            if beat == cycle - 46:
-                # THE PULL. The arms come home...
-                tsb_play("wire", 0.8)
-                self._spark_burst(cx, cy, 10, 5, 2.2, 30)
-            if beat == cycle - 20:
-                # ...and go straight back out as one ring. Sixteen spokes on
-                # a 380-wide box is 74px of arc at the rim: honest.
-                tsb_play("bloom", 1.0)
-                for i in range(16):
-                    a = self.spiral_a + 6.28318 * i / 16.0
-                    self._add_bullet(cx, cy, math.cos(a) * 2.15,
-                                    math.sin(a) * 2.15, kind="pin",
-                                    ci=5, sq=3, armed_at=8, ttl=300)
-            # The wall-walker. The arms reach 114px; the corners of the box
-            # are 230 out. Somebody has to go and look in them.
-            if t % max(48, int(62 / dens)) == 20:
-                wall = (t // 62) % 4
-                s = 2.5
-                if wall == 0:
-                    self._add_bullet(bx + 6, by + 8, s, 0.0, kind="thread",
-                                    ci=7, sq=3, ttl=300)
-                elif wall == 1:
-                    self._add_bullet(bx + bw - 6, by + 8, 0.0, s,
-                                    kind="thread", ci=7, sq=3, ttl=300)
-                elif wall == 2:
-                    self._add_bullet(bx + bw - 6, by + bh - 8, -s, 0.0,
-                                    kind="thread", ci=7, sq=3, ttl=300)
+            top = by + 24.0
+            if t == 1:
+                sc["pile"] = [bx + 30 + k * (bw - 60) / 7.0 for k in range(8)]
+                sc["claw_x"] = cx
+                sc["claw_y"] = top
+            # the gantry and the glass
+            self._scene_line(bx + 6, by + 10, bx + bw - 6, by + 10, 3, 7,
+                             ghost=True, alpha=0.6)
+            for k, x in enumerate(sc.get("pile", ())):
+                self._scene_sprite("bird", x, floor + 2, alpha=0.75,
+                                   flip=k % 2 == 1)
+            tries = TSBGame.CLAW_TRIES
+            cur = None
+            for k, s0 in enumerate(tries):
+                if t == s0:
+                    sc["target_%d" % k] = tsb_clamp(self.px, bx + 22, bx + bw - 22)
+                    tsb_play("glint", 0.5)
+                if s0 <= t:
+                    cur = k
+            claw_x = sc.get("claw_x", cx)
+            claw_y = sc.get("claw_y", top)
+            shut = sc.get("shut", False)
+            if cur is not None:
+                k = cur
+                tel = self._claw_tel(k)
+                tx = sc["target_%d" % k]
+                k_t = t - tries[k]
+                if k_t < tel:
+                    # sliding over (and up), its column pale under it
+                    u = k_t / float(tel)
+                    claw_x += tsb_clamp(tx - claw_x, -10.0, 10.0)
+                    claw_y += tsb_clamp(top - claw_y, -7.0, 7.0)
+                    shut = False
+                    self._scene_rect(tx - 14, by + 12, 28, bh - 16, ci=7,
+                                     ghost=True, alpha=0.10 + 0.20 * u)
+                elif k_t < tel + 10:
+                    # the drop: the claw and its cable are live
+                    claw_x = tx
+                    u = (k_t - tel) / 9.0
+                    claw_y = top + (floor - 16.0 - top) * self._ease(u)
+                    self._scene_line(tx, by + 10, tx, claw_y - 10, 4, 7, harm=True,
+                                     hidden=True)
+                    self._scene_circle(tx, claw_y, 10, ci=7, harm=True, hidden=True)
+                    if k_t == tel:
+                        tsb_play("throw", 0.6)
+                elif k_t < tel + 18:
+                    # the grab
+                    claw_y = floor - 16.0
+                    shut = k_t >= tel + 13
+                    self._scene_circle(tx, claw_y + 2, 9 if shut else 15, ci=7,
+                                       harm=True, hidden=True)
+                    if k_t == tel + 13:
+                        tsb_play("snap", 0.6)
+                        self._grab_pile(tx, floor, k == len(tries) - 1)
                 else:
-                    self._add_bullet(bx + 6, by + bh - 8, 0.0, -s,
-                                    kind="thread", ci=7, sq=3, ttl=300)
+                    claw_y += tsb_clamp(top - claw_y, -4.0, 4.0)
+                    shut = True
+            sc["claw_x"], sc["claw_y"], sc["shut"] = claw_x, claw_y, shut
+            self._scene_line(claw_x, by + 10, claw_x, claw_y - 10, 2, 7, ghost=True,
+                             alpha=0.9)
+            self._scene_sprite("claw_shut" if shut else "claw_open", claw_x, claw_y,
+                               sc=2)
+            self._scene_text("TRY %d/11" % ((cur or 0) + 1), bx + 10, by + 16, 8,
+                             sc=2, alpha=0.85)
 
-        def _pat_garland(self, t, dens):
-            """THE GARLAND.
-
-            One long chain of flowers, strung head to tail, dragged around
-            the room on a figure that closes. It is a rope, not a curtain:
-            fourteen bodies you can see the whole shape of, moving as one
-            thing, so the read is never "where is the gap" -- it is "which
-            side of the rope do I want to be on when it comes back around."
-
-            And it drops. Every so often the tail sheds a flower, which stays
-            where it fell and drifts down out of the way in its own time, so
-            the room silts up behind the chain and the last third of the move
-            is spent threading both.
-
-            VERB: pick a side of a moving rope, early."""
-            bx, by, bw, bh = self._box_rect()
+        def _grab_pile(self, x, floor, last):
             sc = self.pat_scratch
-            cx = bx + bw * 0.5
-            cy = by + bh * 0.5
-            if "body" not in sc:
-                sc["a"] = self.spiral_a
-                sc["hist"] = []
-                sc["body"] = []
-                sc["chain"] = 14
-                for i in range(sc["chain"]):
-                    b = self._add_bullet(cx, cy, 0.0, 0.0, kind="bead",
-                                        ci=1 if i % 3 else 0, sq=4,
-                                        ttl=10 ** 6, armed_at=40)
-                    sc["body"].append(b)
-                tsb_play("glint", 0.9)
-            sc["a"] += 0.0210 + 0.0028 * (dens - 1.0)
-            a = sc["a"]
-            hx = cx + bw * 0.40 * math.sin(a)
-            hy = cy + bh * 0.36 * math.sin(a * 1.37 + 0.7)
-            sc["hist"].append((hx, hy))
-            if len(sc["hist"]) > 96:
-                sc["hist"].pop(0)
-            hist = sc["hist"]
-            for i, b in enumerate(sc["body"]):
-                if b is None:
-                    continue
-                k = len(hist) - 1 - i * 6
-                if k < 0:
-                    k = 0
-                b["x"], b["y"] = hist[k]
-            # The shed. Its tail hands one over and the room keeps it.
-            if t > 120 and t % max(74, int(96 / dens)) == 0 and sc["body"]:
-                tail = sc["body"].pop()
-                if tail is not None:
-                    tail["vy"] = 0.75
-                    tail["sway"] = 0.5
-                    tail["ttl"] = 420
-                    tail["kind"] = "seed"
-                    tsb_play("release", 0.6)
-                sc["body"].insert(0, self._add_bullet(hx, hy, 0.0, 0.0,
-                                                    kind="bead", ci=0, sq=4,
-                                                    ttl=10 ** 6, armed_at=20))
-            # A second, shorter chain counter-rotating in the back half, so
-            # the figure's own quiet lobe stops being one.
-            if t == 230:
-                sc["body2"] = []
-                sc["hist2"] = []
-                tsb_play("glint", 0.9)
-                for i in range(8):
-                    sc["body2"].append(
-                        self._add_bullet(cx, cy, 0.0, 0.0, kind="bead",
-                                        ci=6, sq=3, ttl=10 ** 6,
-                                        armed_at=40))
-            if t > 230 and "body2" in sc:
-                a2 = -a * 1.31
-                h2 = (cx + bw * 0.30 * math.sin(a2 + 2.1),
-                        cy + bh * 0.30 * math.sin(a2 * 0.83))
-                sc["hist2"].append(h2)
-                if len(sc["hist2"]) > 64:
-                    sc["hist2"].pop(0)
-                for i, b in enumerate(sc["body2"]):
-                    if b is None:
-                        continue
-                    k = len(sc["hist2"]) - 1 - i * 6
-                    if k < 0:
-                        k = 0
-                    b["x"], b["y"] = sc["hist2"][k]
+            pile = sc.get("pile", [])
+            if last:
+                # The eleventh try. It gets the bird, and it gives it to you.
+                b = self._add_bullet(x, floor - 30, 0.0, -2.0, kind="bird",
+                                     heal=True, ay=0.05, ttl=300)
+                if b is not None:
+                    b["sway"] = 0.6
+                    b["mend"] = True
+                tsb_play("spare", 0.8)
+                self.flash = max(self.flash, 0.12)
+                return
+            near = [p for p in pile if abs(p - x) < 34]
+            if near:
+                p = min(near, key=lambda p: abs(p - x))
+                pile.remove(p)
+                pile.append(self._arena()[0] + 30 + self.rng.random()
+                            * (self._arena()[2] - 60))
+                b = self._add_bullet(p, floor - 6, (2.0 if p < x else -2.0), -3.2,
+                                     kind="bird", ay=0.16, ttl=240)
+                if b is not None:
+                    b["bounce"] = {"n": 3, "rest": 0.62}
+                    b["walls"] = True
 
-        # ============ PHASE 2 ONLY: the show coming apart =====================
-        # Nothing back here can be learned, because nothing back here repeats
-        # the same way twice -- but every single one of them still telegraphs.
-        # That is the line: phase 2 is disorder, never surprise damage.
+        # ======================================================================
+        # NOTICING -- "THE NEEDLE OF NOTICING"  (phase 2: she can't not notice)
+        # ======================================================================
+        # She notices everything, and the act turns it on you. A silver
+        # needle follows your own path a second behind you, and the red
+        # thread it lays is live: your last two seconds are a wall. Keep
+        # moving -- stand still and it arrives -- and don't cross your own
+        # trail. Where you lingered it writes a small x in the margin, and the
+        # x stays. Halfway, a second needle starts further back, and the first
+        # one closes the distance.
 
-        def _pat_marionette(self, t, dens):
-            """STRINGS.
-
-            The one the whole fight has been about.
-
-            Hooks come down and take the SOUL. Each one is a visible line
-            from a walking anchor on the rim to you, and each one PULLS -- not
-            hard, but constantly, and they stack. Two of them and the room is
-            steering. Three and you are being walked.
-
-            You get them off by pulling AWAY. Hold against a string long
-            enough and it goes taut and breaks, with a snap and a spray of
-            what it was holding -- so cutting a thread costs you something,
-            here, the same way it costs her.
-
-            VERB: fight the pull. Break the string. The rain underneath is
-            deliberately thin: this move is not asking you to dodge, it is
-            asking you what you are willing to spend to stand still."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_noticing(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
             sc = self.pat_scratch
-            if "hooks" not in sc:
-                sc["hooks"] = []
-                sc["next"] = 24
-                sc["n"] = 0
-            if t >= sc["next"] and len(sc["hooks"]) < 3:
-                sc["n"] += 1
-                sc["next"] = t + max(96, int(128 / dens))
-                side = self.rng.randrange(4)
-                sc["hooks"].append({"side": side, "ph": self.rng.random(),
-                                    "born": t, "ten": 0.0,
-                                    "life": self.rng.randint(230, 320)})
-                tsb_play("wire", 0.95)
-                self._spark_burst(self.px, self.py, 9, 5, 1.9, 30)
-            live = []
-            hooks = []
-            for hk in sc["hooks"]:
-                age = t - hk["born"]
-                side = hk["side"]
-                # The anchor paces its own wall, so a hook is never a fixed
-                # direction you can settle into leaning against.
-                u = tsb_sweep(t, 260, 0.10, 0.90, hk["ph"])
-                if side == 0:
-                    ax, ay = bx + bw * u, by - 30.0
-                elif side == 1:
-                    ax, ay = bx + bw + 30.0, by + bh * u
-                elif side == 2:
-                    ax, ay = bx + bw * u, by + bh + 30.0
-                else:
-                    ax, ay = bx - 30.0, by + bh * u
-                dxh = ax - self.px
-                dyh = ay - self.py
-                d = math.hypot(dxh, dyh) or 1.0
-                ux, uy = dxh / d, dyh / d
-                if age > 20:
-                    pull = 0.30 + 0.03 * self.strings_cut
-                    self.drag_x += ux * pull
-                    self.drag_y += uy * pull
-                # Tension: pushing away from the anchor loads the line. It
-                # bleeds off fast if you stop, so a break has to be committed
-                # to -- which is the entire point of the move.
-                push = -(self.move_vx * ux + self.move_vy * uy)
-                if push > 0.25:
-                    hk["ten"] += push
-                else:
-                    hk["ten"] = max(0.0, hk["ten"] - 1.4)
-                need = 74.0
-                if hk["ten"] >= need or age >= hk["life"]:
-                    snapped = hk["ten"] >= need
-                    tsb_play("snap" if snapped else "release",
-                            1.0 if snapped else 0.7)
-                    self._spark_burst(self.px, self.py, 12 if snapped else 6,
-                                        2 if snapped else 5, 2.6, 32)
-                    if snapped:
-                        # It was holding something. Armed late, so the recoil
-                        # is a cost and not an ambush.
-                        for i in range(8):
-                            a = self.spiral_a + 6.28318 * i / 8.0
-                            self._add_bullet(self.px, self.py,
-                                            math.cos(a) * 2.0,
-                                            math.sin(a) * 2.0, kind="thread",
-                                            ci=5, sq=3, armed_at=16, ttl=260)
-                    continue
-                live.append(hk)
-                hooks.append({"ax": ax, "ay": ay, "ci": 5,
-                            "ten": min(1.0, hk["ten"] / need)})
-            sc["hooks"] = live
-            self.hooks = hooks
-            # Thin, paced rain. It exists so that being walked into a corner
-            # is a real loss and not just an indignity.
-            if t % max(20, int(27 / dens)) == 0:
-                self._add_bullet(bx + bw * tsb_sweep(t, 250, 0.07, 0.93),
-                                by - 12, 0.0, 2.0, kind="petal", ci=6,
-                                sq=3, sway=0.35)
-            if t % max(38, int(50 / dens)) == 17:
-                left = (t // 50) % 2 == 0
-                self._add_bullet(bx - 12 if left else bx + bw + 12,
-                                by + bh * tsb_sweep(t, 210, 0.12, 0.88),
-                                2.1 if left else -2.1, 0.0, kind="petal",
-                                ci=6, sq=3)
-
-        def _pat_feedback(self, t, dens):
-            """FEEDBACK.
-
-            She hates loud noises. Everything else in this fight lets you
-            move. This one takes it away.
-
-            The room has two states and it tells you which one is coming. In
-            the QUIET, a slow field creeps toward you and you have to keep
-            walking out of it. Then the whine starts -- half a second of
-            rising level, the rim going bright, and you can hear it -- and on
-            the peak the room goes LOUD, and everything in the air stops dead
-            where it is, and so must you. Move during the loud and it costs
-            you. Then it passes, and everything picks up exactly where it
-            hung, and the field is still coming.
-
-            VERB: hold still on cue. It is the only move in the fight where
-            standing perfectly still is the correct answer, and it is the one
-            she would have found hardest to sit through."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            quiet = max(108, int(140 / dens))
-            whine = 40
-            loud = 38
-            cycle = quiet + whine + loud
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            if beat < quiet:
-                self.loud = 0.0
-                # The field. Aimed at a stale mark, slow enough to walk away
-                # from, dense enough that walking away has to go somewhere.
-                if beat % max(15, int(20 / dens)) == 0:
-                    per = 2.0 * (bw + bh)
-                    p = per * tsb_sweep(t, 300, 0.0, 1.0)
-                    if p < bw:
-                        x, y = bx + p, by - 12
-                    elif p < bw + bh:
-                        x, y = bx + bw + 12, by + (p - bw)
-                    elif p < 2 * bw + bh:
-                        x, y = bx + bw - (p - bw - bh), by + bh + 12
-                    else:
-                        x, y = bx - 12, by + bh - (p - 2 * bw - bh)
-                    self._add_aimed(x, y, self.px, self.py, 1.05,
-                                    kind="blob", ci=7, sq=4, ttl=460)
-                    tsb_play("throw", 0.4)
-            elif beat < quiet + whine:
-                # THE WHINE. Nothing new is fired; the whole telegraph is
-                # that the room is getting brighter and louder.
-                u = (beat - quiet) / float(whine)
-                self.loud = u * 0.85
-                if (beat - quiet) % 8 == 0:
-                    per = self.rng.random()
-                    self._spark_burst(bx + bw * per, by - 4, 3, 2,
-                                        1.2 + 2.0 * u, 22, 1.0)
-                    self._spark_burst(bx + bw * (1.0 - per), by + bh + 4,
-                                        3, 2, 1.2 + 2.0 * u, 22, -1.0)
-                if beat == quiet:
-                    tsb_play("wire", 0.5)
-                elif beat == quiet + whine - 14:
-                    tsb_play("wire", 0.85)
+            trail = self.trail
+            n = len(trail)
+            late = t >= 230
+            needles = [(58 if late else 72, 100)]
+            if late:
+                needles.append((150, 70))
+            if t < 60:
+                # First it only watches: your path, drawn in pencil.
+                for i in range(max(0, n - 60), n - 3, 3):
+                    x1, y1 = trail[i]
+                    x2, y2 = trail[i + 3]
+                    self._scene_line(x1, y1, x2, y2, 2, 7, ghost=True,
+                                     alpha=0.35 * (i - n + 60) / 60.0)
+                if t == 40:
+                    tsb_play("glint", 0.6)
             else:
-                self.loud = 1.0
-                if beat == quiet + whine:
-                    tsb_play("phase", 0.55)
-                    self.shake = max(self.shake, 20)
-                    for b in self.bullets:
-                        if not b.get("heal"):
-                            b["hold"] = loud + 2
-                # And if you move, it finds you. One hit per window: the
-                # invuln window is longer than the loud is.
-                if self.move_amt > 0.6 and self.tick >= self.inv_until:
-                    self._spark_burst(self.px, self.py, 10, 0, 2.8, 30)
-                    self._take_hit(3.0)
-            if beat == cycle - 1:
-                self.loud = 0.0
-                tsb_play("release", 0.8)
-
-        def _pat_recast(self, t, dens):
-            """RECAST.
-
-            The stage will not hold a shape. On a rigging groan the room is
-            pulled to a new proportion -- and the new proportion comes with
-            its OWN attack, one that only makes sense in a room that shape.
-            Wide and shallow gets a rank down its long axis. Tall and narrow
-            gets heads dropped down the well. Square gets a ring.
-
-            VERB: re-read the room every three seconds, and know what each
-            shape means before it finishes moving."""
-            sc = self.pat_scratch
-            shapes = (
-                ([TSB_BOX_CX, TSB_BOX_CY, 434.0, 188.0], "rank"),
-                ([TSB_BOX_CX + 30.0, TSB_BOX_CY, 254.0, 288.0], "well"),
-                ([TSB_BOX_CX - 30.0, TSB_BOX_CY, 296.0, 286.0], "ring"),
-                ([TSB_BOX_CX, TSB_BOX_CY, 392.0, 226.0], "rank"),
-            )
-            if "shape" not in sc:
-                sc["shape"] = 2
-                sc["next"] = 24
-                sc["fire_at"] = None
-            bx, by, bw, bh = self._box_rect()
-            if t >= sc["next"]:
-                sc["shape"] = (sc["shape"] + self.rng.randint(1, 3)) % 4
-                sc["next"] = t + self.rng.randint(172, 208)
-                sc["fire_at"] = t + 44
-                self.box_target = list(shapes[sc["shape"]][0])
-                self._spark_burst(bx + bw * 0.5, by + 4, 6, 5, 1.4, 26)
-                self._spark_burst(bx + bw * 0.5, by + bh - 4, 6, 5, 1.4, 26)
-                tsb_play("wire", 0.45)
-            if sc["fire_at"] is not None and t == sc["fire_at"]:
-                sc["fire_at"] = None
-                job = shapes[sc["shape"]][1]
-                if job == "rank":
-                    tsb_play("volley", 0.85)
-                    spacing = 46.0
-                    left = self.rng.random() < 0.5
-                    count = int(bh / spacing) + 1
-                    y0 = by + (bh - (count - 1) * spacing) * 0.5
-                    for i in range(count):
-                        self._add_bullet(bx - 12 if left else bx + bw + 12,
-                                        y0 + i * spacing,
-                                        2.7 if left else -2.7, 0.0,
-                                        kind="chip", ci=0 if left else 1,
-                                        sq=4)
-                elif job == "well":
-                    tsb_play("volley2", 0.85)
-                    for i in range(4):
-                        x = bx + bw * (i + 0.5) / 4.0
-                        self._add_bullet(x, by - 16 - i % 2 * 22.0, 0.0,
-                                        2.6, kind="bigpetal", ci=6, sq=4,
-                                        ttl=220)
-                else:
-                    tsb_play("bloom", 0.9)
-                    self._add_bloom(bx + bw * 0.5, by + bh * 0.5, fuse=40,
-                                    n=15, ci=1, speed=2.0,
-                                    spin=self.spiral_a)
-            # Dust that paces whatever width the room currently has, so no
-            # new proportion ever arrives with a free corner in it.
-            if t % 26 == 13:
-                self._add_bullet(bx + bw * tsb_sweep(t, 220, 0.07, 0.93),
-                                by - 12, 0.0, 1.9, kind="chip", ci=7,
-                                sq=3, sway=0.35)
-
-        def _pat_unravel(self, t, dens):
-            """UNRAVEL.
-
-            The seam gives.
-
-            A stitched line is laid all the way across the room -- solid, not
-            a curtain, a wall -- and it divides the box into two rooms with
-            you in one of them. Then it pops, one stitch at a time, travelling
-            from one end to the other, and every stitch that lets go throws
-            two loose threads perpendicular to the seam, into both rooms. When
-            the rip reaches the far wall the seam is gone, the rooms are one
-            room again, and the next seam is laid somewhere else.
-
-            VERB: outrun a zipper in half a room. Which half you are in is
-            decided by where you were standing, so the seam is telegraphed as
-            a ghost line and you get to choose."""
-            bx, by, bw, bh = self._box_rect()
-            sc = self.pat_scratch
-            n = 16
-            rip_every = max(4, int(6 / dens))
-            cycle = 60 + n * rip_every + 40
-            # A move's first tick is active_t 1, not 0, so the count
-            # starts at (t - 1): otherwise the opening measure -- and
-            # the setup that hangs off its downbeat -- is skipped.
-            beat = (t - 1) % cycle
-            if beat == 0:
-                # The seam always crosses the room the long way, so a rip is
-                # always a real journey. Its position paces between passes.
-                sc["horiz"] = bw >= bh
-                sc["frac"] = tsb_sweep(t, 470, 0.26, 0.74)
-                sc["dir"] = self.rng.choice([1, -1])
-                sc["seam"] = []
-                tsb_play("wire", 0.7)
-                for i in range(n):
-                    if sc["horiz"]:
-                        x = bx + (i + 0.5) * bw / float(n)
-                        y = by + bh * sc["frac"]
-                    else:
-                        x = bx + bw * sc["frac"]
-                        y = by + (i + 0.5) * bh / float(n)
-                    b = self._add_bullet(x, y, 0.0, 0.0, kind="stitch",
-                                        ci=5, sq=4, ttl=cycle + 20,
-                                        armed_at=54)
-                    sc["seam"].append(b)
-            if beat == 40:
-                # A spark at the end the rip is going to start from: which
-                # way the zipper runs is the only thing you need to know and
-                # the only thing you are told.
-                near = sc["dir"] > 0
-                if sc["horiz"]:
-                    sx = bx + (8.0 if near else bw - 8.0)
-                    sy = by + bh * sc["frac"]
-                else:
-                    sx = bx + bw * sc["frac"]
-                    sy = by + (8.0 if near else bh - 8.0)
-                self._spark_burst(sx, sy, 8, 0, 2.0, 30)
-                tsb_play("glint", 0.9)
-                sc["rip_from"] = (sx, sy)
-            if beat == 58:
-                # THE RIPPER. Not an invisible travelling index -- a blade,
-                # moving along the seam at exactly the speed the stitches pop,
-                # so the thing taking the room apart is a thing you can watch
-                # coming. It cannot be outrun and does not need to be: it runs
-                # ON the seam, and the seam is a wall. What it punishes is
-                # sheltering flat against the wall you are hiding behind.
-                sx, sy = sc.get("rip_from", (bx, by))
-                step = (bw if sc["horiz"] else bh) / float(n)
-                sp = step / float(rip_every)
-                d = float(sc["dir"])
-                self._add_bullet(sx, sy,
-                                sp * d if sc["horiz"] else 0.0,
-                                0.0 if sc["horiz"] else sp * d,
-                                kind="dagger", ci=2, sq=4,
-                                ttl=n * rip_every + 30)
-                tsb_play("dagger", 1.0)
-            if 60 <= beat < 60 + n * rip_every and (beat - 60) % rip_every == 0:
-                i = (beat - 60) // rip_every
-                if sc.get("dir", 1) < 0:
-                    i = n - 1 - i
-                seam = sc.get("seam") or []
-                if 0 <= i < len(seam) and seam[i] is not None:
-                    b = seam[i]
-                    bxp, byp = b["x"], b["y"]
-                    b["ttl"] = 0
-                    seam[i] = None
-                    tsb_play("volley2", 0.35)
-                    self._spark_burst(bxp, byp, 4, 5, 1.6, 20)
-                    if sc["horiz"]:
-                        for s in (-1.0, 1.0):
-                            self._add_bullet(bxp, byp, 0.0, s * 2.05,
-                                            kind="thread", ci=6, sq=3,
-                                            ttl=260)
-                    else:
-                        for s in (-1.0, 1.0):
-                            self._add_bullet(bxp, byp, s * 2.05, 0.0,
-                                            kind="thread", ci=6, sq=3,
-                                            ttl=260)
-            if beat == 60 + n * rip_every + 6:
-                # Whatever is left of the seam simply falls.
-                for b in (sc.get("seam") or []):
+                for (delay, length) in needles:
+                    if n <= delay + 2:
+                        continue
+                    head = trail[n - 1 - delay]
+                    tail_i = max(0, n - 1 - delay - length)
+                    for i in range(tail_i, n - 1 - delay - 3, 3):
+                        x1, y1 = trail[i]
+                        x2, y2 = trail[i + 3]
+                        fade = (i - tail_i) / float(max(1, length))
+                        self._scene_line(x1, y1, x2, y2, 3, 0, ghost=True,
+                                         alpha=0.35 + 0.6 * fade)
+                        # the thread is live a few ticks behind the needle
+                        if i < n - 1 - delay - 9:
+                            self._scene_line(x1, y1, x2, y2, 3, 0, harm=True,
+                                             hidden=True)
+                    prev = trail[max(0, n - 1 - delay - 4)]
+                    ang = math.degrees(math.atan2(head[1] - prev[1], head[0] - prev[0]))
+                    self._scene_sprite("needle_x", head[0], head[1], rot=ang, sc=2)
+                    self._scene_circle(head[0], head[1], 6, ci=2, harm=True,
+                                       hidden=True)
+                    if t % 24 == 0:
+                        tsb_play("blip", 0.3)
+                if late and t == 230:
+                    tsb_play("snap", 0.7)
+                    self.flash = max(self.flash, 0.08)
+            # The margin notes: an x where you were a second ago, every so often.
+            for k, d0 in enumerate(range(80, 400, 44)):
+                if t == d0 and n > 40:
+                    sc["note_%d" % k] = trail[n - 40]
+                note = sc.get("note_%d" % k)
+                if note is None:
+                    continue
+                if d0 <= t < d0 + 22:
+                    self._scene_text("x", note[0] - 5, note[1] - 9, 0, sc=2,
+                                     alpha=0.3 + 0.03 * (t - d0))
+                if t == d0 + 22:
+                    b = self._add_bullet(note[0], note[1], 0.0, 0.0, kind="glyph",
+                                         ttl=150)
                     if b is not None:
-                        b["vy"] = 2.2
-                        b["armed_at"] = 0
-                tsb_play("release", 0.8)
+                        b["ch"] = "x"
+                        b["sc"] = 2
+                    tsb_play("blip", 0.5)
+            if t == 200:
+                self._needle(bx - 10, cy, 1.1)
 
-        def _pat_chandelier(self, t, dens):
-            """THE CHANDELIER.
+        # ======================================================================
+        # APOLOGY -- "I'M S--"  (phase 2: the sentence she can't finish)
+        # ======================================================================
+        # She tries to apologize and the act keeps cutting the end off. Each
+        # attempt is written across the top of the room, drops as a wall,
+        # and is struck out -- its letters fall apart -- and she starts over,
+        # a little further each time. The lane is always where the sentence
+        # hasn't reached yet, and every attempt pushes it toward the wall.
+        # When she finally gets it all out, the act strikes the whole thing
+        # and writes its own line over it, huge and ORANGE (keep moving
+        # through it). Under that, small, in her hand, she writes it back.
 
-            One heavy thing on one line.
+        APOLOGY = ("I'M S-", "I'M SOR-", "I'M SORRY, I-", "I'M SORRY, I DIDN'T-",
+                   "I'M SORRY, I DIDN'T MEAN TO.")
 
-            The house lamp is lowered into the room and it hangs there, and
-            every few seconds it sheds a whole ring of stage-lights -- no door
-            in the ring, ever; the spacing between neighbours is the dodge and
-            it opens as the ring travels. Meanwhile the line it is hanging on
-            is fraying, visibly, and when it goes the lamp comes down: fast,
-            under real gravity, into the boards, where it throws everything it
-            was carrying along the floor in both directions.
-
-            VERB: manage a hanging object, and be somewhere else when the
-            rigging finally gives."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_apology(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
             sc = self.pat_scratch
-            period = max(250, int(320 / dens))
-            beat = t % period
-            fall_at = period - 96
-            if beat == 1:
-                sc["lamp"] = self._add_bullet(bx + bw * 0.5, by - 24, 0.0,
-                                            1.15, kind="houselamp", ci=8,
-                                            sq=4, ttl=period - 6,
-                                            armed_at=12)
-                sc["rings"] = 0
-                sc["fallen"] = False
-                tsb_play("bloom", 0.8)
-            lamp = sc.get("lamp")
-            if lamp is None:
-                return
-            if beat == 74:
-                lamp["vy"] = 0.0
-            if 96 <= beat < fall_at - 10:
-                if (beat - 96) % max(38, int(52 / dens)) == 0:
-                    sc["rings"] = sc.get("rings", 0) + 1
-                    n = 12 if dens < 1.2 else 14
-                    off = sc["rings"] * 0.21
-                    tsb_play("volley2", 0.65)
-                    for i in range(n):
-                        a = off + 6.2831853 * i / float(n)
-                        self._add_bullet(lamp["x"], lamp["y"],
-                                        math.cos(a) * 1.6,
-                                        math.sin(a) * 1.6, kind="lamp",
-                                        ci=8, sq=3, ttl=300)
-                # The line frays where you can see it fray.
-                if beat % 12 == 0:
-                    u = (beat - 96) / float(max(1, fall_at - 106))
-                    self._spark_burst(lamp["x"],
-                                    by - 10 - self.rng.uniform(0, 14),
-                                    2, 5, 1.0 + 2.0 * u, 20, 1.4)
-            if beat == fall_at - 10:
-                tsb_play("wire", 1.0)
-                self._spark_burst(lamp["x"], by - 12, 12, 5, 3.0, 34, 1.6)
-            if beat == fall_at and not sc.get("fallen"):
-                sc["fallen"] = True
-                lamp["vy"] = 1.2
-                lamp["ay"] = 0.26
-                tsb_play("fall", 0.8)
-                # Solve 0.13n^2 + 1.33n = drop for the landing tick, so the
-                # floor burst arrives exactly under the lamp, not near it.
-                drop = max(1.0, (by + bh - 14.0) - lamp["y"])
-                n = (-1.33 + math.sqrt(1.7689 + 0.52 * drop)) / 0.26
-                sc["land"] = t + max(6, int(n))
-                sc["land_x"] = lamp["x"]
-            if sc.get("land") and t == sc["land"]:
-                self.shake = max(self.shake, 22)
-                tsb_play("bloom", 1.0)
-                x = sc.get("land_x", bx + bw * 0.5)
-                self._spark_burst(x, by + bh - 10, 14, 8, 3.0, 32, 1.2)
-                for s in (-1.0, 1.0):
-                    for j in range(4):
-                        self._add_bullet(x, by + bh - 12,
-                                        s * (1.7 + 0.5 * j),
-                                        -0.5 - 0.28 * j, kind="bolt",
-                                        ci=8, sq=3, ay=0.026, ttl=280)
-                sc["land"] = None
+            for k, text in enumerate(TSBGame.APOLOGY):
+                w0 = 8 + k * 62
+                gsc = 3 if k < 4 else 2
+                adv = 6.0 * gsc
+                x0 = bx + 8
+                y_line = by + 16
+                n = len(text)
+                write_ticks = min(40, n * 2)
+                tag = "ap%d" % k
+                if w0 <= t < w0 + write_ticks:
+                    kk = int((t - w0) / 2.0) + 1
+                    self._scene_text(text[:kk], x0, y_line - 4.5 * gsc, 8, sc=gsc,
+                                     alpha=0.55)
+                    self._scene_sprite("pen", x0 + adv * min(kk, n) + 10, y_line - 12,
+                                       rot=120)
+                    if (t - w0) % 4 == 0:
+                        tsb_play("blip", 0.45)
+                if t == w0 + write_ticks:
+                    self._text_line(text, x0, y_line, tag=tag, sc=gsc)
+                    self._tag_set(tag, vy=1.5)
+                    tsb_play("volley", 0.6)
+                st = w0 + write_ticks + 56
+                if st <= t < st + 10:
+                    body = [b for b in self.bullets if b.get("tag") == tag]
+                    if body:
+                        yy = body[0]["y"]
+                        u = (t - st) / 10.0
+                        self._scene_line(x0 - 4, yy, x0 - 4 + (adv * n + 8) * u, yy,
+                                         4, 0, ghost=True, alpha=0.95)
+                if t == st + 10:
+                    for b in self.bullets:
+                        if b.get("tag") == tag:
+                            b["tag"] = None
+                            b["vx"] = self.rng.uniform(-0.7, 0.7)
+                            b["ay"] = 0.18
+                    tsb_play("snap", 0.6)
+            # The act's line, over all of it.
+            if 320 <= t < 344:
+                u = (t - 320) / 24.0
+                self._scene_text("I'M NOT SORRY.", cx - 14 * 12, by + 4, 4, sc=4,
+                                 alpha=0.15 + 0.35 * u)
+            if t == 344:
+                self._text_line("I'M NOT SORRY.", cx - 14 * 12, by + 22, rule="orange",
+                                tag="notsorry", sc=4)
+                self._tag_set("notsorry", vy=1.8)
+                tsb_play("wire", 0.8)
+                self.flash = max(self.flash, 0.08)
+            # ...and hers, under it: small, harmless, hand-written.
+            if 372 <= t < 420:
+                kk = min(6, (t - 372) // 3 + 1)
+                self._scene_text("(i am)"[:kk], cx - 18, by + 30, 2, sc=2, alpha=0.9)
+            if t == 200:
+                self._needle(bx + bw + 10, cy + 60, -1.2)
 
-        def _pat_blackout(self, t, dens):
-            """BLACKOUT.
+        # ======================================================================
+        # TIN -- "WASHED, LABELED, DATED"  (phase 2: where the pieces go)
+        # ======================================================================
+        # The act cuts pieces off her, and they come down whole, the way a
+        # camellia does -- where you were standing. Each one lands and turns
+        # into what it was: a paper tag with a word on it. SORRY. EARLY.
+        # QUIET. The tags slide along the boards (or leap) to the tin in the
+        # middle of the floor, and she keeps them. The open tin PULLS -- on
+        # the tags, and on you -- and its mouth is not somewhere to be. Lean
+        # away. The lid comes down at the end.
 
-            Somebody kills the house lights with the number still running.
+        FLAW_TAGS = ("SORRY", "EARLY", "QUIET", "NOTES", "7:18", "SPARE PEN",
+                     "AVERAGE", "ONE TRY", "SIZE", "FINE", "SECOND", "ASK")
 
-            The room goes dark and stays dark, and you can only see as far as
-            the SOUL's own glow -- everything further out is a rumour. What is
-            in here with you is slow and heavy and few, and every single one
-            of them announces its entry with a spark and a sound at the wall
-            it comes in through, so the move is played by EAR and by memory:
-            something came in at the top left eleven seconds ago and has not
-            gone past yet.
-
-            And there is a worklight loose in the room. It drifts where it
-            wants. Stand near it and you can see properly -- which is a much
-            larger promise than it sounds, and it is never quite where you
-            need it to be.
-
-            VERB: navigate blind, and go and fetch the light."""
-            bx, by, bw, bh = self._box_rect()
+        def _pat_tin(self, t, dens):
+            bx, by, bw, bh = self._arena()
+            cx, cy = bx + bw * 0.5, by + bh * 0.5
+            floor = self._floor_y()
             sc = self.pat_scratch
-            if "wl" not in sc:
-                sc["wl"] = self._add_bullet(bx + bw * 0.5, by + bh * 0.35,
-                                            0.0, 0.0, kind="flame", ci=4,
-                                            sq=4, ttl=10 ** 6,
-                                            armed_at=10 ** 6)
-                sc["wa"] = self.rng.uniform(0, 6.28)
-                sc["next"] = 40
-                sc["bloom"] = 150
-            self.blackout = min(1.0, t / 60.0)
-            wl = sc.get("wl")
-            if wl is not None:
-                sc["wa"] += 0.0135
-                wl["x"] = bx + bw * (0.5 + 0.33 * math.sin(sc["wa"]))
-                wl["y"] = by + bh * (0.5 + 0.29 * math.sin(sc["wa"] * 1.61))
-                self.light_src = (wl["x"], wl["y"])
-            if t >= sc["next"]:
-                sc["next"] = t + max(38, int(50 / dens))
-                per = 2.0 * (bw + bh)
-                p = per * tsb_sweep(t, 340, 0.02, 0.98)
-                if p < bw:
-                    x, y = bx + p, by - 14
-                elif p < bw + bh:
-                    x, y = bx + bw + 14, by + (p - bw)
-                elif p < 2 * bw + bh:
-                    x, y = bx + bw - (p - bw - bh), by + bh + 14
-                else:
-                    x, y = bx - 14, by + bh - (p - 2 * bw - bh)
-                # The entry is LOUD and BRIGHT, because it is the only look
-                # at it you are going to get.
-                self._spark_burst(x, y, 9, 6, 2.2, 34)
-                tsb_play("volley2", 0.9)
-                self._add_aimed(x, y, bx + bw - (x - bx), by + bh - (y - by),
-                                1.35, kind="bigpetal", ci=6, sq=4, ttl=520)
-            if t >= sc["bloom"]:
-                # Blooms carry their own light, so they are the one thing in
-                # here that reads at range. Placed on a stale mark.
-                sc["bloom"] = t + max(140, int(186 / dens))
-                self._add_bloom(tsb_clamp(self.px, bx + 40, bx + bw - 40),
-                                tsb_clamp(self.py, by + 34, by + bh - 34),
-                                fuse=56, n=13, ci=8, speed=1.85,
-                                spin=self.spiral_a)
-                tsb_play("glint", 0.9)
-            # And then somebody finds the switch.
-            if t == self.pat_dur - self.pat_lead - 70:
-                self.blackout = 0.0
-                sc["off"] = True
-                tsb_play("phase", 0.5)
-                self._spark_burst(bx + bw * 0.5, by + bh * 0.5, 14, 2,
-                                    3.2, 34)
-            if sc.get("off"):
-                self.blackout = 0.0
+            tx, ty = cx, floor - 8
+            open_ = 30 <= t < 384
+            self._scene_sprite("tin_open" if open_ else "tin", tx, ty - 2, sc=2)
+            if open_:
+                # the pull, on the SOUL and in the air
+                pull = 0.8 if t < 230 else 1.1
+                dx, dy = tx - self.px, (ty - 10) - self.py
+                d = math.hypot(dx, dy)
+                if d > 24:
+                    self.drag_x += dx / d * pull
+                    self.drag_y += dy / d * pull
+                for k in range(3):
+                    r = 20 + ((t * 1.4 + k * 30) % 90)
+                    self._scene_circle(tx, ty - 10, r, ci=7, ghost=True,
+                                       alpha=0.3 * (1.0 - r / 110.0), outline=True)
+                self._scene_circle(tx, ty - 10, 13, ci=0, harm=True, hidden=True)
+            if t == 384:
+                self._slam(tx, ty - 10, 1.0, 7, "crumb", "snap", 0.9, flash=0.14)
+            every = 34 if t < 230 else 26
+            if 16 <= t < 360 and (t - 16) % every == 0:
+                k = sc.get("n_cam", 0)
+                sc["n_cam"] = k + 1
+                x = tsb_clamp(self.px + self.rng.uniform(-40, 40), bx + 24, bx + bw - 24)
+                sc.setdefault("cams", []).append((t, x, k))
+                tsb_play("glint", 0.5)
+            for entry in list(sc.get("cams", ())):
+                t0, x, k = entry
+                age = t - t0
+                if age < 24:
+                    u = age / 24.0
+                    self._scene_sprite("camellia", x, by + 12, alpha=0.3 + 0.6 * u)
+                    self._scene_ellipse(x, floor + 4, 8 + 8 * u, 4, 0,
+                                        alpha=0.2 + 0.3 * u)
+                elif age == 24:
+                    b = self._add_bullet(x, by + 12, 0.0, 1.2, kind="camellia",
+                                         ay=0.26, ttl=200)
+                    if b is not None:
+                        b["land"] = {"do": "tag", "label": TSBGame.FLAW_TAGS[
+                            k % len(TSBGame.FLAW_TAGS)], "leap": k % 3 == 2}
+                    sc["cams"].remove(entry)
+            # tags that reach the tin go in
+            for b in self.bullets:
+                if b["kind"] == "tag" and not b["fz"] and abs(b["x"] - tx) < 14:
+                    b["fz"] = 8
+                    b["vx"] = b["vy"] = b["ay"] = 0.0
+                    tsb_play("coin", 0.4)
+            if t == 200:
+                self._needle(bx - 10, by + 60, 1.2)
 
-        def _pat_tableau(self, t, dens):
-            """TABLEAU.
-
-            Intermission. The room goes still and a picture fades up in it --
-            the whole company, held: souls and pins and pages, every one of
-            them showing the line it is going to take, all of them parallel,
-            alleys guaranteed between the tracks and nothing placed on top of
-            you. One figure in the picture is a green needle, which is worth
-            reading the picture for.
-
-            When the count arrives the tableau lets go all at once, leading
-            edge first.
-
-            VERB: find your alley while it is still a picture."""
-            bx, by, bw, bh = self._box_rect()
-            beat = t % max(180, int(224 / dens))
-            if beat != 1:
-                return
-            ang = self.rng.uniform(0.0, 6.28318)
-            dx = math.cos(ang)
-            dy = math.sin(ang)
-            hold = 78
-            placed = []
-            tries = 0
-            want = 10 if dens >= 1.2 else 9
-            while len(placed) < want and tries < 220:
-                tries += 1
-                x = self.rng.uniform(bx + 26, bx + bw - 26)
-                y = self.rng.uniform(by + 24, by + bh - 24)
-                proj = -x * dy + y * dx
-                if any(abs(proj - q) < 48.0 for _x, _y, q in placed):
-                    continue
-                if (x - self.px) ** 2 + (y - self.py) ** 2 < 80.0 ** 2:
-                    continue
-                placed.append((x, y, proj))
-            tsb_play("glint", 0.9)
-            placed.sort(key=lambda p: p[0] * dx + p[1] * dy)
-            company = ("soul", "pin", "page", "pin", "page")
-            gift = self.rng.randrange(len(placed)) if placed else -1
-            for i, (x, y, _proj) in enumerate(placed):
-                at = hold + i * 4
-                if i == gift:
-                    self._add_bullet(x, y, 0.0, 0.0, kind="needle", ci=3,
-                                    sq=4, heal=True,
-                                    turn={"at": at, "target": (x + dx * 620.0,
-                                                                y + dy * 620.0),
-                                            "speed": 2.2},
-                                    tether={"x": x + dx * 90.0,
-                                            "y": y + dy * 90.0, "until": at},
-                                    ttl=at + 260)
-                    continue
-                self._add_bullet(x, y, 0.0, 0.0,
-                                kind=company[i % len(company)], ci=2, sq=4,
-                                turn={"at": at,
-                                        "target": (x + dx * 620.0,
-                                                    y + dy * 620.0),
-                                        "speed": 3.0},
-                                tether={"x": x + dx * 90.0,
-                                        "y": y + dy * 90.0, "until": at},
-                                armed_at=at - 4, ttl=at + 240)
-
+        # ======================================================================
+        # LIMP  (the violence route's collapse: nothing left to fight with)
+        # ======================================================================
         def _pat_limp(self, t, dens):
-            # The collapse. Sparse, slow, barely aimed. This is not a threat;
-            # that is the point you are meant to feel in your hands.
-            bx, by, bw, bh = self._box_rect()
-            if t % 44 == 0:
-                x = self.rng.uniform(bx + 8, bx + bw - 8)
-                self._add_bullet(x, by - 12, 0.0, 1.0, kind="petal", ci=7,
-                                sq=3, sway=0.4)
-            if t % 100 == 0:
-                self._spawn_needle()
+            # One slack thread fails to lift, one flower fails to open, and the
+            # player is left alone with how little resistance remains.
+            bx, by, bw, bh = self._arena()
+            fall = self._ease((t - 40) / 210.0)
+            fx = bx + bw * 0.62
+            fy = by - 20 + (bh + 32) * fall
+            self._scene_line(fx, by - 18, fx + 18 * fall, fy - 16,
+                             2, 7, ghost=True, alpha=0.38 * (1.0 - fall))
+            self._scene_sprite("camellia", fx + 18 * fall, fy, rot=12 * fall,
+                               alpha=0.55, tint="#8a90a0")
+            if t == 150:
+                self._needle(bx - 10, by + bh * 0.55, 0.72, ttl=240)
 
         # ----- phase shift (both flavors: it is NOT her choice) ------------------
 
@@ -4638,11 +5928,10 @@ init python:
             self._step_bullets()
             k = self.shift_kind
             if k == "v":
-                # She's dropped at half HP -- and reads it as being put back
-                # down, her worst fear -- then it hauls her up again and she
-                # is grateful for the catch.
+                # At half HP she loses the orderly thread with her footing.
+                # The yank restores her position, not her certainty.
                 if t == 30:
-                    self._bub("am I dropping? did I do it wrong? no-- no, I did it right, I did all of it right, don't put me back, please don't put me back--", hold=55)
+                    self._bub("Okay. Okay, I'm down. That's-- I'm allowed to be down. Let me stay down a second.", hold=55)
                 if 60 <= t < 200:
                     p = tsb_clamp((t - 60) / 140.0, 0.0, 1.0)
                     e = p * p * (3.0 - 2.0 * p)
@@ -4655,7 +5944,7 @@ init python:
                     self.strings_alpha = 1.0
                     self.shake = 34
                     self._booth("shift_v")
-                    self._bub("No--!", hold=24)
+                    self._bub("No--DON'T!", hold=24)
                 if 200 <= t < 224:
                     p = (t - 200) / 24.0
                     self.boss_dy = 28.0 - 36.0 * min(1.0, p)
@@ -4667,15 +5956,14 @@ init python:
                     tsb_music_vocal()
                     self.bg_speed = 1.6
                 if t == 270:
-                    self._bub("Did you see it catch me? It caught me. It always catches me, it's never once let me hit the ground-- say thank you. Say it because it's true. Say it so it hears you--", hold=65)
+                    self._bub("It stood me back up. ~I didn't want~ I'm fine. I'm FINE. Why does my mouth keep finishing things?", hold=65)
                 if t >= 470:
                     self._after_shift()
             else:
-                # She strains toward the SPARE almost involuntarily -- and
-                # panics at having gone off-script before the strings wrench
-                # her back and she apologizes for nearly leaving.
+                # Her hand moves toward the open choice before the strings do.
+                # The correction leaves her unsure whose decision it was.
                 if t == 30:
-                    self._bub("why are my arms going down. I didn't do that. I didn't ask for that, I don't know who-- that isn't-- stop it, hands, we're working--", hold=55)
+                    self._bub("My hand moved. Toward you. Before it told me to. Did you see that? I did that.", hold=55)
                 if 90 <= t < 210:
                     self.strings_alpha = min(0.85, self.strings_alpha + 0.012)
                     p = tsb_clamp((t - 90) / 120.0, 0.0, 1.0)
@@ -4689,7 +5977,7 @@ init python:
                     self.strings_alpha = 1.0
                     self.shake = 34
                     self._booth("shift_p")
-                    self._bub("Ah--!", hold=24)
+                    self._bub("WAIT--NO!", hold=24)
                 if 210 <= t < 234:
                     p = (t - 210) / 24.0
                     self.boss_dy = 14.0 - 24.0 * min(1.0, p)
@@ -4701,9 +5989,9 @@ init python:
                     tsb_music_vocal()
                     self.bg_speed = 1.6
                 if t == 280:
-                    self._bub("I'm sorry-- I'm sorry, that wasn't me changing my mind, I would never-- tell it I didn't mean it. Tell it I'm still all in. Tell it right now--", hold=50)
+                    self._bub("That wasn't in the script. ~I'm sorry~ --no. Don't cross that out. I meant that one.", hold=50)
                 if t == 355:
-                    self._bub("Don't let it think I wavered. Please. Something that picks you up can put you back down again, it'll find somebody more grateful and I'd have to go back to-- tell it I'm grateful. Tell it.", hold=55)
+                    self._bub("It's rewriting me faster now. Talk to me. Say anything. I'll correct it. I'm good at correcting!", hold=55)
                 if t >= 500:
                     self._after_shift()
             if t > 30:
@@ -4713,17 +6001,14 @@ init python:
             self.phase2_start_hp = max(1.0, self.boss_hp)
             self.phase = 2
             self.turn = 0
-            # P1 and P2 table indices aren't comparable; clear the anti-repeat
-            # marker so the first phase-2 draw isn't skewed by a P1 index.
-            self._last_pat_i = None
             self.strings_alpha = 0.74
             self.bubble = None
             self.boss_rot = 0.0
             self.flinch = False
             self.flinch_clear_turn = None
             self.fought_last = False
-            # The back half rains harder and darker (the factories are
-            # phase-aware); the extra bodies recycle in at phase-2 colors.
+            # The stage picture grows more crowded in phase 2; the authored
+            # attack score itself keeps the same readable rules and spacing.
             for _i in range(12):
                 self.amb_petals.append(self._new_amb_petal(True))
             for _i in range(8):
@@ -4843,18 +6128,16 @@ init python:
             self._set_mode("end_p")
 
         def _step_end_p(self):
-            # Pacifist: she is unheld, unhurt -- and the show simply stops.
-            # No fervor, no caps, no house to sell to: after a whole fight of
-            # manufactured noise, the quiet comes down, and what's left of her
-            # gets one small, ambiguous line before the room takes it anyway.
+            # Pacifist: the last thread is down. In the sudden quiet she has
+            # just enough room to insist on one choice in her own voice.
             t = self.mtick
             self._step_bullets()
             if t == 15:
-                self._bub("Oh.", hold=34)
+                self._bub("Wait--wait. Don't answer for me.", hold=34)
             if 15 <= t < 90:
                 self.strings_alpha = max(0.0, self.strings_alpha - 0.04)
             if t == 72:
-                self._bub("...oh. it's finally quiet.", hold=60)
+                self._bub("Bookstore first. I wanted bookstore first. Matsu, don't you dare move it.", hold=60)
             if t == 148:
                 # No resolving cue. The song loses power with the lights.
                 tsb_music_stop(0.25)
@@ -4889,7 +6172,7 @@ init python:
                 self.box_alpha = 0.0
                 self.hud_alpha = 0.0
             if t == 30:
-                self._bub("...oh. it's f--", hold=30)
+                self._bub("Bookstore first. I wanted--Matsu, don't you da--", hold=30)
             if t == 52:
                 self._void_cut()
             if t >= 74:
@@ -4900,89 +6183,91 @@ init python:
 
         def _step_dead(self):
             t = self.mtick
-            # Bullets freeze mid-air; only the shatter advances.
-            if t == 30:
+            # Everything but the SOUL is gone (the renderer blacks the room
+            # out); bullets freeze mid-air and only the shatter advances. The
+            # heart shudders, cracks down the middle, and at 46 comes apart
+            # into shards that fall out of the black.
+            if t == 46:
+                self.shards = []
+                for i in range(6):
+                    self.shards.append({
+                        "x": self.px + (i - 2.5) * 2.0, "y": self.py,
+                        "vx": self.rng.uniform(-2.4, 2.4),
+                        "vy": self.rng.uniform(-3.8, -1.2),
+                        "k": "shard_r" if i % 2 else "shard_c"})
                 self._spark_burst(self.px, self.py, 18, 0, 4.2, 55, 1.0)
                 tsb_play("hurt", 0.8)
-            if t == 40 and self.visit_deaths >= 1:
-                self._bub("Get up. We're not finished-- it hates an empty chair-- get up, get up, I need somebody in the room, [player], you can't leave me up here on my own--", hold=40)
-            if t > 40:
+            for sh in self.shards:
+                sh["x"] += sh["vx"]
+                sh["y"] += sh["vy"]
+                sh["vy"] += 0.16
+            if t == 96 and self.visit_deaths >= 1:
+                self._bub("Get up! You were just-- no. I don't know what comes after this part. Get up and show me. Please.", hold=40)
+            if t > 96:
                 self._reveal_bubble()
-            if t > 120:
-                self.dark = min(1.0, self.dark + 0.015)
-            if t == 130:
-                tsb_music_stop(1.0)
+            if t == 150:
                 self._booth("death")
-            if t >= 220:
+            if t > 200:
+                self.dark = min(1.0, self.dark + 0.015)
+            if t >= 270:
                 self._finish("defeat")
 # --- RENDERER ------------------------------------------------------------------
 init python:
     class TSBStage(renpy.Displayable):
         """One creator-defined displayable that steps TSBGame on a fixed 60Hz
         accumulator inside render() and paints the whole fight as cached-
-        texture blits. Same discipline as KTStage: displayable FACTORIES are
-        cached across frames; renpy.Render objects live only inside one
-        render() call."""
+        texture blits. Displayable FACTORIES are cached across frames;
+        renpy.Render objects live only inside one render() call.
 
-        _tf_cache = {}
+        THE LOOK (2026-09-29). Undertale's grammar -- the black box, the four
+        orange buttons with their icons and the SOUL as the cursor, "* " box
+        text that types itself, the FIGHT target and its bar -- in
+        Deltarune's clothes: the rising grid behind everything, a mercy gauge
+        on her, a speech bubble with a pixel border, and every word set in
+        Kareda Mono, the fight's own pixel face. All of it is atlas art drawn
+        at integer scale (see THE ART in the constants block); the only
+        things still drawn as flat colour are light (wires, strings, flashes)
+        and the telegraph ghosts, which are meant to look like light.
+        """
+
         _misc_cache = {}
-        _text_cache = {}
+        _art_cache = {}
 
-        # kind -> (sprite, base zoom, rotates-to-heading?, pixel art?).
-        # The first four are the shipped 16px pixel sprites and want `nearest`.
-        # The art is Kotonoha's. The mode knows. The mode is not sorry.
-        #
-        # Everything below them comes from the shared atlas
-        # (asset_definitions/def_bullets.rpy) and is anti-aliased at 16-62px, so it
-        # wants SMOOTH scaling instead -- see _bullet_tf. They are named for
-        # what they mean in this fight, not for what the sheet calls them: a
-        # pin, a page of the script, a soul, and the lamps over a stage.
-        # (sprite, base zoom, rotates-to-heading?, pixel art?, tintable?)
-        # The first four are the shipped 16px pixel sprites and want
-        # `nearest`. The art is Kotonoha's. The mode knows. The mode is not
-        # sorry. Everything under them comes from the shared atlas
-        # (asset_definitions/def_bullets.rpy), is anti-aliased at 9-62px, and
-        # wants SMOOTH scaling instead -- see _bullet_tf.
-        #
-        # Every one of these is named for what it MEANS in this fight, never
-        # for what the sheet calls it, because a roster where the shapes are
-        # arbitrary is a roster the player reads as noise. A pin is a pin. A
-        # stitch is a stitch. The stream a conductor throws is made of notes,
-        # the audience is made of faces, and the thing that lands on the mark
-        # after the applause is a whole camellia head.
-        #
-        # tintable=False is painted art with its own corona (the wisp flame,
-        # the notes): tinting those only crushes the colour they were drawn
-        # with, so _bullet_tf skips the TintMatrix and `ci` becomes nothing
-        # but a cache key for them.
+        # kind -> (art, scale, turn). art is an atlas key, or a tuple of keys
+        # the body walks or spins through (FRAME_TICKS apart); turn is None
+        # (upright), "spin" (its own tumble) or "head" (along its flight, or
+        # the way it stuck). A cyan/orange rule swaps in the ":w" copy.
         KINDS = {
-            "petal":     (EMB_DIR + "pellet.png", 1.5, True, True, True),
-            "bigpetal":  (EMB_DIR + "pellet.png", 2.6, True, True, True),
-            "pellet":    (EMB_DIR + "bullet.png", 1.35, False, True, True),
-            "dagger":    (EMB_DIR + "dagger.png", 1.8, True, True, True),
-            "pin":       (emb_cell("kunai"),     1.25, True,  False, True),
-            "page":      (emb_cell("ofuda"),     1.30, False, False, True),
-            "soul":      (emb_cell("heart"),     0.75, False, False, True),
-            "spark":     (emb_cell("ministar"),  1.25, False, False, True),
-            "lamp":      (emb_cell("sunburst"),  0.80, False, False, True),
-            "houselamp": (emb_cell("moon"),      0.50, False, False, True),
-            "bead":      (emb_cell("gloss"),     1.30, False, False, True),
-            # --- added with the 2026-08-29 volley rebuild -------------------
-            "face":      (emb_cell("dot"),       0.95, False, False, True),
-            "stitch":    (emb_cell("bar"),       1.15, True,  False, True),
-            "thread":    (emb_cell("rice"),      1.15, True,  False, True),
-            "word":      (emb_cell("slug"),      1.10, False, False, True),
-            "hoop":      (emb_cell("hoop"),      1.90, False, False, True),
-            "clap":      (emb_cell("ball"),      1.35, False, False, True),
-            "seed":      (emb_cell("seed"),      1.05, True,  False, True),
-            "blob":      (emb_cell("haze"),      1.00, False, False, True),
-            "chip":      (emb_cell("frost"),     0.85, True,  False, True),
-            "bolt":      (emb_cell("boltarrow"), 0.90, True,  False, True),
-            "note":      (emb_cell("note", 0),   1.00, False, False, False),
-            "rest":      (emb_cell("note", 2),   1.00, False, False, False),
-            "flame":     (emb_cell("wisp", 1),   0.95, False, False, False),
+            "petal":     ("petal", 2, "spin"),
+            "camellia":  ("camellia", 2, "spin"),
+            "needle":    ("needle", 2, "head"),
+            "book_r":    ("book_r", 2, None),
+            "book_b":    ("book_b", 2, None),
+            "book_g":    ("book_g", 2, None),
+            "book_y":    ("book_y", 2, None),
+            "book_n":    ("book_n", 2, None),
+            "book_v":    ("book_v", 2, None),
+            "book_open": (("book_open_a", "book_open_b"), 2, None),
+            "page":      ("page", 2, "spin"),
+            "pen":       ("pen", 2, "head"),
+            "can":       ("can", 2, "spin"),
+            "drop":      ("drop", 2, None),
+            "coin":      (("coin_a", "coin_b"), 2, None),
+            "critter":   (("critter_a", "critter_b"), 2, None),
+            "commuter":  (("commuter_a", "commuter_b"), 2, None),
+            "bell":      ("bell", 2, None),
+            "rice":      ("rice", 2, None),
+            "cracker":   ("cracker", 2, "spin"),
+            "crumb":     ("crumb", 2, None),
+            "chip":      ("crumb", 2, None),
+            "spark":     ("spark", 2, None),
+            "tag":       ("tag", 2, None),
+            "bird":      ("bird", 2, None),
         }
-
+        FRAME_TICKS = {"coin": 6, "critter": 8, "commuter": 10,
+                       "book_open": 12}
+        FLIPS = ("critter", "commuter")
+        BUTTON_ICONS = ("icon_fight", "icon_act", "icon_item", "icon_mercy")
         STRING_TOPS = [140.0, -140.0, -60.0, 60.0, 0.0]
 
         def __init__(self, game, **kwargs):
@@ -4993,27 +6278,6 @@ init python:
 
         # ----- cached factories ------------------------------------------------
 
-        def _bullet_tf(self, kind, ci, bucket, sq, ab):
-            path, base_zoom, rotates, pixel, tint = TSBStage.KINDS[kind]
-            # Pellets are rotationally symmetric. Sharing one transform keeps
-            # their factory cache from multiplying across needless buckets.
-            if not rotates:
-                bucket = 0
-            key = (kind, ci, bucket, sq, ab)
-            tf = TSBStage._tf_cache.get(key)
-            if tf is None:
-                kw = dict(zoom=base_zoom * (sq / 4.0), nearest=pixel,
-                            subpixel=True)
-                if tint:
-                    kw["matrixcolor"] = TintMatrix(TSB_PAL[ci])
-                if ab < 3:
-                    kw["alpha"] = 0.25 + 0.25 * ab
-                if rotates:
-                    kw["rotate"] = bucket * TSB_ROT_DEG
-                tf = Transform(path, **kw)
-                TSBStage._tf_cache[key] = tf
-            return tf
-
         def _misc(self, key, builder):
             d = TSBStage._misc_cache.get(key)
             if d is None:
@@ -5023,17 +6287,35 @@ init python:
                 TSBStage._misc_cache[key] = d
             return d
 
-        def _text(self, text, size, color, font=TSB_FONT, bold=False, outline=True):
-            key = (text, size, color, font, bold, outline)
-            t = TSBStage._text_cache.get(key)
-            if t is None:
-                if len(TSBStage._text_cache) > 160:
-                    TSBStage._text_cache.clear()
-                outl = [(2, "#05060e", 0, 0)] if outline else []
-                t = Text(text, size=size, color=color, bold=bold, font=font,
-                        outlines=outl)
-                TSBStage._text_cache[key] = t
-            return t
+        def _art_tf(self, key, sc, rot, flip, tint, ab):
+            k = (key, sc, rot, flip, tint, ab)
+            d = TSBStage._art_cache.get(k)
+            if d is None:
+                if len(TSBStage._art_cache) > 1800:
+                    TSBStage._art_cache.clear()
+                kw = dict(xzoom=(-sc if flip else sc), yzoom=sc, nearest=True)
+                if rot:
+                    kw["rotate"] = rot
+                if tint:
+                    kw["matrixcolor"] = TintMatrix(tint)
+                if ab < 8:
+                    kw["alpha"] = ab / 8.0
+                d = Transform(tsb_art(key), **kw)
+                TSBStage._art_cache[k] = d
+            return d
+
+        def _glyph_tf(self, ch, sc, color, ab):
+            k = ("glyph", ch, sc, color, ab)
+            d = TSBStage._art_cache.get(k)
+            if d is None:
+                if len(TSBStage._art_cache) > 1800:
+                    TSBStage._art_cache.clear()
+                kw = dict(zoom=sc, nearest=True, matrixcolor=TintMatrix(color))
+                if ab < 8:
+                    kw["alpha"] = ab / 8.0
+                d = Transform(tsb_glyph(ch), **kw)
+                TSBStage._art_cache[k] = d
+            return d
 
         # ----- input events --------------------------------------------------
 
@@ -5049,12 +6331,18 @@ init python:
         # ----- render ------------------------------------------------------------
 
         def render(self, width, height, st, at):
-            global TSB_SHADER_OK
+            global TSB_SHADER_OK, TSB_ALIVE_OK
             g = self.game
 
             # F3 profiler (perf.rpy) -- see the note in KTStage.render.
             _perf = MSBF_PERF.on
             _t = msbf_perf_t0() if _perf else 0.0
+
+            # LOW DETAIL (graphics_detail.rpy), read once per frame: the
+            # rising streaks and drifting petals go, and the falling camellias
+            # hold at phase one's three. The box, the SOUL, every attack, her,
+            # her strings and the whole interface draw exactly as on Full.
+            low = enter_m_low_detail()
 
             if self.last_st is None:
                 self.last_st = st
@@ -5088,7 +6376,6 @@ init python:
                 entry = frame_tex.get(key)
                 if entry is None:
                     r = renpy.render(disp, w, h, st, at)
-                    rv.depends_on(r)
                     entry = (r, r.get_size())
                     frame_tex[key] = entry
                 return entry
@@ -5100,72 +6387,161 @@ init python:
                 entry = frame_tex.get(key)
                 if entry is None:
                     solid = self._misc(("solid", color), lambda c=color: Solid(c))
-                    r = renpy.render(solid, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = r
+                    entry = renpy.render(solid, w, h, st, at)
                     frame_tex[key] = entry
                 return entry
 
             def qa(a):
-                # Quantized alpha suffix: eight levels, so animated fades
-                # reuse a small, bounded set of cached Solids.
-                return "%02x" % (int(tsb_clamp(a, 0.0, 1.0) * 7.0) * 36 + 3)
+                # Quantized alpha suffix: sixteen levels, so animated fades
+                # reuse a small, bounded set of cached Solids -- and a 0.1
+                # ghost still shows instead of rounding down to nothing.
+                return "%02x" % (int(round(tsb_clamp(a, 0.0, 1.0) * 15.0)) * 17)
 
-            def beam(color, length, thick, vertical=False):
-                # A wire body drawn from the shared atlas `lens` hairline
-                # (asset_definitions/def_bullets.rpy) instead of two stacked Solids.
-                # The art already carries a hot white core inside a soft
-                # coloured falloff, which is exactly the glow+core pair this
-                # used to hand-build -- one texture, and a real beam profile
-                # rather than two hard-edged bars.
-                # Returns (Render, (w, h)); blit it CENTRED on the wire.
-                length = max(2, int(length))
-                thick = max(2, int(thick))
-                key = ("beam", color, length, thick, vertical)
-                entry = frame_tex.get(key)
+            def outline(layer, color, x, y, w, h, t=2):
+                x, y, w, h = int(x), int(y), int(w), int(h)
+                if w <= 0 or h <= 0:
+                    return
+                layer.blit(rect(color, w, t), (x, y))
+                layer.blit(rect(color, w, t), (x, y + h - t))
+                layer.blit(rect(color, t, h), (x, y))
+                layer.blit(rect(color, t, h), (x + w - t, y))
+
+            def art(key, sc=2, rot=0.0, flip=False, tint=None, alpha=1.0):
+                ab = int(round(tsb_clamp(alpha, 0.0, 1.0) * 8.0))
+                if ab <= 0:
+                    return None, (0, 0)
+                rq = (int(round(rot / 2.0)) * 2) % 360 if rot else 0
+                k = ("art", key, sc, rq, flip, tint, ab)
+                entry = frame_tex.get(k)
                 if entry is None:
-                    d = self._misc(key, (lambda c=color, L=length, T=thick, v=vertical: Transform(
-                        emb_cell("lens"), xzoom=L / 248.0, yzoom=T / 8.0,
-                        subpixel=True, matrixcolor=TintMatrix(c),
-                        rotate=(90 if v else 0))))
-                    quad = length + thick + 8
-                    r = renpy.render(d, quad, quad, st, at)
-                    rv.depends_on(r)
+                    r = renpy.render(self._art_tf(key, sc, rq, flip, tint, ab),
+                                     1024, 1024, st, at)
                     entry = (r, r.get_size())
-                    frame_tex[key] = entry
+                    frame_tex[k] = entry
                 return entry
 
-            def beam_at(color, cx_, cy_, length, thick, vertical=False):
-                br, (bw_, bh_) = beam(color, length, thick, vertical)
-                hazard_blit(br, (int(cx_ - bw_ * 0.5), int(cy_ - bh_ * 0.5)))
+            def art_at(layer, key, x, y, sc=2, rot=0.0, flip=False, tint=None,
+                       alpha=1.0):
+                r, (w, h) = art(key, sc, rot, flip, tint, alpha)
+                if r is not None:
+                    layer.blit(r, (int(round(x - w * 0.5)), int(round(y - h * 0.5))))
 
-            string_canvas = [None]
+            def glyph(ch, sc, color, ab):
+                k = ("gl", ch, sc, color, ab)
+                r = frame_tex.get(k)
+                if r is None:
+                    r = renpy.render(self._glyph_tf(ch, sc, color, ab),
+                                     64, 64, st, at)
+                    frame_tex[k] = r
+                return r
 
-            def get_string_canvas():
-                if string_canvas[0] is None:
-                    # One small raster layer replaces up to ninety dynamic
-                    # rotated-Solid factories per frame.
+            def ptext(layer, text, x, y, sc=2, color="#ffffff", alpha=1.0,
+                      cols=None, lh=None, shown=None, shadow=None):
+                """Kareda Mono. Top-left anchored; `shown` types it out."""
+                ab = int(round(tsb_clamp(alpha, 0.0, 1.0) * 8.0))
+                if ab <= 0 or not text:
+                    return (0, 0)
+                lines = tsb_wrap(text, cols) if cols else text.split("\n")
+                adv = TSB_GLYPH_ADV * sc
+                if lh is None:
+                    lh = (TSB_GLYPH_H + 3) * sc
+                left = len(text) if shown is None else int(shown)
+                for li, ln in enumerate(lines):
+                    if left <= 0:
+                        break
+                    seg = ln[:left]
+                    left -= len(ln) + 1
+                    yy = int(y + li * lh)
+                    for i, ch in enumerate(seg):
+                        if ch == " ":
+                            continue
+                        xx = int(x + i * adv)
+                        if shadow:
+                            layer.blit(glyph(ch, sc, shadow, ab), (xx + sc, yy + sc))
+                        layer.blit(glyph(ch, sc, color, ab), (xx, yy))
+                wmax = max(len(ln) for ln in lines) if lines else 0
+                return (wmax * adv - sc, len(lines) * lh)
+
+            # HER STRINGS are raster lines on a software Canvas, and a Canvas
+            # is drawn on the CPU and uploaded as a texture EVERY frame. It
+            # used to be a fixed 1280x420 layer; measured Oct 9 2026, bounding
+            # it took phase two from 0.86 to 0.37ms of GPU time at full clocks
+            # and from 5.1 to 4.4ms of CPU, for five threads that cover a small
+            # part of it. So the commands are COLLECTED and rasterized at the
+            # end of the frame into a canvas only as big as what they touch,
+            # placed at the same offset inside a holder that keeps the old
+            # layer's place in the draw order. Integer offsets do not change
+            # what pygame rasterizes, so the picture is the same pixel for
+            # pixel (checked against the old path); the old 1280x420 bounds
+            # still clip it exactly as before.
+            string_cmds = []
+            string_holder = [None]
+
+            def string_layer():
+                if string_holder[0] is None:
                     layer = renpy.Render(1280, 420)
-                    canvas = layer.canvas()
                     rv.blit(layer, (0, 0))
-                    string_canvas[0] = canvas
-                return string_canvas[0]
+                    string_holder[0] = layer
+                return string_holder[0]
 
             def line(x1, y1, x2, y2, color, thickness=2):
-                get_string_canvas().line(
-                    color,
+                string_layer()
+                string_cmds.append((False, color, [
                     (int(round(x1)), int(round(y1))),
-                    (int(round(x2)), int(round(y2))),
-                    max(1, int(thickness)))
+                    (int(round(x2)), int(round(y2)))],
+                    max(1, int(thickness))))
 
             def polyline(points, color, thickness=2):
                 if len(points) >= 2:
-                    pts = [(int(round(x)), int(round(y))) for x, y in points]
-                    get_string_canvas().lines(
-                        color, False, pts, max(1, int(thickness)))
+                    string_layer()
+                    string_cmds.append((True, color,
+                        [(int(round(x)), int(round(y))) for x, y in points],
+                        max(1, int(thickness))))
+
+            def flush_strings():
+                if not string_cmds:
+                    return
+                if not TSB_STRINGS_BBOX:
+                    cv = string_holder[0].canvas()
+                    for multi, color, pts, wd in string_cmds:
+                        if multi:
+                            cv.lines(color, False, pts, wd)
+                        else:
+                            cv.line(color, pts[0], pts[1], wd)
+                    return
+                pad = 2 + max(c[3] for c in string_cmds)
+                xs = [p[0] for c in string_cmds for p in c[2]]
+                ys = [p[1] for c in string_cmds for p in c[2]]
+                bx0 = max(0, min(xs) - pad)
+                by0 = max(0, min(ys) - pad)
+                bx1 = min(1280, max(xs) + pad + 1)
+                by1 = min(420, max(ys) + pad + 1)
+                if bx1 <= bx0 or by1 <= by0:
+                    return
+                small = renpy.Render(bx1 - bx0, by1 - by0)
+                cv = small.canvas()
+                for multi, color, pts, wd in string_cmds:
+                    loc = [(x - bx0, y - by0) for x, y in pts]
+                    if multi:
+                        cv.lines(color, False, loc, wd)
+                    else:
+                        cv.line(color, loc[0], loc[1], wd)
+                string_holder[0].blit(small, (bx0, by0))
 
             sblit = rv.subpixel_blit
             ending_bg = g.mode in ("end_v", "end_p", "end_b")
+            soul_mode = getattr(g, "soul", "red")
+            # CHAOS: phase 2 comes apart on screen as it comes apart in her,
+            # whichever route is driving it. 0 in phase 1; 0.3 on arrival,
+            # climbing to 1.0 with the fight's progress. `glitch` marks the
+            # ticks on which things misprint.
+            chaos = 0.0
+            if g.phase == 2 and not g.void and not ending_bg:
+                chaos = 0.3 + 0.7 * tsb_clamp(
+                    (float(getattr(g, "ems_progress", 0.5)) - 0.5) * 2.0, 0.0, 1.0)
+            elif g.mode == "shift":
+                chaos = 0.3 * tsb_clamp((g.mtick - 200) / 60.0, 0.0, 1.0)
+            glitch = chaos > 0.0 and (g.tick // 3) % max(3, int(14 - chaos * 9)) == 0
 
             # --- 1. backdrop: the rising grid ---------------------------------
             if g.void:
@@ -5210,7 +6586,8 @@ init python:
                     # mesh True + an OPAQUE base: the proven combo for a
                     # procedural shader-on-Solid quad in this project (the
                     # calendar dial found the transparent-base trap first).
-                    quad = Transform(Solid("#000000ff"), xysize=(1280, 720),
+                    # The base is the shared TSB_GRID_BASE -- see its note.
+                    quad = Transform(TSB_GRID_BASE, xysize=(1280, 720),
                                     mesh=True, shader="tsb.grid",
                                     u_tsb_res=(1280.0, 720.0),
                                     u_tsb_col=accent,
@@ -5222,7 +6599,6 @@ init python:
                                     u_tsb_flash=0.0,
                                     u_tsb_dark=breath)
                     qr = renpy.render(quad, 1280, 720, st, at)
-                    rv.depends_on(qr)
                     rv.blit(qr, (0, 0))
                 except Exception as shader_e:
                     TSB_SHADER_OK = False
@@ -5237,31 +6613,30 @@ init python:
             # --- 2. upward-rush ambience (streaks + petals, full screen) ------
             if not g.void and g.room_live:
                 streak_alpha = "46" if g.phase == 2 else "38"
-                for s in g.streaks:
+                for s in (() if low else g.streaks):
                     lq = int(s["len"] // 20) * 20
                     rv.blit(rect(TSB_AMB_PAL[s["ci"]] + streak_alpha,
                                 2, max(20, lq)),
                             (int(s["x"]), int(s["y"] - s["len"])))
-                amb_phase = 1 if g.phase == 2 else 0
-                for m in g.amb_petals:
-                    rb = int(m.get("ra", 0.0) / TSB_ROT_DEG) % TSB_ROT_BUCKETS
-                    shadow_key = ("ambshadow", m["scb"], rb)
-                    shadow_d = self._misc(shadow_key, (lambda s=m["scb"], b=rb: Transform(
-                        EMB_DIR + "pellet.png", zoom=0.9 + 0.35 * s,
-                        nearest=True, subpixel=True, rotate=b * TSB_ROT_DEG,
-                        matrixcolor=TintMatrix("#050611"), alpha=0.78)))
-                    sr, (sw, sh) = tex(shadow_key, shadow_d, 40, 40)
-                    sblit(sr, (m["x"] - sw / 2.0 + 2.0,
-                                m["y"] - sh / 2.0 + 2.0))
-
-                    akey = ("amb", m["ci"], m["scb"], rb, amb_phase)
-                    amb_d = self._misc(akey, (lambda ci=m["ci"], s=m["scb"], b=rb, ap=amb_phase: Transform(
-                        EMB_DIR + "pellet.png", zoom=0.9 + 0.35 * s,
-                        nearest=True, subpixel=True, rotate=b * TSB_ROT_DEG,
-                        matrixcolor=TintMatrix(TSB_AMB_PAL[ci]),
-                        alpha=(0.68 if ap else 0.58))))
-                    ar, (aw, ah) = tex(akey, amb_d, 40, 40)
-                    sblit(ar, (m["x"] - aw / 2.0, m["y"] - ah / 2.0))
+                amb_a = 0.66 if g.phase == 2 else 0.58
+                for m in (() if low else g.amb_petals):
+                    quarter = int(m.get("ra", 0.0) // 90.0) % 4
+                    art_at(rv, "petal:w", m["x"], m["y"], sc=(2, 2, 3)[m["scb"]],
+                           rot=quarter * 90.0, flip=quarter % 2 == 1,
+                           tint=TSB_AMB_PAL[m["ci"]], alpha=amb_a)
+                # Her flower. A camellia does not wilt; it lets go of the
+                # branch all at once and falls whole. A few always are; in
+                # phase 2 more of them, faster.
+                n_cam = 3 if (g.phase == 1 or low) else 3 + int(round(5 * chaos))
+                for k in range(n_cam):
+                    hh = (k * 7919 + 13) % 1009
+                    spd = 0.35 + (hh % 7) * 0.05 + (0.6 * chaos)
+                    yk = ((g.tick * spd + hh * 3.1) % 820.0) - 50.0
+                    xk = 40 + (hh * 37) % 1200 + math.sin(g.tick * 0.01 + hh) * 14.0
+                    rq = ((g.tick * (1 + hh % 3)) // 14 % 4) * 90.0
+                    art_at(rv, "camellia", xk, yk, sc=2, rot=rq,
+                           tint=("#a0405a" if (g.phase == 2 and k % 2) else None),
+                           alpha=0.5 if g.phase == 1 else 0.62)
 
             # --- 3. boss sprite + strings --------------------------------------
             motion = tsb_boss_motion(g)
@@ -5273,11 +6648,11 @@ init python:
             center_y = motion["center_y"]
             rot = motion["rotation"]
 
+            warp = motion.get("warp")
+
             def boss_variant(angle, alpha_bucket=10, tint=None):
                 aq = float(round(angle))
                 ab = max(0, min(10, int(alpha_bucket)))
-                key = ("boss_pose", asset_key, motion["breath_bucket"],
-                       aq, ab, tint)
                 props = dict(xzoom=motion["scale_x"],
                             yzoom=motion["scale_y"], nearest=True,
                             subpixel=False, rotate=aq, rotate_pad=False,
@@ -5286,6 +6661,35 @@ init python:
                 if tint is not None:
                     props["matrixcolor"] = (TintMatrix(tint) *
                                             TSB_LINEART_MATRIX)
+                if warp is not None and TSB_ALIVE_OK:
+                    # Built fresh every frame, never cached: the bend is a set
+                    # of uniforms that move continuously, and caching a value
+                    # that animates is what quantized the old zoom-breath into
+                    # five visible steps. The image's texture is cached by the
+                    # engine either way; this is a handful of objects.
+                    bands = warp["bands"]
+                    props.update(
+                        mesh=True, shader="tsb.alive",
+                        u_tsa_size=TSB_BOSS_NATIVE_SIZE,
+                        u_tsa_bands=(bands[0], bands[1], bands[2], bands[3]),
+                        u_tsa_legs=(bands[4], bands[5]),
+                        u_tsa_breath=float(warp["breath"]),
+                        u_tsa_sway=float(warp["sway"]),
+                        u_tsa_head=(float(warp["head"][0]), float(warp["head"][1])),
+                        u_tsa_tilt=float(warp["tilt"]),
+                        u_tsa_stretch=float(warp["stretch"]),
+                        u_tsa_tremor=float(warp["tremor"]))
+                    key = ("boss_live", asset_key, aq, ab, tint)
+                    # The CHILD is one cached object per image, though, so
+                    # the texture the mesh renders it into is reused by
+                    # construction (a path string makes a new Image each call;
+                    # measured, the engine matched those anyway here -- in
+                    # the Matsuda pixel stage it did not; see msbf_px_disp).
+                    src = self._misc(("disp", img_path),
+                                     (lambda p=img_path: renpy.displayable(p)))
+                    return key, Transform(src, **props)
+                key = ("boss_pose", asset_key, motion["breath_bucket"],
+                       aq, ab, tint)
                 disp = self._misc(key, (lambda p=img_path, kw=props: Transform(p, **kw)))
                 return key, disp
 
@@ -5304,36 +6708,62 @@ init python:
                 anchors.append((center_x + rax * rc - ray * rs,
                                 center_y + rax * rs + ray * rc))
 
-            if g.strings_alpha > 0.02 and not g.boss_fallen:
+            # THE STRINGS (2026-09-30). Her five threads run up out of the
+            # top of the frame to whoever is holding them -- nobody you can
+            # see, and nothing in the room ever shows you. They tie on at
+            # camellia knots (wrists, head, shoulder, back), a glint runs
+            # down each live one, and in phase 2 they redden and fray with
+            # the room. A cut thread's lower end hangs from above, loose,
+            # and its knot falls, whole.
+            twitch = float(motion.get("twitch", 0.0))
+            tops = [(TSB_BOSS_X + TSBStage.STRING_TOPS[i]
+                     + math.sin(g.tick * 0.026 + i * 1.7) * 6.0 + twitch * 12.0,
+                     -40.0) for i in range(5)]
+            show_strings = g.strings_alpha > 0.02 and not g.boss_fallen
+            if show_strings:
                 alpha = tsb_clamp(g.strings_alpha, 0.0, 1.0)
-                core_a = int((0.26 + 0.56 * alpha) * 255)
-                glow_a = int((0.05 + 0.16 * alpha) * 255)
-                core_col = "#e8e4ff%02x" % core_a
-                glow_col = "#8f83ff%02x" % glow_a
+                core_rgb = tsb_mix("#efe8ff", "#ffc8d2", chaos)
+                glow_rgb = tsb_mix("#9d8cff", "#ff4f6f", chaos)
+                core_col = core_rgb + "%02x" % int((0.35 + 0.6 * alpha) * 255)
+                glow_col = glow_rgb + "%02x" % int((0.08 + 0.2 * alpha) * 255)
                 for i in range(5):
+                    tx, ty = tops[i]
                     if i in g.cut_string_ids:
+                        sway = math.sin(g.tick * 0.05 + i * 1.7) * 8.0
+                        dangle = [(tx, ty), (tx + sway * 0.4, ty + 60.0),
+                                  (tx + sway, ty + 110.0)]
+                        polyline(dangle, glow_col, 3)
+                        polyline(dangle, core_col, 1)
                         continue
                     ax, ay = anchors[i]
-                    tx = (TSB_BOSS_X + TSBStage.STRING_TOPS[i] +
-                        math.sin(g.tick * 0.026 + i * 1.7) * (4.0 + 4.0 * alpha))
-                    ty = -14.0
-                    bow = math.sin(g.tick * 0.035 + i * 1.31) * (5.0 + 8.0 * alpha)
+                    bow = math.sin(g.tick * 0.035 + i * 1.31) * (4.0 + 6.0 * alpha)
                     if g.phase == 2:
-                        # High-frequency shiver: the strings are under more
-                        # load than they want anyone to know.
-                        bow += math.sin(g.tick * 0.9 + i * 2.3) * 2.4
+                        # High-frequency shiver: more load than it admits.
+                        bow += math.sin(g.tick * 0.9 + i * 2.3) * (1.5 + 3.0 * chaos)
                     points = [(tx, ty)]
                     segments = 9
                     for seg in range(1, segments + 1):
                         u = seg / float(segments)
-                        nx = tx + (ax - tx) * u + math.sin(math.pi * u) * bow
-                        ny = ty + (ay - ty) * u
-                        points.append((nx, ny))
-                    polyline(points, glow_col, 5)
+                        points.append((tx + (ax - tx) * u + math.sin(math.pi * u) * bow,
+                                       ty + (ay - ty) * u))
+                    polyline(points, glow_col, 4)
                     polyline(points, core_col, 2)
+                    gu = (g.tick * 0.011 + i * 0.23) % 1.0
+                    gk = min(segments - 1, int(gu * segments))
+                    gp, gq = points[gk], points[gk + 1]
+                    line(gp[0], gp[1], gq[0], gq[1], "#ffffffc8", 2)
+                    if g.phase == 2 and chaos > 0.35:
+                        for fk in range(2):
+                            fu = ((i * 0.37 + fk * 0.41 + (g.tick // 20) * 0.13) % 0.8) + 0.1
+                            fp = points[min(segments, int(fu * segments))]
+                            fl = 4.0 + 5.0 * chaos
+                            line(fp[0], fp[1], fp[0] + fl, fp[1] - fl * 0.6,
+                                 glow_rgb + "a0", 1)
+                            line(fp[0], fp[1], fp[0] - fl * 0.7, fp[1] + fl * 0.4,
+                                 glow_rgb + "a0", 1)
 
-            # Severed ends recoil upward and leave a short lower tail. These
-            # persist just long enough for each individual cut to read.
+            # Severed ends recoil upward and leave a short lower tail, and the
+            # knot that tied it falls, whole.
             for snap in g.string_snap_fx:
                 age = g.tick - snap["born"]
                 if age < 0 or age >= 72:
@@ -5348,6 +6778,10 @@ init python:
                     col + ahex, 2)
                 line(sx, sy, sx - curl * 0.45, sy + 24.0 + age * 1.1,
                     col + ahex, 2)
+                ky = sy + 0.11 * age * age
+                if ky < 740.0:
+                    art_at(rv, "camellia_s", sx + curl * 0.3, ky, sc=2,
+                           rot=((age // 6) % 4) * 90.0)
 
             # While she's actually falling, line-art echoes trail above her:
             # the drop reads as speed and weight, not choreography.
@@ -5361,53 +6795,95 @@ init python:
                                  int(round(center_y - g.fall_vy * gi * 2.0
                                            - gh * 0.5))))
 
+            hit_age = g.tick - g.slash_born
+            if g.boss_alpha > 0.0 and twitch and not g.void:
+                # The jerk leaves her behind for a frame, misregistered.
+                # (Guarded like the main pose: an echo is not worth a crash.)
+                try:
+                    for off, tcol in ((-7, "#ff4f6f"), (7, "#5cd7ff")):
+                        gkey, gd = boss_variant(rot - twitch * 5.0, 3, tcol)
+                        gr, (gw, gh) = tex(gkey, gd, 520, 520)
+                        rv.blit(gr, (int(round(center_x + off - gw * 0.5)),
+                                     int(round(center_y - gh * 0.5))))
+                except Exception:
+                    pass
             if g.boss_alpha > 0.0:
                 main_ab = int(tsb_clamp(g.boss_alpha, 0.0, 1.0) * 10)
-                pose_key, pose_d = boss_variant(rot, main_ab)
-                pose_r, (pose_w, pose_h) = tex(pose_key, pose_d, 520, 520)
+                # A landed FIGHT flushes her line art red for a moment.
+                tint = None
+                if 0 <= hit_age < 8 and not g.void:
+                    tint = "#ff6a78"
+                pose_key, pose_d = boss_variant(rot, main_ab, tint)
+                try:
+                    pose_r, (pose_w, pose_h) = tex(pose_key, pose_d, 520, 520)
+                except Exception as alive_e:
+                    if not (warp is not None and TSB_ALIVE_OK):
+                        raise
+                    TSB_ALIVE_OK = False
+                    try:
+                        renpy.log("TSB FX: tsb.alive render failed: %r" % alive_e)
+                    except Exception:
+                        pass
+                    warp = None
+                    pose_key, pose_d = boss_variant(rot, main_ab, tint)
+                    pose_r, (pose_w, pose_h) = tex(pose_key, pose_d, 520, 520)
                 rv.blit(pose_r, (int(round(center_x - pose_w * 0.5)),
                                  int(round(center_y - pose_h * 0.5))))
 
-            # Slash arc on a landed FIGHT.
-            if g.tick - g.slash_born < 10:
-                p = (g.tick - g.slash_born) / 10.0
-                skey2 = ("slash", int(p * 3))
-                sl_d = self._misc(skey2, (lambda a=int(p * 3): Transform(
-                    EMB_DIR + "bullet.png", xzoom=7.0, yzoom=0.5,
-                    rotate=-38, matrixcolor=TintMatrix("#f5f5f0"),
-                    alpha=0.85 - 0.25 * a)))
-                slr, (slw, slh) = tex(skey2, sl_d, 220, 220)
-                sblit(slr, (TSB_BOSS_X - slw / 2.0 - 30 + p * 60,
-                            TSB_BOSS_FEET_Y - 210 - slh / 2.0 + p * 40))
+            # The knots: a small camellia where each live thread ties on.
+            if show_strings:
+                for i in range(5):
+                    if i not in g.cut_string_ids:
+                        art_at(rv, "camellia_s", anchors[i][0], anchors[i][1], sc=1)
 
-            # Her HP bar, only shown briefly after a hit (UT-style tell).
-            # It slides in and dissolves away instead of blinking.
+            # The slash: three frames of a cut across her, and petals.
+            if 0 <= hit_age < 18 and not g.void:
+                art_at(rv, "slash_%d" % min(2, hit_age // 6),
+                       TSB_BOSS_X + 6, TSB_BOSS_FEET_Y - 196, sc=3,
+                       alpha=1.0 - max(0.0, (hit_age - 12) / 6.0))
+            if 0 <= hit_age < 44 and not g.void:
+                for k in range(10):
+                    pa_ = k * 0.628 + g.slash_born * 0.37
+                    ps_ = 2.0 + (k % 3) * 0.7
+                    px_ = TSB_BOSS_X + math.cos(pa_) * ps_ * hit_age
+                    py_ = (TSB_BOSS_FEET_Y - 196 + math.sin(pa_) * ps_ * hit_age
+                           + 0.06 * hit_age * hit_age)
+                    art_at(rv, "petal", px_, py_, sc=2,
+                           rot=((hit_age // 5 + k) % 4) * 90.0,
+                           alpha=1.0 - hit_age / 44.0)
+
+            # After every fall, one camellia comes down after her, whole, and
+            # lands beside her. Same flower, every route.
+            if g.void and g.fall_landed and getattr(g, "land_tick", None) is not None:
+                cage = g.mtick - g.land_tick - 24
+                if cage > 0:
+                    cu = tsb_clamp(cage / 80.0, 0.0, 1.0)
+                    cyy = -30.0 + (676.0 + 30.0) * (cu * cu)
+                    cxx = (TSB_BOSS_X + float(getattr(g, "boss_dx", 0.0)) + 92.0
+                           + math.sin(cage * 0.05) * 10.0 * (1.0 - cu))
+                    art_at(rv, "camellia", cxx, cyy, sc=2,
+                           rot=0.0 if cu >= 1.0 else ((cage // 8) % 4) * 90.0)
+
+            # Her HP bar, only shown after a hit: green over red, and the green
+            # DRAINS to the new value instead of snapping (UT's tell).
             if g.tick < g.boss_hp_show_until and not g.void:
                 remain = g.boss_hp_show_until - g.tick
                 bar_a = tsb_clamp(min((110 - remain) / 7.0, remain / 22.0),
                                 0.0, 1.0)
-                frac = tsb_clamp(g.boss_hp / TSB_BOSS_HP, 0.0, 1.0)
-                bbx = int(TSB_BOSS_X - 120)
-                # Fixed near the top of the battle stage: the shared 184x344
-                # cell includes a little transparent breathing room above the
-                # differently hunched poses, so its canvas top is not her head.
-                bby = 6 - int((1.0 - bar_a) * 6)
-                rv.blit(rect("#f5f5f0" + qa(0.95 * bar_a), 244, 18),
-                        (bbx - 2, bby - 2))
-                rv.blit(rect("#3a0a10" + qa(bar_a), 240, 14), (bbx, bby))
+                shown_hp = float(getattr(g, "boss_hp_shown", g.boss_hp))
+                frac = tsb_clamp(shown_hp / TSB_BOSS_HP, 0.0, 1.0)
+                bbw = 220
+                bbx = int(TSB_BOSS_X - bbw * 0.5)
+                bby = 8 - int((1.0 - bar_a) * 6)
+                rv.blit(rect("#000000" + qa(bar_a), bbw + 4, 18), (bbx - 2, bby - 2))
+                rv.blit(rect("#c01020" + qa(bar_a), bbw, 14), (bbx, bby))
                 if frac > 0.0:
-                    rv.blit(rect(("#39d97e" if frac > 0.35 else "#ffe23d")
-                                + qa(bar_a), int(240 * frac), 14),
+                    rv.blit(rect("#39e05a" + qa(bar_a), int(bbw * frac), 14),
                             (bbx, bby))
 
-            # --- 3b. mercy gauge ------------------------------------------------
-            # A persistent readout pinned to the sprite's lower right so the
-            # player can read SPARE readiness without opening ACT/MERCY. Fills
-            # toward the threshold, then goes spare-yellow and relabels itself
-            # the moment SPARE will actually do something. Hidden during the
-            # dodge (bullets own the box then) and during cinematics. Anchored
-            # to the sprite's static right edge, so it never jitters with the
-            # sag/yank or hit recoil.
+            # --- 3b. mercy gauge (Deltarune's, on her) --------------------------
+            # Fills toward the SPARE threshold, then goes yellow and says so.
+            # Hidden while the box owns the screen (dodge) and in cinematics.
             m_hide = ("dodge", "intro", "shift", "end_v", "end_p", "end_b", "dead")
             if g.hud_alpha > 0.02 and not g.void and g.mode not in m_hide:
                 if g.phase == 1:
@@ -5416,188 +6892,273 @@ init python:
                     m_cur, m_need = g.mercy2, (1 if g.debug else TSB_MERCY2_NEED)
                 m_frac = tsb_clamp(m_cur / float(m_need), 0.0, 1.0)
                 m_ready = m_cur >= m_need
-                mgw = 14
-                mgh = 66
                 base_boss_w = TSB_BOSS_NATIVE_SIZE[0] * TSB_BOSS_ZOOM
-                mgx = int(TSB_BOSS_X + base_boss_w * 0.5 + 12)
-                mgy = int(TSB_BOSS_FEET_Y - 6 - mgh)
-                rv.blit(rect("#101014", mgw + 4, mgh + 4), (mgx - 2, mgy - 2))
-                rv.blit(rect("#3a2e12" if m_ready else "#241d33", mgw, mgh),
-                        (mgx, mgy))
-                m_fh = int(mgh * m_frac)
-                if m_fh > 0:
-                    if m_ready:
-                        m_fill = "#ffe23d" if (g.tick // 6) % 2 == 0 else "#fff2a0"
-                    else:
-                        m_fill = "#ff8fb8"
-                    rv.blit(rect(m_fill, mgw, m_fh), (mgx, mgy + mgh - m_fh))
+                mgx = int(TSB_BOSS_X + base_boss_w * 0.5 + 16)
+                mgy = int(TSB_BOSS_FEET_Y - 50)
+                mgw, mgh = 104, 12
                 if m_ready:
-                    rv.blit(rect("#fff6c0", mgw, 3), (mgx, mgy))
-                m_lbl = "SPARE" if m_ready else "MERCY"
-                m_lcol = "#ffe23d" if m_ready else "#9aa0b0"
-                mlt, (mlw, mlh) = tex(("mercylbl", m_lbl),
-                                    self._text(m_lbl, 13, m_lcol,
-                                                font=TSB_FONT_UI, bold=True),
-                                    140, 30)
-                sblit(mlt, (mgx + mgw * 0.5 - mlw * 0.5, mgy - mlh - 3))
+                    lbl, lcol = "SPARE!", ("#ffff40" if (g.tick // 8) % 2 == 0 else "#fff6c0")
+                else:
+                    lbl, lcol = "MERCY", "#ffb14a"
+                art_at(rv, "camellia_s", mgx - 14, mgy - 15, sc=2)
+                ptext(rv, lbl, mgx, mgy - 24, 2, lcol, shadow="#000000")
+                pct = "%d%%" % int(round(m_frac * 100))
+                ptext(rv, pct, mgx + mgw - len(pct) * 12 + 2, mgy - 24, 2,
+                      "#ffffff", shadow="#000000")
+                rv.blit(rect("#000000", mgw + 4, mgh + 4), (mgx - 2, mgy - 2))
+                rv.blit(rect("#6a3200", mgw, mgh), (mgx, mgy))
+                m_fw = int(mgw * m_frac)
+                if m_fw > 0:
+                    rv.blit(rect("#ffff40" if m_ready else "#ff9d1a", m_fw, mgh),
+                            (mgx, mgy))
+                    rv.blit(rect("#ffffff60", m_fw, 2), (mgx, mgy))
 
             # --- 4. the box ----------------------------------------------------
             bxr, byr, bwr, bhr = g._box_rect()
-            if g.box_alpha > 0.02:
+            # Phase shifts use the speech bubble; the empty arena must not
+            # cover her feet during the authored downward yank.
+            if g.box_alpha > 0.02 and g.mode != "shift":
                 bd = TSB_BORDER
+                ix, iy, iw, ih = int(bxr), int(byr), int(bwr), int(bhr)
                 if g.phase == 2:
-                    # The box strains at its seams: a red under-glow pulsing
-                    # on the same heartbeat as the room. (Quantized alpha
-                    # buckets keep the solid cache small.)
+                    # The box strains at its seams: a red under-glow on the
+                    # same heartbeat as the room.
                     ga = ("26", "3a", "4e", "3a")[(g.tick // 7) % 4]
-                    rv.blit(rect("#e13b4e" + ga, bwr + bd * 2 + 10, bhr + bd * 2 + 10),
-                            (int(bxr - bd - 5), int(byr - bd - 5)))
-                rv.blit(rect("#f5f5f0", bwr + bd * 2, bhr + bd * 2),
-                        (int(bxr - bd), int(byr - bd)))
-                rv.blit(rect("#000000", bwr, bhr), (int(bxr), int(byr)))
+                    rv.blit(rect("#e13b4e" + ga, iw + bd * 2 + 10, ih + bd * 2 + 10),
+                            (ix - bd - 5, iy - bd - 5))
+                border = "#ffffff"
+                sage = g.tick - getattr(g, "soul_born", -999)
+                if g.mode == "dodge" and 0 <= sage < 24 and (sage // 4) % 2 == 0:
+                    # A mode change flashes the whole box in the SOUL's colour.
+                    border = TSB_SOUL_COL.get(soul_mode, "#ffffff")
+                rv.blit(rect(border, iw + bd * 2, ih + bd * 2), (ix - bd, iy - bd))
+                rv.blit(rect("#000000", iw, ih), (ix, iy))
+                # Deltarune's inner hairline, in her colour.
+                outline(rv, ("#ff8fb8" if g.phase == 1 else "#e13b4e") + "38",
+                        ix + 3, iy + 3, iw - 6, ih - 6, 1)
+                if glitch:
+                    dx_ = 2 + int(3 * chaos)
+                    outline(rv, "#ff3048a0", ix - bd + dx_, iy - bd, iw + bd * 2,
+                            ih + bd * 2, 2)
+                    outline(rv, "#30d0ffa0", ix - bd - dx_, iy - bd, iw + bd * 2,
+                            ih + bd * 2, 2)
+                # A camellia on each corner. In phase 2 they come off, one at
+                # a time, as she does.
+                lost = 0
+                if g.phase == 2:
+                    lost = min(4, max(len(g.cut_string_ids), int(
+                        (float(getattr(g, "ems_progress", 0.5)) - 0.5) * 9.0)))
+                for k, (qx, qy) in enumerate(((ix - bd, iy - bd),
+                                              (ix + iw + bd, iy - bd),
+                                              (ix + iw + bd, iy + ih + bd),
+                                              (ix - bd, iy + ih + bd))):
+                    if k >= lost:
+                        art_at(rv, "camellia_s", qx, qy, sc=2)
 
                 # --- 5. in-box content ----------------------------------------
                 pad = 22
+                cols = max(8, int((bwr - pad * 2) / 12) - 2)
+                tx0, ty0 = ix + pad, iy + pad - 2
                 if g.mode == "menu":
                     # UT exactly: the flavor line owns the box while the four
-                    # buttons are live; submenus replace it with options.
-                    fl, (flw, flh) = tex(("flavor", g.flavor),
-                                        self._text(g.flavor, 21, "#f5f5f0",
-                                                    outline=False),
-                                        int(bwr - pad * 2), 200)
-                    rv.blit(fl, (int(bxr + pad), int(byr + pad - 4)))
+                    # buttons are live, and it types itself out.
+                    fl = g.flavor or ""
+                    shown = int(g.mtick * 1.1)
+                    if fl in TSB_FLAVOR_ENGINE:
+                        # The room's own revision notes: no asterisk, cold.
+                        ptext(rv, fl, tx0, ty0, 2, "#8fd3e6", cols=cols + 2,
+                              shown=shown)
+                    else:
+                        ptext(rv, "*", tx0, ty0, 2, "#ffffff")
+                        ptext(rv, fl, tx0 + 24, ty0, 2, "#ffffff", cols=cols,
+                              shown=shown)
                 if g.mode in ("act", "item", "mercy") and g.sub:
                     two_col = len(g.sub) >= 4
-                    oy = byr + pad + 8
                     for i, opt in enumerate(g.sub):
                         if two_col:
-                            ox = bxr + pad + 34 + (i % 2) * (bwr / 2.0 - pad)
-                            oyy = oy + (i // 2) * 36
+                            ox = ix + pad + 18 + (i % 2) * (iw / 2.0 - pad)
+                            oyy = ty0 + 2 + (i // 2) * 34
                         else:
-                            ox = bxr + pad + 34
-                            oyy = oy + i * 36
-                        col = "#f5f5f0"
+                            ox = ix + pad + 18
+                            oyy = ty0 + 2 + i * 34
+                        col = "#ffffff"
                         if opt == "SPARE":
                             ready = (g.mercy >= (1 if g.debug else TSB_MERCY_NEED)
                                     if g.phase == 1 else
                                     g.mercy2 >= (1 if g.debug else TSB_MERCY2_NEED))
                             if ready:
-                                col = TSB_PAL[8]
-                        ot, (otw, oth) = tex(("opt", opt, col),
-                                            self._text("* " + opt, 21, col,
-                                                        outline=False), 300, 40)
-                        rv.blit(ot, (int(ox), int(oyy)))
+                                col = "#ffff40"
                         if i == g.sub_i:
-                            hk = ("heart_cursor",)
-                            hd = self._misc(hk, (lambda: Transform(
-                                TSB_KT_DIR + "player.png", zoom=1.6,
-                                nearest=True)))
-                            hr3, (hw3, hh3) = tex(hk, hd, 40, 40)
-                            # Vertically centered on the option's text line.
-                            sblit(hr3, (ox - 28.0, oyy + oth / 2.0 - hh3 / 2.0))
+                            art_at(rv, "soul_red", ox + 5, oyy + 9, sc=2)
+                        else:
+                            ptext(rv, "*", ox, oyy, 2, col)
+                        ptext(rv, opt, ox + 24, oyy, 2, col)
                     if g.mode == "item" and g.items and g.sub_i < len(g.items):
                         item_key = TSB_ITEMS[g.items[g.sub_i]][0]
                         desc = TSB_ITEM_DESCS.get(item_key, "")
                         if desc:
-                            dt, (dtw, dth) = tex(("item_desc", item_key),
-                                                self._text(desc, 15, "#8a90a0",
-                                                            font=TSB_FONT_UI,
-                                                            outline=False),
-                                                int(bwr - pad * 2), 28)
                             # A hairline rules the description off from the
                             # option grid so it reads as a status footer.
-                            rv.blit(rect("#8a90a055", int(bwr - pad * 2), 1),
-                                    (int(bxr + pad), int(byr + bhr - dth - 16)))
-                            rv.blit(dt, (int(bxr + pad),
-                                        int(byr + bhr - dth - 10)))
+                            rv.blit(rect("#8a90a055", iw - pad * 2, 2),
+                                    (ix + pad, iy + ih - 40))
+                            ptext(rv, desc, ix + pad, iy + ih - 30, 2, "#9aa0b0")
                 elif g.mode == "ptext" and g.page_i < len(g.pages):
                     page = g.pages[g.page_i]
-                    shown = page[:int(g.page_shown)]
-                    if shown:
-                        pt, (ptw, pth) = tex(("page", g.page_i, len(shown), page),
-                                            self._text(shown, 21, "#f5f5f0",
-                                                        outline=False),
-                                            int(bwr - pad * 2), 200)
-                        rv.blit(pt, (int(bxr + pad), int(byr + pad)))
+                    shown = int(g.page_shown)
+                    if page.isupper() or "  /  " in page:
+                        # Readouts stay robotic: no asterisk, cold.
+                        ptext(rv, page, tx0, ty0, 2, "#8fd3e6", cols=cols + 2,
+                              shown=shown)
+                    elif shown > 0:
+                        ptext(rv, "*", tx0, ty0, 2, "#ffffff")
+                        ptext(rv, page, tx0 + 24, ty0, 2, "#ffffff", cols=cols,
+                              shown=shown)
                 elif g.mode in ("fight", "strike"):
-                    # The accuracy gauge: a sweeping line, a center band.
-                    gy = int(byr + bhr / 2.0 - 16)
-                    rv.blit(rect("#101018", bwr - 16, 32), (int(bxr + 8), gy))
-                    rv.blit(rect("#2a2a3a", 4, 32), (int(bxr + bwr / 2.0 - 2), gy))
-                    rv.blit(rect("#f5f5f033", 26, 32), (int(bxr + bwr / 2.0 - 13), gy))
+                    # The target, and the bar that crosses it.
+                    tcx, tcy = ix + iw * 0.5, iy + ih * 0.5
+                    ta = 1.0
+                    if g.mode == "strike":
+                        ta = 1.0 - tsb_clamp((g.mtick - 30) / 24.0, 0.0, 1.0)
+                    art_at(rv, "target", tcx, tcy, sc=2, alpha=ta)
                     pos = tsb_clamp(g.fight_t / float(TSB_FIGHT_SWEEP), 0.0, 1.0)
-                    lx = bxr + 10 + pos * (bwr - 24)
-                    lcol = "#ffe23d" if g.mode == "strike" else "#ff9c3d"
-                    rv.blit(rect(lcol, 5, 44), (int(lx), gy - 6))
+                    lx = int(ix + 18 + pos * (iw - 36))
+                    core = "#ffffff"
+                    if g.mode == "strike" and (g.mtick // 4) % 2 == 1:
+                        core = "#000000"
+                    if ta > 0.05:
+                        rv.blit(rect("#000000", 12, 132), (lx - 6, int(tcy - 66)))
+                        rv.blit(rect(core, 8, 128), (lx - 4, int(tcy - 64)))
+                        if core == "#000000":
+                            outline(rv, "#ffffff", lx - 6, int(tcy - 66), 12, 132, 2)
 
-            # --- 6. bullets / wires / blooms (drawn over the box) --------------
+            # --- 6. the room's contents (drawn over the box, clipped to it) -----
             hazard_layer = renpy.Render(1280, 720)
             hazard_blit = hazard_layer.blit
-            hazard_sblit = hazard_layer.subpixel_blit
-            # One canvas carries diagonal live threads and the hairline
-            # previews attached to held bullets. It is inserted before sprite
-            # blits so petals/needles stay legible on top of their lines.
-            hazard_lines = renpy.Render(1280, 720)
-            hazard_canvas = hazard_lines.canvas()
-            hazard_blit(hazard_lines, (0, 0))
             hazard_tick = (g.heart_break if g.mode == "dead" and
+                            g.heart_break is not None and
                             g.heart_break >= 0 else g.tick)
+            clip_x = int(bxr)
+            clip_y = int(byr)
+            clip_w = max(1, int(bwr))
+            clip_h = max(1, int(bhr))
+            # One canvas carries every line, ring and shadow in the box. It is
+            # reserved first, so all of it sits UNDER the sprites.
+            canvas_layer = renpy.Render(clip_w, clip_h)
+            hazard_blit(canvas_layer, (clip_x, clip_y))
+            cvs = [None]
 
-            # BLACKOUT. The room is only as big as what you can see: a dark
-            # film over the boards (clipped to the box at the end of this
-            # section, so it never leaks onto the HUD) and a per-bullet fade
-            # by distance from the two light sources -- the SOUL's own glow,
-            # and the loose worklight that drifts around the room. Sparks,
-            # blooms and telegraph glints are deliberately NOT dimmed: they
-            # carry their own light, and they are how the move is played.
-            blk = float(getattr(g, "blackout", 0.0))
-            lights = None
-            if blk > 0.02:
-                hazard_blit(rect("#04040a" + qa(0.88 * blk), 1280, 720),
-                            (0, 0))
-                lights = [(g.px, g.py, 84.0)]
-                lsrc = getattr(g, "light_src", None)
-                if lsrc is not None:
-                    lights.append((lsrc[0], lsrc[1], 136.0))
+            def hcv():
+                if cvs[0] is None:
+                    cvs[0] = canvas_layer.canvas()
+                return cvs[0]
 
-            for bl in g.blooms:
-                p = tsb_clamp((hazard_tick - bl["born"]) /
-                                float(bl["fuse"]), 0.0, 1.0)
-                # Eased growth: the core swells faster as the fuse burns.
-                zb = int(p * p * 6)
-                tkey = ("bloomtel", bl["ci"], zb)
-                tel_d = self._misc(tkey, (lambda c=bl["ci"], z=zb: Transform(
-                    EMB_DIR + "bullet.png", zoom=0.6 + z * 0.35,
-                    subpixel=True, matrixcolor=TintMatrix(TSB_PAL[c]),
-                    alpha=0.16 + 0.05 * z)))
-                tr2, (tw2, th2) = tex(tkey, tel_d, 120, 120)
-                hazard_sblit(tr2, (bl["x"] - tw2 / 2.0,
-                                    bl["y"] - th2 / 2.0))
-                # And a faint outer ring GATHERS inward as it does, so a
-                # bloom reads as a flower closing its fist, not a decal.
-                zo = 6 - zb
-                okey = ("bloomtel_in", bl["ci"], zo)
-                o_d = self._misc(okey, (lambda c=bl["ci"], z=zo: Transform(
-                    EMB_DIR + "bullet.png", zoom=0.9 + z * 0.45,
-                    subpixel=True, matrixcolor=TintMatrix(TSB_PAL[c]),
-                    alpha=0.07 + 0.02 * z)))
-                or2, (ow2, oh2) = tex(okey, o_d, 160, 160)
-                hazard_sblit(or2, (bl["x"] - ow2 / 2.0,
-                                    bl["y"] - oh2 / 2.0))
+            def cpt(x, y):
+                return (int(round(x - clip_x)), int(round(y - clip_y)))
 
-            # Wires and threads live a full animated life: the telegraph
-            # DRAWS itself across the box behind a bright tip, breathes and
-            # brightens toward the pluck, snaps taut with a brief overshoot
-            # flash, then cools out as a dimming filament. Phase 2 adds
-            # perpendicular jitter, a live shimmer, and sometimes draws a
-            # line from both ends at once -- unstable, sporadic, and still
-            # honest: collision stays exactly inside [tel, tel + on].
+            def prop_col(prop, pa):
+                rule = prop.get("rule")
+                if rule in TSB_RULE_COL:
+                    return TSB_RULE_COL[rule] + qa(pa)
+                return TSB_PAL[int(prop.get("ci", 2))] + qa(pa)
+
+            scene_props = getattr(g, "scene_props", ()) or ()
+            box_floor = byr + bhr - TSB_BORDER
+
+            # Shadows first: where things are going to land.
+            for prop in scene_props:
+                if prop.get("shape") == "ellipse":
+                    rx, ry = prop["rx"], prop["ry"]
+                    hcv().ellipse(TSB_PAL[int(prop.get("ci", 0))]
+                                  + qa(prop.get("alpha", 0.4)),
+                                  (int(prop["x"] - rx - clip_x),
+                                   int(prop["y"] - ry - clip_y),
+                                   int(rx * 2), int(ry * 2)))
+            for b in g.bullets:
+                if (b.get("land") is not None or b.get("bounce")) and not b["fz"]:
+                    h = box_floor - b["y"]
+                    if 0.0 < h < 240.0:
+                        u = 1.0 - h / 240.0
+                        rx = 4 + int(8 * u)
+                        hcv().ellipse("#000000" + qa(0.25 + 0.45 * u),
+                                      (int(b["x"] - rx - clip_x),
+                                       int(box_floor - 6 - clip_y), rx * 2, 5))
+                        hcv().ellipse(TSB_PAL[0] + qa(0.15 + 0.35 * u),
+                                      (int(b["x"] - rx - clip_x),
+                                       int(box_floor - 6 - clip_y), rx * 2, 5), 1)
+
+            for prop in scene_props:
+                if prop.get("shape") != "rect" or prop.get("hidden"):
+                    continue
+                pw = int(round(prop.get("w", 1)))
+                ph = int(round(prop.get("h", 1)))
+                if pw <= 0 or ph <= 0:
+                    continue
+                pa = float(prop.get("alpha", 1.0))
+                live = prop.get("harm") and not prop.get("ghost")
+                if live:
+                    pa = min(1.0, pa + 0.08 *
+                             (0.5 + 0.5 * math.sin(hazard_tick * 0.32)))
+                x0 = int(round(prop.get("x", 0)))
+                y0 = int(round(prop.get("y", 0)))
+                if prop.get("outline"):
+                    outline(hazard_layer, prop_col(prop, pa), x0, y0, pw, ph, 2)
+                else:
+                    hazard_blit(rect(prop_col(prop, pa), pw, ph), (x0, y0))
+                    if live:
+                        outline(hazard_layer, "#ffffff" + qa(0.55 + 0.3 * pa),
+                                x0, y0, pw, ph, 2)
+
+            for prop in scene_props:
+                shape = prop.get("shape")
+                if prop.get("hidden") or shape not in ("line", "circle", "ring"):
+                    continue
+                if shape == "ring":
+                    cr = int(round(prop.get("r", 1.0)))
+                    if 1 < cr < 900:
+                        hcv().circle(prop_col(prop, 0.85 * float(prop.get("alpha", 1.0))),
+                                     cpt(prop["x"], prop["y"]), cr,
+                                     max(1, int(round(prop.get("width", 2.0)))))
+                    continue
+                pa = float(prop.get("alpha", 1.0))
+                if prop.get("harm") and not prop.get("ghost"):
+                    pa = min(1.0, pa + 0.08 *
+                             (0.5 + 0.5 * math.sin(hazard_tick * 0.32)))
+                col = prop_col(prop, pa)
+                if shape == "line":
+                    hcv().line(col, cpt(prop["x1"], prop["y1"]),
+                               cpt(prop["x2"], prop["y2"]),
+                               max(1, int(round(prop.get("width", 1.0)))))
+                else:
+                    cr = max(1, int(round(prop.get("r", 1.0))))
+                    if prop.get("outline"):
+                        hcv().circle(col, cpt(prop["x"], prop["y"]), cr, 2)
+                    else:
+                        hcv().circle(col, cpt(prop["x"], prop["y"]), cr)
+
+            # Her strings across a strung room: purple, pinned at both walls.
+            for s in (getattr(g, "strings_on", None) or ()):
+                if not s.get("alive", True):
+                    continue
+                off = math.sin(hazard_tick * 1.7 + s["id"] * 2.1) * s.get("tremble", 0)
+                y0, y1 = s["y0"] + off, s["y1"] + off
+                if s.get("fray") and (hazard_tick // 3) % 2 == 0:
+                    col = "#ff4f6f"
+                else:
+                    col = "#c38cff"
+                hcv().line(col + "50", cpt(bxr + 4, y0), cpt(bxr + bwr - 4, y1), 6)
+                hcv().line(col, cpt(bxr + 4, y0), cpt(bxr + bwr - 4, y1), 2)
+                art_at(hazard_layer, "hook", bxr + 9, y0, sc=2)
+                art_at(hazard_layer, "hook", bxr + bwr - 9, y1, sc=2, flip=True)
+
+            # Wires: telegraph draws itself across the box behind a bright tip,
+            # snaps live with a flash, then cools. Collision stays exactly
+            # inside [tel, tel + on].
             p2live = g.phase == 2 and not g.void
             for w in g.wires:
                 age = hazard_tick - w["born"]
                 tel = w["tel"]
                 on = w["on"]
-                ci = w["ci"]
+                wc = TSB_PAL[w["ci"]]
                 if w.get("killed"):
                     kfade = max(0.0, 1.0 - (hazard_tick
                                             - w.get("kill_t", w["born"])) / 8.0)
@@ -5611,321 +7172,191 @@ init python:
                 else:
                     aa = max(0.0, 1.0 - (age - tel - on) / 10.0)
                     wmode = "fade"
-                sweep_len = max(6.0, tel * 0.45)
-                prog = tsb_clamp(age / sweep_len, 0.0, 1.0)
+                prog = tsb_clamp(age / max(6.0, tel * 0.45), 0.0, 1.0)
                 prog = prog * prog * (3.0 - 2.0 * prog)
-                breathe = 0.5 + 0.5 * math.sin(age * 0.23 + w["born"] * 0.1)
                 urgency = tsb_clamp((age / float(max(tel, 1)) - 0.55) / 0.45,
                                     0.0, 1.0)
-                tel_a = 0.13 + 0.10 * breathe + 0.25 * urgency
+                tel_a = 0.18 + 0.12 * (0.5 + 0.5 * math.sin(age * 0.23)) + 0.3 * urgency
                 snap_k = age - tel
                 jig = (math.sin(hazard_tick * 0.9 + w["born"] * 0.7) * 1.6
-                    if p2live else 0.0)
-                both_ends = p2live and (w["born"] % 3 == 0)
-                from_start = (w["born"] % 2 == 0)
-                if w["orient"] == "h":
-                    yy = w["pos"]
-                    sw = int(max(0.0, bwr - 8))
-                    if sw <= 1:
+                       if p2live else 0.0)
+                if w["orient"] in ("h", "v"):
+                    vert = w["orient"] == "v"
+                    span = int(max(0.0, (bhr if vert else bwr) - 8))
+                    if span <= 1:
                         continue
-                    x0 = int(bxr + 4)
+                    a0 = int((byr if vert else bxr) + 4)
+                    c = w["pos"] + jig
+
+                    def bar(thick, col, start=0, length=span):
+                        thick = max(1, int(thick))
+                        if vert:
+                            hazard_blit(rect(col, thick, length),
+                                        (int(c - thick * 0.5), a0 + start))
+                        else:
+                            hazard_blit(rect(col, length, thick),
+                                        (a0 + start, int(c - thick * 0.5)))
                     if wmode == "live":
-                        glow_h = 10 + max(0, 8 - snap_k * 2)
-                        beam_at(TSB_PAL[ci], x0 + sw * 0.5, yy + jig,
-                                sw, glow_h)
+                        bar(10 + max(0, 8 - snap_k * 2), wc + "66")
                         if snap_k < 5:
-                            # Strike flash: the beam again, white and wider,
-                            # for the first few frames of the snap.
-                            beam_at("#f5f5f0", x0 + sw * 0.5, yy,
-                                    sw, glow_h + 4)
-                        # Phase 2 strobes the hot core; the beam art carries
-                        # its own core, so this is the flicker on top of it.
+                            bar(16, "#ffffff" + qa(0.8 - snap_k * 0.15))
                         if not p2live or (age // 5) % 2:
-                            hazard_blit(rect("#f5f5f0", sw, 3), (x0, int(yy - 1)))
+                            bar(3, "#ffffff")
                     elif wmode == "tel":
-                        dl = int(sw * prog)
-                        col = TSB_PAL[ci] + qa(tel_a)
+                        dl = int(span * prog)
                         if dl > 1:
-                            if both_ends:
-                                half = max(1, dl // 2)
-                                hazard_blit(rect(col, half, 2),
-                                            (x0, int(yy + jig - 1)))
-                                hazard_blit(rect(col, half, 2),
-                                            (x0 + sw - half,
-                                            int(yy + jig - 1)))
-                            elif from_start:
-                                hazard_blit(rect(col, dl, 2),
-                                            (x0, int(yy + jig - 1)))
+                            if w["born"] % 2 == 0:
+                                bar(2, wc + qa(tel_a), 0, dl)
                             else:
-                                hazard_blit(rect(col, dl, 2),
-                                            (x0 + sw - dl,
-                                            int(yy + jig - 1)))
+                                bar(2, wc + qa(tel_a), span - dl, dl)
                         if prog < 1.0:
-                            if both_ends:
-                                tips = (x0 + dl // 2 - 3,
-                                        x0 + sw - dl // 2 - 3)
-                            else:
-                                tips = ((x0 + dl - 3,) if from_start
-                                        else (x0 + sw - dl - 3,))
-                            for tip in tips:
-                                hazard_blit(rect("#f5f5f0" + qa(0.7), 7, 4),
-                                            (tip, int(yy + jig - 2)))
+                            tip = dl if w["born"] % 2 == 0 else span - dl
+                            bar(6, "#ffffff" + qa(0.75), max(0, tip - 3), 6)
                     else:
-                        hazard_blit(rect(TSB_PAL[ci] + qa(0.30 * aa),
-                                        sw, 3 if aa > 0.5 else 2),
-                                    (x0, int(yy - 1)))
-                        hazard_blit(rect("#f5f5f0" + qa(0.5 * aa), sw, 1),
-                                    (x0, int(yy)))
-                elif w["orient"] == "v":
-                    xx = w["pos"]
-                    sh = int(max(0.0, bhr - 8))
-                    if sh <= 1:
-                        continue
-                    y0 = int(byr + 4)
-                    if wmode == "live":
-                        glow_w = 10 + max(0, 8 - snap_k * 2)
-                        beam_at(TSB_PAL[ci], xx + jig, y0 + sh * 0.5,
-                                sh, glow_w, vertical=True)
-                        if snap_k < 5:
-                            beam_at("#f5f5f0", xx, y0 + sh * 0.5,
-                                    sh, glow_w + 4, vertical=True)
-                        if not p2live or (age // 5) % 2:
-                            hazard_blit(rect("#f5f5f0", 3, sh), (int(xx - 1), y0))
-                    elif wmode == "tel":
-                        dl = int(sh * prog)
-                        col = TSB_PAL[ci] + qa(tel_a)
-                        if dl > 1:
-                            if both_ends:
-                                half = max(1, dl // 2)
-                                hazard_blit(rect(col, 2, half),
-                                            (int(xx + jig - 1), y0))
-                                hazard_blit(rect(col, 2, half),
-                                            (int(xx + jig - 1),
-                                            y0 + sh - half))
-                            elif from_start:
-                                hazard_blit(rect(col, 2, dl),
-                                            (int(xx + jig - 1), y0))
-                            else:
-                                hazard_blit(rect(col, 2, dl),
-                                            (int(xx + jig - 1),
-                                            y0 + sh - dl))
-                        if prog < 1.0:
-                            if both_ends:
-                                tips = (y0 + dl // 2 - 3,
-                                        y0 + sh - dl // 2 - 3)
-                            else:
-                                tips = ((y0 + dl - 3,) if from_start
-                                        else (y0 + sh - dl - 3,))
-                            for tip in tips:
-                                hazard_blit(rect("#f5f5f0" + qa(0.7), 4, 7),
-                                            (int(xx + jig - 2), tip))
-                    else:
-                        hazard_blit(rect(TSB_PAL[ci] + qa(0.30 * aa),
-                                        3 if aa > 0.5 else 2, sh),
-                                    (int(xx - 1), y0))
-                        hazard_blit(rect("#f5f5f0" + qa(0.5 * aa), 1, sh),
-                                    (int(xx), y0))
+                        bar(3 if aa > 0.5 else 2, wc + qa(0.30 * aa))
+                        bar(1, "#ffffff" + qa(0.5 * aa))
                 else:
                     x1, y1 = w["x1"], w["y1"]
                     x2, y2 = w["x2"], w["y2"]
                     width2 = max(2, int(round(w.get("width", 5.0))))
                     if wmode == "live":
-                        pa = (int(round(x1)), int(round(y1)))
-                        pb = (int(round(x2)), int(round(y2)))
-                        hazard_canvas.line(TSB_PAL[ci] + "55",
-                                            (pa[0], pa[1] + int(jig)),
-                                            (pb[0], pb[1] + int(jig)),
-                                            width2 * 2)
-                        if snap_k < 5:
-                            hazard_canvas.line("#f5f5f0"
-                                                + qa(0.5 - snap_k * 0.09),
-                                                pa, pb, width2 * 2 + 3)
-                        hazard_canvas.line("#f5f5f0", pa, pb,
-                                            max(2, width2 // 2))
+                        hcv().line(wc + "55", cpt(x1, y1 + jig), cpt(x2, y2 + jig),
+                                   width2 * 2)
+                        hcv().line("#ffffff", cpt(x1, y1), cpt(x2, y2),
+                                   max(2, width2 // 2))
                     elif wmode == "tel":
                         ex = x1 + (x2 - x1) * prog
                         ey = y1 + (y2 - y1) * prog
-                        hazard_canvas.line(TSB_PAL[ci] + qa(tel_a),
-                                            (int(x1), int(y1 + jig)),
-                                            (int(ex), int(ey + jig)), 2)
-                        if prog < 1.0:
-                            hazard_canvas.circle("#f5f5f0" + qa(0.75),
-                                                (int(ex), int(ey + jig)), 3)
+                        hcv().line(wc + qa(tel_a), cpt(x1, y1 + jig),
+                                   cpt(ex, ey + jig), 2)
                     else:
-                        hazard_canvas.line(TSB_PAL[ci] + qa(0.30 * aa),
-                                            (int(x1), int(y1)),
-                                            (int(x2), int(y2)), 2)
+                        hcv().line(wc + qa(0.30 * aa), cpt(x1, y1), cpt(x2, y2), 2)
 
-            # THE MARK. Spike tape on the boards: two crossed strips and
-            # a soft ring, in spare-yellow when the show wants you standing
-            # on it and camellia red when it wants you off. A faint ghost
-            # ring is where the mark is about to move to -- the count-in for
-            # a light that walks.
-            mk = getattr(g, "mark", None)
-            if mk is not None and g.mode == "dodge":
-                mr = float(mk.get("r", 32.0))
-                mcol = TSB_PAL[8] if mk.get("good", True) else TSB_PAL[0]
-                mx = int(round(mk["x"]))
-                my = int(round(mk["y"]))
-                puls = 0.55 + 0.25 * math.sin(hazard_tick * 0.10)
-                for ma in (0.7854, -0.7854):
-                    ex = int(round(mr * 0.74 * math.cos(ma)))
-                    ey = int(round(mr * 0.74 * math.sin(ma)))
-                    hazard_canvas.line(mcol + qa(puls),
-                                        (mx - ex, my - ey),
-                                        (mx + ex, my + ey), 3)
-                ring = []
-                for mi in range(18):
-                    ma = 6.28318 * mi / 18.0
-                    ring.append((int(round(mx + math.cos(ma) * mr)),
-                                int(round(my + math.sin(ma) * mr))))
-                hazard_canvas.lines(mcol + qa(0.28 + 0.24 * puls), True,
-                                    ring, 2)
-                gx = mk.get("gx")
-                if gx is not None:
-                    gy = mk.get("gy", mk["y"])
-                    ghost = []
-                    for mi in range(18):
-                        ma = 6.28318 * mi / 18.0
-                        ghost.append((int(round(gx + math.cos(ma) * mr)),
-                                    int(round(gy + math.sin(ma) * mr))))
-                    hazard_canvas.lines(mcol + qa(0.20), True, ghost, 1)
-
-            # THE STRINGS ON YOU. One line per hook, from its walking anchor
-            # to the SOUL. It thickens and whitens as tension loads, so a
-            # string about to break is a thing you can SEE about to break --
-            # which is the only feedback the marionette card gives you, and
-            # all it needs.
-            for hk in (getattr(g, "hooks", None) or ()):
-                ten = float(hk.get("ten", 0.0))
-                hcol = TSB_PAL[int(hk.get("ci", 5))]
-                hax = int(round(hk["ax"]))
-                hay = int(round(hk["ay"]))
-                hpx = int(round(g.px))
-                hpy = int(round(g.py))
-                # Loud on purpose. This is the single most important line the
-                # renderer draws -- a player who cannot see the string on them
-                # is just being shoved by an invisible hand -- so it is drawn
-                # as a soft wide body under a hot core, both of which thicken
-                # and whiten as the line loads toward breaking.
-                hazard_canvas.line(hcol + qa(0.30 + 0.28 * ten),
-                                    (hax, hay), (hpx, hpy),
-                                    5 + int(ten * 4.0))
-                hazard_canvas.line(hcol + qa(0.86),
-                                    (hax, hay), (hpx, hpy),
-                                    2 + int(ten * 2.0))
-                if ten > 0.28:
-                    hazard_canvas.line("#ffffff" + qa(0.35 + 0.65 * ten),
-                                        (hax, hay), (hpx, hpy), 1)
-                # A bead runs the line toward the SOUL, so a string reads as
-                # something actively pulling rather than something attached.
-                bt = ((hazard_tick * 0.02) % 1.0)
-                hazard_canvas.circle(
-                    "#ffffff" + qa(0.45 + 0.45 * ten),
-                    (int(hax + (hpx - hax) * bt),
-                        int(hay + (hpy - hay) * bt)), 3)
-                hazard_canvas.circle(hcol + qa(0.90), (hax, hay), 5)
-                hazard_canvas.circle("#ffffff" + qa(0.55), (hax, hay), 2)
-
-            # TOO LOUD. The rim closes in and brightens as the level rises,
-            # so the hold-still cue is spatial as well as audible.
-            loudv = float(getattr(g, "loud", 0.0))
-            if loudv > 0.02:
-                # Drawn as SOLID BARS, not a canvas outline: Canvas.lines
-                # honours the colour but flattens the width to a hairline, and
-                # this particular cue cannot afford to be subtle -- it is the
-                # one moment in the fight where the correct answer is to take
-                # your hands off the keys, and it has to be legible in
-                # peripheral vision, from a dark room, mid-panic.
-                ins = int(4 + 10 * (1.0 - loudv))
-                lw = int(bwr) - 2 * ins
-                lh = int(bhr) - 2 * ins
-                if lw > 8 and lh > 8:
-                    band = int(3 + 13 * loudv)
-                    lx0 = int(bxr) + ins
-                    ly0 = int(byr) + ins
-                    lc = "#fff3d0" + qa(0.18 + 0.66 * loudv)
-                    hazard_blit(rect(lc, lw, band), (lx0, ly0))
-                    hazard_blit(rect(lc, lw, band), (lx0, ly0 + lh - band))
-                    hazard_blit(rect(lc, band, lh), (lx0, ly0))
-                    hazard_blit(rect(lc, band, lh), (lx0 + lw - band, ly0))
-                    # and the whole room warms with it, under the bullets.
-                    hazard_blit(rect("#ffe9b0" + qa(0.04 + 0.14 * loudv),
-                                    lw, lh), (lx0, ly0))
-
-            for b in g.bullets:
-                tether = b.get("tether")
-                if tether is not None and b["age"] < tether.get("until", 0):
-                    # These lines never collide; they are a promise about the
-                    # delayed release. Their restraint keeps the control motif
-                    # present without putting a label on it.
-                    ta = b["age"] / float(max(1, tether.get("until", 1)))
-                    alpha = 52 + int(92 * ta)
-                    hazard_canvas.line(
-                        "#e8e4ff%02x" % min(190, alpha),
-                        (int(round(b["x"])), int(round(b["y"]))),
-                        (int(round(tether["x"])), int(round(tether["y"]))),
-                        1 if ta < 0.65 else 2)
-                    # A runner dot flows down the promise line and arrives
-                    # exactly at the release tick -- the countdown is the
-                    # motion itself.
-                    rx = b["x"] + (tether["x"] - b["x"]) * ta
-                    ry = b["y"] + (tether["y"] - b["y"]) * ta
-                    hazard_canvas.circle("#f5f5f0" + qa(0.35 + 0.5 * ta),
-                                        (int(rx), int(ry)), 2)
-                ab = 3
-                if b["fz"]:
-                    ab = min(2, int(b["fz"] / 7))
-                elif b["age"] < 6:
-                    # Materialize in three quick alpha steps -- nothing in
-                    # the box pops in at full presence anymore.
-                    ab = 1 + b["age"] // 3
-                if lights is not None and not b.get("heal"):
-                    seen = 0.0
-                    for lx_, ly_, lr_ in lights:
-                        ld = math.hypot(b["x"] - lx_, b["y"] - ly_)
-                        seen = max(seen, 1.0 - tsb_clamp(
-                            (ld - lr_ * 0.55) / (lr_ * 0.80), 0.0, 1.0))
-                    ab = min(ab, int(round(3.0 * (1.0 - blk * (1.0 - seen)))))
-                sq_draw = b["sq"]
-                if not b["fz"] and b["age"] < 6:
-                    sq_draw = max(2, b["sq"] - (2 - b["age"] // 3))
-                if b["kind"] == "needle":
-                    nkey = ("needle", 1 if b["vx"] > 0 else 0, ab)
-                    nd = self._misc(nkey, (lambda d=(1 if b["vx"] > 0 else 0), a=ab: Transform(
-                        EMB_DIR + "dagger.png", zoom=1.6, nearest=True,
-                        subpixel=True, rotate=(90 if d else -90),
-                        matrixcolor=TintMatrix(TSB_PAL[3]),
-                        alpha=(1.0 if a >= 3 else 0.25 + 0.25 * a))))
-                    nr2, (nw2, nh2) = tex(nkey, nd, 60, 60)
-                    hazard_sblit(nr2, (b["x"] - nw2 / 2.0,
-                                        b["y"] - nh2 / 2.0))
+            # Scenery sprites (the shelf, the sword, the clock, a card...).
+            for prop in scene_props:
+                if prop.get("shape") != "sprite":
                     continue
-                render_bucket = (b["rb"] if TSBStage.KINDS[b["kind"]][2]
-                                else 0)
-                bd2 = self._bullet_tf(b["kind"], b["ci"], render_bucket,
-                                    sq_draw, ab)
-                br2, (bw2, bh2) = tex((b["kind"], b["ci"], render_bucket,
-                                        sq_draw, ab),
-                                        bd2, 64, 64)
-                hazard_sblit(br2, (b["x"] - bw2 / 2.0,
-                                    b["y"] - bh2 / 2.0))
+                key = prop["key"]
+                if not tsb_has_art(key):
+                    continue
+                art_at(hazard_layer, key, prop["x"], prop["y"],
+                       sc=prop.get("sc", 2), rot=prop.get("rot", 0.0),
+                       flip=prop.get("flip", False), tint=prop.get("tint"),
+                       alpha=prop.get("alpha", 1.0))
+            # Her small bubble: the translation, and the quiet inside it.
+            for prop in scene_props:
+                if prop.get("shape") != "bubble":
+                    continue
+                pa = float(prop.get("alpha", 1.0))
+                bxp, byp, br = prop["x"], prop["y"], prop["r"]
+                c0 = cpt(bxp, byp)
+                hcv().circle("#ffffff" + qa(0.13 * pa), c0, int(br))
+                hcv().circle("#ffffff" + qa(0.9 * pa), c0, int(br), 2)
+                hcv().polygon("#ffffff" + qa(0.9 * pa),
+                              [cpt(bxp - br * 0.5, byp + br * 0.8),
+                               cpt(bxp - br * 0.2, byp + br * 0.96),
+                               cpt(bxp - br * 0.9, byp + br * 1.3)])
+                txt = prop.get("text", "")
+                if txt:
+                    ptext(hazard_layer, txt, bxp - len(txt) * 3 + 1, byp - 4, 1,
+                          "#ffffff", alpha=pa)
+
+            # Words written in the room (the list's pen, CONTINUE?, a stop).
+            for prop in scene_props:
+                if prop.get("shape") == "text":
+                    ptext(hazard_layer, prop["text"], prop["x"], prop["y"],
+                          prop.get("sc", 2), TSB_PAL[int(prop.get("ci", 2))],
+                          alpha=prop.get("alpha", 1.0))
+
+            for bl in g.blooms:
+                p = tsb_clamp((hazard_tick - bl["born"]) /
+                                float(bl["fuse"]), 0.0, 1.0)
+                art_at(hazard_layer, "camellia", bl["x"], bl["y"],
+                       sc=1 + int(p * 2.0), rot=p * 90.0, alpha=0.3 + 0.6 * p)
+
+            # The bodies.
+            for b in g.bullets:
+                if b.get("heal") and not b["fz"]:
+                    hcv().circle("#39d97e" + qa(0.20 + 0.10 * math.sin(
+                        hazard_tick * 0.2 + b["ph"])), cpt(b["x"], b["y"]), 15)
+            for b in g.bullets:
+                kind = b["kind"]
+                a = 1.0
+                if b["fz"]:
+                    a = min(1.0, b["fz"] / 12.0)
+                elif b["age"] < 6:
+                    # Materialize in quick steps; nothing pops in at full
+                    # presence.
+                    a = 0.35 + b["age"] * 0.11
+                rule = b.get("rule")
+                flick = b.get("flicker")
+                if flick and (hazard_tick // 4) % 2 == 0:
+                    rule = flick
+                jit = b.get("jit", 0)
+                jx = jy = 0
+                if jit:
+                    jx = ((hazard_tick * 7 + int(b["ph"] * 10)) % 3 - 1) * jit
+                    jy = ((hazard_tick * 5 + int(b["ph"] * 17)) % 3 - 1) * jit
+                bxp, byp = b["x"] + jx, b["y"] + jy
+                if kind == "glyph":
+                    gsc = int(b.get("sc", 3))
+                    gcol = TSB_RULE_COL.get(rule, "#ffffff")
+                    ptext(hazard_layer, b.get("ch", "?"),
+                          bxp - TSB_GLYPH_W * gsc * 0.5,
+                          byp - TSB_GLYPH_H * gsc * 0.5, gsc, gcol, alpha=a)
+                    continue
+                spec = TSBStage.KINDS.get(kind) or TSBStage.KINDS["crumb"]
+                akey, sc, turn = spec
+                if isinstance(akey, tuple):
+                    ft = TSBStage.FRAME_TICKS.get(kind, 8)
+                    akey = akey[(b["age"] // ft) % len(akey)]
+                rot_ = 0.0
+                if turn == "spin":
+                    rot_ = b["rb"] * TSB_ROT_DEG
+                elif turn == "head":
+                    hx, hy = b.get("dir") or (b["vx"], b["vy"])
+                    if hx or hy:
+                        rot_ = (int(round(math.degrees(math.atan2(hy, hx))
+                                          / TSB_ROT_DEG)) * TSB_ROT_DEG)
+                flip = kind in TSBStage.FLIPS and b["vx"] < 0.0
+                tint = None
+                if rule in TSB_RULE_COL:
+                    tint = TSB_RULE_COL[rule]
+                    if tsb_has_art(akey + ":w"):
+                        akey = akey + ":w"
+                elif b.get("tint") is not None and tsb_has_art(akey + ":w"):
+                    akey = akey + ":w"
+                    tint = TSB_AMB_PAL[int(b["tint"])]
+                art_at(hazard_layer, akey, bxp, byp, sc=sc, rot=rot_, flip=flip,
+                       tint=tint, alpha=a)
+                if kind == "tag" and b.get("label"):
+                    lab = b["label"]
+                    ptext(hazard_layer, lab, bxp + 4 - len(lab) * 3, byp - 4, 1,
+                          "#3a2a10", alpha=a)
+                if kind == "needle" and (hazard_tick + int(b["ph"] * 10)) % 24 < 6:
+                    # Her mending glints at the eye.
+                    art_at(hazard_layer, "sparkle", bxp - 12.0 * (1 if b["vx"] >= 0 else -1),
+                           byp, sc=2, tint="#9dffc0", alpha=0.9 * a)
+
+            # The tape runs backward: scan bars climb the box, and the whole
+            # room takes a cold cast, until the stamp comes down.
+            if getattr(g, "rewinding", False) and g.mode == "dodge":
+                hazard_blit(rect("#5cd7ff" + qa(0.07), clip_w, clip_h),
+                            (clip_x, clip_y))
+                for i in range(5):
+                    yy = clip_y + (clip_h - ((hazard_tick * 7 + i * 61) % clip_h))
+                    hazard_blit(rect("#ffffff" + qa(0.10), clip_w, 3),
+                                (clip_x, int(yy)))
+                if (hazard_tick // 10) % 2 == 0:
+                    art_at(hazard_layer, "rewind", clip_x + 24, clip_y + 18, sc=3)
+                    ptext(hazard_layer, "REW", clip_x + 42, clip_y + 9, 2, "#ffffff")
 
             # Crop the hazard canvas to the box. This is a CLIP FLAG on a one-
             # child wrapper, not Render.subsurface: subsurface walks every child
-            # of the layer, computes two sublines apiece and builds a fresh
-            # cropped Render around each (recursing once more into the blitted
-            # texture's own Render). With TSB_MAX_BULLETS at 340 that was well
-            # over a thousand throwaway Render objects a frame -- every one of
-            # them a python object with two lists and a set, appended to
-            # renpy.display.render.live_renders and walked and killed again by
-            # the next frame's mark_sweep -- to produce pixels identical to
-            # these three lines. gl2 turns xclipping/yclipping into a clip
-            # polygon and crops the quads on its own side for free.
-            clip_x = int(bxr)
-            clip_y = int(byr)
-            clip_w = max(1, int(bwr))
-            clip_h = max(1, int(bhr))
+            # of the layer and builds a fresh cropped Render around each (over a
+            # thousand throwaway Render objects a frame at the bullet cap) to
+            # produce pixels identical to these three lines. gl2 turns
+            # xclipping/yclipping into a clip polygon for free.
             clipped_hazards = renpy.Render(clip_w, clip_h)
             clipped_hazards.xclipping = True
             clipped_hazards.yclipping = True
@@ -5935,70 +7366,101 @@ init python:
             # --- 7. sparks ------------------------------------------------------
             for sp in g.sparks:
                 frac = sp["age"] / float(sp["ttl"])
-                ab2 = 2 - min(2, int(frac * 3))
-                skey3 = ("spark", sp["ci"], ab2)
-                sp_d = self._misc(skey3, (lambda c=sp["ci"], a=ab2: Transform(
-                    EMB_DIR + "bullet.png", zoom=0.4, subpixel=True,
-                    matrixcolor=TintMatrix(TSB_PAL[c]), alpha=0.25 + 0.3 * a)))
-                spr, (spw, sph) = tex(skey3, sp_d, 32, 32)
-                sblit(spr, (sp["x"] - spw / 2.0, sp["y"] - sph / 2.0))
+                art_at(rv, "spark" if frac < 0.5 else "spark_s", sp["x"], sp["y"],
+                       sc=2, tint=TSB_AMB_PAL[sp["ci"]],
+                       alpha=0.95 - 0.7 * frac)
 
             # --- 8. the SOUL ----------------------------------------------------
+            skey = TSB_SOUL_ART.get(soul_mode, "soul_red")
             if g.mode == "dodge" and g.heart_break is None:
                 blink = g.tick < g.inv_until and (g.tick // 4) % 2 == 0
                 if not blink:
-                    hk2 = ("soul",)
-                    hd2 = self._misc(hk2, (lambda: Transform(
-                        TSB_KT_DIR + "player.png", zoom=2.0, nearest=True,
-                        subpixel=True)))
-                    hr4, (hw4, hh4) = tex(hk2, hd2, 40, 40)
-                    sblit(hr4, (g.px - hw4 / 2.0, g.py - hh4 / 2.0))
-            elif g.heart_break is not None and g.tick - g.heart_break < 30:
-                # The crack before the shatter: the heart, stuttering.
-                if (g.tick // 3) % 2 == 0:
-                    hk2 = ("soul",)
-                    hd2 = self._misc(hk2, (lambda: Transform(
-                        TSB_KT_DIR + "player.png", zoom=2.0, nearest=True,
-                        subpixel=True)))
-                    hr4, (hw4, hh4) = tex(hk2, hd2, 40, 40)
-                    sblit(hr4, (g.px - hw4 / 2.0, g.py - hh4 / 2.0))
+                    art_at(rv, skey, g.px, g.py, sc=2)
+                sage = g.tick - getattr(g, "soul_born", -999)
+                if 0 <= sage < 18:
+                    # A mode change rings out from the SOUL.
+                    ring = renpy.Render(96, 96)
+                    ring.canvas().circle(TSB_SOUL_COL.get(soul_mode, "#ffffff")
+                                         + qa(1.0 - sage / 18.0), (48, 48),
+                                         int(8 + sage * 2.2), 2)
+                    rv.blit(ring, (int(g.px - 48), int(g.py - 48)))
 
             # --- 9. damage pops -------------------------------------------------
             for p in g.dmg_pops:
                 age = g.tick - p["born"]
-                py2 = p["y"] - age * 0.55
-                dt2, (dw2, dh2) = tex(("pop", p["txt"], p["ci"], p["big"]),
-                                        self._text(p["txt"], 30 if p["big"] else 18,
-                                                TSB_PAL[p["ci"]], font=TSB_FONT_UI,
-                                                bold=True), 220, 60)
-                sblit(dt2, (p["x"] - dw2 / 2.0, py2))
+                # Up fast, a little settle, hold, then fade.
+                rise = min(age, 12) * 2.0 - max(0, min(age, 20) - 12) * 0.5
+                pa = 1.0 - tsb_clamp((age - 50) / 20.0, 0.0, 1.0)
+                psc = 3 if p["big"] else 2
+                txt = p["txt"]
+                ptext(rv, txt, p["x"] - len(txt) * TSB_GLYPH_ADV * psc * 0.5,
+                      p["y"] - rise, psc, TSB_PAL[p["ci"]], alpha=pa,
+                      shadow="#000000")
 
             # --- 10. her speech bubble -----------------------------------------
-            # A real comic textbox: drop shadow, dark border on all four
-            # sides, white fill, and an outlined tail pointing back at her --
-            # not two floating rectangles.
-            if g.bubble is not None:
-                shown = g.bubble[:int(g.bub_shown)]
-                if shown:
-                    bt, (btw, bth) = tex(("bub", len(shown), g.bubble),
-                                        self._text(shown, 19, "#101014",
-                                                    outline=False), 300, 400)
-                    bub_w = 344
-                    bub_h = bth + 30
-                    bub_x = 806
-                    bub_y = 96
-                    rv.blit(rect("#00000066", bub_w, bub_h), (bub_x + 4, bub_y + 5))
-                    rv.blit(rect("#101014", bub_w, bub_h), (bub_x, bub_y))
-                    rv.blit(rect("#f5f5f0", bub_w - 6, bub_h - 6),
-                            (bub_x + 3, bub_y + 3))
-                    # The tail: an outlined triangle whose base merges with
-                    # the white fill so the bubble reads as one shape.
-                    tail = renpy.Render(22, 28)
-                    tc = tail.canvas()
-                    tc.polygon("#101014", [(22, 0), (0, 14), (22, 28)])
-                    tc.polygon("#f5f5f0", [(22, 5), (7, 14), (22, 23)])
-                    rv.blit(tail, (bub_x - 19, bub_y + 22))
-                    rv.blit(bt, (bub_x + 20, bub_y + 15))
+            # White, a 2px pixel border with notched corners, and a stepped
+            # tail pointing back at her. Text between ~tildes~ is her line
+            # being revised: it types, and then it is struck out in red. In
+            # phase 2 the bubble misprints (a red and a cyan ghost of every
+            # letter, off register) and jumps when the room glitches.
+            def draw_bubble_text(text, x, y, cols, lh, shown, color, ghosts):
+                plain, struck, ends = tsb_strike_parse(text)
+                lines = tsb_wrap(plain, cols)
+                adv = TSB_GLYPH_ADV * 2
+                idx = 0
+                left = shown
+                for li, ln in enumerate(lines):
+                    if left <= 0:
+                        break
+                    yy = int(y + li * lh)
+                    for i, ch in enumerate(ln[:left]):
+                        gi = idx + i
+                        xx = int(x + i * adv)
+                        hit = gi < len(struck) and struck[gi]
+                        if ch != " ":
+                            for gdx, gcol in ghosts:
+                                rv.blit(glyph(ch, 2, gcol, 3), (xx + gdx, yy))
+                            rv.blit(glyph(ch, 2, "#b0303e" if hit else color, 8),
+                                    (xx, yy))
+                        if hit and shown > ends[gi] + 3:
+                            rv.blit(rect("#e13b4e", adv, 3), (xx - 1, yy + 8))
+                    idx += len(ln) + 1
+                    left -= len(ln) + 1
+
+            if g.bubble is not None and g.mode != "dead":
+                shown = int(g.bub_shown)
+                if shown > 0:
+                    bub_w = 352
+                    bcols = (bub_w - 32) // 12
+                    blines = tsb_wrap(tsb_strike_parse(g.bubble)[0], bcols)
+                    blh = 22
+                    bub_h = len(blines) * blh + 26
+                    bub_x = 800
+                    bub_y = 92
+                    if glitch:
+                        bub_x += int(math.sin(g.tick * 1.3) * 7.0 * chaos)
+                        bub_y += int(math.cos(g.tick * 1.1) * 4.0 * chaos)
+                    rv.blit(rect("#00000070", bub_w, bub_h), (bub_x + 5, bub_y + 6))
+                    rv.blit(rect("#000000", bub_w - 4, bub_h), (bub_x + 2, bub_y))
+                    rv.blit(rect("#000000", bub_w, bub_h - 4), (bub_x, bub_y + 2))
+                    rv.blit(rect("#ffffff", bub_w - 8, bub_h - 4), (bub_x + 4, bub_y + 2))
+                    rv.blit(rect("#ffffff", bub_w - 4, bub_h - 8), (bub_x + 2, bub_y + 4))
+                    # The tail: rows of a left-pointing triangle, each row's
+                    # first two pixels black, so its edge is a pixel stair.
+                    tail_y = bub_y + 30
+                    for r in range(-7, 8):
+                        tl = 16 - abs(r) * 2
+                        yy = tail_y + r * 2
+                        rv.blit(rect("#000000", tl + 2, 2), (bub_x - tl, yy))
+                        if abs(r) < 7:
+                            rv.blit(rect("#ffffff", tl + 2, 2), (bub_x - tl + 2, yy))
+                    rv.blit(rect("#ffffff", 4, 26), (bub_x, tail_y - 12))
+                    ghosts = ()
+                    if chaos > 0.0:
+                        m_ = 1 + int(round(2 * chaos)) + (2 if glitch else 0)
+                        ghosts = ((-m_, "#ff3048"), (m_, "#20c8ff"))
+                    draw_bubble_text(g.bubble, bub_x + 16, bub_y + 14, bcols, blh,
+                                     shown, "#101014", ghosts)
 
             # --- 11. HUD --------------------------------------------------------
             if g.hud_alpha > 0.02:
@@ -6012,71 +7474,113 @@ init python:
                                         900, 28)
                     rv.blit(ct, (int(640 - ctw / 2.0), 702))
 
-                nm = ("%s   LV 1" % (str(g.pname).upper()))
-                nt, (ntw, nth) = tex(("hudname", nm),
-                                    self._text(nm, 17, "#f5f5f0",
-                                                font=TSB_FONT_UI, bold=True),
-                                    400, 30)
-                rv.blit(nt, (150, 586))
-                ht, (htw, hth) = tex(("hudhp",),
-                                    self._text("HP", 13, "#f5f5f0",
-                                                font=TSB_FONT_UI, bold=True), 60, 24)
-                rv.blit(ht, (520, 590))
-                rv.blit(rect("#a01824", 120, 18), (552, 586))
+                nm = "YOU   LV 1"
+                if glitch:
+                    ptext(rv, nm, 152 + int(2 * chaos), 590, 2, "#ff3048", alpha=0.6)
+                ptext(rv, nm, 150, 590, 2, "#ffffff")
+                ptext(rv, "HP", 506, 594, 2, "#ffffff")
+                hp_w = 120
+                rv.blit(rect("#c80000", hp_w, 20), (546, 590))
+                ghost = tsb_clamp(float(getattr(g, "hp_shown", g.hp)) / TSB_HP_MAX,
+                                  0.0, 1.0)
                 frac2 = tsb_clamp(g.hp / TSB_HP_MAX, 0.0, 1.0)
+                if ghost > frac2:
+                    # What the last hit took, draining after it.
+                    rv.blit(rect("#ff8fb8", int(hp_w * ghost), 20), (546, 590))
                 if frac2 > 0.0:
-                    rv.blit(rect("#ffe23d", int(120 * frac2), 18), (552, 586))
+                    rv.blit(rect("#ffff40", int(hp_w * frac2), 20), (546, 590))
                 hpt = "%d / %d" % (int(math.ceil(g.hp)), int(TSB_HP_MAX))
-                h2t, (h2w, h2h) = tex(("hudhpv", hpt),
-                                    self._text(hpt, 15, "#f5f5f0",
-                                                font=TSB_FONT_UI, bold=True),
-                                    140, 26)
-                rv.blit(h2t, (688, 587))
+                ptext(rv, hpt, 682, 591, 2, "#ffffff")
 
                 # The four buttons. You know the four buttons.
                 btn_w, btn_h, gap = 232, 54, 30
                 total = btn_w * 4 + gap * 3
-                x0 = (1280 - total) / 2.0
+                x0 = (1280 - total) // 2
                 y0 = 626
                 in_btn_row = g.mode == "menu"
                 for i, label in enumerate(TSBGame.BUTTONS):
                     bx3 = x0 + i * (btn_w + gap)
                     sel = in_btn_row and i == g.menu_i
-                    border = "#ffe23d" if sel else "#ff9c3d"
-                    rv.blit(rect(border, btn_w, btn_h), (int(bx3), y0))
-                    rv.blit(rect("#000000", btn_w - 6, btn_h - 6),
-                            (int(bx3 + 3), y0 + 3))
-                    lcol2 = "#ffe23d" if sel else "#ff9c3d"
-                    lt, (ltw, lth) = tex(("btn", label, sel),
-                                        self._text(label, 22, lcol2,
-                                                    font=TSB_FONT_UI, bold=True),
-                                        220, 40)
-                    # Labels stay put on selection; only the SOUL cursor and
-                    # the highlight color move. (The old +12px hop read as a
-                    # layout bug, not a cursor.)
-                    rv.blit(lt, (int(bx3 + btn_w / 2.0 - ltw / 2.0),
-                                int(y0 + btn_h / 2.0 - lth / 2.0)))
+                    col = "#ffff40" if sel else "#ff8c2e"
                     if sel:
-                        hk5 = ("heart_cursor",)
-                        hd5 = self._misc(hk5, (lambda: Transform(
-                            TSB_KT_DIR + "player.png", zoom=1.6, nearest=True)))
-                        hr5, (hw5, hh5) = tex(hk5, hd5, 40, 40)
-                        sblit(hr5, (bx3 + 18.0, y0 + btn_h / 2.0 - hh5 / 2.0))
+                        rv.blit(rect("#ffff4024", btn_w + 10, btn_h + 10),
+                                (bx3 - 5, y0 - 5))
+                    rv.blit(rect(col, btn_w, btn_h), (bx3, y0))
+                    rv.blit(rect("#000000", btn_w - 6, btn_h - 6), (bx3 + 3, y0 + 3))
+                    icx, icy = bx3 + 32, y0 + btn_h * 0.5
+                    if sel:
+                        # UT exactly: the SOUL takes the icon's place.
+                        art_at(rv, "soul_red", icx, icy, sc=3)
+                    else:
+                        art_at(rv, TSBStage.BUTTON_ICONS[i], icx, icy, sc=3,
+                               tint=col)
+                    lw = len(label) * TSB_GLYPH_ADV * 3 - 3
+                    lx = bx3 + 58 + (btn_w - 58 - 10 - lw) // 2
+                    ptext(rv, label, lx, y0 + (btn_h - TSB_GLYPH_H * 3) // 2, 3, col)
 
             # --- 12. booth line (Matsuda, watching) -----------------------------
-            if g.booth is not None:
+            # Left of her, the way her bubble is right of her: two people
+            # talking past the girl in the middle.
+            def draw_booth():
+                if g.booth is None:
+                    return
                 bage = g.tick - g.booth["born"]
-                if bage < 300:
-                    txt = g.booth.get("text", TSB_BOOTH.get(g.booth["key"], ""))
-                    if txt:
-                        fade = 1.0 if bage < 240 else max(0.0, 1.0 - (bage - 240) / 60.0)
-                        fb = int(fade * 2.999)
-                        bt2, (bt2w, bt2h) = tex(("booth", txt, fb),
-                                                self._text(txt, 15,
-                                                            "#ffe23d" if fb >= 2 else "#8a7a20",
-                                                            font=TSB_FONT_UI,
-                                                            bold=True), 900, 30)
-                        rv.blit(bt2, (26, 18))
+                if bage >= 300:
+                    return
+                txt = g.booth.get("text", TSB_BOOTH.get(g.booth["key"], ""))
+                if not txt:
+                    return
+                fade = 1.0 if bage < 240 else max(0.0, 1.0 - (bage - 240) / 60.0)
+                name, body = (txt.split(": ", 1) if ": " in txt else ("", txt))
+                if name:
+                    ptext(rv, name, 26, 18, 2, "#ff9c3d", alpha=fade,
+                          shadow="#000000")
+                ptext(rv, body, 26, 44, 2, "#ffe23d", alpha=fade,
+                      cols=40, lh=22, shown=int(bage * 1.6), shadow="#000000")
+
+            if g.mode != "dead":
+                draw_booth()
+
+            # PHASE 2 TEARS. On the worst glitch ticks a band of the whole
+            # picture slips sideways, the way a bad print tears off register.
+            if chaos > 0.45 and g.mode != "dead" and not g.paused:
+                period = int(190 - 120 * chaos)
+                ph_ = g.tick % max(40, period)
+                if ph_ < 5:
+                    seed = (g.tick // max(40, period)) * 2654435761
+                    ty0 = 60 + seed % 560
+                    th_ = 18 + (seed // 7) % 46
+                    tdx = (8 + (seed // 11) % 16) * (1 if seed % 2 else -1)
+                    root = renpy.Render(1280, 720)
+                    root.blit(rv, (0, 0))
+                    band = renpy.Render(1280, th_)
+                    band.xclipping = True
+                    band.yclipping = True
+                    band.blit(rv, (int(tdx * chaos), -ty0))
+                    root.blit(band, (0, ty0))
+                    rv = root
+
+            # THE DEATH. Undertale's: the room goes black at once -- grid,
+            # box, her, everything -- and the only thing left is the SOUL,
+            # cracking, then breaking. Then the words, and GAME OVER.
+            if g.mode == "dead" and g.heart_break is not None:
+                rv.blit(rect("#000000", 1280, 720), (0, 0))
+                age = g.tick - g.heart_break
+                if age < 16:
+                    art_at(rv, "soul_red", g.px + ((age % 2) * 2 - 1), g.py, sc=2)
+                elif age < 46:
+                    art_at(rv, "soul_left", g.px - 2, g.py, sc=2)
+                    art_at(rv, "soul_right", g.px + 2, g.py, sc=2)
+                for sh in (getattr(g, "shards", None) or ()):
+                    art_at(rv, sh["k"], sh["x"], sh["y"], sc=3)
+                if age > 110:
+                    ga_ = tsb_clamp((age - 110) / 40.0, 0.0, 1.0)
+                    ptext(rv, "GAME", 548, 180, 8, "#ffffff", alpha=ga_)
+                    ptext(rv, "OVER", 548, 270, 8, "#ffffff", alpha=ga_)
+                if g.bubble is not None and int(g.bub_shown) > 0:
+                    ptext(rv, g.bubble, 360, 470, 2, "#ffffff", cols=46, lh=24,
+                          shown=int(g.bub_shown))
+                draw_booth()
 
             # --- 13. overlays ----------------------------------------------------
             if g.flash > 0.0:
@@ -6089,31 +7593,21 @@ init python:
                 rv.blit(rect("#000000" + ("%02x" % int(g.dark * 255)), 1280, 720),
                         (0, 0))
 
-            # The pause plate used to be drawn HERE, as two centred blits. It is
-            # a screen (tsb_pause_panel) now, because a CDD cannot hold a
-            # draggable widget and the panel carries the audio mixer: the volume
-            # moves without leaving the box. The wash below is all that is left.
+            # The pause plate is a screen (tsb_pause_panel), because a CDD
+            # cannot hold a draggable widget and the panel carries the audio
+            # mixer. The wash below is all that is left of it in here.
             if g.paused:
                 rv.blit(rect("#000000b8", 1280, 720), (0, 0))
 
-            # THE DRAW RATE IS THE TICK RATE.
-            #
-            # Every pixel this method produces is a pure function of g.tick:
-            # nothing here reads the accumulator, so between two simulation
-            # ticks the stage draws a byte-identical picture. `renpy.redraw(
-            # self, 0)` asked for the next frame IMMEDIATELY, so on a 144Hz or
-            # 240Hz panel this loop ran two to four times per tick and threw
-            # the extra frames away -- several hundred python-level blits each,
-            # on the most expensive draw in the project.
-            #
-            # Handing redraw() the time until the NEXT tick instead lets the
-            # engine's own scheduler wake us exactly when there is something
-            # new to draw. On a 60Hz display nothing changes. Above it, the
-            # cost of this stage stops scaling with the refresh rate.
-            #
-            # (Side effect, and a good one: the HP-bar chip ghost eases per
-            # RENDER, so it used to catch up four times faster on a 240Hz
-            # panel than on a 60Hz one. Now it is the same everywhere.)
+            # Rasterize the strings collected above (see HER STRINGS).
+            flush_strings()
+
+            # THE DRAW RATE IS THE TICK RATE. Every pixel this method produces
+            # is a pure function of g.tick, so between two simulation ticks the
+            # stage draws a byte-identical picture. Handing redraw() the time
+            # until the NEXT tick lets the engine wake us exactly when there is
+            # something new to draw, so above 60Hz the cost of this stage stops
+            # scaling with the refresh rate.
             if _perf:
                 msbf_perf_t1("draw", _t)
 
@@ -6125,7 +7619,7 @@ init python:
 # is a draggable widget, and a Creator-Defined Displayable can draw one but can
 # never be one -- so the whole plate moved out here when the volume did.
 #
-# These are the SAME `Preference("... volume")` bars the Settings screen and the
+# These are the SAME `Preference("...volume")` bars the Settings screen and the
 # Matsuda fight's pause menu use, so this is the game's one persistent mix being
 # nudged mid-fight, not a per-fight copy of it. Her instrumental and vocal stems
 # ride `track1`/`track2`, both registered on the `music` mixer, and every hit,
@@ -6229,6 +7723,14 @@ label tsubakimode:
     $ tsb_retry = False
     $ tsb_debug = False
 
+    if persistent.tsubamode_attempts == 0:
+        ma "She's in there. Tsuba, look at me. Just turn your head."
+        ma "...Nothing. Damn it."
+        ma "That handle wasn't there five seconds ago. I don't know what it wants you to do, and I hate that it gave you a choice before it gave me one."
+    else:
+        ma "Same light. Same silhouette. She's still not looking at me."
+        ma "And the handle's back. Of course it is."
+
     menu:
         "Open the door.":
             pass
@@ -6237,18 +7739,19 @@ label tsubakimode:
             ma "{size=-8}Fine, but the record's in pencil.{/size}"
         "Leave it shut.":
             if persistent.tsubamode_attempts == 0:
-                ma "Yeah. Yeah, good call. Great call, even."
-                ma "The light stays on, though. ...I'll keep an eye on it. Who else?"
+                ma "Yeah. Okay. Good. I mean--no, I don't know if it's good. Just don't open it."
+                ma "The light's staying on. I'll be right here. Pick somebody else."
             else:
-                ma "Smart. I'll keep watching it. Who else?"
+                ma "Okay. Don't touch it. I'll keep watching her. Who else?"
             jump msbf_roster_choice
 
     if persistent.tsubamode_attempts == 0:
-        ma "The switch isn't connected. I'm going to keep trying it."
+        ma "Breaker won't answer. Booth won't answer. Nothing in there will answer me."
         ma "Arrows or WASD move. Z confirms. X backs out. Hold Shift when you need smaller steps."
-        ma "And [player]... keep her talking, okay?"
+        ma "Keep her talking, okay? Tsuba corrects people when she's scared and still following."
+        ma "If she stops--no. Don't tell me. Just make her argue with you. Make her tell somebody they're wrong."
     else:
-        ma "You know the controls. I'll be here."
+        ma "You know the controls. Make her argue with you. Make her say I'm wrong about something. I'll be here."
 
     $ persistent.tsubamode_attempts += 1
 
@@ -6323,56 +7826,56 @@ label tsubamode_defeat:
 
     if tsb_run_deaths == 1:
         ma "Hey. HEY. You're out. You're back. Look at me a second."
-        ma "The room reset the moment you came through. ...She was still staring at the door when it did."
+        ma "The room reset before the door even shut. She said sorry to the empty box. Then she said it again, neater."
     elif tsb_run_deaths == 2:
         ma "Again. Okay. Breathe. You're here."
-        ma "She said your name before the light came up. Not the loud voice she's using in there-- just... your name. Quiet. Then it started the whole thing over."
+        ma "While you were out, she asked the ceiling what came next. It answered before she finished asking."
     else:
-        ma "She was already watching the door before it opened. She knew you'd be back."
-        ma "I don't know how many times she can sit through that. I really don't want to find out."
+        ma "She was watching the door before it opened. Damn it, I don't know whether she was waiting for you or for the cue."
+        ma "I am not teaching her those are the same thing."
 
     menu:
         "Send me back in.":
-            ma "Booth's still hot. Go."
+            ma "Booth's still live. Make her argue with you in there. Go."
             scene black with dissolve_scene_full
             jump tsubamode_fight
         "I need to stop.":
-            ma "Honestly? Might be the sane pick."
-            ma "The light's still on. I'll stay with it for a while."
+            ma "Okay. Stop means stop."
+            ma "The light is still on. I'll stay with it and work the breaker."
             return
 
 label tsubamode_quit:
     $ tsb_retry = True
     pause 0.5
-    ma "Out by the side door, huh."
-    ma "No shame in it. That's the only exit in there I actually installed."
-    ma "...She's still on the strings, though. I'll keep working the breaker."
+    ma "You found my side door. Good. That's the only exit in there I recognize."
+    ma "She's still inside, practicing going first. I'll keep working the breaker."
 
     menu:
         "Put me back in.":
-            ma "Yeah. Okay. GO!"
+            ma "All right. Ask her something first this time. Go."
             scene black with dissolve_scene_full
             jump tsubamode_fight
         "I can't look at it right now.":
             ma "Then don't. I'll stay here."
-            ma "I'll call you if the light changes."
+            ma "I'll call if the light or her silhouette changes."
             return
 
 label tsubamode_victory_v:
     pause 2.0
-    scene bg ether with dissolve_scene_full
-    show matsuda neut at t11 zorder 2
+    scene bg matsudavr with dissolve_scene_full
+    show matsuda shocked at t11 zorder 2
 
     ma "..."
-    ma "I keep waiting for that to turn out not to have happened. It happened, though. I watched the whole thing."
-    ma "You had four buttons. FOUR. And you hit the same one, over and over, until she stopped moving. Like it was the only one that was even real to you."
-    ma "By the end she wasn't fighting. It was barely throwing anything-- it had nothing left, it wasn't even aiming-- and your hand kept coming up. I kept thinking, okay, this is the swing where you stop. And it just... never was."
-    ma "And she thanked you. Every time. It made her thank you, and you let her, and you kept going anyway."
-    ma "I genuinely don't understand what I just watched. Her attack was ZERO. You CHECKED it. You knew."
-    ma "..."
-    ma "The restore point's clean. I can put her back together. She won't remember any of it."
-    ma "I'm going to remember all of it."
-    ma "[player]. Get out. Please. I can't look at you right now."
+    ma "No. I--no. I watched you swing after she stopped aiming."
+    ma "I kept waiting for the hit that would make sense of the one before it. There wasn't one."
+    show matsuda worried
+    ma "Maybe the strings looked like the target from inside. Maybe you thought one more hit would reach past her."
+    ma "I don't know. I wasn't in the box. So I'm giving you that. I'm trying really, really hard to give you that."
+    show matsuda angry
+    ma "But her attack was ZERO! You saw it! And by the end her eyes were closed while her hands kept moving!"
+    ma "Don't explain it right now. If I hear the wrong word, I am going to say something I can't reset."
+    show matsuda sad
+    ma "Let me put her back together. Then get out of my booth. Please."
 
     stop music fadeout 2.0
     scene black with dissolve_scene_full
@@ -6385,16 +7888,18 @@ label tsubamode_victory_v:
 label tsubamode_victory_p:
     scene black
     pause 1.0
-    ma "Tsuba? Hey-- hey, you're off, they're all off, it's OUT of you, you can get up now, you can--"
+    ma "Tsuba? Hey--hey, they're down! All five, I counted! You can move now!"
     ma "Tsuba?"
     pause 1.0
-    ma "...Why isn't she getting up."
-    ma "You cut every string. Every single one, I counted them with you. I watched you do it exactly, perfectly right. You got all of it off her."
-    ma "And she went down anyway. Same as-- ...same as if you'd never even tried."
-    ma "...It was always going to end here. However you did it. Whatever you picked."
-    ma "It let us choose the route. It just never let us change the ending. It let us pick the font."
+    ma "...Why isn't she getting up?"
+    ma "No. Her legs gave out. That's all. Give her a second."
+    pause 1.0
+    ma "No strings. No marks. Nothing is touching her."
+    ma "You did it right. We did it right. I counted every cut!"
+    ma "So this is NOT the same. Don't--don't look at me like it's the same!"
     pause 1.5
-    ma "...Leave the door open. In case there's ever anything left to come back to it."
+    ma "The reset will give her the second we didn't get. She'll stand up there. She has to."
+    ma "Leave the door open. Don't you dare close it."
 
     stop music fadeout 2.0
     scene black with dissolve_scene_full
@@ -6408,17 +7913,15 @@ label tsubamode_victory_b:
     scene black
     pause 2.5
     ma "..."
-    ma "Four strings. You cut four strings."
-    ma "Do you get what that took? What you had to do to reach that point? By the fourth cut it was barely holding her-- the whole act was coming apart, she'd lost her lines, she was scared and confused and almost-- almost somebody again."
-    ma "And you did every bit of that on PURPOSE. You spent the whole fight being gentle just to walk her right up to the edge of out."
-    ma "Then you wound up and put everything you had through the last thread holding her together."
-    ma "At least the loud way, I could tell myself you never actually met her. That you only ever swung at the thing wearing her face."
-    ma "But you met her. You did the WORK. You dragged her almost all the way out-- and THAT is the version of her you picked to kill. At the finish line. On purpose."
-    ma "What is WRONG with you? What is actually, genuinely wrong with you?"
-    pause 1.5
-    ma "And she fell the exact same way she always does. Every route, every time, no matter what anyone does-- she just falls. So you did all of THAT for nothing. You were cruel for NOTHING."
-    ma "..."
-    ma "Get out. I'm not doing the wrap-up with you. Get out of my booth."
+    ma "Four strings."
+    ma "You cut four strings, waited until she was asking you what came next, and then chose FIGHT."
+    ma "Do NOT tell me you slipped. The menu asked you twice. You had to move your hand there."
+    ma "You made her trust the quiet. You made me trust it! Then you used the exact second she reached for you."
+    pause 1.0
+    ma "There is no version of this I can misunderstand for you. No strings looked like the target. No last hit was meant to save her."
+    ma "You wanted to see what would happen."
+    ma "Well, you saw it. She fell. Same as every other route. You did all of that for NOTHING!"
+    ma "Get out. I'm not resetting her with you standing there. Get out of my booth."
     stop music fadeout 0.35
     window hide(None)
     show white zorder 200

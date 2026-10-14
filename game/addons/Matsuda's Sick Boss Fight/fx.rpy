@@ -28,8 +28,6 @@
 # 1. SHADERS (registered defensively; a bad driver must not break the battle)
 # -----------------------------------------------------------------------------
 init -10 python:
-    import math as _msbf_fx_math
-
     def _msbf_register_fx_shaders():
 
         # ---- Energy meter fill -------------------------------------------
@@ -537,17 +535,6 @@ transform msbf_fx_ring_t(color=(1.0, 0.22, 0.41), thickness=0.10, intensity=1.0,
     u_progress 0.0
     linear duration u_progress 1.0
 
-transform msbf_fx_glow_pulse(color=(0.33, 0.87, 1.0), lo=0.18, hi=0.40, softness=2.2):
-    mesh True
-    shader "msbf.glow"
-    u_color color
-    u_softness softness
-    u_intensity lo
-    block:
-        easein 0.7 u_intensity hi
-        easeout 0.7 u_intensity lo
-        repeat
-
 transform msbf_fx_aura_t(color=(0.20, 0.65, 1.0), color2=(0.65, 0.30, 1.0), intensity=0.55):
     mesh True
     shader "msbf.aura"
@@ -556,42 +543,11 @@ transform msbf_fx_aura_t(color=(0.20, 0.65, 1.0), color2=(0.65, 0.30, 1.0), inte
     u_intensity intensity
     subpixel True
 
-# Boss sigil halo (msbf.sigil): rotation runs on u_time GPU-side; the ATL
-# block only breathes the intensity, so the screen tree never rebuilds for it.
-transform msbf_fx_sigil_t(color=(0.35, 0.86, 1.0), intensity=0.30, spin=0.30, jitter=0.0):
-    mesh True
-    shader "msbf.sigil"
-    u_color color
-    u_spin spin
-    u_jitter jitter
-    u_intensity intensity
-    block:
-        easein 2.3 u_intensity intensity * 1.22
-        easeout 2.3 u_intensity intensity * 0.85
-        repeat
-
 transform msbf_fx_postfx_t(intensity=0.5, tint=(0.02, 0.05, 0.09)):
     mesh True
     shader "msbf.postfx"
     u_intensity intensity
     u_tint tint
-
-# Per-phase generative atmosphere (replaces the old Solid() decoration swarm).
-transform msbf_fx_atmos_t(col_a, col_b, col_c, intensity=0.5, warp=1.0, rays=0.0, scan=0.45, flow=0.7, grain=0.05, vig=0.5, jitter=0.0):
-    mesh True
-    shader "msbf.atmos"
-    u_col_a col_a
-    u_col_b col_b
-    u_col_c col_c
-    u_intensity intensity
-    u_warp warp
-    u_rays rays
-    u_scan scan
-    u_flow flow
-    u_grain grain
-    u_vig vig
-    u_jitter jitter
-    subpixel True
 
 # Sporadic datamosh: a low baseline that erupts into hard tears on an uneven
 # rhythm -- the phase-3 image fighting (and failing) to hold its form.
@@ -666,66 +622,8 @@ transform msbf_float_rise_crit(dx=0.0):
 
 
 # -----------------------------------------------------------------------------
-# 4. PARTICLE FIELDS (SpriteManager; deterministic + rollback-safe)
+# 4. PARTICLE SPRITES
 # -----------------------------------------------------------------------------
-init python:
-    import math as _msbf_pm_math
-
-    class MSBFDrift(object):
-        """An ambient field of drifting particles. Position is derived from the
-        sprite-manager time `st`, so it is deterministic and recycles by wrapping
-        the screen edges -- no per-frame allocation, rollback-safe."""
-
-        def __init__(self, child, count=40, W=1280, H=720, vy=-26.0, vx=5.0, amp=22.0, spd=0.7):
-            self.sm = SpriteManager(update=self.update)
-            self.W = float(W)
-            self.H = float(H)
-            self.vy = float(vy)
-            self.vx = float(vx)
-            self.amp = float(amp)
-            self.spd = float(spd)
-            self.parts = []
-            for _ in range(count):
-                s = self.sm.create(child)
-                x0 = random.random() * (self.W + 80.0) - 40.0
-                y0 = random.random() * (self.H + 80.0) - 40.0
-                ph = random.random() * 6.2832
-                vyi = self.vy * (0.7 + random.random() * 0.6)
-                vxi = self.vx * (0.5 + random.random() * 1.0)
-                sp = self.spd * (0.6 + random.random() * 0.8)
-                s.x = int(x0)
-                s.y = int(y0)
-                self.parts.append((s, x0, y0, vxi, vyi, ph, sp))
-
-        def update(self, st):
-            spanY = self.H + 80.0
-            spanX = self.W + 80.0
-            for s, x0, y0, vxi, vyi, ph, sp in self.parts:
-                y = ((y0 + vyi * st) + 40.0) % spanY - 40.0
-                x = ((x0 + vxi * st + self.amp * _msbf_pm_math.sin(st * sp + ph)) + 40.0) % spanX - 40.0
-                s.x = int(x)
-                s.y = int(y)
-            return 0
-
-
-# ---- Particle sprites -------------------------------------------------------
-image msbf_fx_p_ember:
-    Solid("#79e7ff")
-    subpixel True
-    xysize (3, 3)
-    alpha 0.42
-
-image msbf_fx_p_mote:
-    Solid("#ffe6a8")
-    subpixel True
-    xysize (4, 4)
-    alpha 0.40
-
-image msbf_fx_p_ash:
-    Solid("#ff6b8e")
-    subpixel True
-    xysize (4, 4)
-    alpha 0.50
 
 image msbf_fx_p_spark:
     Solid("#dffaff")
@@ -738,98 +636,8 @@ image msbf_fx_p_spark:
     parallel:
         linear 0.55 alpha 0.0
 
-# Stage-scoped fields (786x458) for atmosphere right around the boss. Counts are
-# kept modest -- each particle is a per-frame displayable, so this is the part
-# of the FX budget most worth keeping lean.
-image msbf_fx_stage_phase1:
-    MSBFDrift("msbf_fx_p_ember", count=16, W=786, H=458, vy=-26.0, vx=4.0, amp=20.0, spd=0.9).sm
-    pos (0, 0)
 
-image msbf_fx_stage_phase2:
-    MSBFDrift("msbf_fx_p_mote", count=10, W=786, H=458, vy=-16.0, vx=7.0, amp=26.0, spd=1.0).sm
-    pos (0, 0)
-
-image msbf_fx_stage_phase3:
-    MSBFDrift("msbf_fx_p_ash", count=12, W=786, H=458, vy=40.0, vx=-11.0, amp=30.0, spd=1.3).sm
-    pos (0, 0)
-
-# Phase-1 "howling wind": motes torn sideways across the scene. Big horizontal
-# velocity, only a faint upward lift, a short elongated sprite -- so each particle
-# reads as a streak of wind-borne dust rather than a drifting ember.
-image msbf_fx_p_windmote:
-    Solid("#c4e2ff")
-    subpixel True
-    xysize (8, 2)
-    alpha 0.32
-
-image msbf_fx_field_wind:
-    MSBFDrift("msbf_fx_p_windmote", count=26, W=1280, H=720, vy=-7.0, vx=128.0, amp=11.0, spd=1.7).sm
-    pos (0, 0)
-
-
-# ---- Per-phase colour config ------------------------------------------------
 init -1 python:
-    # Aura inner/outer colours, post-process tint+intensity, and ambient field
-    # key, all keyed by phase so the battle screen wires with one lookup.
-    MSBF_FX_PHASE = {
-        1: {
-            "aura":   ((0.14, 0.55, 1.0), (0.42, 0.30, 1.0)),
-            "aura_i": 0.50,
-            "postfx": ((0.02, 0.05, 0.10), 0.34),
-        },
-        2: {
-            "aura":   ((1.0, 0.81, 0.40), (0.33, 0.87, 1.0)),
-            "aura_i": 0.58,
-            "postfx": ((0.05, 0.04, 0.07), 0.44),
-        },
-        3: {
-            "aura":   ((1.0, 0.22, 0.41), (0.65, 0.22, 1.0)),
-            "aura_i": 0.70,
-            "postfx": ((0.09, 0.02, 0.05), 0.56),
-        },
-    }
-
-    def msbf_fx_phase_cfg(phase):
-        return MSBF_FX_PHASE.get(phase if phase in MSBF_FX_PHASE else (3 if phase >= 3 else 1), MSBF_FX_PHASE[1])
-
-    # msbf.atmos uniform sets per phase. Keeps each phase's identity: phase 1 calm
-    # cyan, phase 2 divine gold/cyan with god-rays, phase 3 crimson-violet chaos
-    # (high warp + harsher scan/grain). Used full-screen (backdrop) and stage-scoped.
-    MSBF_ATMOS_PHASE = {
-        1: {
-            "a": (0.05, 0.12, 0.24), "b": (0.16, 0.55, 0.95), "c": (0.55, 0.85, 1.0),
-            "intensity": 0.50, "warp": 0.85, "rays": 0.0, "scan": 0.45, "flow": 0.7, "grain": 0.05, "vig": 0.55, "jitter": 0.0,
-        },
-        2: {
-            "a": (0.10, 0.16, 0.26), "b": (1.0, 0.78, 0.36), "c": (0.40, 0.85, 1.0),
-            "intensity": 0.58, "warp": 1.25, "rays": 0.55, "scan": 0.40, "flow": 1.0, "grain": 0.06, "vig": 0.50, "jitter": 0.0,
-        },
-        # Phase 3: mono chaos -- black -> red -> white/grey (no violet), with the
-        # sporadic quick-glitch scanlines (jitter) doing the "collapsing signal".
-        3: {
-            "a": (0.05, 0.05, 0.06), "b": (0.86, 0.12, 0.16), "c": (0.90, 0.92, 0.95),
-            "intensity": 0.64, "warp": 2.2, "rays": 0.12, "scan": 0.68, "flow": 1.4, "grain": 0.12, "vig": 0.62, "jitter": 1.0,
-        },
-    }
-
-    def msbf_atmos_cfg(phase):
-        return MSBF_ATMOS_PHASE.get(phase if phase in MSBF_ATMOS_PHASE else (3 if phase >= 3 else 1), MSBF_ATMOS_PHASE[1])
-
-
-# ---- Quality (fixed: "balanced") ---------------------------------------------
-# The fight runs at one universal quality level: the domain-warped boss aura and
-# ambient particle fields are on, the full-screen post-process and the per-bullet
-# glow halo (the heaviest, lowest-value passes) are off. These helpers are kept
-# as the single source of truth that the screens gate on.
-init -1 python:
-    def msbf_fx_aura_on():
-        return True
-
-    def msbf_fx_particles_on():
-        return True
-
-    def msbf_fx_postfx_on():
-        return False
 
     # Per-element accent colours so skills read at a glance (SMT/Persona habit).
     MSBF_ELEMENT_COLORS = {
@@ -869,7 +677,7 @@ screen msbf_energy_bar(value, max_value, width, height, fill_color="#66e08a", em
         $ _lo, _hi, _track = msbf_bar_palette_from_fill(fill_color, empty_color)
         $ _pulse = 1.0 if (danger and 0.0 < _frac < 0.30) else 0.0
         $ _glow = 1.05 if _frac > 0.0 else 0.0
-        add Solid(fill_color) xysize (width, height) at msbf_fx_bar_t(_frac, _lo, _hi, _track, _glow, _pulse)
+        add Solid(fill_color) xysize (width, height) at msbf_t(msbf_fx_bar_t, _frac, _lo, _hi, _track, _glow, _pulse)
     else:
         add Solid(empty_color) xysize (width, height)
         add Solid(fill_color) xysize (msbf_bar_width(value, max_value, width), height)
@@ -877,7 +685,7 @@ screen msbf_energy_bar(value, max_value, width, height, fill_color="#66e08a", em
 # Static boss aura field placed behind the sprite. color/color2 are vec3 tuples.
 screen msbf_boss_aura(cx, cy, w, h, color, color2, intensity=0.55):
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") at msbf_fx_aura_t(color, color2, intensity):
+        add Solid("#00000000") at msbf_t(msbf_fx_aura_t, color, color2, intensity):
             xcenter cx
             ycenter cy
             xysize (int(w), int(h))
@@ -886,35 +694,11 @@ screen msbf_boss_aura(cx, cy, w, h, color, color2, intensity=0.55):
 # One-shot soft light bloom at a point.
 screen msbf_glow_pop(cx, cy, w, h, color=(1.0, 1.0, 1.0), intensity=0.85, softness=1.4, duration=0.5):
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") at msbf_fx_glow_pop(color, intensity, softness, duration):
+        add Solid("#00000000") at msbf_t(msbf_fx_glow_pop, color, intensity, softness, duration):
             xcenter cx
             ycenter cy
             xysize (int(w), int(h))
 
-# One-shot expanding shock ring at a point.
-screen msbf_shock_ring(cx, cy, size, color=(1.0, 0.22, 0.41), thickness=0.10, intensity=1.0, duration=0.55):
-    if MSBF_FX_SHADERS:
-        add Solid("#00000000") at msbf_fx_ring_t(color, thickness, intensity, duration):
-            xcenter cx
-            ycenter cy
-            xysize (int(size), int(size))
-
-
-# Per-phase generative atmosphere field. scope "screen" (1280x720, full backdrop)
-# or "stage" (786x458, boss arena). One GPU draw replaces the old Solid swarm; a
-# no-op without shaders (the bg art + dim still carry the scene).
-screen msbf_atmos_field(phase=1, scope="screen"):
-    if MSBF_FX_SHADERS:
-        $ _acfg = msbf_atmos_cfg(phase)
-        $ _stage = (scope == "stage")
-        $ _aw, _ah = (786, 458) if _stage else (1280, 720)
-        $ _ai = _acfg["intensity"] * (0.85 if _stage else 1.0)
-        $ _av = _acfg["vig"] * (0.45 if _stage else 1.0)
-        # Sized by msbf_fx_scaled, not here -- see perf.rpy. Three fbm samples
-        # per pixel over the whole frame makes this the most expensive shader
-        # per unit area in the file, and its signal is a handful of soft blobs,
-        # so it is the one that loses least by being rendered small.
-        add msbf_fx_scaled(At(Solid("#00000000"), msbf_fx_atmos_t(_acfg["a"], _acfg["b"], _acfg["c"], _ai, _acfg["warp"], _acfg["rays"], _acfg["scan"], _acfg["flow"], _acfg["grain"], _av, _acfg["jitter"])), _aw, _ah)
 
 
 # One floating combat number positioned at (x, y) centre.
@@ -922,13 +706,13 @@ screen msbf_float_number(ftext, fstyle, x, y, dx=0.0, crit=False):
     $ _fnx = int(x)
     $ _fny = int(y)
     if crit:
-        text ftext style fstyle at msbf_float_rise_crit(dx):
+        text ftext style fstyle at msbf_t(msbf_float_rise_crit, dx):
             xpos _fnx
             ypos _fny
             xanchor 0.5
             yanchor 0.5
     else:
-        text ftext style fstyle at msbf_float_rise(dx):
+        text ftext style fstyle at msbf_t(msbf_float_rise, dx):
             xpos _fnx
             ypos _fny
             xanchor 0.5
@@ -1006,81 +790,6 @@ style msbf_shmup_controls_small:
     outlines [(1, "#02040b", 0, 0)]
 
 
-# -----------------------------------------------------------------------------
-# Battle HUD styles (SMT/Persona banner + left tempo rail).
-# -----------------------------------------------------------------------------
-style msbf_rail_kicker:
-    size 12
-    color "#6f93a8"
-    bold True
-    kerning 4.0
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_rail_actor:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 23
-    color "#f5fbff"
-    bold True
-    kerning 1.0
-    outlines [(2, "#02040b", 0, 0)]
-
-style msbf_banner_phase:
-    size 13
-    color "#bfe9ff"
-    bold True
-    kerning 3.0
-    outlines [(2, "#02040b", 0, 0)]
-
-style msbf_banner_name:
-    size 20
-    color "#ffffff"
-    bold True
-    kerning 0.5
-    outlines [(2, "#02040b", 0, 0), (1, "#ff386aaa", 1, 1)]
-
-
-# -----------------------------------------------------------------------------
-# Party-select dossier styles.
-# -----------------------------------------------------------------------------
-style msbf_dossier_button is button:
-    xsize 712
-    ysize 60
-    padding (0, 0)
-    insensitive_background Solid("#070d15e0")
-
-style msbf_dossier_mug:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 28
-    color "#ffffff"
-    bold True
-    outlines [(2, "#02040b", 0, 0)]
-
-style msbf_dossier_name:
-    size 19
-    color "#f5fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0)]
-
-style msbf_dossier_role:
-    size 12
-    color "#55ddff"
-    bold True
-    kerning 1.5
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_dossier_summary:
-    size 11
-    color "#9fb6c6"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_dossier_order:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 20
-    color "#ffcf66"
-    bold True
-    outlines [(2, "#02040b", 0, 0)]
-
-
 # =============================================================================
 # 6. DRAMA LAYER -- cast wind-up, turn-handoff banners, and KO sequences.
 # -----------------------------------------------------------------------------
@@ -1093,27 +802,6 @@ style msbf_dossier_order:
 # No-op transform so screens can branch: `at (X if cond else msbf_identity)`.
 transform msbf_identity:
     alpha 1.0
-
-# A downed party card: just dimmed. The card already marks death with red "DOWN"
-# text + a down-styled name, so the dim reinforces it. Deliberately NO rotate
-# (a grid frame rotates around its top-left corner and breaks alignment) and NO
-# matrixcolor (the card embeds the msbf.bar shader/mesh HP bar, and wrapping a
-# mesh child in a colour matrix can mis-composite in gl2).
-transform msbf_card_downed:
-    subpixel True
-    alpha 0.5
-
-# The current actor's card: a soft breathing highlight for its accent frame.
-# Alpha-only on purpose -- a grid cell can't be scaled/rotated without breaking
-# alignment (same reason as msbf_card_downed above), so the "pulse" the TODO asks
-# for is carried by the accent edges fading in and out rather than by geometry.
-transform msbf_active_pulse:
-    subpixel True
-    alpha 0.30
-    block:
-        easein 0.55 alpha 0.95
-        easeout 0.55 alpha 0.30
-        repeat
 
 # HP-bar damage trail: a bright slice drawn over the just-lost portion of a bar
 # (the UI sizes/places it from the bar_event's frm/to fractions). Anchored to its
@@ -1414,19 +1102,6 @@ transform msbf_turn_banner_card:
     pause 0.62
     easein 0.30 alpha 0.0 xoffset 46 zoom 1.02
 
-# The sweep bars behind the turn card. They animate xOFFSET, not xpos: the
-# screen positions them with `xcenter 640`, and a transform that sets xpos wins
-# over that, so animating xpos to 0 parked both bars centred on the screen's
-# LEFT EDGE -- half off-frame, nowhere near the card they belong to.
-transform msbf_turn_banner_bar(delay=0.0, w=720, dirn=1.0):
-    subpixel True
-    xoffset -w * dirn
-    alpha 0.0
-    pause delay
-    linear 0.16 alpha 1.0 xoffset 0
-    pause 0.52
-    linear 0.26 alpha 0.0 xoffset w * dirn
-
 transform msbf_turn_banner_flash:
     alpha 0.0
     easeout 0.08 alpha 0.30
@@ -1469,7 +1144,7 @@ screen msbf_death_burst(x=0, y=0, color="#ff3868", boss=False):
     $ _dsize = 360 if boss else 150
     use msbf_glow_pop(_dcx, _dcy, _dsize, _dsize, _dcol, 0.9, 1.4, 0.5)
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") at msbf_fx_ring_t(_dcol, 0.12, 1.0, 0.5):
+        add Solid("#00000000") at msbf_t(msbf_fx_ring_t, _dcol, 0.12, 1.0, 0.5):
             xcenter _dcx
             ycenter _dcy
             xysize (_dsize, _dsize)
@@ -1479,7 +1154,7 @@ screen msbf_death_burst(x=0, y=0, color="#ff3868", boss=False):
         $ _sdist = (90.0 if boss else 52.0) * (0.7 + (_si % 3) * 0.2)
         $ _sdx = _sdist * math.cos(_sang)
         $ _sdy = _sdist * math.sin(_sang) - (10.0 if not boss else 0.0)
-        add Solid(color) xysize ((9 if boss else 6), (3 if boss else 2)) at msbf_death_shard(_sdx, _sdy, 0.6):
+        add Solid(color) xysize ((9 if boss else 6), (3 if boss else 2)) at msbf_t(msbf_death_shard, _sdx, _sdy, 0.6):
             xpos _dcx
             ypos _dcy
     if not boss:
@@ -1496,46 +1171,47 @@ style msbf_death_tag:
     outlines [(3, "#02040b", 0, 0), (1, "#ff3868", 1, 1)]
 
 style msbf_turn_banner_kicker:
-    size 12
+    font "assets/fonts/NovaSquare-Regular.ttf"
+    size 13
     color "#cfe8f5"
-    bold True
-    kerning 6.0
-    outlines [(2, "#02040b", 0, 0)]
+    kerning 4.0
+    outlines [(2, "#02040be6", 0, 0)]
 
 style msbf_turn_banner_name:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 40
-    color "#f5fbff"
-    bold True
-    kerning 3.0
-    outlines [(3, "#02040b", 0, 0), (1, "#00000088", 2, 2)]
+    font "assets/fonts/Myanmar.otf"
+    size 44
+    color "#fffaf0"
+    kerning 4.0
+    outlines [(3, "#02040bcc", 0, 1)]
 
 style msbf_turn_banner_sub:
+    font "assets/fonts/NovaSquare-Regular.ttf"
     size 14
     color "#bfe9ff"
-    bold True
-    kerning 2.0
-    outlines [(2, "#02040b", 0, 0)]
+    kerning 2.6
+    outlines [(2, "#02040be6", 0, 0)]
 
-# The banner itself: a centred name plate with sweeping accent bars. `token` is
-# only here to force a fresh transform timebase when the turn changes.
+# The banner itself: one slanted plate across the middle of the frame, in the
+# Seer HUD's plate language (msbf.plate, seer_battle.rpy). `token` is only here
+# to force a fresh transform timebase when the turn changes.
 screen msbf_turn_banner(token, label, accent="#55ddff", accent2="#ff3868", sub="", kicker="TEMPO"):
-    add Solid(accent) xysize (1280, 86) at msbf_turn_banner_flash:
+    add Solid(accent) xysize (1280, 120) at msbf_turn_banner_flash:
         ycenter 300
     fixed:
         xysize (1280, 720)
-        add Solid(accent + "ee") xysize (560, 6) at msbf_turn_banner_bar(0.0, 760, 1.0):
-            xcenter 640
-            ycenter 262
-        add Solid(accent2 + "cc") xysize (420, 4) at msbf_turn_banner_bar(0.05, 760, -1.0):
-            xcenter 640
-            ycenter 340
-        vbox:
+        fixed:
             xcenter 640
             ycenter 300
-            spacing 0
+            xysize (820, 112)
             at msbf_turn_banner_card
-            text kicker style "msbf_turn_banner_kicker" xalign 0.5
-            text label style "msbf_turn_banner_name" xalign 0.5
+            add msbf_plate(820, 112, 34, (0.02, 0.03, 0.07, 0.92), (0.0, 0.01, 0.03, 0.95), _pl_rgba(accent, 0.85), _pl_rgba(accent2, 1.0))
+            text kicker style "msbf_turn_banner_kicker" color accent:
+                xalign 0.5
+                ypos 12
+            text label style "msbf_turn_banner_name":
+                xalign 0.5
+                ypos 30
             if sub:
-                text sub style "msbf_turn_banner_sub" xalign 0.5
+                text sub style "msbf_turn_banner_sub":
+                    xalign 0.5
+                    ypos 82

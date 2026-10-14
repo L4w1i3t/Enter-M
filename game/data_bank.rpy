@@ -1,88 +1,14 @@
-# =============================================================================
-# data_bank.rpy  --  THE RECORD BANK  (restore / write / copy / rename / erase)
-# =============================================================================
+# Shared save bank: restore, write, copy, rename and erase. Destructive UI
+# actions confirm first. Modes use teal (read), ochre (write), lavender (copy/rename)
+# and coral (erase); EMB_* constants describe the 836x520 content frame.
 #
-# WHAT THIS FILE REPLACES
-#   `screen save()` and `screen load()`, which were two copies of Ren'Py's
-#   stock `file_slots` grid: three screenshot cards across and two down, with a
-#   row of page numbers 1..9 underneath and nothing else. Both are gone. In
-#   their place is ONE screen -- `data_bank` -- reached from a single door in
-#   the navigation rail, which does everything that can be done to a save file:
-#   restore it, write over it, duplicate it, give it a name, or destroy it.
-#
-# WHY ONE SCREEN AND NOT TWO
-#   Save and Load were never two ideas. They were one list of slots drawn
-#   twice, and the only thing that differed between the two screens was what a
-#   click did. So the list stays put and the CLICK is the thing you choose --
-#   which is also the only shape in which COPY could ever have worked, because
-#   copying needs two slots picked off the same list.
-#
-# THE COLOUR IS THE SAFETY RAIL
-#   The mode strip along the top tints the rows underneath it, and the tint
-#   says what your next click does to what is on disk:
-#       teal       READ     -- RESTORE. Nothing stored changes.
-#       ochre      WRITE    -- WRITE / COPY. Something is kept.
-#       lavender   LABEL    -- RENAME. The record stays; its caption changes.
-#       coral      ERASE    -- ERASE. Something stops existing.
-#   These are the muted safety colours of the domestic menu family. Without
-#   them, "this click saves" and "this click deletes" would read the same.
-#   Every path that can lose data confirms first
-#   anyway -- overwrite, copy-over and erase all raise the themed `confirm`
-#   screen -- so the colour is the warning, not the guard.
-#
-# THE LIST IS FLAT, AND THE SLOT NAMES ARE UNCHANGED
-#   There are no pages. `enter_m_bank_name()` maps bank index 1..36 onto the
-#   page-and-slot names Ren'Py already writes ("1-1" .. "6-6"), so every save
-#   made by the old grid is still exactly where it was; only the presentation
-#   moved. Any occupied slot OUTSIDE that range (a save made on old page 7, 8
-#   or 9) is appended to the end of the list rather than hidden, so the UI can
-#   never strand a file it cannot show.
-#
-# WHERE THE STATE LIVES, AND WHY IT IS NOT A SCREEN VARIABLE
-#   Mode, copy-source and rename-target sit on `enter_m_bank_ui`, one plain
-#   `python_object` built at init and mutated in place. Three reasons:
-#     1. Ren'Py 8.1.1 has no `renpy.set_screen_variable`, and `SetScreenVariable`
-#        resolves `renpy.current_screen()` at CALL time -- so an action run from
-#        inside the `confirm` overlay (which is how every destructive path
-#        finishes) would write into the confirm screen's scope, not ours.
-#     2. An init-python object mutated in place is never written to a save and
-#        never enters the rollback log, which is exactly right for "which
-#        button is lit" -- see [[enter-m-init-state-not-saved]] for the same
-#        fact biting from the other direction.
-#     3. `python_object`, not `object`: a bare `object` inside a .rpy python
-#        block IS `RevertableObject`, and this state must not revert.
-#   The one thing that IS persistent is the record labels, below.
-#
-# RECORD LABELS ARE OURS, NOT REN'PY'S
-#   Ren'Py's own save label is `extra_info`, frozen into the save file at write
-#   time; there is no engine call that re-labels an existing save. So RENAME
-#   keeps its names out of band in `persistent.enter_m_bank_labels`, keyed by
-#   slot name. Copying a record copies its label, and erasing or overwriting a
-#   record drops it, so a name can never outlive the recording it described.
-#
-# WHAT A SAVE NOW REMEMBERS ABOUT ITSELF
-#   `enter_m_bank_json` hangs three extra keys off every new save -- the
-#   in-game date, the chapter, and the accumulated play time -- which is what
-#   fills the record card's readout. Saves written before this file existed have
-#   none of them and read as "--"; nothing breaks.
-#
-# EXTERNAL SYMBOLS THIS FILE LEANS ON
-#   - screen game_menu         : game/screens.rpy (the submenu chrome).
-#   - ROOM_MENU_*              : game/room_menu_theme.rpy (the shared
-#                                domestic palette and selector frames).
-#   - msbf_save_load_locked()  : Matsuda's Sick Boss Fight/battle_logic.rpy.
-#   - calendar / chapter       : Calendar System/calendar_system.rpy,
-#                                game/definitions.rpy.
-# =============================================================================
-
-
-# -----------------------------------------------------------------------------
-# GEOMETRY
-# Every number below is measured inside the game_menu content frame, whose
-# usable box is 836 x 520 (904 x 636 less its (34, 84, 34, 32) padding). The
-# screen body is one `fixed` of that size and everything is placed absolutely
-# into it, so a panel can be moved by editing one constant here.
-# -----------------------------------------------------------------------------
+# Indices 1..36 retain Ren'Py slot names 1-1..6-6. Occupied slots outside that
+# range are appended, preserving access to older saves. Extra save metadata
+# records chapter, date and runtime; absent metadata is handled by the UI.
+# EnterMBankUI is transient python_object state shared with confirmation
+# overlays. Player labels live in persistent.enter_m_bank_labels, keyed by
+# slot; copying carries the label and successful overwrite/erase clears it.
+# Save/load availability also honors msbf_save_load_locked().
 
 define EMB_W = 836
 define EMB_H = 520
@@ -189,19 +115,19 @@ default persistent.enter_m_bank_labels = { }
 
 init -10 python:
 
-    def enter_m_bank_json(d):
+    def enter_m_bank_json(metadata):
         try:
-            d["em_chapter"] = int(store.chapter)
+            metadata["em_chapter"] = int(store.chapter)
         except Exception:
             pass
 
         try:
-            d["em_date"] = store.calendar.get_formatted_date("full")
+            metadata["em_date"] = store.calendar.get_formatted_date("full")
         except Exception:
             pass
 
         try:
-            d["em_runtime"] = int(renpy.get_game_runtime())
+            metadata["em_runtime"] = int(renpy.get_game_runtime())
         except Exception:
             pass
 
@@ -234,9 +160,9 @@ init python:
 
         def __init__(self):
             self.mode = "restore"
-            self.copy_src = None
-            self.rename = None
-            self.sel = None
+            self.copy_src = None  # Slot selected as the copy source.
+            self.rename = None  # Slot whose label is being edited.
+            self.sel = None  # Slot displayed in the detail panel.
 
         def open(self, mode):
             """Called from the screen's `on "show"`. A visit always starts
@@ -268,13 +194,13 @@ init python:
 
     enter_m_bank_ui = EnterMBankUI()
 
-    def enter_m_bank_name(i):
+    def enter_m_bank_name(bank_index):
         """Bank index (1-based) -> the slot name Ren'Py already uses.
 
         This is the whole of the backwards compatibility story: index 1 is
         "1-1", index 7 is "2-1", and every save the old page grid ever wrote is
         still addressed by the name it was written under."""
-        return "%d-%d" % ((i - 1) // EMB_PER_PAGE + 1, (i - 1) % EMB_PER_PAGE + 1)
+        return "%d-%d" % ((bank_index - 1) // EMB_PER_PAGE + 1, (bank_index - 1) % EMB_PER_PAGE + 1)
 
     def enter_m_bank_occupied():
         """The set of page-and-slot saves that exist right now.
@@ -288,22 +214,22 @@ init python:
         except Exception:
             return set()
 
-    def enter_m_bank_rows(have):
+    def enter_m_bank_rows(occupied_slots):
         """The rows the list draws: the standing 36, then any occupied slot
         that falls outside them. The tail is what keeps the UI from stranding a
         save made on an old page 7-9; it is normally empty."""
-        rows = [enter_m_bank_name(i) for i in range(1, EMB_SLOTS + 1)]
+        rows = [enter_m_bank_name(bank_index) for bank_index in range(1, EMB_SLOTS + 1)]
         known = set(rows)
 
-        stray = [s for s in have if s not in known]
-        if stray:
-            def key(s):
+        extra_slots = [slot_name for slot_name in occupied_slots if slot_name not in known]
+        if extra_slots:
+            def slot_sort_key(slot_name):
                 try:
-                    p, t = s.split("-", 1)
-                    return (int(p), int(t))
+                    page, slot = slot_name.split("-", 1)
+                    return (int(page), int(slot))
                 except Exception:
                     return (9999, 9999)
-            rows += sorted(stray, key=key)
+            rows += sorted(extra_slots, key=slot_sort_key)
 
         return rows
 
@@ -325,43 +251,43 @@ init python:
         if not occupied:
             return None
 
-        lbl = enter_m_bank_label(name).strip()
-        if lbl:
-            return lbl
+        custom_label = enter_m_bank_label(name).strip()
+        if custom_label:
+            return custom_label
 
-        d = enter_m_bank_json_of(name)
+        metadata = enter_m_bank_json_of(name)
 
-        extra = (d.get("_save_name") or "").strip()
-        if extra:
-            return extra
+        save_name = (metadata.get("_save_name") or "").strip()
+        if save_name:
+            return save_name
 
-        date = (d.get("em_date") or "").strip()
+        date = (metadata.get("em_date") or "").strip()
         if date:
             return date
 
         return __("UNTITLED RECORD")
 
-    def enter_m_bank_short(s, n):
+    def enter_m_bank_short(text, max_characters):
         """Row labels are drawn into a fixed 196px column and Ren'Py's Text has
         no ellipsis, so long names are cut here. Three ASCII dots on purpose --
         U+2026 is not in NovaSquare, and a missing glyph draws as tofu."""
-        if s is None:
+        if text is None:
             return ""
-        if len(s) <= n:
-            return s
-        return s[:n - 3].rstrip() + "..."
+        if len(text) <= max_characters:
+            return text
+        return text[:max_characters - 3].rstrip() + "..."
 
-    def enter_m_bank_runtime(secs):
+    def enter_m_bank_runtime(seconds):
         try:
-            secs = int(secs)
+            seconds = int(seconds)
         except Exception:
             return None
-        if secs < 60:
+        if seconds < 60:
             return __("under a minute")
-        h, m = divmod(secs // 60, 60)
-        if h:
-            return "%dh %02dm" % (h, m)
-        return "%dm" % m
+        hours, minutes = divmod(seconds // 60, 60)
+        if hours:
+            return "%dh %02dm" % (hours, minutes)
+        return "%dm" % minutes
 
     def enter_m_bank_clear_label(name):
         """A label describes a recording. Overwrite or erase the recording and
@@ -375,21 +301,21 @@ init python:
             pass
         renpy.restart_interaction()
 
-    def enter_m_bank_do_copy(src, dst):
+    def enter_m_bank_do_copy(source_slot, destination_slot):
         """Duplicate a record, label and all, and drop out of the two-step."""
         try:
-            renpy.copy_save(src, dst)
+            renpy.copy_save(source_slot, destination_slot)
         except Exception:
             enter_m_bank_ui.copy_src = None
             renpy.restart_interaction()
             return
 
         try:
-            lbl = enter_m_bank_label(src)
-            if lbl:
-                persistent.enter_m_bank_labels[dst] = lbl
-            elif dst in persistent.enter_m_bank_labels:
-                del persistent.enter_m_bank_labels[dst]
+            custom_label = enter_m_bank_label(source_slot)
+            if custom_label:
+                persistent.enter_m_bank_labels[destination_slot] = custom_label
+            elif destination_slot in persistent.enter_m_bank_labels:
+                del persistent.enter_m_bank_labels[destination_slot]
             renpy.save_persistent()
         except Exception:
             pass
@@ -401,7 +327,9 @@ init python:
         try:
             renpy.unlink_save(name)
         except Exception:
-            pass
+            # Keep the label attached when the underlying save could not be erased.
+            renpy.restart_interaction()
+            return
         enter_m_bank_clear_label(name)
 
     def enter_m_bank_begin_rename(name):
@@ -458,8 +386,8 @@ init python:
     # in screen language.
     # -------------------------------------------------------------------------
 
-    def enter_m_bank_row_action(mode, name, idx, occupied, src):
-        label = "%02d" % idx
+    def enter_m_bank_row_action(mode, name, record_index, occupied, copy_source):
+        label = "%02d" % record_index
 
         if mode == "restore":
             if not occupied:
@@ -482,14 +410,14 @@ init python:
             return write
 
         if mode == "copy":
-            if src is None:
+            if copy_source is None:
                 if not occupied:
                     return None
                 return Function(enter_m_bank_ui.set_source, name)
-            if name == src:
+            if name == copy_source:
                 # Clicking the source again backs out of the two-step.
                 return Function(enter_m_bank_ui.set_source, name)
-            copy = Function(enter_m_bank_do_copy, src, name)
+            copy = Function(enter_m_bank_do_copy, copy_source, name)
             if occupied:
                 return Confirm(
                     __("SLOT %s IS OCCUPIED. OVERWRITE IT WITH THE COPY?") % label,
@@ -510,7 +438,7 @@ init python:
 
         return None
 
-    def enter_m_bank_hint(mode, src, locked):
+    def enter_m_bank_hint(mode, copy_source, locked):
         """The line under the readout. It says what the next click does, in
         words, because the colour alone cannot say "you are half way through a
         copy"."""
@@ -522,7 +450,7 @@ init python:
         if mode == "write":
             return __("SELECT A SLOT TO WRITE THE CURRENT SESSION INTO.")
         if mode == "copy":
-            if src is None:
+            if copy_source is None:
                 return __("SELECT THE RECORD TO DUPLICATE.")
             return __("NOW PICK THE SLOT TO COPY INTO -- OR THE SOURCE AGAIN TO CANCEL.")
         if mode == "rename":

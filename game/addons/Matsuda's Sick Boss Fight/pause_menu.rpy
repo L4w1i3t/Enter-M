@@ -21,7 +21,10 @@
 #   which is what previously dumped a call_in_new_context fight to the main menu.
 # =============================================================================
 
-screen msbf_pause_menu():
+# Pre-fight callers pass prefight=True explicitly: do not infer it from a
+# leftover battle object. Resume only hides this overlay; confirmed setup exit
+# returns a distinct token that callers handle before constructing a battle.
+screen msbf_pause_menu(prefight=False):
     modal True
 
     # Screen-local confirm state for the Quit Fight two-step.
@@ -30,15 +33,13 @@ screen msbf_pause_menu():
     # Read the fight mode for the subtitle without assuming the var is defaulted.
     $ mp_id = getattr(store, "_msbf_id_mode", False)
 
-    # Dim the frozen battle underneath + a drifting scanline (never a full scene,
-    # so the fight stays visible behind the panel).
+    # The live painted arena remains visible behind the modal material.
     add Solid("#02050ade")
-    add Solid("#56d7ff1c") xysize (1280, 2) at menu_scanline_slow
 
     frame:
-        style "archive_frame"
+        style "msbf_pause_frame"
         xsize 760
-        ysize 540
+        ysize 640
         at archive_frame_enter()
 
         vbox:
@@ -51,52 +52,77 @@ screen msbf_pause_menu():
                 xfill True
                 ysize 64
                 frame:
-                    style "archive_header_title_frame"
+                    background None
+                    padding (0, 0)
                     hbox:
                         spacing 13
                         yalign 0.5
-                        add Solid("#56d7ff") xysize (11, 11) yalign 0.5 at console_blink
-                        text "COMBAT PAUSED" style "archive_title"
-                add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16 at enter_m_pip_pulse
+                        add MSBF_SEER_ART + "sigil.png" xysize (38, 38) yalign 0.5
+                        text ("SETUP PAUSED" if prefight else "COMBAT PAUSED") style "msbf_pause_title"
 
             text ("ONTOLOGICAL SEER // ID MODE" if mp_id else "ONTOLOGICAL SEER // NORMAL"):
-                style "archive_meta_text"
+                style "msbf_pause_meta"
                 xoffset 4
 
-            add Solid("#56d7ff66") xysize (700, 2)
+            add (MSBF_SEER_ART + "divider.png") xysize (700, 2)
 
             null height 2
 
             # --- Audio panel (live -- adjusts the running fight's mix). ---
             frame:
-                style "archive_panel"
+                style "msbf_pause_panel"
                 xsize 700
                 vbox:
                     spacing 8
 
                     hbox:
                         spacing 10
-                        add Solid("#56d7ff") xysize (4, 20) yalign 0.5
-                        text "AUDIO" style "archive_panel_label"
+                        add Solid("#d6bf87") xysize (3, 20) yalign 0.5
+                        text "AUDIO" style "msbf_pause_label"
 
                     if config.has_music:
-                        text "Music" style "archive_panel_small"
+                        text "Music" style "msbf_pause_small"
                         bar value Preference("music volume") style "pref_wide_slider"
 
                     if config.has_sound:
-                        text "Sound" style "archive_panel_small"
+                        text "Sound" style "msbf_pause_small"
                         bar value Preference("sound volume") style "pref_wide_slider"
 
                     if config.has_voice:
-                        text "Voice" style "archive_panel_small"
+                        text "Voice" style "msbf_pause_small"
                         bar value Preference("voice volume") style "pref_wide_slider"
 
                     if config.has_music or config.has_sound or config.has_voice:
                         null height 2
                         textbutton _("Mute All"):
-                            style "archive_return_button"
+                            style "msbf_pause_mute"
                             xsize 180
                             action Preference("all mute", "toggle")
+
+            # --- Battle art (live -- the stage reads it every frame). ---
+            # Pixel sprites or the original illustrations; the choreography,
+            # effects and glitches are the same either way.
+            frame:
+                style "msbf_pause_panel"
+                xsize 700
+                hbox:
+                    spacing 14
+                    hbox:
+                        spacing 10
+                        yalign 0.5
+                        add Solid("#d6bf87") xysize (3, 20) yalign 0.5
+                        text "BATTLE ART" style "msbf_pause_label"
+                    null width 18
+                    textbutton _("Pixel"):
+                        id "msbf_pause_art_pixel"
+                        style "msbf_pause_choice"
+                        yalign 0.5
+                        action SetField(persistent, "msbf_seer_art", "pixel")
+                    textbutton _("Illustrated"):
+                        id "msbf_pause_art_hq"
+                        style "msbf_pause_choice"
+                        yalign 0.5
+                        action SetField(persistent, "msbf_seer_art", "hq")
 
             null height 6
 
@@ -105,13 +131,13 @@ screen msbf_pause_menu():
                 xalign 0.5
                 spacing 28
                 textbutton _("Resume"):
-                    style "arcade_result_button"
+                    id "msbf_pause_resume"
+                    style "msbf_pause_button"
                     action Hide("msbf_pause_menu")
-                textbutton _("Quit Fight"):
+                textbutton (_("Leave Setup") if prefight else _("Quit Fight")):
+                    id "msbf_pause_leave"
                     style "msbf_pause_quit_button"
                     action SetScreenVariable("mp_confirm", True)
-
-    use console_brackets(260, 90, 760, 540, "#56d7ff7a", 24, 2)
 
     # Escape / right-click resume the fight -- but only when the quit confirm is
     # not up (the confirm block below binds Escape to Cancel instead).
@@ -130,7 +156,7 @@ screen msbf_pause_menu():
             xysize (1280, 720)
             action NullAction()
         frame:
-            style "archive_frame"
+            style "msbf_pause_frame"
             xsize 620
             ysize 240
             at archive_frame_enter()
@@ -138,25 +164,44 @@ screen msbf_pause_menu():
                 xalign 0.5
                 yalign 0.5
                 spacing 18
-                text "Abandon this fight?":
-                    style "archive_item_text"
+                text ("Leave fight setup?" if prefight else "Abandon this fight?"):
+                    style "msbf_pause_label"
                     xalign 0.5
-                text "Your progress in this fight will be lost.":
-                    style "archive_panel_small"
+                text ("No fight will be started. Your party selection will be discarded." if prefight else "Your progress in this fight will be lost."):
+                    style "msbf_pause_small"
                     xalign 0.5
                 null height 4
                 hbox:
                     xalign 0.5
                     spacing 28
-                    textbutton _("Quit"):
+                    textbutton (_("Leave") if prefight else _("Quit")):
+                        id "msbf_pause_confirm_quit"
                         style "msbf_pause_quit_button"
-                        action [Hide("msbf_pause_menu"), Return("quit")]
+                        action [Hide("msbf_pause_menu"), Return("cancel_setup" if prefight else "quit")]
                     textbutton _("Cancel"):
-                        style "arcade_result_button"
+                        id "msbf_pause_confirm_cancel"
+                        style "msbf_pause_button"
                         action SetScreenVariable("mp_confirm", False)
         use console_brackets(330, 240, 620, 240, "#ff315b7a", 20, 2)
         key "K_ESCAPE" action SetScreenVariable("mp_confirm", False)
         key "game_menu" action SetScreenVariable("mp_confirm", False)
+
+
+# --- CANCEL SETUP -----------------------------------------------------------
+# Both callers test this token immediately after the notice and the picker.
+# No battle has been constructed and _msbf_prev_quick_menu is not initialized
+# for this run yet, so this is deliberately separate from msbf_forfeit.
+label msbf_cancel_setup:
+    hide screen msbf_pause_menu
+    hide screen msbf_keyboard_notice
+    hide screen msbf_party_select
+    $ msbf_clear_battle_watch()
+    $ msbf_stop_battle_music(0.35)
+    $ _msbf_party_ids = None
+    scene black with dissolve_scene_full
+    if arcade_active:
+        jump arcade_return
+    return
 
 
 # --- SAFE FORFEIT ------------------------------------------------------------
@@ -179,9 +224,82 @@ label msbf_forfeit:
 # STYLES
 # =============================================================================
 # Red-accent danger button for Quit, otherwise mirroring the arcade result button.
-style msbf_pause_quit_button is arcade_result_button:
-    hover_background Solid("#3a0f1af2")
+style msbf_pause_quit_button is msbf_pause_button:
+    hover_background msbf_seer_frame(True, True)
     xsize 180
 
-style msbf_pause_quit_button_text is arcade_result_button_text:
+style msbf_pause_quit_button_text is msbf_pause_button_text:
     hover_color "#ff8fa6"
+
+# Fight-local materials and type. Keep the established pause geometry and
+# actions; these styles do not modify Archive or Arcade's shared presentation.
+style msbf_pause_frame is empty:
+    xalign 0.5
+    yalign 0.5
+    background msbf_seer_frame()
+    padding (30, 22)
+
+style msbf_pause_title is default:
+    font "assets/gui/font/Aller_Rg.ttf"
+    size 36
+    color "#f4e8cf"
+    bold True
+    outlines []
+
+style msbf_pause_meta is default:
+    font "assets/gui/font/Aller_Rg.ttf"
+    size 12
+    color "#cbb68b"
+    kerning 1.0
+    outlines []
+
+style msbf_pause_panel is empty:
+    background msbf_seer_frame()
+    padding (18, 18)
+
+style msbf_pause_label is default:
+    font "assets/gui/font/Aller_Rg.ttf"
+    size 20
+    color "#f4e8cf"
+    bold True
+    outlines []
+
+style msbf_pause_small is default:
+    font "assets/gui/font/Aller_Rg.ttf"
+    size 14
+    color "#bacbd6"
+    outlines []
+
+style msbf_pause_button is button:
+    xsize 190
+    ysize 54
+    background msbf_seer_frame(command=True)
+    hover_background msbf_seer_frame(True, True)
+    padding (18, 10)
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style msbf_pause_button_text is default:
+    font "assets/gui/font/Aller_Rg.ttf"
+    size 22
+    color "#f4e8cf"
+    hover_color "#ffffff"
+    bold True
+
+style msbf_pause_mute is msbf_pause_button:
+    xsize 126
+    ysize 42
+    padding (15, 8)
+
+style msbf_pause_mute_text is msbf_pause_button_text:
+    size 20
+    bold False
+
+# The Battle Art pair: the chosen style stays lit.
+style msbf_pause_choice is msbf_pause_mute:
+    xsize 170
+    selected_background msbf_seer_frame(True, True)
+
+style msbf_pause_choice_text is msbf_pause_mute_text:
+    xalign 0.5
+    selected_color "#ffd98a"

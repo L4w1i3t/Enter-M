@@ -1,83 +1,13 @@
-# =============================================================================
-# ENTER-M :: fx.rpy  --  WHAT SURVIVED THE MOTION-FX TEARDOWN
-# -----------------------------------------------------------------------------
-# THIS FILE USED TO BE THE MOTION LIBRARY. It is not one any more.
+# Shared inherited noise/glitch textures, vignette, scene transitions,
+# enter_m_rgba color conversion and motion helpers used by OOC scenes.
+# Atmosphere/theater shaders and main-story panel/framing drivers live in their
+# own modules. The old general sprite-gesture library is not implemented here.
 #
-# On 2026-08-08 the sprite-motion / ambient-camera system was dismantled on
-# purpose, to be rebuilt from the ground up later. The whole gesture and idle
-# vocabulary (fx_breathe, fx_point, fx_toss, fx_step_in, fx_bounce, ...), the
-# ambient camera family (fx_hold / fx_pull / fx_drift / fx_breeze / fx_handheld
-# / fx_camera_move), the shake and quake helpers, the strobes, the letterbox
-# and the flash/blackout set were all DELETED along with every call site in
-# game/story/season1/0515-0521.rpy. Do not go looking for them; they are gone,
-# not moved. Anything you need, write fresh.
-#
-# WHY IT WAS TORN DOWN  --  READ THIS BEFORE REBUILDING, IT WILL SAVE YOU A DAY
-#   The library worked. What did not work was leaving a transform attached to a
-#   talking sprite, and the cause is in the engine, not in the effects:
-#
-#     * renpy/display/core.py SceneLists.add() only preserves a running
-#       transform when a show passes NO at_list (the config.keep_running_transform
-#       fast path, which swaps the child under the existing chain). Any show
-#       that DOES pass an at_list falls through to transform_state(old, new),
-#       whose `execution` parameter defaults to False -- so take_execution_state
-#       is never called and the ATL restarts from frame zero.
-#     * config.sticky_positions (switched on by addons/Autofocus) INJECTS the
-#       previous at_list into every show that omits one -- see
-#       renpy/exports.py show(), the `if renpy.config.sticky_positions:` branch.
-#     * Every say line carrying image attributes ("m forward casual happ ...")
-#       is such a show.
-#
-#   Net effect: any one-shot modifier on a sprite replays in full on every line
-#   that character speaks, forever. Measured, not guessed -- an fx_toss(40.0)
-#   ran its entire wind-up-and-throw on all five following lines, and it still
-#   did so with Autofocus disabled completely, so the addon is not the culprit.
-#   fx_breathe had always been restarting too; a looping idle just makes the
-#   restart invisible, which is why this went unnoticed for so long.
-#
-#   Three ways out, none of them attempted yet. Pick one FIRST, next time:
-#     1. Expire gestures centrally -- a character callback that removes a
-#        one-shot from the at_list after the beat it was written for, so a
-#        restart has nothing left to restart. Costs: "held" gestures cannot
-#        hold.
-#     2. Never leave a gesture attached -- re-show the sprite at an idle on the
-#        very next beat, every time, no exceptions. Costs: verbose, and a
-#        forgotten line silently reintroduces the bug.
-#     3. Stop relying on sticky_positions so attribute shows take the
-#        keep_running_transform path. Costs: SceneLists.add unconditionally
-#        overwrites at_list, so Autofocus must stop reading it, and it changes
-#        sprite handling for the whole game.
-#   NOTE that ATL parameter defaults are evaluated when the `transform`
-#   statement executes at INIT, not per show (renpy/ast.py:1298 ->
-#   renpy/atl.py:341), so the get_time() stamp trick that fixes layer drivers
-#   cannot be smuggled into a gesture's default argument.
-#
-# WHAT IS STILL HERE, AND WHY EACH PIECE EARNED ITS PLACE
-#   1. Vanilla DDLC leftovers (noise / noise_alpha / vignette / yuripupils).
-#      Used by ~20 files across the project. Never part of the motion system.
-#   2. The scene-transition family (dissolve / dissolve_scene_full /
-#      dissolve_scene_half / dissolve_scene_soft / wipeleft_scene) and the
-#      fx_rack_* transforms they are built from. EVERY scene change in the game
-#      goes through these. They are transitions, not sprite motion, and they
-#      were never implicated in the bug above.
-#   3. enter_m_rgba, the project's hex -> normalized-RGBA parser, which the
-#      Arcade panels, the boss-fight FX layer and the PhonePanel toolkit all
-#      import from here.
-#   4. Exactly six motion pieces that two out-of-context scenes still call:
-#      fx_push, fx_lean_in, fx_flinch, fx_punch_soft, fx_thud, fx_shake_screen.
-#      They are kept ONLY for ooc_1030_uhoh.rpy and ooc_0604_out_of_ten.rpy.
-#      If those scenes are ever rewritten, delete this section with them.
-#
-#   Lighting, colour and grade were never in this file and are untouched: see
-#   atmosphere.rpy, and theater_fx.rpy for the cinema house-lights shader.
-# =============================================================================
-
-
-# =============================================================================
-# 1. INHERITED VANILLA PIECES
-# =============================================================================
-# Not original work -- these came out of vanilla DDLC's transforms.rpy, and they
-# live here so that transforms.rpy can be nothing but the slot table.
+# Do not leave a one-shot gesture on a speaking sprite without an exit policy:
+# sticky_positions can reuse its at-list on attribute changes and restart ATL.
+# Layer shake uses an explicit start clock instead of the layer transform's st.
+# DDLC-derived noise and glitch effects are retained where current scenes use
+# them; glitch_color2 holds until hidden by its caller.
 
 image noise:
     truecenter
@@ -122,31 +52,90 @@ image noise:
 transform noise_alpha:
     alpha 0.25
 
-# THE project vignette. One definition, project-wide. atmosphere.rpy also draws
-# a vignette, but as a term inside its grade shader rather than as a
-# displayable -- that is not a duplicate and must not be "unified" with this.
-#
-# SOURCED AT 480x270 AND SCALED ON THE GPU. The full-size file is a pure alpha
-# ramp -- RGB is zero across every pixel, and it is smooth enough that a 480px
-# source reconstructs it to a MEASURED maximum error of 2/255, before the 0.34
-# alpha every call site draws it at takes even that below one part in 255. At
-# 1280x720 it cost 15.5ms to decode, which was the second largest single item
-# in the Arcade hub's cold open; at 480x270 it is under 2ms, on all three
-# screens that use it. assets/backgrounds/vignette.png is the original and is
-# no longer loaded -- kept because it is the only copy, not because it is used.
+
+# RGB tear textures carry their shape in alpha; tiling and offsets animate it.
+image glitch_color:
+    ytile 3
+    zoom 2.5
+    parallel:
+        "assets/backgrounds/glitch-red.png"
+        0.1
+        "assets/backgrounds/glitch-green.png"
+        0.1
+        "assets/backgrounds/glitch-blue.png"
+        0.1
+        repeat
+    parallel:
+        yoffset 720
+        linear 0.5 yoffset 0
+        repeat
+    parallel:
+        choice:
+            xoffset 0
+        choice:
+            xoffset 10
+        choice:
+            xoffset 20
+        choice:
+            xoffset 35
+        choice:
+            xoffset -10
+        choice:
+            xoffset -20
+        choice:
+            xoffset -30
+        0.01
+        repeat
+    parallel:
+        alpha 0.6
+        linear 0.15 alpha 0.1
+        0.2
+        alpha 0.6
+        linear 0.15 alpha 0.1
+        0.2
+        alpha 0.7
+        linear 0.45 alpha 0
+
+# Sustained corruption: the caller shapes the envelope and hides the image.
+image glitch_color2:
+    ytile 3
+    zoom 2.5
+    alpha 0.7
+    parallel:
+        "assets/backgrounds/glitch-red.png"
+        0.1
+        "assets/backgrounds/glitch-green.png"
+        0.1
+        "assets/backgrounds/glitch-blue.png"
+        0.1
+        repeat
+    parallel:
+        yoffset 720
+        linear 0.5 yoffset 0
+        repeat
+    parallel:
+        choice:
+            xoffset 0
+        choice:
+            xoffset 10
+        choice:
+            xoffset 20
+        choice:
+            xoffset 35
+        choice:
+            xoffset -10
+        choice:
+            xoffset -20
+        choice:
+            xoffset -30
+        0.01
+        repeat
+
+# Small alpha-ramp texture, scaled for the 1280x720 stage. Atmosphere's
+# shader vignette is a separate component of its scene grade.
 image vignette:
     truecenter
     Transform("assets/backgrounds/vignette_soft.png", xysize=(1280, 720))
-
-transform yuripupils_move:
-    function yuripupils_function
-
-init python:
-    def yuripupils_function(trans, st, at):
-        trans.xoffset = -1 + random.random() * 9 - 4
-        trans.yoffset = 3 + random.random() * 6 - 3
-        return random.random() * 1.2 + 0.3
-
 
 # =============================================================================
 # 2. SCENE TRANSITIONS  --  the rack-focus family
@@ -205,41 +194,8 @@ init python:
 # the prose reaches for between beats of a scene that is already running.
 define dissolve = Dissolve(0.40)
 
-# WHY EVERY RACK TRANSFORM BELOW CARRIES gl_texture_scaling
-#   Matsu'Py's `blur` is not a convolution -- it is a WEIGHTED SUM OF MIPMAP
-#   LEVELS. renpy/common/_shaders.rpym registers "renpy.blur" as
-#
-#       for (i = 1..13) gl_FragColor += w(i) * texture2D(tex0, uv, i);
-#
-#   where the third argument is an LOD bias and w() is a gaussian centred on
-#   log2(blur). So the whole effect is built out of fractional mip levels, and
-#   what the sampler does BETWEEN two levels decides what a fractional blur
-#   radius actually looks like.
-#
-#   The engine's default minification filter is GL_LINEAR_MIPMAP_NEAREST
-#   (renpy/gl2/gl2shader.pyx restores exactly that after every draw): bilinear
-#   inside a level, and NEAREST between levels. Every one of those thirteen
-#   taps therefore snaps to a whole mip. A held blur just lands on the wrong
-#   radius by up to half a level; an ANIMATED one -- which is what all six of
-#   these are, ramping 0 -> 20 and back over the length of the move -- crosses
-#   mip boundaries as it goes, and each crossing is a visible step in the
-#   defocus rather than part of a ramp. That staircase was running on every
-#   scene change in the game, twice (see the call pattern above).
-#
-#   "linear_mipmap_linear" is trilinear: it interpolates BETWEEN levels, which
-#   is what the gaussian was written expecting. The rack becomes continuous.
-#
-#   It costs two glTexParameteri calls per draw and no extra memory -- the mip
-#   chain already exists. from_render() defaults `mipmap` to True and calls
-#   mipmap_texture() with GL_GENERATE_MIPMAP_HINT/GL_NICEST, so the pyramid is
-#   built for these render targets whether or not anything samples it properly.
-#
-#   The property must sit on the SAME transform as the blur. Transform gl_*
-#   properties are attached to the mesh render when one exists
-#   (renpy/display/accelerator.pyx: `if self.mr: self.mr.add_property(...)`),
-#   and `blur` is what creates that mesh render -- so declaring it here puts
-#   trilinear on precisely the pass that runs renpy.blur. On a driver without
-#   gl2 it is ignored, exactly like `blur` itself.
+# Keep trilinear mip sampling on the same transform as blur to avoid
+# visible mip-level steps while the defocus radius animates.
 
 # --- the chapter break ------------------------------------------------------
 # The longest of the set, for when a scene change is also a change of time or
@@ -411,13 +367,14 @@ init -5 python:
 # =============================================================================
 # 4. OUT-OF-CONTEXT SCENE SUPPORT  --  the last six motion pieces
 # =============================================================================
-# The ONLY survivors of the motion library, kept because two authored
-# out-of-context scenes still call them:
+# The ONLY survivors of the motion library, kept because these scenes still
+# call them:
 #     ooc_1030_uhoh.rpy       fx_push, fx_lean_in, fx_flinch, fx_punch_soft,
 #                             fx_thud, fx_shake_screen
 #     ooc_0604_out_of_ten.rpy fx_lean_in
+#     season1/0517.rpy        fx_shake_screen (the sidewalk collision)
 # They are NOT a library and must not be treated as the start of one -- the
-# rebuild gets its own file. If those two scenes are ever re-staged, this whole
+# rebuild gets its own file. If those scenes are ever re-staged, this whole
 # section goes with them.
 #
 # Note that fx_lean_in and fx_flinch are subject to the replay behaviour

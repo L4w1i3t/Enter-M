@@ -1,93 +1,21 @@
-# =============================================================================
-# perf.rpy  --  MATSUDA'S SICK BOSS FIGHT :: FRAME BUDGET
-# =============================================================================
+# Shared fight frame profiler (F3) and persistent.msbf_gfx graphics budget.
+# The profiler samples frame time, screen execution rate and instrumented CDD
+# simulation/draw costs. These are diagnostics, not a direct GPU-time measurement.
 #
-# WHAT THIS FILE IS
-#   Two things every fight in this folder shares, and nothing else:
+# Three presets: ultra uses native resolution; high caps procedural passes at
+# 1280x720; performance caps low/high-frequency passes at 768x432 and 960x540.
+# UI and sprites retain their normal resolution. Low/high-frequency
+# classification belongs at each msbf_fx_scaled() call site. An outer mesh with
+# gl_drawable_resolution False fixes the inner sampling size; shader model
+# coordinates remain virtual pixels. Registration flags independently select
+# shader fallbacks. The default preset is ultra.
 #
-#   1. A LIVE FRAME PROFILER (F3 in any fight). Frame time, the worst frame in
-#      the last few seconds, how many screen executions per second, and the
-#      Python cost of whichever creator-defined displayable is driving the
-#      mode. Plus a rolling graph, because a mean frame time cannot tell you
-#      the difference between "slow" and "hitching", and hitching is what a
-#      player actually feels.
-#
-#   2. A GRAPHICS BUDGET (persistent.msbf_gfx). One dial, four stops, read by
-#      the modes to decide how much the picture is allowed to cost.
-#
-# WHY A PROFILER AND NOT JUST A FPS COUNTER
-#   Matsu'Py is single-threaded Python driving a GL renderer, so a dropped
-#   frame in a fight is almost always one of exactly four things:
-#
-#     * a SCREEN EXECUTION -- something called restart_interaction (a timer, a
-#       SetScreenVariable, a hover) and the entire battle screen was rebuilt
-#       from source: every Transform, every Text, every button. This is the
-#       expensive one, it is spiky rather than sustained, and it is invisible
-#       to a frames-per-second average.
-#     * a CDD's own render() -- the danmaku stages draw a few hundred sprites
-#       from Python every frame.
-#     * a RENDER-TO-TEXTURE -- every `mesh True` allocates a texture at the
-#       DRAWABLE resolution and copies the framebuffer into it, so a fullscreen
-#       1440p window pays four times what a 720p window pays for the same
-#       effect.
-#     * plain fragment cost -- the full-screen shaders.
-#
-#   The readout names all four so a drop can be attributed instead of guessed
-#   at. `SCR/s` climbing into double digits is the screen-execution case;
-#   `SIM`/`DRAW` climbing is the CDD case; a high steady frame time with both
-#   of those flat is the GPU.
-#
-# THE GRAPHICS BUDGET, AND THE ONE RULE BEHIND IT
-#   Cutting the internal resolution of an effect is free ONLY IF THE EFFECT HAS
-#   NO DETAIL TO LOSE. A fog field whose whole signal is three or four soft
-#   blobs across the frame looks identical rendered at 720p and blown up; a
-#   grid of one-pixel hairlines converging on a vanishing point does not, and
-#   neither do scanlines, film grain, or a row-tear glitch. So the budget sorts
-#   effects into those two families and only ever scales the first one by
-#   default:
-#
-#     ultra        (default) native resolution for everything. Nothing is
-#                  wrapped, nothing is softened, and above 720p the fights cost
-#                  exactly what they cost. This is the stop the fights are
-#                  authored at.
-#     high         no effect renders above 1280x720 internally. At a 720p
-#                  window this is a no-op; at 1080p it is 2.25x less fragment
-#                  work on the wrapped passes, at 1440p 4x. Sprites, text and
-#                  every piece of UI are untouched -- only the procedural
-#                  layers are capped.
-#     performance  low-frequency at 768x432, high-frequency at 960x540, and
-#                  the optional decoration passes are dropped outright.
-#
-#   ULTRA IS THE DEFAULT ON PURPOSE. Capping is a real (if small) trade of
-#   sharpness for headroom, and a fight should look the way it was authored
-#   until somebody asks otherwise. Everything else this codebase does for frame
-#   rate -- the tick-rate draw governors on the danmaku stages, the arena's
-#   horizon branch, the culls -- costs nothing at all and is always on.
-#
-#   Nothing here ever turns a shader OFF -- MSBF_FX_SHADERS / MSBF_ARENA_SHADERS
-#   already own that, and they are about whether gl2 registered the shader at
-#   all, not about taste.
-#
-# HOW THE CAP IS IMPLEMENTED (verified against the 8.1.1 SDK)
-#   `Transform(child, mesh=True)` makes gl2 render the child to a texture and
-#   then draw that texture as a model with the custom shader. The texture's
-#   size comes from `properties["drawable_resolution"]` in gl2texture.pyx --
-#   True (the default) means "the size this occupies on the physical display",
-#   False means "exactly the virtual size". And the SHADER runs during that
-#   render-to-texture pass, at that viewport (gl2texture.GLTexture.from_render
-#   sets `glViewport(0, 0, tw, th)` before drawing).
-#
-#   So wrapping an effect in an OUTER mesh with gl_drawable_resolution False
-#   pins the whole inner pass -- shader included -- to a fixed pixel budget no
-#   matter how big the window is, and the outer draw scales the result back up.
-#   `u_model_size` is taken from the render's virtual size, so shaders that use
-#   it do not change behaviour; only their sampling density does.
-#
-# =============================================================================
+# OPTIONAL GARNISH is no longer part of this dial (Oct 9 2026). The "Fast" stop
+# used to drop it too; that half moved to the game-wide Effects Detail switch
+# (graphics_detail.rpy), and msbf_gfx_garnish() now reads that switch. A profile
+# that had picked Fast was seeded onto Low Detail once, so nobody's fight got
+# heavier in the move.
 
-
-# The four stops. Ordered cheapest-picture-last, which is the order the
-# settings row shows them in.
 define MSBF_GFX_LEVELS = ("ultra", "high", "performance")
 
 # Internal-resolution caps, as (low_frequency, high_frequency) scale factors
@@ -97,12 +25,6 @@ define MSBF_GFX_CAPS = {
     "ultra":       (None, None),
     "high":        (1.00, 1.00),
     "performance": (0.60, 0.75),
-}
-
-# Whether a level still draws the optional decoration passes (extra particle
-# layers, second-order glows -- anything a mode marks as garnish).
-define MSBF_GFX_GARNISH = {
-    "ultra": True, "high": True, "performance": False,
 }
 
 default persistent.msbf_gfx = "ultra"
@@ -299,8 +221,12 @@ init -19 python:
         return level
 
     def msbf_gfx_garnish():
-        """False when the budget says to drop optional decoration passes."""
-        return MSBF_GFX_GARNISH.get(msbf_gfx_level(), True)
+        """
+        False when optional decoration passes should be dropped -- extra
+        particle layers, second-order glows, anything a mode marks as
+        garnish. Reads the game-wide Effects Detail switch.
+        """
+        return not enter_m_low_detail()
 
     def msbf_draw_overscale():
         """
@@ -340,7 +266,12 @@ init -19 python:
         is only ever worth it on genuinely expensive fragment work: it costs a
         texture allocation, a framebuffer copy and a full-screen blit, which is
         more than a gradient would have cost unwrapped. Reserve it for shaders
-        that do real per-pixel work -- the arena and the atmosphere field.
+        that do real per-pixel work, and MEASURE first: on Oct 9 2026, at a
+        1739x978 window, Biography's room got 30% cheaper at the 540p stop,
+        while Matsuda's Seer environment, Tsubaki's grid and the Horror,
+        Nonfiction and Mystery rooms all got MORE expensive at both stops --
+        their shaders cost less than the pass this adds. Only Biography's
+        room is routed through here now.
         """
 
         size = (int(w), int(h))
@@ -498,7 +429,7 @@ screen msbf_perf_hud():
             for _pf_k, _pf_v in sorted(MSBF_PERF.notes.items()):
                 use msbf_perf_row(_pf_k.upper(), "%s" % _pf_v, "#6f7f95")
 
-            use msbf_perf_row("GFX", "%s  x%.2f" % (msbf_gfx_level(), msbf_draw_overscale()), "#6f7f95")
+            use msbf_perf_row("GFX", "%s  %s  x%.2f" % (msbf_gfx_level(), enter_m_fx_detail(), msbf_draw_overscale()), "#6f7f95")
 
 
 screen msbf_perf_row(label, value, color):

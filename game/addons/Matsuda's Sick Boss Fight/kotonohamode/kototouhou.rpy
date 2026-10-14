@@ -1,129 +1,23 @@
-# =============================================================================
-# kototouhou.rpy -- "Kotonoha mode": the literal Touhou stage you reach from
-#                    cs_matsuda_02's roster ("I want to fight somebody else.").
-# =============================================================================
+# Kotonoha danmaku mode, reached through cs_matsuda_02's alternate roster.
+# Eight standard bars each progress nonspell -> declare -> spell -> break.
+# Endless draws nonspells, Mask cards and Soul cards without immediate repeats.
+# Practice and developer readings provide unlimited lives and do not earn records.
+# Controls: arrows move, Z shoots, X bombs, Shift focuses/shows the hitbox.
 #
-# WHAT THIS IS
-#   A complete danmaku boss battle against Katsura Kotonoha, played straight as
-#   a one-boss Touhou stage. Eight health bars; each bar opens on a NONSPELL
-#   pattern and flips into a named SPELL CARD at half health -- pattern, card,
-#   rinse, repeat, exactly like a Touhou boss. Z shoots, X bombs, arrows move,
-#   Shift focuses (slow + shows the hitbox). Standard runs start with 5 lives
-#   / 3 bombs; practice runs have unlimited lives and do not count for records.
-#   ENDLESS MODE rolls random waves forever from the FULL pattern hat: the
-#   eight fixed bars PLUS four Endless-only nonspells, eight Endless-only
-#   MASK spell cards (the other cast members' styles, worn one wave at a
-#   time), and six Endless-only SOUL cards (older readings from a different
-#   cellar -- the mode's Undertale debt, paid openly). Every entry in the
-#   hat is EQUALLY likely on every wave; the only constraint is no immediate
-#   repeat of the same nonspell or spell card.
-#   A third, config.developer-only "debug reading" makes every shot one-shot
-#   the current pattern (unlimited lives, no records) so a dev can fast-clear
-#   all 8 bars to check the fight's back half and ending.
+# KTGame owns simulation state. Pattern functions are attached to the class in
+# their own block. KTStage advances the simulation at fixed 60Hz inside render()
+# and draws cached displayables; screen code routes pause/quit/result input.
+# Coordinates are local to the 620x680 playfield mounted at (KT_SX, KT_SY).
+# Speeds are pixels/tick and timers are ticks unless explicitly named seconds.
+# Lasers are separate telegraph/fire/fade segments with segment collision.
 #
-# ARCHITECTURE (and why it hits 60fps where Id Mode ran at 30)
-#   * KTGame (below) owns ALL simulation state: player, shots, enemy bullets,
-#     sparkles, the bar/card state machine, scoring. Pure python dicts + lists.
-#   * KTStage is ONE creator-defined displayable that draws the whole stage --
-#     bullets, boss, player, HUD text, banners -- as cached-texture blits in a
-#     single render() pass, then asks for an immediate redraw. The simulation
-#     is stepped INSIDE render() on a fixed 1/60s accumulator, so gameplay is
-#     framerate-locked at 60 ticks/sec without a screen timer and without
-#     renpy.restart_interaction() churn (the thing that capped Id Mode's
-#     Curtain Script at 30fps: its screen timer rebuilt the interaction every
-#     0.033s). Here the screen tree is static; only the CDD repaints.
-#   * Bullet sprites come from the shipped pixel art (bullet/pellet/dagger.png)
-#     plus bulletsheet.png, a 256x256 atlas of six more shapes (star, sphere,
-#     winged ring, knife, oval, spark) and four painted 64px "eye" orbs, plus
-#     the SHARED atlas in asset_definitions/def_bullets.rpy (arrow, ofuda, rice,
-#     kunai, heart, sunburst, moon, the laser hairline, the summoning seals,
-#     the bloom discs -- see EMB_ATLAS_RAW there). Cells are cropped once into
-#     shared displayables, then colour-tinted via cached TintMatrix transforms
-#     and rotation-bucketed like ui.rpy's MSBFShmupField, so per (kind, colour,
-#     angle-bucket, scale) there is exactly ONE texture, reused by every blit.
-#     See KT_SHEET, KT_SEAL_FOR_COLOR and KTStage.KINDS.
-#   * LASERS are their own entity (self.lasers), not bullets: a segment with a
-#     telegraph -> fire -> fade life and point-to-segment collision. See
-#     _kt_laser and KT_LASER_*. Bar 3's spell card is the one that fires one.
-#   * SFX ride battle_logic.rpy's pooled one-shot channels
-#     (msbf_play_pooled_sfx) so rapid danmaku cues overlap instead of cutting
-#     each other off.
-#
-# WIRING
-#   cs_matsuda_02.rpy -> "I want to fight somebody else." -> "Kotonoha" ->
-#   `jump kototouhou`. Ends with `return`, unwinding back to the archive.
-#
-# PERSISTENT
-#   persistent.kotomode_cleared  : set on the first 8-bar clear.
-#   persistent.kotomode_hiscore  : best score across runs.
-#
-# READ THIS FIRST IF YOU ARE LOST
-#   This file is three systems stacked together:
-#
-#   1. KTGame is the simulation. It knows nothing about Matsu'Py display trees.
-#      It only mutates numbers and small dicts once per 1/60s tick.
-#
-#   2. Pattern helpers are free functions that get attached to KTGame after
-#      the class is declared. That is intentional: the state-machine code stays
-#      readable, while the 34 bullet scripts (8 fixed bars' worth + the
-#      Endless-only nonspells, Mask cards, and Soul cards) live in one
-#      obvious block.
-#
-#   3. KTStage is the renderer. It is a Matsu'Py creator-defined displayable
-#      whose render() method both advances KTGame and paints the frame.
-#
-#   The major data flow is:
-#
-#       label kototouhou_fight
-#           -> creates KTGame
-#           -> calls kototouhou_screen
-#           -> screen owns one KTStage(game)
-#           -> KTStage.render() accumulates wall time into fixed 60Hz ticks
-#           -> KTGame.step() mutates bullets/shots/state
-#           -> KTStage.render() draws the current state
-#           -> kt_poll_result() returns victory/defeat/quit (or the wave
-#              viewer's wave_done) to the label
-#
-#   Units:
-#     * All gameplay coordinates are PLAYFIELD-LOCAL pixels: (0, 0) is the
-#       top-left of the 620x680 stage, not the 1280x720 screen.
-#     * KTStage mounts that stage at (KT_SX, KT_SY) after drawing.
-#     * Speeds are pixels per simulation tick. At 60 ticks/sec, 2.0 means
-#       roughly 120 px/sec.
-#     * Timers are ticks unless a variable is explicitly named seconds.
-#
-#   Runtime entity dicts:
-#     * bullet: x/y/vx/vy, kind, ci, scale, sway/ph, ax/ay, ttl/fz, home,
-#       home_t, bnc, blk, rb, sq, age, gz, hr.
-#     * shot: x/y/vx/vy/dmg.
-#     * spark: x/y/vx/vy/age/ttl/ci.
-#     * banner: text/ci/size/born/ttl/slot/y.
-#     * death_fx: x/y/born.
-#
-#   Phase machine:
-#     intro -> nonspell -> declare -> spell -> break, repeated for each bar.
-#     victory/defeat/quit are terminal outcomes. "declare" is the dramatic
-#     spell-card cut-in between the top half and bottom half of each HP bar.
-#
-#   Performance rules:
-#     * Do not put per-frame gameplay in the screen. The screen should remain
-#       static so Matsu'Py can reuse it.
-#     * Do not store renpy.Render objects on KTStage or KTGame. Render objects
-#       are frame products; the renderer keeps only displayable factories across
-#       frames and memoizes actual renders for the current frame only.
-#     * If you add bullet art, add it through KTStage.KINDS and keep rotation /
-#       tint cache keys small. Thousands of unique Transform keys will tank FPS.
-#       A new kind needs THREE entries kept in step: KINDS (sprite + zoom),
-#       KT_KIND_HR (hit radius) and, if it points where it flies, KT_SPIN.
-#     * If you add a pattern, respect KT_MAX_BULLETS and prefer deterministic
-#       formulas keyed from t/phase_tick over random calls.
-# =============================================================================
+# Keep Render objects frame-local. Bound rotation/tint/scale cache keys and obey
+# KT_MAX_BULLETS. New art needs KINDS, KT_KIND_HR and, when directional, KT_SPIN.
+# Every sprite is this mode's own art (assets/bullets/kotonoha/, mapped by
+# kt_atlas.json); rapid SFX use this file's own channel pools.
+# Preserve persistent.kotomode_* record keys across source/asset cleanup.
 
-# --- IMAGES / AUDIO / STATE DEFAULTS -----------------------------------------
 image koto_backdrop = "addons/Matsuda's Sick Boss Fight/kotonohamode/kotobackdrop.png"
-# Endless Mode reads somewhere else entirely: not her shrine, but the barrier
-# the endless reading happens behind. Swapped in by kototouhou_screen.
-image koto_backdrop_endless = "addons/Matsuda's Sick Boss Fight/kotonohamode/endless.png"
 
 define -50 audio.kt_boss_theme = "<loop 0>assets/audio/bgm/kotobossmusic.ogg"
 # Endless Mode gets its own loop -- a different, no-ending survival theme.
@@ -139,6 +33,11 @@ default persistent.kotomode_hiscore = 0
 # the fixed 8-bar run, so they live apart and never touch kotomode_cleared.
 default persistent.kotomode_endless_hiscore = 0
 default persistent.kotomode_endless_wave = 0
+# Spell card HISTORY (the modern Touhou "History 03/12" line): card name ->
+# [captures, attempts], counted on real readings only (never practice, debug
+# or the wave viewer). Always REASSIGNED, never mutated in place, so the
+# change is seen by the persistent save.
+default persistent.kotomode_card_history = {}
 
 # Active fight object. This is set only while kototouhou_screen is running and
 # cleared immediately after call screen returns. Nothing outside the fight
@@ -166,6 +65,9 @@ default kt_debug = False
 # Endless Mode: same lives as a normal run, but the fight never ends -- random
 # nonspells + spell cards escalate until you die. Set in kototouhou_mode_select.
 default kt_endless = False
+# kt_practice AND kt_endless together = Endless Practice: the endless hat of
+# cards with practice rules (unlimited lives, no records of any kind). Nothing
+# else encodes it; KTGame reads the two flags and the labels branch on both.
 
 # Debug wave viewer (DEV ONLY): force one (nonspell, spell) pairing so a
 # specific card/pattern can be tested without playing a whole run. The grid
@@ -355,6 +257,279 @@ init -9 python:
             gl_FragColor = vec4(u_koto_col * a, a);
         """)
 
+        # koto.cutin: the interior of the spell-card declaration band -- dark
+        # glass for the type to sit on, a fan of speed lines rushing out of
+        # Kotonoha, and one diagonal sheen crossing the whole ribbon. Drawn
+        # into a CLIPPED sub-render whose height is what opens and shuts, so
+        # this quad's own pixel size never changes and nothing here has to be
+        # rebuilt while the band flies apart (same rule as koto.circle's
+        # u_koto_scale: animate a uniform, never a cached quad's dimensions).
+        #
+        # u_koto_focus is in THIS quad's normalized space, and the quad is a
+        # wide ribbon, so u_koto_aspect puts x back into square units before
+        # the polar math -- without it the "rays" are ellipse segments that
+        # visibly pinch at the top and bottom rails.
+        renpy.register_shader("koto.cutin", variables="""
+            uniform vec3 u_koto_col;
+            uniform float u_koto_alpha;
+            uniform vec2 u_koto_focus;
+            uniform float u_koto_aspect;
+            uniform float u_koto_rush;
+            uniform float u_koto_rushamp;
+            uniform float u_koto_sheen;
+            uniform float u_time;
+            varying vec2 v_tex_coord;
+        """, fragment_300="""
+            vec2 uv = v_tex_coord;
+            // -1..1 across the ribbon, so every vertical falloff below reads
+            // the same no matter what the band's pixel height happens to be.
+            float by = (uv.y - 0.5) * 2.0;
+            float aby = abs(by);
+            // Glass: a dark pane that thins toward the rails. The type needs a
+            // ground to sit on, but a flat rectangle of grey is exactly the
+            // "just a bar" this replaces -- so it falls off quadratically and
+            // never actually reaches the edge.
+            float band = 1.0 - smoothstep(0.82, 1.0, aby);
+            float glass = band * (0.74 - 0.30 * aby * aby);
+            // Speed lines out of her anchor. jag varies each ray's WIDTH as
+            // well as its phase; a fan of identical rays reads as a clock
+            // face, and the whole point is that this looks thrown.
+            vec2 d = uv - u_koto_focus;
+            d.x *= u_koto_aspect;
+            float rr = length(d);
+            float ang = atan(d.y, d.x);
+            float jag = fract(sin(floor(ang * 7.6394) * 97.31) * 43758.5453);
+            float ray = pow(abs(sin(ang * 22.0 + jag * 2.4 + u_time * 0.09)),
+                            9.0 + 7.0 * jag);
+            // travel is the leading edge sweeping outward: everything inside
+            // u_koto_rush is lit, everything past it has not arrived yet. The
+            // inner smoothstep keeps the fan off her own anchor point.
+            float travel = smoothstep(u_koto_rush + 0.10, u_koto_rush - 0.60, rr)
+                         * smoothstep(0.05, 0.34, rr);
+            float rush = ray * travel * band * u_koto_rushamp;
+            // One diagonal sheen crossing the ribbon. The shear ties x to y so
+            // it lands as a slash of light and not a vertical shutter.
+            float sheen = smoothstep(0.22, 0.0, abs(uv.x + by * 0.09 - u_koto_sheen))
+                        * band;
+            float ag = glass * u_koto_alpha;
+            // The fan is a BED, not the subject. At 0.70 it out-read the card
+            // name it exists to introduce -- the type sat in a searchlight and
+            // the whole beat became rays.
+            float ac = clamp(rush * 0.44 + sheen * 0.55, 0.0, 1.0) * u_koto_alpha;
+            float a = clamp(ag + ac, 0.0, 1.0);
+            // Premultiplied, and the coloured term is deliberately allowed to
+            // outrun the alpha: that is what makes the rush lines read as
+            // light thrown ONTO the glass rather than paint mixed into it.
+            gl_FragColor = vec4(vec3(0.012, 0.018, 0.042) * ag + u_koto_col * ac, a);
+        """)
+
+        # koto.lifering: the boss's life gauge as a RING around her (the modern
+        # Touhou layout; the flat bar across the top of the stage is the old
+        # one). Angle is measured clockwise from twelve o'clock, 0..1, and the
+        # lit arc runs from the top to u_koto_fill, so damage eats it back
+        # anticlockwise toward the top. u_koto_ghost is the chip ghost (a pale
+        # arc lagging behind the fill so a burst reads as a bite); u_koto_split
+        # is the nonspell/spell threshold, drawn as a white notch and as the
+        # boundary between the brighter nonspell arc and the card-colour spell
+        # arc (negative = no split, i.e. the spell is already running). The
+        # ring is drawn in r units (r = 1 at the quad's edge) so the quad's
+        # pixel size is the only scale, and it never changes.
+        renpy.register_shader("koto.lifering", variables="""
+            uniform vec3 u_koto_col;
+            uniform float u_koto_fill;
+            uniform float u_koto_ghost;
+            uniform float u_koto_split;
+            uniform float u_koto_alpha;
+            varying vec2 v_tex_coord;
+        """, fragment_300="""
+            vec2 d = v_tex_coord - vec2(0.5);
+            float r = length(d) * 2.0;
+            float u = fract(atan(d.x, -d.y) / 6.2831853 + 1.0);
+            float R = 0.84;
+            float w = 0.030;
+            float aa = 0.020;
+            float rr = abs(r - R);
+            float band = 1.0 - smoothstep(w, w + aa, rr);
+            float core = 1.0 - smoothstep(w * 0.30, w * 0.30 + aa, rr);
+            float glow = exp(-pow(rr / (w * 3.6), 2.0));
+            float lit = step(u, u_koto_fill);
+            float gh = step(u, u_koto_ghost) * (1.0 - lit);
+            float has_split = step(0.0, u_koto_split);
+            // The nonspell arc (past the split) burns a step brighter, so the
+            // half that is about to become a spell card is visibly different.
+            vec3 fc = mix(u_koto_col, vec3(1.0), step(u_koto_split, u) * has_split * 0.38);
+            // Dark track, then the ghost, then the lit arc and its hot core.
+            vec4 o = vec4(vec3(0.02, 0.03, 0.07) * 0.62, 0.62) * band;
+            o = mix(o, vec4(vec3(0.85), 0.85), band * gh * 0.55);
+            o = mix(o, vec4(fc, 1.0), band * lit);
+            o.rgb += vec3(1.0) * core * lit * 0.55;
+            o += vec4(fc * glow * lit * 0.34, glow * lit * 0.22);
+            // The split notch: a white tick straddling the ring.
+            float dn = abs(fract(u - u_koto_split + 0.5) - 0.5) * 6.2831853 * r;
+            float notch = (1.0 - smoothstep(0.010, 0.022, dn))
+                        * (1.0 - smoothstep(w * 2.4, w * 2.4 + aa, rr)) * has_split;
+            o = mix(o, vec4(1.0), notch);
+            // The leading edge of the fill, a bead of light.
+            float dl = abs(fract(u - u_koto_fill + 0.5) - 0.5) * 6.2831853 * r;
+            float tip = (1.0 - smoothstep(0.0, 0.05, dl)) * band * step(0.001, u_koto_fill);
+            o.rgb += vec3(1.0) * tip * 0.8;
+            o.a = max(o.a, tip * 0.8);
+            gl_FragColor = o * u_koto_alpha;
+        """)
+
+        # koto.spellbg: the SPELL CARD BACKGROUND (modern Touhou replaces the
+        # stage behind a spell with the card's own moving backdrop). One quad
+        # over the whole stage, one of nine procedural styles picked by
+        # u_koto_style (KT_SPELL_BG maps each card to one), painted in the
+        # card colour as dim LIGHT over the already-dimmed shrine -- it has to
+        # change the room without ever competing with a bullet, so every style
+        # tops out well under the bullets' brightness and is mostly dark.
+        # p is aspect-correct, centred just above her float anchor.
+        renpy.register_shader("koto.spellbg", variables="""
+            uniform vec3 u_koto_col;
+            uniform float u_koto_alpha;
+            uniform float u_koto_style;
+            uniform vec2 u_koto_res;
+            uniform float u_time;
+            varying vec2 v_tex_coord;
+        """, fragment_functions="""
+            float kt_h1(float n) { return fract(sin(n * 127.1) * 43758.5453); }
+            float kt_h2(vec2 q) { return fract(sin(dot(q, vec2(127.1, 311.7))) * 43758.5453); }
+            float kt_noise(vec2 q) {
+                vec2 i = floor(q);
+                vec2 f = fract(q);
+                f = f * f * (3.0 - 2.0 * f);
+                return mix(mix(kt_h2(i), kt_h2(i + vec2(1.0, 0.0)), f.x),
+                           mix(kt_h2(i + vec2(0.0, 1.0)), kt_h2(i + vec2(1.0, 1.0)), f.x), f.y);
+            }
+            float kt_fbm(vec2 q) {
+                float v = 0.0;
+                float a = 0.5;
+                for (int k = 0; k < 4; k++) {
+                    v += a * kt_noise(q);
+                    q = q * 2.03 + vec2(1.7, 9.2);
+                    a *= 0.5;
+                }
+                return v;
+            }
+            float kt_line(float d, float w) { return 1.0 - smoothstep(0.0, w, abs(d)); }
+        """, fragment_300="""
+            vec2 uv = v_tex_coord;
+            vec2 p = (uv - vec2(0.5, 0.26)) * u_koto_res / u_koto_res.y;
+            float t = u_time;
+            float r = length(p);
+            float ang = atan(p.y, p.x);
+            float I = 0.0;
+            float s = u_koto_style;
+            if (s < 0.5) {
+                // 0 FACETS: a kaleidoscope folded into six wedges, turning,
+                // over a triangular lattice that drifts outward.
+                float a = abs(mod(ang + t * 0.06, 1.0472) - 0.5236);
+                vec2 q = vec2(cos(a), sin(a)) * r * 7.0;
+                float g1 = kt_line(fract(q.x - t * 0.15) - 0.5, 0.05);
+                float g2 = kt_line(fract(q.x * 0.5 + q.y * 0.866) - 0.5, 0.05);
+                float g3 = kt_line(fract(q.x * 0.5 - q.y * 0.866) - 0.5, 0.05);
+                I = max(g1, max(g2, g3)) * 0.55 + kt_line(fract(r * 3.0 - t * 0.12) - 0.5, 0.03) * 0.35;
+                I *= smoothstep(1.4, 0.2, r);
+            } else if (s < 1.5) {
+                // 1 INBOX: rows of unread lines scrolling down, each row a
+                // run of message bars of its own length, a bright badge now
+                // and then.
+                vec2 g = vec2(uv.x * 7.0, uv.y * 26.0 - t * 0.9);
+                float row = floor(g.y);
+                float cell = floor(g.x);
+                float fy = fract(g.y);
+                float fx = fract(g.x);
+                float len = 0.25 + 0.7 * kt_h2(vec2(row, cell));
+                float bar = step(fx, len) * (1.0 - smoothstep(0.14, 0.24, abs(fy - 0.5)));
+                float badge = step(0.93, kt_h2(vec2(row * 3.1, cell))) *
+                              (1.0 - smoothstep(0.05, 0.12, length(vec2(fx - len - 0.06, fy - 0.5) * vec2(1.0, 0.5))));
+                I = bar * (0.12 + 0.18 * kt_h2(vec2(cell, row + 7.0))) + badge * 0.8;
+            } else if (s < 2.5) {
+                // 2 WATER: dark water, slow bands of swell and a glint line.
+                float y = p.y * 10.0 + sin(p.x * 4.0 + t * 0.7) * 0.6 + sin(p.x * 9.0 - t * 1.1) * 0.25;
+                I = kt_line(fract(y - t * 0.25) - 0.5, 0.10) * (0.35 + 0.35 * kt_noise(vec2(p.x * 3.0, y * 0.5 + t * 0.2)));
+                I += pow(kt_noise(vec2(p.x * 14.0 + t * 0.4, y * 1.5)), 6.0) * 1.2;
+                I *= smoothstep(-0.3, 0.6, p.y + 0.2);
+            } else if (s < 3.5) {
+                // 3 RAIN: slanted streaks falling fast, three depths.
+                for (int k = 0; k < 3; k++) {
+                    float fk = float(k);
+                    vec2 q = uv * vec2(28.0 + fk * 14.0, 3.0 + fk);
+                    q.x += q.y * 0.35;
+                    q.y += t * (1.6 + fk * 0.9) + kt_h1(floor(q.x) + fk * 13.0) * 7.0;
+                    float col = floor(q.x);
+                    float drop = step(0.72, kt_h1(col * 1.7 + fk)) * smoothstep(0.0, 0.8, fract(q.y)) *
+                                 (1.0 - smoothstep(0.08, 0.16, abs(fract(q.x) - 0.5)));
+                    I += drop * (0.45 - fk * 0.1);
+                }
+            } else if (s < 4.5) {
+                // 4 FOG: drifting mist, and the odd pale shape in it.
+                vec2 q = p * 2.6 + vec2(t * 0.05, -t * 0.03);
+                float f = kt_fbm(q + kt_fbm(q + t * 0.04));
+                I = smoothstep(0.35, 0.95, f) * 0.55;
+            } else if (s < 5.5) {
+                // 5 MOSAIC: tesserae, mirrored down the middle of the stage --
+                // both halves of one picture. Cell edges glow; cells breathe.
+                vec2 q = vec2(abs(uv.x - 0.5), uv.y) * vec2(9.0, 10.0);
+                vec2 i = floor(q);
+                vec2 f = fract(q);
+                float d1 = 8.0;
+                float d2 = 8.0;
+                float id = 0.0;
+                for (int yy = -1; yy <= 1; yy++) {
+                    for (int xx = -1; xx <= 1; xx++) {
+                        vec2 o = vec2(float(xx), float(yy));
+                        vec2 c = o + 0.5 + 0.38 * sin(t * 0.3 + 6.2831 * vec2(kt_h2(i + o), kt_h2(i + o + 3.3)));
+                        float d = length(f - c);
+                        if (d < d1) { d2 = d1; d1 = d; id = kt_h2(i + o + 9.1); }
+                        else if (d < d2) { d2 = d; }
+                    }
+                }
+                I = kt_line(d2 - d1, 0.07) * 0.6 + (0.12 + 0.18 * sin(t * 0.8 + id * 6.2831)) * 0.5;
+            } else if (s < 6.5) {
+                // 6 SAW: teeth spinning around her, a sawblade the size of the
+                // room, over slow red scratches.
+                float a = ang + t * 0.55;
+                float saw = fract(a * 12.0 / 6.2831);
+                I = kt_line(r * 5.0 - (1.0 + saw * 0.35) - floor(r * 5.0 - saw * 0.35), 0.06) * 0.25;
+                I += pow(abs(sin(a * 12.0)), 30.0) * smoothstep(1.6, 0.2, r) * 0.45;
+                I += kt_line(fract(p.x * 3.0 + p.y * 7.0 + kt_noise(p * 5.0) * 0.4) - 0.5, 0.02) * 0.15;
+            } else if (s < 7.5) {
+                // 7 SIGILS: every self -- rings of runes counter-turning at
+                // three depths around her, under a slow hexagram.
+                for (int k = 0; k < 3; k++) {
+                    float fk = float(k);
+                    float rr = 0.35 + fk * 0.38;
+                    float a = ang * (1.0 - 2.0 * mod(fk, 2.0)) + t * (0.12 + fk * 0.05);
+                    float ticks = step(0.55, fract(a * (18.0 + fk * 10.0) / 6.2831));
+                    I += kt_line(r - rr, 0.012) * 0.5 + kt_line(r - rr - 0.04, 0.02) * ticks * 0.4;
+                }
+                float hx = 0.0;
+                for (int k = 0; k < 3; k++) {
+                    float a = float(k) * 1.0472 + t * 0.03;
+                    hx = max(hx, kt_line(dot(p, vec2(cos(a), sin(a))) - 0.6, 0.01));
+                    hx = max(hx, kt_line(dot(p, vec2(cos(a), sin(a))) + 0.6, 0.01));
+                }
+                I += hx * 0.5 * smoothstep(1.3, 0.3, r);
+            } else {
+                // 8 PETALS: rose-curve rings blooming outward from her.
+                float k5 = abs(cos(2.5 * (ang + t * 0.05)));
+                float rr = r / (0.55 + 0.45 * k5);
+                I = kt_line(fract(rr * 3.0 - t * 0.2) - 0.5, 0.06) * 0.5 * smoothstep(1.5, 0.1, r);
+                I += pow(kt_noise(p * 6.0 + t * 0.1), 4.0) * 0.4;
+            }
+            I = clamp(I, 0.0, 1.0);
+            // Vignette: the frame's edges stay darker than her side of it.
+            float vig = 1.0 - 0.45 * smoothstep(0.35, 0.95, length((uv - vec2(0.5, 0.4)) * vec2(1.1, 0.9)));
+            // Quiet on purpose: the pattern is a room, not a hazard. Lines top
+            // out around 40% of the card colour and the dark ground only
+            // half-covers the shrine behind it.
+            float a = u_koto_alpha * (0.22 + 0.26 * I) * vig;
+            vec3 c = mix(u_koto_col, vec3(1.0), 0.12 * I) * I * 0.62 * u_koto_alpha * vig;
+            gl_FragColor = vec4(c + vec3(0.004, 0.006, 0.02) * a, a);
+        """)
+
     try:
         _kt_register_shaders()
         KT_SHADER_OK = True
@@ -368,91 +543,107 @@ init python:
     import math
     import random as kt_random   # Endless-mode pattern/card rolls + ambient motes.
 
-    # KT_DIR is now only this mode's OWN art: the ship, the boss sprite, the
-    # backdrops, the bomb icon. Every bullet sprite -- including the four
-    # shipped pixel ones and the old bulletsheet.png -- lives in the shared
-    # assets/bullets/ folder and is reached through EMB_DIR (defined in
-    # asset_definitions/def_bullets.rpy at init -20), so that all bullet art in the
-    # project sits in exactly one place.
+    # KT_DIR holds the art that belongs to the mode's STAGE: the boss sheet
+    # and the two backdrops. Every sprite drawn ON the stage -- bullets,
+    # lasers, FX, the soul, HUD icons, seals, the frame -- lives in
+    # assets/bullets/kotonoha/ (KT_ART_DIR, below) with the project's other
+    # bullet art.
     KT_DIR = "addons/Matsuda's Sick Boss Fight/kotonohamode/"
     KT_SE_DIR = "assets/audio/sfx/touhou/"
 
-    # Kotonoha's boss sheet is a strict 4x4 atlas of 128px cells:
-    #   row 0 idle/hover, row 1 bank left, row 2 bank right, row 3 cast.
-    # Frames are cropped once here and selected from the simulation tick in
-    # KTStage. That keeps animation deterministic, freezes it under pause, and
-    # avoids rebuilding the screen interaction at animation speed.
+    # Kotonoha's boss sheet was rendered from
+    # ONE procedural pixel-art rig (her stage costume: white bell sleeves, a
+    # slate pinafore dipped in violet ink, the name-plate brooch, the brush
+    # kanzashi, the book she reads from). The 2026-09-20 image-generator sheet
+    # it replaced is kept at archive/kotoboss_sheet_2026-09-20_casual.png.
     #
-    # THE COLUMN IS POSE AMPLITUDE, NOT A FLIPBOOK STEP. Within any row, col 0
-    # is rest, col 1 is partway, col 2 is the full extension (deepest lean /
-    # arms wide open) and col 3 is settling back toward rest. So a row is
-    # played by HOLDING the column the current state calls for; only the idle
-    # breath loops on a timer. Cycling 0,1,2,3 off the clock is what used to
-    # make her flap -- she swept through a full lean and back three times a
-    # second while merely drifting.
+    # LAYOUT: KT_BOSS_NROWS rows of KT_BOSS_PHASES columns, KT_BOSS_CELL px.
+    #   ROWS are POSES: idle; the lean left and right at three depths; the
+    #   cast at three arm spreads; the declaration at three stages of lifting
+    #   the card; the recoil. The in-between depths ARE the transitions.
+    #   COLUMNS are one shared secondary-motion loop (hair, sleeves, sash
+    #   tails, skirt hem, the book) -- every row at column N has its cloth at
+    #   the same point of the loop, so changing pose never pops the hair.
+    # The rig script reads the three layout numbers below and refuses to
+    # write a sheet that disagrees with them.
+    #
+    # HOW IT PLAYS. The column is the clock: (tick // KT_BOSS_PHASE_TICKS) % 8,
+    # always, in every pose -- nothing she holds is ever a statue. The row is
+    # a POSE LEVEL per action (lean / cast / declare, 0..3) that steps ONE
+    # depth at a time at most every few ticks, so every change of pose plays
+    # its in-betweens on the way instead of snapping to the extreme. That is
+    # the Touhou read; the old sheet had four cells per action and could only
+    # hold one or flap between two.
     KT_BOSS_SHEET = KT_DIR + "kotoboss_sheet.png"
-    KT_BOSS_CELL = 128
-    KT_BOSS_ZOOM = 1.35
+    KT_BOSS_CELL = 96
+    KT_BOSS_PHASES = 8
+    KT_BOSS_NROWS = 14
+    # Integer zoom, and it matters: at 1.35 the old art drew its pixels one
+    # and two screen pixels wide in alternation, so every drift of her position
+    # shimmered the whole sprite. At 2.0 every art pixel is a 2x2 block.
+    KT_BOSS_ZOOM = 2.0
     KT_BOSS_IDLE = 0
-    KT_BOSS_LEFT = 1
-    KT_BOSS_RIGHT = 2
-    KT_BOSS_CAST = 3
-    # Idle breath: forward only. Col 3 already IS the return frame, so
-    # ping-ponging it replayed the same hair spread in reverse.
-    KT_BOSS_IDLE_LOOP = (0, 1, 2, 3)
-    KT_BOSS_IDLE_EVERY = 14     # ticks per breath frame (~0.93s round trip)
-    # No ACTION may be shown for less than this. A cast landing a tick after
-    # the last one settled, or a lean picked up for a single frame between two
-    # volleys, reads as a glitch rather than as motion. Kept under the 8-tick
-    # wind-up so a cast held back by the dwell still enters on its first frame.
-    KT_BOSS_ROW_MIN = 7
+    KT_BOSS_LEFT = (1, 2, 3)        # lean depth 1..3, travelling left
+    KT_BOSS_RIGHT = (4, 5, 6)       # ...travelling right
+    KT_BOSS_CAST = (7, 8, 9)        # arms spreading 1..3
+    KT_BOSS_DECLARE = (10, 11, 12)  # the card lifting 1..3 (card shows from 2)
+    KT_BOSS_HURT = 13
+    # One loop frame per this many ticks: 8 x 7 = a 56-tick (~0.93s) cycle.
+    KT_BOSS_PHASE_TICKS = 7
 
-    # Lean. KTStage keeps an eased, SIGNED travel speed: its magnitude picks
-    # the column through a rise/fall hysteresis band so a boss cruising near a
-    # threshold cannot chatter between two cells, and its sign latches which
-    # way she is facing.
+    # Lean. KTStage keeps an eased, SIGNED travel speed; its magnitude asks
+    # for a depth through a rise/fall hysteresis band (so a boss cruising near
+    # a threshold cannot chatter) and its sign latches the facing. The facing
+    # latch sits BELOW the first rise, and the first fall below the latch, so
+    # a visible lean can never show the wrong direction: to reverse, the ease
+    # has to pass through depth 0 first.
     KT_BOSS_LEAN_FULL = 1.35    # px/tick of travel that reads as a full lean
     KT_BOSS_LEAN_EASE = 0.12    # per-tick ease toward current travel speed
-    KT_BOSS_LEAN_RISE = (0.30, 0.62)    # lean at which col goes 0->1, 1->2
-    KT_BOSS_LEAN_FALL = (0.20, 0.48)    # ...and back down again
+    KT_BOSS_LEAN_RISE = (0.26, 0.48, 0.70)  # depth 0->1, 1->2, 2->3
+    KT_BOSS_LEAN_FALL = (0.16, 0.38, 0.60)  # ...and back down again
     KT_BOSS_FACE_LATCH = 0.22   # signed lean that commits a left/right facing
-    # A lean can be held for SECONDS on the sway and sweep moves, and one cel
-    # held that long is a statue. Once it has settled, drift between the lean
-    # column and the one below it: two ADJACENT poses a couple of times a
-    # second, which reads as her body riding the movement. (This is not the
-    # old flipbook -- that ran all four columns at 12fps.)
-    KT_BOSS_LEAN_SETTLE = 20    # ticks at one lean column before it breathes
-    KT_BOSS_LEAN_BREATHE = 26   # ticks per breath half-cycle
+    KT_BOSS_LEAN_STEP = 4       # min ticks between two lean depth steps
 
-    # Cast: a one-shot with a real hold on the release, never a loop. Fire
-    # cues land every 6-10 ticks on most cards, so the old 12-tick window
-    # restarted before it had ever reached the spread -- she stuttered on the
-    # wind-up frames for whole patterns. (col, ticks); ~0.65s end to end.
-    KT_BOSS_CAST_STEPS = ((0, 8), (1, 8), (2, 13), (3, 10))
-    KT_BOSS_CAST_SEQ = tuple(
-        col for col, span in KT_BOSS_CAST_STEPS for _ in range(span)
-    )
-    KT_BOSS_CAST_LEN = len(KT_BOSS_CAST_SEQ)
-    # Tick at which the arms are fully out. A volley arriving after this
-    # rewinds only to here, so continuous fire HOLDS the spread instead of
-    # snapping back to hands-together.
-    KT_BOSS_CAST_HOLD = KT_BOSS_CAST_STEPS[0][1] + KT_BOSS_CAST_STEPS[1][1]
-    # ...but only for so long. Cards that fire every 6 ticks would otherwise
-    # rewind the hold forever and freeze her arms out for the whole pattern.
-    # Past this the cast is allowed to finish and the next cue winds up again,
-    # so sustained fire reads as a ~1.2s cast PULSE instead of a statue.
-    KT_BOSS_CAST_SPREAD_MAX = 34
-    # Declaration: she presents the card. Wind up once over these two tick
-    # marks, then hold wide for the rest of the banner.
-    KT_BOSS_DECLARE_STEPS = (14, 28)
+    # Cast: a PULSE. A fire cue raises the arms (one depth every
+    # KT_BOSS_CAST_UP ticks), later cues keep them out for KT_BOSS_CAST_HOLD
+    # ticks past the last one, and a pulse never runs past
+    # KT_BOSS_CAST_SPREAD_MAX: cards that fire every 6 ticks would otherwise
+    # freeze her arms out for the whole pattern. Then the arms lower (one depth
+    # every KT_BOSS_CAST_DOWN) and the next cue winds up again, so sustained
+    # fire reads as her conducting it rather than as a statue.
+    KT_BOSS_CAST_UP = 3
+    KT_BOSS_CAST_DOWN = 4
+    KT_BOSS_CAST_HOLD = 16
+    KT_BOSS_CAST_SPREAD_MAX = 52
+    # ...and after a pulse the arms stay down at least this long, so a card
+    # that never stops firing still leaves her time to hover and to lean.
+    # Measured on a 6-10 tick fire cadence: arms out ~55% of the time when
+    # she is stationary, far less on the travelling moves.
+    KT_BOSS_CAST_REST = 40
+    # A pulse only starts from a body travelling at this lean depth or less;
+    # at a deeper lean the tilt IS the read, and the muzzle flare still sells
+    # the volley. Tearing her out of a full lean for half a second is the
+    # flicker the old sheet had every time a pattern fired mid-sweep. (A hard
+    # lean that starts DURING a pulse ends it early -- travel wins.)
+    KT_BOSS_CAST_MAX_LEAN = 1
+    # Declaration: she draws the card from her book and lifts it, one depth
+    # every KT_BOSS_DECL_UP ticks, and holds it up for the banner. On the far
+    # side of the phase flip it lowers again at KT_BOSS_DECL_DOWN.
+    KT_BOSS_DECL_UP = 6
+    KT_BOSS_DECL_DOWN = 5
+    # Recoil: the first ticks of a break, and the whole victory cinematic.
+    KT_BOSS_HURT_TICKS = 40
+    # No shown row changes faster than this (the declaration's first step is
+    # exempt -- it lands on its beat).
+    KT_BOSS_ROW_MIN = 4
 
     def kt_boss_cell(row, col):
         return Crop((col * KT_BOSS_CELL, row * KT_BOSS_CELL,
                      KT_BOSS_CELL, KT_BOSS_CELL), KT_BOSS_SHEET)
 
     KT_BOSS_FRAMES = tuple(
-        tuple(kt_boss_cell(row, col) for col in range(4))
-        for row in range(4)
+        tuple(kt_boss_cell(row, col) for col in range(KT_BOSS_PHASES))
+        for row in range(KT_BOSS_NROWS)
     )
 
     # Stage rect (in screen space) and simulation timing. The playfield sits
@@ -482,10 +673,20 @@ init python:
     KT_BOMB_WAVE_TICKS = 60     # wave reaches full radius here
     KT_BOMB_DAMAGE = 110.0      # total chip a bomb deals to the active bar
 
+    # The soul's drawn zoom (its art is 48px with a ~29px heart in it, so this
+    # lands it near the old pixel heart's 36px without covering the hitbox).
+    KT_SOUL_ZOOM = 1.1
+
     # Bullets.
     KT_MAX_BULLETS = 480
     KT_MAX_SHOTS = 64
     KT_MAX_SPARKS = 170
+    # Bullet cancels: the cosmetic stars a cleared bullet leaves behind (see
+    # KTGame._update_cancels). They hang for KT_CANCEL_HANG ticks, then home
+    # into the soul; anything still flying at KT_CANCEL_TTL simply goes out.
+    KT_MAX_CANCELS = 260
+    KT_CANCEL_HANG = 18
+    KT_CANCEL_TTL = 110
     KT_ROT_BUCKETS = 60
     KT_ROT_DEG = 360.0 / KT_ROT_BUCKETS
     # Radians straight to a bucket index, so a pointed bullet never converts to
@@ -522,73 +723,79 @@ init python:
         "#9aa8bd",  # 14 grey
     ]
 
-    # --- THE BULLET SHEET -----------------------------------------------------
-    # bulletsheet.png is 256x256: an 8x8 grid of 32px cells holding SIX shapes
-    # down the rows -- star / sphere / ring / knife / oval / spark -- each
-    # painted in eight colourways across the columns, plus four 64px "eye" orbs
-    # filling the bottom two rows.
+    # --- THE ART -----------------------------------------------------------
+    # Every sprite on this stage is this mode's own, drawn procedurally into
+    # the atlases in assets/bullets/kotonoha/ -- bullets, lasers, sparks and
+    # glows, the soul
+    # and its shots, the HUD icons, and one summoning seal per spell card.
+    # Nothing here comes from a Touhou sheet any more.
     #
-    # Those eight colourways are NOT how bullets get their colour here. Every
-    # bullet carries a KT_PAL index and the renderer tints it, exactly as it
-    # already does for the shipped pixel art, so a shape stays one cache family
-    # across all fifteen palette entries instead of eight fixed ones. The
-    # shapes are therefore cut from COLUMN 7, the brightest fully-desaturated
-    # colourway (measured saturation < 0.05, value 0.73-0.99), which takes a
-    # TintMatrix cleanly. One Crop displayable per shape, built once here and
-    # shared by every cached bullet Transform below.
-    KT_SHEET = EMB_DIR + "bulletsheet.png"
-    KT_SHEET_WHITE = 7          # the tintable column
+    # COLOUR IS BAKED. Each colourable sprite exists once per KT_PAL entry, so
+    # a bullet's palette index picks its CELL rather than tinting a white one.
+    # Tinting flattened the white-hot core every bullet is drawn around into
+    # the tint colour, and every new TintMatrix compiled a GL program on the
+    # frame it first appeared. The generator checks its palette against
+    # KT_PAL, so the column order can be trusted.
+    #
+    # kt_atlas.json is the only map from a name to a rect. Rebuild the art
+    # and this picks the new layout up with no code change.
+    KT_ART_DIR = EMB_DIR + "kotonoha/"
 
-    def kt_sheet_cell(row, col=KT_SHEET_WHITE, size=32):
-        # Live Crop, not a copy: the sheet is one texture and every cell is a
-        # subsurface of it.
-        return Crop((col * size, row * size, size, size), KT_SHEET)
+    def _kt_load_atlas():
+        import json as _kt_json
+        with renpy.open_file(KT_ART_DIR + "kt_atlas.json", encoding="utf-8") as fh:
+            return _kt_json.load(fh)
 
-    # The four 64px orbs are painted art rather than silhouettes -- white shell,
-    # saturated corona, black pupil -- so tinting one would just crush the
-    # corona it was drawn with. They ship as four fixed colourways instead, and
-    # a bullet's palette index picks the nearest through KT_EYE_COL.
-    KT_EYE_CELLS = [kt_sheet_cell(3, c, 64) for c in range(4)]   # red violet green yellow
-    KT_EYE_COL = [
-        0,  # 0  red      -> red
-        0,  # 1  pink     -> red
-        1,  # 2  magenta  -> violet
-        1,  # 3  purple   -> violet
-        1,  # 4  violet   -> violet
-        1,  # 5  blue     -> violet
-        2,  # 6  cyan     -> green
-        2,  # 7  teal     -> green
-        2,  # 8  green    -> green
-        2,  # 9  lime     -> green
-        3,  # 10 yellow   -> yellow
-        3,  # 11 amber    -> yellow
-        3,  # 12 orange   -> yellow
-        0,  # 13 white    -> red     (the white shell already carries the white)
-        1,  # 14 grey     -> violet
+    KT_ATLAS = _kt_load_atlas()
+    _kt_art_cells = {}
+
+    def kt_art(sheet, key):
+        """One cell of one of this mode's atlases, as a shared Crop.
+
+        A live Crop, not a copy: each atlas is one texture and every cell is a
+        subsurface of it, so a hundred bullets of one kind are one upload.
+        """
+        d = _kt_art_cells.get((sheet, key))
+        if d is None:
+            info = KT_ATLAS[sheet]
+            d = Crop(tuple(info["cells"][key]), KT_ART_DIR + info["file"])
+            _kt_art_cells[(sheet, key)] = d
+        return d
+
+    # Which koto.spellbg style each spell card's background wears, by SPELL
+    # PATTERN (the same index as the seals). 0 facets, 1 inbox, 2 water,
+    # 3 rain, 4 fog, 5 mosaic, 6 saw, 7 sigils, 8 petals.
+    KT_SPELL_BG = [
+        0,  # Facet "First Impressions"      -- a turning kaleidoscope
+        1,  # Overtime "999+ Unread"         -- rows of mail scrolling in
+        2,  # Blade "Nice Boat, Cruel Wake"  -- dark water
+        3,  # Diligence "Rain or Shine"      -- rain
+        4,  # Ghost "Nobody's Looking"       -- fog (under the spotlight)
+        5,  # Mosaic "Both of Me Are Real"   -- a mirrored mosaic
+        6,  # Severance "The Scene..."       -- a sawblade the size of the room
+        7,  # Chameleon "Every Self..."      -- every sigil at once
+        8,  # Mask of the Bloom              -- petals
+        7,  # Mask of the Hunter             -- sigils (the reticle's rings)
+        4,  # Mask of the Keeper             -- steam
+        1,  # Mask of the Prodigy            -- a feed of windows
+        3,  # Mask of the Abandoner          -- a storm she ran out into
+        1,  # Mask of the Interloper         -- lines, struck through
+        5,  # Mask of You                    -- mirrored
+        7,  # Mask of the Seer               -- borders and rings
+        2,  # Patience "Faded Ribbon"        -- still water
+        6,  # Bravery "Tough Glove"          -- impacts
+        8,  # Integrity "Ballet Shoes"       -- arcs
+        1,  # Perseverance "Torn Notebook"   -- ruled lines
+        4,  # Kindness "Burnt Pan"           -- steam
+        6,  # Justice "Empty Gun"            -- the cylinder turning
     ]
 
-    # Which painted summoning seal a card wears, by its KT_PAL accent. Same
-    # deal as KT_EYE_COL: the seals are painted art from the shared atlas
-    # (def_bullets.rpy) and carry their own colour, so a card's accent picks
-    # the NEAREST sigil rather than tinting one. Indexed by KT_PAL index, so a
-    # given card always slams down the same seal.
-    KT_SEAL_FOR_COLOR = [
-        "seal_hex",     # 0  red     -- the red hexagram, and it is the red card
-        "seal_hex",     # 1  pink
-        "seal_spike",   # 2  magenta -- the white/black spiked ring
-        "seal_blue",    # 3  purple
-        "seal_blue",    # 4  violet
-        "seal_blue",    # 5  blue
-        "seal_blue",    # 6  cyan
-        "seal_green",   # 7  teal
-        "seal_green",   # 8  green
-        "seal_green",   # 9  lime
-        "seal_yellow",  # 10 yellow
-        "seal_yellow",  # 11 amber
-        "seal_orange",  # 12 orange
-        "seal_spike",   # 13 white
-        "seal_spike",   # 14 grey
-    ]
+    # The summoning seal is picked by SPELL PATTERN, not by colour: every card
+    # has its own drawn in its own colour (the knives of "Nice Boat", the clock
+    # of unread mail, the Seer's nested borders, Justice's six chambers). The
+    # table in the generator is indexed the same way and checked against the
+    # card colours below.
+    KT_SEAL_PX = 256.0
 
     # How fast the summoning seal turns, in degrees per SIM TICK (60/sec), so
     # it stops and starts with the sim rather than with wall time. Slow on
@@ -621,6 +828,71 @@ init python:
     # size can move continuously without ever re-keying a cached quad. Sized for
     # the declare peak (330px) plus the breath and the ring's own band.
     KT_FX_CIRCLE_QUAD = 344
+
+    # --- SPELL-CARD DECLARATION (the cut-in) ---------------------------------
+    # The declaration used to be one flat sprite panning right-to-left at a
+    # constant 10.5 px/tick between two hairlines, for its whole 85 ticks. It
+    # is a staged cut-in now: a ribbon that flies open, a portrait that arrives
+    # and settles, type that cascades in, and -- the part that makes the
+    # handover seamless -- a card name that FLIES into its HUD slot across the
+    # declare/spell boundary instead of vanishing from the middle of the stage
+    # and reappearing in the corner one frame later.
+    #
+    # Every beat below is a tick mark inside the declare phase:
+    #
+    #   0            slam: white kick, the seam splits, the ribbon starts open
+    #   0  -> 18     ribbon flies apart (ease-out); rails ride its edges
+    #   0  -> 26     portrait arrives from the right and decelerates hard
+    #   6  -> 40     speed lines sweep out of her; one sheen crosses the ribbon
+    #   6 / 12 / 18  kick label, then card name line 0, then line 1, cascade in
+    #   26 -> 44     the rule draws out from under the name
+    #   78 -> 104    ribbon shuts (ease-in) and the name leaves for the HUD
+    #
+    # ...and then KT_CARD_FLIGHT more ticks on the far side of the phase flip,
+    # where the small HUD name finishes the same journey. See _card_flight.
+    KT_DECLARE_TICKS = 104      # total length of the declare phase
+    KT_DECL_OPEN = 18           # ticks the ribbon takes to fly apart
+    KT_DECL_CLOSE = 78          # tick the ribbon starts shutting
+    KT_DECL_PORT_IN = 26        # ticks the portrait takes to arrive
+    KT_DECL_RULE_AT = 26        # tick the rule under the name starts drawing
+    KT_DECL_RULE_LEN = 18       # ...and how long it takes to reach full width
+    KT_CARD_FLIGHT = 18         # spell ticks the HUD name takes to land
+
+    # Ribbon geometry, stage-local. HALF is what animates; the shader quad
+    # underneath is always the full KT_DECL_BAND_H tall and gets clipped.
+    KT_DECL_BAND_MID = 250.0
+    KT_DECL_BAND_HALF = 104.0
+    KT_DECL_BAND_H = int(KT_DECL_BAND_HALF * 2.0)
+
+    # Type block, RIGHT-aligned inside the ribbon. The alignment is not a
+    # style choice: the card's HUD slot is right-aligned in the top-right
+    # corner (the modern Touhou layout), and matching alignments at both ends
+    # are what let the flight between them be a plain lerp of the right edge
+    # and still look concentric.
+    KT_DECL_TEXT_R = 576.0
+    KT_DECL_KICK_Y = 168.0
+    KT_DECL_TEXT_Y = 196.0
+
+    # The spell card's HUD slot: right edge and the top of its first line,
+    # under the timer. The flight lands exactly here.
+    KT_HUD_R = 608.0
+    KT_HUD_NAME_Y = 34.0
+
+    # The boss life ring's quad (fixed; see koto.lifering). Its ring sits at
+    # 0.84 of the half-size, ~66px out from her centre.
+    KT_LIFE_RING_QUAD = 158
+
+    # Portrait: the card-raised cell (KT_BOSS_DECLARE[-1]) at an INTEGER zoom,
+    # so its pixels stay square blocks. CY is the blit centre of the whole
+    # cell; the rig puts her head ~22 native px above that centre, so this
+    # lands her face in the upper half of the ribbon (y 146..354) with the
+    # raised card inside the top rail and the band cutting her at the skirt.
+    KT_DECL_PORT_ZOOM = 4.0
+    KT_DECL_PORT_CY = 303.0
+    # She arrives from the LEFT now, opposite the right-aligned type.
+    KT_DECL_PORT_X0 = -300.0    # off the left lip, where she comes from
+    KT_DECL_PORT_X1 = 118.0     # where she settles
+    KT_DECL_PORT_X2 = 150.0     # ...and drifts to, slowly, over the hold
 
     # The eight health bars: hp is the FULL bar (nonspell burns the top half,
     # the spell card the bottom half), timers are in ticks, value is the spell
@@ -903,6 +1175,8 @@ init python:
             self.practice = practice     # unlimited lives; hiscore/clear don't count
             self.debug = debug           # DEV ONLY: one-shot bars + unlimited lives, no records
             self.endless = endless       # random cards forever, real lives, own records, no victory
+            # (practice AND endless = Endless Practice: the same hat, practice
+            # rules -- unlimited lives, and NO record of either kind.)
             # DEV ONLY wave viewer: a forced (ns_index, sp_index) pair, read
             # exactly once -- its break finishes with "wave_done" (back to the
             # mode selector). No victory, no records (callers pair it with
@@ -950,6 +1224,9 @@ init python:
             self.cur_special = None
             self.cur_is_mask = False
             self.cur_is_soul = False
+            # The running card's (captures, attempts) for the HUD's HISTORY
+            # line, set when the spell starts (see _record_attempt).
+            self.cur_hist = (0, 0)
 
             # Player. px/py are stage-local coordinates. invuln_until and
             # dying_tick are absolute ticks, not durations; comparing them to
@@ -1000,6 +1277,7 @@ init python:
             self.bullets = []
             self.shots = []
             self.sparks = []
+            self.cancels = []           # cleared bullets' stars, flying home
             self.banners = []
             self.lasers = []            # Touhou beams: telegraph -> fire -> fade
             self.death_fx = []          # recent deaths, for the pichun ring
@@ -1163,7 +1441,19 @@ init python:
                         kept.append(b)
                         continue
                 gone += 1
-                if gone % 3 == 1 and len(self.sparks) < KT_MAX_SPARKS:
+                # Every cleared bullet leaves a cancel star of its own colour
+                # (the modern read: the field POURS into you rather than just
+                # vanishing), kicked a little off its own heading along the
+                # golden angle so a dense wipe blooms instead of stacking.
+                if len(self.cancels) < KT_MAX_CANCELS:
+                    ga = gone * 2.39996
+                    self.cancels.append({
+                        "x": b["x"], "y": b["y"],
+                        "vx": b["vx"] * 0.25 + math.cos(ga) * 0.9,
+                        "vy": b["vy"] * 0.25 + math.sin(ga) * 0.9 - 1.1,
+                        "age": 0, "ci": b["ci"], "ph": gone % 2,
+                    })
+                if gone % 5 == 1 and len(self.sparks) < KT_MAX_SPARKS:
                     self.sparks.append({
                         "x": b["x"], "y": b["y"],
                         "vx": b["vx"] * 0.3, "vy": b["vy"] * 0.3 - 0.8,
@@ -1271,16 +1561,20 @@ init python:
                 # Debug reading (dev only): every shot one-shots the current
                 # pattern, so a full clear takes seconds instead of minutes.
                 dmg = 1.0e9 if self.debug else KT_SHOT_DMG
+                # "f" marks a focused shot for the renderer (it draws a longer,
+                # whiter needle); the sim never reads it.
                 if len(self.shots) < KT_MAX_SHOTS:
                     if self.focus:
                         for ox in (-7.0, 7.0):
                             self.shots.append({"x": self.px + ox, "y": self.py - 12.0,
-                                                "vx": 0.0, "vy": -KT_SHOT_SPEED, "dmg": dmg * 1.3})
+                                                "vx": 0.0, "vy": -KT_SHOT_SPEED, "dmg": dmg * 1.3,
+                                                "f": True})
                     else:
                         for ang in (-0.13, 0.0, 0.13):
                             self.shots.append({"x": self.px, "y": self.py - 12.0,
                                                 "vx": math.sin(ang) * KT_SHOT_SPEED,
-                                                "vy": -math.cos(ang) * KT_SHOT_SPEED, "dmg": dmg})
+                                                "vy": -math.cos(ang) * KT_SHOT_SPEED, "dmg": dmg,
+                                                "f": False})
                 self._se("shot", 5)
 
         def _try_bomb(self):
@@ -1587,6 +1881,51 @@ init python:
                         "vx": -math.cos(a) * 4.2, "vy": -math.sin(a) * 4.2,
                         "age": 0, "ttl": 40, "ci": self.cur_color,
                     })
+            # Seam split: the ribbon opens from a hairline, so the hairline
+            # throws sparks sideways as it goes. Spawned here rather than left
+            # to the renderer because sparks are simulation state -- they have
+            # to keep drifting after the cut-in has shut, and they have to
+            # freeze with everything else under the pause overlay.
+            for i in range(14):
+                if len(self.sparks) >= KT_MAX_SPARKS:
+                    break
+                side = -1.0 if i % 2 else 1.0
+                self.sparks.append({
+                    "x": KT_W * 0.5 + side * (18.0 + i * 9.0),
+                    "y": KT_DECL_BAND_MID + (i % 3 - 1) * 2.0,
+                    "vx": side * (5.0 + (i % 4) * 1.4), "vy": (i % 3 - 1) * 0.35,
+                    "age": 0, "ttl": 34, "ci": self.cur_color,
+                })
+
+        def _records_history(self):
+            # Only a real reading writes history -- the same rule that keeps
+            # practice, debug and the wave viewer out of the hi-score.
+            return not (self.practice or self.debug or self.debug_wave is not None)
+
+        def _record_attempt(self):
+            try:
+                hist = persistent.kotomode_card_history or {}
+                cap, att = hist.get(self.cur_card, (0, 0))
+                if self._records_history():
+                    att += 1
+                    hist = dict(hist)
+                    hist[self.cur_card] = [cap, att]
+                    persistent.kotomode_card_history = hist
+                self.cur_hist = (cap, att)
+            except Exception:
+                self.cur_hist = (0, 0)
+
+        def _record_capture(self):
+            if not self._records_history():
+                return
+            try:
+                hist = dict(persistent.kotomode_card_history or {})
+                cap, att = hist.get(self.cur_card, (0, 1))
+                hist[self.cur_card] = [cap + 1, max(att, cap + 1)]
+                persistent.kotomode_card_history = hist
+                self.cur_hist = (cap + 1, max(att, cap + 1))
+            except Exception:
+                pass
 
         def _start_spell(self):
             # Spell state starts from the remaining half-bar HP. spell_ok is
@@ -1604,6 +1943,7 @@ init python:
             # cur_special ("you" mirrors the player's own ship).
             self.mirror_on = (self.sp_pat == 5) or (self.cur_special == "you")
             self.bmove = self.cur_moves[1]
+            self._record_attempt()
 
         def _end_spell(self, captured, timeout):
             # "captured" means the card ended with no bomb and no death during
@@ -1617,6 +1957,7 @@ init python:
                 captured = True
             if captured:
                 self.captures += 1
+                self._record_capture()
                 self._add_score(self.cur_value)
                 self._se("capture", 0, 1.0)
                 self._banner("SPELL CARD CAPTURED!  +" + format(self.cur_value, ","), 10, 30, 190)
@@ -1665,9 +2006,14 @@ init python:
                 return
 
             if self.phase == "declare":
-                if self.phase_tick == 40:
+                # Three cues across the beat, not one: the charge swells while
+                # the ribbon holds, and the shut gets its own tick so the card
+                # does not simply stop being declared.
+                if self.phase_tick == 46:
                     self._se("charge2", 0, 0.9)
-                if self.phase_tick >= 85:
+                elif self.phase_tick == KT_DECL_CLOSE:
+                    self._se("kira", 0, 0.85)
+                if self.phase_tick >= KT_DECLARE_TICKS:
                     self._start_spell()
                 return
 
@@ -1907,6 +2253,40 @@ init python:
                 kept.append(b)
             self.bullets = kept
 
+        def _update_cancels(self):
+            # Bullet cancels are cosmetic stars left by cleared bullets. For
+            # KT_CANCEL_HANG ticks they lift and slow (a beat for the eye to see
+            # the field come apart), then they are drawn into the soul -- speed
+            # ramping, steering eased so they curve in rather than snap -- and
+            # vanish on arrival. Nothing here scores or collides: the clear
+            # already paid. Sim-side only so it freezes with the pause.
+            if not self.cancels:
+                return
+            px, py = self.px, self.py
+            homing = self.phase != "defeat"
+            kept = []
+            for c in self.cancels:
+                a = c["age"] + 1
+                c["age"] = a
+                if a > KT_CANCEL_TTL:
+                    continue
+                if a < KT_CANCEL_HANG or not homing:
+                    c["vx"] *= 0.90
+                    c["vy"] = c["vy"] * 0.90 - 0.03
+                else:
+                    dx = px - c["x"]
+                    dy = py - c["y"]
+                    d = math.hypot(dx, dy) or 1.0
+                    if d < 12.0:
+                        continue
+                    spd = min(12.0, 1.5 + (a - KT_CANCEL_HANG) * 0.35)
+                    c["vx"] += (dx / d * spd - c["vx"]) * 0.25
+                    c["vy"] += (dy / d * spd - c["vy"]) * 0.25
+                c["x"] += c["vx"]
+                c["y"] += c["vy"]
+                kept.append(c)
+            self.cancels = kept
+
         def _advance_sparks(self):
             # Sparks are cosmetic particles with simple drag + gravity. They
             # have no collision and are capped globally so bomb/bar wipes do not
@@ -1941,15 +2321,19 @@ init python:
             store.kt_last_endless = self.endless
             store.kt_last_endless_wave = self.endless_wave
             # Practice runs are for learning and debug runs are for devving:
-            # no hiscore, no clear flag from either. Endless keeps its OWN
-            # records (best score + furthest wave) and never sets the clear flag.
+            # no hiscore, no clear flag from either -- and that includes
+            # Endless Practice, whose unlimited lives would otherwise walk
+            # straight into the Endless records. Real Endless keeps its OWN
+            # records (best score + furthest wave), never the clear flag.
             try:
-                if self.endless:
+                if self.practice or self.debug:
+                    pass
+                elif self.endless:
                     if self.score > (persistent.kotomode_endless_hiscore or 0):
                         persistent.kotomode_endless_hiscore = self.score
                     if self.endless_wave > (persistent.kotomode_endless_wave or 0):
                         persistent.kotomode_endless_wave = self.endless_wave
-                elif not (self.practice or self.debug):
+                else:
                     if self.score > (persistent.kotomode_hiscore or 0):
                         persistent.kotomode_hiscore = self.score
                     if kind == "victory":
@@ -2005,6 +2389,7 @@ init python:
             self._advance_bullets()
             self._advance_lasers()
             self._advance_sparks()
+            self._update_cancels()
             self._update_bomb()
             self._check_deathbomb_window()
             # Cosmetic layers: atmosphere motes drift every tick, and expired
@@ -2037,8 +2422,9 @@ init python:
 #
 #   Pick the `kind` for what the card MEANS, not for variety's sake -- every
 #   card should have a shape you could name it by (bar 2 is unread ofuda, bar 3
-#   and bar 7 are knives, bar 4 is rice rain, the Seer pours winged rings,
-#   Justice fires eyes). The shared atlas widened this vocabulary a lot; that
+#   and bar 7 are her knife, bar 4 is raindrops, the Seer pours butterflies,
+#   Justice fires eyes). The art is drawn FOR the cards now (see the thematic
+#   kinds in KT_KIND_HR: drop, camellia, butterfly, tile, blot); that
 #   is an invitation to name a card BETTER, not to make every card different. Two
 #   shapes that overlap in a pattern should be tellable apart mid-dodge; that
 #   is the whole reason ns5's three flower ranks each wear a different one.
@@ -2052,6 +2438,14 @@ init python:
 #
 #   If a pattern needs memory, store it in self.scratch. _start_bar() and
 #   _start_spell() clear scratch so stale state cannot leak into the next phase.
+#
+#   A PATTERN NEVER SEES t = 0. step() advances phase_tick before the pattern
+#   runs, so the first call is t = 1 -- and an event keyed on `cyc == 0` first
+#   fires a whole cycle late. That is harmless for a volley that merely starts
+#   at t = N, but not for a cycle START that later beats depend on (a snapshot,
+#   a set of gaps): fire it on the first call too, with
+#   `if cyc == 0 or <its scratch key> not in self.scratch`. Four cards had this
+#   bug until Sep 29 2026 (Rain or Shine, the Prodigy, the Seer, Patience).
 init python:
     # Boss movement per bar: (nonspell move, spell move).
     KT_BAR_MOVES = [
@@ -2068,70 +2462,85 @@ init python:
     # Forgiving-by-kind hit radii (scaled by the bullet's scale). Every radius
     # is roughly 55-65% of the sprite's drawn body, Touhou house rule: what you
     # see is bigger than what kills you.
+    #
+    # The KIND names are the pattern code's vocabulary and did not change when
+    # the art did; the sprite behind each one is this mode's own now (see
+    # KTStage.KINDS). The radii did not
+    # change either -- every new sprite was drawn to land its body where the
+    # old one's did, so no card was retuned by the redraw.
     KT_KIND_HR = {
-        # the shipped pixel art
-        "orb": 6.0, "pellet": 4.5, "dagger": 4.5, "big": 15.0,
-        # bulletsheet.png (see KT_SHEET above)
-        "star": 6.5,        # 27px point-to-point
-        "sphere": 6.0,      # 22px glowing disc -- the soft twin of orb
-        "ring": 5.0,        # 15px ring inside a wide, faint winged aura
-        "knife": 5.0,       # 12x30 blade, a shade heavier than dagger
-        "oval": 4.5,        # 11x22 petal/droplet/casing, leans with its heading
-        "spark": 5.0,       # 16px core under long thin rays
-        "eye": 15.0,        # 48px painted orb -- big's replacement where it lands
-        # the shared atlas (asset_definitions/def_bullets.rpy). Same house rule: the
-        # radius is ~55-65% of the drawn body, so what you see is bigger than
-        # what kills you.
-        "arrow": 5.5,       # 21px chevron -- reads as a direction, not a dot
-        "hoop": 5.5,        # 20px hollow ring, lighter than `ring` (no wings)
-        "rice": 4.0,        # 12x21 grain of rice, the small filler shot
-        "kunai": 5.0,       # 16x20 pinned dart with a bead at its throat
-        "grain": 4.8,       # 17x19 husk, blunter than rice
-        # 18x21 talisman card, stays UPRIGHT (see KT_SPIN). Deliberately a
-        # shade under its drawn body: it inherited bar 2's ring role and the
-        # finale quotes it 26 at a time, so a true 6.0 would have retuned a
-        # card nobody asked me to retune.
+        "orb": 6.0,         # pearl, 20px body -- the workhorse round
+        "big": 15.0,        # moon, 46px -- the large slow orb
+        "pellet": 4.5,      # grain, 12x21 -- a lens-shaped seed
+        "dagger": 4.5,      # quill, 10x24 -- a pen nib, point first
+        "star": 6.5,        # facet, 24px -- a cut gem, spins
+        "sphere": 6.0,      # bubble, 22px -- the soft twin of the pearl
+        "ring": 5.0,        # winged halo, 16px ring -- the wings are faint
+        "knife": 5.0,       # her knife, 12x33 -- bars 3, 7 and the finale
+        "oval": 4.5,        # petal, 12x21 -- leans with its heading
+        "spark": 5.0,       # ember, 14px core under long rays -- twinkles
+        "eye": 15.0,        # watching eye, 47px
+        # Unread letter, 22x16, stays UPRIGHT (see KT_SPIN). A shade under its
+        # drawn body: it inherited bar 2's ring role and the finale quotes it
+        # 26 at a time, so a true 6.0 would have retuned a card nobody asked
+        # to retune.
         "ofuda": 5.5,
-        "slug": 4.5,        # 12x22 capsule round
-        "seed": 4.5,        # 12x22 dark pip inside a bright rim
-        "ministar": 5.5,    # 20x19 star -- the small sibling of `star`
-        "gloss": 6.0,       # 21px lacquered ball with a hard specular
-        "heart": 7.0,       # 24px heart
-        "sunburst": 6.5,    # 26px eight-point burst
-        "moon": 11.0,       # 34px white core in a wide corona -- big and slow
-        "frost": 6.5,       # 27px ice crystal
+        "rice": 4.0,        # raindrop, 12x19 -- bar 4's rain, points ahead
+        # THEMATIC KINDS added with the redraw. Each one replaces an older
+        # shape in exactly one card and takes THAT shape's radius, so the
+        # swap is visual only:
+        "drop": 4.5,        # Rain or Shine's storm (was oval)
+        "camellia": 6.0,    # Bloom's whole flowers (was sphere)
+        "butterfly": 5.0,   # the Seer's braid (was ring)
+        "tile": 5.0,        # Mosaic's mirrored fans (was ring)
+        "blot": 6.0,        # Perseverance's ink rain (was sphere)
     }
 
     # Kinds whose sprite points along its heading. Everything else stays in
     # rotation bucket 0, which is what keeps a round bullet at one texture per
     # (colour, scale) instead of sixty. Keep this set small for that reason --
-    # `ofuda` is deliberately NOT in it (a talisman hangs upright), and neither
+    # `ofuda` is deliberately NOT in it (a letter hangs upright), and neither
     # are any of the radially symmetric shapes.
     KT_SPIN = frozenset((
-        "pellet", "dagger", "knife", "oval",
-        "arrow", "rice", "kunai", "grain", "slug", "seed",
+        "pellet", "dagger", "knife", "oval", "rice", "drop", "butterfly",
     ))
+
+    # Kinds that TURN on their own clock instead (modern Touhou's stars spin).
+    # kind: (buckets in one symmetric turn, ticks per bucket). A five-point
+    # shape repeats every 72 degrees, so 12 of the 6-degree rotation buckets
+    # are a whole cycle; a four-fold one repeats every 90, so 15. That symmetry
+    # is what keeps a spinning star at 12 textures per colour, not 60. The
+    # renderer derives the bucket from the bullet's age (plus its ring phase,
+    # so a ring of stars does not turn in lockstep); the sim never sees it.
+    KT_TWIRL = {
+        "star": (12, 2),
+        "camellia": (12, 5),
+        "spark": (15, 2),
+        "tile": (15, 4),
+    }
 
     # --- SPAWN MATERIALIZE -----------------------------------------------------
     # Bullets used to arrive at full size and full opacity on their very first
     # drawn tick, which reads as them popping into existence -- worst on the
     # knives, whose long blade appears all at once and out of nowhere. Now every
-    # bullet BLOOMS instead: over KT_SPAWN_TICKS it fades up through a few alpha
-    # steps while scaling out from a pinpoint, under a brief white flare at the
-    # emission point. Touhou's own bullets do exactly this, and it doubles as an
-    # honest telegraph -- for those few ticks you can see where a wall is about
-    # to be before it is one.
+    # bullet MATERIALIZES the way modern Touhou's do: over KT_SPAWN_TICKS it
+    # fades up through a few alpha steps from a little under size, while a
+    # faint ring of its own colour closes down onto it from well outside. (The
+    # first version grew each bullet from a pinpoint under a white flare, the
+    # older games' read.) It doubles as an honest telegraph -- for those few
+    # ticks you can see where a wall is about to be before it is one -- and it
+    # is the Seer's time-stop tell: a knife placed while the clock is stopped
+    # never ages, so it hangs in its ring until time resumes.
     #
-    # It stays cheap because it is expressed entirely in the SAME bucketed keys
-    # the renderer already caches on: the fade is KT_SPAWN_STEPS discrete alpha
-    # values (not a continuous one), and the growth reuses the existing quantized
-    # scale key. So a 40-bullet ring materializing still draws out of a handful of
-    # textures. Both the flare and the growth also ride the frozen (fz) window
-    # unchanged, since a bullet's age advances while it is held.
+    # It stays cheap because it is expressed entirely in bucketed keys: the fade
+    # is KT_SPAWN_STEPS discrete alpha values, the growth reuses the quantized
+    # scale key, and the ring is one texture per (colour, tick, body size). So a
+    # 40-bullet ring materializing still draws out of a handful of textures.
+    # Both ride the frozen (fz) window unchanged, since a bullet's age advances
+    # while it is held.
     KT_SPAWN_TICKS = 8            # length of the materialize, in ticks
     KT_SPAWN_STEPS = 3            # discrete alpha steps (index KT_SPAWN_STEPS = opaque)
     KT_SPAWN_ALPHA = (0.16, 0.42, 0.72)
-    KT_SPAWN_FLARE_TICKS = 5      # white bloom at the emission point
 
     def _kt_add(self, x, y, vx, vy, kind="orb", ci=13, scale=1.0, sway=0.0,
                 ph=0.0, ax=0.0, ay=0.0, ttl=None, fz=0, home=0, home_t=50, bnc=0,
@@ -2139,7 +2548,7 @@ init python:
         # Core bullet constructor. Field meanings:
         #   x/y      current stage-local position
         #   vx/vy    velocity applied every tick
-        #   kind     sprite/hit-radius family: orb, big, pellet, dagger
+        #   kind     sprite + hit-radius family (KT_KIND_HR / KTStage.KINDS)
         #   ci       palette index into KT_PAL
         #   scale    visual scale and hit-radius multiplier
         #   sway/ph  sinusoidal x wobble and its phase
@@ -2250,7 +2659,7 @@ init python:
     # there. Never spawn one already firing unless the pattern has just moved
     # the player somewhere safe -- `warn=0` is a trap, not a difficulty knob.
     #
-    # A laser is drawn from the `lens` art in the shared atlas (a 248x8 hairline
+    # A laser is drawn from this mode's beam art (kt_lasers.png: a 256x32 body
     # with a hot white core), stretched to length and rotated. Collision is
     # point-to-segment distance, so a sweeping beam is exact rather than
     # approximated by a row of bullets.
@@ -2410,7 +2819,7 @@ init python:
         # OVERTIME SIGN "999+ UNREAD" -- the office face. Rows of tasks cascade
         # down the screen; read the moving gap. Accelerating, like a workload
         # that refills faster than it clears. Each task is an OFUDA -- a paper
-        # slip with a face printed on it. It is the one shape on the sheet that
+        # slip with a face printed on it. It is the one shape in the set that
         # is literally a message you have not read yet, and it hangs UPRIGHT
         # (never rotates to heading), so a falling column of them reads as a
         # stack of paper coming down rather than a volley of darts.
@@ -2465,7 +2874,7 @@ init python:
         # This is the one place in the fixed fight that fires a laser, and it
         # went here because the card was flagged "way too easy" twice and was
         # already playing the laser SFX over a wall of knives.
-        # SPRITES: the broadside is KNIVES, the biggest blade in the sheet, and
+        # SPRITES: the broadside is KNIVES, the biggest blade in the set, and
         # the boat itself is an EYE -- white hull, red heart, dark centre. The
         # blades it sheds stay small daggers so the wake reads as debris.
         # 2026-07 SECOND BUFF PASS (TODO): broadside wakes on a tighter clock
@@ -2552,19 +2961,23 @@ init python:
         # who never once complained about the cold. A whole-screen storm; the
         # rain leans harder and flips with the wind, and lightning daggers
         # strike the column you were standing in (telegraphed by a sparkle
-        # warning) -- the schedule always finds you. Same oval rain as her
-        # nonspell, harder; the strikes are knives, because they are not rain.
+        # warning) -- the schedule always finds you. The storm is RAINDROPS,
+        # her nonspell's rain grown to the old oval's size (and its 4.5
+        # radius, so the redraw changed nothing about the dodge); the strikes
+        # are knives, because they are not rain.
         wind = math.sin(t * 0.016) * 1.5
         if t % 3 == 0:
             # Pseudo-random x via modular arithmetic: deterministic coverage of
             # the width without calling random every three ticks.
             ci = 8 if (t // 3) % 2 == 0 else 9
-            self._add((t * 97) % KT_W, -12.0, wind, 2.9, "oval", ci)
+            self._add((t * 97) % KT_W, -12.0, wind, 2.9, "drop", ci)
             self._se("fire", 26, 0.45)
         cyc = t % 170
-        if cyc == 0:
+        if cyc == 0 or "lx" not in self.scratch:
             # Snapshot the player's x at warning time. The strike uses this
             # saved column 30 ticks later, so the player gets a fair tell.
+            # (`or not in scratch`: the pattern never sees t = 0, so the FIRST
+            # strike used to fall on the default centre column with no tell.)
             self.scratch["lx"] = self.px
             for i in range(6):
                 if len(self.sparks) < KT_MAX_SPARKS:
@@ -2636,14 +3049,16 @@ init python:
         # the two patterns interleave into one crossfire. Not a rival, not a
         # fake: another tile of the mosaic, and it shoots like it means it.
         # Both halves fire the SAME shapes in different colours -- the tell is
-        # never which bullet, only which side of the mirror threw it.
+        # never which bullet, only which side of the mirror threw it. The fans
+        # are TILES: two halves of one mosaic thrown at each other (ring's
+        # radius, so the swap is visual only).
         mx = KT_W - self.bx
         if t % 80 == 0:
             # Mirrored boss x: not a separate entity, just the reflected firing
             # origin. The renderer draws the phantom while mirror_on is true.
             down = math.pi * 0.5
-            self._fan(self.bx, self.by, 12, down, 0.20, 2.15, "ring", 6)
-            self._fan(mx, self.by, 12, down, 0.20, 2.15, "ring", 2)
+            self._fan(self.bx, self.by, 12, down, 0.20, 2.15, "tile", 6)
+            self._fan(mx, self.by, 12, down, 0.20, 2.15, "tile", 2)
             self._se("fire2", 0, 0.9)
         if t % 56 == 28:
             self._fan(self.bx, self.by, 3, self._aim(self.bx, self.by), 0.12, 2.75, "knife", 13, bnc=1)
@@ -2897,7 +3312,8 @@ init python:
         # that never hurries; every four seconds one whole flower drops
         # unscattered. (Camellias fall intact. That is why they are the death
         # flower.) The storm is OVALS -- an ellipse turning as it falls is a
-        # petal -- and the whole flowers that follow are spheres, heads intact.
+        # petal -- and the whole flowers that follow are CAMELLIAS, heads
+        # intact (sphere's radius, so they dodge exactly as the spheres did).
         if t % 7 == 0:
             self._add((t * 113) % KT_W, -12.0, 0.0, 1.6,
                     "oval", 1 if (t // 7) % 3 else 0, 1.0, sway=1.3, ph=t * 0.17)
@@ -2914,7 +3330,7 @@ init python:
             for i in range(6):
                 a = math.pi * 2.0 * i / 6.0 + 0.3
                 self._add(self.bx + math.cos(a) * 26.0, self.by + 16.0 + math.sin(a) * 26.0,
-                        math.cos(a) * 0.5, math.sin(a) * 0.5 + 1.1, "sphere", 0, 1.3)
+                        math.cos(a) * 0.5, math.sin(a) * 0.5 + 1.1, "camellia", 0, 1.3)
             self._se("charge", 0, 0.6)
     KTGame._sp9 = _kt_sp9
 
@@ -3017,7 +3433,11 @@ init python:
         # squared-off sprite does. Around them the feed pops in as rings and
         # the cursor is a star that keeps re-finding you.
         cyc = t % 130
-        if cyc == 0:
+        # `or not in scratch`: the pattern never sees t = 0, so the first
+        # window used to open a whole cycle late -- while its "snaps shut" cue
+        # at cyc 62 still played, over an empty stage.
+        if cyc == 0 or "win" not in self.scratch:
+            self.scratch["win"] = True
             k = t // 130
             wx = (110.0, KT_W * 0.5, KT_W - 110.0)[k % 3]
             wy = 170.0 + ((k * 83) % 3) * 140.0
@@ -3167,11 +3587,15 @@ init python:
         # with chimerical glints across the spectrum (the second butterfly of
         # every braid cycles amber/magenta/green/violet).
         # This card finally gets to mean its own comments: the braid pours
-        # WINGED RINGS (the sheet's butterfly), the lattice is knives, and what
-        # comes through the gaps at the end are EYES.
+        # BUTTERFLIES through the gaps (ring's radius -- it poured winged rings
+        # before the redraw), the lattice is knives, and what comes through the
+        # gaps at the end are EYES.
         cyc = t % 460
         gaps = self.scratch.get("gaps")
-        if cyc == 0:
+        # `or gaps is None`: the pattern never sees t = 0, so without it the
+        # first cycle opened no gaps at all -- no butterflies, and no eyes
+        # through the gaps at cyc 420 -- for the card's first 7.7 seconds.
+        if cyc == 0 or gaps is None:
             k = t // 460
             gaps = []
             for i in range(4):
@@ -3192,9 +3616,9 @@ init python:
             gx, gy, ga = gaps[gi]
             wob = math.sin(cyc * 0.11 + gi) * 0.5
             self._add(gx, gy, math.cos(ga + wob) * 1.9, math.sin(ga + wob) * 1.9,
-                    "ring", 0 if gi % 2 == 0 else 6, 1.0, sway=0.7, ph=cyc * 0.3)
+                    "butterfly", 0 if gi % 2 == 0 else 6, 1.0, sway=0.7, ph=cyc * 0.3)
             self._add(gx, gy, math.cos(ga - wob) * 1.6, math.sin(ga - wob) * 1.6,
-                    "ring", (11, 2, 8, 4)[(cyc // 9) % 4], 1.0, sway=0.5, ph=cyc * 0.2)
+                    "butterfly", (11, 2, 8, 4)[(cyc // 9) % 4], 1.0, sway=0.5, ph=cyc * 0.2)
             self._se("fire", 18, 0.5)
         if cyc in (90, 210):
             self._ring(self.bx, self.by, 24, 1.55, t * 0.011, "star", 0)
@@ -3259,7 +3683,9 @@ init python:
         # full rings, no authored doors -- the opening is temporal (be
         # still), not spatial.
         cyc = t % 288
-        if cyc == 0:
+        # `or not in scratch`: the pattern never sees t = 0, so the first trap
+        # used to assemble around the stage-centre default instead of you.
+        if cyc == 0 or "rx" not in self.scratch:
             self.scratch["rx"] = self.px
             self.scratch["ry"] = kt_clamp(self.py, 120.0, KT_H - 60.0)
             self._se("charge", 0, 0.7)
@@ -3368,8 +3794,9 @@ init python:
         # parking spot. (2026-07 severe buff: rows on a 44t clock so six-plus
         # lines share the page, longer lines, faster ink, heavier blot rain,
         # and the nib snipes whoever reads too slow.) The lines stay thin
-        # daggers -- handwriting, not blades -- while the blots are round and
-        # the nib is the one real knife on the page.
+        # daggers -- quills: handwriting, not blades -- while the blots are
+        # INK BLOTS (sphere's radius) and the nib is the one real knife on the
+        # page.
         if t % 44 == 0:
             row = t // 44
             y0 = 84.0 + (row % 7) * 76.0
@@ -3384,7 +3811,7 @@ init python:
             self._se("laser2", 0, 0.7)
         if t % 22 == 11:
             k = t // 22
-            self._add((k * 149) % KT_W, -12.0, 0.0, 1.7 + 0.5 * (k % 3), "sphere",
+            self._add((k * 149) % KT_W, -12.0, 0.0, 1.7 + 0.5 * (k % 3), "blot",
                     3 if k % 2 else 4, 1.0 + 0.15 * (k % 2))   # ink blot rain
             self._se("fire", 20, 0.45)
         if t % 56 == 28:
@@ -3498,55 +3925,61 @@ init python:
         _tf_cache = {}
         _text_cache = {}
         _misc_cache = {}
+        # Art-cell Transforms (_art). Kept apart from _misc so the churn of FX
+        # buckets (spawn rings, muzzles, sparks in every colour an Endless run
+        # reads) can never evict text or shader entries -- and given a roomier
+        # cap, because every key here is a cheap rebuild of a shared Crop.
+        _art_cache = {}
+        # One Text per (character, size, colour) -- see _draw_glyphs. A few
+        # dozen entries for the whole fight, so it is never wiped.
+        _glyph_cache = {}
+        # Boss sprite Transforms, keyed (variant, row, col). The sheet has 112
+        # cells and five draw variants (plain, victory flash, hit glint, travel
+        # ghost, mirror phantom), which is too many to share _misc's 1200-key
+        # budget with the text and shader quads -- so it gets its own, sized to
+        # hold every combination without ever wiping mid-fight.
+        _boss_cache = {}
 
-        # (sprite source, base zoom, rotates-to-heading?, pixel art?)
-        # Adding a bullet family starts here. Keep the set small and prefer
-        # palette tinting over many separate files; the cache key is
-        # (kind, color-index, rotation-bucket, scale-quarter).
+        # kind: (atlas row, base zoom, turns?)
+        # Adding a bullet family starts in the atlas art
+        # (draw it once per palette colour), then here, then KT_KIND_HR -- and
+        # KT_SPIN if it points along its heading, or KT_TWIRL if it spins. The
+        # cache key is (kind, colour index, rotation bucket, scale quarter).
         #
-        # `sprite source` is an image path, OR a LIST of pre-coloured
-        # displayables -- art that carries its own colour and so is indexed by
-        # KT_EYE_COL[ci] instead of tinted.
-        # `pixel art` picks the scaling filter: the four shipped sprites are
-        # 16px pixel art and want nearest; the bulletsheet shapes are
-        # anti-aliased at 32/64px and want smooth.
-        #
-        # Zooms are chosen so each shape's drawn body lands near its siblings:
-        # orb reads 22px across, so star reads 26 point-to-point, sphere 22,
-        # knife 12x30 against dagger's 13x27, oval 11x22 against pellet's
-        # 14x22, and eye 48 against big's 48.
-        # The atlas shapes below come from asset_definitions/def_bullets.rpy, which
-        # hands back the NEUTRAL (desaturated) cell of each family -- exactly
-        # the same deal as KT_SHEET_WHITE above, so they tint through the same
-        # KT_PAL index and stay one cache family apiece. They are anti-aliased
-        # art, so `pixel art` is False for all of them.
+        # Every sprite is drawn at its true size for scale 1.0, so the base zoom
+        # is 1.0 almost everywhere; `drop` is the raindrop grown to the old
+        # oval's size, because that is the radius it inherited. `turns` means
+        # the Transform takes a rotation at all -- pointed kinds use the
+        # sim's heading bucket, twirling kinds the renderer's own clock.
+        # `butterfly_b` is not a kind the sim ever spawns: it is the butterfly's
+        # second wing-beat frame, swapped in by the draw loop.
         KINDS = {
-            "orb":    (EMB_DIR + "bullet.png", 1.35, False, True),
-            "big":    (EMB_DIR + "bullet.png", 3.0,  False, True),
-            "pellet": (EMB_DIR + "pellet.png", 1.4,  True,  True),
-            "dagger": (EMB_DIR + "dagger.png", 1.8,  True,  True),
-            "star":   (kt_sheet_cell(0), 0.90, False, False),
-            "sphere": (kt_sheet_cell(1), 0.85, False, False),
-            "ring":   (kt_sheet_cell(2), 1.00, False, False),
-            "knife":  (kt_sheet_cell(3), 1.00, True,  False),
-            "oval":   (kt_sheet_cell(4), 0.85, True,  False),
-            "spark":  (kt_sheet_cell(5), 0.90, False, False),
-            "eye":    (KT_EYE_CELLS,     0.78, False, False),
-            # shared atlas -- zooms chosen so each body lands near its siblings
-            "arrow":    (emb_cell("arrow"),    1.30, True,  False),
-            "hoop":     (emb_cell("hoop"),     1.25, False, False),
-            "rice":     (emb_cell("rice"),     1.30, True,  False),
-            "kunai":    (emb_cell("kunai"),    1.25, True,  False),
-            "grain":    (emb_cell("grain"),    1.20, True,  False),
-            "ofuda":    (emb_cell("ofuda"),    1.30, False, False),
-            "slug":     (emb_cell("slug"),     1.35, True,  False),
-            "seed":     (emb_cell("seed"),     1.35, True,  False),
-            "ministar": (emb_cell("ministar"), 1.25, False, False),
-            "gloss":    (emb_cell("gloss"),    1.30, False, False),
-            "heart":    (emb_cell("heart"),    0.80, False, False),
-            "sunburst": (emb_cell("sunburst"), 0.82, False, False),
-            "moon":     (emb_cell("moon"),     0.55, False, False),
-            "frost":    (emb_cell("frost"),    0.85, False, False),
+            "orb":         ("orb", 1.0, False),
+            "big":         ("big", 1.0, False),
+            "pellet":      ("pellet", 1.0, True),
+            "dagger":      ("dagger", 1.0, True),
+            "knife":       ("knife", 1.0, True),
+            "star":        ("star", 1.0, True),
+            "sphere":      ("sphere", 1.0, False),
+            "ring":        ("ring", 1.0, False),
+            "oval":        ("oval", 1.0, True),
+            "spark":       ("spark", 1.0, True),
+            "eye":         ("eye", 1.0, False),
+            "ofuda":       ("ofuda", 1.0, False),
+            "rice":        ("rice", 1.0, True),
+            "drop":        ("rice", 1.12, True),
+            "camellia":    ("camellia", 1.0, True),
+            "butterfly":   ("butterfly", 1.0, True),
+            "butterfly_b": ("butterfly_b", 1.0, True),
+            "tile":        ("tile", 1.0, True),
+            "blot":        ("blot", 1.0, False),
+        }
+
+        # The spawn ring (see SPAWN MATERIALIZE) closes onto a bullet's BODY,
+        # so it needs each kind's rough drawn diameter at scale 1.0.
+        SPAWN_BODY = {
+            "big": 46.0, "eye": 46.0, "knife": 26.0, "star": 24.0,
+            "camellia": 24.0, "butterfly": 24.0, "blot": 24.0, "ofuda": 22.0,
         }
 
         def __init__(self, game, **kwargs):
@@ -3564,24 +3997,23 @@ init python:
             self._boss_motion_tick = game.tick
             self._boss_last_x = game.bx
             # Eased, signed travel speed in KT_BOSS_LEAN_FULL units: magnitude
-            # picks the bank column, sign latches the facing.
+            # asks for a lean depth, sign latches the facing.
             self._boss_lean = 0.0
-            self._boss_lean_col = 0
-            self._lean_col_since = game.tick
             self._boss_face = 0
-            # Cast one-shot. _cast_showing is decided ONCE, when a cast
-            # starts, so a volley can never swap rows out from under itself
-            # halfway through the animation.
+            # Pose LEVELS (0..3), each stepped one depth at a time toward what
+            # the fight asks for, so every pose change plays its in-betweens.
+            # [level, tick of its last step] per action.
+            self._lean_want = 0
+            self._lvl = {"lean": [0, -999], "cast": [0, -999], "decl": [0, -999]}
+            # Cast pulse: when it started, when its arms may come down, and
+            # when the next one is allowed to start.
             self._cast_start = -999
+            self._cast_end = -999
+            self._cast_rest_until = -999
             self._cast_muzzle = game.muzzle
-            self._cast_showing = False
-            self._cast_spread_end = -999
-            # Tick she settled into the idle row, so the breath is phased from
-            # that moment rather than from the absolute clock.
-            self._idle_from = -1
-            # Last cell actually shown, and when its row was entered.
-            self._row_shown = KT_BOSS_IDLE
-            self._col_shown = 0
+            # The row picked for the current tick (the column is the clock),
+            # and the tick it was entered.
+            self._boss_row = KT_BOSS_IDLE
             self._row_since = game.tick
             # Player dash afterimages (renderer-side): sampled while the ship
             # moves unfocused, drawn as faint ghosts behind it.
@@ -3605,10 +4037,15 @@ init python:
             self._fx_veil_a = 0.04
             self._fx_aura_a = 1.0
             self._fx_focus_a = 0.0
+            self._fx_opt = 0.0          # 0 = options spread, 1 = tucked in (focus)
+            self._fx_ring_a = 0.0       # the life ring's level
+            self._fx_sbg_a = 0.0        # the spell background's level
+            self._fx_sbg_style = KT_SPELL_BG[game.sp_pat % len(KT_SPELL_BG)]
             self._fx_dim = 0x55
             self._fx_col = list(Color(KT_PAL[game.cur_color]).rgb)
-            self._fx_seal_name = KT_SEAL_FOR_COLOR[
-                game.cur_color % len(KT_SEAL_FOR_COLOR)]
+            # Which card's seal is latched (a spell pattern index; see
+            # _advance_fx_env for why it is latched at all).
+            self._fx_seal_idx = game.sp_pat
 
         # ----- prediction ----------------------------------------------------
 
@@ -3620,9 +4057,13 @@ init python:
             # backdrop is a full 1280x720 plate, and it used to be an `add` on
             # the screen, which meant the screen's own prediction pass decoded
             # it before the fight began. Naming it here keeps that: without it
-            # the first frame of a run pays for the decode inline.
+            # the first frame of a run pays for the decode inline. The art
+            # atlases are named for the same reason -- they are this stage's
+            # whole sprite set, and the seals alone are a 1550px sheet.
             return [renpy.easy.displayable(
-                KT_DIR + ("endless.png" if self.game.endless else "kotobackdrop.png"))]
+                KT_DIR + ("endless.png" if self.game.endless else "kotobackdrop.png"))] + [
+                renpy.easy.displayable(KT_ART_DIR + info["file"])
+                for info in KT_ATLAS.values()]
 
         # ----- input events --------------------------------------------------
 
@@ -3651,17 +4092,11 @@ init python:
             key = (kind, ci, bucket, sq, ghost, ab)
             tf = KTStage._tf_cache.get(key)
             if tf is None:
-                src, base_zoom, rotates, pixel = KTStage.KINDS[kind]
+                row, base_zoom, rotates = KTStage.KINDS[kind]
+                # The colour is the CELL: baked per palette entry, so there is
+                # no matrixcolor here and the white core stays white.
+                src = kt_art("kt_bullets", "%s:%d" % (row, ci))
                 kw = dict(zoom=base_zoom * (sq / 4.0), subpixel=True)
-                if isinstance(src, list):
-                    # Pre-coloured art: pick the shipped colourway nearest this
-                    # palette index. Tinting it would only crush the corona it
-                    # was painted with.
-                    src = src[KT_EYE_COL[ci]]
-                else:
-                    kw["matrixcolor"] = TintMatrix(KT_PAL[ci])
-                if pixel:
-                    kw["nearest"] = True
                 if ghost:
                     kw["alpha"] = 0.34
                 elif ab < KT_SPAWN_STEPS:
@@ -3671,6 +4106,73 @@ init python:
                 tf = Transform(src, **kw)
                 KTStage._tf_cache[key] = tf
             return tf
+
+        def _art(self, sheet, cell, zoom=1.0, alpha=1.0, rotate=None, add=True):
+            """One art cell as a cached Transform -- drawn as LIGHT by default.
+
+            Glows, sparks, spawn rings, lasers, portals, motes and shots are all
+            additive (Transform additive=1.0: premultiplied colour is added and
+            nothing underneath is dimmed), which is what lets a dense field of
+            them brighten where they overlap instead of stacking into mud.
+            Callers pass BUCKETED zoom/alpha/rotate -- those floats are the
+            cache key, so an unbucketed one would mint a Transform per frame.
+            """
+            key = (sheet, cell, zoom, alpha, rotate, add)
+            d = KTStage._art_cache.get(key)
+            if d is None:
+                if len(KTStage._art_cache) > 2400:
+                    KTStage._art_cache.clear()
+                kw = dict(zoom=zoom, alpha=alpha, subpixel=True)
+                if add:
+                    kw["additive"] = 1.0
+                if rotate is not None:
+                    kw["rotate"] = rotate
+                d = Transform(kt_art(sheet, cell), **kw)
+                KTStage._art_cache[key] = d
+            return d
+
+        def _glyph(self, ch, size, color):
+            key = (ch, size, color)
+            t = KTStage._glyph_cache.get(key)
+            if t is None:
+                t = Text(ch, size=size, color=color, font=KT_FONT,
+                         outlines=[(2, "#02040b", 0, 0)])
+                KTStage._glyph_cache[key] = t
+            return t
+
+        def _draw_glyphs(self, dest, tex, text, x, y, size, color, align=0.0, track=-3.0):
+            """Blit `text` one cached glyph at a time; returns its width.
+
+            For the numbers that change every tick or two -- the timer's
+            hundredths, the score, the live bonus. As whole-string Text, every
+            new value was a new Text: a fresh layout each time, and enough of
+            them to keep wiping the 128-entry text cache (and re-laying-out
+            every OTHER label on the stage with it). Per-glyph, the whole fight
+            is a few dozen cached glyphs and a number costs one dict lookup per
+            digit. `align` is 0 left / 0.5 centre / 1 right, of x. `track`
+            takes back most of the outline padding each glyph render carries
+            on both sides, so the digits sit at normal spacing.
+            """
+            parts = []
+            w = 0.0
+            for ch in text:
+                if ch == " ":
+                    adv = size * 0.36
+                    parts.append((None, adv))
+                    w += adv
+                    continue
+                r, (gw, _gh) = tex(("gl", ch, size, color), self._glyph(ch, size, color),
+                                   size * 2, size * 2)
+                adv = gw + track
+                parts.append((r, adv))
+                w += adv
+            w -= track
+            cx = x - w * align
+            for r, adv in parts:
+                if r is not None:
+                    dest.subpixel_blit(r, (cx, y))
+                cx += adv
+            return w
 
         def _misc(self, key, builder):
             # Shared factory for non-bullet displayables: icons, aura quads,
@@ -3707,6 +4209,27 @@ init python:
                 KTStage._text_cache[key] = t
             return t
 
+        def _text_fade(self, text, size, color, bold, ab, steps=8):
+            """One cached Text wrapped in a BUCKETED alpha.
+
+            A Text displayable has no alpha of its own, so a label that fades
+            has to be a Transform around one -- and a Transform built per frame
+            per label is exactly the allocation the rest of this renderer goes
+            out of its way to avoid. Bucketing the alpha into `steps` costs a
+            handful of _misc keys per string and is invisible at eight steps,
+            which is the same trade the bullets, sparks and motes all make.
+
+            The top bucket returns the bare Text so a fully-opaque label is
+            never wrapped at all (and so the flight below can reuse the render
+            it already made to MEASURE the line).
+            """
+            if ab >= steps - 1:
+                return self._text(text, size, color, True, bold)
+            ab = max(0, ab)
+            return self._misc(("tfade", text, size, color, bold, ab, steps),
+                (lambda: Transform(self._text(text, size, color, True, bold),
+                                   alpha=ab / float(steps - 1))))
+
         def _card_lines(self, text):
             # Spell card names are split into "Sign Type" and quoted title so
             # both the declaration banner and the in-card HUD can size them
@@ -3725,94 +4248,516 @@ init python:
                 return max(minimum, base - 3)
             return base
 
+        # ----- spell-card declaration ----------------------------------------
+        # Four helpers and one draw. They are pure functions of the declare
+        # tick wherever they possibly can be: the smear needs LAST tick's
+        # portrait position and the flight needs a value that survives a phase
+        # change, and both of those are things a stored field gets wrong the
+        # first time a catch-up frame runs two sim ticks or the pause overlay
+        # freezes one.
+
+        def _cutin_half(self, pt):
+            """Half-height of the declaration ribbon at declare tick `pt`.
+
+            Ease-OUT on the way open (it flies apart and settles) and ease-IN
+            on the way shut (it hesitates, then snaps closed). Never reaches
+            zero: the last frame is a hairline, which is what the closing
+            flash is painted on.
+            """
+            if pt < KT_DECL_OPEN:
+                u = pt / float(KT_DECL_OPEN)
+                return max(1.0, KT_DECL_BAND_HALF * (1.0 - (1.0 - u) ** 3))
+            if pt < KT_DECL_CLOSE:
+                return KT_DECL_BAND_HALF
+            u = kt_clamp((pt - KT_DECL_CLOSE) /
+                         float(KT_DECLARE_TICKS - 1 - KT_DECL_CLOSE), 0.0, 1.0)
+            return max(1.0, KT_DECL_BAND_HALF * (1.0 - u * u))
+
+        def _cutin_port_x(self, pt):
+            """Centre x of the portrait at declare tick `pt`.
+
+            She comes in from the LEFT lip, opposite the right-aligned type.
+            A cubic ease-out arrival, then a slow push. This is the whole
+            difference between an entrance and a slide show: the old pass
+            moved her at a flat 10.5 px/tick from the first frame of the
+            declaration to the last, and one constant speed cannot read as
+            anything arriving anywhere.
+            """
+            if pt < KT_DECL_PORT_IN:
+                u = kt_clamp(pt / float(KT_DECL_PORT_IN), 0.0, 1.0)
+                return (KT_DECL_PORT_X0 +
+                        (KT_DECL_PORT_X1 - KT_DECL_PORT_X0) * (1.0 - (1.0 - u) ** 3))
+            u = kt_clamp((pt - KT_DECL_PORT_IN) /
+                         float(KT_DECLARE_TICKS - KT_DECL_PORT_IN), 0.0, 1.0)
+            return KT_DECL_PORT_X1 + (KT_DECL_PORT_X2 - KT_DECL_PORT_X1) * u
+
+        def _card_flight(self, g):
+            """0.0 = the card name is parked in the declaration banner;
+            1.0 = it is settled in its HUD slot.
+
+            This is the value that makes the handover seamless, and the only
+            reason it lives in its own method is that it spans a PHASE
+            BOUNDARY: it starts moving inside `declare` and finishes inside
+            `spell`, so the name is one object crossing the flip rather than a
+            big label that vanishes from mid-stage and a small one that
+            appears in the corner on the very next frame.
+
+            The declare half divides by (KT_DECLARE_TICKS - 1) because
+            _run_phase flips the phase the moment phase_tick REACHES
+            KT_DECLARE_TICKS: the renderer never sees that tick, so dividing
+            by it would leave a visible step in the middle of the handover.
+            """
+            if g.phase == "declare":
+                if g.phase_tick < KT_DECL_CLOSE:
+                    return 0.0
+                u = kt_clamp((g.phase_tick - KT_DECL_CLOSE) /
+                             float(KT_DECLARE_TICKS - 1 - KT_DECL_CLOSE), 0.0, 1.0)
+                return 0.62 * u * u                          # ease-in: it leaves
+            if g.phase == "spell" and g.phase_tick < KT_CARD_FLIGHT:
+                u = g.phase_tick / float(KT_CARD_FLIGHT)
+                return 0.62 + 0.38 * (1.0 - (1.0 - u) ** 3)  # ease-out: it lands
+            return 1.0
+
+        def _card_flight_draw(self, g, bar, f, stage, tex):
+            """The card name partway between the banner and the HUD slot.
+
+            Both faces are drawn against the SAME right edge, the big one
+            fading out and the small one fading in, so the change of size
+            happens as a dissolve at the moment the eye is already tracking a
+            moving object -- which is what sells one label shrinking rather
+            than two labels swapping. Right-aligned at both ends (the ribbon's
+            type column and the top-right HUD slot) is what lets the path be a
+            plain lerp of that edge and still look concentric.
+
+            Each line is MEASURED at its opaque size before anything is drawn
+            faded, so the stack it lands in is pixel-identical to the static
+            HUD draw and nothing jumps on the frame the flight ends.
+            """
+            lines = self._card_lines(bar["card"])
+            a_big = kt_clamp(1.0 - f / 0.66, 0.0, 1.0)
+            a_small = kt_clamp((f - 0.40) / 0.42, 0.0, 1.0)
+            ab = int(a_big * 7.999)
+            asm = int(a_small * 7.999)
+            rx = KT_DECL_TEXT_R + (KT_HUD_R - KT_DECL_TEXT_R) * f
+            big_y = KT_DECL_TEXT_Y
+            small_y = KT_HUD_NAME_Y
+            for i, line in enumerate(lines):
+                bsize = self._size_for_line(line, 27, 21)
+                ssize = self._size_for_line(line, 16 if i == 0 else 15, 12)
+                scol = (KT_PAL[bar["color"]] if i == 0 and len(lines) > 1
+                        else "#ffd7e8")
+                y = big_y + (small_y - big_y) * f
+                bmr, (bmw, bmh) = tex(("cardname", g.bar_index, i, bsize),
+                    self._text(line, bsize, "#f5faff", True, True), KT_W - 60, 52)
+                smr, (smw, smh) = tex(("cardname_sm", g.bar_index, i, ssize),
+                    self._text(line, ssize, scol, True, True), KT_W - 130, 30)
+                if a_big > 0.02:
+                    if ab >= 7:
+                        fr_ = bmr
+                    else:
+                        fr_, _fs = tex(("cardfly_b", i, bsize, ab),
+                            self._text_fade(line, bsize, "#f5faff", True, ab),
+                            KT_W - 60, 52)
+                    stage.subpixel_blit(fr_, (rx - bmw, y))
+                if a_small > 0.02:
+                    if asm >= 7:
+                        sr2 = smr
+                    else:
+                        sr2, _ss = tex(("cardfly_s", i, ssize, scol, asm),
+                            self._text_fade(line, ssize, scol, True, asm),
+                            KT_W - 130, 30)
+                    stage.subpixel_blit(sr2, (rx - smw, y))
+                big_y += bmh + 4
+                small_y += smh + 2
+
+        def _draw_cutin(self, g, bar, stage, tex, rect, fx_col):
+            """The spell-card declaration, staged.
+
+            Everything that belongs INSIDE the ribbon is blitted into `cut`, a
+            sub-render whose height IS the animation: it flies open, holds and
+            shuts, and the clipping flags crop the glass, the portrait and the
+            type against its edges for nothing. Flags, not subsurface -- see
+            the note at the bottom of render(); a subsurface here would walk
+            and rebuild every child it contains, every frame.
+
+            The shader quad inside is always the full KT_DECL_BAND_H tall and
+            is simply clipped by the ribbon, because a mesh Transform's pixel
+            size is both a cache key AND a render-to-texture: animating it
+            would reallocate a texture on every frame of the open and the
+            shut. Same rule as koto.circle's u_koto_scale -- animate a
+            uniform, never a cached quad's dimensions.
+            """
+            pt = g.phase_tick
+            col = KT_PAL[bar["color"]]
+            half = self._cutin_half(pt)
+            btop = KT_DECL_BAND_MID - half
+            bh = max(2, int(half * 2.0))
+            f = self._card_flight(g)
+
+            # Letterbox pinch. The stage stops competing with the ribbon and
+            # comes back up as it shuts; this is most of why the beat reads as
+            # a cut rather than as an overlay parked on top of the fight.
+            pinch = (kt_clamp(pt / 14.0, 0.0, 1.0) *
+                     kt_clamp((KT_DECLARE_TICKS - 4 - pt) / 20.0, 0.0, 1.0))
+            if pinch > 0.01:
+                pc = "#000000%02x" % int(pinch * 82.0)
+                stage.blit(rect(pc, KT_W, max(1, int(btop))), (0, 0))
+                stage.blit(rect(pc, KT_W, max(1, int(KT_H - btop - bh))),
+                           (0, int(btop + bh)))
+
+            cut = renpy.Render(KT_W, bh)
+            cut.xclipping = True
+            cut.yclipping = True
+            cblit = cut.subpixel_blit
+            oy = -btop                  # stage-local y -> ribbon-local y
+
+            # --- glass, speed lines and sheen: one quad ---------------------
+            if KT_SHADER_OK:
+                rush_u = kt_clamp(pt / 40.0, 0.0, 1.0)
+                # The sheen crosses once on the open and once on the shut, and
+                # is parked far off the quad in between -- cheaper than a
+                # branch in the shader, and it keeps the uniform continuous.
+                if 8 <= pt < 42:
+                    sheen = -0.35 + (pt - 8) / 34.0 * 1.75
+                elif pt >= KT_DECL_CLOSE:
+                    sheen = 1.40 - (pt - KT_DECL_CLOSE) / 20.0 * 1.75
+                else:
+                    sheen = 9.0
+                cut_d = Transform(
+                    self._fx_solid(), xysize=(KT_W, KT_DECL_BAND_H),
+                    shader="koto.cutin", mesh=True,
+                    u_koto_col=fx_col,
+                    u_koto_alpha=(kt_clamp(pt / 6.0, 0.0, 1.0) *
+                                  kt_clamp((KT_DECLARE_TICKS - 2 - pt) / 14.0,
+                                           0.0, 1.0)),
+                    # Her anchor, in this quad's normalized space. She floats
+                    # ABOVE the ribbon during a declaration, so the focus is a
+                    # negative y and the fan enters over the top rail.
+                    u_koto_focus=(g.bx / float(KT_W),
+                                  (g.by - (KT_DECL_BAND_MID - KT_DECL_BAND_HALF))
+                                  / float(KT_DECL_BAND_H)),
+                    u_koto_aspect=KT_W / float(KT_DECL_BAND_H),
+                    u_koto_rush=(2.05 * (1.0 - (1.0 - rush_u) ** 2)
+                                 + 0.16 * math.sin(g.tick * 0.06)),
+                    # The fan is loudest on the throw and has settled to a
+                    # bed by the time the name has finished cascading in, so it
+                    # never competes with the card it exists to introduce.
+                    u_koto_rushamp=1.0 - 0.66 * kt_clamp((pt - 18) / 26.0, 0.0, 1.0),
+                    u_koto_sheen=sheen)
+                try:
+                    cur_, _csz = tex(("cutin_q",), cut_d, KT_W, KT_DECL_BAND_H)
+                    cut.blit(cur_, (0, int(KT_DECL_BAND_MID - KT_DECL_BAND_HALF + oy)))
+                except Exception:
+                    pass
+
+            # --- portrait ---------------------------------------------------
+            # Her silhouette arrives from the right lip and stops. The smear
+            # is taken from the ANALYTIC difference between this tick's
+            # position and last tick's, so it stores nothing: there is no
+            # streak to leak into the next declaration, nothing to reset on a
+            # phase change, and it freezes correctly under the pause overlay.
+            cx = self._cutin_port_x(pt)
+            dx = cx - self._cutin_port_x(max(0, pt - 1))
+            py = KT_DECL_PORT_CY + math.sin(g.tick * 0.05) * 4.0 + oy
+            # The portrait is the card-raised pose, and it keeps breathing on
+            # the stage sprite's own loop rather than freezing as a still.
+            prow = KT_BOSS_DECLARE[-1]
+            pcol = (g.tick // KT_BOSS_PHASE_TICKS) % KT_BOSS_PHASES
+            hkey = ("cutin_halo", bar["color"], pcol)
+            hdisp = self._misc(hkey, (lambda c=bar["color"], pc=pcol: Transform(
+                KT_BOSS_FRAMES[prow][pc], zoom=KT_DECL_PORT_ZOOM * 1.07,
+                nearest=True, subpixel=True,
+                matrixcolor=TintMatrix(KT_PAL[c]), alpha=0.17)))
+            hr_, (hw_, hh_) = tex(hkey, hdisp, 700, 700)
+            cblit(hr_, (cx - hw_ / 2.0, py - hh_ / 2.0))
+            if abs(dx) > 2.2:
+                # Three ghosts trailing the travel, and ONLY while there is
+                # travel: on the settle they stop existing rather than fading
+                # out, which is the difference between a fast entrance and a
+                # permanently blurry one.
+                for k in (3, 2, 1):
+                    gkey = ("cutin_smear", k, pcol)
+                    gdisp = self._misc(gkey, (lambda kk=k, pc=pcol: Transform(
+                        KT_BOSS_FRAMES[prow][pc], zoom=KT_DECL_PORT_ZOOM,
+                        nearest=True, subpixel=True, alpha=0.22 / kk)))
+                    gr_, (gw_, gh_) = tex(gkey, gdisp, 680, 680)
+                    cblit(gr_, (cx - dx * k * 1.6 - gw_ / 2.0, py - gh_ / 2.0))
+            # NOT tinted, and that is the entire difference between a
+            # portrait and a wash. A TintMatrix collapses the cell to one hue
+            # scaled by luminance, and her art is pale hair over a dark dress:
+            # tinted to the card colour at any alpha that stayed under the type
+            # she became a pink smudge on a pink fan, which is what the old
+            # 0.22 silhouette had always been. Her own colours read against the
+            # dark glass, and the tinted halo behind her carries the card.
+            pkey = ("cutin_port", pcol)
+            pdisp = self._misc(pkey, lambda pc=pcol: Transform(
+                KT_BOSS_FRAMES[prow][pc], zoom=KT_DECL_PORT_ZOOM,
+                nearest=True, subpixel=True, alpha=0.62))
+            pr_, (pw_, ph_) = tex(pkey, pdisp, 680, 680)
+            cblit(pr_, (cx - pw_ / 2.0, py - ph_ / 2.0))
+
+            # --- rails ------------------------------------------------------
+            # Drawn at the RIBBON's own edges rather than at fixed stage
+            # coordinates, so they ride the open and the shut instead of
+            # appearing once it has landed. Two hairlines used to be the
+            # entire frame; they are the trim now.
+            ra = kt_clamp(pt / 3.0, 0.0, 1.0)
+            glow_c = col + ("%02x" % int(34 * ra))
+            rail_c = col + ("%02x" % int(215 * ra))
+            inner_c = col + ("%02x" % int(68 * ra))
+            cut.blit(rect(glow_c, KT_W, 10), (0, 0))
+            cut.blit(rect(glow_c, KT_W, 10), (0, bh - 10))
+            cut.blit(rect(rail_c, KT_W, 2), (0, 0))
+            cut.blit(rect(rail_c, KT_W, 2), (0, bh - 2))
+            cut.blit(rect(inner_c, KT_W, 1), (0, 7))
+            cut.blit(rect(inner_c, KT_W, 1), (0, bh - 8))
+            # A soft chip of light travelling each rail, in opposite
+            # directions. One direction reads as a texture sliding past; two
+            # read as a frame that is lit. A stretched flare rather than a
+            # Solid, so both ends feather instead of ending in a hard corner.
+            chkey = ("cutin_chip",)
+            chd = self._misc(chkey, lambda: Transform(
+                kt_art("kt_fx", "flare:13"), xzoom=3.4, yzoom=0.28, subpixel=True,
+                alpha=0.95, additive=1.0))
+            chr_, (chw, chh) = tex(chkey, chd, 240, 32)
+            chip = (g.tick * 7.0) % (KT_W + chw * 2.0) - chw
+            cblit(chr_, (chip, 1.0 - chh / 2.0))
+            cblit(chr_, (KT_W - chw - chip, bh - 1.0 - chh / 2.0))
+
+            # --- the slam ---------------------------------------------------
+            # The seam the ribbon opened from, thinning out where it split.
+            if pt < 12:
+                sh = max(1, 9 - pt)
+                cut.blit(rect("#f5faff" + ("%02x" % int(230 * (1.0 - pt / 12.0))),
+                              KT_W, sh),
+                         (0, int(KT_DECL_BAND_MID + oy - sh / 2.0)))
+            # ...and the same seam closing on it. Once the ribbon is thinner
+            # than the flash, the flash fills the whole thing, so the last
+            # frames of a declaration are a bright line pinching out.
+            if half < 10.0:
+                cut.blit(rect(col + ("%02x" % int(225 * (1.0 - half / 10.0))),
+                              KT_W, bh), (0, 0))
+
+            # --- type -------------------------------------------------------
+            # Mask cards declare as MASK CARD, soul cards as SOUL CARD -- the
+            # one-frame tell that an Endless-exclusive is about to be read.
+            if g.cur_is_soul:
+                kick_label = "SOUL CARD"
+            elif g.cur_is_mask:
+                kick_label = "MASK CARD"
+            else:
+                kick_label = "SPELL CARD"
+            # Cascade: kick label, then each name line, each on its own
+            # ease-out slide. The old pass strobed the whole block on and off
+            # for its first 24 ticks (`(pt // 3) % 4 != 0`), which is a
+            # flicker, not an entrance.
+            ke = (kt_clamp((pt - 6) / 12.0, 0.0, 1.0) *
+                  kt_clamp((KT_DECLARE_TICKS - 6 - pt) / 14.0, 0.0, 1.0))
+            if ke > 0.01:
+                # The right edge slides in from further right (the type column
+                # is right-aligned; see KT_DECL_TEXT_R).
+                kx = KT_DECL_TEXT_R + 56.0 * (1.0 - ke) ** 2
+                # FOUR alpha steps, not eight. The cascade labels are moving
+                # fast enough that the banding is invisible, and each bucket
+                # is a _misc key per (string, card colour): at eight, an
+                # Endless run's 15 colours and 22 cards mint enough entries to
+                # start tripping the 1200-key wipe mid-fight. The flight below
+                # keeps eight -- that one is slow and the eye is on it.
+                kab = int(ke * 3.999)
+                if pt < 16:
+                    # Chromatic split on arrival: two tinted ghosts either
+                    # side, closing as it lands. Two cache keys, and it is the
+                    # difference between the label appearing and it LANDING.
+                    sp = (16 - pt) * 0.5
+                    for _tint, _off in (("#ff2d55", -sp), ("#2df5ff", sp)):
+                        gkey2 = ("cutin_kickghost", kick_label, _tint)
+                        gd2 = self._misc(gkey2, (lambda t=_tint: Transform(
+                            self._text(kick_label, 15, "#ffffff", True, True),
+                            matrixcolor=TintMatrix(t), alpha=0.42)))
+                        gr2, (gw2, _gh2) = tex(gkey2, gd2, 240, 30)
+                        cblit(gr2, (kx - gw2 + _off, KT_DECL_KICK_Y + oy))
+                kr_, (kw2, kh2) = tex(("cutin_kick", kick_label, col, kab),
+                    self._text_fade(kick_label, 15, col, True, kab, 4), 240, 30)
+                cblit(kr_, (kx - kw2, KT_DECL_KICK_Y + oy))
+
+            card_lines = self._card_lines(bar["card"])
+            line_y = KT_DECL_TEXT_Y
+            widest = 0
+            for i, line in enumerate(card_lines):
+                size = self._size_for_line(line, 27, 21)
+                nmr, (nw, nh) = tex(("cardname", g.bar_index, i, size),
+                    self._text(line, size, "#f5faff", True, True), KT_W - 60, 52)
+                # Once the flight has begun the name is no longer IN the
+                # ribbon -- it is on its way to the corner, drawn on the stage
+                # below so the closing ribbon cannot clip it.
+                le = kt_clamp((pt - 12 - i * 6) / 14.0, 0.0, 1.0)
+                if le > 0.0 and f <= 0.0:
+                    lx = KT_DECL_TEXT_R + 70.0 * (1.0 - le) ** 3
+                    lab = int(le * 3.999)
+                    if lab >= 3:
+                        lr_ = nmr
+                    else:
+                        lr_, _ls = tex(("cutin_line", i, size, lab),
+                            self._text_fade(line, size, "#f5faff", True, lab, 4),
+                            KT_W - 60, 52)
+                    cblit(lr_, (lx - nw, line_y + oy))
+                line_y += nh + 4
+                widest = max(widest, nw)
+
+            # Rule under the name: a line that ARRIVES at its length is a
+            # beat; a line that is simply there is furniture.
+            ru = (kt_clamp((pt - KT_DECL_RULE_AT) / float(KT_DECL_RULE_LEN),
+                           0.0, 1.0) *
+                  kt_clamp((KT_DECLARE_TICKS - 8 - pt) / 12.0, 0.0, 1.0))
+            if ru > 0.01:
+                # Capped, because the rule belongs to the TYPE COLUMN. Left
+                # uncapped it tracked the widest line, and the longest card
+                # names ("The Scene Everyone Remembers") ran it straight
+                # through the portrait's forearm.
+                # It draws out LEFTWARD from the type column's right edge.
+                rw = max(1, int(min(widest + 26, 330) * (1.0 - (1.0 - ru) ** 3)))
+                cut.blit(rect(col + "cc", rw, 2),
+                         (int(KT_DECL_TEXT_R - rw), int(line_y + 8 + oy)))
+                cut.blit(rect(col + "2e", rw, 7),
+                         (int(KT_DECL_TEXT_R - rw), int(line_y + 10 + oy)))
+            if ru > 0.40:
+                # What the capture is worth, said out loud at the moment the
+                # card is named -- the one number the declaration was never
+                # telling you.
+                vtxt = "BONUS  " + format(g.cur_value, ",")
+                vab = int(kt_clamp((ru - 0.40) / 0.50, 0.0, 1.0) * 3.999)
+                vr_, (vw_, _vh) = tex(("cutin_val", vtxt, vab),
+                    self._text_fade(vtxt, 12, "#9aa8bd", False, vab, 4), 280, 24)
+                cblit(vr_, (KT_DECL_TEXT_R - vw_, line_y + 22 + oy))
+
+            stage.subpixel_blit(cut, (0.0, btop))
+
+            # White kick over the whole stage, drawn last and short: it is the
+            # CUT. The card-colour wash is _flash's job and is already running
+            # underneath it on its own longer decay.
+            if pt < 6:
+                stage.blit(rect("#f5faff" + ("%02x" % int(155 * (1.0 - pt / 6.0))),
+                                KT_W, KT_H), (0, 0))
+
+            # The name, once it has left the ribbon. On the stage rather than
+            # in the sub-render, precisely so the ribbon shutting cannot clip
+            # it out of its own flight.
+            if f > 0.0:
+                self._card_flight_draw(g, bar, f, stage, tex)
+
         def _advance_boss_anim(self, game):
-            """One simulation tick of Kotonoha's cosmetic animation state."""
+            """One simulation tick of Kotonoha's cosmetic pose state.
+
+            Picks the ROW for this tick (the column is the clock -- see
+            _boss_frame). Guarded by the caller on the sim tick, so a duplicate
+            render() never double-steps it and the pause freezes it.
+            """
             steps = max(1, game.tick - self._boss_motion_tick)
             dx = (game.bx - self._boss_last_x) / steps
             self._boss_last_x = game.bx
             self._boss_motion_tick = game.tick
+            tick = game.tick
 
             # Ease toward the current signed travel speed. The ease is what
-            # makes a lean ramp in and settle out; reading raw per-tick dx (as
-            # this used to) put single-tick noise straight into the frame
-            # choice, and the lerp in _move_boss makes that dx wobble every
-            # time she nears her target.
+            # makes a lean ramp in and settle out; raw per-tick dx is noisy,
+            # because the lerp in _move_boss wobbles it near every target.
+            # Closed form, so a catch-up frame lands where n ticks would.
             target = kt_clamp(dx / KT_BOSS_LEAN_FULL, -1.0, 1.0)
-            self._boss_lean += (target - self._boss_lean) * KT_BOSS_LEAN_EASE
-
+            k = 1.0 - (1.0 - KT_BOSS_LEAN_EASE) ** steps
+            self._boss_lean += (target - self._boss_lean) * k
             mag = abs(self._boss_lean)
-            col = self._boss_lean_col
-            rise1, rise2 = KT_BOSS_LEAN_RISE
-            fall1, fall2 = KT_BOSS_LEAN_FALL
-            if col >= 2:
-                if mag < fall2:
-                    col = 1
-            elif col == 1:
-                if mag >= rise2:
-                    col = 2
-                elif mag < fall1:
-                    col = 0
-            elif mag >= rise1:
-                col = 1
-            if col != self._boss_lean_col:
-                self._boss_lean_col = col
-                self._lean_col_since = game.tick
-
-            # The facing commits only on a decisive lean and is never cleared:
-            # she keeps tilting the way she was travelling while she settles,
-            # and a sway turnaround flips it while the column is already 0, so
-            # left and right never trade places mid-lean.
             if self._boss_lean <= -KT_BOSS_FACE_LATCH:
                 self._boss_face = -1
             elif self._boss_lean >= KT_BOSS_FACE_LATCH:
                 self._boss_face = 1
+            want = self._lean_want
+            while want < 3 and mag >= KT_BOSS_LEAN_RISE[want]:
+                want += 1
+            while want > 0 and mag < KT_BOSS_LEAN_FALL[want - 1]:
+                want -= 1
+            self._lean_want = want
 
+            # Cast pulse: see KT_BOSS_CAST_*. A pulse only STARTS from a
+            # body that is travelling gently (at a hard lean the tilt is the
+            # read, and the muzzle flare still sells the volley), and only once
+            # the last pulse's rest is over.
+            cast_lv = self._lvl["cast"]
             if game.muzzle != self._cast_muzzle:
                 self._cast_muzzle = game.muzzle
-                age = game.tick - self._cast_start
-                if not (0 <= age < KT_BOSS_CAST_LEN):
-                    # Fresh cast. Whether it is drawn at all is decided here
-                    # and then left alone: at a full lean the tilt IS the read,
-                    # and tearing her out of it for half a second is the flicker
-                    # this used to have every time a pattern fired mid-sweep.
-                    # The muzzle flare still sells the volley either way.
-                    self._cast_start = game.tick
-                    self._cast_showing = self._boss_lean_col < 2
-                    self._cast_spread_end = (game.tick + KT_BOSS_CAST_HOLD
-                                             + KT_BOSS_CAST_SPREAD_MAX)
-                elif age > KT_BOSS_CAST_HOLD and game.tick < self._cast_spread_end:
-                    # Already spread and still inside the cap: rewind only as
-                    # far as the hold so continuous fire keeps her arms out.
-                    self._cast_start = game.tick - KT_BOSS_CAST_HOLD
+                if tick < self._cast_end:
+                    self._cast_end = min(tick + KT_BOSS_CAST_HOLD,
+                                         self._cast_start + KT_BOSS_CAST_SPREAD_MAX)
+                elif (cast_lv[0] == 0 and tick >= self._cast_rest_until
+                      and want <= KT_BOSS_CAST_MAX_LEAN):
+                    self._cast_start = tick
+                    self._cast_end = tick + KT_BOSS_CAST_HOLD
+            # Travel wins: if she sets off hard mid-pulse, the arms come down
+            # and she leans into it, instead of sliding across in a cast.
+            if want >= 2 and tick < self._cast_end:
+                self._cast_end = tick
 
-        def _boss_pose(self, game):
-            """The acting pose as (row, col, cued), or None to hover.
+            hurt = game.phase == "victory" or (game.phase == "break"
+                                               and game.phase_tick < KT_BOSS_HURT_TICKS)
+            # The arms only rise once the body is within one depth of
+            # upright; a pulse that starts while a lean is still walking down
+            # waits the few ticks that takes, rather than popping two depths.
+            cast_want = 3 if (tick < self._cast_end and not hurt
+                              and (cast_lv[0] or self._lvl["lean"][0] <= 1)) else 0
+            # Declaration: the card comes up across the declare and goes back
+            # down on the far side of the flip.
+            decl_want = 3 if (game.phase == "declare" and not hurt) else 0
+            # Every upright pose straightens her: the cast, card and recoil rows
+            # have no lean, so the lean is walked back to 0 underneath them and
+            # walked out again afterwards -- through its in-betweens -- rather
+            # than popping from a full tilt to upright and back.
+            upright = hurt or cast_lv[0] or self._lvl["decl"][0]
+            lean_want = 0 if upright else want
 
-            `cued` marks a pose the state machine asked for on an exact beat,
-            which skips the dwell below so a declaration snaps in on its cue.
-            """
-            if game.phase == "declare":
-                lead, wide = KT_BOSS_DECLARE_STEPS
-                pt = game.phase_tick
-                col = 0 if pt < lead else (1 if pt < wide else 2)
-                return KT_BOSS_CAST, col, True
-            if game.phase == "victory":
-                return KT_BOSS_CAST, 2, True
-            if game.phase == "break":
-                return KT_BOSS_CAST, 3, True
+            # Nothing SHOWN changes faster than KT_BOSS_ROW_MIN ticks. Level
+            # steps are already spaced, but two different actions can hand
+            # over on consecutive ticks (the arms reach 0 and the lean steps
+            # out the next tick), which flashed a one-tick idle between them.
+            # The declaration's first step is exempt: it is cued on the beat.
+            if tick - self._row_since >= KT_BOSS_ROW_MIN:
+                was_cast = cast_lv[0]
+                self._step_lvl("decl", decl_want, tick, KT_BOSS_DECL_UP, KT_BOSS_DECL_DOWN)
+                self._step_lvl("cast", cast_want, tick, KT_BOSS_CAST_UP, KT_BOSS_CAST_DOWN)
+                self._step_lvl("lean", lean_want, tick, KT_BOSS_LEAN_STEP, KT_BOSS_LEAN_STEP)
+                if was_cast and not cast_lv[0]:
+                    self._cast_rest_until = tick + KT_BOSS_CAST_REST
+            elif decl_want and not self._lvl["decl"][0]:
+                self._step_lvl("decl", decl_want, tick, KT_BOSS_DECL_UP, KT_BOSS_DECL_DOWN)
 
-            cast_age = game.tick - self._cast_start
-            if self._cast_showing and 0 <= cast_age < KT_BOSS_CAST_LEN:
-                return KT_BOSS_CAST, KT_BOSS_CAST_SEQ[cast_age], False
+            # Row priority: recoil > card > cast > lean > hover.
+            lean_lvl = self._lvl["lean"][0]
+            cast_lvl = cast_lv[0]
+            decl_lvl = self._lvl["decl"][0]
+            if hurt:
+                row = KT_BOSS_HURT
+            elif decl_lvl:
+                row = KT_BOSS_DECLARE[decl_lvl - 1]
+            elif cast_lvl:
+                row = KT_BOSS_CAST[cast_lvl - 1]
+            elif lean_lvl and self._boss_face:
+                row = (KT_BOSS_LEFT if self._boss_face < 0 else KT_BOSS_RIGHT)[lean_lvl - 1]
+            else:
+                row = KT_BOSS_IDLE
+            if row != self._boss_row:
+                self._boss_row = row
+                self._row_since = tick
 
-            if self._boss_lean_col and self._boss_face:
-                row = KT_BOSS_LEFT if self._boss_face < 0 else KT_BOSS_RIGHT
-                col = self._boss_lean_col
-                held = game.tick - self._lean_col_since - KT_BOSS_LEAN_SETTLE
-                if held >= 0 and (held // KT_BOSS_LEAN_BREATHE) % 2:
-                    col = max(0, col - 1)
-                return row, col, False
-            return None
+        def _step_lvl(self, name, want, tick, up, down):
+            """Walk one pose level ONE depth toward `want`, at most once per
+            `up` (rising) or `down` (falling) ticks. Stepping instead of
+            jumping is the whole trick: every change of pose passes through
+            the sheet's in-between rows on its way."""
+            lv = self._lvl[name]
+            if lv[0] == want:
+                return
+            if tick - lv[1] < (up if want > lv[0] else down):
+                return
+            lv[0] += 1 if want > lv[0] else -1
+            lv[1] = tick
 
         def _fx_solid(self, color="#00000000"):
             """The child every shader quad is painted onto.
@@ -3924,64 +4869,70 @@ init python:
             f_t = 1.0 if g.focus else 0.0
             self._fx_focus_a = ease(self._fx_focus_a, f_t,
                 KT_FX_FOCUS_ATTACK if f_t > self._fx_focus_a else KT_FX_FOCUS_RELEASE)
+            # The options glide between their two stances at one rate.
+            self._fx_opt = ease(self._fx_opt, f_t, 0.24)
+            # The spell background comes up across the declaration (it is
+            # fully in by the time the ribbon shuts) and holds for the card;
+            # its STYLE is latched like the seal's drawing, re-read only while
+            # it is dark, so a background never switches pattern mid-fade.
+            if g.phase == "declare":
+                b_t = kt_clamp(g.phase_tick / float(KT_DECL_CLOSE), 0.0, 1.0)
+            elif g.phase == "spell":
+                b_t = 1.0
+            else:
+                b_t = 0.0
+            self._fx_sbg_a = ease(self._fx_sbg_a, b_t,
+                KT_FX_ATTACK if b_t > self._fx_sbg_a else KT_FX_RELEASE * 0.6)
+            if self._fx_sbg_a < 0.02:
+                self._fx_sbg_style = KT_SPELL_BG[g.sp_pat % len(KT_SPELL_BG)]
+            # The life ring is up while she has a bar to lose.
+            r_t = 1.0 if g.phase in ("nonspell", "declare", "spell") else 0.0
+            self._fx_ring_a = ease(self._fx_ring_a, r_t,
+                KT_FX_ATTACK if r_t > self._fx_ring_a else KT_FX_RELEASE)
 
             # Card colour crossfades across the WHOLE stage (circle, veil,
             # aura), so a new bar bleeds into its palette instead of the arena
-            # changing colour between two frames. The painted seal cannot join
-            # in -- it is a different sprite per colour, not a tint -- which is
-            # exactly why its alpha envelope has to carry the swap instead.
+            # changing colour between two frames. The seal cannot join in -- it
+            # is a different drawing per card, not a tint -- which is exactly
+            # why its alpha envelope has to carry the swap instead.
             tgt = Color(KT_PAL[g.cur_color]).rgb
             for i in range(3):
                 self._fx_col[i] = ease(self._fx_col[i], tgt[i], KT_FX_COL_EASE)
 
             # WHICH seal is latched, and only re-read while the ink is
-            # effectively gone. The art is a different SPRITE per colour, not a
-            # tint, so it cannot crossfade -- and cur_color moves to the next
-            # card the moment a bar ends, which would have swapped the sigil to
-            # a different drawing halfway through its own fade-out. There is a
-            # whole nonspell between one card's fade and the next one's slam,
-            # so this always re-latches in time.
+            # effectively gone. Every card has its own drawing, so it cannot
+            # crossfade -- and sp_pat moves to the next card the moment a bar
+            # ends, which would swap the sigil to a different drawing halfway
+            # through its own fade-out. There is a whole nonspell between one
+            # card's fade and the next one's slam, so this always re-latches
+            # in time.
             if self._fx_seal_a < 0.02:
-                self._fx_seal_name = KT_SEAL_FOR_COLOR[
-                    g.cur_color % len(KT_SEAL_FOR_COLOR)]
+                self._fx_seal_idx = g.sp_pat
 
         def _boss_frame(self, game):
-            """Choose one cached sheet cell from simulation state and time.
+            """(row, col) of the sheet cell to draw this tick.
 
-            Rows are ACTIONS and columns are how far into that action she is,
-            so this picks a pose and holds it. Nothing loops on a timer except
-            the idle breath.
+            The row is the pose _advance_boss_anim picked. The column is the
+            shared secondary-motion loop and nothing else: it runs off the sim
+            clock in every pose, so a held pose keeps its hair and sleeves
+            moving, and a change of pose never jumps the loop.
             """
             if game.tick != self._boss_motion_tick:
                 self._advance_boss_anim(game)
+            col = (game.tick // KT_BOSS_PHASE_TICKS) % KT_BOSS_PHASES
+            return self._boss_row, col
 
-            pose = self._boss_pose(game)
-            row = KT_BOSS_IDLE if pose is None else pose[0]
-
-            # Dwell: an action that would flash by faster than KT_BOSS_ROW_MIN
-            # never gets the row at all; she stays in the one she is already
-            # holding. This is what stops a volley and a lean trading places
-            # every few ticks the way they used to.
-            if row != self._row_shown:
-                cued = pose is not None and pose[2]
-                if (not cued) and game.tick - self._row_since < KT_BOSS_ROW_MIN:
-                    return self._row_shown, self._col_shown
-                self._row_since = game.tick
-                if row == KT_BOSS_IDLE:
-                    # Phase the breath from the tick she actually settled, so
-                    # entering the hover never flashes a part-spent frame.
-                    self._idle_from = game.tick
-
-            if pose is None:
-                if self._idle_from < 0:
-                    self._idle_from = game.tick
-                step = (game.tick - self._idle_from) // KT_BOSS_IDLE_EVERY
-                col = KT_BOSS_IDLE_LOOP[step % len(KT_BOSS_IDLE_LOOP)]
-            else:
-                col = pose[1]
-
-            self._row_shown, self._col_shown = row, col
-            return row, col
+        def _boss_tf(self, variant, row, col, **props):
+            """Cached boss Transform (see _boss_cache)."""
+            key = (variant, row, col)
+            d = KTStage._boss_cache.get(key)
+            if d is None:
+                if len(KTStage._boss_cache) > 800:
+                    KTStage._boss_cache.clear()
+                d = Transform(KT_BOSS_FRAMES[row][col], nearest=True,
+                              subpixel=True, **props)
+                KTStage._boss_cache[key] = d
+            return d
 
         # ----- render --------------------------------------------------------
 
@@ -3992,6 +4943,15 @@ init python:
             # is what leaving the instrumentation in shipping code costs.
             _perf = MSBF_PERF.on
             _t = msbf_perf_t0() if _perf else 0.0
+
+            # LOW DETAIL (Settings > Graphics > Effects Detail; see
+            # graphics_detail.rpy). Read once per frame. This stage is
+            # CPU-bound -- every blit below is python -- so Low cuts BLITS of
+            # pure decoration: the veil's rays, the ambient motes, her travel
+            # afterimages, the soul's dash ghosts and the spawn rings go, and
+            # sparks and bullet-cancel stars are thinned. Every bullet, laser,
+            # telegraph, seal, ring and readout draws exactly as on Full.
+            low = enter_m_low_detail()
 
             # Fixed-timestep simulation: st is wall time; clamp big jumps (a
             # dropped frame, the pause overlay) and never run more than
@@ -4096,27 +5056,14 @@ init python:
             rv.blit(rect("#02040bd9", KT_W, KT_SY), (KT_SX, 0))
             rv.blit(rect("#02040bd9", KT_W, 720 - KT_SY - KT_H), (KT_SX, KT_SY + KT_H))
 
-            # Stage chrome: main frame, then a quieter outer hairline and white
-            # corner ticks so the cabinet reads as bespoke trim rather than four
-            # bare strips. (x, y, w, h, colour), in the order they were added.
-            for _cx, _cy, _cw, _ch, _cc in (
-                    (KT_SX - 2, KT_SY - 2, KT_W + 4, 2, "#ff8fc866"),
-                    (KT_SX - 2, KT_SY + KT_H, KT_W + 4, 2, "#ff8fc866"),
-                    (KT_SX - 2, KT_SY, 2, KT_H, "#ff8fc866"),
-                    (KT_SX + KT_W, KT_SY, 2, KT_H, "#ff8fc866"),
-                    (KT_SX - 7, KT_SY - 7, KT_W + 14, 1, "#ff8fc822"),
-                    (KT_SX - 7, KT_SY + KT_H + 6, KT_W + 14, 1, "#ff8fc822"),
-                    (KT_SX - 7, KT_SY - 7, 1, KT_H + 14, "#ff8fc822"),
-                    (KT_SX + KT_W + 6, KT_SY - 7, 1, KT_H + 14, "#ff8fc822"),
-                    (KT_SX - 7, KT_SY - 7, 14, 2, "#f5faff66"),
-                    (KT_SX - 7, KT_SY - 7, 2, 14, "#f5faff66"),
-                    (KT_SX + KT_W - 7, KT_SY - 7, 14, 2, "#f5faff66"),
-                    (KT_SX + KT_W + 5, KT_SY - 7, 2, 14, "#f5faff66"),
-                    (KT_SX - 7, KT_SY + KT_H + 5, 14, 2, "#f5faff66"),
-                    (KT_SX - 7, KT_SY + KT_H - 7, 2, 14, "#f5faff66"),
-                    (KT_SX + KT_W - 7, KT_SY + KT_H + 5, 14, 2, "#f5faff66"),
-                    (KT_SX + KT_W + 5, KT_SY + KT_H - 7, 2, 14, "#f5faff66")):
-                rv.blit(rect(_cc, _cw, _ch), (_cx, _cy))
+            # Stage chrome: one pre-drawn overlay (kt_frame.png) -- a glowing
+            # double border round the playfield, a rosette on each corner, the
+            # margins written in the seals' invented script, and the score
+            # panel's divider. Transparent inside the field, so it can never
+            # sit on the fight. It replaced sixteen hand-placed trim rects.
+            frr, (_frw, _frh) = tex("frame", self._art(
+                "kt_frame", "frame", add=False), 1280, 720)
+            rv.blit(frr, (0, 0))
 
             stage = renpy.Render(KT_W, KT_H)
             sblit = stage.subpixel_blit
@@ -4143,12 +5090,29 @@ init python:
             # tops out at the ~36 values between the two levels.
             stage.blit(rect("#000000%02x" % int(self._fx_dim + 0.5), KT_W, KT_H), (0, 0))
 
+            # --- koto.spellbg: the spell card's own backdrop -------------------
+            # Right over the dim, under everything else: the room changes when
+            # a card is read (see KT_SPELL_BG). Built fresh each frame like the
+            # veil -- the quad never changes size, so the cached Solid carries
+            # the texture and only the uniforms move.
+            if KT_SHADER_OK and self._fx_sbg_a > 0.004:
+                sbg_d = Transform(
+                    self._fx_solid(), xysize=(KT_W, KT_H), shader="koto.spellbg",
+                    mesh=True, u_koto_col=fx_col, u_koto_alpha=self._fx_sbg_a,
+                    u_koto_style=float(self._fx_sbg_style),
+                    u_koto_res=(float(KT_W), float(KT_H)))
+                try:
+                    sbr, _sbsz = tex(("spellbg",), sbg_d, KT_W, KT_H)
+                    stage.blit(sbr, (0, 0))
+                except Exception:
+                    pass
+
             # --- koto.veil: the living backdrop -------------------------------
             # One GPU quad of slow rays + ripples in the card colour, right on
             # top of the dim so everything else still draws over it. Alpha is
             # phase-staged: barely-there in a nonspell, a touch louder under a
             # card, swelling through the declare.
-            if KT_SHADER_OK and self._fx_veil_a > 0.002:
+            if KT_SHADER_OK and self._fx_veil_a > 0.002 and not low:
                 # Alpha and colour both come off the envelope, so the veil
                 # swells through a declare and bleeds into the next card's
                 # palette instead of switching. u_time is a DRAW-time uniform
@@ -4178,25 +5142,42 @@ init python:
             # pool collapses onto a dozen textures, so the common case should
             # cost one dict get -- not a lambda allocation, a _misc lookup and a
             # tex() call per mote, every mote, every frame.
-            for m in g.ambient:
-                ab = int((0.5 + 0.5 * math.sin(m["ph"])) * 2.999)
-                akey = ("amb", m["ci"], ab, m["scb"], m["big"])
+            # Small ones are bokeh (out-of-focus lights in the air); the few big
+            # ones are petals, turning slowly as they rise. A petal's heading
+            # is its POOL INDEX plus the tick, never its twinkle phase (which
+            # moves every tick and would flick it between headings), turned in
+            # 12-degree steps. Petals do not twinkle and keep one size, so a
+            # petal key is (colour, heading) alone: the pool's four petal
+            # colours x 30 headings is 120 textures at most, which keeps them
+            # well clear of _misc's 1200-key wipe.
+            for mi, m in (() if low else enumerate(g.ambient)):
+                bg = m["big"]
+                if bg:
+                    ab = pb = ((g.tick // 12) + mi * 5) % 30
+                    akey = ("amb_p", m["ci"], pb)
+                else:
+                    ab = int((0.5 + 0.5 * math.sin(m["ph"])) * 2.999)
+                    akey = ("amb", m["ci"], ab, m["scb"])
                 got = frame_tex.get(akey)
                 if got is None:
-                    got = tex(akey, self._misc(akey, (lambda ci=m["ci"], a=ab,
-                            s=m["scb"], bg=m["big"]: Transform(
-                        (EMB_DIR + ("pellet.png" if bg else "bullet.png")),
-                        zoom=((0.95 if bg else 0.42) * (0.7 + 0.4 * s)),
-                        subpixel=True, matrixcolor=TintMatrix(KT_PAL[ci]),
-                        alpha=0.09 + 0.10 * a))), 32, 32)
+                    if bg:
+                        amb_d = self._art("kt_fx", "petal:%d" % m["ci"], zoom=0.9,
+                                          alpha=0.28, rotate=ab * 12.0)
+                    else:
+                        amb_d = self._art("kt_fx", "mote:%d" % m["ci"],
+                                          zoom=0.46 * (0.7 + 0.4 * m["scb"]),
+                                          alpha=0.12 + 0.11 * ab)
+                    got = tex(akey, amb_d, 48, 48)
                 amr_, (amw_, amh_) = got
                 sblit(amr_, (m["x"] - amw_ / 2.0, m["y"] - amh_ / 2.0))
 
             # --- Seer gaps (border portals) ------------------------------------
-            # Each gap is two stretched glow quads: a card-colour outer seam and
-            # a white inner slit, both rotated perpendicular to the emission
-            # direction. Alpha fades in over the first beats and back out over
-            # the last, bucketed x3 so the texture cache stays tiny.
+            # Each gap is the seam sprite -- a tall slit of light, hot along its
+            # centre line -- drawn additively, stood perpendicular to the
+            # emission direction (the art is vertical, so an emission straight
+            # right is rotation 0), with a flare where the bullets pour out.
+            # Alpha fades in over the first beats and back out over the last,
+            # bucketed x3 so the texture cache stays tiny.
             for p in g.portals:
                 page = g.tick - p["born"]
                 if page < 0 or page >= p["ttl"]:
@@ -4207,20 +5188,16 @@ init python:
                     ab3 = max(0, (p["ttl"] - page) // 14)
                 else:
                     ab3 = 2
-                bkt = int(round((math.degrees(p["ang"]) + 90.0) / 15.0)) % 24
+                bkt = int(round(math.degrees(p["ang"]) / 15.0)) % 24
                 pkey3 = ("portal", p["ci"], bkt, ab3)
-                port_d = self._misc(pkey3, (lambda c=p["ci"], bk=bkt, a3=ab3: Transform(
-                    EMB_DIR + "bullet.png", xzoom=6.5, yzoom=1.5, subpixel=True,
-                    rotate=bk * 15.0, matrixcolor=TintMatrix(KT_PAL[c]),
-                    alpha=0.14 + 0.13 * a3)))
-                prr, (prw, prh) = tex(pkey3, port_d, 160, 160)
+                prr, (prw, prh) = tex(pkey3, self._art(
+                    "kt_fx", "portal:%d" % p["ci"], zoom=1.25,
+                    alpha=0.34 + 0.30 * ab3, rotate=bkt * 15.0), 200, 200)
                 sblit(prr, (p["x"] - prw / 2.0, p["y"] - prh / 2.0))
-                ckey3 = ("portalc", bkt, ab3)
-                core3 = self._misc(ckey3, (lambda bk=bkt, a3=ab3: Transform(
-                    EMB_DIR + "bullet.png", xzoom=4.4, yzoom=0.5, subpixel=True,
-                    rotate=bk * 15.0, matrixcolor=TintMatrix("#f5faff"),
-                    alpha=0.18 + 0.14 * a3)))
-                crr, (crw, crh) = tex(ckey3, core3, 160, 160)
+                ckey3 = ("portalf", p["ci"], ab3)
+                crr, (crw, crh) = tex(ckey3, self._art(
+                    "kt_fx", "flare:%d" % p["ci"], zoom=0.8,
+                    alpha=0.20 + 0.16 * ab3), 64, 64)
                 sblit(crr, (p["x"] - crw / 2.0, p["y"] - crh / 2.0))
 
             # Bar-7 card (sp_pat 6): the room goes red. Every OTHER spell card
@@ -4266,8 +5243,6 @@ init python:
             bx_draw = g.bx + bobx + shake_x
             by_draw = g.by + bob
             boss_row, boss_col = self._boss_frame(g)
-            boss_src = KT_BOSS_FRAMES[boss_row][boss_col]
-            boss_frame_key = (boss_row, boss_col)
             if boss_on:
                 # Spell circle: her float anchor. Small and slow while a
                 # nonspell runs, flaring open through the declare, wide and
@@ -4300,13 +5275,12 @@ init python:
                         sblit(ccr, (bx_draw - ccw / 2.0, by_draw - cch / 2.0))
                     except Exception:
                         pass
-                # Summoning seal: a painted magic circle from the shared atlas,
-                # slammed down UNDER her on the declare and held, turning, for
-                # the rest of the card. The shader circle above is the moving
-                # light; this is the ink it is drawn on. Which seal she wears is
-                # picked from the card colour so the same card always shows the
-                # same sigil. Painted art, so it is NOT tinted -- see
-                # def_bullets.rpy.
+                # Summoning seal: this card's own magic circle (each one drawn
+                # for its card by the art generator -- the knives of Nice Boat,
+                # the clock of unread mail, Justice's six chambers), slammed
+                # down UNDER her on the declare and held, turning, for the rest
+                # of the card. The shader circle above is the moving light;
+                # this is the ink it is drawn on.
                 # Level and size are the envelope's (the slam ramp itself lives
                 # in _fx_targets); only the spin is computed here.
                 seal_a = self._fx_seal_a
@@ -4333,12 +5307,7 @@ init python:
                     # shader's, so the ink and the light are never caught doing
                     # the same thing at the same moment.
                     seal_px *= 1.0 + 0.035 * math.sin(tb * 0.031 + 1.1)
-                    seal_name = self._fx_seal_name
-                    # The seals are not all the same native size (seal_hex is
-                    # 127x126, the rest 62x62), so zoom targets a DRAWN width --
-                    # otherwise the hexagram would slam in at twice the size of
-                    # every other card's sigil.
-                    seal_nw = emb_size(seal_name)[0]
+                    seal_cell = "seal:%d" % self._fx_seal_idx
                     # NOT cached, and that is the point. This used to quantize
                     # zoom to 1/8ths and alpha to 8 steps, which put the entire
                     # breathing pulse inside TWO zoom buckets: it snapped
@@ -4349,9 +5318,13 @@ init python:
                     # allocation a frame, for one sprite -- and mark_sweep()
                     # reaps its render at the end of the frame either way, so
                     # caching the displayable was only ever saving that alloc.
+                    # Drawn as light: the seal is glowing line-work, and added
+                    # over the dimmed stage it reads as lit ink rather than as
+                    # a decal stuck on top of the fight.
                     seal_d = Transform(
-                        emb_cell(seal_name), zoom=seal_px / float(seal_nw),
-                        rotate=seal_rot, subpixel=True, alpha=seal_a)
+                        kt_art("kt_seals", seal_cell), zoom=seal_px / KT_SEAL_PX,
+                        rotate=seal_rot, subpixel=True, alpha=seal_a,
+                        additive=1.0)
                     try:
                         # rotate_pad is left on (default) so the corners are
                         # never sheared off; it grows the render to the child's
@@ -4385,21 +5358,20 @@ init python:
                         pass
                 if g.mirror_on:
                     if g.cur_special == "you":
-                        # Mask of You: the phantom is YOUR ship, point-reflected
-                        # through the stage centre, tracking your every move.
+                        # Mask of You: the phantom is YOUR soul, point-reflected
+                        # through the stage centre (so it hangs upside down),
+                        # bleached -- the reader has no colour of their own.
                         phantom = self._misc("you_phantom", lambda: Transform(
-                            KT_DIR + "player.png", xzoom=-3.0, yzoom=-3.0,
-                            alpha=0.55,
-                            nearest=True, subpixel=True,
-                            matrixcolor=TintMatrix("#c8d2dd")))
+                            kt_art("kt_player", "soul_hot"), xzoom=-KT_SOUL_ZOOM,
+                            yzoom=-KT_SOUL_ZOOM, alpha=0.5, subpixel=True))
                         pr, (pw, ph_) = tex("you_phantom", phantom, 64, 64)
                         sblit(pr, (KT_W - g.px - pw / 2.0, KT_H - g.py - ph_ / 2.0))
                     else:
-                        phantom_key = ("boss_phantom",) + boss_frame_key
-                        phantom = self._misc(phantom_key, lambda: Transform(
-                            boss_src, xzoom=-KT_BOSS_ZOOM, yzoom=KT_BOSS_ZOOM,
-                            alpha=0.5, nearest=True, subpixel=True))
-                        pr, (pw, ph_) = tex(phantom_key, phantom, 220, 220)
+                        phantom = self._boss_tf(
+                            "phantom", boss_row, boss_col, xzoom=-KT_BOSS_ZOOM,
+                            yzoom=KT_BOSS_ZOOM, alpha=0.5)
+                        pr, (pw, ph_) = tex(("boss_phantom", boss_row, boss_col),
+                                            phantom, 220, 220)
                         sblit(pr, (KT_W - g.bx - pw / 2.0, by_draw - ph_ / 2.0))
                 # Travel afterimages: when a dart/sweep move actually carries
                 # her, two fading ghosts trail the motion so the reposition
@@ -4410,70 +5382,116 @@ init python:
                     self.trail.append((bx_draw, by_draw))
                     if len(self.trail) > 3:
                         del self.trail[0]
-                if self.trail:
+                if self.trail and not low:
                     t0x, t0y = self.trail[0]
                     # Do not draw ghosts while she is merely bobbing in place;
                     # require actual travel distance.
                     if abs(bx_draw - t0x) + abs(by_draw - t0y) > 11.0:
-                        ghost_key = ("boss_ghost",) + boss_frame_key
-                        ghost = self._misc(ghost_key, lambda: Transform(
-                            boss_src, zoom=KT_BOSS_ZOOM, nearest=True,
-                            subpixel=True, alpha=0.16))
-                        gr_, (gw_, gh_) = tex(ghost_key, ghost, 220, 220)
+                        ghost = self._boss_tf("ghost", boss_row, boss_col,
+                                              zoom=KT_BOSS_ZOOM, alpha=0.16)
+                        gr_, (gw_, gh_) = tex(("boss_ghost", boss_row, boss_col),
+                                              ghost, 220, 220)
                         for gx, gy in self.trail[:-1]:
                             sblit(gr_, (gx - gw_ / 2.0, gy - gh_ / 2.0))
-                # Directional sheet poses now supply the bank. Keeping the
-                # sprite axis-aligned protects its pixel clusters and bounds
-                # this cache at 16 frames x two flash states.
-                flash_on = g.boss_flash > 0 or (vt >= 0 and (g.tick // 3) % 2 == 0)
-                bkey = ("boss", boss_row, boss_col, flash_on)
-                if flash_on:
-                    boss_d = self._misc(bkey, lambda: Transform(
-                        boss_src, zoom=KT_BOSS_ZOOM, nearest=True,
-                        subpixel=True, matrixcolor=BrightnessMatrix(0.55)))
+                # The sheet's lean rows supply the bank. Keeping the sprite
+                # axis-aligned (and at an integer zoom) protects its pixel
+                # clusters; rotating pixel art just re-samples it into mush.
+                #
+                # HIT FEEDBACK IS A GLINT, NOT A WHITEOUT. She used to blow out
+                # to a white silhouette for 3 ticks on every hit, and with a
+                # volley landing every 5 ticks that is most of the fight spent
+                # as a white shape -- the old-game read this mode is leaving.
+                # A hit now lays her own sprite back over her ADDITIVELY at low
+                # alpha: she brightens without losing her colours. The hard
+                # flicker is kept for the victory detonations, where it is the
+                # point.
+                vflash = vt >= 0 and (g.tick // 3) % 2 == 0
+                if vflash:
+                    boss_d = self._boss_tf("flash", boss_row, boss_col,
+                                           zoom=KT_BOSS_ZOOM,
+                                           matrixcolor=BrightnessMatrix(0.55))
                 else:
-                    boss_d = self._misc(bkey, lambda: Transform(
-                        boss_src, zoom=KT_BOSS_ZOOM, nearest=True, subpixel=True))
-                br, (bw, bh) = tex(bkey, boss_d, 220, 220)
+                    boss_d = self._boss_tf("plain", boss_row, boss_col,
+                                           zoom=KT_BOSS_ZOOM)
+                br, (bw, bh) = tex(("boss", boss_row, boss_col, vflash), boss_d, 220, 220)
                 sblit(br, (bx_draw - bw / 2.0, by_draw - bh / 2.0))
+                # LIFE RING. The chip ghost is advanced here (it used to live
+                # with the flat top bar) -- per render, which is per tick
+                # because the draw rate is the tick rate (see the governor at
+                # the bottom of render()). It snaps UP instantly on a new bar.
+                hp_frac = kt_clamp(g.boss_hp / g.boss_hp_max, 0.0, 1.0)
+                if hp_frac > self._hp_ghost:
+                    self._hp_ghost = hp_frac
+                else:
+                    self._hp_ghost += (hp_frac - self._hp_ghost) * 0.06
+                if KT_SHADER_OK and self._fx_ring_a > 0.004:
+                    lq_ = KT_LIFE_RING_QUAD
+                    ring_l = Transform(
+                        self._fx_solid(), xysize=(lq_, lq_), shader="koto.lifering",
+                        mesh=True, u_koto_col=fx_col, u_koto_fill=hp_frac,
+                        u_koto_ghost=self._hp_ghost,
+                        u_koto_split=0.5 if g.phase == "nonspell" else -1.0,
+                        u_koto_alpha=self._fx_ring_a)
+                    try:
+                        lrr, (lrw, lrh) = tex(("lifering",), ring_l, lq_, lq_)
+                        sblit(lrr, (bx_draw - lrw / 2.0, by_draw + 4.0 - lrh / 2.0))
+                    except Exception:
+                        pass
+                if g.boss_flash > 0 and not vflash:
+                    # 0.16: her art is pale already, and she is under fire
+                    # for most of a card -- at 0.30 she read as washed out.
+                    hit_d = self._boss_tf("hit", boss_row, boss_col,
+                                          zoom=KT_BOSS_ZOOM, additive=1.0, alpha=0.16)
+                    hr4, (hw4, hh4) = tex(("boss_hit", boss_row, boss_col), hit_d, 220, 220)
+                    sblit(hr4, (bx_draw - hw4 / 2.0, by_draw - hh4 / 2.0))
 
                 # Muzzle bloom: a bright flare at Kotonoha for ~7 ticks after
                 # each fire cue (set in _se), so every volley reads as HER
-                # casting. A card-colour halo under a white core, both fading;
-                # keyed on a strength bucket so the cache stays tiny.
+                # casting. A card-colour bloom under a white heart, both
+                # additive and fading; keyed on a strength bucket so the cache
+                # stays tiny.
                 mz = g.tick - g.muzzle
                 if 0 <= mz < 7:
                     mf = int((1.0 - mz / 7.0) * 3.999)      # 0..3 fade bucket
                     sb = 1 if g.muzzle_str >= 0.9 else 0
-                    halo = self._misc(("muzzle_h", g.cur_color, mf, sb),
-                        (lambda c=g.cur_color, f=mf, s=sb: Transform(
-                            EMB_DIR + "bullet.png",
-                            zoom=(1.9 + 0.7 * f) * (0.8 + 0.4 * s), subpixel=True,
-                            matrixcolor=TintMatrix(KT_PAL[c]), alpha=0.13 + 0.10 * f)))
-                    mhr, (mhw, mhh) = tex(("muzzle_h", g.cur_color, mf, sb), halo, 96, 96)
+                    mscale = 0.8 + 0.4 * sb
+                    mhr, (mhw, mhh) = tex(("muzzle_h", g.cur_color, mf, sb), self._art(
+                        "kt_fx", "flare:%d" % g.cur_color, zoom=(1.2 + 0.45 * mf) * mscale,
+                        alpha=0.30 + 0.16 * mf), 160, 160)
                     sblit(mhr, (bx_draw - mhw / 2.0, by_draw - mhh / 2.0))
-                    core = self._misc(("muzzle_c", mf, sb),
-                        (lambda f=mf, s=sb: Transform(
-                            EMB_DIR + "bullet.png",
-                            zoom=(0.9 + 0.55 * f) * (0.8 + 0.4 * s), subpixel=True,
-                            matrixcolor=TintMatrix("#ffffff"), alpha=0.22 + 0.16 * f)))
-                    mcr, (mcw, mch) = tex(("muzzle_c", mf, sb), core, 64, 64)
+                    mcr, (mcw, mch) = tex(("muzzle_c", mf, sb), self._art(
+                        "kt_fx", "flare:13", zoom=(0.45 + 0.22 * mf) * mscale,
+                        alpha=0.36 + 0.18 * mf), 80, 80)
                     sblit(mcr, (bx_draw - mcw / 2.0, by_draw - mch / 2.0))
 
             # --- player shots (under enemy bullets) ---------------------------
-            if g.shots:
-                shot_d = self._misc("shot", lambda: Transform(
-                    EMB_DIR + "pellet_player.png", zoom=1.25, nearest=True, subpixel=True,
-                    matrixcolor=TintMatrix("#ffd7e8"), alpha=0.8))
-                sr, (sw, sh) = tex("shot", shot_d, 48, 48)
-                for s in g.shots:
-                    sblit(sr, (s["x"] - sw / 2.0, s["y"] - sh / 2.0))
+            # Needles of light, drawn additively so a stream of them reads as a
+            # beam of the reader's own colour rather than a column of pellets.
+            # The unfocused spread leans with its heading (three headings, so
+            # three textures); the focused pair is a longer, whiter needle.
+            for s in g.shots:
+                lean = 0 if s["vx"] == 0.0 else (1 if s["vx"] > 0.0 else -1)
+                foc = s.get("f", False)
+                skey2 = ("pshot", foc, lean)
+                got = frame_tex.get(skey2)
+                if got is None:
+                    got = tex(skey2, self._art(
+                        "kt_player", "shot_focus" if foc else "shot",
+                        alpha=0.9, rotate=(lean * 7.45) if lean else None), 64, 64)
+                sr, (sw, sh) = got
+                sblit(sr, (s["x"] - sw / 2.0, s["y"] - sh / 2.0))
 
             # --- sparkles ------------------------------------------------------
             # Up to KT_MAX_SPARKS of these on a bomb frame, across at most
             # 15 colours x 3 fade steps of texture -- so, like the bullets and
             # the motes, the frame memo is checked before anything is built.
-            for s in g.sparks:
+            # Additive motes of light with a faint four-point glint.
+            # Low thins by a STABLE key (a hash of the dict's identity), never
+            # by list position: sparks die out of the middle of the list, so an
+            # index stride would hand the "drawn" half to different sparks
+            # every frame and the field would flicker. (Hashed, because raw
+            # ids are allocator-aligned and their low bits barely move.)
+            for s in ([s_ for s_ in g.sparks if not ((id(s_) * 2654435761) >> 21) & 1] if low else g.sparks):
                 frac = s["age"] / float(s["ttl"])
                 # ab is a 3-step fade bucket. Like every other visual bucket in
                 # this renderer, fewer alpha states means more texture reuse.
@@ -4481,20 +5499,47 @@ init python:
                 skey = ("spark", s["ci"], ab)
                 got = frame_tex.get(skey)
                 if got is None:
-                    got = tex(skey, self._misc(skey, (lambda ci=s["ci"], a=ab: Transform(
-                        EMB_DIR + "bullet.png", zoom=0.55, subpixel=True,
-                        matrixcolor=TintMatrix(KT_PAL[ci]), alpha=0.3 + 0.3 * a))), 32, 32)
+                    got = tex(skey, self._art("kt_fx", "spark:%d" % s["ci"],
+                                              alpha=0.40 + 0.28 * ab), 32, 32)
                 spr, (spw, sph) = got
                 sblit(spr, (s["x"] - spw / 2.0, s["y"] - sph / 2.0))
 
+            # --- bullet cancels -------------------------------------------------
+            # A cleared bullet leaves a small star of its own colour that lifts,
+            # hangs, and is then drawn into the soul (KTGame._update_cancels;
+            # purely cosmetic -- the clear was already scored). The modern read
+            # of a bomb or a bar break: the field does not just vanish, it
+            # POURS into you. Two twinkle frames x three fade steps per colour.
+            for c in ([c_ for c_ in g.cancels if ((id(c_) * 2654435761) >> 21) % 3 == 0] if low else g.cancels):
+                ca = c["age"]
+                ab = 2 if ca < KT_CANCEL_TTL - 30 else (1 if ca < KT_CANCEL_TTL - 12 else 0)
+                tw = ((ca // 3) + c["ph"]) % 2
+                ckey4 = ("cancel", c["ci"], ab, tw)
+                got = frame_tex.get(ckey4)
+                if got is None:
+                    got = tex(ckey4, self._art("kt_fx", "cancel:%d" % c["ci"],
+                                               zoom=0.9 if tw else 0.72,
+                                               alpha=0.35 + 0.27 * ab), 32, 32)
+                cnr, (cnw, cnh) = got
+                sblit(cnr, (c["x"] - cnw / 2.0, c["y"] - cnh / 2.0))
+
             # --- lasers (UNDER the bullets, so a bullet on a beam stays read) -
-            # Each beam is the `lens` hairline from the shared atlas, stretched
-            # to length and rotated into place. Everything the cache keys on is
-            # an int: the angle is bucketed like the bullets', the length is in
-            # 16px steps and the width in half-pixels, so a sweeping laser
-            # re-uses one texture per (bucket, colour, stage) instead of minting
-            # a new one every tick.
-            for L in g.lasers:
+            # Each beam is this mode's own beam body (kt_lasers.png: a white-hot
+            # core in a coloured body in a soft glow, 256 long), stretched to
+            # length, rotated into place and drawn as LIGHT. Four frames of
+            # striations flow along it while it burns.
+            #
+            # BUILT FRESH EVERY FRAME, NOT CACHED. A beam's width swells through
+            # its telegraph, throbs while it burns and collapses as it fades,
+            # and with the flow frames on top a cached beam minted hundreds of
+            # keys per broadside -- enough to trip _misc's wipe mid-card. There
+            # are rarely more than a couple on the stage and the texture is the
+            # shared beam atlas either way, so a fresh Transform per beam per frame
+            # is the cheap option, and it lets width and fade move continuously
+            # instead of in whole-pixel steps. The ANGLE stays bucketed: it is
+            # what the art is rotated by, and 6 degrees is invisible on a beam.
+            lframe = (g.tick // 3) % 4
+            for li, L in enumerate(g.lasers):
                 stage_l, prog = g._laser_phase(L, g.tick)
                 if stage_l is None:
                     continue
@@ -4502,24 +5547,26 @@ init python:
                 if half <= 0.05:
                     continue
                 lbucket = int(round(math.degrees(L["ang"]) / KT_ROT_DEG)) % KT_ROT_BUCKETS
-                lq = max(1, int(L["len"] / 16.0))
-                wq = max(1, int(half * 2.0))
+                # The telegraph is a hairline in the laser's OWN colour (the
+                # modern read: you learn which line becomes which beam), pale
+                # and still -- no flow -- so it can be planned around and never
+                # be mistaken for the live beam.
+                lcol = L["ci"]
                 if stage_l == "warn":
-                    # The telegraph is deliberately pale and slightly
-                    # transparent: visible enough to plan around, never bright
-                    # enough to be mistaken for the live beam.
                     lalpha = 0.30 + 0.22 * prog
-                    lcol = 13
+                    lf = 0
                 else:
                     lalpha = 1.0 if stage_l == "live" else (1.0 - prog)
-                    lcol = L["ci"]
+                    lf = lframe
                 ab_l = int(lalpha * 5.999)
-                lkey = ("laser", lbucket, lq, wq, lcol, ab_l)
-                lz = lq * 16.0 / 248.0
-                laser_d = self._misc(lkey, (lambda bk=lbucket, z=lz, w=wq, c=lcol, a=ab_l: Transform(
-                    emb_cell("lens"), xzoom=z, yzoom=w / 4.0, subpixel=True,
-                    rotate=bk * KT_ROT_DEG, matrixcolor=TintMatrix(KT_PAL[c]),
-                    alpha=(a + 0.5) / 6.0)))
+                lkey = ("laser", li)
+                # yzoom: the body is the middle 16px of the 32px art, so
+                # 2*half/16 makes the drawn body exactly 2*half wide (the
+                # collider's KT_LASER_HIT_FRAC is a fraction of that).
+                laser_d = Transform(
+                    kt_art("kt_lasers", "laser:%d:%d" % (lcol, lf)),
+                    xzoom=L["len"] / 256.0, yzoom=half / 8.0, subpixel=True,
+                    rotate=lbucket * KT_ROT_DEG, alpha=lalpha, additive=1.0)
                 # The art is drawn about its own centre, so the blit anchors on
                 # the MIDPOINT of the segment, not its origin.
                 mx = L["x"] + math.cos(L["ang"]) * L["len"] * 0.5
@@ -4536,13 +5583,23 @@ init python:
                     sblit(lr_, (mx - lw_ / 2.0, my - lh_ / 2.0))
                 except Exception:
                     pass
+                # The source: a flare where the beam leaves, sized by how fat
+                # the beam is burning (a telegraph gets a pin of light).
+                fz_ = round(min(1.6, 0.35 + half / 12.0), 1)
+                lsk = ("lsrc", lcol, ab_l, fz_)
+                lsr, (lsw, lsh) = tex(lsk, self._art(
+                    "kt_fx", "flare:%d" % lcol, zoom=fz_, alpha=(ab_l + 0.5) / 6.0), 128, 128)
+                sblit(lsr, (L["x"] - lsw / 2.0, L["y"] - lsh / 2.0))
 
             # --- enemy bullets: THE hot loop ----------------------------------
             bullets = g.bullets
-            # White cores look good on orb bullets but double the blit count.
-            # Disable them once density is high enough that FPS matters more
-            # than the small highlight.
-            draw_cores = len(bullets) <= 320
+            # The spawn ring is an extra blit per NEWBORN bullet; once the field
+            # is dense enough that frame time matters more, it is skipped. (The
+            # old second "white core" blit on every orb is gone outright: the
+            # art carries its own white-hot core now.)
+            draw_rings = len(bullets) <= 320 and not low
+            twirl = KT_TWIRL
+            spawn_body = KTStage.SPAWN_BODY
             # Patience tell, resolved ONCE per frame: while the soul is still,
             # every calm bullet drops to a ghost texture -- the field itself
             # answers your stillness. Move and they snap solid again.
@@ -4561,33 +5618,46 @@ init python:
                 age = b["age"]
                 x = b["x"]
                 y = b["y"]
+                ci = b["ci"]
+                # Twirling kinds turn on their own clock (KT_TWIRL): the bucket
+                # comes from the bullet's age, offset by its ring phase so the
+                # stars in one ring are not all at the same angle. Age stops
+                # under the Seer's time stop, so a stopped star stops turning.
+                tw_ = twirl.get(kind)
+                if tw_ is not None:
+                    bucket = ((age + int(b["ph"] * 5.0)) // tw_[1]) % tw_[0]
+                elif kind == "butterfly" and (age // 6) % 2:
+                    # The other wing-beat. Same heading bucket, different art.
+                    kind = "butterfly_b"
                 # MATERIALIZE (see the SPAWN MATERIALIZE block up top): for its
-                # first KT_SPAWN_TICKS a bullet is still arriving -- white-hot,
-                # translucent, and smaller than its true size -- so it grows into
-                # the field instead of appearing in it. Everything here is a
-                # bucketed cache key, so the whole effect is free of new textures
-                # beyond a couple of steps per kind.
+                # first KT_SPAWN_TICKS a bullet is still arriving -- translucent
+                # and a little under size -- while a ring of its own colour
+                # closes down onto it from well outside, the modern Touhou spawn
+                # read. The ring is the telegraph: for those few ticks you can
+                # see where a wall is about to be before it is one. Everything
+                # here is a bucketed cache key (ring: colour x 8 steps x 3 body
+                # sizes), so the whole effect is a handful of textures.
                 if age < KT_SPAWN_TICKS:
                     grow = (age + 1) / float(KT_SPAWN_TICKS)
-                    ci = 13 if age < 4 else b["ci"]
-                    sq = max(1, int(round(sq * (0.40 + 0.60 * grow))))
+                    sq = max(1, int(round(sq * (0.72 + 0.28 * grow))))
                     ab = min(KT_SPAWN_STEPS - 1, int(grow * KT_SPAWN_STEPS))
-                    # The emission flare: one bright, wide, very faint orb that
-                    # swells and dies over the first few ticks, so a volley reads
-                    # as having been CAST at a point rather than teleported in.
-                    # Suppressed at the same density draw_cores is, so a packed
-                    # screen never pays for it.
-                    if draw_cores and age < KT_SPAWN_FLARE_TICKS:
-                        fstep = KT_SPAWN_FLARE_TICKS - age
-                        fkey = ("spawnflare", fstep)
-                        flare_d = self._misc(fkey, (lambda s=fstep: Transform(
-                            EMB_DIR + "bullet.png", zoom=1.35 * (0.9 + 0.45 * s),
-                            subpixel=True, matrixcolor=TintMatrix("#ffffff"),
-                            alpha=0.06 + 0.05 * s)))
-                        flr, (flw, flh) = tex(fkey, flare_d, 96, 96)
-                        sblit(flr, (x - flw / 2.0, y - flh / 2.0))
+                    if draw_rings:
+                        body = spawn_body.get(kind, 18.0) * b["sq"] * 0.25
+                        bcl = 0 if body < 21.0 else (1 if body < 34.0 else 2)
+                        rkey = ("sring", ci, age, bcl)
+                        rgot = frame_tex.get(rkey)
+                        if rgot is None:
+                            # Faint on purpose: a bloom spawns 30 bullets on one
+                            # point, and 30 rings added on top of each other at
+                            # any real alpha is a white blob over her. Faint
+                            # rings stack into a soft burst instead.
+                            dia = (20.0, 28.0, 50.0)[bcl] * (2.3 - 1.3 * grow)
+                            rgot = tex(rkey, self._art(
+                                "kt_fx", "spawnring:%d" % ci, zoom=round(dia / 40.0, 2),
+                                alpha=round(0.08 + 0.30 * (1.0 - grow), 2)), 192, 192)
+                        rr_, (rw_, rh_) = rgot
+                        sblit(rr_, (x - rw_ / 2.0, y - rh_ / 2.0))
                 else:
-                    ci = b["ci"]
                     ab = KT_SPAWN_STEPS
                 gh = 1 if (calm_ghost and b["calm"]) else 0
                 # Frame memo FIRST. tex() takes the displayable as an argument,
@@ -4604,13 +5674,6 @@ init python:
                     got = tex(key, self._bullet_tf(kind, ci, bucket, sq, gh, ab))
                 r, (w, h) = got
                 sblit(r, (x - w / 2.0, y - h / 2.0))
-                if draw_cores and not gh and ci != 13 and (kind == "orb" or kind == "big"):
-                    ckey = (kind, 13, 0, max(1, sq // 2), 0, ab)
-                    cgot = frame_tex.get(ckey)
-                    if cgot is None:
-                        cgot = tex(ckey, self._bullet_tf(kind, 13, 0, max(1, sq // 2), 0, ab))
-                    cr, (cw, ch) = cgot
-                    sblit(cr, (x - cw / 2.0, y - ch / 2.0))
 
             # --- the stopped clock (Seer mask) ----------------------------------
             # While enemy time is frozen the whole field sits under cold glass:
@@ -4632,7 +5695,7 @@ init python:
                 if bt < 10:
                     fa = int((1.0 - bt / 10.0) * 120)
                     stage.blit(rect("#ffd7e8" + ("%02x" % fa), KT_W, KT_H), (0, 0))
-                # Bomb WASH: a painted radial disc from the shared atlas, blown
+                # Bomb WASH: this mode's own blast disc (kt_bombwash.png), blown
                 # out from the ship underneath the shader rings. The rings are
                 # the edge of the blast; this is its body -- without it the
                 # bomb reads as three expanding outlines around empty stage.
@@ -4646,9 +5709,11 @@ init python:
                     # Continuous, not bucketed. The old EIGHT alpha steps meant
                     # the brightest thing the player ever triggers dimmed out in
                     # eight visible drops across 36 ticks.
+                    # The blast body is its own art (a pink bloom with an
+                    # inked burst of rays and a rim), drawn as light.
                     wash_d = Transform(
-                        emb_cell("bloom_soft"), zoom=bw_px / 245.0, subpixel=True,
-                        matrixcolor=TintMatrix("#ffd7e8"), alpha=bw_a)
+                        kt_art("kt_bombwash", "bombwash"), zoom=bw_px / 256.0,
+                        subpixel=True, alpha=bw_a, additive=1.0)
                     try:
                         bwq = int(bw_px) + 32
                         bwr, (bww, bwh) = tex(("bombwash",), wash_d, bwq, bwq)
@@ -4749,11 +5814,10 @@ init python:
                     except Exception:
                         pass
                 if aged < 12:
-                    # Tiny white flare at the death point, shrinking by using
-                    # smaller cached orb scales instead of a custom animation.
+                    # A white flare at the death point, shrinking in six steps.
                     sqv = max(2, 8 - (aged // 2))
-                    fkey = ("orb", 13, 0, sqv)
-                    fr3, (fw3, fh3) = tex(fkey, self._bullet_tf("orb", 13, 0, sqv))
+                    fr3, (fw3, fh3) = tex(("dflare", sqv), self._art(
+                        "kt_fx", "flare:13", zoom=0.3 * sqv, alpha=0.9), 192, 192)
                     sblit(fr3, (dfx["x"] - fw3 / 2.0, dfx["y"] - fh3 / 2.0))
 
             # --- player --------------------------------------------------------
@@ -4777,28 +5841,32 @@ init python:
                         del self.ptrail[0]
                 if g.focus:
                     self.ptrail = []
-                if self.ptrail and not g.focus:
+                if self.ptrail and not g.focus and not low:
                     p0x, p0y = self.ptrail[0]
                     if abs(g.px - p0x) + abs(g.py - p0y) > 9.0:
-                        pghost = self._misc("player_ghost", lambda: Transform(
-                            KT_DIR + "player.png", zoom=3.0, nearest=True,
-                            subpixel=True, alpha=0.20))
-                        pgr, (pgw, pgh) = tex("player_ghost", pghost, 64, 64)
+                        pgr, (pgw, pgh) = tex("player_ghost", self._art(
+                            "kt_player", "soul", zoom=KT_SOUL_ZOOM, alpha=0.26), 64, 64)
                         for gx, gy in self.ptrail[:-1]:
                             sblit(pgr, (gx - pgw / 2.0, gy - pgh / 2.0))
                 if not blink_off:
-                    # During the deathbomb window the ship burns white-hot --
+                    # Options: two bookmark crystals that ride with the soul --
+                    # spread wide and a little behind while you move freely,
+                    # tucked in close ahead when you focus (the modern shot-type
+                    # read of "focused"). The spread is eased per SIM tick in
+                    # _advance_fx_env, so they glide between the two stances.
+                    of = self._fx_opt
+                    orr, (ow, oh) = tex("option", self._art(
+                        "kt_player", "option", add=False), 32, 32)
+                    for side in (-1.0, 1.0):
+                        obob = math.sin(g.tick * 0.11 + side * 1.3) * 1.6
+                        ox = g.px + side * (25.0 - 14.0 * of)
+                        oy = g.py + 7.0 - 24.0 * of + obob
+                        sblit(orr, (ox - ow / 2.0, oy - oh / 2.0))
+                    # During the deathbomb window the soul burns white-hot --
                     # the "you just got clipped, X NOW" telegraph.
-                    if g.dying_tick is not None:
-                        pl = self._misc("player_hit", lambda: Transform(
-                            KT_DIR + "player.png", zoom=3.0, nearest=True, subpixel=True,
-                            matrixcolor=BrightnessMatrix(0.85)))
-                        plkey = "player_hit"
-                    else:
-                        pl = self._misc("player", lambda: Transform(
-                            KT_DIR + "player.png", zoom=3.0, nearest=True, subpixel=True))
-                        plkey = "player"
-                    plr, (plw, plh) = tex(plkey, pl, 64, 64)
+                    plkey = "soul_hot" if g.dying_tick is not None else "soul"
+                    plr, (plw, plh) = tex(("player", plkey), self._art(
+                        "kt_player", plkey, zoom=KT_SOUL_ZOOM, add=False), 64, 64)
                     sblit(plr, (g.px - plw / 2.0, g.py - plh / 2.0))
                 if self._fx_focus_a > 0.004:
                     # Focus sigil: a small, fast copy of the boss spell circle
@@ -4832,24 +5900,24 @@ init python:
                             pass
                     if not drew_sigil:
                         fring = Transform(
-                            EMB_DIR + "bullet.png", zoom=1.7, subpixel=True,
-                            matrixcolor=TintMatrix("#ff3b73"), alpha=0.5 * fa)
-                        fr, (fw, fh) = tex(("focus_ring",), fring, 48, 48)
+                            kt_art("kt_fx", "spawnring:0"), zoom=0.8, subpixel=True,
+                            alpha=0.6 * fa, additive=1.0)
+                        fr, (fw, fh) = tex(("focus_ring",), fring, 64, 64)
                         sblit(fr, (g.px - fw / 2.0, g.py - fh / 2.0))
-                    hb = self._misc("hitbox", lambda: Transform(
-                        EMB_DIR + "bullet.png", zoom=0.5, subpixel=True))
-                    hr_, (hw, hh) = tex("hitbox", hb, 24, 24)
+                    # The true hitbox: a white point in a crimson ring, drawn
+                    # opaque (it is the one thing on the stage that must never
+                    # be lost in the light around it).
+                    hr_, (hw, hh) = tex("hitbox", self._art(
+                        "kt_player", "hitbox", add=False), 24, 24)
                     sblit(hr_, (g.px - hw / 2.0, g.py - hh / 2.0))
                 # Graze pulse: a cyan ripple pops off the ship for 8 ticks after
                 # every graze -- close calls FEEL paid. Eight cached transforms
                 # total (one per age step), keyed on the tick delta.
                 gpa = g.tick - g.graze_tick
                 if 0 <= gpa < 8:
-                    gkey = ("grzp", gpa)
-                    gp_d = self._misc(gkey, (lambda a4=gpa: Transform(
-                        EMB_DIR + "bullet.png", zoom=0.9 + a4 * 0.24, subpixel=True,
-                        matrixcolor=TintMatrix("#5cd7ff"), alpha=0.44 - a4 * 0.05)))
-                    gpr, (gpw, gph) = tex(gkey, gp_d, 72, 72)
+                    gpr, (gpw, gph) = tex(("grzp", gpa), self._art(
+                        "kt_fx", "spawnring:6", zoom=round(0.42 + gpa * 0.13, 2),
+                        alpha=round(0.62 - gpa * 0.07, 2)), 96, 96)
                     sblit(gpr, (g.px - gpw / 2.0, g.py - gph / 2.0))
 
             # --- spell-5 darkness (GPU spotlight) ------------------------------
@@ -4880,126 +5948,102 @@ init python:
                                                 cyy if ddy > 0 else cyy - 24))
 
             # --- in-stage HUD ---------------------------------------------------
-            # Boss HP bar + remaining-bar pips + spell timer.
+            # The modern Touhou layout. Her life is the RING around her (drawn
+            # with the boss, above); up here are her name and the stars for the
+            # bars she has left (top-left), the timer with its hundredths (top
+            # centre) and, under a spell card, the card's name, bonus and
+            # history (top-right, where the declaration's flight lands).
             if g.phase in ("nonspell", "declare", "spell"):
-                bw_ = KT_W - 20
-                stage.blit(rect("#0a1220dd", bw_, 10), (10, 8))
-                frac = kt_clamp(g.boss_hp / g.boss_hp_max, 0.0, 1.0)
-                # Chip ghost: a pale segment lags behind the true fill (snaps
-                # UP instantly on a new bar), so burst damage reads as a bite
-                # being taken out of her instead of the bar just being shorter.
-                if frac > self._hp_ghost:
-                    self._hp_ghost = frac
-                else:
-                    self._hp_ghost += (frac - self._hp_ghost) * 0.06
-                # The spell half of the bar renders dimmer so the 50% flip is
-                # readable at a glance.
-                fill_w = int(bw_ * frac)
-                ghost_w = int(bw_ * self._hp_ghost)
-                if ghost_w > fill_w:
-                    stage.blit(rect("#f5faff3c", ghost_w - fill_w, 10), (10 + fill_w, 8))
-                if fill_w > 0:
-                    stage.blit(rect(KT_PAL[bar["color"]], fill_w, 10), (10, 8))
-                    stage.blit(rect("#f5faff", 2, 10), (10 + fill_w - 1, 8))
-                half_x = 10 + bw_ // 2
-                stage.blit(rect("#02040b", 2, 14), (half_x, 6))
+                if not KT_SHADER_OK:
+                    # No shaders, no ring: fall back to a thin bar so the
+                    # fight is still readable.
+                    bw_ = KT_W - 20
+                    stage.blit(rect("#0a1220dd", bw_, 4), (10, 2))
+                    fill_w = int(bw_ * kt_clamp(g.boss_hp / g.boss_hp_max, 0.0, 1.0))
+                    if fill_w > 0:
+                        stage.blit(rect(KT_PAL[bar["color"]], fill_w, 4), (10, 2))
+                nmr_, (_nmw, _nmh) = tex(("t", "hud_name"), self._text(
+                    "KOTONOHA  KATSURA", 12, "#ffd7e8", True, True), 260, 22)
+                stage.blit(nmr_, (12, 6))
                 if g.endless:
                     # No fixed bar count in endless -- show the wave instead.
                     wvr, (wvw, wvh) = tex(("wave_hud", g.endless_wave),
-                                        self._text("WAVE %d" % (g.endless_wave + 1), 15, "#ffd7e8", True, True), 170, 26)
-                    sblit(wvr, (16, 26))
+                                        self._text("WAVE %d" % (g.endless_wave + 1), 13, "#ffd7e8", True, True), 170, 24)
+                    sblit(wvr, (12, 24))
                 elif g.debug_wave is not None:
-                    # Wave viewer: name the forced pairing instead of bar pips.
+                    # Wave viewer: name the forced pairing instead of stars.
                     dv = "VIEWING  NS %d / SP %d" % (g.debug_wave[0] + 1, g.debug_wave[1] + 1)
                     dvr, (dvw, dvh) = tex(("t", "dbwave", dv),
-                                        self._text(dv, 15, "#ffb84a", True, True), 260, 26)
-                    sblit(dvr, (16, 26))
+                                        self._text(dv, 13, "#ffb84a", True, True), 260, 24)
+                    sblit(dvr, (12, 24))
                 else:
-                    pips = len(KT_BARS) - g.bar_index - 1
-                    for i in range(pips):
-                        pkey = ("orb", 1, 0, 3)
-                        pr2, (pw2, ph2) = tex(pkey, self._bullet_tf("orb", 1, 0, 3))
-                        sblit(pr2, (16 + i * 16 - pw2 / 2.0 + 6, 30.0 - ph2 / 2.0))
-                secs = max(0, g.time_left // 60)
-                tcol = "#ff5c6a" if secs <= 10 else "#f5faff"
-                tr, (tw, th) = tex(("timer", secs, tcol),
-                                    self._text("%02d" % secs, 22, tcol), 72, 34)
-                stage.blit(tr, (KT_W - tw - 12, 24))
-                # Live capture-bonus ticker (classic Touhou): what the card is
-                # worth RIGHT NOW, draining with the clock, greyed the moment
-                # the bonus is forfeit. Quantized to 5000s so the text cache
-                # sees a few strings per second, not sixty.
-                if g.phase == "spell":
+                    # One star per spell card still to come after this one.
+                    stars = len(KT_BARS) - g.bar_index - 1
+                    if stars > 0:
+                        sir, (siw, sih) = tex("hud_star", self._art(
+                            "kt_player", "icon_star", zoom=0.85, add=False), 32, 32)
+                        for i in range(stars):
+                            sblit(sir, (14 + i * 16 - siw / 2.0 + 6, 32.0 - sih / 2.0))
+                # The timer: whole seconds large, hundredths small, both drawn
+                # from cached glyphs (a new string every tick would otherwise be
+                # a new Text every tick).
+                tl_ = max(0, g.time_left)
+                secs = tl_ // 60
+                cs = (tl_ % 60) * 100 // 60
+                tcol = "#ff5c6a" if secs < 10 else "#f5faff"
+                self._draw_glyphs(stage, tex, "%02d" % secs, 314.0, 2.0, 24, tcol, align=1.0)
+                self._draw_glyphs(stage, tex, ".%02d" % cs, 313.0, 12.0, 14, tcol, align=0.0)
+
+            # Spell card name: staged inside the declaration ribbon, then FLOWN
+            # into its HUD slot across the phase flip. See _draw_cutin.
+            if g.phase == "declare":
+                self._draw_cutin(g, bar, stage, tex, rect, fx_col)
+            elif g.phase == "spell":
+                card_lines = self._card_lines(bar["card"])
+                # The far half of the flight. Until it lands, the HUD name is
+                # still in the air and _card_flight_draw owns it -- drawing the
+                # parked copy here as well would put two of it on the stage.
+                flight = self._card_flight(g)
+                if flight < 1.0:
+                    self._card_flight_draw(g, bar, flight, stage, tex)
+                else:
+                    line_y = KT_HUD_NAME_Y
+                    for i, line in enumerate(card_lines):
+                        size = self._size_for_line(line, 16 if i == 0 else 15, 12)
+                        color = KT_PAL[bar["color"]] if i == 0 and len(card_lines) > 1 else "#ffd7e8"
+                        nr, (nw, nh) = tex(("cardname_sm", g.bar_index, i, size),
+                                            self._text(line, size, color, True, True), KT_W - 130, 28)
+                        stage.blit(nr, (int(KT_HUD_R - nw), int(line_y)))
+                        line_y += nh + 2
+                    # The plate's rule: a hairline in the card's accent drawn
+                    # leftward from a diamond at the right edge.
+                    rlr, (rlw, rlh) = tex("hud_rule", self._misc("hud_rule", lambda: Transform(
+                        kt_art("kt_player", "rule"), xzoom=-1.0, alpha=0.9)), 260, 16)
+                    stage.blit(rlr, (int(KT_HUD_R + 6 - rlw), int(line_y - 3)))
+                    # Live capture bonus (classic Touhou): what the card is
+                    # worth RIGHT NOW, draining with the clock, and the card's
+                    # history. Greyed the moment the bonus is forfeit.
+                    hc, ha = g.cur_hist
+                    htxt = "HISTORY %02d/%02d" % (hc, ha)
                     if g.spell_ok:
                         bfrac = kt_clamp(g.time_left / float(max(1, g.cur_sp_time)), 0.0, 1.0)
                         bval = int(g.cur_value * (0.30 + 0.70 * bfrac))
-                        bval -= bval % 5000
-                        btxt = "BONUS " + format(bval, ",")
+                        bval -= bval % 10
+                        btxt = "BONUS " + format(bval, ",") + "   " + htxt
                         bcol = "#ffd7e8"
                     else:
-                        btxt = "BONUS ----"
+                        btxt = "BONUS FAILED   " + htxt
                         bcol = "#9aa8bd"
-                    bkr, (bkw, bkh) = tex(("sbonus", btxt),
-                                        self._text(btxt, 12, bcol, True), 240, 24)
-                    stage.blit(bkr, (KT_W - bkw - 12, 54))
+                    self._draw_glyphs(stage, tex, btxt, KT_HUD_R, line_y + 6.0, 11, bcol, align=1.0)
 
-            # Spell card name: big + centred while declaring, parked top-left
-            # while the card runs.
-            if g.phase == "declare":
-                pt = g.phase_tick
-                # Portrait cut-in: her card-colour silhouette sweeps across the
-                # stage behind the declaration (one cached texture -- only the
-                # blit position moves), riding between two thin framing rails.
-                cin_key = ("cutin", bar["color"])
-                cin = self._misc(cin_key, (lambda c=bar["color"]: Transform(
-                    KT_BOSS_FRAMES[KT_BOSS_CAST][2], zoom=3.6, nearest=True,
-                    subpixel=True, matrixcolor=TintMatrix(KT_PAL[c]), alpha=0.22)))
-                cir, (ciw, cih) = tex(cin_key, cin, 640, 720)
-                sblit(cir, (KT_W + 150.0 - pt * 10.5 - ciw / 2.0, 235.0 - cih / 2.0))
-                stage.blit(rect(KT_PAL[bar["color"]] + "26", KT_W, 2), (0, 168))
-                stage.blit(rect(KT_PAL[bar["color"]] + "26", KT_W, 2), (0, 300))
-                # Mask cards declare as MASK CARD, soul cards as SOUL CARD --
-                # the one-frame tell that an Endless-exclusive is about to be
-                # read at you.
-                if g.cur_is_soul:
-                    kick_label = "SOUL CARD"
-                elif g.cur_is_mask:
-                    kick_label = "MASK CARD"
-                else:
-                    kick_label = "SPELL CARD"
-                kick, (kw2, kh2) = tex(("t", "kick", kick_label), self._text(kick_label, 15, KT_PAL[bar["color"]], True, True), 200, 28)
-                a = kt_clamp(pt / 18.0, 0.0, 1.0)
-                card_lines = self._card_lines(bar["card"])
-                yy = 210.0 - (1.0 - a) * 26.0
-                if (pt // 3) % 4 != 0 or pt > 24:
-                    stage.blit(kick, (int(KT_W / 2 - kw2 / 2), int(yy - 32)))
-                    line_y = int(yy)
-                    for i, line in enumerate(card_lines):
-                        size = self._size_for_line(line, 27, 21)
-                        nr, (nw, nh) = tex(("cardname", g.bar_index, i, size),
-                                            self._text(line, size, "#f5faff", True, True), KT_W - 44, 46)
-                        stage.blit(nr, (int(KT_W / 2 - nw / 2), line_y))
-                        line_y += nh + 4
-                flash = kt_clamp((8 - pt) / 8.0, 0.0, 1.0)
-                if flash > 0.0:
-                    stage.blit(rect("#f5faff" + ("%02x" % int(flash * 110)), KT_W, KT_H), (0, 0))
-            elif g.phase == "spell":
-                card_lines = self._card_lines(bar["card"])
-                line_y = 44
-                for i, line in enumerate(card_lines):
-                    size = self._size_for_line(line, 16 if i == 0 else 15, 12)
-                    color = KT_PAL[bar["color"]] if i == 0 and len(card_lines) > 1 else "#ffd7e8"
-                    nr, (nw, nh) = tex(("cardname_sm", g.bar_index, i, size),
-                                        self._text(line, size, color, True, True), KT_W - 130, 28)
-                    stage.blit(nr, (14, line_y))
-                    line_y += nh + 2
-                if not g.spell_ok:
-                    fr2, (fw2, fh2) = tex(("t", "nobonus"), self._text("BONUS FAILED", 11, "#9aa8bd", True), 140, 24)
-                    stage.blit(fr2, (14, line_y + 2))
-
-            # Enemy position marker on the bottom lip (Touhou's "Enemy" carat).
+            # ENEMY tag on the bottom lip, riding her x (the modern marker: a
+            # small labelled plate in the card's colour, not a bare bar).
             if boss_on and g.phase in ("nonspell", "spell", "declare"):
-                stage.blit(rect("#ff8fc8", 26, 5), (int(g.bx) - 13, KT_H - 7))
+                ex_ = int(kt_clamp(g.bx, 26.0, KT_W - 26.0))
+                stage.blit(rect(KT_PAL[g.cur_color] + "d0", 48, 13), (ex_ - 24, KT_H - 14))
+                etr, (etw, eth) = tex(("t", "enemy_tag"), self._text(
+                    "ENEMY", 10, "#f5faff", True, True), 80, 20)
+                stage.blit(etr, (int(ex_ - etw / 2.0), int(KT_H - 14 + (13 - eth) / 2.0)))
 
             # Banners (EXTEND! / SPELL CARD CAPTURED! / +1 BOMB...), rising+fading.
             for bn in g.banners:
@@ -5009,19 +6053,28 @@ init python:
                 frac = age / float(bn["ttl"])
                 ab = 3 - min(3, int(frac * 4.0))
                 bsize = self._size_for_line(bn["text"], bn["size"], 22)
+                # ab is a 3-step fade bucket. It used to sit in the tex() key
+                # WITHOUT reaching the displayable, so every banner rose at a
+                # flat alpha and then vanished on its last tick; all four
+                # buckets were the same picture under four different keys.
                 bnr, (bnw, bnh) = tex(("banner", bn["text"], bn["ci"], bsize, ab),
-                                        self._text(bn["text"], bsize, KT_PAL[bn["ci"]], True, True), KT_W - 36, 72)
+                                        self._text_fade(bn["text"], bsize, KT_PAL[bn["ci"]], True, ab, 4), KT_W - 36, 72)
                 stage.blit(bnr, (int(KT_W / 2 - bnw / 2), int(bn["y"] - frac * 20.0)))
 
             # Intro nameplate / end cards.
             if g.phase == "intro":
                 pt = g.phase_tick
                 if pt > 20:
-                    n1, (w1, h1) = tex(("t", "koto1"), self._text("KATSURA  KOTONOHA", 34, "#ff8fc8", True, True), 520, 62)
+                    n1, (w1, h1) = tex(("t", "koto1"), self._text("KOTONOHA  KATSURA", 34, "#ff8fc8", True, True), 520, 62)
                     stage.blit(n1, (int(KT_W / 2 - w1 / 2), 250))
                 if pt > 50:
-                    sub = "Endless Reading  --  No Last Page" if g.endless else "The Last Word Etched"
-                    n2, (w2, h2) = tex(("t", "koto2", g.endless), self._text(sub, 17, "#f5faff", True), 480, 34)
+                    if g.endless and g.practice:
+                        sub = "Endless Practice  --  No Last Page, No Last Life"
+                    elif g.endless:
+                        sub = "Endless Reading  --  No Last Page"
+                    else:
+                        sub = "The Last Word Etched"
+                    n2, (w2, h2) = tex(("t", "koto2", sub), self._text(sub, 17, "#f5faff", True), 520, 34)
                     stage.blit(n2, (int(KT_W / 2 - w2 / 2), 296))
             elif g.phase == "victory":
                 # Results card fades in staged, then the final boom's white-out
@@ -5111,10 +6164,9 @@ init python:
 
             # --- side HUD (screen space, right panel) ---------------------------
             hx = KT_SX + KT_W + 42
-            # Panel spine: a card-colour rail with a soft pink echo, so the
-            # score panel always carries the current card's accent.
-            rv.blit(rect(KT_PAL[g.cur_color] + "3c", 3, 604), (hx - 24, 58))
-            rv.blit(rect("#ff8fc81e", 1, 604), (hx - 18, 58))
+            # Panel spine: a card-colour rail beside the frame's pink divider,
+            # so the score panel always carries the current card's accent.
+            rv.blit(rect(KT_PAL[g.cur_color] + "3c", 3, 604), (hx - 26, 58))
             # Endless keeps its own hi-score; the fixed run keeps the other.
             hi_best = (persistent.kotomode_endless_hiscore if g.endless else persistent.kotomode_hiscore) or 0
             hi = max(g.score, hi_best)
@@ -5123,18 +6175,22 @@ init python:
                 ("SCORE", format(g.score, ",")),
             ]
             y = 66
+            # A divider rule under each heading, and the values drawn from
+            # cached glyphs (the score changes every few ticks all fight).
+            prl, (prw, prh) = tex("panel_rule", self._art(
+                "kt_player", "rule", add=False, alpha=0.75), 260, 16)
             for label, val in rows:
                 lr, (lw, lh) = tex(("t", "lbl" + label), self._text(label, 15, "#ff8fc8", True, True), 180, 28)
                 rv.blit(lr, (hx, y))
-                vr, (vw, vh) = tex(("hudval", label, val), self._text(val, 24, "#f5faff", True), 280, 42)
-                rv.blit(vr, (hx + 24, y + 22))
+                rv.blit(prl, (hx - 4, y + 15))
+                self._draw_glyphs(rv, tex, val, hx + 24, y + 25, 24, "#f5faff")
                 y += 66
             # Lives (hearts) + bombs (daggers).
             lr, (lw, lh) = tex(("t", "lives"), self._text("PLAYER", 15, "#ff8fc8", True, True), 180, 28)
             rv.blit(lr, (hx, y))
-            heart = self._misc("life_icon", lambda: Transform(
-                KT_DIR + "player.png", zoom=2.2, nearest=True))
-            hr2, (hw2, hh2) = tex("life_icon", heart, 48, 48)
+            rv.blit(prl, (hx - 4, y + 15))
+            hr2, (hw2, hh2) = tex("life_icon", self._art(
+                "kt_player", "soul", zoom=0.62, add=False), 48, 48)
             if g.practice or g.debug:
                 rv.blit(hr2, (hx + 24, y + 26))
                 inf_tag = "x INF  (DEBUG)" if g.debug else "x INF  (PRACTICE)"
@@ -5147,13 +6203,21 @@ init python:
             y += 66
             br2, (bw2, bh2) = tex(("t", "bombs"), self._text("BOMB", 15, "#ff8fc8", True, True), 180, 28)
             rv.blit(br2, (hx, y))
-            bomb_i = self._misc("bomb_icon", lambda: Transform(
-                KT_DIR + "bomb.png", zoom=2.4, nearest=True))
-            bir, (biw, bih) = tex("bomb_icon", bomb_i, 48, 48)
+            rv.blit(prl, (hx - 4, y + 15))
+            bir, (biw, bih) = tex("bomb_icon", self._art(
+                "kt_player", "icon_bomb", zoom=0.95, add=False), 48, 48)
             for i in range(g.bombs):
                 rv.blit(bir, (hx + 24 + i * (biw + 10), y + 24))
             y += 70
-            if g.endless:
+            if g.endless and g.practice:
+                # Endless Practice sets no record, so the slot that shows the
+                # record in real Endless counts falls instead: the only thing a
+                # run with unlimited lives can be measured by.
+                stat_rows = (("GRAZE", str(g.graze)),
+                            ("CARDS", str(g.captures)),
+                            ("WAVE", str(g.endless_wave + 1)),
+                            ("FALLS", str(g.deaths)))
+            elif g.endless:
                 stat_rows = (("GRAZE", str(g.graze)),
                             ("CARDS", str(g.captures)),
                             ("WAVE", str(g.endless_wave + 1)),
@@ -5166,8 +6230,7 @@ init python:
             for label, val in stat_rows:
                 lr3, (lw3, lh3) = tex(("t", "lbl2" + label), self._text(label, 13, "#ff8fc8", True, True), 120, 24)
                 rv.blit(lr3, (hx, y))
-                vr3, (vw3, vh3) = tex(("hudval2", label, val), self._text(val, 18, "#f5faff", True), 120, 30)
-                rv.blit(vr3, (hx + 110, y - 2))
+                self._draw_glyphs(rv, tex, val, hx + 110, y - 2, 18, "#f5faff")
                 y += 36
             # Mode chip: which reading this is, wearing its own colour, with a
             # small pip of the same colour as a bullet-point.
@@ -5176,6 +6239,8 @@ init python:
                     tag, tcol2 = "WAVE VIEWER", "#ffb84a"
                 elif g.debug:
                     tag, tcol2 = "DEBUG READING", "#ffb84a"
+                elif g.practice and g.endless:
+                    tag, tcol2 = "ENDLESS PRACTICE", "#5cd7ff"
                 elif g.practice:
                     tag, tcol2 = "PRACTICE READING", "#8affb0"
                 else:
@@ -5380,7 +6445,7 @@ screen koto_keyboard_notice():
 # slider is a draggable widget, and a Creator-Defined Displayable can draw one
 # but can never be one -- so the whole panel moved out here when the volume did.
 #
-# It carries the SAME `Preference("... volume")` bars the Settings screen and the
+# It carries the SAME `Preference("...volume")` bars the Settings screen and the
 # Matsuda fight's pause menu use, so this is the game's one persistent mix being
 # nudged mid-run, not a per-fight copy of it. Kotonoha's stage music rides the
 # `music` mixer and every stage cue rides `sfx`, so both bars are live here.
@@ -5442,11 +6507,13 @@ screen kt_pause_panel(game):
                     style "kt_pause_button"
                     action Function(game.toggle_pause)
 
-                textbutton _("GIVE UP"):
+                # Endless Practice has no game over, so leaving is the only
+                # way a run ends -- it is not giving up on anything.
+                textbutton (_("END RUN") if (game.endless and game.practice) else _("GIVE UP")):
                     style "kt_pause_quit_button"
                     action Function(game.give_up)
 
-            text "ESC  RESUME        Q  GIVE UP":
+            text ("ESC  RESUME        Q  END RUN" if (game.endless and game.practice) else "ESC  RESUME        Q  GIVE UP"):
                 style "kt_pause_hint"
                 xalign 0.5
 
@@ -5464,7 +6531,7 @@ screen kototouhou_screen(game):
     add KTStage(game)
 
     # Right-panel footer.
-    text "KATSURA  KOTONOHA" style "msbf_shmup_card_kicker":
+    text "KOTONOHA  KATSURA" style "msbf_shmup_card_kicker":
         xpos (KT_SX + KT_W + 42)
         ypos 26
     text "Z SHOOT   X BOMB   ARROWS MOVE   SHIFT FOCUS   ESC PAUSE" style "msbf_shmup_controls_small":
@@ -5542,8 +6609,8 @@ label kototouhou:
             hide kotonoha
             scene black with dissolve_scene_full
             stop music fadeout 1.0
-            play music enterm
-            scene bg ether with dissolve_scene_full
+            play music theme_matsuda_a
+            scene bg matsudavr with dissolve_scene_full
             show matsuda neut at t11 zorder 2
             ma "Smart. You're a total pansy, but at least you're alive. Who else?"
             jump msbf_roster_choice
@@ -5577,6 +6644,14 @@ label kototouhou_mode_select:
             ko "That's completely fine. Everyone starts somewhere."
             ma "{i}(from somewhere offstage){/i} NOOOOOOB!"
             ko "...She means it with love. Probably. No high score for you, though."
+        "Endless practice. (unlimited lives, random forever -- no records)":
+            $ kt_practice = True
+            $ kt_debug = False
+            $ kt_endless = True
+            ko "Every page, shuffled, with no last one. And you can't run out of lives."
+            ko "So it isn't a reading, exactly. It's more like standing out in the rain on purpose."
+            ma "{i}(from the booth){/i} THIS one's for the adrenaline junkies! No stakes, all spectacle! Go feel like a legend!"
+            ko "Nothing gets written down. ...I'll still be watching, though."
         "Debug reading. (DEV ONLY: every shot one-shots a bar)" if config.developer:
             $ kt_practice = False
             $ kt_debug = True
@@ -5740,6 +6815,33 @@ label kototouhou_defeat:
             return
 
 label kototouhou_quit:
+    if kt_last_endless and kt_last_practice:
+        # Endless Practice cannot end any other way, so this is its results
+        # screen, not a scolding. kt_last_endless_wave is the 0-based wave in
+        # progress when the run ended.
+        $ kt_waves = kt_last_endless_wave + 1
+        $ kt_score_str = format(kt_last_score, ",")
+        ko "...And you close the book. That's allowed, in this one."
+        ko "You reached wave [kt_waves], with [kt_score_str] points."
+        if kt_last_deaths == 0:
+            ko "And you never fell once. That's the kind of thing I'd write down, if this one kept records."
+        elif kt_last_deaths == 1:
+            ko "You fell once, and you got up once. That's the whole trick, really."
+        else:
+            ko "You fell [kt_last_deaths] times and got up [kt_last_deaths] times. I counted."
+
+        menu:
+            "Deal me back in.":
+                $ kt_continue_bar = 0
+                $ kt_continues = 0
+                ko "Of course. It's still raining."
+                scene black with dissolve_scene_full
+                jump kototouhou_fight
+            "Leave.":
+                ko "Then go and dry off. The pages will keep."
+                scene black with dissolve_scene_full
+                return
+
     ko "You stopped mid-sentence."
     ko "...That's ruder than dying, you know."
 
@@ -5790,8 +6892,8 @@ label kototouhou_victory:
     hide kotonoha
     scene black with dissolve_scene_full
     pause 1.0
-    play music enterm
-    scene bg ether with dissolve_scene_full
+    play music theme_matsuda_a
+    scene bg matsudavr with dissolve_scene_full
     show matsuda neut at t11 zorder 2
 
     ma "...You're alive. You're actually alive. {i}HOW{/i} are you alive?!"

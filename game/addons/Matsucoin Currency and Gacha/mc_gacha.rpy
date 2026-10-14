@@ -1,47 +1,10 @@
-# =============================================================================
-# mc_gacha.rpy  --  THE PRIZE MACHINE (Arcade lobby)
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   The capsule machine the player feeds Matsucoins into, the pull maths behind
-#   it, and the reveal. It also owns THE SHARED CARD FACE (screen mc_card_face
-#   + the enter_m.mc_card shader), because this is where a card is drawn first
-#   and biggest -- the binder in mc_collection.rpy uses the same widget, so a
-#   card looks identical in the machine that gave it to you and the album it
-#   ends up in.
-#
-# WHERE IT LIVES AND WHY
-#   The Arcade lobby, not the Archive. A gachapon machine is a physical
-#   coin-op object that stands next to cabinets, and the Arcade is already the
-#   room with the coin-op language -- the main menu's Donate channel has said
-#   "PUT A COIN IN THE SLOT" since long before this feature existed. So the
-#   machine wears the hub's indigo/amber jewel-case palette and its shaders
-#   (ArcadePanel / _arcade_mix / arcade_keycap_chip), and the COLLECTION goes
-#   to the Archive instead, where the game's other collections already live.
-#
-# SHOWN AS A MODAL OVERLAY
-#   Show("mc_gacha") over the still-shown hub, dismissed with Hide -- the same
-#   arrangement cg_gallery and character_stories use over the Archive. It is
-#   NOT `tag menu`: replacing the hub would tear down the screen the player
-#   came from and the way back would have to be rebuilt.
-#
-# THE ODDS (all of it is in MC_RARITY in mc_cards.rpy plus the four numbers
-# below, so tuning the machine never means reading this file's screens)
-#   R 70 / SR 25 / SSR 5, a guaranteed SR-or-better in every ten-pull, and a
-#   hard pity that forces an SSR on the 50th pull without one. Duplicates
-#   convert to coins rather than being lost, at well under the price of the
-#   pull that produced them.
-#
-# SHADERS
-#   Registered at init -10 like the Arcade's own three, and for the same
-#   reasons: a shader only engages via the mesh/model path, so every factory
-#   sets `mesh True` on a Transform whose xysize defines u_model_size, over an
-#   OPAQUE base -- a transparent base is culled before the shader can run.
-#   Registration happens in `init python`, which does NOT re-run on hot reload:
-#   editing the GLSL below needs a FULL restart, not a Shift+R.
-# =============================================================================
+# Arcade prize machine, pull transaction and shared mc_card_face rendering.
+# Show("mc_gacha") overlays the Arcade hub; Hide returns to the existing hub.
+# MC_RARITY (mc_cards.rpy) and pull constants below own odds, ten-pull guarantees,
+# pity and duplicate refunds. Card IDs/ownership are shared with the Archive binder.
+# Shader factories use opaque mesh bases at a known size; cinematic reveal effects
+# live in mc_reveal_fx.rpy. Preserve transaction atomicity when changing UI actions.
 
-# --- pull configuration ------------------------------------------------------
 define MC_COST_SINGLE = 100
 define MC_COST_TEN = 1000
 define MC_TEN_COUNT = 10
@@ -158,27 +121,20 @@ init -3 python:
     # -------------------------------------------------------------------------
     # DISPLAYABLE FACTORIES
     # -------------------------------------------------------------------------
-    # The machine is a SPRITE, not geometry. It used to be drawn in code -- an
-    # SDF glass dome, a seeded field of capsule circles, a red body built out of
-    # rounded panels -- and all of that is gone, because a drawn machine is a
-    # drawing of a machine and this is the actual object.
-    MC_MACHINE_PATH = "addons/Matsucoin Currency and Gacha/gachamachine_ui.png"
-    MC_MACHINE_W, MC_MACHINE_H = 320, 480
+    # The machine is PIXEL ART, drawn at 52x78 in the MATSUCOM palette (the
+    # badge's Famicom red, brass, a stocked glass dome). It is only ever shown
+    # at a WHOLE-NUMBER scale, nearest-neighbour: a fractional zoom makes some
+    # pixel columns wider than their neighbours, which shimmers the moment
+    # anything moves. So `height` is a target -- the nearest whole multiple of
+    # 78 wins (452 -> 468 on the prize screen, 236 -> 234 on the hub floor).
+    MC_MACHINE_PATH = "addons/Matsucoin Currency and Gacha/prize_machine_px.png"
+    MC_MACHINE_W, MC_MACHINE_H = 52, 78
 
     @renpy.pure
     def McMachine(height=452):
-        """The cabinet at a given pixel HEIGHT, aspect preserved."""
-        h = int(height)
-        w = int(round(MC_MACHINE_W * (float(h) / MC_MACHINE_H)))
-        return Transform(MC_MACHINE_PATH, xysize=(w, h), fit="contain")
-
-    def McCapsule(size, top, bottom):
-        """A capsule. A circle is just a rounded panel whose radius is half its
-        size, so this rides the Arcade's own panel shader instead of adding
-        another one. Still used by the reveal, for a card that has not landed
-        yet -- it is the capsule the card is notionally still inside."""
-        s = int(size)
-        return ArcadePanel(s, s, top=top, bottom=bottom, radius=s / 2.0)
+        """The cabinet at the whole-number scale nearest `height` pixels tall."""
+        z = max(1, int(round(float(height) / MC_MACHINE_H)))
+        return Transform(MC_MACHINE_PATH, zoom=z, nearest=True)
 
     # -------------------------------------------------------------------------
     # PULL RUNTIME
@@ -447,16 +403,23 @@ transform mc_panel_in(delay=0.0, yoff=26):
 
 transform mc_machine_idle:
     # The cabinet rises to meet the pointer. It lives directly
-    # inside the machine button, which is what gets it hover/idle dispatch --
-    # an intermediate container would swallow those events (the same
-    # button-direct-child rule the Arcade's cartridges follow).
+    # inside the machine button, which is what gets it hover/idle dispatch.
+    # Idle, it hums: a slow swell of light every few seconds, which is life,
+    # not a call to action -- the player is already standing at it. Every
+    # handler restates all three properties, or an event landing mid-ease
+    # strands the others.
     subpixel True
     on idle:
-        easeout 0.20 yoffset 0 zoom 1.0
+        easein_quad 0.20 yoffset 0 zoom 1.0 matrixcolor BrightnessMatrix(0.0)
+        block:
+            pause 3.4
+            ease 0.9 matrixcolor BrightnessMatrix(0.07)
+            ease 1.3 matrixcolor BrightnessMatrix(0.0)
+            repeat
     on hover:
-        easeout 0.25 yoffset -10 zoom 1.03
+        easein_quad 0.25 yoffset -10 zoom 1.0 matrixcolor BrightnessMatrix(0.10)
     on insensitive:
-        easeout 0.20 yoffset 0 zoom 1.0
+        easein_quad 0.20 yoffset 0 zoom 1.0 matrixcolor BrightnessMatrix(0.0)
 
 screen mc_gacha():
     modal True
@@ -476,7 +439,7 @@ screen mc_gacha():
         _mcg_pity = persistent.mc_pity
         _mcg_pity_left = max(0, MC_PITY_HARD - _mcg_pity)
 
-    add "assets/gui/menu/arcade_vn.png"
+    add "assets/backgrounds/matsudavr.png"
     add ArcadeField("#ffb454"):
         alpha 0.18
     add Solid("#0a0713b5")
@@ -582,7 +545,7 @@ screen mc_gacha():
                     add ArcadePanel(300, 46, top="#ffb45420", bottom="#ffb45400",
                                     radius=23):
                         align (0.5, 0.5)
-                        yoffset 196
+                        yoffset 222
 
                     button:
                         style "mc_machine_button"
@@ -965,11 +928,21 @@ screen mc_reveal(instant=False):
     key "K_ESCAPE" action _mcr_action
     key "game_menu" action _mcr_action
 
+    # The first card waits for the deal to finish (each back takes 0.30s and
+    # they start 0.035s apart), then the rest turn over 0.16s apart. Two timer
+    # STATEMENTS, not one with a changing delay: a timer whose delay changes
+    # keeps counting to its first one (see the cinematic's phase timers).
     if not _mcr_done:
-        timer 0.16 repeat True action [
-            SetScreenVariable("shown", min(shown + 1, _mcr_count)),
-            Function(mc_reveal_step, shown + 1),
-        ]
+        if shown == 0:
+            timer (0.32 + 0.035 * _mcr_count) action [
+                SetScreenVariable("shown", 1),
+                Function(mc_reveal_step, 1),
+            ]
+        else:
+            timer 0.16 repeat True action [
+                SetScreenVariable("shown", min(shown + 1, _mcr_count)),
+                Function(mc_reveal_step, shown + 1),
+            ]
 
     vbox:
         align (0.5, 0.5)
@@ -981,7 +954,7 @@ screen mc_reveal(instant=False):
                 style "mc_reveal_banner"
                 color _mcr_tier["glow"]
                 xalign 0.5
-                at mc_panel_in(0.0, 10)
+                at mc_fx_banner_in
 
         grid _mcr_cols _mcr_grid_rows:
             spacing 14
@@ -1003,21 +976,29 @@ screen mc_reveal(instant=False):
                         # it is what the player is looking at while they still
                         # do not know.
                         $ _mcr_hot = (_card.rarity != "r")
+                        $ _mcr_ray = int(_mcr_cw * 2.6)
 
                         fixed:
                             xysize (_mcr_cw, _mcr_ch)
-                            at mc_card_land(0.0)
+                            # Already dealt face-down, so it does not land
+                            # again; only a skip (nothing was dealt) eases in.
+                            at (mc_card_land(0.0) if instant else mc_fx_still)
 
-                            # Rarity bloom behind the card. A common gets the
-                            # old soft glow; anything better gets a pop timed to
-                            # the moment the face comes round.
+                            # Light behind a card worth something as it turns
+                            # over, and a halo that stays turning behind an SSR.
                             if _mcr_hot and not instant:
-                                add ArcadePanel(_mcr_cw + 40, _mcr_ch + 40,
-                                                top=(_card.glow + "aa"), bottom=(_card.color + "00"),
-                                                radius=22):
+                                add McPlate(_mcr_ray, _mcr_ray):
                                     align (0.5, 0.5)
-                                    at mc_fx_card_pop(_mcr_flip_wait + _mcr_flip * 0.45)
-                            else:
+                                    at mc_fx_card_rays(enter_m_rgba(_card.glow), _mcr_flip_wait + _mcr_flip * 0.45)
+                            if _card.rarity == "ssr":
+                                add McPlate(_mcr_ray, _mcr_ray):
+                                    align (0.5, 0.5)
+                                    at mc_fx_card_halo(enter_m_rgba(_card.glow), (0.0 if instant else _mcr_flip_wait + _mcr_flip))
+
+                            # A soft glow behind a common (and behind every card
+                            # on a skip). Anything better has its rays instead --
+                            # a rectangular bloom under them read as a pale box.
+                            if not (_mcr_hot and not instant):
                                 add ArcadePanel(_mcr_cw + 26, _mcr_ch + 26,
                                                 top=(_card.glow + "88"), bottom=(_card.color + "00"),
                                                 radius=18):
@@ -1066,9 +1047,9 @@ screen mc_reveal(instant=False):
                                     add MatsucoinIcon(11) yalign 0.5
                                     text str(_refund) style "mc_reveal_dupe" yalign 0.5
                     else:
-                        # Not landed yet: the capsule it is still inside.
-                        add McCapsule(int(_mcr_cw * 0.42), "#4a4270", "#241d44"):
-                            align (0.5, 0.42)
+                        # Dealt face-down, waiting its turn. The back is
+                        # tier-NEUTRAL: nothing here may leak the result.
+                        add McCardBack(_mcr_cw, _mcr_ch) at mc_fx_deal(_i * 0.035)
 
         if _mcr_done:
             hbox:
@@ -1158,23 +1139,6 @@ style mc_machine_button:
     hover_background None
     padding (0, 0)
     activate_sound gui.activate_sound
-
-style mc_dev_pill:
-    background ArcadePanel(64, 24, top="#5c3f2a", bottom="#2e1f1c", radius=12, border=1.0, border_color="#ffb45499")
-    hover_background ArcadePanel(64, 24, top="#8a5c35", bottom="#442a24", radius=12, border=2.0, border_color="#ffe6a8")
-    xysize (64, 24)
-    padding (0, 0)
-    hover_sound gui.hover_sound
-    activate_sound gui.activate_sound
-
-style mc_dev_pill_text:
-    font gui.interface_font
-    size 11
-    color "#ffe6a8"
-    bold True
-    kerning 1.5
-    xalign 0.5
-    yalign 0.5
 
 style mc_dev_button:
     background ArcadePanel(150, 38, top="#2a2148", bottom="#1c1636", radius=9, border=1.0, border_color="#ffffff22")

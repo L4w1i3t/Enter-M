@@ -1,65 +1,13 @@
-# =============================================================================
-# cg_gallery.rpy  --  CG GALLERY (archive feature)
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   A browsable gallery of CG artwork organized as Act > Chapter > CG. The main
-#   screen (cg_gallery) is a sidebar of acts on the left + a content panel of
-#   chapters/thumbnails on the right. Clicking an unlocked thumbnail opens the
-#   fullscreen viewer (cg_viewer) with left/right navigation through that act's
-#   unlocked CGs.
-#
-# HOW IT IS REACHED
-#   - Archive "CG Gallery" card -> Show("cg_gallery")   (see game/archive.rpy).
-#
-# UNLOCKING
-#   Every CGEntry is gated by a persistent bool, DERIVED FROM ITS IMAGE PATH so
-#   the catalog stays a plain list of art (see CGEntry.__init__). A CG unlocks
-#   the first time the player is shown it, via an explicit `$ cg_unlock(...)` at
-#   the beat that shows it -- see cg_unlock() below for where those live and why
-#   they are hand-placed rather than detected.
-#   The gallery PANEL itself is open from the first launch now; this file is what
-#   decides which art inside it is real and which is a "?" tile.
-#
-# DATA MODEL (built once at init time; see init 5 python at bottom of init block)
-#   cg_gallery_catalog = [ CGAct( name, [ CGChapter( name, [ CGEntry... ] ) ] ) ]
-#   - CGEntry   : one image (title, image_path, optional unlock_attr).
-#   - CGChapter : group of CGs; exposes any_unlocked / unlocked_count.
-#   - CGAct     : group of chapters; exposes any_unlocked / unlocked_count / total_count.
-#
-# CROSS-FILE CONSUMERS OF THIS DATA
-#   - game/addons/Music Room/music_room.rpy -> pick_random_cg() walks
-#     cg_gallery_catalog to show a random unlocked CG as "now playing" art.
-#
-# SHARED THEME BORROWED FROM game/archive.rpy
-#   - screen archive_backdrop, screen archive_header(...)
-#   - styles archive_shell_frame / archive_sidebar_panel / archive_panel
-#   - style archive_return_button (the viewer's Close button)
-#   - generic "dialog" screen (locked-CG popup)
-#   NOTE: the viewports here set style_prefix "cs_sv", but no cs_sv_* styles are
-#   defined anywhere in the project, so they fall back to Matsu'Py default
-#   scrollbar styling (compare archive's own "archive_sv" prefix).
-# =============================================================================
-
-# CG Gallery addon
-# A browsable gallery of CGs organized by act and chapter, accessed from the archive menu.
-# Uses vanilla DDLC CGs as placeholders until original CGs are created.
-
-# ----- Data Definitions -----
+# Archive CG gallery, organized as act > chapter > artwork.
+# CGEntry keys derive from image paths; explicit unlock_attr values preserve keys
+# when art moves or changes. cg_unlock() records authored unlock beats.
+# The gallery is available from the Archive; individual unseen CGs remain locked.
+# Music Room also reads this catalog for unlocked background artwork.
+# Empty chapters reserve catalog positions for content that has not been authored.
 
 init python:
     def cg_key_from_path(image_path):
-        """
-        Turn an image path into the persistent key that records its unlock.
-
-        THE CG'S IDENTITY IS ITS ART, so the persistent key is derived from the
-        path rather than hand-written next to every entry. Two reasons: a catalog
-        this long picks up typos and duplicates the moment it needs a second
-        column, and a key that is generated cannot silently disagree with the
-        image it is supposed to gate. Moved art supplies its pre-move path to
-        ``unlock_attr`` below, deliberately freezing the old key so an asset-tree
-        cleanup cannot relock a CG on an existing profile.
-        """
+        """Derive an unlock key; moved art must retain its previous unlock_attr."""
         cleaned = str(image_path).lower()
         for junk in ("\\", "/", " ", "-", ".", "'"):
             cleaned = cleaned.replace(junk, "_")
@@ -78,10 +26,7 @@ init python:
         def __init__(self, title, image_path, unlock_attr=None):
             self.title = title
             self.image_path = image_path
-            # `unlock_attr` is the name of a boolean attribute on `persistent`
-            # that tracks whether this CG has been unlocked. Passing one is only
-            # for a CG that has to share another's unlock; leaving it off derives
-            # the key from the art, which is what the whole catalog does.
+            # Explicit keys preserve existing unlocks when art is moved or replaced.
             self.unlock_attr = unlock_attr or cg_key_from_path(image_path)
             # Backwards-compatibility: older code expects a `persistent_key`
             # attribute on CG entries. Provide an alias so existing checks
@@ -133,8 +78,6 @@ init python:
     # lists are intentional placeholders for not-yet-authored content. Image
     # paths are relative to the game/ folder.
     # -------------------------------------------------------------------------
-    # Master CG catalog -- organized by act > chapter
-    # Uses vanilla DDLC CGs as placeholders
     cg_gallery_catalog = [
         CGAct("Other", [
             CGChapter("Archive Panels", [
@@ -148,7 +91,32 @@ init python:
             ]),
         ]),
         CGAct("Main Campaign", [
-
+            # These chapter CGs replace the first draft set. Preserve its keys
+            # so the new art does not relock a chapter already selected.
+            CGChapter("Chapter 0.5", [
+                CGEntry("Open Invitation", "assets/cg/chapter_select/chapter_05_open_invitation.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_05_beginning.png")),
+            ]),
+            CGChapter("Chapter 1", [
+                CGEntry("Room for Six", "assets/cg/chapter_select/chapter_1_room_for_six.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_1_friend_group.png")),
+            ]),
+            CGChapter("Chapter 2", [
+                CGEntry("Summer Uncontained", "assets/cg/chapter_select/chapter_2_summer_uncontained.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_2_midsummer.png")),
+            ]),
+            CGChapter("Chapter 3", [
+                CGEntry("Between Bells", "assets/cg/chapter_select/chapter_3_between_bells.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_3_before_storm.png")),
+            ]),
+            CGChapter("Chapter 4", [
+                CGEntry("After the Noise", "assets/cg/chapter_select/chapter_4_after_the_noise.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_4_first_domino.png")),
+            ]),
+            CGChapter("Chapter 5", [
+                CGEntry("Somewhere Warm", "assets/cg/chapter_select/chapter_5_somewhere_warm.png",
+                    unlock_attr=cg_key_from_path("assets/cg/chapter_select/chapter_5_winter_walk.png")),
+            ]),
         ]),
 
         CGAct("Side Stories", [
@@ -235,7 +203,7 @@ init python:
             renpy.save_persistent()
 
     def cg_find(name):
-        """Resolve a CG by title (case-insensitive) or by exact image path."""
+        """Resolve a CG by title or image path, case-insensitively."""
         wanted = str(name).strip().lower()
 
         for act in cg_gallery_catalog:
@@ -257,7 +225,6 @@ init python:
 # ----- Transforms -----
 # (entrance/exit + per-item stagger animations; cosmetic only.)
 
-# Main frame entrance/exit
 # Sidebar entry stagger
 transform cg_sidebar_anim(delay=0.0):
     alpha 0.0
@@ -266,7 +233,7 @@ transform cg_sidebar_anim(delay=0.0):
     pause delay
     easein_quad 0.3 alpha 1.0 xoffset 0
 
-# Thumbnail grid stagger
+# Print grid stagger
 transform cg_thumb_anim(delay=0.0):
     alpha 0.0
     zoom 0.9
@@ -282,109 +249,108 @@ transform cg_chapter_anim(delay=0.0):
     pause delay
     easein_quad 0.3 alpha 1.0 xoffset 0
 
-# Fullscreen viewer entrance/exit
-transform cg_viewer_enter:
-    on show:
+# Fullscreen viewer: the print zooms up on open, and on a page turn travels in
+# from the side of the key pressed (`slide` -1 / +1). Paging re-shows the
+# screen, which delivers `replace`, so both events carry the same body -- the
+# same fix as detail_frame_page in Roster View.
+transform cg_viewer_enter(slide=0):
+    on show, replace:
         alpha 0.0
-        zoom 0.95
-        easein_back 0.3 alpha 1.0 zoom 1.0
+        zoom (1.0 if slide else 0.96)
+        xoffset (90 * slide)
+        parallel:
+            easeout_quad 0.28 xoffset 0
+        parallel:
+            easeout_quad 0.24 alpha 1.0 zoom 1.0
     on hide:
         alpha 1.0
-        easeout_quad 0.2 alpha 0.0 zoom 0.95
+        easeout_quad 0.2 alpha 0.0 zoom 0.96
 
 # ----- Fullscreen CG Viewer -----
-# Shows one CG fullscreen. Navigation works by HIDING this screen and re-SHOWING
-# it with the neighbouring index, so each image gets a fresh entrance transform.
-# Navigation now WRAPS (past the last CG loops to the first and vice versa).
+# One CG as a matted print on the dark table, held by photo corners, with a
+# paper placard under it naming the chapter and the piece. Navigation
+# RE-SHOWS this screen with the neighbouring index (no Hide), so the print's
+# transform gets `replace` and can slide; it WRAPS past either end.
 #   cg_list       : the act's flat list of UNLOCKED CGs (built by cg_gallery)
-#   current_index : position within cg_list (drives the title, counter + arrows)
-screen cg_viewer(cg_list, current_index):
+#   current_index : position within cg_list (drives the placard + counter)
+#   slide         : -1 / +1 for a page turn, 0 for an open
+screen cg_viewer(cg_list, current_index, slide=0):
     modal True
     zorder 200
 
-    $ _cg = cg_list[current_index]
-    $ _cg_count = len(cg_list)
-    $ _cg_prev = (current_index - 1) % _cg_count
-    $ _cg_next = (current_index + 1) % _cg_count
+    python:
+        _cg = cg_list[current_index]
+        _cg_count = len(cg_list)
+        _cg_prev = Show("cg_viewer", cg_list=cg_list, current_index=(current_index - 1) % _cg_count, slide=-1)
+        _cg_next = Show("cg_viewer", cg_list=cg_list, current_index=(current_index + 1) % _cg_count, slide=1)
+        # The placard's kicker: the catalog chapter this print belongs to.
+        _cg_chapter = next((ch.name for act in cg_gallery_catalog for ch in act.chapters if _cg in ch.cgs), "")
 
     key "game_menu" action Hide("cg_viewer")
     key "K_ESCAPE" action Hide("cg_viewer")
 
     # Left/right (keyboard) wrap through the unlocked CGs.
     if _cg_count > 1:
-        key "K_LEFT" action [Hide("cg_viewer"), Show("cg_viewer", cg_list=cg_list, current_index=_cg_prev)]
-        key "K_RIGHT" action [Hide("cg_viewer"), Show("cg_viewer", cg_list=cg_list, current_index=_cg_next)]
+        key "K_LEFT" action _cg_prev
+        key "K_RIGHT" action _cg_next
 
-    add Solid("#000000f2")
+    add Solid("#05080bf2")
 
-    # CG image centered
+    # The print: a 1104x621 window (16:9, the shape of every CG) on a paper
+    # mat, with the gallery's gold photo corners.
+    fixed:
+        xysize (1280, 720)
+        align (0.5, 0.5)
+        at cg_viewer_enter(slide)
+
+        add Solid("#efe4cf") xpos 82 ypos 16 xysize (1116, 633)
+        add Transform(_cg.image_path, fit="contain", xysize=(1104, 621)) xpos 88 ypos 22
+        use archive_photo_corners(88, 22, 1104, 621)
+
+    # The placard: chapter, title, and where this print sits in the run.
     frame:
-        background None
-        xfill True
-        yfill True
-        padding (40, 40)
-        at cg_viewer_enter
+        style "cg_viewer_placard"
+        xalign 0.5
+        ypos 656
+        at cs_detail_swap(current_index)
 
-        add _cg.image_path:
-            fit "contain"
-            xalign 0.5
-            yalign 0.5
+        fixed:
+            xysize (520, 40)
 
-    # Nav arrows (only if multiple CGs), now wrap-around so both always show.
+            text _cg_chapter.upper() style "cg_viewer_kicker" xpos 0 ypos 0
+            text _cg.title style "cg_viewer_title" xpos 0 ypos 13
+            text "{:02d} / {:02d}".format(current_index + 1, _cg_count):
+                style "cg_viewer_counter"
+                xanchor 1.0
+                xpos 520
+                ypos 14
+
+    # Side page tabs (wrap-around), the same engraved tabs as the Roster file.
     if _cg_count > 1:
         textbutton "<":
-            xalign 0.0
-            yalign 0.5
-            xoffset 10
-            text_size 60
-            text_color "#56d7ffaa"
-            text_hover_color "#ffffff"
-            text_bold True
-            text_outlines [(2, "#02040b", 0, 0)]
-            background None
-            hover_background None
-            action [Hide("cg_viewer"), Show("cg_viewer", cg_list=cg_list, current_index=_cg_prev)]
+            style "cg_viewer_pager"
+            xpos 20
+            yalign 0.46
+            action _cg_prev
 
         textbutton ">":
-            xalign 1.0
-            yalign 0.5
-            xoffset -10
-            text_size 60
-            text_color "#56d7ffaa"
-            text_hover_color "#ffffff"
-            text_bold True
-            text_outlines [(2, "#02040b", 0, 0)]
-            background None
-            hover_background None
-            action [Hide("cg_viewer"), Show("cg_viewer", cg_list=cg_list, current_index=_cg_next)]
+            style "cg_viewer_pager"
+            xanchor 1.0
+            xpos 1260
+            yalign 0.46
+            action _cg_next
 
-    # Bottom caption bar: CG title + "N / M" counter.
-    frame:
-        xalign 0.5
-        yalign 1.0
-        yoffset -22
-        background Solid("#050811d0")
-        padding (22, 10)
-
-        hbox:
-            spacing 16
-            yalign 0.5
-
-            add Solid("#56d7ff") xysize (6, 6) yalign 0.5 at console_blink
-            add Solid("#56d7ff44") xysize (2, 20) yalign 0.5
-            text "{} / {}".format(current_index + 1, _cg_count) style "cg_viewer_counter" yalign 0.5
-
-    textbutton "Close":
-        xalign 1.0
-        yalign 0.0
-        xoffset -20
-        yoffset 15
+    textbutton _("Close"):
         style "archive_return_button"   # shared style from archive.rpy
+        xanchor 1.0
+        xpos 1198
+        ypos 661
         action Hide("cg_viewer")
 
 # ----- Main Gallery Screen (sidebar + content) -----
-# Left: one button per act (cg_gallery_catalog). Right: the selected act's
-# chapters and thumbnail grid. `selected_act` is screen-local state.
+# Left: one cloth index tab per act (cg_gallery_catalog) -- the binder tabs
+# Credits uses. Right: the selected act's chapters, each CG a mounted print
+# with its title on the mount. `selected_act` is screen-local state.
 screen cg_gallery():
     modal True
 
@@ -393,8 +359,8 @@ screen cg_gallery():
 
     use archive_backdrop
 
-    key "game_menu" action Hide("cg_gallery")
-    key "K_ESCAPE" action Hide("cg_gallery")
+    key "game_menu" action Hide("cg_gallery", transition=enter_m_menu_doorway)
+    key "K_ESCAPE" action Hide("cg_gallery", transition=enter_m_menu_doorway)
 
     # Keyboard navigation between acts (QoL).
     if len(cg_gallery_catalog) > 1:
@@ -413,17 +379,16 @@ screen cg_gallery():
         vbox:
             spacing 12
 
-            use archive_header("CG GALLERY", Hide("cg_gallery"))
+            use archive_header("CG GALLERY", Hide("cg_gallery", transition=enter_m_menu_doorway))
 
-            # Census / readout strip.
             use archive_readout(
-                "CG ARCHIVE // {}/{} RECOVERED".format(_cg_unlocked, _cg_total),
-                "ACTS {}".format(len(cg_gallery_catalog)))
+                "THE PRINT ROOM / {} OF {} RECOVERED".format(_cg_unlocked, _cg_total),
+                "{} ACTS".format(len(cg_gallery_catalog)))
 
             hbox:
-                spacing 0
+                spacing 2
 
-                # --- LEFT: act sidebar ------------------------------------
+                # --- LEFT: act index ----------------------------------------
                 frame:
                     xsize 240
                     ysize 520
@@ -434,65 +399,36 @@ screen cg_gallery():
                         spacing 8
 
                         for idx, act in enumerate(cg_gallery_catalog):
-                            $ _sb_delay = idx * 0.04
-                            $ _cg_sb_sel = (idx == selected_act)
                             $ _act_frac = (float(act.unlocked_count) / act.total_count) if act.total_count else 0.0
 
+                            # SetScreenVariable reports itself selected for the
+                            # current act, which is what puts its tab in the
+                            # warm selected cloth.
                             button:
-                                xsize 212
-                                ysize 78
-                                padding (0, 0)
-                                hover_sound gui.hover_sound
-                                activate_sound gui.activate_sound
-                                at cg_sidebar_anim(_sb_delay)
+                                style "cg_sidebar_tab"
+                                at cg_sidebar_anim(idx * 0.04)
                                 action SetScreenVariable("selected_act", idx)
 
-                                # Highlight the currently-selected act.
-                                if _cg_sb_sel:
-                                    background Solid("#12314af2")
-                                    hover_background Solid("#17415fee")
-                                else:
-                                    background Solid("#07111dcc")
-                                    hover_background Solid("#12314aee")
+                                fixed:
+                                    if act.any_unlocked:
+                                        text act.name style "cg_sidebar_name" xpos 18 ypos 11
 
-                                hbox:
-                                    spacing 0
-                                    yfill True
+                                        # Progress as a gold rule along a hairline.
+                                        add Solid("#d9cdb633") xpos 18 ypos 42 xysize (176, 1)
+                                        add Solid(IM_GOLD) xpos 18 ypos 41 xysize (max(2, int(176 * _act_frac)), 2)
 
-                                    # Selection accent rail (pulses when active).
-                                    if _cg_sb_sel:
-                                        add Solid("#56d7ff") xysize (4, 78) at enter_m_pip_pulse
+                                        text "{} OF {} PRINTS".format(act.unlocked_count, act.total_count):
+                                            style "cg_sidebar_count"
+                                            xpos 18
+                                            ypos 50
                                     else:
-                                        add Solid("#0c1a27") xysize (4, 78)
+                                        text act.name style "cg_sidebar_name_locked" xpos 18 ypos 11
+                                        text ("NO PRINTS" if act.total_count == 0 else "SEALED"):
+                                            style "cg_sidebar_count_locked"
+                                            xpos 18
+                                            ypos 50
 
-                                    vbox:
-                                        spacing 5
-                                        yalign 0.5
-                                        xoffset 12
-
-                                        if act.total_count == 0:
-                                            text act.name style "cg_sidebar_name_locked"
-                                            text "NO CGS" style "cg_sidebar_count_locked"
-                                        elif act.any_unlocked:
-                                            text act.name style "cg_sidebar_name"
-
-                                            # Mini progress bar + count.
-                                            fixed:
-                                                xysize (184, 8)
-                                                add Solid("#091622") xysize (184, 8)
-                                                if _act_frac > 0:
-                                                    add Solid("#56d7ff") xpos 1 ypos 1 xysize (int(182 * _act_frac), 6)
-                                            text "{}/{} CGs".format(act.unlocked_count, act.total_count):
-                                                style "cg_sidebar_count"
-                                        else:
-                                            text act.name style "cg_sidebar_name_locked"
-                                            text "LOCKED" style "cg_sidebar_count_locked"
-
-                add Solid("#56d7ff44"):
-                    xsize 2
-                    ysize 520
-
-                # --- RIGHT: selected act content --------------------------
+                # --- RIGHT: selected act content ----------------------------
                 frame:
                     xsize 910
                     ysize 520
@@ -510,38 +446,33 @@ screen cg_gallery():
                     vbox:
                         spacing 12
 
-                        # Act header: pip + name + progress bar + subtitle.
-                        hbox:
-                            spacing 12
-                            yalign 0.5
+                        # Act header: name left, tally pinned right (a fixed
+                        # with xanchor -- see archive_readout for why not an
+                        # hbox), then a plum rule as long as the act is found.
+                        fixed:
+                            xsize 866
+                            ysize 40
 
-                            add Solid("#56d7ff") xysize (9, 9) yalign 0.5 at console_blink
-                            text _sel_act.name style "cg_panel_charname" yalign 0.5
-
-                            null width 1 xfill True
+                            text _sel_act.name style "cg_panel_charname" xpos 0 yalign 0.5
 
                             if _sel_act.total_count == 0:
-                                text "No CGs on record" style "cg_panel_subtitle_locked" yalign 0.5
+                                text "NO PRINTS ON RECORD" style "cg_panel_subtitle_locked" xanchor 1.0 xpos 866 yalign 0.5
                             elif _sel_act.any_unlocked:
-                                text "{} of {} unlocked".format(_sel_act.unlocked_count, _sel_act.total_count):
+                                text "{} OF {} RECOVERED".format(_sel_act.unlocked_count, _sel_act.total_count):
                                     style "cg_panel_subtitle"
+                                    xanchor 1.0
+                                    xpos 866
                                     yalign 0.5
                             else:
-                                text "No CGs unlocked yet" style "cg_panel_subtitle_locked" yalign 0.5
+                                text "NONE RECOVERED YET" style "cg_panel_subtitle_locked" xanchor 1.0 xpos 866 yalign 0.5
 
-                        # Act progress bar (only when the act has CGs).
-                        if _sel_act.total_count > 0:
-                            fixed:
-                                xysize (866, 12)
-                                add Solid("#091622") xysize (866, 12)
-                                if _act_frac_r > 0:
-                                    add Solid("#56d7ff") xpos 2 ypos 2 xysize (int(862 * _act_frac_r), 8)
-                                add Solid("#56d7ff55") xysize (866, 1)
-                                add Solid("#56d7ff55") xysize (866, 1) ypos 11
-
-                        add Solid("#56d7ff22"):
+                        fixed:
                             xsize 866
-                            ysize 1
+                            ysize 3
+
+                            add Solid("#d9cdb640") ypos 1 xysize (866, 1)
+                            if _act_frac_r > 0:
+                                add Solid(IM_PLUM) xysize (max(2, int(866 * _act_frac_r)), 3)
 
                         viewport:
                             style_prefix "archive_sv"
@@ -550,28 +481,19 @@ screen cg_gallery():
                             draggable True
                             pagekeys True
                             xsize 866
-                            ysize 396
+                            ysize 418
 
                             vbox:
-                                spacing 20
+                                spacing 22
 
                                 if not _act_chapters:
-                                    # Empty-act state (Season 1/2/3 placeholders etc.).
-                                    frame:
-                                        xfill True
+                                    # Empty-act state (placeholder acts).
+                                    fixed:
+                                        xsize 850
                                         ysize 150
-                                        background Solid("#070f18cc")
-                                        padding (24, 20)
 
-                                        vbox:
-                                            align (0.5, 0.5)
-                                            spacing 10
-                                            text "NO CGS ON RECORD":
-                                                xalign 0.5
-                                                style "cg_chapter_title_locked"
-                                            text "No CGs have been recovered for this act yet.":
-                                                xalign 0.5
-                                                style "cg_panel_subtitle_locked"
+                                        text "NO PRINTS ON RECORD" style "cg_chapter_title_locked" xalign 0.5 ypos 48
+                                        text "Nothing has been recovered for this act yet." style "cg_panel_subtitle_locked" xalign 0.5 ypos 86
 
                                 # Chapters (only those with CGs)
                                 # Keyed on the chapter, not on its position --
@@ -580,222 +502,186 @@ screen cg_gallery():
                                     $ _ch_delay = chidx * 0.08
 
                                     vbox:
-                                        spacing 12
+                                        spacing 10
                                         at cg_chapter_anim(_ch_delay)
 
-                                        # Chapter header
+                                        # Chapter header: diamond, name, tally.
                                         hbox:
-                                            spacing 12
-                                            yalign 0.5
+                                            spacing 10
 
-                                            # Status pip (cyan if any CG unlocked, grey if not)
-                                            frame:
-                                                yalign 0.5
-                                                xsize 4
-                                                ysize 24
-                                                if chapter.any_unlocked:
-                                                    background Solid("#56d7ff")
-                                                else:
-                                                    background Solid("#374654")
+                                            add Solid(IM_PLUM if chapter.any_unlocked else "#6f6670") xysize (6, 6) rotate 45 yalign 0.5
 
                                             if chapter.any_unlocked:
-                                                text chapter.name style "cg_chapter_title"
-                                                text "({}/{})".format(chapter.unlocked_count, len(chapter.cgs)):
+                                                text chapter.name style "cg_chapter_title" yalign 0.5
+                                                text "{} OF {}".format(chapter.unlocked_count, len(chapter.cgs)):
                                                     style "cg_chapter_count"
                                                     yalign 0.5
                                             else:
-                                                text chapter.name style "cg_chapter_title_locked"
-                                                text "(Locked)":
-                                                    style "cg_chapter_count_locked"
-                                                    yalign 0.5
+                                                text chapter.name style "cg_chapter_title_locked" yalign 0.5
+                                                text "SEALED" style "cg_chapter_count_locked" yalign 0.5
 
-                                        # CG thumbnails for this chapter, wrapped into rows.
-                                        # Outer loop = rows of up to 4; inner loop = cells.
+                                        # The prints, four to a row.
                                         vbox:
                                             spacing 14
-                                            xoffset 16
 
                                             for row_start in range(0, len(chapter.cgs), 4):
                                                 hbox:
-                                                    spacing 12
+                                                    spacing 14
 
-                                                    # KEYED ON THE CG, NOT ON ITS
-                                                    # POSITION. SL2 caches a
-                                                    # loop's children by LOOP
-                                                    # COUNTER unless told
-                                                    # otherwise, so switching acts
-                                                    # handed the new act the old
-                                                    # one's displayables wherever
-                                                    # the positions lined up --
-                                                    # transform and all, already
-                                                    # settled. Only the surplus
-                                                    # thumbnails faded in, and two
-                                                    # acts of equal size animated
-                                                    # nothing. Keying on the CG's
-                                                    # own file makes each one its
-                                                    # own displayable, so they all
-                                                    # run the entrance from the
-                                                    # top.
+                                                    # KEYED ON THE CG, NOT ON ITS POSITION. SL2
+                                                    # caches a loop's children by LOOP COUNTER
+                                                    # unless told otherwise, so switching acts
+                                                    # handed the new act the old one's
+                                                    # displayables wherever the positions lined
+                                                    # up -- transform and all, already settled.
+                                                    # Only the surplus prints faded in, and two
+                                                    # acts of equal size animated nothing.
+                                                    # Keying on the CG's own file makes each one
+                                                    # its own displayable, so they all run the
+                                                    # entrance from the top.
                                                     for row_idx, cg index cg.image_path in enumerate(chapter.cgs[row_start:row_start + 4]):
                                                         $ cidx = row_start + row_idx
-                                                        $ _t_delay = _ch_delay + cidx * 0.05
                                                         # Index of this CG within the act's unlocked list (for the viewer).
                                                         $ _viewer_idx = _act_unlocked.index(cg) if cg.unlocked else 0
 
-                                                        # Cell = clickable tile + caption below it. The tile is the
-                                                        # button, so its own hover state drives the highlight.
-                                                        vbox:
-                                                            spacing 5
-                                                            at cg_thumb_anim(_t_delay)
+                                                        # The mount IS the button, so hovering it
+                                                        # lifts the print (cs_card_focus, on the
+                                                        # direct child) and develops its colour.
+                                                        button:
+                                                            style "cg_print_button"
+                                                            at cg_thumb_anim(_ch_delay + cidx * 0.05)
 
-                                                            button:
-                                                                xsize 196
-                                                                ysize 110
-                                                                padding (3, 3)
-                                                                hover_sound gui.hover_sound
-                                                                activate_sound gui.activate_sound
+                                                            # Unlocked -> open viewer; locked -> "not unlocked" dialog.
+                                                            if cg.unlocked:
+                                                                action Show("cg_viewer",
+                                                                    cg_list=_act_unlocked,
+                                                                    current_index=_viewer_idx)
+                                                            else:
+                                                                action Show("dialog",
+                                                                    message="This CG hasn't been unlocked yet.",
+                                                                    ok_action=Hide("dialog"))
 
-                                                                # Unlocked -> open viewer; locked -> "not unlocked" dialog.
+                                                            fixed:
                                                                 if cg.unlocked:
-                                                                    background Solid("#07111dcc")
-                                                                    hover_background Solid("#12314af2")
-                                                                    action Show("cg_viewer",
-                                                                        cg_list=_act_unlocked,
-                                                                        current_index=_viewer_idx)
-                                                                else:
-                                                                    background Solid("#050811cc")
-                                                                    hover_background Solid("#0a1524cc")
-                                                                    action Show("dialog",
-                                                                        message="This CG hasn't been unlocked yet.",
-                                                                        ok_action=Hide("dialog"))
+                                                                    at cs_card_focus
+
+                                                                add "assets/gui/menu/illustrated/archive/print_mount.svg"
 
                                                                 if cg.unlocked:
-                                                                    add cg.image_path:
-                                                                        fit "contain"
-                                                                        xalign 0.5
-                                                                        yalign 0.5
+                                                                    add Transform(cg.image_path, fit="cover", xysize=(186, 105)):
+                                                                        xpos 8
+                                                                        ypos 8
+                                                                        at archive_print_develop
+                                                                    text cg.title style "cg_print_title" xpos 9 ypos 121
                                                                 else:
-                                                                    # Locked placeholder
-                                                                    vbox:
-                                                                        align (0.5, 0.5)
-                                                                        spacing 4
+                                                                    # The hub's sealed-record engraving, also 16:9.
+                                                                    add Transform("assets/gui/menu/illustrated/archive/sealed_record.svg", fit="contain", xysize=(186, 105)):
+                                                                        xpos 8
+                                                                        ypos 8
+                                                                    text "NOT YET RECOVERED" style "cg_print_title_locked" xpos 10 ypos 127
 
-                                                                        text "?":
-                                                                            xalign 0.5
-                                                                            size 30
-                                                                            color "#4f5b67"
-                                                                            bold True
-                                                                            outlines [(1, "#02040b", 0, 0)]
-                                                                        text "LOCKED":
-                                                                            xalign 0.5
-                                                                            size 11
-                                                                            color "#4f5b67"
-                                                                            outlines [(1, "#02040b", 0, 0)]
-
-                                        add Solid("#56d7ff16"):
-                                            xsize 840
-                                            ysize 1
+                                                                use archive_photo_corners(8, 8, 186, 105)
 
     # Console brackets framing the shell (cohesion with the archive hub).
     use archive_shell_brackets()
 
 # ----- Styles -----
-# Cyan-on-near-black palette consistent with the Archive theme.
+# The print room's materials: Credits' cloth index tabs, paper print mounts
+# with gold corners, and paper ink on the Archive's dark panels.
 
-style cg_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 36
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+style cg_sidebar_tab:
+    xysize (212, 70)
+    padding (0, 0)
+    background Frame("assets/gui/menu/illustrated/credits/section_tab.svg", 12, 10, 12, 10)
+    hover_background Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
+    selected_background Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
 
-style cg_sidebar_name:
+style cg_sidebar_name is gui_text:
+    font gui.default_font
     size 20
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    color IM_PAPER
+    outlines []
 
-style cg_sidebar_name_locked:
-    size 20
-    color "#687787"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style cg_sidebar_name_locked is cg_sidebar_name:
+    color "#8f8a86"
 
-style cg_sidebar_count:
-    size 14
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
+style cg_sidebar_count is gui_text:
+    font gui.interface_font
+    size 10
+    kerning 1.2
+    color "#d9c9a8"
+    outlines []
 
-style cg_sidebar_count_locked:
-    size 14
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
+style cg_sidebar_count_locked is cg_sidebar_count:
+    color "#8f8a86"
 
-style cg_panel_charname:
+style cg_panel_charname is gui_text:
+    font gui.default_font
     size 30
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    color IM_PAPER
+    outlines []
 
-style cg_panel_subtitle:
+style cg_panel_subtitle is archive_meta_text
+
+style cg_panel_subtitle_locked is archive_meta_text:
+    color IM_MUTED
+
+style cg_chapter_title is gui_text:
+    font gui.default_font
+    size 21
+    color IM_PAPER
+    outlines []
+
+style cg_chapter_title_locked is cg_chapter_title:
+    color "#8f8a86"
+
+style cg_chapter_count is archive_meta_text:
+    size 10
+
+style cg_chapter_count_locked is cg_chapter_count:
+    color "#8f8a86"
+
+style cg_print_button:
+    xysize (202, 152)
+    padding (0, 0)
+    background None
+    hover_background None
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+# Titles on the mounts use Chapter Select's folio ink (teal on hover).
+style cg_print_title is cs_name:
     size 16
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
 
-style cg_panel_subtitle_locked:
-    size 16
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
+style cg_print_title_locked is cs_span_locked
 
-style cg_chapter_title:
-    size 20
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style cg_viewer_placard is frame:
+    background IM_PAPER_PANEL
+    padding (20, 6)
 
-style cg_chapter_title_locked:
-    size 20
-    color "#4f5b67"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style cg_viewer_kicker is cs_kicker:
+    color "#714966"
 
-style cg_chapter_count:
+style cg_viewer_title is gui_text:
+    font gui.default_font
+    size 22
+    color IM_INK
+    outlines []
+
+style cg_viewer_counter is gui_text:
+    font gui.interface_font
     size 14
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
+    kerning 1.2
+    color "#714966"
+    outlines []
 
-style cg_chapter_count_locked:
-    size 14
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
+style cg_viewer_pager is archive_return_button:
+    xsize 48
+    ysize 96
+    padding (0, 0)
 
-# Thumbnail caption (under each grid tile).
-style cg_thumb_title:
-    font gui.interface_font
-    size 12
-    color "#c9dbe4"
-    text_align 0.5
-    xmaximum 192
-    outlines [(1, "#02040b", 0, 0)]
-
-style cg_thumb_title_locked:
-    font gui.interface_font
-    size 12
-    color "#41505c"
-    text_align 0.5
-    xmaximum 192
-    outlines [(1, "#02040b", 0, 0)]
-
-# Fullscreen viewer caption bar.
-style cg_viewer_title:
-    font gui.interface_font
-    size 20
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-style cg_viewer_counter:
-    font gui.interface_font
-    size 16
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
+style cg_viewer_pager_text is archive_return_button_text:
+    size 26
+    align (0.5, 0.5)

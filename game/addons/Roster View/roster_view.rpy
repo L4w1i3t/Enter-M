@@ -1,54 +1,10 @@
-# =============================================================================
-# roster_view.rpy  --  CHARACTER ROSTER + "PEOPLE / CURRENT READS" SYSTEM
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES (two related but separate features)
-#   1. THE FULL ROSTER (archive feature): big character profile cards with stats
-#      and a detail popup. Data = `character_roster` (list of CharacterProfile).
-#      Screens: roster_view_screen -> character_detail_screen.
-#      Opened from the Archive "Roster" card (game/archive.rpy) and via the
-#      `roster_view` label / `roster_view_screen` at the bottom of this file.
-#
-#   2. THE "PEOPLE" SCREEN (in-story quick-menu feature, titled "CURRENT READS"):
-#      a running list of the protagonist's one-line read on each person he has
-#      met. Data = `character_thought_catalog` (+ live overrides). Screen:
-#      character_thoughts_screen. Opened from the quick menu "People" button
-#      (game/screens.rpy) and unlocked progressively as the story marks people met.
-#
-# THE PUBLIC API STORY SCRIPTS CALL (see docs/addons/ADDON_CHEATSHEET.md)
-#   - mark_character_met(id, thought=None)   : add someone to the People screen
-#                                               AND unlock their Archive dossier.
-#   - update_character_thought(id, thought)  : change their one-line read (also
-#                                               marks met if needed).
-#   These two are the ONLY things story files normally touch here. The full
-#   roster is data-only (edited in init_roster() below), not driven from script.
-#   Outfits need no story calls at all -- see roster_scan_worn_outfits().
-#
-# WHAT IS LOCKED IN HERE
-#   A roster slot is a silhouette until the story marks that character met, and
-#   each of her outfits is "???" until she has been on screen wearing it. The
-#   Roster PANEL itself is open from the first launch (game/archive.rpy).
-#
-# SAVE STATE (per-save, not global persistent)
-#   - met_character_ids   : list of ids the player has met (drives People list).
-#   - character_thoughts  : dict id -> overridden thought text.
-#   Both declared with `default` so they live in each save file.
-#
-# PERSISTENT STATE (global, survives across saves)
-#   - persistent.roster_met_ids  : set of ids whose dossier has been unlocked.
-#   - persistent.outfit_<who>_<what> : one bool per non-default outfit.
-#   The Archive opens from the main menu with no save loaded, so what it shows
-#   cannot live in a save file. See roster_met_ids() for the full argument.
-#
-# SHARED THEME BORROWED FROM game/archive.rpy
-#   - screen archive_backdrop          (background + scanline)
-#   - screen archive_header(...)       (title bar + return button)
-#   - style archive_shell_frame        (the big outer panel)
-#   - style_prefix "archive_sv"        (the cyan scrollbar look)
-# =============================================================================
-
-# Roster View Addon
-# Provides a character roster viewer with character profiles and information
+# Archive character dossiers/outfits and the in-story People/Current Reads list.
+# mark_character_met(id, thought=None) updates discovery; update_character_thought()
+# changes the per-save read. met_character_ids and character_thoughts live in saves.
+# persistent.roster_met_ids and outfit keys retain Archive unlocks across saves.
+# roster_scan_worn_outfits() records outfits actually shown, independent of emotion.
+# The roster shell is available immediately; unknown entries remain silhouettes.
+# character_roster owns profiles; character_thought_catalog supplies initial reads.
 
 init python:
     import store
@@ -543,7 +499,7 @@ init python:
                 portrait_aspect=1.0,
                 roster_id="monika",
                 # Her layeredimage's `outfit` group is uniform (the default) and
-                # casual -- assets/mpt/monika_layeredimage.rpy. The casual
+                # casual -- asset_definitions/mpt/monika_layeredimage.rpy. The casual
                 # set is real art, not a recolour, and the story already uses it
                 # (cs_matsuda_01), so it unlocks like any other look.
                 outfits=[
@@ -555,7 +511,7 @@ init python:
             ),
             CharacterProfile(
                 "Kotonoha",
-                "Kotonoha",
+                "Kotonoha Katsura",
                 "kotonoha neut",
                 "17-18",
                 "Unknown",
@@ -733,7 +689,6 @@ init 6 python:
 # TRANSFORMS (entrance animations; hover handled by button styles)
 # =============================================================================
 # Roster grid card: fade + rise, staggered by `delay` (screen passes idx*0.06).
-# Entrance animation for roster cards (no hover -- handled by style)
 transform roster_card_anim(delay=0.0):
     alpha 0.0
     yoffset 25
@@ -741,8 +696,6 @@ transform roster_card_anim(delay=0.0):
     pause delay
     easein_back 0.4 alpha 1.0 yoffset 0
 
-# Outer panel for roster_view_screen / character_thoughts_screen: drop in, lift out.
-# Frame entrance animation
 # Paging between dossiers with left/right. `slide` is 0 on a first open (which
 # keeps the zoom-and-rise above), -1 when paging to the PREVIOUS profile (the new
 # dossier travels in from the left) and +1 for the NEXT (in from the right), so the
@@ -767,9 +720,24 @@ transform detail_frame_page(slide=0):
         alpha 1.0
         easeout_quad 0.20 alpha 0.0 zoom (1.0 if slide else 0.92)
 
-# Directional slide-ins used to stagger the detail screen's portrait / stats /
-# description so they enter from left, right, and below respectively.
-# Slide-in from left/right for detail content
+# The file's status stamp comes down a beat after the page settles and rests
+# tilted. It is nested in the sheet, and show/replace events stop at a
+# screen's top level, so it cannot listen for them the way detail_frame_page
+# does; `subject` is unused in the body and only restarts it on each page
+# turn (an ATL with different arguments does not inherit the old timeline).
+transform roster_stamp_land(subject=None):
+    subpixel True
+    rotate -9
+    alpha 0.0
+    zoom 1.7
+    pause 0.32
+    parallel:
+        easeout_quad 0.08 alpha 0.85
+    parallel:
+        easein_back 0.22 zoom 1.0
+
+# Directional slide-ins that stagger the case file's print (from the left) and
+# its typed record (from the right).
 transform detail_slide_left(delay=0.0):
     alpha 0.0
     xoffset -25
@@ -782,31 +750,44 @@ transform detail_slide_right(delay=0.0):
     pause delay
     easein_quad 0.4 alpha 1.0 xoffset 0
 
-transform detail_slide_up(delay=0.0):
-    alpha 0.0
-    yoffset 15
-    pause delay
-    easein_quad 0.4 alpha 1.0 yoffset 0
-
 # =============================================================================
-# SCREEN 1: roster_view_screen  -- the grid of all roster cards
+# SCREEN 1: roster_view_screen  -- the cast register
 # Reached from: archive.rpy "Roster" card (Show), and the roster_view label below.
-# Clicking a card opens character_detail_screen for that CharacterProfile.
+# One mounted print per profile, four across: two rows fit the shell's content
+# well exactly, so the whole cast is on screen at once (a ninth profile scrolls).
+# Clicking an identified card opens character_detail_screen for that profile.
+# Card geometry matches subject_mount.svg in the archive art folder: the print
+# sits at (15, 15, 232, 141) inside the mount's dark window, and the folio
+# ribbon hangs from the window's bottom edge at x 205..247.
 # =============================================================================
-# Roster View Main Screen
 screen roster_view_screen():
     modal True
-    key "K_ESCAPE" action Hide("roster_view_screen")
-    key "game_menu" action Hide("roster_view_screen")
+    key "K_ESCAPE" action Hide("roster_view_screen", transition=enter_m_menu_doorway)
+    key "game_menu" action Hide("roster_view_screen", transition=enter_m_menu_doorway)
 
-    use archive_backdrop   # shared bg+scanline from archive.rpy
+    # The card the caption under the grid describes. Kept on unhover, so the
+    # line does not flicker back as the cursor crosses a gutter.
+    default rv_hover = None
 
-    # Live census for the readout strip. The interesting number is how much of
-    # the cast the player has actually put a name to, so that is what the strip
-    # counts -- ACTIVE (i.e. not deceased) is a property of the fiction and only
-    # means anything for slots that have been filled in.
-    $ _r_total = len(character_roster)
-    $ _r_known = sum(1 for _c in character_roster if _c.identified)
+    use archive_backdrop   # shared bg from archive.rpy
+
+    python:
+        # Live census for the readout strip. The interesting number is how much
+        # of the cast the player has actually put a name to, so that is what
+        # the strip counts.
+        _r_total = len(character_roster)
+        _r_known = sum(1 for _c in character_roster if _c.identified)
+
+        _r_caption = _("The people in this story, as far as you know them.")
+        if rv_hover is not None and rv_hover < _r_total:
+            _r_sel = character_roster[rv_hover]
+            if not _r_sel.identified:
+                _r_caption = _("You haven't met this person yet.")
+            else:
+                # shortcut: the first sentence is cut at ". ", which holds for every
+                # current description; add a tagline field if one ever opens with an
+                # abbreviation.
+                _r_caption = _r_sel.description.split(". ")[0].rstrip(".") + "."
 
     frame:
         style "archive_shell_frame"   # shared outer panel style from archive.rpy
@@ -815,114 +796,102 @@ screen roster_view_screen():
         vbox:
             spacing 12
 
-            use archive_header("CHARACTER ROSTER", Hide("roster_view_screen"))
+            use archive_header("CHARACTER ROSTER", Hide("roster_view_screen", transition=enter_m_menu_doorway))
 
-            # Census / readout strip.
             use archive_readout(
-                "SUBJECT REGISTRY // {} PROFILES ON FILE".format(_r_total),
-                "IDENTIFIED {}/{}".format(_r_known, _r_total))
+                "THE CAST REGISTER / {} PROFILES ON FILE".format(_r_total),
+                "{} OF {} IDENTIFIED".format(_r_known, _r_total))
 
-            # vpgrid scales to any roster size (no more fixed 3x3 padding).
             vpgrid:
-                cols 3
-                spacing 25
+                cols 4
+                xspacing 24
+                yspacing 16
                 xalign 0.5
-                style_prefix "archive_sv"   # cyan scrollbar look from archive.rpy
+                style_prefix "archive_sv"   # scrollbar look from archive.rpy
                 scrollbars "vertical"
                 mousewheel True
                 draggable True
                 pagekeys True
-                xsize 1150
-                ysize 540
+                xsize 1126
+                ysize 504
 
-                # One button per roster member; opens the detail popup.
                 for idx, char in enumerate(character_roster):
-                    $ d = idx * 0.06   # staggered entrance delay
-                    $ _r_id = "R-%02d" % (idx + 1)
-                    # Three states, not two: identified-and-alive, identified-and-
-                    # dead, and not met at all. `_r_live` is the only one that
-                    # earns a blinking pip and a cyan rail.
+                    # Three states, not two: identified-and-alive, identified-
+                    # and-dead, and not met at all. Only the first gets the teal
+                    # ribbon and the hover lift.
                     $ _r_open = char.identified
                     $ _r_live = _r_open and not char.grayed_out
 
                     button:
                         style "roster_card_button"
-                        at roster_card_anim(d)
+                        at roster_card_anim(idx * 0.06)
+                        hovered SetScreenVariable("rv_hover", idx)
 
                         if _r_open:
                             action Show("character_detail_screen", character=char)
                         else:
                             action Show("dialog", message="You haven't met this person yet.", ok_action=Hide("dialog"))
 
-                        vbox:
-                            spacing 0
+                        fixed:
+                            if _r_open:
+                                at cs_card_focus
 
-                            # Top strip: subject ID left, live status pip right.
-                            # A `fixed` with an xanchor'd right child, NOT an hbox
-                            # with `null width 1 xfill True` -- inside a frame the
-                            # hbox shrink-wraps, so the greedy null had no room to
-                            # expand into and the two ended up jammed together.
-                            frame:
-                                background Solid("#07111dcc")
-                                xsize 300
-                                padding (12, 6)
+                            add ("assets/gui/menu/illustrated/archive/subject_mount.svg" if _r_live else "assets/gui/menu/illustrated/archive/subject_mount_sealed.svg")
 
-                                fixed:
-                                    xsize 276
-                                    ysize 16
-                                    text _r_id style "roster_card_id" xpos 0 yalign 0.5
-                                    if _r_live:
-                                        add Solid("#56d7ff") xysize (7, 7) xanchor 1.0 xpos 276 yalign 0.5 at console_blink
-                                    else:
-                                        add Solid("#4f5b67") xysize (7, 7) xanchor 1.0 xpos 276 yalign 0.5
+                            # The print is the SAME clipped portrait window the
+                            # case file uses (archive.rpy), so a card and its file
+                            # frame the subject identically. An unmet subject gets
+                            # the hub's sealed-record engraving instead of art.
+                            fixed:
+                                pos (15, 15)
+                                xysize (232, 141)
+                                if _r_open:
+                                    at archive_print_develop
+                                use archive_portrait(char.sprite_image, 232, 141,
+                                                    char.fit_mode, char.grayed_out,
+                                                    char.portrait_focus, char.portrait_scale,
+                                                    char.portrait_aspect, not _r_open)
 
-                            # Character sprite area -- the SAME clipped portrait
-                            # window the detail dossier uses (archive.rpy), so a
-                            # card and its dossier frame the subject identically
-                            # and every card in the grid reads at one scale. It
-                            # brings its own dark backing, scanline and hairlines.
-                            use archive_portrait(char.sprite_image, 300, 308,
-                                                char.fit_mode, char.grayed_out,
-                                                char.portrait_focus, char.portrait_scale,
-                                                char.portrait_aspect, not _r_open)
+                            use archive_photo_corners(15, 15, 232, 141)
 
-                            # Name plate: name left, action tag right (same fixed
-                            # treatment as the ID strip above).
-                            frame:
-                                background Solid("#07111dcc")
-                                xsize 300
-                                padding (12, 7)
+                            text ("%02d" % (idx + 1)) style "roster_card_folio" xpos 226 xanchor 0.5 ypos 164
 
-                                fixed:
-                                    xsize 276
-                                    ysize 27
+                            if _r_open:
+                                text char.name style "roster_card_name" xpos 16 ypos 166
+                                text ("BORN " + char.birthday.upper()) style "roster_card_span" xpos 17 ypos 206
+                            else:
+                                text "???" style "roster_card_name_locked" xpos 16 ypos 166
+                                text "SUBJECT UNIDENTIFIED" style "roster_card_span_locked" xpos 17 ypos 206
 
-                                    if _r_open:
-                                        text char.name style "roster_card_name" xpos 0 yalign 0.5
-                                    else:
-                                        text "???" style "roster_card_name_locked" xpos 0 yalign 0.5
+                            if not _r_open:
+                                text "SEALED" style "roster_card_strap_locked" xanchor 1.0 xpos 247 ypos 222
+                            elif char.grayed_out:
+                                text "DECEASED" style "roster_card_strap_locked" xanchor 1.0 xpos 247 ypos 222
+                            else:
+                                text "OPEN FILE" style "roster_card_strap" xanchor 1.0 xpos 247 ypos 222
 
-                                    if not _r_open:
-                                        text "LOCKED" style "roster_card_tag_dead" xanchor 1.0 xpos 276 yalign 0.5
-                                    elif char.grayed_out:
-                                        text "DECEASED" style "roster_card_tag_dead" xanchor 1.0 xpos 276 yalign 0.5
-                                    else:
-                                        text "VIEW  >" style "roster_card_tag" xanchor 1.0 xpos 276 yalign 0.5
+            # The caption: the last card pointed at, in one line, the way
+            # Chapter Select's footer explains its panes.
+            fixed:
+                xsize 1120
+                ysize 24
+                xalign 0.5
 
-                            # Bottom accent bar (cyan when active, grey otherwise).
-                            add Solid("#56d7ff" if _r_live else "#374654"):
-                                xysize (300, 3)
+                add Solid("#d9cdb62e") xysize (1120, 1)
+                text _r_caption style "roster_caption" xalign 0.5 ypos 6 at cs_detail_swap(rv_hover)
 
     # Console brackets framing the shell (cohesion with the archive hub).
     use archive_shell_brackets()
 
 # =============================================================================
-# SCREEN 2: character_detail_screen(character) -- per-character profile popup
-# Shown on top of roster_view_screen (zorder 100). All display strings are
-# precomputed before the screen tree so the layout stays declarative.
+# SCREEN 2: character_detail_screen(character) -- the subject's case file
+# Shown on top of roster_view_screen (zorder 100): a manila folder with one
+# sheet on it, the print mounted on the left and the record typed on the right.
+# Everything fits the sheet, so nothing hides below a scroll fold.
 # Note the manual_exception fork: if set, the "Chest" row becomes a "Build" row.
+# Sheet geometry matches case_file.svg (1000 x 628): the folder tab is
+# x 0..267 over y 4..30, the sheet starts at y 42, the column rule is x 364.
 # =============================================================================
-# Character Detail Screen
 screen character_detail_screen(character, slide=0):
     modal True
     zorder 100
@@ -1006,12 +975,15 @@ screen character_detail_screen(character, slide=0):
         _c_page_prev = Show("character_detail_screen", character=_c_prev, slide=-1)
         _c_page_next = Show("character_detail_screen", character=_c_next, slide=1)
 
+        # The folio number on the file's tab is the card's ribbon number.
+        _c_file_no = (character_roster.index(character) + 1) if character in character_roster else 0
+
     # Left/right arrows page between profiles without leaving the popup (QoL).
     if _c_n > 1:
         key "K_LEFT" action _c_page_prev
         key "K_RIGHT" action _c_page_next
 
-    # Dim the roster behind the popup.
+    # Dim the roster behind the file.
     add Solid("#000000") at transform:
         alpha 0.0
         linear 0.25 alpha 0.85
@@ -1023,286 +995,163 @@ screen character_detail_screen(character, slide=0):
     # manual_exception present -> show "Build" + descriptor; else "Chest" + value.
     $ _build_label = "Build" if character.manual_exception else "Chest"
     $ _build_value = character.manual_exception if character.manual_exception else _chest_str
-    # Stat + trait tables the screen loops over (Status is shown as a chip instead
-    # of a row; Full Name is already in the header).
-    $ _detail_stats = [("Age", character.age), ("Birthday", character.birthday), ("Height", _height_str), ("Weight", _weight_str), (_build_label, _build_value)]
+    # The record's 3 x 2 stat grid, read left to right. The instrument is the
+    # character's musical motif, so it closes the grid in the ribbon's teal rather
+    # than reading as one more measurement.
+    $ _detail_stats = [("Age", character.age), ("Birthday", character.birthday), ("Height", _height_str), ("Weight", _weight_str), (_build_label, _build_value), ("Instrument", character.instrument)]
     $ _detail_traits = [("Likes", character.likes), ("Dislikes", character.dislikes)]
 
-    frame:
-        xalign 0.5
-        yalign 0.5
-        xsize 900
-        ysize 600
-        background Solid("#050811e8")
-        padding (25, 20)
+    fixed:
+        xysize (1000, 628)
+        align (0.5, 0.5)
         at detail_frame_page(slide)
 
-        vbox:
-            spacing 12
+        add "assets/gui/menu/illustrated/archive/case_file.svg"
 
-            use archive_header(character.full_name, Hide("character_detail_screen"), "Close")
+        text ("SUBJECT FILE  %02d" % _c_file_no) style "character_detail_tab" xpos 26 ypos 11
 
-            # Dossier readout: which profile of how many.
-            use archive_readout("SUBJECT DOSSIER", "PROFILE {}/{}".format(_c_idx + 1, _c_n), 850)
+        # The print, mounted on the sheet's left: the shared clipped portrait
+        # window (archive.rpy) on a dark mat, held by photo corners, with the
+        # wardrobe stepper directly under it so the control you press and the
+        # art it changes share a column.
+        fixed:
+            at detail_slide_left(0.1)
 
-            # Content area
-            viewport:
-                style_prefix "archive_sv"
-                scrollbars "vertical"
-                mousewheel True
-                draggable True
-                xsize 850
-                ysize 452
+            add Solid("#4d4851") xpos 36 ypos 62 xysize (312, 412)
 
-                vbox:
-                    spacing 16
-                    xsize 830
+            fixed:
+                pos (42, 68)
+                xysize (300, 400)
+                use archive_portrait(_c_art, 300, 400,
+                                    character.fit_mode, character.grayed_out,
+                                    _c_focus, _c_scale, _c_aspect,
+                                    _c_o_locked)
 
-                    # Top section: sprite + stats side by side
-                    hbox:
-                        spacing 18
+            use archive_photo_corners(42, 68, 300, 400)
 
-                        # Character portrait window (shared scanline + rules),
-                        # with the wardrobe rail directly under it so the chip
-                        # you press and the art it changes are the same column.
-                        vbox:
-                            spacing 10
-                            at detail_slide_left(0.1)
+            # WARDROBE. Only drawn for a subject who HAS a second look -- a
+            # one-outfit rail is a label pretending to be a control. A STEPPER,
+            # NOT A LIST: one row that does not grow with the wardrobe. The
+            # counter is the "there is more here" signal: 2/3 says a look exists
+            # that you have not seen, without spending a row on it or naming it.
+            if len(character.outfits) > 1:
+                fixed:
+                    pos (42, 488)
+                    xysize (300, 46)
 
-                            fixed:
-                                xysize (300, 360)
-                                use archive_portrait(_c_art, 300, 360,
-                                                    character.fit_mode, character.grayed_out,
-                                                    _c_focus, _c_scale, _c_aspect,
-                                                    _c_o_locked)
+                    add Solid("#7149660f") xysize (300, 46)
+                    add Solid("#9b816766") xysize (300, 1)
+                    add Solid("#9b816766") xysize (300, 1) ypos 45
 
-                            # WARDROBE. Only drawn for a subject who HAS a second
-                            # look -- a one-outfit rail is a label pretending to
-                            # be a control.
-                            #
-                            # A STEPPER, NOT A LIST, and that is a height
-                            # decision. This column sits in a 452px viewport
-                            # beside a 360px portrait; a vertical row-per-outfit
-                            # rail ran the column to ~527px, which pushed the
-                            # whole control below the fold and left it invisible
-                            # unless you thought to scroll. One 34px row always
-                            # fits, and it does not grow with the wardrobe.
-                            #
-                            # The counter is the "there is more here" signal that
-                            # the per-row "???" entries used to be: 2/3 says a
-                            # look exists that you have not seen, without
-                            # spending a row on it or naming it.
-                            if len(character.outfits) > 1:
-                                frame:
-                                    style "roster_wardrobe_panel"
+                    textbutton "<":
+                        style "roster_wardrobe_arrow"
+                        xpos 6
+                        yalign 0.5
+                        action SetScreenVariable("outfit_id", _c_o_prev)
 
-                                    fixed:
-                                        xsize 268
-                                        ysize 34
+                    textbutton ">":
+                        style "roster_wardrobe_arrow"
+                        xanchor 1.0
+                        xpos 294
+                        yalign 0.5
+                        action SetScreenVariable("outfit_id", _c_o_next)
 
-                                        textbutton "<":
-                                            style "roster_wardrobe_arrow"
-                                            xpos 0
-                                            yalign 0.5
-                                            action SetScreenVariable("outfit_id", _c_o_prev)
+                    text "WARDROBE  {}/{}".format(_c_oi + 1, len(_c_all)):
+                        style "roster_wardrobe_kicker"
+                        xalign 0.5
+                        ypos 6
 
-                                        textbutton ">":
-                                            style "roster_wardrobe_arrow"
-                                            xanchor 1.0
-                                            xpos 268
-                                            yalign 0.5
-                                            action SetScreenVariable("outfit_id", _c_o_next)
+                    if _c_outfit is None:
+                        text "--" style "roster_wardrobe_label" xalign 0.5 ypos 18
+                    elif _c_o_locked:
+                        text "???" style "roster_wardrobe_label_locked" xalign 0.5 ypos 18
+                    else:
+                        text _c_outfit.label style "roster_wardrobe_label" xalign 0.5 ypos 18
 
-                                        vbox:
-                                            xalign 0.5
-                                            yalign 0.5
-                                            spacing 1
+        # The record, typed on the sheet's right. Cells are placed with xpos,
+        # not boxes: measured in an isolated harness, a box given an explicit
+        # xsize SPREADS its children instead of packing them, and text_align
+        # is inert here, so `fixed` + xpos is what lands every value on its
+        # column edge (see archive_readout for the same finding).
+        fixed:
+            at detail_slide_right(0.15)
 
-                                            text "WARDROBE  {}/{}".format(_c_oi + 1, len(_c_all)):
-                                                style "roster_wardrobe_kicker"
-                                                xalign 0.5
+            text "THE CAST REGISTER / PROFILE {} OF {}".format(_c_idx + 1, _c_n):
+                style "character_detail_kicker"
+                xpos 384
+                ypos 64
 
-                                            if _c_outfit is None:
-                                                text "--" style "roster_wardrobe_label" xalign 0.5
-                                            elif _c_o_locked:
-                                                text "???" style "roster_wardrobe_label_locked" xalign 0.5
-                                            else:
-                                                text _c_outfit.label style "roster_wardrobe_label" xalign 0.5
+            text character.full_name style "character_detail_name" xpos 382 ypos 78
 
-                        # Character stats
-                        frame:
-                            style "character_detail_stats_panel"
-                            at detail_slide_right(0.15)
+            add Solid("#9b816780") xpos 384 ypos 134 xysize (576, 1)
+            add Solid("#714966") xpos 384 ypos 133 xysize (52, 2)
 
-                            vbox:
-                                spacing 10
+            for _i, (_label, _value) in enumerate(_detail_stats):
+                text _label.upper():
+                    style "character_detail_stat_label"
+                    xpos (384 + (_i % 3) * 196)
+                    ypos (152 + (_i // 3) * 52)
+                text "[_value]":
+                    style ("character_detail_motif" if _label == "Instrument" else "character_detail_stat_value")
+                    xpos (384 + (_i % 3) * 196)
+                    ypos (167 + (_i // 3) * 52)
 
-                                # Section header, with the ALIVE/DECEASED chip
-                                # pinned to the panel's right edge. A `fixed` with
-                                # an xanchor'd chip, not an hbox + greedy null --
-                                # measured in an isolated harness, a box given an
-                                # explicit xsize stops packing its children left and
-                                # spreads them instead, so the chip used to sit right
-                                # against the word "Profile".
-                                fixed:
-                                    xsize 472
-                                    ysize 30
+            # Likes/dislikes and the file note WRAP, so from here down the
+            # column is a vbox and each trait row's height comes from yfit.
+            # `yfit` means DON'T yalign the children (they would centre in the
+            # pre-fit height); the label's ypos is what puts its small caps on
+            # the value's first line.
+            vbox:
+                xpos 384
+                ypos 262
+                spacing 10
 
-                                    add Solid("#56d7ff"):
-                                        xsize 4
-                                        ysize 22
-                                        xpos 0
-                                        yalign 0.5
+                add Solid("#9b816766") xysize (576, 1)
 
-                                    text "Profile" style "character_detail_section" xpos 14 yalign 0.5
+                for _label, _value in _detail_traits:
+                    fixed:
+                        xsize 576
+                        yfit True
 
-                                    if character.grayed_out:
-                                        frame:
-                                            xanchor 1.0
-                                            xpos 472
-                                            yalign 0.5
-                                            background Solid("#1b2832")
-                                            padding (12, 5)
-                                            text "DECEASED" style "archive_chip_off_text"
-                                    else:
-                                        frame:
-                                            xanchor 1.0
-                                            xpos 472
-                                            yalign 0.5
-                                            background Solid("#56d7ff")
-                                            padding (12, 5)
-                                            text "ALIVE" style "archive_chip_on_text"
+                        text _label.upper() style "character_detail_stat_label" xpos 0 ypos 5
+                        text "[_value]" style "character_detail_trait_value" xpos 96 ypos 0
 
-                                add Solid("#56d7ff24"):
-                                    xsize 472
-                                    ysize 1
+                add Solid("#9b816766") xysize (576, 1)
 
-                                # THE STAT / TRAIT ROWS.
-                                # Both tables use the same construct: a `fixed` that
-                                # is 472 wide, grows in height to fit (`yfit`), with
-                                # the label at xpos 0 and the value at xpos 128 --
-                                # i.e. an EXPLICITLY placed two-column grid.
-                                #
-                                # Everything else was tried and measured in an
-                                # isolated harness first, because the value column
-                                # was visibly ragged and none of the obvious fixes
-                                # were doing anything:
-                                #   * `xsize 344` + `text_align 0.0` on the value:
-                                #     text_align is completely inert here, and the
-                                #     xsize makes the value CENTRE inside its box --
-                                #     which is exactly why short values like "18" sat
-                                #     further right than long ones like "Dislikes".
-                                #   * `hbox: xsize 472`: an explicit xsize stops a box
-                                #     packing its children to the left at all.
-                                # `fixed` + xpos landed every row within 1px of the
-                                # column edge, wrapping values included, so that is
-                                # what both tables use. `yfit` means DON'T yalign the
-                                # children (they would centre in the pre-fit height);
-                                # the label's 3px ypos is what puts its 14px line on
-                                # the 18px value's first baseline.
-                                vbox:
-                                    spacing 7
+                text "FILE NOTE" style "character_detail_stat_label"
+                text character.description style "character_detail_desc"
 
-                                    for _label, _value in _detail_stats:
-                                        fixed:
-                                            xsize 472
-                                            yfit True
+        # The status, stamped across the record's corner.
+        frame:
+            style "character_detail_stamp"
+            xpos 846
+            ypos 98
+            anchor (0.5, 0.5)
+            at roster_stamp_land(character)
 
-                                            text _label style "character_detail_stat_label" xpos 0 ypos 3
-                                            text "[_value]" style "character_detail_stat_value" xpos 128 ypos 0
+            text ("DECEASED" if character.grayed_out else "ALIVE") style "character_detail_stamp_text"
 
-                                add Solid("#56d7ff16"):
-                                    xsize 472
-                                    ysize 1
+        # A second tab, seated on the folder's top edge opposite the label tab.
+        textbutton _("Close"):
+            style "character_detail_close"
+            xanchor 1.0
+            xpos 990
+            ypos -6
+            action Hide("character_detail_screen")
 
-                                # Likes/dislikes -- same grid, but these values WRAP,
-                                # which is why the row height comes from yfit instead
-                                # of a hard number.
-                                vbox:
-                                    spacing 7
-
-                                    for _label, _value in _detail_traits:
-                                        fixed:
-                                            xsize 472
-                                            yfit True
-
-                                            text _label style "character_detail_stat_label" xpos 0 ypos 3
-                                            text "[_value]" style "character_detail_stat_value" xpos 128 ypos 0
-
-                                add Solid("#56d7ff16"):
-                                    xsize 472
-                                    ysize 1
-
-                                # PREFERRED INSTRUMENT: the character's musical
-                                # motif. Given its own strip rather than another
-                                # stat row -- "Preferred Instrument" will not fit
-                                # the 112px label column, and a motif deserves
-                                # more presence than a measurement anyway.
-                                fixed:
-                                    xsize 472
-                                    ysize 40
-
-                                    add Solid("#56d7ff88"):
-                                        xsize 3
-                                        ysize 34
-                                        xpos 0
-                                        yalign 0.5
-
-                                    text "PREFERRED INSTRUMENT" style "character_detail_kicker" xpos 14 ypos 0
-                                    text character.instrument style "character_detail_motif" xpos 14 ypos 15
-
-                    # Description section
-                    frame:
-                        style "character_detail_desc_panel"
-                        at detail_slide_up(0.3)
-
-                        vbox:
-                            spacing 10
-
-                            hbox:
-                                spacing 10
-                                yalign 0.5
-                                ysize 30
-
-                                add Solid("#56d7ff"):
-                                    xsize 4
-                                    ysize 22
-                                    yalign 0.5
-
-                                text "Description" style "character_detail_section" yalign 0.5
-
-                            add Solid("#56d7ff24"):
-                                xsize 798
-                                ysize 1
-
-                            text character.description style "character_detail_desc"
-
-    # Side paging arrows (wrap-around), mirroring the CG viewer.
+    # Side page tabs (wrap-around), mirroring the CG viewer.
     if _c_n > 1:
         textbutton "<":
-            xalign 0.0
+            style "character_detail_pager"
+            xpos 74
             yalign 0.5
-            xoffset 24
-            text_size 54
-            text_color "#56d7ffaa"
-            text_hover_color "#ffffff"
-            text_bold True
-            text_outlines [(2, "#02040b", 0, 0)]
-            background None
-            hover_background None
             action _c_page_prev
 
         textbutton ">":
-            xalign 1.0
+            style "character_detail_pager"
+            xanchor 1.0
+            xpos 1206
             yalign 0.5
-            xoffset -24
-            text_size 54
-            text_color "#56d7ffaa"
-            text_hover_color "#ffffff"
-            text_bold True
-            text_outlines [(2, "#02040b", 0, 0)]
-            background None
-            hover_background None
             action _c_page_next
 
 
@@ -1396,66 +1245,46 @@ screen character_thoughts_screen():
     use archive_shell_brackets()
 
 # =============================================================================
-# STYLES  -- card/detail/thought visuals. Same cyan-on-near-black palette as the
-# archive theme so these screens feel continuous with the Archive hub.
+# STYLES -- the register is set in the illustrated catalogue's materials
+# (illustrated_menu_theme.rpy): paper mounts, plum and teal ink, gold corners.
+# Card type inherits Chapter Select's folio set rather than copying it, so the
+# two stay one family. The People screen (SCREEN 3) keeps its own styles below.
 # =============================================================================
-# Styles
-style roster_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 36
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+style roster_card_button is cs_card_button:
+    xysize (262, 244)
+    background None
+    hover_background None
 
+style roster_card_folio is cs_folio_number
 
-style roster_card_button:
-    # 379 = ID strip 27 + portrait 308 + name plate 41 + accent bar 3. It was 372,
-    # which quietly clipped the bottom of every card's name plate and accent bar.
-    xysize (300, 379)
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
-    hover_sound gui.hover_sound
-    activate_sound gui.activate_sound
-    padding (0, 0)
+style roster_card_name is cs_name:
+    size 24
 
-style roster_card_name:
-    size 22
-    color "#dff8ff"
-    bold True
-    text_align 0.0
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+style roster_card_name_locked is cs_name_locked:
+    size 24
 
-style roster_card_name_locked is roster_card_name:
-    color "#687787"
+style roster_card_span is cs_span
+style roster_card_span_locked is cs_span_locked
+style roster_card_strap is cs_strap
+style roster_card_strap_locked is cs_strap_locked
 
-style roster_card_id:
-    font gui.interface_font
-    size 12
-    color "#56d7ff"
-    kerning 1.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+# The line under the grid, in Chapter Select's footer voice.
+style roster_caption is cs_note:
+    size 15
 
-# --- WARDROBE RAIL (dossier, under the portrait) -----------------------------
-# 300 wide to sit flush with the portrait window above it; 268 is that minus the
-# panel's 16px padding either side, and every child in the rail is measured
-# against 268 so the kicker's right-hand tally lands on the panel edge.
-style roster_wardrobe_panel is archive_panel:
-    xsize 300
-    padding (16, 8)
-
+# --- WARDROBE STEPPER (case file, under the print) ---------------------------
+# 300 wide to sit flush with the print above it.
 style roster_wardrobe_kicker is gui_text:
     font gui.interface_font
-    size 11
-    color "#7fcfe0"
-    kerning 2.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    size 10
+    kerning 1.6
+    color "#714966"
+    outlines []
 
 style roster_wardrobe_arrow:
-    xysize (30, 30)
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
+    xysize (34, 34)
+    background None
+    hover_background Solid("#71496622")
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
     padding (0, 0)
@@ -1463,107 +1292,96 @@ style roster_wardrobe_arrow:
 style roster_wardrobe_arrow_text:
     font gui.interface_font
     size 20
-    color "#56d7ff"
-    hover_color "#ffffff"
-    bold True
+    color "#714966"
+    hover_color "#2c5b59"
     xalign 0.5
     yalign 0.5
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
-style roster_wardrobe_label:
-    font gui.interface_font
-    size 16
-    color "#dff8ff"
-    bold True
-    text_align 0.5
-    outlines [(1, "#02040b", 0, 0), (1, "#56d7ff66", 1, 1)]
+style roster_wardrobe_label is gui_text:
+    font gui.default_font
+    size 18
+    color IM_INK
+    outlines []
 
 style roster_wardrobe_label_locked is roster_wardrobe_label:
-    color "#687787"
-    outlines [(1, "#02040b", 0, 0)]
+    color "#8f7f88"
 
-style roster_card_tag:
-    font gui.interface_font
-    size 12
-    color "#56d7ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style roster_card_tag_dead:
-    font gui.interface_font
-    size 12
-    color "#4f5b67"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style character_detail_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 38
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-style character_detail_section:
-    size 22
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-style character_detail_stats_panel:
-    xsize 512
-    yminimum 360
-    background Solid("#07111dcc")
-    padding (16, 14, 16, 14)
-
-style character_detail_info:
-    size 19
-    color "#dff8ff"
-    outlines [(1, "#02040b", 0, 0)]
-
-style character_detail_stat_label:
-    size 14
-    color "#8fb6c5"
-    xsize 112
-    xalign 0.0
-    text_align 0.0
-    outlines [(1, "#02040b", 0, 0)]
-
-style character_detail_stat_value:
-    size 18
-    color "#dff8ff"
-    xsize 344
-    xalign 0.0
-    text_align 0.0
-    outlines [(1, "#02040b", 0, 0)]
-
-# The PREFERRED INSTRUMENT strip: a small tracked-out kicker over the value, in
-# the same cyan-on-near-black language as the archive's other readouts.
-style character_detail_kicker:
+# --- THE CASE FILE -----------------------------------------------------------
+# Ink on paper: plum for the printed form (labels, kickers), near-black for
+# what was typed into it, teal for the motif, oxblood for the stamp.
+style character_detail_tab is gui_text:
     font gui.interface_font
     size 11
-    color "#7fcfe0"
-    kerning 2.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    kerning 1.6
+    color "#5b4152"
+    outlines []
 
-style character_detail_motif:
-    size 20
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+style character_detail_kicker is cs_kicker:
+    color "#714966"
 
-style character_detail_desc_panel:
-    xsize 830
-    background Solid("#07111dcc")
-    padding (16, 14, 16, 16)
+style character_detail_name is gui_text:
+    font gui.default_font
+    size 40
+    color IM_INK
+    outlines []
 
-style character_detail_desc:
-    size 18
-    color "#c9d8e1"
-    text_align 0.0
+style character_detail_stat_label is gui_text:
+    font gui.interface_font
+    size 10
+    kerning 1.3
+    color "#7a6472"
+    outlines []
+
+style character_detail_stat_value is gui_text:
+    font gui.default_font
+    size 19
+    color "#2f3a3d"
+    outlines []
+
+style character_detail_motif is character_detail_stat_value:
+    color "#2c5b59"
+
+style character_detail_trait_value is character_detail_stat_value:
+    size 17
+    xmaximum 480
+
+style character_detail_desc is gui_text:
+    font gui.default_font
+    size 17
+    color "#3a4044"
     line_spacing 4
-    xmaximum 798
-    outlines [(1, "#02040b", 0, 0)]
+    xmaximum 576
+    outlines []
+
+style character_detail_stamp is frame:
+    background Frame("assets/gui/menu/illustrated/archive/file_stamp.svg", 10, 10)
+    padding (18, 8, 18, 8)
+
+style character_detail_stamp_text is gui_text:
+    font gui.interface_font
+    size 24
+    kerning 3.0
+    color "#7d3553"
+    outlines []
+
+style character_detail_close is archive_return_button:
+    xsize 118
+    ysize 36
+    padding (12, 6)
+
+style character_detail_close_text is archive_return_button_text:
+    size 16
+    xalign 0.5
+
+style character_detail_pager is archive_return_button:
+    xsize 48
+    ysize 96
+    padding (0, 0)
+
+style character_detail_pager_text is archive_return_button_text:
+    size 26
+    align (0.5, 0.5)
 
 style thought_entry_frame:
     xsize 1128

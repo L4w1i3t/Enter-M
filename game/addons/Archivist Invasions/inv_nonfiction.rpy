@@ -1,250 +1,18 @@
-# =============================================================================
-# ARCHIVIST INVASION 03 -- NONFICTION
-# =============================================================================
+# Nonfiction invasion: source claims in the turn-based bout, then carry evidence
+# across a shrinking page. STATE creates unsourced claims; CITE banks the ledger.
+# Banked act-one progress becomes VERIFIED; unsourced progress is lost at shift.
 #
-# WHAT THIS IS
-#   The third Archivist Invasion. Same two-act shape as Biography and Horror,
-#   built out of a third set of materials.
+# Act two fills PENDING at the entry, carries it to column-zero margins and files
+# it on an available row. VERIFIED is permanent. ATTEST roots the player while
+# protecting the carried evidence and current cell; it is an optional bargain.
+# The margin remains traversable and never hosts the entry. All readouts are
+# truthful. Halftone registration follows its own schedule rather than the music.
 #
-#       Biography wants to FINISH something.
-#       Horror wants to BE NEAR you.
-#       Nonfiction wants to CHECK you against the record.
-#
-#   It is not trying to kill anybody. It is establishing whether what is in
-#   front of it can be corroborated, and whatever cannot be corroborated does
-#   not get to have happened. It does not attack. IT RETRACTS.
-#
-# THE FORM IT IS WEARING
-#   Biography turned up wearing a specific person, because a life needs
-#   someone to have lived it. Nonfiction turns up wearing NOBODY IN
-#   PARTICULAR -- a figure with no distinguishing features -- because a fact
-#   does not need anybody in particular to be true. The blankness is the
-#   correct answer, not a placeholder for one.
-#
-#   (Practically: nonfiction.png is a stand-in until the real portrait lands.
-#   Nothing in this file cares what is in the image -- inv.strike prints
-#   whatever it is given as a monochrome halftone plate, so a flat silhouette
-#   reads as an illustration in a reference book rather than as missing art.
-#   When the portrait arrives, update NF_SPRITE_W/H and NF_FIG_DX/DY and
-#   nothing else.)
-#
-# THE ONE THING IT WILL NOT DO
-#   Horror's readouts LIE to you, more often the closer it gets. Nonfiction's
-#   readouts are always true. It tells you the name of the move it is about to
-#   make and the exact number attached to it, every single turn, and it never
-#   withholds anything. That is not mercy. It is procedure.
-#
-#   ACT ONE -- the sourcing bout. Turn-based, the house furniture, the same
-#   rolling odometer. The twist is that DAMAGE IS NOT DAMAGE UNTIL IT IS
-#   SOURCED. STATE puts a claim on the board as UNSOURCED; CITE moves the
-#   whole unsourced pile onto its permanent LEDGER. Everything sitting
-#   unsourced can be taken back, and it will be: carrying a pile makes its
-#   QUERY hurt more, and a STRIKE erases the lot.
-#
-#   ACT TWO -- the CORRUPTIVE STATE: the page. Every light in the room comes
-#   up, the room turns WHITE, and the fight is held on a plain ruled plane
-#   that is being struck out cell by cell while you stand on it. There is
-#   nothing to attack. The only win is to get yourself ON RECORD -- and that
-#   is done by STANDING STILL on something it has already corroborated, which
-#   is the last thing a shrinking floor lets you do.
-#
-#   THE ESCROW COMES WITH YOU (Aug 14 2026). The first build of this act
-#   dropped act one's one good idea at the door and became "walk to the box,
-#   stand in the box, dodge the walls" -- a fine picture and a thin loop,
-#   because nothing you did was ever at risk and so nothing you did was ever
-#   a decision. Now standing on the entry fills PENDING, pending is capped,
-#   pending is what a retraction takes and what a redaction takes, and it
-#   becomes VERIFIED only when you walk it into THE MARGIN. Column zero of
-#   the grid is the margin: nothing may ever be struck out of it (a redaction
-#   covers text; the margin is not text), the entry is never placed in it,
-#   and standing anywhere in it files what you are carrying. The row you file
-#   on will not take another citation until the ink is dry, so the walk is a
-#   different walk each time.
-#
-#   FILL, CARRY, FILE -- and each third of that is exposed to something
-#   different: filling to the volleys landing around you, carrying to the
-#   page having closed behind you while you stood there, filing to which
-#   rows are still open. VERIFIED cannot be taken by anything, which is act
-#   one's rule ("only the ledger is real") honoured rather than restated, and
-#   which is also why there is no death spiral in here -- only lost time.
-#
-#   ONE VERB: hold Z to ATTEST. It roots you, and while it lasts you fill at
-#   double rate, a retraction cannot take what you are carrying, and a
-#   redaction cannot cover the cell you are standing in. All three are things
-#   you CHOOSE; nothing in the act obliges you to spend it, which is the fix
-#   for the version of this act that did (see BALANCE).
-#
-#   AND THE PAGE GETS WORKED OVER. The escalation is one number, `churn()`,
-#   and it buys: a press cycle that stretches from six seconds to twelve (and
-#   past NF_PRESS_PARTIAL_AT stops lifting everything, so the sheet is never
-#   quite blank again); a SECOND HALFTONE SCREEN at a fighting angle, which
-#   is where moire comes from and is the correct way for a printed thing to
-#   become hard to look at; a second set of rules between the first; grubbier
-#   stock; and printer's correction marks accumulating in the open cells.
-#   None of that has a hitbox, none of it flows, and none of it invents a
-#   frame of anything -- which are the three things this Archivist may not do.
-#
-#   THE PLATE IS NOT ON THE BEAT, and that was tried and cut (user, Aug 14
-#   2026). The watermark re-registers on its own schedule and on the passes
-#   that bring a volley in, so it falls near the pulse sometimes and does not
-#   the rest of the time. That reads as coincidence rather than choreography,
-#   which is the better version of the effect and the only one in character:
-#   a press that keeps time is a press with an opinion about the music, and
-#   nothing in this fight has an opinion. Do not re-lock it.
-#
-# THE THREE POLES (this is why act two is what it is)
-#       Biography   you must CLOSE distance.        A stage you circle.
-#       Horror      you must OPEN distance.         A throat you flee down.
-#       Nonfiction  distance is irrelevant.         A page you HOLD GROUND on.
-#   And so the camera: Biography has a proscenium, Horror has a vanishing
-#   point, and Nonfiction has NO PERSPECTIVE AT ALL. Flat, orthographic,
-#   overhead. It does not invent a camera any more than it invents anything
-#   else.
-#
-# THE JOINT BETWEEN THE ACTS (the thing that makes act one matter)
-#   THE LEDGER CARRIES. HP and sources are handed back in full at the tear --
-#   what survives is exactly the part of your account you managed to SOURCE,
-#   and it becomes your opening VERIFIED. Everything still unsourced at that
-#   moment is struck out on screen as the panels come off, which is the lesson
-#   act one was teaching, administered once, at full volume.
-#
-# THE RULES (from the invasion spec -- restated because they bind here too)
-#   1. NO FLAVOR TEXT. Controls, numbers and state words only. The complete
-#      list of drawable strings in this fight is: NONFICTION / STATE / CITE /
-#      AMEND / RUN / QUERY / FOOTNOTE / MARK / STRIKE / CORRECTION / ERRATUM /
-#      MARKED / UNSOURCED / UNRECORDED / NO SOURCES / SCRUTINY / HP / SRC /
-#      VERIFIED / CREDIT / GOD / PAUSED, plus the act-two readout keys and
-#      three control hints. Nothing in here is a sentence.
-#   2. NOTHING MAY BE FUNNY. Checked hardest on the white page: a bright
-#      screen is one bad decision away from cheerful. It is lit like a
-#      photocopier, it has no shadows to hide in, and the only colour anywhere
-#      in the second half is you.
-#   3. IT MOVES LIKE SOMETHING THAT HAS SEEN A DIAGRAM. Its own body shader,
-#      inv.strike -- see the note there. Nothing about it flows.
-#   4. IT ARRIVES AND LEAVES THROUGH A HOLE. It does not climb out of the
-#      rupture: it is PRINTED into the room, in three hard registration passes
-#      with more of it present each time.
-#   5. EVERY PATTERN MUST BE BEATABLE HITLESS -- and here that is not a
-#      spacing rule, it is a REACHABILITY rule. See FAIRNESS below.
-#
-# FAIRNESS (a contract, not decoration)
-#   The page is a maze that closes. A maze can be unfair in a way a bullet
-#   pattern cannot: it can seal you in. So every redaction is validated by
-#   flood fill BEFORE it is committed, on the actual 8x5 grid:
-#
-#     0. THE MARGIN IS NEVER STRUCK, unconditionally, and it can never be
-#        WALLED OFF either -- five marks down column one would put the filing
-#        strip on the far side of the page from you, which is not a hard
-#        fight, it is a stalled one. Every check below also requires the
-#        anchor's open component to touch the margin.
-#     1. THE ANCHOR IS NEVER STRUCK, nor are its four neighbours. There is
-#        always somewhere to stand.
-#     2. A LINE IS REFUSED if committing it would leave the anchor
-#        unreachable from open ground, or would shrink the open component
-#        below NF_MIN_ROOM cells. Refused silently -- a quiet volley beats an
-#        impossible one.
-#     3. YOU ARE NEVER SEALED INSIDE INK. If a strike lands on the cell you
-#        are standing in, it hits you and EJECTS you to the nearest open cell
-#        in the anchor's component. Redaction pushes you out of the text; it
-#        does not bury you in it.
-#     4. A LAST-RESORT RE-CHECK after inking (you may have moved during the
-#        telegraph) lifts the most recent line if the anchor ended up cut off.
-#     5. THE ANCHOR IS PLACED INSIDE YOUR OWN COMPONENT, and ink is lifted off
-#        that component's edge until there is room to fight in it. This one
-#        was not in the first draft and the harness found what it cost: a
-#        relocation could drop the anchor in a pocket you were walled out of,
-#        which is not a hard fight, it is an unwinnable one with no death, no
-#        message and no way to tell. 8861 violations across eight runs.
-#        Anything that moves the anchor goes through _place_anchor.
-#
-# BALANCE (MEASURED, not guessed -- change one number and re-run the harness)
-#   These figures come from driving NFGame headless with scripted bots. The
-#   method is the one from the other fights: an init 999 block gated on an env
-#   var, a fake _poll_input, run via lint. Rebuild it before retuning anything;
-#   it caught two things nothing else would have, both recorded below.
-#
-#   ACT ONE. Its standing is 1000 and the tear is at 480 sourced, or turn 18,
-#   whichever comes first. STATE puts ~70 on the board and costs 9 scrutiny;
-#   CITE banks the pile for 10 of your 40 sources and takes 20 scrutiny back
-#   off. So the loop is STATE STATE CITE and AMEND is what pays for it -- the
-#   heal, the guard, the source refill and the big scrutiny drop in one, at
-#   the price of a third of everything you have not sourced yet. Measured:
-#       STATE / CITE / AMEND as needed   18 turns, 512 sourced, full health
-#                                        -> hands over 45, the ceiling
-#       STATE every single turn          DEAD on turn 12, 145 unsourced,
-#                                        nothing on the ledger at all
-#       AMEND every single turn          survives everything, sources nothing
-#                                        -> hands over 8, the floor
-#   Greed is punished twice over: QUERY scales with the unsourced pile, and
-#   scrutiny at 100 fires an ERRATUM that wipes the pile AND takes 90 back off
-#   the ledger. Note the shape of that spread -- act one is close to
-#   unloseable if you never push, and it is the SECOND HALF that collects.
-#
-#   ACT TWO, RE-MEASURED AFTER THE ESCROW (Aug 14 2026). VERIFIED is 100.
-#   Standing still on the entry fills PENDING at 0.100/tick (0.200 attesting)
-#   to a cap of 34, and pending only becomes verified in the margin. Six
-#   seeded runs a line, and THE LINE THAT MATTERS IS THE FIRST ONE -- the
-#   naive read of the new loop, from a player who fills to the cap every time
-#   and never reacts to a telegraph:
-#       naive: fills to the cap        57-167s, 38-258 of 280  -- wins 6/6
-#       files early on a telegraph     39- 95s, 170-280        -- wins 6/6
-#       ...and attests as well         29- 63s, 192-258        -- wins 4/4
-#       hesitates a third of the time 131-207s,  60-148        -- wins 4/4
-#   No line of that table loses, which is the property the old one had and
-#   the property to preserve. The two middle lines are the whole point of the
-#   rebuild: BOTH of them are things a player discovers rather than is told,
-#   and each roughly halves the run without ever being required.
-#
-#   THE FAIRNESS CHECK IS IN THE HARNESS, not just in the code. Every tick of
-#   every run above asserted that from where the player is standing, BOTH the
-#   entry and the margin are reachable through open cells. 0 violations over
-#   20 runs. Rebuild that assertion before touching _plan_volley,
-#   _commit_volley, _place_anchor, or the partial press.
-#
-#   THE FIRST BUILD OF THIS ACT WAS UNWINNABLE AND THE HARNESS SAID IT WAS
-#   FINE. Worth keeping, because the failure is instructive. Strikes took out
-#   whole ROWS AND COLUMNS, so four of them inside a press cycle left the page
-#   almost solid black; a full-height rule swept across as well, unanswerable
-#   except by attesting; and attesting was funded below what that rule
-#   demanded, with the shortfall only repayable through a near miss nothing on
-#   screen teaches. Arithmetic: the sweep alone killed you in ~72s and filling
-#   the bar needed ~66s of standing still, before travel or dodging.
-#   The bot won 8 runs out of 8 -- because it pathed perfectly and hugged ink,
-#   so it always had credit. A bot that plays a fight optimally proves it is
-#   POSSIBLE. It cannot prove it is playable, and it will hide any difficulty
-#   that only exists for someone who does not already know the answer.
-#
-#   What that cost: rows and columns became short contiguous marks, the sweep
-#   was cut outright, and the two legibility holes the bot could not feel --
-#   nothing pointing at the anchor, nothing distinguishing standing still from
-#   standing on it -- became the leader line and the closed ring.
-#
-#   CREDIT is a skill curve, not a toll: regen alone funds one attest per ~390
-#   ticks and threading a volley (ink landing in the cell next to you) buys
-#   another. Play close and you can attest often; park in the emptiest corner
-#   of the page and you attest rarely. Neither line loses the fight.
-#
-# ARCHITECTURE
-#   Same as every invasion: NFGame owns the simulation, NFStage is one CDD
-#   stepping it at a fixed 60Hz inside render(). Two shaders of its own --
-#   inv.plain (the room, BOTH acts: unlike the other two, Nonfiction does not
-#   change rooms at the tear, it EMPTIES the one it is in) and inv.strike (the
-#   body). The padded plate and the heart come from invasions.rpy.
-#
-# READ THIS FIRST IF YOU ARE LOST
-#   NFGame.step() dispatches on self.mode:
-#     arrive   the rupture; it is printed into the room in passes
-#     menu     act one commands
-#     beat     the one-line readout; WAITS for a key, never auto-advances
-#     enemy    its turn
-#     shift    the tear -- the unsourced pile is struck out, the page whitens
-#     page     act two
-#     leave_w  it files itself as unverifiable / leave_l  you are retracted
-#   Units: screen pixels (1280x720), speeds are px per 1/60s tick, timers are
-#   ticks. The act-two grid is NF_COLS x NF_ROWS cells addressed (col, row).
-# =============================================================================
+# NFGame owns simulation state; NFStage advances it at 60Hz and paints the flat
+# overhead page. Shared encounter constraints and audio live in invasions.rpy.
+# Sprite framing comes from NF_SPRITE_W/H and NF_FIG_DX/DY; shaders render the
+# current portrait as printed matter. Rendering-only texture has no hitbox.
 
-# --- SHADERS -----------------------------------------------------------------
 init -9 python:
     NF_PLAIN_OK = False
     NF_STRIKE_OK = False
@@ -267,6 +35,9 @@ init -9 python:
         # tear -- it empties the one you are already in.
         renpy.register_shader("inv.plain", variables="""
             uniform sampler2D tex0;
+            uniform sampler2D tex1;
+            uniform vec4 u_nf_spot;
+            uniform float u_nf_platen;
             uniform vec2 u_nf_res;
             uniform float u_nf_time;
             uniform float u_nf_open;
@@ -391,6 +162,34 @@ init -9 python:
             float marg = 1.0 - smoothstep(0.0, 1.6 / u_nf_res.x,
                                         abs(uv.x - mx));
             col = mix(col, inkc, marg * (0.10 + 0.34 * open));
+
+            // Act one is a DARK room: the negative sits low so the hanging
+            // sheet and the light falling on it are what you see first.
+            col *= mix(0.42, 1.0, open);
+
+            // REAL STOCK (Oct 2 2026). Act two's page is paper, not a flat
+            // grey: long fibres and a slight cockle from tex1, lit from the
+            // top left so the relief reads -- still, never flowing.
+            if (open > 0.01) {
+                vec2 puv = uv * u_nf_res / 512.0;
+                float p0 = texture2D(tex1, puv).r;
+                float pxs = texture2D(tex1, puv + vec2(1.5 / 512.0, 0.0)).r;
+                float pys = texture2D(tex1, puv + vec2(0.0, 1.5 / 512.0)).r;
+                float relief = (p0 - pxs) * 2.4 + (p0 - pys) * 1.8;
+                vec3 stock = vec3(p0 * 1.020, p0 * 1.000, p0 * 0.962) / 0.86;
+                col = mix(col, col * stock * (1.0 + relief * 0.85), open);
+            }
+            // Act one: a cold light from above spilling past the hanging
+            // sheet onto the dark behind it.
+            if (u_nf_spot.w > 0.001) {
+                float sd = distance(uv * u_nf_res, u_nf_spot.xy);
+                float sp2 = 1.0 - smoothstep(u_nf_spot.z * 0.15, u_nf_spot.z, sd);
+                col += vec3(0.16, 0.165, 0.17) * sp2 * sp2 * u_nf_spot.w * (1.0 - open);
+            }
+            // THE PLATEN coming down: a shadow from the top of the sheet,
+            // there and gone with the press.
+            float plat = clamp(u_nf_platen, 0.0, 1.0);
+            col *= 1.0 - plat * 0.55 * (1.0 - smoothstep(0.0, 0.9, uv.y - plat * 0.6));
 
             // Tooth. Paper has a surface; a negative has grain -- and paper
             // that has been through a press this many times has more of it.
@@ -899,7 +698,6 @@ init python:
     NF_PALE = "#dcded6"            # act one: light on the dark room
     NF_DIM = "#8d918a"
     NF_FAINT = "#5a5f59"
-    NF_WIN = "#08080ae8"
     NF_RED = "#c2202f"             # the only colour anywhere in act two
     NF_WARN = "#c8a13c"
     NF_BLACK = "#050506"
@@ -981,17 +779,35 @@ init python:
         """All of Nonfiction's live state, stepped at a fixed 60Hz by
         NFStage. Owns zero rendering."""
 
-        def __init__(self, retry=False, deaths=0, debug=False, start_open=False):
+        def __init__(self, retry=False, deaths=0, debug=False, start_open=False,
+                     resume=None):
             self.result = None
             self.paused = False
             self.debug = bool(debug)
             self.retry = bool(retry)
             self.deaths = int(deaths)
             self.god = inv_godmode_on()
+            # THE CHECKPOINT carries the ledger: what act one sourced is what
+            # the page starts with on record.
+            self.checkpoint = None
 
             self.tick = 0
             self.clock = 0.0
             self.rng = inv_random.Random()
+            self.rng_fx = inv_random.Random()
+
+            # --- presentation (Oct 2 2026; decoration owned by the sim) ------
+            self.fx = InvFX(cap=420)
+            self.turn_log = []
+            self.shock = [640.0, 360.0, 0.0, 0.0]
+            self.ca = 0.0
+            self.tear = 0.0
+            self.panel_kick = 0.0
+            self.windup = 0.0
+            # The sheet it is printed on: it hangs, and it is struck.
+            self.sheet_yaw = 0.0
+            self.sheet_yawv = 0.0
+            self.sheet_fall = 0.0       # the tear lays it flat: 0 hanging, 1 down
 
             # --- the party member ----------------------------------------------
             self.hp = NF_HP_MAX
@@ -1091,7 +907,11 @@ init python:
             self._prev = {"left": False, "right": False, "up": False,
                         "down": False, "z": False, "x": False}
 
-            if start_open:
+            if resume:
+                self.ledger = int(resume.get("ledger", 300))
+                self._begin_page(dev=True)
+                self.dark = 1.0
+            elif start_open:
                 # Dev entry skips the bout, so hand over a middling account --
                 # a shift that never happened cannot have sourced anything.
                 self.ledger = 300
@@ -1162,12 +982,45 @@ init python:
             self.press = max(self.press, inv_clamp(strength, 0.0, 1.0))
             self.reg += 1.0 + self.rng.random()
 
-        def _beat(self, label, value="", after="enemy"):
+        def _beat(self, label, value="", after="enemy", kind="you"):
             self.beat_label = label
             self.beat_value = value
             self.beat_after = after
             self.mode = "beat"
             self.mtick = 0
+            if value or label:
+                inv_log_push(self, label, value, kind)
+
+        def _kick_lens(self, x, y, strength, ca=0.0):
+            self.shock = [float(x), float(y), 8.0, float(strength)]
+            self.ca = max(self.ca, ca)
+
+        def _fx_ink(self, x, y, n=3, size=(0.25, 0.55), layer="front",
+                    col="#0b0b0d", alpha=0.92):
+            """Wet ink thrown off a strike: splats that land and stay a while."""
+            self.fx.burst(INV_INKS, x, y, n, speed=(0.0, 0.6), life=(50, 90),
+                          size=size, col=col, alpha=alpha, add=False, drag=0.9,
+                          jitter=18.0, fade="late", layer=layer)
+
+        def _fx_scraps(self, x, y, n=8, layer="front", col="#e6e2d6",
+                       spread=(1.5, 5.0)):
+            """Paper coming off: torn scraps that flutter and fall."""
+            self.fx.burst(INV_SCRAPS, x, y, n, speed=spread, life=(40, 75),
+                          size=(0.25, 0.55), col=col, alpha=0.95, add=False,
+                          drag=0.95, ay=0.10, vrot=(-9.0, 9.0), layer=layer,
+                          fade="late")
+
+        def _fx_strike_window(self, big=False):
+            """Act one: something struck out of the window that stands in for
+            you -- a bar of ink across it, and the spatter."""
+            x1, y1 = 1004.0, 612.0
+            self.fx.emit("beam", x1, y1, life=26 if big else 18, size=1.9,
+                         size1=1.9, col="#050506", alpha=0.95, add=False,
+                         layer="hud", fade="late", sq=0.34)
+            self._fx_ink(x1 + self.rng_fx.uniform(-120, 120), y1, 3 if big else 2,
+                         layer="hud")
+            self.panel_kick = 1.0
+            self._kick_lens(x1, y1, 0.7 if big else 0.35, 0.005 if big else 0.002)
 
         def float_text(self, x, y, text, color, big=False):
             self.floats.append({"x": x, "y": y, "vy": -1.6, "life": 52,
@@ -1282,6 +1135,27 @@ init python:
             self.hit_flash *= 0.88
             self.press *= 0.83
 
+            # --- presentation state ------------------------------------------
+            self.fx.step()
+            self.ca *= 0.86
+            self.tear *= 0.88
+            self.panel_kick *= 0.84
+            self.windup *= 0.94
+            if self.shock[3] > 0.004:
+                self.shock[2] += 15.0 + self.shock[2] * 0.05
+                self.shock[3] *= 0.90
+            else:
+                self.shock[3] = 0.0
+            # The sheet hangs on a spring: struck, it swings, and settles.
+            # Its idle sway is the room's air, on two unrelated periods.
+            idle = (0.045 * math.sin(self.clock * 0.41)
+                    + 0.020 * math.sin(self.clock * 0.67 + 1.3))
+            self.sheet_yawv += (idle - self.sheet_yaw) * 0.020
+            self.sheet_yawv *= 0.94
+            self.sheet_yaw += self.sheet_yawv
+            if self.dark > 0.0 and self.mode == "page" and self.mtick < 70:
+                self.dark = max(0.0, self.dark - 0.03)
+
             for attr, real in (("hp_shown", self.hp), ("src_shown", self.src)):
                 shown = getattr(self, attr)
                 gap = abs(shown - real)
@@ -1383,10 +1257,10 @@ init python:
         # =====================================================================
 
         def _begin_player_turn(self):
+            # The cursor stays where you left it.
             self.mode = "menu"
             self.mtick = 0
             self.turn += 1
-            self.cursor = 0
             self.guard = False
 
         def _step_menu(self, edges):
@@ -1403,9 +1277,10 @@ init python:
                 self._resolve_player(NF_CMDS[self.cursor][0])
 
         def _step_beat(self, edges):
-            # WAITS. Never advances on its own.
+            # Holds, then moves on; the readout outlives it in the turn log.
             self.mtick += 1
-            if self.mtick > 12 and (edges["z"] or edges["x"]):
+            if (self.mtick >= INV_BEAT_HOLD
+                    or (self.mtick > INV_BEAT_SKIP and (edges["z"] or edges["x"]))):
                 self.play("confirm", 0.7)
                 after = self.beat_after
                 self.beat_label = ""
@@ -1433,6 +1308,15 @@ init python:
                 self.play("bash")
                 self.shake = 0.30
                 self._reprint(0.45)
+                # A claim is SET: a slug of type struck into the sheet.
+                hx = 640.0 + self.rng_fx.uniform(-70.0, 70.0)
+                hy = 250.0 + self.rng_fx.uniform(-60.0, 90.0)
+                self._fx_ink(hx, hy, 2)
+                self.fx.burst("spark", hx, hy, 8, speed=(2.0, 6.0), life=(8, 14),
+                              size=(0.18, 0.30), col="#dcded6", stretch=0.12,
+                              drag=0.85, layer="front")
+                self.sheet_yawv += 0.020 * (1.0 if self.rng_fx.random() < 0.5 else -1.0)
+                self._kick_lens(hx, hy, 0.35, 0.003)
                 value = "-" + str(claim) + " UNSOURCED"
 
             elif cmd == "cite":
@@ -1448,8 +1332,15 @@ init python:
                 moved = self.bank()
                 self.scrutiny = max(0.0, self.scrutiny - NF_CITE_SCRUT)
                 self.play("scan")
-                self.flash = 0.45
+                self.flash = 0.20
                 self._reprint(0.8)
+                # SOURCED: a stamp comes down on it. Dry ink, no spatter.
+                self.fx.ring(640.0, 300.0, 120.0, 150.0, life=22, col="#0b0b0d",
+                             alpha=0.75, add=False, layer="front")
+                self.fx.ring(640.0, 300.0, 108.0, 136.0, life=22, col="#0b0b0d",
+                             alpha=0.55, add=False, layer="front")
+                self.sheet_yawv += 0.035
+                self._kick_lens(640.0, 300.0, 0.6, 0.004)
                 value = "-" + str(moved)
 
             elif cmd == "amend":
@@ -1463,6 +1354,11 @@ init python:
                 self.scrutiny = max(0.0, self.scrutiny - NF_AMEND_SCRUT)
                 self.guard = True
                 self.play("heal")
+                # Correction tape drawn across it, and the claim coming off.
+                self.fx.emit("beam", 640.0, 300.0, life=30, size=1.7, size1=1.8,
+                             col="#f2f0e8", alpha=0.85, add=False, layer="front",
+                             fade="late", sq=0.45)
+                self._fx_scraps(640.0, 300.0, 6)
                 value = "+" + str(NF_AMEND_HEAL)
                 if given:
                     value += "   +" + str(given) + " UNSOURCED"
@@ -1470,6 +1366,8 @@ init python:
             elif cmd == "run":
                 # It never works, and it is never explained.
                 self.play("miss")
+                self.shake = max(self.shake, 0.4)
+                self._reprint(0.6)
                 value = "UNRECORDED"
 
             after = "enemy"
@@ -1495,6 +1393,8 @@ init python:
         def _step_enemy(self):
             self.mtick += 1
             if self.mtick < 26:
+                # Its turn: the sheet trembles on its line.
+                self.windup = min(1.0, self.windup + 0.06)
                 return
 
             self.scrutiny = min(float(NF_SCRUT_MAX),
@@ -1518,12 +1418,20 @@ init python:
                 dmg = NF_ERRATUM_DMG
                 if self.guard:
                     dmg = int(dmg * NF_GUARD_MULT)
-                self.hurt(dmg, 640, 470)
+                self.hurt(dmg, 1004, 586)
+                self._fx_strike_window(big=True)
+                for k in range(4):
+                    self.fx.emit("beam", 640.0, 200.0 + k * 62.0, life=40,
+                                 size=1.6, size1=1.7, col="#050506",
+                                 alpha=0.95, add=False, layer="front",
+                                 fade="late", delay=k * 4, sq=0.30)
+                self._fx_scraps(640.0, 300.0, 12)
+                self.tear = 0.8
                 self.guard = False
                 value = "+" + str(back)
                 if lost:
                     value += "   +" + str(lost) + " UNSOURCED"
-                self._beat("ERRATUM", value, self._after_enemy())
+                self._beat("ERRATUM", value, self._after_enemy(), kind="it")
                 return
 
             move = self._pick_enemy_move()
@@ -1535,14 +1443,25 @@ init python:
             if move == "query":
                 # Carrying a pile is what makes this hurt.
                 dmg = int(NF_QUERY_BASE + NF_QUERY_PER_PENDING * self.pending)
+                self.fx.ring(1004.0, 612.0, 80.0, 70.0, life=26, col="#0b0b0d",
+                             alpha=0.8, add=False, layer="hud", squash=0.45)
             elif move == "footnote":
                 dmg = NF_FOOTNOTE_DMG
                 self.bleed = NF_FOOTNOTE_BLEED
+                self.fx.burst("drip", 1004.0, 562.0, 5, speed=(0.0, 0.4),
+                              life=(30, 50), size=(0.4, 0.8), col="#0b0b0d",
+                              alpha=0.9, add=False, drag=1.0, ay=0.18,
+                              angle=90.0, spread=10.0, jitter=150.0,
+                              squash=0.1, rot=0.0, layer="hud", delay=(0, 10))
             elif move == "mark":
                 # It says so a full turn in advance, because it always does.
                 self.marked = True
                 self.play("note", 0.9)
                 self._reprint(0.5)
+                for a in (40.0, -40.0):
+                    self.fx.emit("beam", 1004.0, 612.0, life=60, size=0.55,
+                                 size1=0.55, rot=a, col="#c2202f", alpha=0.85,
+                                 add=False, layer="hud", fade="late", sq=0.6)
                 value = "MARKED"
             elif move == "strike":
                 lost = self.pending
@@ -1550,9 +1469,10 @@ init python:
                 self.marked = False
                 dmg = NF_STRIKE_DMG
                 self.play("cut_big", 0.9)
-                self.flash = 0.55
+                self.flash = 0.25
                 self.shake = 0.8
                 self._reprint(1.0)
+                self._fx_scraps(1004.0, 612.0, 10, layer="hud")
                 if lost:
                     value = "+" + str(lost) + " UNSOURCED   "
             elif move == "corroborate":
@@ -1560,22 +1480,26 @@ init python:
                 self.ledger -= back
                 label = "CORRECTION"
                 self.play("refuse", 0.7)
+                self.fx.emit("glyph_01", 520.0, 120.0, life=50, size=0.8,
+                             col="#c2202f", alpha=0.9, add=False, layer="hud",
+                             fade="late")
                 value = "+" + str(back)
 
             if dmg > 0:
                 if self.guard:
                     dmg = int(dmg * NF_GUARD_MULT)
                 self.play("enemy", 0.8)
-                self.hurt(dmg, 640, 470)
+                self.hurt(dmg, 1004, 586)
+                self._fx_strike_window(big=dmg >= 40)
                 value += "-" + str(dmg)
 
             if self.bleed > 0 and move != "footnote":
                 self.bleed -= 1
-                self.hurt(11, 640, 500)
+                self.hurt(11, 1004, 610)
                 value += "   -11"
 
             self.guard = False
-            self._beat(label, value, self._after_enemy())
+            self._beat(label, value, self._after_enemy(), kind="it")
 
         def _after_enemy(self):
             if self.ledger >= NF_SHIFT_LEDGER or self.turn >= NF_SHIFT_TURN_CAP:
@@ -1599,14 +1523,37 @@ init python:
             if t == 30 and self.struck_out:
                 self.pending = 0
                 self.play("cut_big", 0.9)
-                self.flash = 0.5
+                self.flash = 0.25
                 self.shake = 0.9
                 self._reprint(1.0)
                 self.float_text(640, 300, "+" + str(self.struck_out)
                                 + " UNSOURCED", NF_WARN, True)
+                for k in range(3):
+                    self.fx.emit("beam", 640.0, 220.0 + k * 70.0, life=60,
+                                 size=1.5, size1=1.6, col="#050506", alpha=0.95,
+                                 add=False, layer="front", fade="late",
+                                 delay=k * 5, sq=0.30)
+            if t == 60:
+                # THE WINDOWS ARE TORN UP like the paper they are ruled on.
+                self.panel_slide = 1.0
+                for (bx0, by0, bw, bh) in (NFStage.PANEL_CMD, NFStage.PANEL_HUD):
+                    for _k in range(26):
+                        x = bx0 + self.rng_fx.uniform(0.0, bw)
+                        y = by0 + self.rng_fx.uniform(0.0, bh)
+                        self.fx.emit(INV_SCRAPS[_k % 4], x, y,
+                                     vx=self.rng_fx.uniform(-2.0, 2.0),
+                                     vy=self.rng_fx.uniform(-4.0, -0.5),
+                                     life=self.rng_fx.randint(50, 80),
+                                     size=self.rng_fx.uniform(0.45, 0.95),
+                                     rot=self.rng_fx.uniform(0, 360),
+                                     vrot=self.rng_fx.uniform(-8, 8),
+                                     col=("#1a1b1e" if _k % 3 else "#dcded6"),
+                                     add=False, drag=0.985, ay=0.14,
+                                     layer="hud", fade="late")
+                self.play("break", 0.6)
             if 60 <= t < 150:
-                self.panel_slide = inv_smooth((t - 60) / 90.0)
                 self.shake = max(self.shake, 0.3)
+                self.sheet_yawv += 0.002 * math.sin(t * 0.9)
             if t == 150:
                 self.play("slam")
                 self.play("phase", 0.9)
@@ -1619,8 +1566,10 @@ init python:
                 self.hp = NF_HP2_MAX
                 self.src = NF_SRC_MAX
             if 150 <= t < 230:
-                # Every light in the room coming up at once.
+                # Every light in the room coming up at once -- and the sheet
+                # comes down off its line and lies flat. It is the page.
                 self.open = inv_clamp((t - 150) / 80.0, 0.0, 1.0)
+                self.sheet_fall = inv_smooth(inv_clamp((t - 150) / 46.0, 0.0, 1.0))
             if t == 230:
                 self.open = 1.0
                 self._begin_page()
@@ -1673,6 +1622,10 @@ init python:
 
             self._place_anchor(first=True)
             self.play("break", 0.8)
+            self.sheet_fall = 1.0
+            # THE CHECKPOINT: a loss from here can be retried from the tear,
+            # with the same ledger act one sourced.
+            self.checkpoint = {"slug": "nonfiction", "ledger": int(self.ledger)}
             if dev:
                 inv_music_corruptive()
 
@@ -1896,6 +1849,15 @@ init python:
             self.play("cut", 0.7)
             self._reprint(0.55)
             self.shake = max(self.shake, 0.25)
+            # Wet ink thrown off the end of every stroke that just landed.
+            seen = 0
+            for cell in order:
+                if seen >= 6:
+                    break
+                if self.rng_fx.random() < 0.45:
+                    cx_, cy_ = nf_cell_center(*cell)
+                    self._fx_ink(cx_, cy_, 1, size=(0.18, 0.34))
+                    seen += 1
 
             # LAST-RESORT RE-CHECK. You had NF_VOLLEY_WARN ticks to move and
             # may have moved somewhere the plan did not expect, so the whole
@@ -1974,6 +1936,9 @@ init python:
             self.iframes = NF_IFRAMES
             self.freeze = 4
             self.play("struck", 0.75)
+            self._fx_ink(self.px, self.py, 3, size=(0.25, 0.5))
+            self._fx_scraps(self.px, self.py, 5)
+            self._kick_lens(self.px, self.py, 0.6, 0.006)
 
         # ----- the page's turn ------------------------------------------------------
 
@@ -2073,10 +2038,13 @@ init python:
             self.pend2 = 0.0
             self.margin_cd[row] = NF_MARGIN_REOPEN
             self.bank_flash = 1.0
-            self.flash = max(self.flash, 0.22)
+            self.flash = max(self.flash, 0.10)
             self._reprint(0.5)
             self.play("confirm", 0.7)
             cx, cy = nf_cell_center(NF_MARGIN_COL, row)
+            self.fx.ring(cx, cy, 30.0, 58.0, life=20, col="#0b0b0d", alpha=0.75,
+                         add=False, layer="front")
+            self._kick_lens(cx, cy, 0.4, 0.002)
             self.float_text(cx, cy - 30, "+%d" % int(moved), NF_INK, True)
 
         def _step_margin(self):
@@ -2217,7 +2185,9 @@ init python:
                     else:
                         self.struck = {}
                     self.play("slam", 0.6)
-                    self.flash = 0.28
+                    self.flash = 0.14
+                    self._fx_scraps(640.0, 400.0, 10, spread=(2.0, 6.0))
+                    self._kick_lens(640.0, 400.0, 0.8, 0.004)
                 self._reprint(1.0)
 
         def _step_facts(self):
@@ -2417,17 +2387,44 @@ init python:
 
 
 # --- THE STAGE ---------------------------------------------------------------
+# Oct 2 2026: act one's figure is PRINTED ON A SHEET hanging in the dark --
+# the printed thing made physical, swaying on its line in perspective under a
+# cold light -- and at the tear the sheet swings at you as the room goes white
+# and becomes the page. Act two stays flat and overhead (it invents no camera)
+# but the page is paper now and the ink is wet. Drawn through the shared kit;
+# the world goes through the lens, the HUD after it.
 init python:
+    from renpy.uguu import GL_REPEAT as _NF_GL_REPEAT
+
+    NF_SHEET_W, NF_SHEET_H = 330, 470      # the sheet the figure is printed on
+    NF_SHEET_TOP = 76.0                    # where its top edge hangs
+    NF_SHEET_CANVAS = (980, 760)           # room for it to swing in
+
     class NFStage(renpy.Displayable):
         """One CDD. Steps NFGame at a fixed 60Hz inside render() and paints the
         whole encounter from cached-texture blits."""
 
         _tf_cache = {}
-        _misc_cache = {}
-        _text_cache = {}
 
         PANEL_CMD = (40, 548, 470, 148)
         PANEL_HUD = (770, 548, 470, 148)
+
+        # Index cards: ruled, pale-edged, no colour.
+        STYLE_PANEL = {"top": "#0b0b0ce8", "bot": "#060607f0",
+                       "edge": "#dcded6d0", "accent": "#dcded6ff",
+                       "border": 1.2, "cut": 0.0, "inset": 7.0,
+                       "inset_a": 0.10, "noise": 0.14, "scan": 0.0,
+                       "split": 0.0, "ticks": 0.0}
+        STYLE_PLATE = {"top": "#070708b0", "bot": "#070708d0",
+                       "edge": "#dcded660", "accent": "#dcded6ff",
+                       "border": 1.0, "cut": 0.0, "inset": 4.0,
+                       "inset_a": 0.0, "noise": 0.10, "scan": 0.0,
+                       "split": 0.0, "ticks": 0.0}
+        STYLE_CARD = {"top": "#ece9e0f0", "bot": "#e4e1d6f4",
+                      "edge": "#0d0d10c0", "accent": "#0d0d10ff",
+                      "border": 1.0, "cut": 0.0, "inset": 5.0,
+                      "inset_a": 0.10, "noise": 0.12, "scan": 0.0,
+                      "split": 0.0, "ticks": 0.0}
 
         def __init__(self, game, **kwargs):
             super(NFStage, self).__init__(**kwargs)
@@ -2435,39 +2432,25 @@ init python:
             self.last_st = None
             self.acc = 0.0
 
-        def _misc(self, key, builder):
-            d = NFStage._misc_cache.get(key)
-            if d is None:
-                if len(NFStage._misc_cache) > 600:
-                    NFStage._misc_cache.clear()
-                d = builder()
-                NFStage._misc_cache[key] = d
-            return d
-
-        def _text(self, text, size, color, font=INV_FONT, bold=False,
-                outline=None):
-            key = (text, size, color, font, bold, outline)
-            t = NFStage._text_cache.get(key)
-            if t is None:
-                if len(NFStage._text_cache) > 240:
-                    NFStage._text_cache.clear()
-                outl = [(2, outline, 0, 0)] if outline else []
-                t = Text(text, size=size, color=color, bold=bold, font=font,
-                        outlines=outl, substitute=False)
-                NFStage._text_cache[key] = t
-            return t
+        def _tf(self, key, builder):
+            tf = NFStage._tf_cache.get(key)
+            if tf is None:
+                if len(NFStage._tf_cache) > 600:
+                    NFStage._tf_cache.clear()
+                tf = builder()
+                NFStage._tf_cache[key] = tf
+            return tf
 
         def _body_plain(self, zoom, alpha=1.0):
             ab = int(inv_clamp(alpha, 0.0, 1.0) * 6)
             key = ("plain", round(zoom, 3), ab)
-            tf = NFStage._tf_cache.get(key)
-            if tf is None:
+
+            def build():
                 kw = dict(zoom=zoom, subpixel=True)
                 if ab < 6:
                     kw["alpha"] = ab / 6.0
-                tf = Transform(NF_SPRITE, **kw)
-                NFStage._tf_cache[key] = tf
-            return tf
+                return Transform(NF_SPRITE, **kw)
+            return self._tf(key, build)
 
         def event(self, ev, x, y, st):
             self.game.keys.handle_event(ev)
@@ -2496,125 +2479,93 @@ init python:
                 if steps >= INV_MAX_CATCHUP:
                     self.acc = 0.0
 
-            rv = renpy.Render(1280, 720)
-            frame_tex = {}
+            p = InvPaint(st, at)
 
-            def tex(key, disp, w=1280, h=720):
-                entry = frame_tex.get(key)
-                if entry is None:
-                    r = renpy.render(disp, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = (r, r.get_size())
-                    frame_tex[key] = entry
-                return entry
-
-            def rect(color, w, h):
-                w = max(1, int(w))
-                h = max(1, int(h))
-                key = ("rect", color, w, h)
-                entry = frame_tex.get(key)
-                if entry is None:
-                    solid = self._misc(("solid", color), lambda c=color: Solid(c))
-                    r = renpy.render(solid, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = r
-                    frame_tex[key] = entry
-                return entry
-
-            def qa(a):
-                return "%02x" % (int(inv_clamp(a, 0.0, 1.0) * 7.0) * 34 + 6)
-
-            def blit_text(disp_text, size, color, x, y, font=INV_FONT,
-                        bold=False, anchor=(0.0, 0.0), w=1200, h=200, key=None,
-                        outline=None):
-                t = self._text(disp_text, size, color, font=font, bold=bold,
-                            outline=outline)
-                r, (tw, th) = tex(key or ("t", disp_text, size, color, font,
-                                        bold, w, outline), t, w, h)
-                rv.blit(r, (int(x - tw * anchor[0]), int(y - th * anchor[1])))
-                return (tw, th)
-
-            sblit = rv.subpixel_blit
-
-            shake_x = shake_y = 0
+            sx = sy = 0
             if g.shake > 0.01:
                 amp = 12.0 * g.shake
-                shake_x = int(math.sin(g.tick * 1.9) * amp)
-                shake_y = int(math.cos(g.tick * 2.7) * amp * 0.6)
+                # A press does not rattle, it JUMPS: the shake is quantised to
+                # whole registration steps.
+                sx = int(round(math.sin(g.tick * 1.9) * amp / 3.0)) * 3
+                sy = int(round(math.cos(g.tick * 2.7) * amp * 0.6 / 3.0)) * 3
 
             on_page = (g.open > 0.5)
 
-            # --- 1. the room / the page -------------------------------------------
-            self._render_plain(g, rv, rect, st, at)
-
-            # --- 2. the encounter ---------------------------------------------------
+            self._room(g, p)
             if on_page:
-                self._render_page(g, rv, tex, rect, qa, blit_text, sblit,
-                                shake_x, shake_y, st, at)
+                self._page_world(g, p, sx, sy)
             else:
-                self._render_room(g, rv, tex, rect, qa, blit_text, sblit,
-                                shake_x, shake_y, st, at)
+                self._room_world(g, p, sx, sy)
+            inv_fx_paint(p, g.fx, "front", sx, sy)
 
-            # --- 3. numbers ---------------------------------------------------------
-            for f in g.floats:
-                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
-                blit_text(f["text"], 28 if f["big"] else 20,
-                        f["color"] + qa(a), int(f["x"]) + shake_x,
-                        int(f["y"]) + shake_y, bold=f["big"],
-                        anchor=(0.5, 0.5), w=340, h=60)
-
+            p.to_hud()
+            if on_page:
+                if g.hud_fade > 0.02:
+                    self._page_hud(g, p, sx, sy)
+            else:
+                self._room_hud(g, p, sx, sy)
+            self._floats(g, p, sx, sy)
+            inv_fx_paint(p, g.fx, "hud")
             if g.paused:
-                rv.blit(rect("#050506c8" if not on_page else "#e8e6dec8",
-                            1280, 720), (0, 0))
-                pcol = NF_PALE if not on_page else NF_INK
-                blit_text("PAUSED", 40, pcol, 640, 316, bold=True,
-                        anchor=(0.5, 0.5), w=600, h=70)
-                blit_text("ESC  RESUME        Q  QUIT", 16,
-                        NF_DIM if not on_page else NF_FAINT,
-                        640, 372, anchor=(0.5, 0.5), w=800, h=44)
+                self._pause(g, p, on_page)
 
-            # THE DRAW RATE IS THE TICK RATE. Every pixel above is a pure
-            # function of the simulation state: nothing in this method reads
-            # self.acc and nothing interpolates between ticks, so between two
-            # 1/60s ticks this stage paints a byte-identical picture. Asking
-            # for the next frame IMMEDIATELY meant a 165Hz or 240Hz panel ran
-            # the entire draw -- every python-side blit, every full-screen
-            # shader pass, and the mark-and-sweep over every Render they make
-            # -- two to four times per tick and threw the extra frames away.
-            #
-            # Handing redraw() the time remaining until the next tick lets the
-            # engine's scheduler wake us exactly when there is something new to
-            # draw. It wakes at the first vblank at or after the delay, so a
-            # 60Hz display is unaffected and only a high-refresh one stops
-            # paying. Input is unchanged: the key latch is polled inside
-            # step(), on the tick. Same governor as kototouhou.rpy.
+            rv = inv_compose(p, self._look(g, on_page), g.clock)
+
+            # THE DRAW RATE IS THE TICK RATE (same governor as every stage).
             if g.result is None and not g.paused:
                 renpy.redraw(self, max(0.0, INV_TICK - self.acc))
             return rv
 
-        # ----- the room --------------------------------------------------------
+        def _look(self, g, on_page):
+            """A photographic negative in a dark room, then a white page. No
+            colour either way -- the one red thing on the page is you."""
+            shock = (0.0, 0.0, 0.0, 0.0)
+            if g.shock[3] > 0.004:
+                shock = (g.shock[0], g.shock[1], g.shock[2], g.shock[3])
+            o = inv_clamp(g.open, 0.0, 1.0)
+            return {
+                "grade": (1.0, inv_lerp(1.10, 1.04, o), inv_lerp(0.20, 1.0, o), 0.0),
+                "lift": (inv_lerp(0.012, 0.0, o),) * 3,
+                "gain": (1.0, 1.0, 1.0),
+                "bloom": inv_lerp(0.42, 0.10, o),
+                "thresh": inv_lerp(0.55, 0.90, o),
+                "ca": inv_lerp(0.0015, 0.0006, o) + g.ca,
+                "grain": inv_lerp(0.050, 0.020, o),
+                "vig": inv_lerp(0.62, 0.10, o),
+                "vigr": 1.06,
+                "barrel": inv_lerp(0.015, 0.0, o),
+                "shock": shock,
+                "tear": (inv_clamp(g.tear, 0.0, 1.0), float(g.tick // 4), 0.5, 0.6),
+            }
 
-        def _render_plain(self, g, rv, rect, st, at):
+        # ----- the room / the page --------------------------------------------------
+
+        def _room(self, g, p):
             global NF_PLAIN_OK
             if NF_PLAIN_OK:
                 try:
-                    quad = Transform(
-                        NF_SOUP_IMG, xysize=(1280, 720), mesh=True,
-                        shader="inv.plain",
-                        u_nf_res=(1280.0, 720.0),
-                        u_nf_time=g.clock,
-                        u_nf_open=g.open,
-                        u_nf_press=g.press,
-                        u_nf_reg=g.reg,
-                        u_nf_scrut=g.scrut_frac(),
-                        u_nf_flash=g.flash,
-                        u_nf_dark=g.dark,
-                        u_nf_churn=g.churn(),
-                        u_nf_hole=(float(g.hole[0]), float(g.hole[1]),
-                                float(g.hole[2]), float(g.hole[3])))
-                    qr = renpy.render(quad, 1280, 720, st, at)
-                    rv.depends_on(qr)
-                    rv.blit(qr, (0, 0))
+                    m = (Model((1280, 720))
+                         .texture(inv_disp(NF_SOUP_IMG))
+                         .texture(inv_disp(inv_fx_img("tex_paper")),
+                                  texture_wrap=(_NF_GL_REPEAT, _NF_GL_REPEAT))
+                         .shader("renpy.texture")
+                         .shader("inv.plain")
+                         .uniform("u_nf_res", (1280.0, 720.0))
+                         .uniform("u_nf_time", g.clock)
+                         .uniform("u_nf_open", g.open)
+                         .uniform("u_nf_press", g.press)
+                         .uniform("u_nf_reg", g.reg)
+                         .uniform("u_nf_scrut", g.scrut_frac())
+                         .uniform("u_nf_flash", g.flash)
+                         .uniform("u_nf_dark", g.dark)
+                         .uniform("u_nf_churn", g.churn())
+                         .uniform("u_nf_hole", (float(g.hole[0]), float(g.hole[1]),
+                                                float(g.hole[2]), float(g.hole[3])))
+                         .uniform("u_nf_spot", (640.0, 300.0, 520.0,
+                                                0.0 if g.mode == "arrive" else 1.0))
+                         .uniform("u_nf_platen", float(inv_clamp(g.press * 1.2, 0.0, 1.0))))
+                    r = renpy.render(m, 1280, 720, p.st, p.at)
+                    p.blit(r, (0, 0))
                     return
                 except Exception as e:
                     NF_PLAIN_OK = False
@@ -2622,25 +2573,18 @@ init python:
                         renpy.log("INV FX: plain render failed: %r" % e)
                     except Exception:
                         pass
-            rv.blit(rect(NF_PAPER if g.open > 0.5 else NF_BLACK, 1280, 720),
-                    (0, 0))
+            p.fill(NF_PAPER if g.open > 0.5 else NF_BLACK, 0, 0, 1280, 720)
 
         # ----- the body --------------------------------------------------------
 
-        def _draw_body(self, g, rv, tex, sblit, cx, cy, zoom, sx, sy, st, at,
-                    bars=0.0, ink=1.0, jump=1.0, stretch=(1.0, 1.0),
-                    alpha=1.0, paper=0.0):
-            # A redaction overshoots the thing it covers, so the plate needs a
-            # wide margin or the bars get clipped at the silhouette.
+        def _strike_body(self, g, zoom, bars=0.0, ink=1.0, jump=1.0, paper=0.0):
+            """The figure, put through the press (inv.strike), as a displayable
+            plus its padded plate size."""
             plate_zoom = min(zoom, NF_PLATE_MAX_ZOOM)
             extra = zoom / plate_zoom
             plate, W, H = inv_body_plate(NF_SPRITE, NF_SPRITE_W, NF_SPRITE_H,
                                         plate_zoom, pad_x=1.55, pad_y=1.30)
-            # The figure is off-centre in its own canvas; put the FIGURE where
-            # the caller asked, not the canvas.
-            cx = cx + NF_FIG_DX * zoom
-            cy = cy + NF_FIG_DY * zoom
-
+            body = None
             if NF_STRIKE_OK:
                 try:
                     body = Transform(
@@ -2649,7 +2593,7 @@ init python:
                         u_st_t=g.clock,
                         u_st_jump=float(jump),
                         u_st_reg=float(g.reg),
-                        u_st_stretch=(float(stretch[0]), float(stretch[1])),
+                        u_st_stretch=(1.0, 1.0),
                         u_st_pivot=0.90,
                         u_st_ink=float(ink),
                         u_st_paper=float(paper),
@@ -2657,23 +2601,27 @@ init python:
                         u_st_bars=float(bars))
                     if extra > 1.01:
                         body = Transform(body, zoom=extra, subpixel=True)
-                    if alpha < 0.99:
-                        body = Transform(body, alpha=alpha)
-                    r = renpy.render(body, int(W * extra) + 8,
-                                    int(H * extra) + 8, st, at)
-                    rv.depends_on(r)
-                    w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
-                    return
                 except Exception:
-                    pass
+                    body = None
+            if body is None:
+                body = self._body_plain(zoom)
+            return body, int(W * extra), int(H * extra)
 
-            r, (w, h) = tex(("plainbody", round(zoom, 3), alpha),
-                            self._body_plain(zoom, alpha=alpha), 900, 1400)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+        def _draw_body(self, g, p, cx, cy, zoom, bars=0.0, ink=1.0, jump=1.0,
+                       alpha=1.0, paper=0.0):
+            body, w, h = self._strike_body(g, zoom, bars, ink, jump, paper)
+            if alpha < 0.99:
+                body = Transform(body, alpha=alpha)
+            cx = cx + NF_FIG_DX * zoom
+            cy = cy + NF_FIG_DY * zoom
+            try:
+                r = renpy.render(body, w + 8, h + 8, p.st, p.at)
+                rw, rh = r.get_size()
+                p.sblit(r, (cx - rw * 0.5, cy - rh * 0.5))
+            except Exception:
+                pass
 
-        def _draw_heart(self, g, rv, tex, sblit, cx, cy, sx, sy, st, at,
-                    alpha=1.0):
+        def _draw_heart(self, g, p, cx, cy, alpha=1.0):
             """You. The same SOUL heart as the other modes, and in the second
             half the only thing anywhere on the page that has a colour."""
             plate, W, H = inv_body_plate(INV_HEART, INV_HEART_W, INV_HEART_H,
@@ -2688,105 +2636,137 @@ init python:
                                 pivot=0.5, hurt=0.0, diss=0.05)
                     if alpha < 0.99:
                         d = Transform(d, alpha=alpha)
-                    r = renpy.render(d, W, H, st, at)
-                    rv.depends_on(r)
+                    r = renpy.render(d, W, H, p.st, p.at)
                     w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+                    p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
                     return
                 except Exception:
                     pass
-            heart = self._misc(("heartplain",),
-                            lambda: Transform(INV_HEART, zoom=NF_HEART_ZOOM,
-                                            nearest=True, subpixel=True))
-            r, (w, h) = tex(("heartplain",), heart, 160, 160)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+            heart = self._tf(("heartplain",),
+                             lambda: Transform(INV_HEART, zoom=NF_HEART_ZOOM,
+                                               nearest=True, subpixel=True))
+            r, (w, h) = p.tex(("heartplain",), heart, 160, 160)
+            p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
 
-        # ----- ACT ONE ---------------------------------------------------------
+        # ----- ACT ONE: the sheet ----------------------------------------------
 
-        def _render_room(self, g, rv, tex, rect, qa, blit_text, sblit,
-                        sx, sy, st, at):
+        def _room_world(self, g, p, sx, sy):
             arriving = (g.mode == "arrive")
             scrut = g.scrut_frac()
 
-            # It does not bob and it does not breathe. It stands where it is
-            # printed, and every so often it is printed somewhere else.
-            jitter = 4.0 * g.press
-            cy = 300 + math.sin(g.reg * 2.1) * 3.0 + jitter
-
             if arriving:
-                # NO cy OVERRIDE HERE, DELIBERATELY. Nonfiction does not climb
-                # out of the rupture -- it is PRINTED into the room, in three
-                # registration passes, and a printed thing appears where it is
-                # going to be. Placing it at the hole and then snapping it to
-                # its resting cy when the panels came up was the entrance
-                # misalignment AND a contradiction of the one thing this
-                # Archivist's arrival is supposed to say.
+                # Printed into the room in three registration passes: it
+                # appears where it is going to be, never walks there.
                 bars = g.body_bars
                 ink = g.body_ink
             else:
                 bars = 0.10 * g.hit_flash
                 ink = 1.0
+            jump = 0.6 + 1.8 * g.press + 0.5 * scrut
 
-            self._draw_body(g, rv, tex, sblit, 640, cy, NF_ZOOM_ACT1, sx, sy,
-                            st, at, bars=bars, ink=ink,
-                            jump=0.6 + 1.8 * g.press + 0.5 * scrut,
-                            paper=0.0)
+            # The sheet's motion: its own sway, a tremor on its turn, a jolt
+            # with the press -- and at the tear, the swing at you.
+            yaw = g.sheet_yaw + 0.010 * math.sin(g.tick * 1.7) * g.windup
+            pitch = 1.15 * g.sheet_fall + 0.04 * g.press
+            top = NF_SHEET_TOP + sy + 3.0 * g.press + 40.0 * g.sheet_fall
+            cxs = 640.0 + sx
+            corners = inv_sheet_corners(NF_SHEET_W, NF_SHEET_H, cxs, top,
+                                        yaw=yaw, pitch=pitch)
 
-            if arriving:
+            # The line it hangs from, sagging a little between the clips.
+            if g.sheet_fall < 0.98:
+                la = 0.65 * (1.0 - g.sheet_fall)
+                p.line(0.0, top - 4.0, corners[0][0], corners[0][1] - 1.0, width=0.8,
+                       col="#8d918a", alpha=la, add=False)
+                p.line(corners[0][0], corners[0][1] - 1.0, corners[1][0],
+                       corners[1][1] - 1.0, width=0.8, col="#8d918a", alpha=la,
+                       add=False)
+                p.line(corners[1][0], corners[1][1] - 1.0, 1280.0, top - 4.0,
+                       width=0.8, col="#8d918a", alpha=la, add=False)
+
+            # Its shadow on the dark behind it, offset away from the light.
+            xs = [c[0] for c in corners]
+            ys = [c[1] for c in corners]
+            shw = (max(xs) - min(xs)) * 0.62
+            shh = (max(ys) - min(ys)) * 0.60
+            p.glow((min(xs) + max(xs)) * 0.5 + 22.0, (min(ys) + max(ys)) * 0.5 + 26.0,
+                   shw, shh, col="#000000", alpha=0.55 * (1.0 - g.sheet_fall),
+                   add=False)
+
+            # THE SHEET: stock, and the figure printed on it.
+            cw, ch = NF_SHEET_CANVAS
+            body, bw, bh = self._strike_body(g, NF_ZOOM_ACT1, bars=bars, ink=ink,
+                                             jump=jump, paper=1.0)
+            stock = self._tf(("stock",), lambda: Transform(
+                inv_fx_img("tex_paper"), xysize=(NF_SHEET_W, NF_SHEET_H),
+                matrixcolor=TintMatrix("#f3efe2")))
+            fx_ = cw * 0.5 + NF_FIG_DX * NF_ZOOM_ACT1
+            fy_ = ch * 0.5 + 14.0 + NF_FIG_DY * NF_ZOOM_ACT1
+            content = Fixed(
+                Transform(stock, xpos=(cw - NF_SHEET_W) // 2, ypos=(ch - NF_SHEET_H) // 2),
+                Transform(body, xpos=int(fx_ - bw * 0.5), ypos=int(fy_ - bh * 0.5)),
+                xysize=(cw, ch))
+            facing = 0.86 + 0.14 * math.cos(yaw * 3.0) - 0.10 * g.sheet_fall
+            ok = inv_draw_sheet(p, content, cw, ch, NF_SHEET_W, NF_SHEET_H, corners,
+                                light=(facing, 0.22, 0.45, 1.0))
+            if not ok:
+                self._draw_body(g, p, 640 + sx, 300 + sy, NF_ZOOM_ACT1, bars=bars,
+                                ink=ink, jump=jump)
+
+            # The clips.
+            if g.sheet_fall < 0.98:
+                for c in (corners[0], corners[1]):
+                    p.fill("#1a1b1e", c[0] - 5 + (12 if c is corners[0] else -12), c[1] - 9, 10, 18)
+
+        def _room_hud(self, g, p, sx, sy):
+            if g.mode == "arrive":
                 return
-
-            # --- the only chrome act one gets ------------------------------------
-            # These two sit directly on the room rather than inside a panel,
-            # so they carry their own outline.
-            blit_text("NONFICTION", 15, NF_PALE, 380, 24, bold=True, w=320,
-                    h=30, outline=NF_BLACK)
+            scrut = g.scrut_frac()
+            inv_draw_panel(p, 370, 14, 540, 66, NFStage.STYLE_PLATE)
+            p.text("NONFICTION", 15, NF_PALE, 386, 20, bold=True, w=320, h=30)
 
             # ITS ACCOUNT. One bar, two materials: solid for what you have
-            # SOURCED, hatched for what you have merely stated. The hatched
-            # part is the part it can take back, and it looks like it.
-            bar_w = 520
-            rv.blit(rect("#050506b4", bar_w + 4, 12), (380 - 2, 48))
-            rv.blit(rect("#1b1c1f", bar_w, 8), (380, 50))
-            led = int(bar_w * inv_clamp(g.ledger_shown / float(NF_STANDING_MAX),
-                                        0.0, 1.0))
-            pend = int(bar_w * inv_clamp(g.pending_shown / float(NF_STANDING_MAX),
-                                        0.0, 1.0))
+            # SOURCED, hatched for what you have merely stated.
+            bar_w = 508
+            p.fill("#1b1c1f", 386, 46, bar_w, 8)
+            led = int(bar_w * inv_clamp(g.ledger_shown / float(NF_STANDING_MAX), 0.0, 1.0))
+            pend = int(bar_w * inv_clamp(g.pending_shown / float(NF_STANDING_MAX), 0.0, 1.0))
             if led > 0:
-                rv.blit(rect(NF_PALE, led, 8), (380, 50))
+                p.fill(NF_PALE, 386, 46, led, 8)
             if pend > 0:
-                x = 380 + led
+                x = 386 + led
                 for k in range(0, pend, 6):
-                    rv.blit(rect(NF_PALE + qa(0.40), min(3, pend - k), 8),
-                            (x + k, 50))
-
-            # SCRUTINY. A second, thinner rule under the first.
-            rv.blit(rect("#1b1c1f", bar_w, 4), (380, 64))
+                    p.fill(inv_hex(NF_PALE, 0.40), x + k, 46, min(3, pend - k), 8)
+            mark = 386 + int(bar_w * NF_SHIFT_LEDGER / float(NF_STANDING_MAX))
+            p.fill(inv_hex(NF_PALE, 0.55), mark, 43, 1, 14)
+            p.fill("#1b1c1f", 386, 60, bar_w, 4)
             sc = int(bar_w * scrut)
             if sc > 0:
-                rv.blit(rect(NF_WARN if scrut < 0.85 else NF_RED, sc, 4),
-                        (380, 64))
-            blit_text("SCRUTINY", 11, NF_DIM, 380, 72, w=200, h=22,
-                    outline=NF_BLACK)
+                p.fill(NF_WARN if scrut < 0.85 else NF_RED, 386, 60, sc, 4)
+            p.text("SCRUTINY", 10, NF_DIM, 386, 66, w=200, h=20)
+
+            inv_draw_log(p, g, 930, 20, 310,
+                         {"you": (NF_PALE, NF_WARN), "it": (NF_DIM, NF_RED)})
 
             slide = int(g.panel_slide * 200)
             if g.panel_slide < 1.0:
-                self._panel(rv, rect, NFStage.PANEL_CMD, sx, sy + slide)
-                self._panel(rv, rect, NFStage.PANEL_HUD, sx, sy + slide)
-                self._panel_contents(g, rv, tex, rect, qa, blit_text, sx,
-                                    sy + slide)
+                kick = g.panel_kick
+                kx = int(round(math.sin(g.tick * 2.3) * 8.0 * max(0.0, kick) / 3.0)) * 3
+                ky = int(abs(kick) * 4.0)
+                self._panel(g, p, NFStage.PANEL_CMD, sx, sy + slide)
+                self._panel(g, p, NFStage.PANEL_HUD, sx + kx, sy + slide + ky, hit=kick)
+                self._panel_contents(g, p, sx, sy + slide, kx, ky)
 
-        def _panel(self, rv, rect, box, sx, sy):
+        def _panel(self, g, p, box, sx, sy, hit=0.0):
             x, y, w, h = box
-            x += sx
-            y += sy
-            rv.blit(rect(NF_PALE, w + 6, h + 6), (x - 3, y - 3))
-            rv.blit(rect(NF_BLACK, w + 2, h + 2), (x - 1, y - 1))
-            rv.blit(rect(NF_WIN, w, h), (x, y))
+            inv_draw_panel(p, x + sx, y + sy, w, h, NFStage.STYLE_PANEL)
             # A ruled page, not a game window.
             for k in range(1, 5):
-                rv.blit(rect("#dcded61e", w - 24, 1), (x + 12, y + 12 + k * 30))
+                p.fill("#dcded616", x + sx + 12, y + sy + 12 + k * 30, w - 24, 1)
+            if hit > 0.05:
+                p.fill(inv_hex("#dcded6", 0.10 * hit), x + sx, y + sy, w, h)
 
-        def _panel_contents(self, g, rv, tex, rect, qa, blit_text, sx, sy):
+        def _panel_contents(self, g, p, sx, sy, kx=0, ky=0):
             cx, cy, cw, ch = NFStage.PANEL_CMD
             cx += sx
             cy += sy
@@ -2794,191 +2774,149 @@ init python:
             if g.mode == "menu":
                 for i, row in enumerate(NF_CMDS):
                     live = (i == g.cursor)
-                    ry = cy + 16 + i * 30
+                    ry = cy + 18 + i * 30
                     if live:
-                        rv.blit(rect(NF_PALE + qa(0.12), cw - 28, 26),
-                                (cx + 14, ry - 3))
-                        rv.blit(rect(NF_PALE, 9, 9), (cx + 22, ry + 6))
-                    blit_text(row[1], 20, NF_PALE if live else NF_FAINT,
-                            cx + 42, ry, bold=live, w=260, h=30)
+                        p.fill(NF_PALE + "18", cx + 14, ry - 4, cw - 28, 27)
+                        p.fill(NF_PALE, cx + 14, ry - 4, 3, 27)
+                        p.fill(NF_PALE, cx + 26, ry + 5, 8, 8)
+                    p.text(row[1], 20, NF_PALE if live else NF_FAINT,
+                           cx + 46, ry, bold=live, w=260, h=30)
                     if row[0] == "cite":
-                        blit_text(str(NF_CITE_COST), 14,
-                                NF_PALE if live else NF_FAINT,
-                                cx + cw - 22, ry + 4, anchor=(1.0, 0.0),
-                                w=120, h=26)
-                blit_text("Z  OK      ESC  PAUSE", 12, NF_FAINT,
-                        cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0),
-                        w=420, h=24)
+                        p.text(str(NF_CITE_COST), 14, NF_PALE if live else NF_FAINT,
+                               cx + cw - 22, ry + 4, anchor=(1.0, 0.0), w=120, h=26)
+                p.text("Z  OK      ESC  PAUSE", 12, NF_FAINT,
+                       cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0), w=420, h=24)
 
             elif g.mode == "beat":
-                blit_text(g.beat_label, 22, NF_PALE, cx + 20, cy + 30,
-                        bold=True, w=cw - 40, h=40)
+                u = inv_clamp(g.mtick / 6.0, 0.0, 1.0)
+                p.text(g.beat_label, 22, NF_PALE, cx + 22, cy + 28, bold=True,
+                       w=cw - 40, h=40)
                 if g.beat_value:
-                    blit_text(g.beat_value, 26, NF_WARN, cx + 20, cy + 64,
-                            bold=True, w=cw - 40, h=44)
-                if g.mtick > 12 and (g.tick // 20) % 2 == 0:
-                    rv.blit(rect(NF_PALE, 14, 4), (cx + cw - 36, cy + ch - 26))
+                    p.text(g.beat_value, int(22 + 4 * u), NF_WARN, cx + 22, cy + 62,
+                           bold=True, w=cw - 40, h=44)
+                hold = inv_clamp(g.mtick / float(INV_BEAT_HOLD), 0.0, 1.0)
+                p.fill(NF_FAINT + "60", cx + 22, cy + ch - 18, cw - 44, 2)
+                p.fill(NF_PALE, cx + 22, cy + ch - 18, int((cw - 44) * hold), 2)
+
+            elif g.mode == "enemy":
+                u = inv_clamp(g.mtick / 26.0, 0.0, 1.0)
+                p.text("NONFICTION", 18, NF_DIM, cx + 22, cy + 30, bold=True,
+                       w=cw - 40, h=34)
+                p.fill(NF_DIM + "50", cx + 22, cy + 70, cw - 44, 2)
+                p.fill(NF_PALE, cx + 22, cy + 70, int((cw - 44) * u), 2)
 
             hx, hy, hw, hh = NFStage.PANEL_HUD
-            hx += sx
-            hy += sy
-            blit_text(inv_player_name(), 19, NF_PALE, hx + 20, hy + 12,
-                    bold=True, w=hw - 40, h=32)
-            self._odometer(g, rv, rect, qa, blit_text, "HP", g.hp_shown,
-                        g.hp, hx + 20, hy + 44, NF_PALE)
-            self._odometer(g, rv, rect, qa, blit_text, "SRC", g.src_shown,
-                        g.src, hx + 20, hy + 96, NF_DIM, small=True)
-
+            hx += sx + kx
+            hy += sy + ky
+            p.text(inv_player_name(), 19, NF_PALE, hx + 22, hy + 12,
+                   bold=True, w=hw - 40, h=32)
+            self._odometer(g, p, "HP", g.hp_shown, g.hp, hx + 22, hy + 44, NF_PALE)
+            self._odometer(g, p, "SRC", g.src_shown, g.src, hx + 22, hy + 96, NF_DIM,
+                           small=True)
             if g.pending > 0:
-                blit_text("UNSOURCED  %d" % g.pending, 13,
-                        NF_WARN if not g.marked else NF_RED,
-                        hx + hw - 20, hy + 16, anchor=(1.0, 0.0), w=260, h=26)
+                p.text("UNSOURCED  %d" % g.pending, 13,
+                       NF_WARN if not g.marked else NF_RED,
+                       hx + hw - 22, hy + 16, anchor=(1.0, 0.0), w=260, h=26)
             if g.marked:
-                blit_text("MARKED", 13, NF_RED, hx + hw - 20, hy + 40,
-                        anchor=(1.0, 0.0), w=200, h=26)
+                p.text("MARKED", 13, NF_RED, hx + hw - 22, hy + 40,
+                       anchor=(1.0, 0.0), w=200, h=26, bold=True)
             if g.god:
-                blit_text("GOD", 12, NF_WARN + "aa", hx + hw - 20,
-                        hy + hh - 24, anchor=(1.0, 0.0), w=120, h=24)
+                p.text("GOD", 12, NF_WARN + "aa", hx + hw - 22,
+                       hy + hh - 24, anchor=(1.0, 0.0), w=120, h=24)
 
-        def _odometer(self, g, rv, rect, qa, blit_text, label, shown, real,
-                    x, y, color, small=False, invert=False):
+        def _odometer(self, g, p, label, shown, real, x, y, color, small=False,
+                      invert=False):
             """An EarthBound counter: fixed-width cells, and the digits that
             are moving are drawn mid-roll rather than swapped."""
             size = 22 if small else 30
             cell_w = 22 if small else 28
             cell_h = 32 if small else 42
             cell_col = "#dcded655" if invert else "#0a0a0ce0"
-            blit_text(label, 14, color, x, y + (6 if small else 12), bold=True,
-                    w=60, h=28)
-
+            p.text(label, 14, color, x, y + (6 if small else 12), bold=True,
+                   w=60, h=28)
             value = int(math.ceil(shown - 0.0001)) if shown > 0 else 0
             rolling = abs(shown - real) > 0.05
             digits = "%03d" % inv_clamp(value, 0, 999)
             frac = shown - math.floor(shown)
             base_x = x + 44
-
             for i, ch in enumerate(digits):
                 dx = base_x + i * cell_w
-                rv.blit(rect(cell_col, cell_w - 4, cell_h), (dx, y))
+                p.fill(cell_col, dx, y, cell_w - 4, cell_h)
                 if rolling:
                     off = int(frac * cell_h * (1 if real < shown else -1))
                     nxt = str((int(ch) + (1 if real > shown else -1)) % 10)
-                    blit_text(nxt, size, color + qa(0.45),
-                            dx + (cell_w - 4) // 2,
-                            y + off - (cell_h if real < shown else -cell_h) + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2,
-                            y + off + 2, anchor=(0.5, 0.0), w=cell_w,
-                            h=cell_h, bold=True)
+                    p.text(nxt, size, inv_hex(color, 0.45), dx + (cell_w - 4) // 2,
+                           y + off - (cell_h if real < shown else -cell_h) + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2,
+                           y + off + 2, anchor=(0.5, 0.0), w=cell_w,
+                           h=cell_h, bold=True)
                 else:
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
 
         # ----- ACT TWO: THE PAGE -----------------------------------------------
 
-        def _render_page(self, g, rv, tex, rect, qa, blit_text, sblit,
-                        sx, sy, st, at):
+        def _page_world(self, g, p, sx, sy):
             leaving = g.mode in ("leave_w", "leave_l")
-
-            # --- the watermark ------------------------------------------------
-            # It is not standing anywhere. It is IN the paper -- large, faint,
-            # behind the rules, and it never walks: it only re-registers, hard,
-            # on the same passes that bring a volley in.
-            #
-            # AND IT IS NOT ON THE BEAT. A version of this ran off a monotonic
-            # beat count so the plate re-set exactly on the music; it was cut
-            # (user, Aug 14 2026). What it looks like NOW is a thing that
-            # happens to fall near the pulse sometimes and does not the rest
-            # of the time, which is the better version of the effect -- it
-            # reads as coincidence rather than choreography, and a printing
-            # press that keeps time is a press with an opinion about the
-            # music. Nothing in this fight has an opinion.
             churn = g.churn()
-            self._draw_body(g, rv, tex, sblit, 640, 380, NF_ZOOM_MARK, sx, sy,
-                            st, at,
-                            bars=(getattr(g, "leave_bars", 0.0)
-                                if g.mode == "leave_w" else 0.0),
-                            ink=1.0,
-                            jump=0.5 + 2.2 * g.press,
-                            alpha=NF_MARK_ALPHA * (1.0 + 1.6 * g.press),
-                            paper=1.0)
 
-            # --- the grid ------------------------------------------------------
+            # --- the watermark: IN the paper, large and faint, re-registering
+            # only on its own passes -- never on the beat (user, Aug 14 2026).
+            self._draw_body(g, p, 640 + sx, 380 + sy, NF_ZOOM_MARK,
+                            bars=(g.leave_bars if g.mode == "leave_w" else 0.0),
+                            ink=1.0, jump=0.5 + 2.2 * g.press,
+                            alpha=NF_MARK_ALPHA * (1.0 + 1.6 * g.press), paper=1.0)
+
+            # --- the grid: ruled, like ledger stock ------------------------------
             px0, py0 = NF_PLANE_X + sx, NF_PLANE_Y + sy
-            rv.blit(rect(NF_RULE_COL + qa(0.55), NF_PLANE_W + 4, 2),
-                    (px0 - 2, py0 - 2))
-            rv.blit(rect(NF_RULE_COL + qa(0.55), NF_PLANE_W + 4, 2),
-                    (px0 - 2, py0 + NF_PLANE_H))
-            rv.blit(rect(NF_RULE_COL + qa(0.55), 2, NF_PLANE_H + 4),
-                    (px0 - 2, py0 - 2))
-            rv.blit(rect(NF_RULE_COL + qa(0.55), 2, NF_PLANE_H + 4),
-                    (px0 + NF_PLANE_W, py0 - 2))
+            rc = NF_RULE_COL
+            p.fill(inv_hex(rc, 0.60), px0 - 2, py0 - 2, NF_PLANE_W + 4, 2)
+            p.fill(inv_hex(rc, 0.60), px0 - 2, py0 + NF_PLANE_H, NF_PLANE_W + 4, 2)
+            p.fill(inv_hex(rc, 0.60), px0 - 2, py0 - 2, 2, NF_PLANE_H + 4)
+            p.fill(inv_hex(rc, 0.60), px0 + NF_PLANE_W, py0 - 2, 2, NF_PLANE_H + 4)
             for c in range(1, NF_COLS):
-                rv.blit(rect(NF_RULE_COL + qa(0.28), 1, NF_PLANE_H),
-                        (px0 + c * NF_CELL_W, py0))
+                p.fill(inv_hex(rc, 0.30), px0 + c * NF_CELL_W, py0, 1, NF_PLANE_H)
             for r in range(1, NF_ROWS):
-                rv.blit(rect(NF_RULE_COL + qa(0.28), NF_PLANE_W, 1),
-                        (px0, py0 + r * NF_CELL_H))
+                p.fill(inv_hex(rc, 0.30), px0, py0 + r * NF_CELL_H, NF_PLANE_W, 1)
+            # A page under a press has a shadow round its edge.
+            p.glow(640 + sx, py0 + NF_PLANE_H + 10, NF_PLANE_W * 0.55, 16.0,
+                   col="#000000", alpha=0.10, add=False)
 
-            # --- THE MARGIN ------------------------------------------------------
-            # Column zero, ruled off from the text with a double rule, because
-            # it is not text. It is the only part of the page nothing can be
-            # struck out of and the only place a citation may be filed.
+            # --- THE MARGIN --------------------------------------------------------
             mgx = px0 + (NF_MARGIN_COL + 1) * NF_CELL_W
-            rv.blit(rect(NF_RULE_COL + qa(0.70), 2, NF_PLANE_H), (mgx - 4, py0))
-            rv.blit(rect(NF_RULE_COL + qa(0.70), 2, NF_PLANE_H), (mgx, py0))
+            p.fill(inv_hex(rc, 0.75), mgx - 4, py0, 2, NF_PLANE_H)
+            p.fill(inv_hex(rc, 0.75), mgx, py0, 2, NF_PLANE_H)
             carrying = g.pend2 >= NF_BANK_MIN and not leaving
-
-            # WHAT THE COLUMN IS FOR, in one word, and the word is act one's.
-            # Rule 1 allows state words and refuses sentences, and this is the
-            # cheapest legal nudge there is: the player spent eighteen turns
-            # learning that a claim is worth nothing until it is CITED, so
-            # heading the filing column with CITE says where to take the
-            # unsourced pile without once saying take the unsourced pile
-            # there. It sits quiet until you are actually carrying something.
             if not leaving:
-                blit_text("CITE", 13,
-                        NF_INK + qa(0.85 if carrying else 0.30),
-                        NF_PLANE_X + NF_CELL_W // 2, 148, bold=carrying,
-                        anchor=(0.5, 0.5), w=200, h=28)
-
+                p.text("CITE", 13, inv_hex(NF_INK, 0.85 if carrying else 0.30),
+                       NF_PLANE_X + NF_CELL_W // 2 + sx, 148 + sy, bold=carrying,
+                       anchor=(0.5, 0.5), w=200, h=28)
             for r in range(NF_ROWS):
                 bx, by, bw, bh = nf_cell_box(NF_MARGIN_COL, r)
+                bx += sx
+                by += sy
                 if carrying and g.margin_open(r):
-                    # The destination reads as a PLACE while you have
-                    # something to put in it, and as ruled-off paper the rest
-                    # of the time.
-                    rv.blit(rect(NF_INK + qa(0.07 + 0.05 * g.pend_frac()),
-                                bw - 8, bh - 8),
-                            (int(bx) + 4 + sx, int(by) + 4 + sy))
+                    p.fill(inv_hex(NF_INK, 0.07 + 0.05 * g.pend_frac()),
+                           bx + 4, by + 4, bw - 8, bh - 8)
                 if not g.margin_open(r):
-                    # A CITATION, filed and still wet. Two short rules and a
-                    # reference bar -- the shape of an entry, not an entry.
+                    # A citation, filed and still wet: a reference mark and
+                    # two short rules -- the shape of an entry, not an entry.
                     dry = 1.0 - g.margin_cd.get(r, 0) / float(NF_MARGIN_REOPEN)
                     a = 0.22 + 0.50 * dry
-                    rv.blit(rect(NF_INK + qa(a), int(bw * 0.44), 3),
-                            (int(bx) + 16 + sx, int(by + bh * 0.36) + sy))
-                    rv.blit(rect(NF_INK + qa(a * 0.75), int(bw * 0.30), 3),
-                            (int(bx) + 16 + sx, int(by + bh * 0.36) + 12 + sy))
-                    rv.blit(rect(NF_INK + qa(a), 4, 22),
-                            (int(bx) + 8 + sx, int(by + bh * 0.36) - 4 + sy))
+                    p.fill(inv_hex(NF_INK, a), bx + 16, by + bh * 0.36, bw * 0.44, 3)
+                    p.fill(inv_hex(NF_INK, a * 0.75), bx + 16, by + bh * 0.36 + 12,
+                           bw * 0.30, 3)
+                    p.fill(inv_hex(NF_INK, a), bx + 8, by + bh * 0.36 - 4, 4, 22)
+                    p.text("%d" % (r + 1), 11, inv_hex(NF_INK, a), bx + bw - 14,
+                           by + 8, anchor=(1.0, 0.0), w=40, h=20)
                 elif carrying:
-                    # OPEN, AND YOU ARE CARRYING SOMETHING. A hollow slot,
-                    # breathing. Rule 1 gets an affordance, never a caption.
                     puls = 0.5 + 0.5 * math.sin(g.tick * 0.11 + r * 0.9)
                     a = 0.16 + 0.30 * puls * g.pend_frac()
-                    rv.blit(rect(NF_INK + qa(a), int(bw * 0.44), 2),
-                            (int(bx) + 16 + sx, int(by + bh * 0.36) + sy))
-                    rv.blit(rect(NF_INK + qa(a), int(bw * 0.44), 2),
-                            (int(bx) + 16 + sx, int(by + bh * 0.36) + 14 + sy))
+                    p.fill(inv_hex(NF_INK, a), bx + 16, by + bh * 0.36, bw * 0.44, 2)
+                    p.fill(inv_hex(NF_INK, a), bx + 16, by + bh * 0.36 + 14, bw * 0.44, 2)
 
-            # --- WHAT IS BEING DONE TO THE PAGE ------------------------------
-            # Correction marks accumulating in the open cells: carets,
-            # deletion loops, transposition hooks. They are printer's marks
-            # rather than sentences, they have no mechanics whatever, and
-            # there are more of them the harder the page is being worked --
-            # which is the whole "it should get busier" answer, done in the
-            # only vocabulary this fight has.
+            # --- printer's correction marks accumulating in the open cells ------
             if churn > 0.04 and not leaving:
                 n_marks = int(2 + 20 * churn)
                 for k in range(n_marks):
@@ -2989,102 +2927,82 @@ init python:
                         continue
                     bx, by, bw, bh = nf_cell_box(c, r)
                     ox = int(bx + 14 + seed * (bw - 40)) + sx
-                    oy = int(by + 12 + ((k * 7919) % 100) / 100.0
-                            * (bh - 34)) + sy
+                    oy = int(by + 12 + ((k * 7919) % 100) / 100.0 * (bh - 34)) + sy
                     a = 0.10 + 0.26 * churn
                     kind = k % 3
-                    if kind == 0:            # a caret
+                    if kind == 0:
                         for i in range(6):
-                            rv.blit(rect(NF_INK + qa(a), 2, 2),
-                                    (ox + i * 2, oy + 10 - abs(i - 2) * 3))
-                            rv.blit(rect(NF_INK + qa(a), 2, 2),
-                                    (ox + 10 - i * 2,
-                                    oy + 10 - abs(i - 2) * 3))
-                    elif kind == 1:          # a deletion loop
-                        for i in range(8):
-                            ang = (i / 8.0) * 6.2831853
-                            rv.blit(rect(NF_INK + qa(a), 2, 2),
-                                    (ox + int(math.cos(ang) * 7),
-                                    oy + int(math.sin(ang) * 5)))
-                    else:                    # a transposition hook
-                        rv.blit(rect(NF_INK + qa(a), 14, 2), (ox, oy))
-                        rv.blit(rect(NF_INK + qa(a), 2, 8), (ox + 12, oy))
-                        rv.blit(rect(NF_INK + qa(a), 10, 2), (ox + 2, oy + 8))
+                            p.fill(inv_hex(NF_INK, a), ox + i * 2, oy + 10 - abs(i - 2) * 3, 2, 2)
+                            p.fill(inv_hex(NF_INK, a), ox + 10 - i * 2, oy + 10 - abs(i - 2) * 3, 2, 2)
+                    elif kind == 1:
+                        p.ring(ox + 6, oy + 4, 7.0, 5.0, col=NF_INK, alpha=a,
+                               add=False, tex="ring")
+                    else:
+                        p.fill(inv_hex(NF_INK, a), ox, oy, 14, 2)
+                        p.fill(inv_hex(NF_INK, a), ox + 12, oy, 2, 8)
+                        p.fill(inv_hex(NF_INK, a), ox + 2, oy + 8, 10, 2)
 
-            # --- what has been struck out ---------------------------------------
+            # --- what has been struck out: WET INK --------------------------------
             # A redaction sweeps in from one edge like a marker and OVERSHOOTS
-            # its cell, because a redaction always covers more than the thing
-            # it covers.
+            # its cell. It is ink, so it has a sheen along the stroke and a
+            # bead at its leading edge while it is still being laid down.
             for (c, r), data in g.struck.items():
                 bx, by, bw, bh = nf_cell_box(c, r)
+                bx += sx
+                by += sy
                 ink = data["ink"]
                 if data["dir"] == "v":
                     h = max(2, int(bh * ink))
-                    rv.blit(rect("#000000", bw + 4, h + 3),
-                            (int(bx) - 2 + sx, int(by) - 1 + sy))
+                    p.fill("#050506", bx - 2, by - 1, bw + 4, h + 3)
+                    p.fill("#2a2a31", bx + bw * 0.30, by, 2, h)
+                    if ink < 0.999:
+                        p.quad(INV_INKS[(c + r) % 4], bx + bw * 0.5, by + h,
+                               0.30, col="#050506", alpha=0.9, add=False)
                 else:
                     w = max(2, int(bw * ink))
-                    rv.blit(rect("#000000", w + 3, bh + 4),
-                            (int(bx) - 1 + sx, int(by) - 2 + sy))
+                    p.fill("#050506", bx - 1, by - 2, w + 3, bh + 4)
+                    p.fill("#2a2a31", bx, by + bh * 0.30, w, 2)
+                    if ink < 0.999:
+                        p.quad(INV_INKS[(c + r) % 4], bx + w, by + bh * 0.5,
+                               0.30, col="#050506", alpha=0.9, add=False)
 
-            # --- what is about to be ---------------------------------------------
+            # --- what is about to be: blue-pencil strokes (in grey) --------------
             if g.pending_lines and g.volley_warn > 0:
                 u = 1.0 - g.volley_warn / float(NF_VOLLEY_WARN)
                 puls = 0.5 + 0.5 * math.sin(g.tick * 0.42)
-                thick = 2 + int(6 * u)
                 for line in g.pending_lines:
                     for (c, r) in line["cells"]:
                         bx, by, bw, bh = nf_cell_box(c, r)
-                        col = NF_INK + qa(0.30 + 0.45 * u * puls)
+                        bx += sx
+                        by += sy
+                        a = 0.30 + 0.45 * u * puls
+                        t_ = 1.0 + 3.0 * u
                         if line["dir"] == "v":
-                            rv.blit(rect(col, thick, bh),
-                                    (int(bx + bw * 0.5 - thick * 0.5) + sx,
-                                    int(by) + sy))
+                            p.line(bx + bw * 0.5, by + 4, bx + bw * 0.5 + 2, by + bh - 4,
+                                   width=t_, col="#26262c", alpha=a, add=False)
                         else:
-                            rv.blit(rect(col, bw, thick),
-                                    (int(bx) + sx,
-                                    int(by + bh * 0.5 - thick * 0.5) + sy))
+                            p.line(bx + 4, by + bh * 0.5, bx + bw - 4, by + bh * 0.5 - 2,
+                                   width=t_, col="#26262c", alpha=a, add=False)
 
-            # --- the anchor -------------------------------------------------------
+            # --- the anchor: a corroborated fact, stamped -------------------------
             if g.anchor is not None and not leaving:
                 bx, by, bw, bh = nf_cell_box(*g.anchor)
+                bx += sx
+                by += sy
                 expiring = g.anchor_life < 90 and (g.tick // 6) % 2 == 0
-                acol = NF_INK + qa(0.20 if expiring else 0.55)
-                # Corroborated ground is a shade off the rest of the sheet, so
-                # it can be picked out from across the page at a glance.
-                rv.blit(rect(NF_INK + qa(0.10), bw - 6, bh - 6),
-                        (int(bx) + 3 + sx, int(by) + 3 + sy))
+                acol = inv_hex(NF_INK, 0.20 if expiring else 0.62)
+                p.fill(inv_hex(NF_INK, 0.10), bx + 3, by + 3, bw - 6, bh - 6)
                 for inset in (4, 9):
-                    rv.blit(rect(acol, bw - inset * 2, 2),
-                            (int(bx) + inset + sx, int(by) + inset + sy))
-                    rv.blit(rect(acol, bw - inset * 2, 2),
-                            (int(bx) + inset + sx,
-                            int(by + bh) - inset - 2 + sy))
-                    rv.blit(rect(acol, 2, bh - inset * 2),
-                            (int(bx) + inset + sx, int(by) + inset + sy))
-                    rv.blit(rect(acol, 2, bh - inset * 2),
-                            (int(bx + bw) - inset - 2 + sx,
-                            int(by) + inset + sy))
+                    p.fill(acol, bx + inset, by + inset, bw - inset * 2, 2)
+                    p.fill(acol, bx + inset, by + bh - inset - 2, bw - inset * 2, 2)
+                    p.fill(acol, bx + inset, by + inset, 2, bh - inset * 2)
+                    p.fill(acol, bx + bw - inset - 2, by + inset, 2, bh - inset * 2)
                 if g.retract_warn > 0:
-                    # It says so in advance, because it always does.
                     puls = 0.5 + 0.5 * math.sin(g.tick * 0.55)
-                    rv.blit(rect(NF_INK + qa(0.25 + 0.50 * puls),
-                                bw - 16, max(3, int(10 * puls))),
-                            (int(bx) + 8 + sx, int(by + bh * 0.5) - 4 + sy))
+                    p.fill(inv_hex(NF_INK, 0.25 + 0.50 * puls), bx + 8, by + bh * 0.5 - 4,
+                           bw - 16, max(3, int(10 * puls)))
 
-            # --- WHERE TO GO --------------------------------------------------------
-            # A dashed leader from you to whatever the next thing is. Rule 1
-            # forbids a sentence telling the player what to do, and this is
-            # the answer to that: not an instruction, a line on a page
-            # pointing at the thing it refers to. Without it the whole act is
-            # unreadable -- there is no other cue that the double-ruled square
-            # is the objective rather than decoration.
-            #
-            # AND IT SWINGS TO THE MARGIN THE MOMENT YOU ARE CARRYING
-            # ANYTHING WORTH FILING. That swing is the entire tutorial for the
-            # escrow: the page stops pointing at the entry and starts pointing
-            # at the nearest open row of column zero, and it does it while the
-            # bar under VERIFIED is visibly holding something.
+            # --- WHERE TO GO: a dashed leader line ---------------------------------
             target = None
             if not leaving:
                 if carrying:
@@ -3093,8 +3011,7 @@ init python:
                         best_r = min(rows, key=lambda r: abs(
                             nf_cell_center(NF_MARGIN_COL, r)[1] - g.py))
                         target = nf_cell_center(NF_MARGIN_COL, best_r)
-                elif (g.anchor is not None
-                        and g.cell_of(g.px, g.py) != g.anchor):
+                elif g.anchor is not None and g.cell_of(g.px, g.py) != g.anchor:
                     target = nf_cell_center(*g.anchor)
             if target is not None:
                 vx = target[0] - g.px
@@ -3103,167 +3020,148 @@ init python:
                 if dist > 46.0:
                     ux = vx / dist
                     uy = vy / dist
-                    step = 15.0
                     k = 34.0
                     while k < dist - 30.0:
                         a = 0.34 * (1.0 - k / max(dist, 1.0)) + 0.12
-                        rv.blit(rect(NF_INK + qa(a), 5, 5),
-                                (int(g.px + ux * k) + sx,
-                                int(g.py + uy * k) + sy))
-                        k += step
+                        p.fill(inv_hex(NF_INK, a), g.px + ux * k + sx, g.py + uy * k + sy, 5, 5)
+                        k += 15.0
 
             # --- you ----------------------------------------------------------------
             if not (g.mode == "leave_l" and g.mtick > 262):
+                # Your trail is the only colour on the page: red ink.
                 for i, (tx, ty) in enumerate(g.trail):
                     if i == 0:
                         continue
-                    a = 0.20 * (1.0 - i / float(len(g.trail)))
-                    size = max(3, 10 - i)
-                    rv.blit(rect(NF_RED + qa(a), size, size),
-                            (int(tx) - size // 2 + sx, int(ty) - size // 2 + sy))
-
+                    a = 0.30 * (1.0 - i / float(len(g.trail)))
+                    p.quad("dust", tx + sx, ty + sy, 0.9 - i * 0.07, col=NF_RED,
+                           alpha=a, add=False)
                 blink = (g.iframes > 0 and (g.tick // 3) % 2 == 0)
                 if not blink:
-                    self._draw_heart(g, rv, tex, sblit, g.px, g.py, sx, sy,
-                                    st, at)
+                    p.shadow(g.px + sx + 3, g.py + sy + 14, 14.0, 5.0, alpha=0.25)
+                    self._draw_heart(g, p, g.px + sx, g.py + sy)
 
-                # WHAT YOU ARE CARRYING, drawn ON you rather than only in the
-                # corner -- an arc closing round the heart as the escrow
-                # fills, whole and pulsing once it will hold no more. The
-                # player has to be able to answer "is this worth walking" from
-                # the middle of the page without looking away from it.
+                # WHAT YOU ARE CARRYING, drawn ON you: an arc closing round the
+                # heart as the escrow fills, whole and pulsing once full.
                 if not leaving and g.pend2 > 0.0:
                     pf = g.pend_frac()
                     full = pf >= 0.999
                     segs = 20
                     lit = int(round(segs * pf))
-                    rr = 25.0
                     puls = 0.5 + 0.5 * math.sin(g.tick * 0.16)
                     a = 0.55 + (0.35 * puls if full else 0.0)
                     for k in range(lit):
                         ang = -1.5708 + (k / float(segs)) * 6.2831853
-                        rv.blit(rect(NF_INK + qa(a), 4, 4),
-                                (int(g.px + math.cos(ang) * rr) + sx,
-                                int(g.py + math.sin(ang) * rr) + sy))
+                        p.fill(inv_hex(NF_INK, a), g.px + math.cos(ang) * 25.0 + sx - 2,
+                               g.py + math.sin(ang) * 25.0 + sy - 2, 4, 4)
 
-                # ON RECORD. THE RING ONLY CLOSES WHEN YOU STOP -- and that
-                # sentence is the entire tutorial for this half of the fight,
-                # delivered without writing it down. Standing still on
-                # corroborated ground draws a whole ring; moving on it draws a
-                # broken one. Nothing else on screen distinguishes the two
-                # states, so the contrast has to be unmissable.
+                # ON RECORD: the ring only closes when you stop.
                 if g.anchor is not None and not leaving:
                     if g.cell_of(g.px, g.py) == g.anchor:
                         filling = g.attesting or g.still > 4
                         segs = 24
-                        rr = 36.0
                         size = 5 if filling else 3
                         for k in range(segs):
                             if not filling and k % 2:
-                                continue          # a ring that is not closed
+                                continue
                             ang = -1.5708 + (k / float(segs)) * 6.2831853
-                            rv.blit(rect(NF_INK + qa(0.90 if filling else 0.26),
-                                        size, size),
-                                    (int(g.px + math.cos(ang) * rr) + sx,
-                                    int(g.py + math.sin(ang) * rr) + sy))
+                            p.fill(inv_hex(NF_INK, 0.90 if filling else 0.26),
+                                   g.px + math.cos(ang) * 36.0 + sx - size // 2,
+                                   g.py + math.sin(ang) * 36.0 + sy - size // 2, size, size)
                         if g.attesting:
-                            # Doubled, because attesting is doubled.
                             for k in range(segs):
                                 ang = -1.5708 + ((k + 0.5) / segs) * 6.2831853
-                                rv.blit(rect(NF_INK + qa(0.55), 3, 3),
-                                        (int(g.px + math.cos(ang) * 46.0) + sx,
-                                        int(g.py + math.sin(ang) * 46.0) + sy))
+                                p.fill(inv_hex(NF_INK, 0.55),
+                                       g.px + math.cos(ang) * 46.0 + sx - 1,
+                                       g.py + math.sin(ang) * 46.0 + sy - 1, 3, 3)
 
             # THE LAST THING STRUCK OUT IS YOU.
             if g.end_bar > 0.0:
                 w = int(240 * g.end_bar)
-                rv.blit(rect("#000000", w, 26),
-                        (int(g.px) - 120 + sx, int(g.py) - 13 + sy))
+                p.fill("#000000", g.px - 120 + sx, g.py - 13 + sy, w, 26)
             if g.end_wipe > 0.0:
-                rv.blit(rect("#000000" + qa(g.end_wipe), 1280, 720), (0, 0))
+                p.fill(inv_hex("#000000", g.end_wipe), 0, 0, 1280, 720)
 
-            if g.hud_fade <= 0.02:
-                return
-            self._render_page_hud(g, rv, rect, qa, blit_text, sx, sy)
-
-        def _render_page_hud(self, g, rv, rect, qa, blit_text, sx, sy):
-            # --- VERIFIED, AND WHAT IS NOT VERIFIED YET --------------------------
-            # ONE BAR, TWO WEIGHTS. The escrow is drawn as hatching sitting on
-            # the end of the solid, so where it would reach if it were filed
-            # is legible at a glance and it is unmistakably not the same
-            # substance -- exactly the relationship act one drew between the
-            # ledger and the pile. Two separate bars would have made them look
-            # like two separate quantities.
+        def _page_hud(self, g, p, sx, sy):
+            # --- VERIFIED, AND WHAT IS NOT VERIFIED YET ----------------------------
             bw = NF_PLANE_W
             bx = NF_PLANE_X
-            rv.blit(rect(NF_INK + qa(0.55), bw + 4, 20), (bx - 2, 96))
-            rv.blit(rect(NF_PAPER, bw, 16), (bx, 98))
+            p.fill(inv_hex(NF_INK, 0.55), bx - 2, 96, bw + 4, 20)
+            p.fill(NF_PAPER, bx, 98, bw, 16)
             fill = int(bw * inv_clamp(g.verify_shown / NF_VERIFY_MAX, 0.0, 1.0))
             if fill > 0:
-                rv.blit(rect(NF_INK, fill, 16), (bx, 98))
-            pend_w = int(bw * inv_clamp(g.pend2_shown / NF_VERIFY_MAX,
-                                        0.0, 1.0))
+                p.fill(NF_INK, bx, 98, fill, 16)
+                p.fill("#2a2a31", bx, 101, fill, 2)
+            pend_w = int(bw * inv_clamp(g.pend2_shown / NF_VERIFY_MAX, 0.0, 1.0))
             if pend_w > 0:
                 x_p = bx + fill
                 for k in range(0, min(pend_w, bw - fill), 6):
-                    rv.blit(rect(NF_INK + qa(0.75), 3, 16), (x_p + k, 98))
-                rv.blit(rect(NF_INK + qa(0.85), 2, 22),
-                        (min(x_p + pend_w, bx + bw - 2), 95))
+                    p.fill(inv_hex(NF_INK, 0.75), x_p + k, 98, 3, 16)
+                p.fill(inv_hex(NF_INK, 0.85), min(x_p + pend_w, bx + bw - 2), 95, 2, 22)
             if g.bank_flash > 0.02:
-                rv.blit(rect(NF_INK + qa(0.55 * g.bank_flash), bw + 8, 26),
-                        (bx - 4, 93))
-            blit_text("VERIFIED", 13, NF_INK, bx, 74, bold=True, w=200, h=26)
-            blit_text("%d" % int(g.verify), 15, NF_INK, bx + bw, 74,
-                    bold=True, anchor=(1.0, 0.0), w=140, h=26)
-            # AND THE HATCHING IS NAMED, in act one's word for it. The player
-            # already knows what UNSOURCED means and already knows what it is
-            # worth, which is nothing -- so labelling the hatched half of the
-            # bar is the whole lesson delivered in one legal noun. It is
-            # printed under the segment it describes and nowhere else.
+                p.fill(inv_hex(NF_INK, 0.55 * g.bank_flash), bx - 4, 93, bw + 8, 26)
+            p.text("VERIFIED", 13, NF_INK, bx, 74, bold=True, w=200, h=26)
+            p.text("%d" % int(g.verify), 15, NF_INK, bx + bw, 74, bold=True,
+                   anchor=(1.0, 0.0), w=140, h=26)
             if g.pend2 >= 1.0:
-                blit_text("UNSOURCED", 11,
-                        NF_INK + qa(0.55 if g.pend_frac() < 0.999 else 0.95),
-                        min(bx + fill + 6, bx + bw - 90), 118, w=200, h=22)
-                blit_text("%d" % int(g.pend2), 13,
-                        NF_INK + qa(0.62 if g.pend_frac() < 0.999 else 0.95),
-                        bx + bw, 118, anchor=(1.0, 0.0), w=120, h=22)
+                p.text("UNSOURCED", 11,
+                       inv_hex(NF_INK, 0.55 if g.pend_frac() < 0.999 else 0.95),
+                       min(bx + fill + 6, bx + bw - 90), 118, w=200, h=22)
+                p.text("%d" % int(g.pend2), 13,
+                       inv_hex(NF_INK, 0.62 if g.pend_frac() < 0.999 else 0.95),
+                       bx + bw, 118, anchor=(1.0, 0.0), w=120, h=22)
 
-            # --- HP and CREDIT ---------------------------------------------------
-            self._odometer(g, rv, rect, qa, blit_text, "HP", g.hp_shown, g.hp,
-                        44, 646, NF_INK, invert=True)
+            # --- HP and CREDIT -------------------------------------------------------
+            inv_draw_panel(p, 30, 598, 300, 106, NFStage.STYLE_CARD)
+            self._odometer(g, p, "HP", g.hp_shown, g.hp, 44, 646, NF_INK, invert=True)
             cw = 220
-            rv.blit(rect(NF_INK + qa(0.45), cw + 4, 12), (44 - 2, 622))
-            rv.blit(rect(NF_PAPER, cw, 8), (44, 624))
+            p.fill(inv_hex(NF_INK, 0.45), 42, 622, cw + 4, 12)
+            p.fill(NF_PAPER, 44, 624, cw, 8)
             ccol = NF_INK if g.credit >= NF_ATTEST_MIN else NF_RED
             cf = int(cw * inv_clamp(g.credit / NF_CREDIT_MAX, 0.0, 1.0))
             if cf > 0:
-                rv.blit(rect(ccol, cf, 8), (44, 624))
-            rv.blit(rect(NF_INK + qa(0.55), 2, 14),
-                    (44 + int(cw * (NF_ATTEST_MIN / NF_CREDIT_MAX)), 621))
-            blit_text("CREDIT", 11, NF_FAINT, 44, 606, w=160, h=22)
+                p.fill(ccol, 44, 624, cf, 8)
+            p.fill(inv_hex(NF_INK, 0.55), 44 + int(cw * (NF_ATTEST_MIN / NF_CREDIT_MAX)), 621, 2, 14)
+            p.text("CREDIT", 11, NF_FAINT, 44, 606, w=160, h=22)
             if g.attesting:
-                blit_text("ATTEST", 13, NF_INK, 44 + cw + 12, 620, bold=True,
-                        w=180, h=26)
+                p.text("ATTEST", 13, NF_INK, 44 + cw + 12, 620, bold=True, w=180, h=26)
 
-            # --- THE READOUT -----------------------------------------------------
-            # The margin stops reporting the person played.
+            # --- THE READOUT: the margin stops reporting the person played ---------
             for i in range(min(g.facts_shown, len(g.facts))):
                 key, value = g.facts[i]
                 ry = 176 + i * 26
                 a = 0.75
                 if i == g.facts_shown - 1 and g.fact_t > NF_FACT_EVERY - 20:
                     a = 0.75 * ((NF_FACT_EVERY - g.fact_t) / 20.0)
-                blit_text(key, 11, NF_FAINT + qa(a), 1092, ry, w=170, h=22)
-                blit_text(value, 13, NF_INK + qa(a), 1256, ry - 2,
-                        anchor=(1.0, 0.0), w=190, h=24)
+                p.text(key, 11, inv_hex(NF_FAINT, a), 1092, ry, w=170, h=22)
+                p.text(value, 13, inv_hex(NF_INK, a), 1256, ry - 2,
+                       anchor=(1.0, 0.0), w=190, h=24)
 
-            blit_text("MOVE  WASD      Z  ATTEST  (HOLD)", 12, NF_FAINT,
-                    1256, 690, anchor=(1.0, 1.0), w=760, h=28)
+            p.text("MOVE  WASD      Z  ATTEST  (HOLD)", 12, NF_FAINT,
+                   1256, 690, anchor=(1.0, 1.0), w=760, h=28)
             if g.god:
-                blit_text("GOD", 12, NF_RED, 1256, 664, anchor=(1.0, 1.0),
-                        w=120, h=24)
+                p.text("GOD", 12, NF_RED, 1256, 664, anchor=(1.0, 1.0), w=120, h=24)
 
+        # ----- numbers and pause -----------------------------------------------
 
+        def _floats(self, g, p, sx, sy):
+            on_page = g.open > 0.5
+            for f in g.floats:
+                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
+                age = 52 - f["life"]
+                pop = 1.0 + 0.30 * inv_clamp(1.0 - age / 6.0, 0.0, 1.0)
+                p.text(f["text"], int((28 if f["big"] else 20) * pop),
+                       inv_hex(f["color"], a), int(f["x"]) + sx, int(f["y"]) + sy,
+                       bold=f["big"], anchor=(0.5, 0.5), w=340, h=70,
+                       outline=(None if on_page else "#050506"))
+
+        def _pause(self, g, p, on_page):
+            p.fill("#050506c8" if not on_page else "#e8e6dec8", 0, 0, 1280, 720)
+            inv_draw_panel(p, 440, 270, 400, 150,
+                           NFStage.STYLE_CARD if on_page else NFStage.STYLE_PANEL)
+            pcol = NF_PALE if not on_page else NF_INK
+            p.text("PAUSED", 40, pcol, 640, 322, bold=True, anchor=(0.5, 0.5), w=600, h=70)
+            p.text("ESC  RESUME        Q  QUIT", 16, NF_DIM if not on_page else NF_FAINT,
+                   640, 378, anchor=(0.5, 0.5), w=800, h=44)
 # --- THE SCREEN --------------------------------------------------------------
 screen inv_nonfiction_screen(game):
     modal True
@@ -3287,16 +3185,21 @@ screen inv_nonfiction_screen(game):
 default nf_game = None
 default nf_deaths = 0
 default nf_retry = False
+# A RETRY FROM THE TEAR, carrying the ledger act one sourced.
+default nf_resume = None
 
 label archivist_invasion_nonfiction:
     $ nf_deaths = 0
     $ nf_retry = False
+    $ nf_resume = None
 
 label inv_nonfiction_fight:
     $ renpy.block_rollback()
 
     $ nf_game = NFGame(retry=nf_retry, deaths=nf_deaths,
-                    debug=config.developer, start_open=inv_dev_start_open)
+                    debug=config.developer, start_open=inv_dev_start_open,
+                    resume=nf_resume)
+    $ nf_resume = None
 
     $ _nf_prev_quick_menu = quick_menu
     $ quick_menu = False
@@ -3306,6 +3209,7 @@ label inv_nonfiction_fight:
 
     call screen inv_nonfiction_screen(nf_game)
     $ _nf_result = _return
+    $ _nf_checkpoint = nf_game.checkpoint
 
     $ nf_game = None
     $ quick_menu = _nf_prev_quick_menu
@@ -3335,15 +3239,20 @@ label inv_nonfiction_defeat:
     $ nf_deaths += 1
     $ nf_retry = True
 
-    menu:
-        "AGAIN":
-            scene black
-            jump inv_nonfiction_fight
-
-        "STOP":
-            if inv_dev_test:
-                $ renpy.notify("NONFICTION: retracted. Recorded.")
-            return
+    call screen inv_retry_screen("NONFICTION", "RETRACTED",
+                                 inv_retry_options(_nf_checkpoint),
+                                 ink=NF_PALE, dim=NF_DIM, accent=NF_RED,
+                                 bg=NF_BLACK)
+    if _return == "tear":
+        $ nf_resume = _nf_checkpoint
+        scene black
+        jump inv_nonfiction_fight
+    elif _return == "start":
+        scene black
+        jump inv_nonfiction_fight
+    if inv_dev_test:
+        $ renpy.notify("NONFICTION: retracted. Recorded.")
+    return
 
 label inv_nonfiction_quit:
     $ nf_retry = True

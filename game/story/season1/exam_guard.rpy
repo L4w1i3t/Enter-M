@@ -1,6 +1,13 @@
 default exam_guard_key = None
 default exam_guard_subject = None
+default exam_guard_period_armed = False
+default exam_guard_save_scum_subjects = []
+default exam_guard_run = None
 
+# The fields below hold ONE run's ledger (persistent.exam_guard_run names it);
+# every other run's waits in exam_guard_runs. See exam_guard_switch_run.
+default persistent.exam_guard_run = None
+default persistent.exam_guard_runs = {}
 default persistent.exam_guard_key = None
 default persistent.exam_guard_subject = None
 default persistent.exam_save_scum_subjects = []
@@ -11,18 +18,35 @@ default persistent.did_save_scum_chemistry = False
 default persistent.did_save_scum_algebra = False
 default persistent.did_save_scum_english = False
 default persistent.exam_guard_restart_required = False
-# How many home confrontations the player has actually sat through. The repeat
-# scene dispatches on THIS, not on the bad-end threshold: two catches on the
-# same day used to cross the threshold before the first confrontation ran, so a
-# player's opening scene could be the one full of "last time" callbacks to a
-# conversation that never happened.
-default persistent.exam_guard_confrontations = 0
 
 init python:
     import datetime as exam_guard_datetime
+    import uuid as exam_guard_uuid
 
     EXAM_GUARD_START_DATE = exam_guard_datetime.date(2025, 5, 26)
     EXAM_GUARD_END_DATE = exam_guard_datetime.date(2025, 5, 28)
+    EXAM_GUARD_COMPLETE_KEY = "exam_period:complete"
+
+    EXAM_GUARD_SUBJECT_BASE = {
+        "civics": 0,
+        "la": 3,
+        "biology": 6,
+        "chemistry": 9,
+        "algebra": 12,
+        "english": 15,
+    }
+
+    EXAM_GUARD_CHECKPOINT_COMMITMENTS = {
+        "day_ready": 0,
+        "exam_start": 0,
+        "q1_open": 0,
+        "q1_answered": 1,
+        "q2_open": 1,
+        "q2_answered": 2,
+        "q3_open": 2,
+        "q3_answered": 3,
+        "caught": 3,
+    }
 
     EXAM_GUARD_CAUGHT_LABELS = {
         "civics": "a0526_civics_save_scum",
@@ -48,52 +72,92 @@ init python:
         "biology": "biology",
         "chemistry": "chemistry",
         "algebra": "algebra",
-        "english": "English",
+        "english": "foreign language",
     }
+
+    # One run's ledger: each persistent field with its empty value.
+    EXAM_GUARD_LEDGER = {
+        "exam_guard_key": None,
+        "exam_guard_subject": None,
+        "exam_save_scum_subjects": [],
+        "exam_guard_restart_required": False,
+    }
+    for _exam_guard_flag in EXAM_GUARD_FLAG_NAMES.values():
+        EXAM_GUARD_LEDGER[_exam_guard_flag] = False
+
+    def exam_guard_switch_run(run):
+        """Make the persistent ledger fields describe `run`. True if they changed.
+
+        Every playthrough shares one persistent file, and the story reads the
+        ledger straight from it. Without this, a catch (or a bad ending) in one
+        run reads as a catch in every other run loaded after it.
+        """
+        held = persistent.exam_guard_run
+        if run == held:
+            return False
+
+        # shortcut: one small archived ledger per exam attempt, never pruned;
+        # prune the oldest if persistent size ever matters.
+        runs = dict(persistent.exam_guard_runs or {})
+        if held:
+            filed = {}
+            for name, empty in EXAM_GUARD_LEDGER.items():
+                value = getattr(persistent, name)
+                filed[name] = list(value or []) if isinstance(empty, list) else value
+            runs[held] = filed
+
+        record = runs.get(run, None) or {}
+        for name, empty in EXAM_GUARD_LEDGER.items():
+            value = record.get(name, empty)
+            setattr(persistent, name, list(value or []) if isinstance(empty, list) else value)
+
+        persistent.exam_guard_runs = runs
+        persistent.exam_guard_run = run
+        return True
 
     def exam_guard_clear_state():
         global exam_guard_key
         global exam_guard_subject
-        exam_guard_clear_active_checkpoint(save=False)
-        persistent.exam_save_scum_subjects = []
-        for flag_name in EXAM_GUARD_FLAG_NAMES.values():
-            setattr(persistent, flag_name, False)
-        # The confrontation counter is part of the same timeline as the scum
-        # record and dies with it. It lives HERE and not in one of the callers
-        # so every teardown path zeroes it: New Game, the start of the exam
-        # period, and the bad-ending release. Leave it out of one of them and a
-        # fresh run's FIRST catch opens on the repeat scene, which is nothing
-        # but callbacks to a conversation that never happened.
-        persistent.exam_guard_confrontations = 0
-
-    def exam_guard_clear_active_checkpoint(save=True):
-        global exam_guard_key
-        global exam_guard_subject
+        global exam_guard_period_armed
+        global exam_guard_save_scum_subjects
         exam_guard_key = None
         exam_guard_subject = None
         persistent.exam_guard_key = None
         persistent.exam_guard_subject = None
-        if save:
-            renpy.save_persistent()
+        exam_guard_period_armed = False
+        exam_guard_save_scum_subjects = []
+        persistent.exam_save_scum_subjects = []
+        for flag_name in EXAM_GUARD_FLAG_NAMES.values():
+            setattr(persistent, flag_name, False)
 
     def exam_guard_reset_for_new_game():
+        # File the previous run's ledger away rather than erasing it: its
+        # saves may still be loaded, and must meet their own record.
+        exam_guard_switch_run(None)
         exam_guard_clear_state()
         persistent.exam_guard_restart_required = False
         renpy.save_persistent()
 
     def exam_guard_begin_exam_period():
+        global exam_guard_period_armed
+        global exam_guard_run
+        exam_guard_run = exam_guard_uuid.uuid4().hex
+        exam_guard_switch_run(exam_guard_run)
         exam_guard_clear_state()
-        persistent.exam_guard_restart_required = False
+        exam_guard_period_armed = True
         renpy.save_persistent()
 
-    def exam_guard_seen_confrontation():
-        return int(getattr(persistent, "exam_guard_confrontations", 0) or 0) > 0
-
-    def exam_guard_note_confrontation():
-        persistent.exam_guard_confrontations = int(
-            getattr(persistent, "exam_guard_confrontations", 0) or 0
-        ) + 1
+    def exam_guard_finish_exam_period():
+        global exam_guard_key
+        global exam_guard_subject
+        global exam_guard_period_armed
+        exam_guard_period_armed = True
+        exam_guard_key = EXAM_GUARD_COMPLETE_KEY
+        exam_guard_subject = "exam"
+        persistent.exam_guard_key = EXAM_GUARD_COMPLETE_KEY
+        persistent.exam_guard_subject = "exam"
         renpy.save_persistent()
+        renpy.block_rollback()
 
     def exam_guard_scum_count():
         return len(getattr(persistent, "exam_save_scum_subjects", None) or [])
@@ -157,22 +221,85 @@ init python:
         return EXAM_GUARD_START_DATE <= current_date <= EXAM_GUARD_END_DATE
 
     def exam_guard_prepare_after_load():
-        if not exam_guard_is_exam_date():
-            exam_guard_clear_active_checkpoint()
+        global exam_guard_save_scum_subjects
+        # Runs first on every load: the restart lock and the mismatch check
+        # after it must read the loaded run's ledger, not the last one played.
+        # An armed save with no run predates per-run ledgers and keeps the
+        # shared one, as it always did.
+        run = globals().get("exam_guard_run", None)
+        switched = False
+        if run or not globals().get("exam_guard_period_armed", False):
+            switched = exam_guard_switch_run(run)
+
+        # Progress must survive the night between papers, and the completed
+        # marker must survive after May 28. Otherwise an older exam save can
+        # arrive with no persistent point to disagree with and silently reset
+        # only part of the three-day period.
+        # The offense record also has a save-local mirror, so a save still
+        # carries its run's consequence if that run's ledger is ever lost.
+        saved_subjects = list(globals().get("exam_guard_save_scum_subjects", None) or [])
+        persistent_subjects = list(getattr(persistent, "exam_save_scum_subjects", None) or [])
+        merged_subjects = list(persistent_subjects)
+        for subject in saved_subjects:
+            if subject not in merged_subjects:
+                merged_subjects.append(subject)
+
+        exam_guard_save_scum_subjects = list(merged_subjects)
+        # The May 29-31 scripts cache this branch marker for readability. A
+        # loaded post-exam save restores cached store variables too, so refresh
+        # them after merging the save-local and persistent offense records.
+        globals()["_exam_one_catch"] = len(merged_subjects) == 1
+        globals()["_exam_repair_subject_text"] = exam_guard_subjects_text(merged_subjects)
+
+        persistent_dirty = switched or merged_subjects != persistent_subjects
+        if merged_subjects != persistent_subjects:
+            persistent.exam_save_scum_subjects = merged_subjects
+
+        for subject in merged_subjects:
+            flag_name = EXAM_GUARD_FLAG_NAMES.get(subject, None)
+            if flag_name and not bool(getattr(persistent, flag_name, False)):
+                setattr(persistent, flag_name, True)
+                persistent_dirty = True
+
+        if persistent_dirty:
+            renpy.save_persistent()
+
+    def exam_guard_commitment_rank(key):
+        if key == EXAM_GUARD_COMPLETE_KEY:
+            return 18
+        if not key or ":" not in key:
+            return 0
+
+        subject, checkpoint = key.split(":", 1)
+        base = EXAM_GUARD_SUBJECT_BASE.get(subject, 0)
+        committed = EXAM_GUARD_CHECKPOINT_COMMITMENTS.get(checkpoint, 0)
+        return base + committed
 
     def exam_guard_has_mismatch():
         persistent_key = getattr(persistent, "exam_guard_key", None)
         save_key = globals().get("exam_guard_key", None)
-        if not persistent_key or not save_key:
-            return False
         if not exam_guard_is_exam_date():
             return False
-        return save_key != persistent_key
+
+        save_armed = bool(globals().get("exam_guard_period_armed", False))
+        if not persistent_key:
+            # A missing ledger (persistent deleted, or a save copied from
+            # another machine) must not turn into an erase button for a save
+            # from inside the exam period. A pre-paper save is unarmed and
+            # remains the legitimate whole-period restart door.
+            return bool(save_armed and save_key)
+        if not save_key:
+            return save_armed
+
+        # Merely viewing the next question or crossing an overnight story beat
+        # is harmless. Only moving to a save with fewer committed answers is
+        # the prohibited revision described to the player.
+        return exam_guard_commitment_rank(save_key) < exam_guard_commitment_rank(persistent_key)
 
     def exam_guard_subject_for_catch():
         return (
-            getattr(persistent, "exam_guard_subject", None)
-            or globals().get("exam_guard_subject", None)
+            globals().get("exam_guard_subject", None)
+            or getattr(persistent, "exam_guard_subject", None)
             or "exam"
         )
 
@@ -187,11 +314,41 @@ init python:
             return True
 
         key = "{}:{}".format(subject, checkpoint)
+        # The store half always moves, because that is what a save carries and
+        # what the next load is compared against. The persistent half only has
+        # to reach disk before the player can rewind past a committed answer.
+        #
+        # renpy.save_persistent() is not cheap here: find_changes deep-copies
+        # _seen_ever (58k entries by late season 1) on every call, then the
+        # developer DebugPickler pickles the 1.4MB persistent a second time
+        # before the real dump, then zlib and a write to every save location.
+        # Measured floor ~100ms. Paying that at all ten checkpoints of a paper
+        # is the hitch on advancing text and on answering a question.
+        #
+        # Only a rank INCREASE can change a later verdict. exam_start and
+        # q1_open both rank 0, q2_open ranks equal to q1_answered, and a new
+        # subject's opening rank equals the previous subject's last answer, so
+        # a same-rank move cannot make exam_guard_has_mismatch() decide
+        # differently. That leaves the three _answered transitions per paper.
+        # It also collapses the old double write, where answering flushed once
+        # from the choice action and again from the checkpoint after the menu.
+        #
+        # Ren'Py flushes persistent itself on renpy.save() and on quit or full
+        # restart, which covers every ordinary route out of a live session to a
+        # rewind; the in-memory persistent stays current either way.
+        # An empty key on disk is not merely rank 0: has_mismatch reads it
+        # through a different branch, the one that refuses to let a New Game
+        # act as an erase button for an armed mid-exam save. So the first
+        # checkpoint of a period always flushes, and only same-rank moves on
+        # top of an existing key are skipped.
+        old_key = getattr(persistent, "exam_guard_key", None)
         exam_guard_key = key
         exam_guard_subject = subject
         persistent.exam_guard_key = key
         persistent.exam_guard_subject = subject
-        renpy.save_persistent()
+        if (not old_key) or (exam_guard_commitment_rank(key)
+                            > exam_guard_commitment_rank(old_key)):
+            renpy.save_persistent()
         renpy.block_rollback()
         return False
 
@@ -234,11 +391,13 @@ init python:
     def exam_guard_mark_scummed(subject=None):
         global exam_guard_key
         global exam_guard_subject
+        global exam_guard_save_scum_subjects
         subject = subject or exam_guard_subject_for_catch()
         subjects = list(getattr(persistent, "exam_save_scum_subjects", None) or [])
         if subject not in subjects:
             subjects.append(subject)
         persistent.exam_save_scum_subjects = subjects
+        exam_guard_save_scum_subjects = list(subjects)
 
         flag_name = EXAM_GUARD_FLAG_NAMES.get(subject, None)
         if flag_name:
@@ -255,560 +414,275 @@ init python:
 
 label exam_save_scum_caught_generic:
     $ exam_guard_mark_scummed()
-    stop music
     scene black
-    "The exam remembers."
-    "This save file cannot return you to an answer you already tried."
+    stop music fadeout 1.0
+    pause 2.0
+    "The exam remembers the answer you marked."
+    "This save cannot take you back far enough to make that first choice disappear."
     $ renpy.utter_restart()
 
 label exam_guard_home_repeat_confrontation(day_name, subject_1=None, subject_2=None):
     $ _exam_guard_home_subjects = exam_guard_scummed_subjects(subject_1, subject_2)
     if not _exam_guard_home_subjects:
         return
-    $ exam_guard_note_confrontation()
     $ _exam_guard_prior_subjects = exam_guard_scummed_subjects_outside(_exam_guard_home_subjects)
     $ _exam_guard_home_subject_text = exam_guard_subjects_text(_exam_guard_home_subjects)
     $ _exam_guard_prior_subject_text = exam_guard_subjects_text(_exam_guard_prior_subjects)
-    $ _exam_guard_all_subject_text = exam_guard_subjects_text(getattr(persistent, "exam_save_scum_subjects", None) or [])
     $ _exam_guard_cross_day = bool(_exam_guard_prior_subjects)
+    $ _exam_guard_repeat_multiple = len(_exam_guard_home_subjects) > 1
     $ hide_calendar()
     scene black with wipeleft_scene
+    stop music fadeout 0.5
     pause 2.0
     scene bg living_room_night
     show vignette zorder 99:
         alpha 0.75
     $ show_calendar()
     $ atmos("home")
-    stop music fadeout 0.5
     with dissolve_scene_full
     play music safety
     play sound moddooropen
-    "The front door opens like it is trying not to make a sound."
-    "It fails."
-    "Mom is already in the living room."
-    "Standing."
-    "Phone in one hand."
-    "Not facedown this time."
-    "Not waiting to testify."
-    "Already on the record."
-    "None of the cold, court-ready calm from last time is here. No armor she put on at the door to get through this professionally."
-    "Whatever she decided to be on the drive home didn't survive the walk from the car."
+    "Mom isn't standing this time. She's at the coffee table with another incident notice open beside my phone."
     play sound moddoorclose
-    show mom uniform angry at t11
-    mom "Bag down."
-    mc "...Mom."
-    mom "No."
-    "One word."
-    "No volume behind it."
-    "No room inside it."
-    mom "Put. Your shit. {i}DOWN.{/i}"
-    "I lay my bag on the floor."
-    "Carefully."
-    "Like gentleness can retroactively become character."
+    show mom uniform sad at t11
     if _exam_guard_cross_day:
-        mom "After [_exam_guard_prior_subject_text], I told myself the next call from school could not possibly be the same sentence."
-        mom "I told myself my son understood what he had done."
-        mom "Then today happened."
-        $ _exam_guard_home_subject_sentence = _exam_guard_home_subject_text[:1].upper() + _exam_guard_home_subject_text[1:]
-        mom "[_exam_guard_home_subject_sentence], of ALL things."
-        $ _exam_guard_home_subject_sentence = _exam_guard_home_subject_text[:1].lower() + _exam_guard_home_subject_text[1:]
-        "The subject name sits between us with no academic meaning left in it."
+        mom "It was [_exam_guard_home_subject_text]."
+        mom "Again."
     else:
-        mom "Two calls."
-        mom "Same day."
-        mom "Two separate times. Two separate chances for you to stop making the worst possible choice."
-    mc "I--"
-    mom "{i}Don't.{/i}"
-    "Last time she kept her voice in a box. Tonight the box is open, and she's not putting anything back in it."
+        mom "A second call."
+        mom "The same day."
+    "My bag slides off my shoulder on its own, and the buckle hits the floor. Above us, somebody moves, then stops."
     show mom uniform determined
-    mom "The first time, I could still call it a catastrophic decision."
-    mom "A dishonest one."
-    mom "An arrogant one."
-    mom "A decision made by a scared kid who thought panic gave him permission to become smaller than himself."
-    if _exam_guard_cross_day:
-        mom "But this was after consequence."
-        mom "After the school knew."
-        mom "After I knew."
-        mom "After you looked me in the face and said you understood."
-    else:
-        mom "But this was after the first teacher stopped you."
-        mom "After the room changed around you."
-        mom "After you had already seen exactly where that door led."
-    show mom uniform angry
-    mom "So I need you to hear the word I wouldn't let myself use last time."
-    mom "This isn't panic anymore."
-    "She's louder now. She doesn't try to pull it back."
-    show mom uniform pose_objection
-    mom "This is a {i}pattern.{/i}"
-    mc "...I know I messed up."
-    show mom uniform angry
-    mom "No."
-    mom "You do not get to call this messed up."
-    mom "A mess is something scattered."
-    mom "This has a line through it."
-    mom "This is [_exam_guard_all_subject_text]."
-    mom "This is you being given the boundary once, then walking through it again to see if the world was serious."
-    mc "I wasn't trying to--"
-    mom "You were trying to change an answer."
-    mom "Again."
-    mom "Everything after that is decoration."
-    "My throat closes around the rest of the sentence."
-    "It deserved worse than that."
-    "It deserved to be refused before it reached the air."
-    mom "Do you understand what happens when trust breaks twice?"
-    mc "...It gets worse."
-    mom "No."
-    mom "It changes category."
-    mom "The first break makes people careful."
-    mom "The second makes them reevaluate whether they were wrong about you."
+    mom "Tell me what you {i}thought{/i} would happen."
+    mc "I... don't know."
+    mom "Yes, you do."
+    "The minute hand above the television crawls forward while I try to get enough air past the back of my tongue to speak."
+    mc "...I thought I'd fix one answer. Just the one, and then I'd stop."
+    if _exam_guard_repeat_multiple:
+        mom "You did not stop after the first."
+    mom "That's what you {i}wanted{/i}. I asked what you thought would happen."
+    "She waits me out."
+    mc "I thought... if it worked, nobody would know."
+    show mom uniform sad
+    "Her eyes stay on me. Nothing else in her face moves."
+    mom "You had already been caught once. What did you think was going to change?"
+    mc "I {i}meant{/i} it last time."
+    mom "I {i}believed{/i} you."
+    "I find a loose thread at my cuff and wind it tight around one finger."
+    mom "You stood right there and told me 'okay.' Was that just so I'd let you go upstairs?"
+    mc "No! I meant it. I don't know how to--I did mean it."
     show mom uniform worried
-    "Her fingers tighten around the phone."
-    "Not dramatically."
-    "Just enough for me to see that anger is not the only thing she is holding back."
-    mom "I have spent years telling people who you are."
-    mom "Brilliant."
-    mom "Tired, sometimes."
-    mom "Too clever for your own good, often."
-    mom "But decent."
-    mom "Trying."
-    mom "Worth trusting with the future he keeps pretending not to want."
-    mom "And now I have to ask myself whether I was describing you, or a version of you I was proud to believe in."
-    mc "Mom..."
-    show mom uniform sad
-    "Her face changes."
-    "At first, I think she's getting angrier."
-    "Then her mouth tightens in the wrong direction."
-    "Not rage."
-    "Not strategy."
-    "Pain."
-    mom "No."
-    "The word barely comes out."
-    mom "Do not say it like that."
-    mom "Do not say Mom like it is a door you can still open just by sounding small enough."
-    "Her breath catches."
-    "She looks away from me for the first time since I came in."
-    "That's worse than being stared down."
-    "The argument loses its shape and becomes something I cannot defend against."
+    mom "I don't know."
+    "I wind the thread until it bites into my fingertip. Same three words she gave me the first night, and tonight I don't dare ask when she'll know."
+    mc "...Mom."
     show mom uniform frustrated
-    mom "I am angrier than I have words I am willing to use in this house."
-    mom "I do not trust myself to hold a full glass right now."
-    "Her hand shakes around the phone."
-    "This time she notices."
-    "This time she cannot turn it into posture."
-    show mom uniform afraid
-    mom "And I am scared."
-    mom "Do you understand that?"
-    mom "I...am scared in a way I do not have a professional voice for."
-    show mom uniform crying
-    "She presses two fingers under one eye like she can physically hold the tear in place."
-    "It doesn't work."
-    mom "Because I know what to do with a school."
-    mom "I can ask for policy. I can make calls. I can make sure nobody turns my son into one ugly word on a form."
-    mom "I can do that."
-    mom "I know how to do that."
-    mom "I have done harder things than that for people I loved less."
-    "Her voice breaks on loved."
-    "The sound is so small it makes the whole room smaller with it."
-    mom "But you..."
-    "She stops."
-    "Swallows."
-    "Starts again, worse."
-    mom "I cannot do that part for you."
-    mom "I cannot cross-examine you into being honest."
-    mom "I cannot argue you into...into caring about the rule when nobody is standing over your shoulder."
-    mom "And I hate that I have to say that."
-    mom "I hate that sentence being in my mouth."
-    mom "I cannot protect you from the part where you chose this twice."
-    mc "...I'm sorry."
-    mom "Please do not make me comfort you right now."
-    "That stops me harder than yelling."
+    mom "Please don't ask me to comfort you right now."
+    "My shoulders fold in anyway, and some stupid, automatic part of me keeps waiting for her to cross the room."
     mom "Please."
-    "The second one isn't anger."
-    "It's almost pleading."
-    "That's the part that makes my stomach turn."
-    mom "Because I want to."
-    mom "I hate that I want to."
-    mom "No."
-    mom "No, I do not hate it. I am your mother. Of course I want to."
-    mom "You look like you are about to break, and I want to fix it."
-    mom "I want to put my arms around you and tell you there is still a way through."
-    mom "There probably is."
-    mom "There usually is."
-    mom "But I cannot..."
-    "Her mouth closes."
-    "For a second, she looks almost lost."
-    mom "I cannot be the place you run to."
-    mom "Not yet."
-    mom "Not before you understand--"
-    mom "No. Not understand."
-    mom "You understand plenty."
-    mom "Before you admit what you did without trying to turn yourself into the wounded part of it."
-    show mom uniform determined
-    "She wipes her face once, fast and angry."
-    "Like the tears are another problem she intends to solve by force."
-    mom "That is what this cost."
-    "She says it like she hates the word."
-    mom "Listen to me. Cost. Like I can total it."
-    mom "It is not my good mood."
-    mom "It is not one evening."
-    mom "It is not even the calls from school."
-    mom "It is this."
+    "She presses the heel of her hand into one eye and holds it there."
     show mom uniform sad
-    mom "I love you."
-    mom "I love you so much it is making me stupid right now."
-    mom "And I do not know if I can trust you."
-    mom "Those two things are in the same room now, and I do not know what to do with them."
-    "The words land crooked."
-    "They hurt more because they do not sound prepared."
-    mom "That's what you did tonight. Not to me. Not {i}only{/i} to me."
-    show mom uniform angry
-    mom "And don't you {i}dare{/i} make this smaller by turning it into my feelings."
-    mom "Stop looking for the version where the worst thing you did was hurt me. You made every adult who vouched for you go back through the file and wonder what {i}else{/i} they missed."
-    "Everything tilts quietly."
-    "Not enough to fall."
-    "Just enough to understand that falling would be easier."
-    mc "...What happens now?"
-    mom "Now?"
-    "She laughs once."
-    "It isn't a laugh."
-    "It's what her voice does because the body has no professional tool for this."
-    "She drags one breath in."
-    "Then another."
-    "By the second one, Mom is trying to build the lawyer voice back out of the pieces."
-    mom "Now..."
-    "The first attempt falls apart."
-    show mom uniform neut
-    mom "Now I stop treating this like a bad night."
+    mom "Because I want to."
+    mom "After we talked, I got as far as the bottom of those stairs, going over every word I'd said and wondering whether I'd been too hard on you."
+    mom "And then the school called me again."
+    mom "I love you, [player]."
+    mom "Of course I love you. That isn't the part I'm unsure of."
+    "She holds out one hand."
+    "My hands go to my blazer pockets, then my pants, looking for a phone that's already sitting beside her."
+    "Mom remembers with me. Her hand drops back into her lap."
+    mom "Right."
+    "I have never wanted my phone back less."
     show mom uniform determined
-    mom "Your phone stays with me."
-    mom "Your laptop stays downstairs."
-    mom "Your teachers, counselor, and I are going to have a conversation you do not control."
+    mom "I have to speak to your teachers and the counselor again. When they ask for your account, you give them the one you just gave me."
     if day_name == "May 28":
-        mom "And since the exams are over, you do not get the dignity of proving something tomorrow by simply taking the next paper honestly."
-        mom "You start with repair."
-        mom "Actual repair."
-        mom "Not charm. Not grades. Not one more clean performance."
+        mom "The exams are over. What you did in them is not."
     else:
-        mom "If there is another exam, you will take it with the knowledge that nobody in that building owes you the benefit of the doubt anymore."
-        mom "You will sit there and earn back what you can, one honest answer at a time, knowing it may not be enough."
-    mc "Yes, ma'am."
-    mom "Do not."
-    "The phrase dies in my mouth."
-    mom "Do not give me obedience because you think it sounds like remorse."
-    mom "Remorse is what you do when I am not in the room."
-    mom "And right now, [player], I do not know who you are when I am not in the room."
-    "That's the line."
-    "Not the loudest one."
-    "Not the cruelest."
-    "The one that changes the room from home into evidence."
-    "Somewhere upstairs, a floorboard makes the smallest sound and then goes still."
-    "Asahina heard enough."
-    "Of course she did."
-    mom "Go upstairs."
+        mom "You will sit every paper that remains, and you will answer each question once, even when you know you chose wrong."
     mc "...Okay."
-    mom "No games."
-    mom "No messages."
-    mom "No speech about pressure."
-    mom "You are going to sit with the fact that this was not one mistake the story could absorb."
-    mom "This was you choosing the same lie after it already had consequences."
-    "My hand finds the bag strap before I remember the bag is not coming with me."
-    "Mom notices."
-    "She says nothing."
-    "That's worse."
+    mom "Go upstairs."
+    "I bend for my bag."
+    mom "[player]."
+    "My fingers freeze on the buckle."
+    mom "Leave it."
+    "I leave the bag where it fell."
     $ hide_calendar()
     scene black with wipeleft_scene
-    "The stairs do not feel longer this time."
-    "They feel final."
-    "There's a difference between being punished inside a story and breaking the terms that let it keep going."
-    "{i}I can feel that difference now.{/i}"
+    "Asahina's door eases shut while I'm still on the stairs. When I look back from the landing, Mom is right where I left her."
     return
 
 label exam_guard_home_confrontation(day_name, subject_1=None, subject_2=None):
     $ _exam_guard_home_subjects = exam_guard_scummed_subjects(subject_1, subject_2)
     if not _exam_guard_home_subjects:
         return
-    # Dispatch on whether Himeko has already had this conversation with him, not
-    # on the bad-end count. Two catches in one day now play the FIRST scene (in
-    # its two-subject variant), and the repeat scene only runs when there really
-    # was a previous time for it to refer back to.
-    if exam_guard_seen_confrontation():
+    $ _exam_guard_prior_home_subjects = exam_guard_scummed_subjects_outside(_exam_guard_home_subjects)
+    # A prior subject, rather than a persistent scene counter, proves there was
+    # an earlier confrontation. That keeps legal post-paper reloads from turning
+    # one offense into the repeat scene merely because the player reread it.
+    if _exam_guard_prior_home_subjects:
         call exam_guard_home_repeat_confrontation(day_name, subject_1, subject_2) from _call_exam_guard_home_repeat_confrontation
         return
-    $ exam_guard_note_confrontation()
     $ _exam_guard_home_subject_text = exam_guard_subjects_text(_exam_guard_home_subjects)
     $ _exam_guard_home_multiple = len(_exam_guard_home_subjects) > 1
     $ hide_calendar()
     scene black with wipeleft_scene
+    stop music fadeout 0.5
     pause 2.0
     scene bg living_room_night
     show vignette zorder 99:
         alpha 0.75
     $ show_calendar()
     $ atmos("home")
-    stop music fadeout 0.5
     with dissolve_scene_full
     play music safety
     play sound moddooropen
-    "I get the front door halfway open before the house tells me I'm late to my own sentencing."
-    "Mom is standing in the living room. Her work bag is still by her feet. Her jacket is still on. Her phone is facedown on the coffee table like it already testified."
+    "I've got the front door halfway open when I see Mom standing in the living room, still buttoned into her work jacket like she came straight from court."
+    "Her work bag sits at her feet, and her phone lies facedown on the coffee table."
     play sound moddoorclose
-    show mom uniform neut at t11
-    "She doesn't even say hello and I can't even get in a word before--"
+    show mom uniform worried at t11
     mom "Set your bag down."
-    mc "Mom..."
+    mc "Mom--"
     show mom uniform determined
-    mom "Down. We're not doing this in the doorway."
-    "My fingers forget how straps work, and the bag hits the floor too loud."
-    show mom uniform unamused
-    mom "I got a nice little phone call from your school this afternoon."
-    if _exam_guard_home_multiple:
-        mom "Two of them, actually. I want you to sit with the fact that there were two."
-    else:
-        mom "About [_exam_guard_home_subject_text]."
-    "My stomach goes through the floor and keeps going."
-    mc "Listen, I can explain."
-    show mom uniform determined
-    mom "No. You don't get to open with explain."
-    mom "Explain is what people reach for when the facts are bad and they want better lighting on them."
-    mom "You can answer, and answer only."
+    mom "Bag down first. Then look at me."
+    "The strap snags around my wrist. I yank too hard, and the buckle smacks the floor just as my eyes start to sting."
     show mom uniform neut
-    mom "Did you cheat on [_exam_guard_home_subject_text]?"
-    mom "Yes or no."
-    "The word {i}cheat{/i} doesn't sound like a word in her mouth. It sounds like a line item with my name typed above it."
-    mc "..."
-    mom "[player]. I won't ask a third time."
+    if _exam_guard_home_multiple:
+        mom "Your school called me twice today."
+    else:
+        mom "Your school called me today about [_exam_guard_home_subject_text]."
+    "I'm still clutching the strap when the refrigerator behind her cuts out, and the house goes dead quiet."
+    mom "Did you cheat? Yes or no."
+    "My mouth opens, but neither answer comes out."
+    mom "[player]."
     mc "...Yes."
-    mom "Thank you."
-    "It's the most frightening thank-you I have ever heard."
-    mom "You didn't make me pull it out of you. Hold onto that. It's the only thing you're keeping tonight."
-    show mom uniform angry
-    "Her hand moves toward the coffee table, sharp and useless, like she just needs somewhere to set the anger down. Halfway there she stops and folds it back against her side."
-    "I watch her decide to stay calm. I watch what it costs. It crosses her face like weather and then it's gone, pressed flat."
-    show mom uniform neut
-    mom "I'm going to keep my voice down."
-    mom "Not for your sake. Because if I start, I won't be fair--and you don't get to make me unfair on top of everything else you did today."
-    mc "I panicked..."
-    show mom uniform frustrated
-    "She closes her eyes for exactly one second, then gradually opens them."
-    "My skin grows colder at the audible deep breath that she takes in the process."
-    mom "Don't hand me panic like it's a receipt."
-    mc "I thought if I could just--"
+    "She looks down once. Not at the phone or my bag, just at the floor between us."
+    mom "Tell me what you did."
+    mc "They already told you."
     show mom uniform determined
-    mom "Stop. Think about the end of that sentence before you say it to me."
-    mc "...fix one answer."
-    mom "Fix it..."
-    show mom uniform thinking
-    "She turns the word over like she's holding it up to the light to find the crack."
-    mom "Fix it how, hm? By breaking the {i}one{/i} rule every other kid in that room managed to follow? By deciding the school day was your rough draft and everyone else was just living inside it?"
-    mc "I'm not trying to make it smaller."
-    show mom uniform neut
-    mom "You are. That's the entire job of the word 'panicked.'"
-    "She says it without heat. That's what makes it land."
-    mom "It's the sentence that asks me to hear 'scared' and stop hearing 'chose.' I'm not doing that for you."
-    "My mouth closes. It's embarrassing how fast it closes."
+    mom "I am asking {i}my son{/i}."
+    "My pulse is pounding in my teeth, and {i}I don't remember{/i} very nearly makes it out of my mouth."
+    mc "I wanted a better answer. So I went back to before I'd marked it and... picked again."
+    "By the end of it I'm talking to my bag, even though she told me to look at her."
     if _exam_guard_home_multiple:
-        mom "{i}Two exams{/i}, [player]."
-        mom "Two."
-        mom "Two separate adults had to stop their rooms because my son--my {i}honor student{/i}--decided rules were for people with less to lose."
-    else:
-        mom "{i}One exam{/i} was enough."
-        mom "One adult had to stop a room because my son--my {i}honor student{/i}--decided rules were for people with less to lose."
-    show mom uniform determined
-    mom "Do you understand what that {i}does{/i}?"
-    mom "Do you have any idea what kind of sentence you just attached to your own name?"
-    mc "...It was a zero."
-    mom "A zero?"
-    show mom uniform angry
-    "Her voice jumps on the word, then clamps back down so hard I can hear the effort."
-    mom "{i}A zero?{/i}"
-    mom "You think I am standing here in my work shoes, still in my nice clothes, because of a {i}zero{/i}?!"
-    mc "No, I--I just meant--"
-    show mom uniform unamused
-    mom "I know what you meant."
-    mom "You meant: maybe if I call it a grade, it stops being a character issue."
-    mom "It does NOT."
-    mc "That's not--"
-    mom "It {i}is{/i}."
-    mom "And no, you did not think. That is the problem."
-    show mom uniform determined
-    mom "This is not only a grade."
-    mom "This is a {i}record{/i}."
-    mom "This is a counselor conversation."
-    mom "This is a teacher who now has to decide whether your recommendation comes with an asterisk."
-    mom "This is the phrase {i}academic dishonesty{/i} attached to your name in a school system that was perfectly happy to call you exceptional last week."
-    "Friday night comes back in pieces."
-    "The laptop on the coffee table."
-    "The program page."
-    "Merit scholarship with a question mark beside it."
-    "Mom writing dates down so the future would look less impossible."
-    show mom uniform sad
-    mom "On Friday night, I sat in this room and helped you look at admissions requirements."
-    mom "Friday night, [player]."
-    mom "I wrote {i}merit scholarship?{/i} with a question mark because I believed the question was logistics."
-    show mom uniform pose_objection
-    "She points at the coffee table, though the notebook is not there."
-    mom "Now I have to ask whether academic misconduct follows you into recommendations."
-    mom "Now I have to ask whether the counselor has to say, well, yes, he is brilliant, when he is not trying to cheat his way around pressure."
-    mc "Mom, please, I wasn't trying to--"
-    show mom uniform angry
-    mom "{i}No.{/i}"
-    mom "Do not {i}please{/i} me right now."
-    mom "Do not give me the front half of 'I wasn't trying to' and expect me to fill in innocence on the back end."
-    mom "You were not trying to what?"
-    mom "Get caught?"
-    mom "Hurt me?"
-    mom "Damage your own future?"
-    mom "Fine! Wonderful. {i}Congratulations{/i} on having bad intent management and even worse judgment."
-    mom "Do NOT soften your voice and try to make me the cruel one for saying the hard thing out loud."
+        mc "And then I did it again. On the other paper."
     show mom uniform frustrated
-    "Her eyes are bright in a way that makes the anger worse."
-    mom "I have spent my entire career watching people make bad decisions and then try to narrate them into something softer."
-    mom "I am very good at hearing the shape of an excuse before it finishes standing up."
-    mom "So do not--"
-    "She stops herself."
-    "She breathes in. It does not calm her down. It just files the edge off the word she was reaching for and leaves the meaning standing there, bare."
+    "Mom shuts her eyes. They're wet when they open, but her jaw sets hard, and the voice that comes out next is low and perfectly level."
+    show mom uniform determined
+    mom "Did you think that was allowed?"
+    mc "No."
+    mom "Did somebody make you do it?"
+    mc "No."
+    mom "You knew it wasn't allowed, and nobody made you. So why?"
+    mc "...I chose to do it."
+    show mom uniform sad
+    "Mom's shoulders drop. Mine climb toward my ears."
+    mc "I panicked."
+    mom "I {i}believe{/i} you."
+    "It's not the answer I was bracing for."
+    if _exam_guard_home_multiple:
+        mom "But you did it twice. You had hours between those papers to stop."
+    else:
+        mom "You could have left the wrong answer there. You could have come home and told me the paper went badly."
+    mc "The exams, college, all of it--"
     show mom uniform angry
     mom "Do not insult me in my own fucking home by trying to dress this up as pressure."
-    mc "I know I screwed up, but--"
+    "Mom flinches at her own volume, but she doesn't apologize, and she doesn't look away."
+    mc "I'm not--I'm not saying it wasn't my fault."
     show mom uniform determined
-    mom "You did {i}not{/i} screw up."
-    mom "And you do {i}not{/i} get a but."
-    "The sentence cuts clean through the room."
-    mom "You. {i}Chose.{/i}"
-    mom "A screwup is a forgotten homework sheet."
-    mom "A screwup is sleeping through an alarm."
-    mom "A screwup is writing the wrong formula because your brain saw one symbol and grabbed the wrong file."
-    mom "This?"
-    mom "This was a {i}choice{/i}."
-    "My throat tightens."
-    "I hate that I want her to stop."
-    "I hate more that I do not have a right to ask."
-    mc "...I know, I just--"
-    mom "No."
-    mom "No {i}just{/i}."
-    mom "No corner to tuck the ugly part into."
-    mom "No little word that makes the sentence easier to carry."
-    mc "I...I know, mo--"
+    mom "Then tell me why you did it without asking me to agree that you had to."
+    "My eyes slide off hers and land on the printout, right where we left it on the coffee table. Mom's handwriting runs down one side, and the last line reads {i}Merit scholarship? Ask counselor.{/i}"
+    show mom uniform sad
+    mom "On Friday, you and I sat in this room and made plans."
+    if _exam_guard_home_multiple:
+        mc "It was two answers."
+    else:
+        mc "It was one answer."
+    "Mom's mouth goes thin."
+    show mom uniform angry
+    if _exam_guard_home_multiple:
+        mom "It was two answers you were willing to be dishonest for."
+    else:
+        mom "It was one answer you were willing to be dishonest for."
+    if _exam_guard_home_multiple:
+        mom "The school can give you two zeros. They can sit you in an office and make you say what you did."
+    else:
+        mom "The school can give you a zero. They can sit you in an office and make you say what you did."
     show mom uniform neut
-    mom "Do you?"
-    "Not even a question. A door she isn't opening."
-    mom "Because if you knew--{i}really{/i} knew--you'd be angrier at yourself than you are scared of me."
-    mom "And what I'm looking at right now is fear. Calculation. A kid running the numbers on how bad this is about to get."
-    show mom uniform disgusted
-    mom "That's the part I can't stand. Not even the cheating. That you're sitting there still solving for the exit."
-    "That one finds the soft part under the ribs."
-    mc "I do understand, Mom..."
-    "It comes out too fast. Too wet. Not crying, exactly. Close enough that pretending otherwise would be one more lie."
-    show mom uniform neut
-    mom "Then let it cost you something."
-    mom "Hold onto it until it teaches you more than how to hide better next time. Otherwise that's all shame is good for, and I didn't raise you to get good at hiding."
-    "The front door opens behind me."
+    mom "What happens in this house is mine to decide."
+    "I stare at her phone. Somewhere under that dark glass, the school's number is sitting at the top of her recent calls."
+    mom "Why didn't you tell me?"
+    mc "I knew they would call."
+    mom "I asked why you didn't tell me yourself."
+    "I almost called her from the corridor. I got as far as opening our thread, then put the phone away."
+    mc "...I was afraid to see your face."
+    "Mom draws a long breath through her nose."
+    mom "You still had to come home."
+    "I study the buckle on the floor."
     play sound moddooropen
-    show mom uniform neut at t21
+    show mom uniform sad at t21
     show asahina uniform happy at t22
     with dissolve
     ah "I'm home--"
     show asahina uniform shocked
-    "She stops with one foot still outside the room."
-    "Her eyes move from Mom's face, to me, to my bag on the floor, to the phone sitting facedown like evidence."
+    "Asahina pulls up short in the doorway and takes in my bag on the floor, then Mom's buttoned jacket, then me."
     ah "...Oh."
-    "This time, she doesn't make a joke fast enough to save herself."
     show asahina uniform nervous
-    ah "I'm just gonna...ahah..."
+    ah "I can, um... I can go back outside."
     show mom uniform determined
-    mom "Asahina."
-    ah "Nah, I get the assignment."
-    "She raises both hands, palms out, already backing toward the hall."
-    show asahina uniform afraid
-    ah "Kitchen, water, upstairs, out of your way."
-    mom "Yep. Now go."
-    ah "Yes, ma'am."
+    mom "No. You live here, and you haven't done anything wrong."
+    mom "Go upstairs and get changed, please. I'll talk to you later."
+    ah "Right. Okay."
     mc "Asa--"
-    show mom uniform angry
-    mom "LEAVE your sister out of it."
-    "Louder than her previous volume. It doesn't need to be, and yet it is."
+    mom "Don't ask your sister to make this easier for you."
     show asahina uniform sad
-    "My sister, half paralyzed, looks at me for one second."
-    "Not pity."
-    "Not even shock anymore."
-    "Her eyes tell a very quick, very clear message."
-    "{i}'I cannot help you with this one.'{/i}"
+    "Asahina looks back from the first stair, and I make sure all she gets is the top of my head."
+    ah "...Night."
     show asahina at thide
     hide asahina
     play sound moddoorclose
-    show mom uniform unamused at t11
+    show mom uniform sad at t11
     with dissolve
-    "The house swallows the sound of her escape."
-    "Mom waits until the upstairs floorboard gives its smallest complaint."
-    mom "Your sister has more sense walking into a room by accident than you showed walking into an exam on purpose."
-    mc "...Yeah."
+    "Every stair complains on her way up, and neither of us says a word until her door shuts."
     mom "Here is what happens now."
+    "Mom holds out her hand, and I'm already leaning toward her when I realize it isn't meant for my shoulder."
+    mom "Phone."
+    "I rock back onto my heels and dig the phone out with both hands. She looks away while I set it in her palm."
     show mom uniform determined
-    "She holds out one hand."
-    mom "Phone. Now."
-    "I pull it from my pocket and hand it over without reservation."
-    "She sets it beside her own on the coffee table."
-    mom "Laptop downstairs unless you are studying where I can see the screen."
+    mom "Your laptop stays downstairs, and if you're studying, you do it where I can see the screen."
     if day_name == "May 28":
-        mom "School. Office meetings if they call them. Track if your coach requires it. Home."
+        mom "Tomorrow is school, any office meeting they call, required track, and home."
     else:
-        mom "School. Exams. Track if your coach requires it. Home."
-    mom "No optional hangouts."
-    mom "No club detours."
-    mom "No pretending your room is a bunker where consequences politely wait outside."
-    mc "For how long?"
-    "The question is stupid."
-    "I know it before her eyes answer."
-    mom "Until I speak to the school, understand the formal consequences, and decide what I can trust you to handle."
-    mom "And right now? That list is {i}short{/i}."
+        mom "Tomorrow is school, exams, required track, and home."
+    mom "No optional hangouts or club detours, not until I've spoken to the school and decided what I can trust you to handle."
+    mc "How long?"
+    "It slips out on pure habit, and I want it back immediately."
+    mom "I don't know."
+    "I had a counteroffer ready for a week. A month, even. I've got nothing for {i}I don't know{/i}."
+    if day_name == "May 28":
+        mom "Tomorrow, you go to the office and tell the truth before anybody has to pull it out of you."
+    else:
+        mom "Tomorrow, you take the next paper honestly."
+        mom "Even if you know you marked something wrong. Especially then."
     mc "...Okay."
-    mom "And tomorrow, you are going to walk into that building and behave like someone who still has a character to rebuild."
-    if day_name == "May 28":
-        mom "If there is no exam left, then you start with the office, the counselor, and every adult who now has reason to ask whether they misread you."
-    else:
-        mom "If there is another exam, you will take it honestly."
-        mom "Even if your stomach is trying to climb out through your throat."
-        mom "ESPECIALLY then."
-    mc "Yes, ma'am."
-    mom "Do not say that like a magic phrase."
-    mc "I'm not."
-    mom "Then make it {i}true{/i}."
-    "She steps back, and only with the distance do I see it: she's been shaking the whole time. Small. Held. Controlled all the way down."
-    "She kept it there through every word of that. On purpose. For both of us. I don't get to know what it cost her."
     show mom uniform neut
-    mom "Now go upstairs."
-    mom "I've said the part that's fair. If I keep going, I'll stop being fair, and you don't get to take that from me too."
-    "That lands harder than any amount of yelling could have."
-    mc "...Okay."
+    mom "Go upstairs. We'll talk again when I've had some time."
+    mc "Goodnight."
+    mom "...Goodnight."
     $ hide_calendar()
     scene black with wipeleft_scene
-    "The stairs feel longer than usual."
-    "Behind me, the living room stays bright, clean, and occupied by a mother trying very hard not to turn anger into something less useful."
-    "Upstairs, Asahina's door is closed."
-    "There's no music from her room, nor can I hear laughter and sweet nothings from what's probably a phone call."
-    "No sign that she wants to be dragged into the blast radius."
-    "{i}Fair.{/i}"
-    "{i}The radius is mine.{/i}"
+    "I take the third stair too fast, the one Mom is always warning me about. It creaks, and tonight the warning never comes."
     return
 
 label exam_guard_bad_ending:
     $ renpy.block_rollback()
-    stop music fadeout 1.0
     $ hide_calendar()
     $ atmos_clear()
     scene black with dissolve_scene_full
+    stop music fadeout 1.0
+    pause 2.0
     call nier_enter from _call_nier_enter_exam_guard_bad_ending
     call nier_section("NOTICE") from _call_nier_section_exam_guard_bad_ending
-    nier "You were asked to answer."
-    nier "You chose instead to revise the terms of the world."
-    nier "One dishonest exam can be contained as damage."
-    nier "Two stops being an accident and starts being a shape you chose."
-    call nier_clear from _call_nier_clear_exam_guard_bad_ending2
-    nier "Through your dishonesty, you have derailed this story beyond repair."
-    nier "The route cannot continue from here."
+    nier "You revised final answers more than once, so this route cannot continue from here."
     nier "Start a new game, or load a save from before the first exam sheet was turned over on May 26."
-    nier "I am disappointed."
-    nier "Disappointed in the small, cold way that comes from watching someone capable choose less than themselves."
+    nier "The exam period has to begin again."
     call nier_clear from _call_nier_clear_exam_guard_bad_ending
     nier "Returning you to the title screen."
     call nier_exit from _call_nier_exit_exam_guard_bad_ending
@@ -817,16 +691,16 @@ label exam_guard_bad_ending:
 
 label exam_guard_bad_ending_locked_load:
     $ renpy.block_rollback()
-    stop music fadeout 1.0
     $ hide_calendar()
     $ atmos_clear()
     scene black with dissolve_scene_full
+    stop music fadeout 1.0
+    pause 2.0
     call nier_enter from _call_nier_enter_exam_guard_locked_load
     call nier_section("NOTICE") from _call_nier_section_exam_guard_locked_load
-    nier "That is not the beginning of the exam period."
-    nier "The story is still broken from that point."
+    nier "That save begins after the exam period was already broken, so the story cannot continue from there."
     nier "Load a save from before the first exam sheet was turned over on May 26, or start a new game."
-    nier "You were given the boundary because the boundary matters."
+    nier "Saves made after that point cannot restart the exam period."
     call nier_clear from _call_nier_clear_exam_guard_locked_load
     nier "Returning you to the title screen."
     call nier_exit from _call_nier_exit_exam_guard_locked_load

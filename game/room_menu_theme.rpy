@@ -11,9 +11,7 @@ define -100 ROOM_MENU_TEAL = "#70bbb3"
 define -100 ROOM_MENU_CORAL = "#d87b6d"
 define -100 ROOM_MENU_OCHRE = "#d6a354"
 define -100 ROOM_MENU_LAVENDER = "#a99bc4"
-define -100 ROOM_MENU_VOID = "#071015"
 define -100 ROOM_MENU_PANEL = "#071116dc"
-define -100 ROOM_MENU_PANEL_SOFT = "#101a1ed6"
 
 # The palette is consumed by top-level ``define`` tables in Data Bank and
 # Credits. An explicit early init priority keeps that dependency correct even
@@ -192,7 +190,7 @@ screen room_menu_shell(title, current_screen):
         add gui.game_menu_background at room_menu_bg_arrive
 
     # A cool shadow keeps the UI legible while the low-opacity warm wash lets
-    # the bedroom's richer evening palette survive behind it.
+    # the backdrop's own colour survive behind it.
     add Solid("#0310158f")
     add Solid("#d6a3540d")
 
@@ -214,11 +212,6 @@ screen room_menu_shell(title, current_screen):
                         xpos 0
                         ypos 0
                         xysize (104, 104)
-
-                    text "STORY / GAME / MEMORY":
-                        style "room_menu_nav_identity"
-                        xpos 2
-                        ypos 112
 
                     add Solid(ROOM_MENU_TEAL) xysize (52, 2) xpos 0 ypos 138
                     add Solid(ROOM_MENU_CORAL) xysize (34, 2) xpos 56 ypos 138
@@ -309,13 +302,6 @@ style room_menu_return_button is room_menu_nav_button:
 
 style room_menu_return_button_text is room_menu_nav_button_text:
     color ROOM_MENU_INK
-
-style room_menu_nav_identity is gui_text:
-    font gui.interface_font
-    size 10
-    kerning 1.0
-    color ROOM_MENU_MUTED
-    outlines [(1, "#05090d99", 0, 1)]
 
 style room_menu_nav_footer is gui_text:
     font gui.interface_font

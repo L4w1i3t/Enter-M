@@ -1,6 +1,5 @@
 init python:
     menu_trans_time = 1
-    splash_message_default = "This game is not suitable for the faint\nof heart or the sensitive."
 
     def enter_m_cleanup_unpickleable_store_values():
         leaked_file = globals().get("f", None)
@@ -69,32 +68,17 @@ init python:
 # against it. Defaulted so it exists before the label ever runs.
 default starttime = None
 
-image splash_warning = ParameterizedText(style="splash_text", xalign=0.5, yalign=0.5)
-
 image menu_bg:
     topleft
     "assets/gui/menu/main_menu_matsuda_evening.png"
     menu_bg_drift
 
-image game_menu_bg:
-    topleft
-    "assets/gui/menu/game_menu_vn.png"
-    menu_bg_drift
-
-# Dedicated menu artwork. Keep these separate from ``menu_bg`` above: that
-# image is also part of the authored cold-open plates, while these two belong
-# only to the interactive main/game-menu UI.
-image enter_m_main_menu_bg:
-    topleft
-    "assets/gui/menu/main_menu_matsuda_evening.png"
-
+# Dedicated game-menu artwork. Keep it separate from ``menu_bg`` above: that
+# image is also part of the authored cold-open plates. (The title screen's
+# backdrop is the orrery scene in main_menu_fx.rpy, not a painting.)
 image enter_m_game_menu_bg:
     topleft
     "assets/gui/menu/game_menu_vn.png"
-
-image menu_nav:
-    #"assets/gui/overlay/main_menu.png"
-    #menu_nav_move
 
 transform menu_bg_drift:
     subpixel True
@@ -105,40 +89,6 @@ transform menu_bg_drift:
         ease 16.0 xoffset -18 yoffset 10
         ease 16.0 xoffset 14 yoffset -8
         repeat
-
-transform menu_logo_reveal:
-    subpixel True
-    xcenter 984
-    ycenter 284
-    zoom 0.54
-    alpha 0.0
-    yoffset 24
-    pause 0.10
-    easeout 0.70 alpha 1.0 yoffset 0
-    block:
-        ease 4.5 yoffset -5
-        ease 4.5 yoffset 5
-        repeat
-
-transform menu_panel_enter(delay=0.0, xoff=-42, yoff=0):
-    subpixel True
-    alpha 0.0
-    xoffset xoff
-    yoffset yoff
-    pause delay
-    easeout 0.45 alpha 1.0 xoffset 0 yoffset 0
-
-transform menu_button_enter(delay=0.0):
-    subpixel True
-    on show:
-        alpha 0.0
-        xoffset -18
-        pause delay
-        easeout 0.35 alpha 1.0 xoffset 0
-    on hover:
-        easeout 0.12 xoffset 10
-    on idle:
-        easeout 0.16 xoffset 0
 
 transform menu_scanline_slow:
     subpixel True
@@ -166,66 +116,12 @@ transform splash_bg_push:
         ease 10.0 xoffset 10 yoffset -6
         repeat
 
-# =============================================================================
-# THE COLD OPEN  --  presenter logos, then the content warning, then the OP
-# -----------------------------------------------------------------------------
-# WHAT THIS IS
-#   The first eight seconds of the game. Two plates: the presenter logos, and
-#   the content warning. Neither of them fades. Both are BROADCAST HARDWARE
-#   doing something -- a tube hunting for a signal, locking it, holding it, and
-#   dropping it -- because that is the vocabulary the rest of the interface is
-#   written in (see menu_transitions.rpy, which powers menus off the same idea).
-#
-# THE ONE STRUCTURAL RULE: EACH PLATE ANIMATES ITSELF, IN AND OUT.
-#   These used to be static screens pushed on and pulled off with Dissolve(),
-#   which is why the whole cold open read as "three things faded at me". Now the
-#   label shows and hides them with NO transition at all and every frame of
-#   movement -- entrance, hold and exit -- lives in the screen's own ATL. That
-#   also means the timings are readable as a storyboard rather than smeared
-#   across a stack of `with Dissolve(max(0, ...))` calls.
-#
-#   The cost of that rule is that the ATL below and the deadlines in the
-#   `splashscreen` label have to agree. THE TIMELINE IS THE CONTRACT:
-#
-#     LOGO PLATE                          WARNING PLATE
-#       0.00  rails slam, tube ignites      0.00  red wash, alert rails drive in
-#       0.30  logo A slams + blooms         0.20  panel wipes open from its axis
-#       0.62  logo B slams + blooms         0.38  heading converges out of RGB
-#       0.95  divider + underlines snap     0.62  message snaps in under a sweep
-#       1.20  caption converges out of RGB  0.85  hold, rails breathing
-#       1.45  hold, scanlines + grain       2.98  signal skids
-#       2.60  signal drops (glitch burst)   3.05  shutter blades slam shut
-#       2.80  picture collapses to a line   3.20  picture collapses to a line
-#       3.05  gone                          3.45  gone
-#
-#   The label shows each plate, waits out its whole run, and cuts. A plate's
-#   `st` starts on its first RENDER, which is a frame or so after the label
-#   shows it, so the label's marks carry ~0.15s of slack past "gone" -- see
-#   splash_hold() and the marks in `label splashscreen`.
-#
-#   Change a number here and change its partner in the label. Nothing else in
-#   the game reads these.
-#
-# WHY THERE IS STILL NO SHADER IN HERE
-#   This runs at COLD START, before any shader-bearing scene has been loaded and
-#   while the loader is still warming up. Everything below is ATL over Solids
-#   and Text -- no matrixcolor, no register_shader, nothing that compiles a GPU
-#   program on the first frame the player ever sees. The chromatic separation is
-#   done the honest way, by drawing the same text three times in three colours
-#   and sliding the copies together; the logo bloom is an additive copy of the
-#   logo itself. Both are free. Keep it that way.
-# =============================================================================
+# Cold-open presentation primitives. The splashscreen label shows the
+# first-install notice, the presenter plate, then the OP. The plate owns its
+# entrance and exit ATL; splash_hold uses absolute marks from starttime.
+# Keep the label deadlines later than the corresponding plate exit.
+# These effects use ATL over images, Solids and Text.
 
-# -----------------------------------------------------------------------------
-# SHARED PARTS
-# -----------------------------------------------------------------------------
-
-# Matsu'Py's `easeout_*` warpers ACCELERATE (slow start, fast finish) and the
-# `easein_*` ones DECELERATE -- the suffixes are inverted from the CSS
-# convention (renpy/common/000atl.rpy says so in as many words). So every slam
-# below is `easein_expo`: full speed on frame one, dead stop on the mark.
-
-# The hot line that ignites the tube: snaps on, blooms open, is gone.
 transform splash_ignite:
     subpixel True
     additive 1.0
@@ -459,10 +355,7 @@ transform splash_bracket_snap(delay=0.0):
     linear 0.04 alpha 1.0
     easein_expo 0.24 zoom 1.0
 
-# THE PLATE ITSELF, and how it dies: at 3.15 the signal starts to go -- the
-# picture skids sideways a few times -- and then the tube gives up, squashing
-# to a hairline and pinching out. Same power-off the pause menu uses on the way
-# back to a scene, which is not a coincidence.
+# Presenter exit begins at 2.60s and collapses before the 3.25s label cutoff.
 transform splash_signal_drop:
     subpixel True
     xalign 0.5
@@ -599,163 +492,6 @@ screen enter_m_splash_intro():
             at splash_bracket_snap(1.10)
             use console_brackets(160, 116, 960, 426, "#56d7ff6e", 26, 2)
 
-# -----------------------------------------------------------------------------
-# PLATE 2: THE CONTENT WARNING
-# -----------------------------------------------------------------------------
-# Same hardware, different mood: this one is an ALERT, so it arrives red and
-# horizontal and it closes like a shutter rather than drifting away.
-
-# The wash that announces it -- one hit of red across the whole frame.
-transform splash_alert_wash:
-    subpixel True
-    alpha 0.0
-    linear 0.03 alpha 0.38
-    easeout_quad 0.30 alpha 0.0
-
-# Alert rails: driven in from off-frame, then left breathing for the hold.
-transform splash_alert_rail(y=196, xstart=-1300, delay=0.0, h=5):
-    subpixel True
-    xysize (1280, h)
-    ypos y
-    xpos xstart
-    alpha 0.0
-    pause delay
-    linear 0.03 alpha 0.9
-    easein_expo 0.26 xpos 0
-    block:
-        easeout 0.8 alpha 0.42
-        easein 0.8 alpha 0.9
-        repeat
-
-# The panel does not fade up: it is wiped open along its own horizontal axis,
-# which squashes the text inside it for a fifth of a second. That squash is the
-# effect -- it is what a picture tube opening looks like.
-transform splash_alert_open(delay=0.20):
-    subpixel True
-    yzoom 0.0
-    pause delay
-    easein_circ 0.24 yzoom 1.0
-
-# The shutter that closes the plate: two blades meeting in the middle.
-transform splash_shutter_top(delay=3.05):
-    subpixel True
-    xysize (1280, 362)
-    xpos 0
-    ypos -362
-    pause delay
-    easein_expo 0.20 ypos 0
-
-transform splash_shutter_bottom(delay=3.05):
-    subpixel True
-    xysize (1280, 362)
-    xpos 0
-    ypos 720
-    pause delay
-    easein_expo 0.20 ypos 358
-
-# THE PLATE, and how it dies: the shutter lands at 3.25, and the tube pinches
-# out from under it.
-transform splash_alert_shutdown:
-    subpixel True
-    xalign 0.5
-    yalign 0.5
-    pause 2.98
-    linear 0.03 xoffset -12
-    linear 0.03 xoffset 9
-    linear 0.03 xoffset -5
-    linear 0.03 xoffset 0
-    pause 0.17
-    easein_expo 0.16 yzoom 0.010
-    parallel:
-        easein_expo 0.09 xzoom 0.0
-    parallel:
-        linear 0.09 alpha 0.0
-
-screen enter_m_splash_warning(message):
-
-    fixed:
-        at splash_alert_shutdown
-
-        add Solid("#02040b")
-        add "assets/gui/menu/main_menu_matsuda_evening.png" at splash_bg_push
-        add Solid("#000000cc")
-        add Solid("#ff2f5f18") xysize (1280, 1) at splash_sweep2
-
-        # The hit of red that announces the plate.
-        add Solid("#ff2f5f") at splash_alert_wash
-
-        # Rails above and below the panel, driving in from opposite sides.
-        add Solid("#ff4968") at splash_alert_rail(214, -1300, 0.02, 5)
-        add Solid("#ff4968") at splash_alert_rail(500, 1300, 0.08, 5)
-        add Solid("#ff315b") at splash_alert_rail(222, -1300, 0.02, 1)
-
-        frame:
-            style "splash_warning_panel"
-            at splash_alert_open(0.20)
-
-            vbox:
-                xalign 0.5
-                yalign 0.5
-                spacing 18
-
-                null height 4
-
-                text message:
-                    style "splash_text"
-                    at splash_snap_in(0.62, 18)
-
-        # The heading rides OVER the panel so the panel's wipe does not squash
-        # it, converged out of the same RGB separation the logo plate uses.
-        text "CONTENT WARNING":
-            style "splash_warning_heading"
-            color "#ff0040"
-            xalign 0.5
-            ypos 262
-            at splash_split(-1, 0.38, 26)
-
-        text "CONTENT WARNING":
-            style "splash_warning_heading"
-            color "#56d7ff"
-            xalign 0.5
-            ypos 262
-            at splash_split(1, 0.38, 26)
-
-        text "CONTENT WARNING":
-            style "splash_warning_heading"
-            xalign 0.5
-            ypos 262
-            at splash_split(0, 0.38, 26)
-
-        # One pass of light across the plate as the message snaps in. It rides
-        # ABOVE the text, not through it -- crossing the words at their own
-        # height reads as a strike-through rather than a scan.
-        add Solid("#ffd8e2") at splash_sweep_once(0.64, 306, 2, 0.32)
-
-        # The shutter, and the flash of its blades meeting.
-        add Solid("#02040b") at splash_shutter_top(3.05)
-        add Solid("#02040b") at splash_shutter_bottom(3.05)
-        add Solid("#ffe6ec") at splash_impact(3.24, 0.45)
-
-image intro:
-    truecenter
-    "white"
-    0.5
-    "assets/backgrounds/splash.png" with Dissolve(0.5, alpha=True)
-    2.5
-    "white" with Dissolve(0.5, alpha=True)
-    0.5
-
-image warning:
-    truecenter
-    "white"
-    "splash_warning" with Dissolve(0.5, alpha=True)
-    2.5
-    "white" with Dissolve(0.5, alpha=True)
-    0.5
-
-image tos = "assets/gui/warning.png"
-image tos2 = "assets/gui/warning2.png"
-
 label splashscreen:
 
     $ enter_m_cleanup_unpickleable_store_values()
@@ -791,31 +527,15 @@ label splashscreen:
 
     if not persistent.first_run:
         $ quick_menu = False
-        scene white
-        pause 0.5
-        scene tos
-        with Dissolve(1.0)
-        pause 1.0
-
-        # ==================================================================================================================================================
-        # CHANGE THIS TO YOUR OWN TERMS OF SERVICE
-        # ==================================================================================================================================================
-
-        "This is an early demo build of ENTER-M."
-        "This build contains placeholder art, temporary audio, unfinished systems, and experimental scenes."
-        "Some presentation, story flow, and archive features may change before a later release."
-        "{b}Personal note: some placeholder artwork in this demo was created using Stable Diffusion (with my own trained generation models and pipelines).{/b}"
-        "{b}They're PLACEHOLDERS. This game is being developed by one person who can't draw worth anything, nor can a dedicated artist be afforded.{/b}"
-        "{b}If that upsets you or gives you tunnel vision that automatically invalidates the rest of the game, then I'm sorry for being a talentless hack.{/b}"
-        "{b}All I ask is that you don't antagonize me for it, and at least give the game a shot.{/b}"
-        "{b}Anyway...{/b}"
-        "The full story is planned to include mature topics."
-        "By playing this game, you agree that you are of sufficient age and mental state to handle the contents within."
+        $ config.allow_skipping = False
+        window hide
+        scene black
+        if _preferences.transitions != 0:
+            show screen enter_m_boot_cover(mode="open")
+        call screen enter_m_first_boot_notice
         $ persistent.first_run = True
-        scene tos2
-        with Dissolve(1.5)
-        pause 1.0
-        scene white
+        $ renpy.save_persistent()
+        scene black
 
     $ config.allow_skipping = False
 
@@ -830,15 +550,17 @@ label splashscreen:
     scene black
     $ starttime = datetime.datetime.now()
 
+    # The notice closes to the illustrated seal before acknowledging. Reuse
+    # that exact cover over the logos, with a fresh animation timebase. The
+    # halves clear the first logo before it lands; the last logo keeps its full
+    # authored hold. Returning installs get the same brief opening reveal.
+    if _preferences.transitions != 0:
+        show screen enter_m_boot_cover(mode="reveal")
     show screen enter_m_splash_intro
     $ splash_hold(3.25)             # plate has collapsed and gone by ~3.15
     hide screen enter_m_splash_intro
 
-    show screen enter_m_splash_warning(splash_message_default)
-    $ splash_hold(6.95)             # plate has collapsed and gone by ~6.85
-    hide screen enter_m_splash_warning
-
-    $ splash_hold(7.10)             # one black beat before the OP hits
+    $ splash_hold(3.40)             # one black beat before the OP hits
     scene black
     call enter_m_sick_ass_anime_op from _call_enter_m_sick_ass_anime_op_1
     $ config.allow_skipping = True
@@ -846,15 +568,15 @@ label splashscreen:
 
 label after_load:
     $ enter_m_cleanup_unpickleable_store_values()
+    $ exam_guard_prepare_after_load()
     if exam_guard_rejects_restart_load():
         jump exam_guard_bad_ending_locked_load
     if exam_guard_requires_exam_restart():
         $ exam_guard_accept_restart_load()
-    $ exam_guard_prepare_after_load()
     if exam_guard_has_mismatch():
         jump expression exam_guard_caught_label()
     $ config.allow_skipping = allow_skipping
-    $ _dismiss_pause = config.developer
+    $ _dismiss_pause = True
 
     if anticheat != persistent.anticheat:
         stop music
@@ -876,6 +598,11 @@ label after_load:
     return
 
 label before_main_menu:
+    # Menu navigation writes this destination. Scope it to the title context
+    # so New Game/loading restores the gameplay pause target. options.rpy
+    # also repairs older saves that already contain a leaked destination.
+    $ renpy.context_dynamic("_game_menu_screen")
+
     $ config.main_menu_music = audio.mainmenu
     $ enter_m_menu_music(config.main_menu_music)
     return

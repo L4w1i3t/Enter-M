@@ -90,7 +90,6 @@ init -1 python:
     AG_INK = "#f7f0e6"
     AG_DIM = "#a99fc4"
     AG_FAINT = "#6f668c"
-    AG_BACK = "#0a0713"
 
     # --- SFX -----------------------------------------------------------------
     # Same arrangement as the boss fight's registry (battle_logic.rpy) and
@@ -789,6 +788,13 @@ init -1 python:
     def ag_spec(kind):
         return AG_GAMES.get(kind, {})
 
+    def ag_variant_is_valid(kind, variant):
+        """True only for an id this cabinet actually declares."""
+        for entry in (ag_spec(kind).get("variants") or ()):
+            if entry and entry[0] == variant:
+                return True
+        return False
+
     def ag_make_game(kind, variant=None):
         spec = AG_GAMES.get(kind)
         if not spec:
@@ -988,8 +994,21 @@ screen ag_controls_card(kind):
 
 # --- VARIANT CARD ------------------------------------------------------------
 # Generic version of the hub's Kotonoha picker, driven by a cabinet's
-# spec["variants"] = [(id, name, note)]. Returns the chosen id, or None on
-# Escape. Only cabinets that declare variants ever see it.
+# spec["variants"] = [(id, name, note)]. Returns the chosen id, or
+# AG_VARIANT_BACK on Escape. Only cabinets that declare variants ever see it.
+#
+# ESCAPE IS NOT Return(None), and it used to be. The engine turns Return(None)
+# into True everywhere except the title screen -- an action that returns None
+# means "this interaction is not over" -- and a cabinet runs in its own
+# context with main_menu False. So Escape handed ag_play True, which is not
+# None: the player walked on to the controls card instead of backing out,
+# carrying a variant of True that the cabinet quietly swapped for its default
+# board. Chapter Select hit
+# the same trap first and the fix is the same: the back-out has its own
+# sentinel, and the caller believes _return only when it is one of this
+# cabinet's own ids. The colon keeps the sentinel from ever being a real id.
+define AG_VARIANT_BACK = "ag:back"
+
 screen ag_variant_card(kind):
     modal True
     zorder 20
@@ -1037,7 +1056,7 @@ screen ag_variant_card(kind):
                         text _vname style "arcade_variant_head"
                         text _vnote style "arcade_variant_sub"
 
-    key "K_ESCAPE" action Return(None)
+    key "K_ESCAPE" action Return(AG_VARIANT_BACK)
 
 
 # =============================================================================
@@ -1057,7 +1076,10 @@ label ag_play(ag_kind="snake", ag_variant=None):
     # Cabinets that ask a question first (board size, difficulty).
     if ag_spec(ag_cur_kind).get("variants") and ag_cur_variant is None:
         call screen ag_variant_card(ag_cur_kind)
-        $ ag_cur_variant = _return
+        # _return is one shared global. Believe it only when it names one of
+        # this cabinet's own variants; the Escape sentinel -- or anything some
+        # other screen left in there -- backs out. See the variant card's note.
+        $ ag_cur_variant = _return if ag_variant_is_valid(ag_cur_kind, _return) else None
         if ag_cur_variant is None:
             jump arcade_return
 

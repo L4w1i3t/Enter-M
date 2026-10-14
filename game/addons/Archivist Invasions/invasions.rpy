@@ -1,112 +1,26 @@
-# =============================================================================
-# ARCHIVIST INVASIONS -- shared framework (the encounter system is DRAWING BOARD)
-# =============================================================================
+# Shared Archivist roster, records, audio, body shader and developer launcher.
+# Biography, Horror, Nonfiction and Mystery are playable; Comedy, Tragedy and
+# Fiction remain roster sketches. inv_roll_for_invasion() is disabled by
+# INV_ENCOUNTERS_ENABLED and has no story call site. Developer Date Jump reaches
+# archivist_invasion_dev; story interruptions are not currently wired.
 #
-# WHAT AN ARCHIVIST IS
-#   Not a character. A force -- the way weather is a force. An Archivist has no
-#   body of its own, so it borrows one: the shape it decides is the correct
-#   shape for the entry it is filing. Biography turned up wearing Matsuda,
-#   because a life needs someone to have lived it. None of them are people, and
-#   none of them are pretending very hard to be.
+# Each encounter changes from a turn-based bout into its own real-time genre.
+# Preserve the shared presentation constraints: controls/numbers/state words,
+# no spoken narration or comedy, visibly distorted bodies, rupture entrances and
+# exits, and telegraphed hazards that can be avoided without taking damage.
+# Archivists borrow forms; Biography's use of Matsuda's image is not Matsuda.
 #
-#   The seven are named for genres, and the genres are the point. That motif
-#   pays off in the game's TRUE themes much later; nothing in this file says
-#   more about it than it has to.
-#
-#       Biography   Horror   Nonfiction   Mystery   Comedy   Tragedy   Fiction
-#
-# WHAT AN INVASION IS
-#   An interruption. On a REPEAT run of the main story an Archivist can cut in
-#   without warning -- no door, no chapter break, no save prompt -- and the
-#   story is replaced by a fight held in a hyperspace that is not a place: a
-#   primordial soup of half-finished matter that behaves like it is still
-#   deciding what it will be. You fend the invader off or you do not.
-#
-# =============================================================================
-# DRAWING BOARD -- NOTHING BELOW THIS LINE IS WIRED TO THE STORY YET
-# =============================================================================
-#   The rules the narrative side is being designed against, recorded here so
-#   the fights can be built against a fixed target. THE HOOK DOES NOT EXIST:
-#   no label, callback, or day file calls into this system. The only way to
-#   reach an invasion right now is the Developer Date Jump menu.
-#
-#   * FREQUENCY. Repeat runs only (persistent.playthrough > 0). Rolled at a
-#     small number of quiet story seams -- NOT every line, NOT mid-scene --
-#     at roughly 1/64. Rare enough that a player who has seen one is not sure
-#     it happened.
-#   * THE SET. Seven Archivists, and something further down the line wants all
-#     seven fended off. Which means the roll must never hand out one you have
-#     already beaten -- it draws only from the ones still outstanding.
-#   * FAILING IS NOT LOSING. Lose to an Archivist and it stays in the pool, so
-#     it can come back for you. That is the ONLY way a repeat happens.
-#   * WHERE THE STORY RESUMES. An invasion is an interruption, not a branch:
-#     win or lose, the day it interrupted continues from the line it cut into,
-#     and no one in the scene remarks on it.
-#   * OPEN QUESTIONS (for the writing pass, not for this file to answer):
-#     does the seam it cuts into matter (does Comedy pick a funny day on
-#     purpose?), does the MC retain the memory of the fight, and what the
-#     seventh fend-off actually unlocks.
-#
-#   `inv_roll_for_invasion()` at the bottom of this file is that design made
-#   concrete so it can be reasoned about and tested -- and it is INERT: the
-#   master switch INV_ENCOUNTERS_ENABLED is False, and nothing calls it.
-#
-# =============================================================================
-# WHAT IS ACTUALLY BUILT
-#   invasions.rpy       this file. Roster, persistent record, audio + SFX
-#                       plumbing, the dev-side launcher. Shared by every fight.
-#   inv_biography.rpy   Biography's invasion, playable end to end.
-#   inv_horror.rpy      Horror's, the same.
-#   inv_nonfiction.rpy  Nonfiction's, the same.
-#
-#   Every invasion is expected to follow Biography's two-act shape:
-#     ACT ONE  a turn-based EarthBound-style bout, ONE nondescript party
-#              member with a set kit, fought over the soup.
-#     ACT TWO  the CORRUPTIVE STATE -- past a damage threshold the Archivist
-#              stops fighting inside your genre and drags the fight into its
-#              own, which it has total mastery of. The setpiece tightens with
-#              it: faster, louder, harder to breathe in.
-#
-# AUDIO (defined in asset_definitions/def_audio.rpy, both breakcore)
-#   audio.blackwolf            act one
-#   audio.blackwolf_corruptive act two -- slammed in, never cross-faded
-# =============================================================================
+# Shader names are global and must remain unique:
+#   inv.flesh: shared body/heart; inv.lens, inv.panel and inv.sheet: the
+#   shared kit (inv_kit.rpy); inv.soup and inv.misreg: Biography; inv.dark
+#   and inv.wither: Horror (inv.pall is retired -- its name stays reserved);
+#   inv.plain and inv.strike: Nonfiction; inv.lamp and inv.lacuna: Mystery.
+# Presentation shared by all four (Oct 2 2026): inv_kit.rpy -- the lens pass,
+# particles, the per-frame painter, panel chrome, the turn log and the retry
+# overlay -- and the original FX art in fx/.
+# The shared body shader warps horizontal bands independently, pivots stretch
+# around the feet and erodes the silhouette during arrival/departure.
 
-# --- THE SHADER NAMESPACE -----------------------------------------------------
-# EVERY SHADER NAME IN HERE MUST BE UNIQUE, AND NOTHING ENFORCES IT.
-# renpy.register_shader() silently REPLACES an existing registration of the
-# same name -- no warning, no error, and lint stays clean. The files load in
-# alphabetical order, so the last one to claim a name wins, and the crash
-# surfaces in whichever OTHER fight was using it, complaining about a uniform
-# it has never heard of. Mystery shipped a second "inv.dark" and took Horror
-# down with it.
-#
-# Claimed, so check here before adding one:
-#     inv.flesh    this file      the shared body contortion + the heart
-#     inv.soup     Biography      its room
-#     inv.misreg   Biography      its body
-#     inv.pall     Horror         its body-adjacent pall
-#     inv.dark     Horror         its room
-#     inv.wither   Horror         its body
-#     inv.plain    Nonfiction     its room
-#     inv.strike   Nonfiction     its body
-#     inv.lamp     Mystery        its room + the belief field
-#     inv.lacuna   Mystery        its body
-#
-# --- THE BODY SHADER (shared by every Archivist) ------------------------------
-# RULE 3 of the invasion spec -- an Archivist never reads as a static image
-# being translated -- is infrastructure, not one fight's trick, so the shader
-# that does it lives here and every invasion draws its body through it.
-#
-# Fourteen horizontal bands are warped on INDEPENDENT phases AND rates, so the
-# silhouette never moves as one rigid thing: limbs lengthen, lag and slide out
-# of register with each other. That is the whole "knows what a person looks
-# like, not how one behaves" effect. Squash/stretch is applied about a pivot
-# (the feet, usually) so a lunge can smear a body along its own axis, and the
-# dissolve is an erosion, for coming through a hole in the world.
-#
-# It is not only for Archivists: the player's own avatar in a corruptive state
-# is a heart run through this at a punishing warp.
 init -9 python:
     INV_FLESH_OK = False
 
@@ -223,7 +137,6 @@ init -8 python:
     INV_BEAT_TICKS = (60.0 / INV_BPM) / INV_TICK      # ~20.7 ticks per beat
 
     INV_FONT = "assets/fonts/NovaSquare-Regular.ttf"   # HUD, windows, digits
-    INV_FONT_ALT = "assets/fonts/Myanmar.otf"          # the Archivist's voice
 
     # THE PLAYER'S AVATAR IN EVERY CORRUPTIVE STATE. The SOUL heart the other
     # game modes run on (Kotonoha's cellar, borrowed by Tsubaki mode before
@@ -339,13 +252,15 @@ init -8 python:
                     "do, because the moment it does it stops existing -- is let any of it add "
                     "up. THE FIELD is how many readings are still open, and it can be brought "
                     "down to two and never to one.",
-            "corruptive": "The dark. Every light goes out and there is no boss on screen for "
-                        "the whole act: it is in here with you and you cannot see it. And "
-                        "neither can you see the rest of the field -- everything you failed "
-                        "to rule out in the bout is standing in the room as well, dropping "
-                        "evidence indistinguishable from its. You are a lamp. You collect "
-                        "true statements about where something WAS, watch them go stale in "
-                        "front of you, and accuse the dark.",
+            "corruptive": "The dark, and a lineup in it. The bulb falls and every light goes "
+                        "out, and what you failed to rule out in the bout is standing in the "
+                        "room: one figure per open reading, each under its own frame and "
+                        "glyph, all of them wearing the same coat. One is the subject. You are "
+                        "a lamp. On a countdown a bell says one true thing -- whether the "
+                        "subject is inside your light -- and everyone who does not match is "
+                        "crossed off. It will never leave one: at two it says TWO REMAIN, and "
+                        "the heartbeat has to tell you which. Accuse wrongly and the room "
+                        "turns on you.",
         },
         {
             "slug": "comedy",
@@ -443,10 +358,6 @@ init -8 python:
         except Exception:
             pass
         renpy.restart_interaction()
-
-    def inv_all_fended():
-        """The gate the unlock down the line will read. All seven, no exceptions."""
-        return set(a["slug"] for a in INV_ARCHIVISTS).issubset(inv_fended())
 
     # --- THE ENCOUNTER ROLL (INERT) ------------------------------------------
     # The drawing-board rules made concrete. Nothing calls this, and the master

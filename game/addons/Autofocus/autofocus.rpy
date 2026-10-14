@@ -1,88 +1,17 @@
-# =============================================================================
-# autofocus.rpy  --  AUTOMATIC SPEAKER FOCUS for character sprites
-# =============================================================================
+# Automatic speaker focus for sprites using the project's named slot transforms.
+# Managed at_list order is [grade, pose]: grade owns alpha/matrixcolor and pose
+# owns placement/zoom. Keeping grade inside pose prevents inherited pose state
+# from carrying listener dimming into later transforms.
 #
-# WHAT IT DOES
-#   Whenever a character speaks, the speaking sprite pops to a "focus" pose while
-#   every other on-screen character is gently pushed into the background -- a
-#   spotlight effect that makes conversations readable without the writer
-#   hand-managing it per line. Fully automatic: it hooks Matsu'Py's character +
-#   scene callbacks (bottom of file).
+# Character "begin" focuses the speaker and dims listeners; narration restores
+# neutral grades. Focus persists through "end" and repeated lines by one speaker.
+# Manual non-slot placements and active entrances keep their authored transforms.
+# persistent.autofocus_dim_mode selects darken (default), opaque (fade), or none.
+# Use autofocus_set_enabled() / autofocus_set_dim_mode() for live settings changes.
 #
-# TWO LAYERS PER MANAGED SPRITE
-#   A managed sprite is shown with a 2-entry at_list: [grade, pose] (grade inner,
-#   pose outermost -- see _autofocus_apply for why the order is load-bearing).
-#     - pose  : the slot transform (t = rest, f = focus, ...) that handles the
-#               speaker's forward "pop". The existing naming contract, untouched.
-#     - grade : a function-driven dimming layer that pushes listeners back. It is
-#               the ONLY layer that ever carries alpha/matrixcolor (so a dim never
-#               "sticks" to a pose via Matsu'Py's take_state). Its eased fraction
-#               lives in Python (_autofocus_grade_cur), so it resumes -- never pops
-#               -- even when the writer resets the at_list with `show <tag> at ...`.
-#
-# DIMMING MODES (persistent.autofocus_dim_mode -- wired to a settings option)
-#     "darken"  : listeners darken via matrixcolor (stay opaque). gl2 only. DEFAULT.
-#     "opaque"  : listeners fade to autofocus_dim_alpha (translucent).
-#     "none"    : no dimming -- just the speaker's forward pop.
-#   The grade function reads persistent.autofocus_dim_mode live, so all three modes
-#   flow through it, and a settings change re-flows the live scene on the spot.
-#   "darken" is the default because a translucent listener lets the BACKGROUND
-#   show through them, which reads as a ghost rather than as depth; darkening
-#   keeps the sprite solid and pushes it back the way stage lighting would.
-#
-# THE NAMING CONTRACT (poses)
-#   Position transforms come in "families" of prefixed variants per slot. A slot
-#   is a screen position id like "21"/"32"/"11" (see game/transforms.rpy). Per
-#   family, prefixes encode the pose:
-#     family ""        : t=rest, i=instant, f=focus, l/lf=left(+focus),
-#                        h/hf=hop(+focus).
-#   So sprite at transform `t21` is "resting in slot 21"; this addon swaps it to
-#   `f21` (focus) when that character speaks, and back to `t21` otherwise.
-#
-# KEY FLOW (autofocus_focus_speaker, the character callback)
-#   Only "begin" does work. It focuses the speaker (pose -> f) with a clear grade
-#   and dims every other visible sprite (grade -> dim), skipping sprites placed
-#   with a MANUAL, non-slot transform and never interrupting an entrance. On a
-#   narration line (no on-screen speaker) it releases the whole scene back to
-#   neutral. "end" is ignored: the focus/dim persists until the next "begin"
-#   re-evaluates it -- so a character speaking several lines in a row holds steady
-#   instead of flickering (no scry guessing of the next speaker).
-#   _autofocus_slot_cache caches each tag's (slot,prefix,family); _autofocus_-
-#   grade_state caches each tag's grade ("dim"/"clear"). Both cleared on scene
-#   change so a sprite mid-transition still matches.
-#
-# PUBLIC API
-#   autofocus_enabled       (default True)   -- whole system on/off.
-#   persistent.autofocus_dim_mode       ("darken")      -- "none" | "opaque" | "darken".
-#   autofocus_dim_alpha      (0.72)          -- listener alpha in "opaque" mode.
-#   autofocus_dim_dark       (-0.35)         -- brightness delta in "darken" mode.
-#   autofocus_set_enabled(bool) / autofocus_set_dim_mode(str) -- setters safe to
-#       wire to a settings option; they tidy the live sprites on change.
-#
-# PERFORMANCE
-#   Live pose transforms are reverse-mapped to (slot, prefix, family) through a
-#   pair of lookup tables built once on first use, instead of re-scanning every
-#   family x slot x prefix combination per sprite, per line.
-#
-# WHY THERE ARE TWO LOOKUP TABLES (the reload/load bug)
-#   The fast path keys on id(), which is only valid for the transform objects the
-#   CURRENT init built. Two things invalidate it while sprites are still on
-#   screen: a hot reload (init re-runs and rebuilds every t*/f*/... object, but
-#   the live sprites keep referencing the OLD ones) and loading a save (Matsu'Py
-#   pickles the image stack, so the restored at_list holds COPIES). In both cases
-#   every id() missed, the sprite looked like a manual placement, and autofocus
-#   silently did nothing until the next `scene` re-showed everyone.
-#   So the id() map is backed by a second map keyed on the pose's ATL block
-#   location -- (filename, line), a plain VALUE tuple that both survives a
-#   re-parse and pickles intact -- which makes the reverse mapping identity-free.
-#
-# init 999 (last): enables sticky positions so image-attribute say lines and
-#   bare sprite refreshes retain the current slot unless the script explicitly
-#   provides `at ...`. The DEFAULT rest transform (t11) is still registered for
-#   each known character tag so their first bare show lands in a tracked slot.
-# =============================================================================
-
-# Automatic speaker focus for visible character sprites.
+# Slot lookup uses object identity, then ATL source location for restored/reloaded
+# transforms. Scene callbacks clear sprite caches. Init 999 enables sticky slots;
+# first bare shows use the registered t11 rest transform.
 
 default autofocus_enabled = True
 default persistent.autofocus_dim_mode = "darken"   # "none" | "opaque" | "darken"

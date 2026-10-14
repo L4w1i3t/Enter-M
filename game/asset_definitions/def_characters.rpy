@@ -1,36 +1,9 @@
-# =============================================================================
-# def_characters.rpy  --  ENTER M cast: sprites, Characters, display names
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   Every ENTER M character the story can speak as, plus their project-local
-#   sprites. Vanilla DDLC's own cast lives in game/definitions.rpy; nothing here
-#   overrides it.
-#
-# THE TWO KINDS OF ENTRY
-#   Named cast use DynamicCharacter so the player-facing name can change at
-#   runtime (the ID-card screen renames MC; a story beat could rename anyone
-#   else). Their name lives in a `default <x>_name` variable.
-#   Incidental cast (teachers, Coach, club regulars, NPCs) use a plain Character
-#   because their names are fixed.
-#
-# HOUSE STYLE FOR A NEW CHARACTER
-#   image <tag> neut = Transform("assets/characters/<folder>/neutral.png",
-#                                fit="contain", xysize=(640, 960))
-#   define <short> = DynamicCharacter('<short>_name', image='<tag>', **SAY_STYLE)
-#   default <short>_name = "Display Name"
-#   SAY_STYLE is the shared quote-marks + click-to-continue kwargs below, so a
-#   change to the say style is a one-line change instead of a 20-line sweep.
-#
-# RELATED FILES
-#   def_audio.rpy   -- music / SFX aliases and the extra audio channels
-#   def_images.rpy  -- backgrounds and CGs
-# =============================================================================
+# ENTER M cast sprites, speakers, and display names.
+# DynamicCharacter names use the matching default <alias>_name variable.
+# Monika, MC, and narrator keep their shared definitions in definitions.rpy.
 
 init -1 python:
-    # Shared say-window styling for the whole ENTER M cast. Vanilla DDLC draws
-    # dialogue without quote marks; ENTER M quotes spoken lines and shows the
-    # click-to-continue caret in a fixed corner.
+    # Spoken dialogue uses quote marks and a fixed click-to-continue caret.
     SAY_STYLE = dict(what_prefix='"', what_suffix='"', ctc="ctc", ctc_position="fixed")
 
 
@@ -38,18 +11,17 @@ init -1 python:
 # Named cast -- renameable at runtime
 # -----------------------------------------------------------------------------
 
-# Every cast sprite is normalised to the same 640x960 canvas. That makes them all
-# one SIZE rather than one SCALE -- see docs/cutting-room/sprite-height-scaling.md
-# for the measured version of that problem and the shelved fix.
+# Outfit and pose transforms below preserve each character's registered scale.
 
 transform matsuda_sprite_size:
     fit "contain"
-    xysize (640, 960)
+    ysize 960
 
 
-# Matsuda's outfit-native neutral sprites are the fixed bases for her expression
-# bank. Each face patch is registered independently to the corresponding
-# 1023x1537 outfit canvas, so changing expressions cannot move or crop her body.
+# Matsuda's repainted outfit bases share head scale and position. Each complete
+# expression plate is registered to its outfit's face; changing expression
+# cannot move the body. Pose canvases may widen, but source height stays 1537.
+# Height-only sizing preserves anatomical scale when a gesture needs more room.
 # Flatten after sizing so fades and Autofocus alpha apply once to the composed
 # sprite instead of once per overlapping layer.
 # Authoring tokens mirror docs/project/TODO.txt; Neutral stays `neut` for compatibility,
@@ -149,15 +121,17 @@ layeredimage matsuda:
         attribute disgusted if_all "uniform":
             "assets/characters/matsuda/face_disgusted_uniform.png"
 
-# These four full-body reactions use five files because laughing supports both
-# outfits. Each pose has a fixed face, outfit, and silhouette.
-# Keeping them outside the layered image prevents its default torso and face
-# from appearing behind poses that move Matsuda's arms and hair.
-image matsuda uniform pose_facepalm = Transform("assets/characters/matsuda/pose_facepalm_uniform.png", fit="contain", xysize=(640, 960))
-image matsuda uniform pose_chuuni = Transform("assets/characters/matsuda/pose_chuuni_uniform.png", fit="contain", xysize=(640, 960))
-image matsuda uniform pose_shrug = Transform("assets/characters/matsuda/pose_shrug_uniform.png", fit="contain", xysize=(640, 960))
-image matsuda casual pose_laughing = Transform("assets/characters/matsuda/pose_laughing_casual.png", fit="contain", xysize=(640, 960))
-image matsuda uniform pose_laughing = Transform("assets/characters/matsuda/pose_laughing_uniform.png", fit="contain", xysize=(640, 960))
+# Matsuda's four reactions each support both outfits. Standalone images keep
+# moving arms and hair separate from the neutral body's expression layers.
+# All assets use the same anatomical scale; width never controls their zoom.
+image matsuda casual pose_facepalm = Transform("assets/characters/matsuda/pose_facepalm_casual.png", fit="contain", ysize=960)
+image matsuda casual pose_chuuni = Transform("assets/characters/matsuda/pose_chuuni_casual.png", fit="contain", ysize=960)
+image matsuda casual pose_shrug = Transform("assets/characters/matsuda/pose_shrug_casual.png", fit="contain", ysize=960)
+image matsuda casual pose_laughing = Transform("assets/characters/matsuda/pose_laughing_casual.png", fit="contain", ysize=960)
+image matsuda uniform pose_facepalm = Transform("assets/characters/matsuda/pose_facepalm_uniform.png", fit="contain", ysize=960)
+image matsuda uniform pose_chuuni = Transform("assets/characters/matsuda/pose_chuuni_uniform.png", fit="contain", ysize=960)
+image matsuda uniform pose_shrug = Transform("assets/characters/matsuda/pose_shrug_uniform.png", fit="contain", ysize=960)
+image matsuda uniform pose_laughing = Transform("assets/characters/matsuda/pose_laughing_uniform.png", fit="contain", ysize=960)
 
 transform tsubaki_sprite_size:
     fit "contain"
@@ -333,21 +307,22 @@ layeredimage asahina:
 # Full-body reactions stay outside the layered image because their arms, hair,
 # and head angles change. `terror` remains as a public compatibility alias for
 # the newly generated phone-panic pose used by the 10/30 story beat.
-image asahina uniform pose_hairflip = Transform("assets/characters/asahina/pose_hairflip_uniform.png", fit="contain", xysize=(640, 960))
-image asahina uniform pose_pointing = Transform("assets/characters/asahina/pose_pointing_uniform.png", fit="contain", xysize=(640, 960))
-image asahina uniform pose_eyeroll = Transform("assets/characters/asahina/pose_eyeroll_uniform.png", fit="contain", xysize=(640, 960))
-image asahina uniform pose_phone_panic = Transform("assets/characters/asahina/pose_phone_panic_uniform.png", fit="contain", xysize=(640, 960))
-image asahina uniform terror = Transform("assets/characters/asahina/pose_phone_panic_uniform.png", fit="contain", xysize=(640, 960)) # unique sprite on 10/30 where she receives a bone-chilling text from mom to come home IMMEDIATELY after school and that she has some explaining to do
+# Register the skirt-waist anchor while retaining deliberate head pitch and
+# torso compression. Vertex offsets preserve every source pixel and the shared
+# nominal frame used by stage slots and the Sprite Viewer; no PNG is cropped.
+image asahina uniform pose_hairflip = Transform("assets/characters/asahina/pose_hairflip_uniform.png", fit="contain", xysize=(640, 960), matrixtransform=OffsetMatrix(0, 18 * 960.0 / 1537.0, 0))
+image asahina uniform pose_pointing = Transform("assets/characters/asahina/pose_pointing_uniform.png", fit="contain", xysize=(640, 960), matrixtransform=OffsetMatrix(0, 32 * 960.0 / 1537.0, 0))
+image asahina uniform pose_eyeroll = Transform("assets/characters/asahina/pose_eyeroll_uniform.png", fit="contain", xysize=(640, 960), matrixtransform=OffsetMatrix(0, 25 * 960.0 / 1537.0, 0))
+image asahina uniform pose_phone_panic = Transform("assets/characters/asahina/pose_phone_panic_uniform.png", fit="contain", xysize=(640, 960), matrixtransform=OffsetMatrix(0, 42 * 960.0 / 1537.0, 0))
+image asahina uniform terror = Transform("assets/characters/asahina/pose_phone_panic_uniform.png", fit="contain", xysize=(640, 960), matrixtransform=OffsetMatrix(0, 42 * 960.0 / 1537.0, 0)) # unique sprite on 10/30 where she receives a bone-chilling text from mom to come home IMMEDIATELY after school and that she has some explaining to do
 
 transform sam_sprite_size:
     fit "contain"
     xysize (640, 960)
 
 
-# Sam's intact neutral sprites are the fixed outfit bases. Neutral is a
-# transparent compatibility layer; every alternate is one registered,
-# feathered face replacement shared by both identically registered outfits.
-# Empty/Dead-eyed uses the `empty` attribute like the rest of the cast.
+# Each Sam expression is registered to its own intact outfit base.
+# The show sam [outfit] [expression] API is unchanged.
 layeredimage sam:
     at sam_sprite_size, Flatten
 
@@ -358,55 +333,100 @@ layeredimage sam:
             "assets/characters/masayami/neut_uniform.png"
 
     group face:
-        attribute neut default:
-            "assets/characters/masayami/face_neut.png"
-        attribute happy:
-            "assets/characters/masayami/face_happy.png"
-        attribute smug:
-            "assets/characters/masayami/face_smug.png"
-        attribute teasing:
-            "assets/characters/masayami/face_teasing.png"
-        attribute thinking:
-            "assets/characters/masayami/face_thinking.png"
-        attribute curious:
-            "assets/characters/masayami/face_curious.png"
-        attribute unamused:
-            "assets/characters/masayami/face_unamused.png"
-        attribute annoyed:
-            "assets/characters/masayami/face_annoyed.png"
-        attribute frustrated:
-            "assets/characters/masayami/face_frustrated.png"
-        attribute angry:
-            "assets/characters/masayami/face_angry.png"
-        attribute sad:
-            "assets/characters/masayami/face_sad.png"
-        attribute crying:
-            "assets/characters/masayami/face_crying.png"
-        attribute embarrassed:
-            "assets/characters/masayami/face_embarrassed.png"
-        attribute nervous:
-            "assets/characters/masayami/face_nervous.png"
-        attribute worried:
-            "assets/characters/masayami/face_worried.png"
-        attribute shocked:
-            "assets/characters/masayami/face_shocked.png"
-        attribute afraid:
-            "assets/characters/masayami/face_afraid.png"
-        attribute panicked:
-            "assets/characters/masayami/face_panicked.png"
-        attribute determined:
-            "assets/characters/masayami/face_determined.png"
-        attribute empty:
-            "assets/characters/masayami/face_empty.png"
-        attribute disgusted:
-            "assets/characters/masayami/face_disgusted.png"
+        attribute neut default if_all "casual":
+            "assets/characters/masayami/face_neut_casual.png"
+        attribute neut if_all "uniform":
+            "assets/characters/masayami/face_neut_uniform.png"
+        attribute happy if_all "casual":
+            "assets/characters/masayami/face_happy_casual.png"
+        attribute happy if_all "uniform":
+            "assets/characters/masayami/face_happy_uniform.png"
+        attribute smug if_all "casual":
+            "assets/characters/masayami/face_smug_casual.png"
+        attribute smug if_all "uniform":
+            "assets/characters/masayami/face_smug_uniform.png"
+        attribute teasing if_all "casual":
+            "assets/characters/masayami/face_teasing_casual.png"
+        attribute teasing if_all "uniform":
+            "assets/characters/masayami/face_teasing_uniform.png"
+        attribute thinking if_all "casual":
+            "assets/characters/masayami/face_thinking_casual.png"
+        attribute thinking if_all "uniform":
+            "assets/characters/masayami/face_thinking_uniform.png"
+        attribute curious if_all "casual":
+            "assets/characters/masayami/face_curious_casual.png"
+        attribute curious if_all "uniform":
+            "assets/characters/masayami/face_curious_uniform.png"
+        attribute unamused if_all "casual":
+            "assets/characters/masayami/face_unamused_casual.png"
+        attribute unamused if_all "uniform":
+            "assets/characters/masayami/face_unamused_uniform.png"
+        attribute annoyed if_all "casual":
+            "assets/characters/masayami/face_annoyed_casual.png"
+        attribute annoyed if_all "uniform":
+            "assets/characters/masayami/face_annoyed_uniform.png"
+        attribute frustrated if_all "casual":
+            "assets/characters/masayami/face_frustrated_casual.png"
+        attribute frustrated if_all "uniform":
+            "assets/characters/masayami/face_frustrated_uniform.png"
+        attribute angry if_all "casual":
+            "assets/characters/masayami/face_angry_casual.png"
+        attribute angry if_all "uniform":
+            "assets/characters/masayami/face_angry_uniform.png"
+        attribute sad if_all "casual":
+            "assets/characters/masayami/face_sad_casual.png"
+        attribute sad if_all "uniform":
+            "assets/characters/masayami/face_sad_uniform.png"
+        attribute crying if_all "casual":
+            "assets/characters/masayami/face_crying_casual.png"
+        attribute crying if_all "uniform":
+            "assets/characters/masayami/face_crying_uniform.png"
+        attribute embarrassed if_all "casual":
+            "assets/characters/masayami/face_embarrassed_casual.png"
+        attribute embarrassed if_all "uniform":
+            "assets/characters/masayami/face_embarrassed_uniform.png"
+        attribute nervous if_all "casual":
+            "assets/characters/masayami/face_nervous_casual.png"
+        attribute nervous if_all "uniform":
+            "assets/characters/masayami/face_nervous_uniform.png"
+        attribute worried if_all "casual":
+            "assets/characters/masayami/face_worried_casual.png"
+        attribute worried if_all "uniform":
+            "assets/characters/masayami/face_worried_uniform.png"
+        attribute shocked if_all "casual":
+            "assets/characters/masayami/face_shocked_casual.png"
+        attribute shocked if_all "uniform":
+            "assets/characters/masayami/face_shocked_uniform.png"
+        attribute afraid if_all "casual":
+            "assets/characters/masayami/face_afraid_casual.png"
+        attribute afraid if_all "uniform":
+            "assets/characters/masayami/face_afraid_uniform.png"
+        attribute panicked if_all "casual":
+            "assets/characters/masayami/face_panicked_casual.png"
+        attribute panicked if_all "uniform":
+            "assets/characters/masayami/face_panicked_uniform.png"
+        attribute determined if_all "casual":
+            "assets/characters/masayami/face_determined_casual.png"
+        attribute determined if_all "uniform":
+            "assets/characters/masayami/face_determined_uniform.png"
+        attribute empty if_all "casual":
+            "assets/characters/masayami/face_empty_casual.png"
+        attribute empty if_all "uniform":
+            "assets/characters/masayami/face_empty_uniform.png"
+        attribute disgusted if_all "casual":
+            "assets/characters/masayami/face_disgusted_casual.png"
+        attribute disgusted if_all "uniform":
+            "assets/characters/masayami/face_disgusted_uniform.png"
 
 # These full-body reactions have fixed outfits and silhouettes, so they stay
 # outside the layered image instead of inheriting its default torso and face.
 image sam casual pose_open_hand = Transform("assets/characters/masayami/pose_open_hand_casual.png", fit="contain", xysize=(640, 960))
 image sam uniform pose_crossed = Transform("assets/characters/masayami/pose_crossed_uniform.png", fit="contain", xysize=(640, 960))
-image sam uniform pose_thinking = Transform("assets/characters/masayami/pose_thinking_uniform.png", fit="contain", xysize=(640, 960))
-image sam casual pose_phone = Transform("assets/characters/masayami/pose_phone_casual.png", fit="contain", xysize=(640, 960))
+# These two masters were underscaled by the historical crown-to-canvas-bottom
+# registration. Scale the retained art about the reviewed crown/body anchor;
+# the nominal stage frame and full source canvas remain unchanged.
+image sam uniform pose_thinking = Transform("assets/characters/masayami/pose_thinking_uniform.png", fit="contain", xysize=(640, 960), matrixanchor=(380.0 / 1023.0, 31.0 / 1537.0), matrixtransform=ScaleMatrix(1.12, 1.12, 1.0))
+image sam casual pose_phone = Transform("assets/characters/masayami/pose_phone_casual.png", fit="contain", xysize=(640, 960), matrixanchor=(380.0 / 1023.0, 31.0 / 1537.0), matrixtransform=ScaleMatrix(1.18, 1.18, 1.0))
 
 transform kotonoha_sprite_size:
     fit "contain"
@@ -524,11 +544,10 @@ transform mom_sprite_size:
     xysize (640, 960)
 
 
-# Himeko's two forward-facing outfits share one registered expression bank. The
-# original 1023x1537 sprites stay intact as the bases; each alternate face is a
-# feathered patch aligned to Casual Neutral before it is exported on that same
-# full canvas. This keeps the head, glasses, silhouette, and stage placement
-# fixed and prevents the generator's transparency checker from entering Ren'Py.
+# Himeko uses an expression bank registered to each outfit's own neutral head.
+# Hair, ears, jaw and neck retain the original base; acting features, blush and
+# liquid accents remain expression-owned. The builder replays the reviewed
+# registration/color repair after extracting the original generated masters.
 layeredimage mom:
     at mom_sprite_size, Flatten
 
@@ -541,46 +560,86 @@ layeredimage mom:
     group face:
         attribute neut default:
             "assets/characters/himeko/face_neut.png"
-        attribute happy:
+        attribute happy if_all "casual":
             "assets/characters/himeko/face_happy.png"
-        attribute smug:
+        attribute happy if_all "uniform":
+            "assets/characters/himeko/face_happy_uniform.png"
+        attribute smug if_all "casual":
             "assets/characters/himeko/face_smug.png"
-        attribute teasing:
+        attribute smug if_all "uniform":
+            "assets/characters/himeko/face_smug_uniform.png"
+        attribute teasing if_all "casual":
             "assets/characters/himeko/face_teasing.png"
-        attribute thinking:
+        attribute teasing if_all "uniform":
+            "assets/characters/himeko/face_teasing_uniform.png"
+        attribute thinking if_all "casual":
             "assets/characters/himeko/face_thinking.png"
-        attribute curious:
+        attribute thinking if_all "uniform":
+            "assets/characters/himeko/face_thinking_uniform.png"
+        attribute curious if_all "casual":
             "assets/characters/himeko/face_curious.png"
-        attribute unamused:
+        attribute curious if_all "uniform":
+            "assets/characters/himeko/face_curious_uniform.png"
+        attribute unamused if_all "casual":
             "assets/characters/himeko/face_unamused.png"
-        attribute annoyed:
+        attribute unamused if_all "uniform":
+            "assets/characters/himeko/face_unamused_uniform.png"
+        attribute annoyed if_all "casual":
             "assets/characters/himeko/face_annoyed.png"
-        attribute frustrated:
+        attribute annoyed if_all "uniform":
+            "assets/characters/himeko/face_annoyed_uniform.png"
+        attribute frustrated if_all "casual":
             "assets/characters/himeko/face_frustrated.png"
-        attribute angry:
+        attribute frustrated if_all "uniform":
+            "assets/characters/himeko/face_frustrated_uniform.png"
+        attribute angry if_all "casual":
             "assets/characters/himeko/face_angry.png"
-        attribute sad:
+        attribute angry if_all "uniform":
+            "assets/characters/himeko/face_angry_uniform.png"
+        attribute sad if_all "casual":
             "assets/characters/himeko/face_sad.png"
-        attribute crying:
+        attribute sad if_all "uniform":
+            "assets/characters/himeko/face_sad_uniform.png"
+        attribute crying if_all "casual":
             "assets/characters/himeko/face_crying.png"
-        attribute embarrassed:
+        attribute crying if_all "uniform":
+            "assets/characters/himeko/face_crying_uniform.png"
+        attribute embarrassed if_all "casual":
             "assets/characters/himeko/face_embarrassed.png"
-        attribute nervous:
+        attribute embarrassed if_all "uniform":
+            "assets/characters/himeko/face_embarrassed_uniform.png"
+        attribute nervous if_all "casual":
             "assets/characters/himeko/face_nervous.png"
-        attribute worried:
+        attribute nervous if_all "uniform":
+            "assets/characters/himeko/face_nervous_uniform.png"
+        attribute worried if_all "casual":
             "assets/characters/himeko/face_worried.png"
-        attribute shocked:
+        attribute worried if_all "uniform":
+            "assets/characters/himeko/face_worried_uniform.png"
+        attribute shocked if_all "casual":
             "assets/characters/himeko/face_shocked.png"
-        attribute afraid:
+        attribute shocked if_all "uniform":
+            "assets/characters/himeko/face_shocked_uniform.png"
+        attribute afraid if_all "casual":
             "assets/characters/himeko/face_afraid.png"
-        attribute panicked:
+        attribute afraid if_all "uniform":
+            "assets/characters/himeko/face_afraid_uniform.png"
+        attribute panicked if_all "casual":
             "assets/characters/himeko/face_panicked.png"
-        attribute determined:
+        attribute panicked if_all "uniform":
+            "assets/characters/himeko/face_panicked_uniform.png"
+        attribute determined if_all "casual":
             "assets/characters/himeko/face_determined.png"
-        attribute empty:
+        attribute determined if_all "uniform":
+            "assets/characters/himeko/face_determined_uniform.png"
+        attribute empty if_all "casual":
             "assets/characters/himeko/face_empty.png"
-        attribute disgusted:
+        attribute empty if_all "uniform":
+            "assets/characters/himeko/face_empty_uniform.png"
+        attribute disgusted if_all "casual":
             "assets/characters/himeko/face_disgusted.png"
+        attribute disgusted if_all "uniform":
+            "assets/characters/himeko/face_disgusted_uniform.png"
 
 # These reactions change Himeko's head or full-body silhouette, so exact image
 # names keep the layered image's default body and face from appearing beneath
@@ -668,19 +727,30 @@ default mom_name = "Mom"
 
 
 # -----------------------------------------------------------------------------
-# Incidental cast -- fixed names, several still on the placeholder sprite
+# Incidental cast -- fixed names
 # -----------------------------------------------------------------------------
 
 image math_teacher neut = Transform("assets/characters/npc/math_teacher.png", fit="contain", xysize=(640, 960))
 image civics_teacher neut = Transform("assets/characters/npc/civics_teacher.png", fit="contain", xysize=(640, 960))
 image track_coach neut = Transform("assets/characters/npc/track_coach.png", fit="contain", xysize=(640, 960))
 
-# PLACEHOLDER ART: these six still share the generic placeholder sprite.
-image science_teacher neut = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image japanese_teacher neut = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
-image english_teacher neut = Transform("assets/characters/placeholder/placeholder_sprite.png", fit="contain", xysize=(640, 960))
+image science_teacher neut = Transform("assets/characters/npc/science_teacher.png", fit="contain", xysize=(640, 960))
+image japanese_teacher neut = Transform("assets/characters/npc/japanese_teacher.png", fit="contain", xysize=(640, 960))
+image english_teacher neut = Transform("assets/characters/npc/english_teacher.png", fit="contain", xysize=(640, 960))
 image hikari neut = Transform("assets/characters/npc/hikari.png", fit="contain", xysize=(640, 960))
 image homura neut = Transform("assets/characters/npc/homura.png", fit="contain", xysize=(640, 960))
+# Compact expression sets for the club members; original neutral art stays intact.
+image hikari angry = Transform("assets/characters/npc/hikari/angry.png", fit="contain", xysize=(640, 960))
+image hikari unamused = Transform("assets/characters/npc/hikari/unamused.png", fit="contain", xysize=(640, 960))
+image hikari curious = Transform("assets/characters/npc/hikari/curious.png", fit="contain", xysize=(640, 960))
+image hikari sad = Transform("assets/characters/npc/hikari/sad.png", fit="contain", xysize=(640, 960))
+image hikari determined = Transform("assets/characters/npc/hikari/determined.png", fit="contain", xysize=(640, 960))
+image homura frustrated = Transform("assets/characters/npc/homura/frustrated.png", fit="contain", xysize=(640, 960))
+image homura nervous = Transform("assets/characters/npc/homura/nervous.png", fit="contain", xysize=(640, 960))
+image homura embarrassed = Transform("assets/characters/npc/homura/embarrassed.png", fit="contain", xysize=(640, 960))
+image homura thinking = Transform("assets/characters/npc/homura/thinking.png", fit="contain", xysize=(640, 960))
+image homura teasing = Transform("assets/characters/npc/homura/teasing.png", fit="contain", xysize=(640, 960))
+image charlie neut = Transform("assets/characters/npc/charlie.png", fit="contain", xysize=(630, 945))
 # One scene, one asking, gone forever -- ooc_0604_out_of_ten. He is not written
 # as a joke and he is not coming back; the sprite is placeholder because he does
 # not warrant art, not because he does not warrant a name.
@@ -694,6 +764,7 @@ define english_teacher = Character("Teacher", image="english_teacher", **SAY_STY
 define track_coach = Character("Coach", image="track_coach", **SAY_STYLE)
 define hikari = Character("Hikari", image="hikari", **SAY_STYLE)
 define homura = Character("Homura", image="homura", **SAY_STYLE)
+define charlie = Character("Charlie", image="charlie", **SAY_STYLE)
 define dai = Character("Daichi", image="daichi", **SAY_STYLE)
 
 # VOICE-ONLY incidentals -- no sprite, no roster entry, because the story never
@@ -743,27 +814,17 @@ image purg_girl_day7 = Transform("assets/extra_sprites/purg_girl_day7.png", fit=
 image purg_girl_yukata = Transform("assets/extra_sprites/purg_girl_yukata.png", fit="contain", xysize=(640, 960))
 
 
-# -----------------------------------------------------------------------------
-# THE SPRITE-TAG ROSTER
-# Every image tag above that is a CHARACTER standing in a scene (as opposed to a
-# background, CG or UI image). The Autofocus addon registers a default rest
-# transform for each of these at init 999, so a bare `show <tag>` still lands in
-# a tracked slot; it used to keep its own hand-copied list, which silently went
-# stale every time a sprite was added here (the four Dead Fantasy / Purgatorium
-# sprites below were never in it).
-#
-# ADDING A SPRITE: add its tag here in the same edit that adds its `image` line.
-# init 999 is when Autofocus reads this, so plain init order is fine.
-# -----------------------------------------------------------------------------
+# Character tags used by Autofocus at init 999 for default stage placement.
+# Add a tag here when introducing a character image family.
 init python:
     ENTER_M_SPRITE_TAGS = (
-        # DDLC layeredimages (game/assets/mpt/)
-        "monika", "sayori", "natsuki", "yuri",
+        # Monika uses the Mood Posing Tool layeredimage.
+        "monika",
         # Named cast
         "matsuda", "tsubaki", "asahina", "sam", "kotonoha", "mom", "mc",
         # NPCs
         "math_teacher", "civics_teacher", "science_teacher", "japanese_teacher",
-        "english_teacher", "track_coach", "hikari", "homura", "daichi",
+        "english_teacher", "track_coach", "hikari", "homura", "charlie", "daichi",
         # Side-story bit players
         "df_akai", "df_rival", "df_sam", "df_tsubaki",
         "gary", "gregor", "leif",

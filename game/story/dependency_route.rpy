@@ -22,10 +22,11 @@
 #   trigger off a majority rather than a commitment. All-or-nothing means the
 #   ending is only ever addressed to someone who actually did all of it.
 #
-# WHY NOT s1_choices
-#   s1_choices is converging by contract -- its menus set tone, never outcome.
-#   This is one of the story's few genuine exceptions, so it keeps its own
-#   store rather than quietly violating that promise from the inside.
+# WHY ITS OWN FILE
+#   The route is a chain, not a stance. It needs a ledger of what MC took
+#   over (the planner cards), a break that never undoes itself, and a manifest
+#   that stops a partial chain from firing early -- more than s1_choices'
+#   one-word stances hold.
 #
 # THE RULE FOR ADDING ONE
 #   Both branches must read as sincere support. The distinction is never

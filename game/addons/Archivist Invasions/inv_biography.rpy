@@ -1,163 +1,18 @@
-# =============================================================================
-# ARCHIVIST INVASION 01 -- BIOGRAPHY
-# =============================================================================
+# Biography invasion: a turn-based rolling-HP bout followed by open combat.
+# BIOGame owns simulation state; BIOStage advances it at 60 ticks/second and
+# renders cached displayables. Screens route input/results without frame timers.
 #
-# WHAT THIS IS
-#   The first Archivist Invasion, playable end to end. An interruption fought
-#   in the soup: a hyperspace that has not finished deciding what matter is.
-#   Two acts, no warning, no explanation.
+# Act two has four recoverable daggers. Hits break poise before they can damage
+# health during BUCKLE; dagger speed and the ENTRY meter make distance matter.
+# The borrowed Matsuda silhouette already carries its glaive. Separate glaive
+# art represents spectral thrown copies only. Cosmetic lightning has no hitbox.
+# Shared encounter presentation constraints live in invasions.rpy.
 #
-#   ACT ONE -- windows. A turn-based bout in EarthBound's furniture: hard
-#   bordered panels, ONE nondescript party member, a set kit. HP does not drop
-#   when you are hit -- it starts ROLLING toward the new number, and you are
-#   only dead when the counter arrives.
-#
-#   ACT TWO -- the CORRUPTIVE STATE. Past a damage threshold the panels are
-#   torn off the screen and it fights in its own genre: open combat on a
-#   stage, shot through a camera that will not hold still, you dodging with a
-#   held dash and answering with four thrown daggers and no fifth one.
-#
-# HOW ACT TWO WORKS, IN FOUR SENTENCES
-#   There are FOUR daggers. Throwing one spends it, a thrown one sheds speed
-#   the whole way (so what it does on arrival is a function of how close you
-#   were standing), and one that lands is lying on the boards until you walk
-#   over it -- which means the ammunition is always somewhere near the thing
-#   swinging at you. Daggers do not take health while it is composed, they
-#   take POISE, and double that while it is committed to a move; run poise out
-#   and it BUCKLES, and that window is the only time damage is real. Meanwhile
-#   the ENTRY bar fills on its own and fills faster the further away you keep
-#   yourself, because it is not trying to kill you, it is trying to finish
-#   writing you down, and it can do that from anywhere you are not.
-#
-#   THE PROBLEM THIS SHAPE EXISTS TO SOLVE (2026-08-11). The first version was
-#   a homing dagger on a 16-tick cooldown against an Archivist that was
-#   OVER-EXTENDED for 31% of every cycle for free -- its whole throw plus all
-#   six recovery windows. Nothing about it read distance, aim or timing, so
-#   the entire fight was one button held from the back of the stage, and it
-#   was over in under twenty seconds. Every number below is chosen against
-#   that: measured on eight seeded bot runs, a bot doing exactly that now
-#   deals 20 damage out of 520 and dies, and a bot actually playing the loop
-#   wins eight times in eight at 26-48 seconds with 54-95% of its health left.
-#
-#   THE DIFFICULTY IS DELIBERATELY SET SOFT. Two rounds of playtesting said
-#   this fight was punishing before it was fun, and the harness bot is a
-#   MEDIOCRE pilot (crude threat model, dashes away rather than through), so
-#   tuning until it struggles tunes past a real player. If it wants to bite
-#   harder the knobs, in order: BIO_DMG_* (magnitude), BIO_MOVE_HIT_CAP
-#   (burst), BIO_DAGGER_HEAL (sustain), _open_idle_len (frequency).
-#
-#   RUNTIME IS DELIBERATELY THE SHORTEST OF THE THREE. Horror's chase is
-#   75-90s and Nonfiction's page is roughly 40-60s; this is 33-53s, because
-#   Biography is the densest of them -- it is the only one asking you to
-#   manage ammunition, break composure, dodge, AND stay close all at once.
-#   Density times duration is what should match across the set, not duration.
-#
-#   AND THE FELT LENGTH IS THE NUMBER OF REPETITIONS, NOT THE CLOCK. The
-#   first tuning of this rebuild ran 39-68s and read as far longer than it
-#   was, because breaking poise once took fourteen daggers and three separate
-#   retrieval trips. It is eight or nine daggers and two trips now, for the
-#   same wall time -- see BIO_POISE_REGEN_IDLE, which was most of it.
-#
-#   DISCHARGE (2026-08-12). The hyperspace only ever said "matter has not been
-#   decided" in its shaders; now it says it out loud. Cosmetic lightning from
-#   the shared atlas (asset_definitions/def_bullets.rpy, EMB_ARCS) crackles ambiently
-#   through act two -- rarely, and harder the further along the fight is --
-#   and BURSTS across the Archivist on a buckle, which is the one moment it is
-#   not composed. It has no mechanics and cannot touch the player. In the same
-#   pass the sweeping "bar" hazard stopped being a flat canvas line and became
-#   a real beam (the `lens` art), drawn between the same projected endpoints
-#   and through the floor_layer so it still passes UNDER anyone standing on it.
-#
-# THE FIVE RULES THIS FILE IS WRITTEN AGAINST (set 2026-08-09, read before editing)
-#
-#   1. NO FLAVOR TEXT. Not one line of narration, not one spoken word, not one
-#      quip. Everything on screen is either a control, a number, or a state
-#      word. The horror is supposed to arrive through the thing happening to
-#      the player, not through a caption telling them it is happening. An
-#      invasion should leave someone asking what that WAS -- a narrator
-#      answers the question before they can ask it.
-#
-#   2. NOTHING IS ALLOWED TO BE FUNNY. Every element gets checked against
-#      this. A PNG sliding across a backdrop is funny. A caption that
-#      editorialises is funny. Big cheerful labels crowding the sprite are
-#      funny. Oppressive means the screen is busy, close, and never quite
-#      still, and the Archivist is never legible as a costume.
-#
-#   3. IT MOVES LIKE SOMETHING THAT HAS SEEN A DIAGRAM OF A PERSON. Biography
-#      is never a static image being translated. The body contorts, stretches
-#      and slips out of sync with itself (shader inv.flesh: independent
-#      horizontal bands, so limbs lengthen and lag separately), it banks into
-#      its own momentum, it rotates BODILY through its swings, and it smears
-#      into afterimages when it moves fast.
-#
-#   4. IT ARRIVES AND LEAVES THROUGH A HOLE. Never a fade, never a walk-on.
-#      The soup ruptures at a point, spirals into a wormhole, and it is
-#      extruded out of it -- and at the end it is dragged back in and the hole
-#      shuts. That rupture is the whole of the "what was that" feeling.
-#
-#   5. EVERY PATTERN MUST BE BEATABLE HITLESS. Shockwaves and sweeping lines
-#      have no authored gap to stand in (the project rule), so the dash IS the
-#      answer -- which means no two dash-answerable hazards may ever land
-#      closer together than the dash cooldown. If you retune a spacing, check
-#      it against BIO_DASH_CD, and check it in the HARNESS rather than by
-#      eye: shortening throw's copies to 36 ticks against a 46-tick cooldown
-#      looked completely fine while playing and was caught in one audit run.
-#      Currently measured -- 54 ticks between rings/bars, 48 between anything.
-#
-# THE SIXTH RULE, ADDED 2026-08-11
-#   6. THE ROOM MAY BE HARD TO LOOK AT, BUT IT MAY NEVER BE INCOHERENT.
-#      Oppressive is not the same as noisy, and nausea made of random numbers
-#      reads as a broken renderer rather than as a place. So every unsettling
-#      thing on screen is a physical model being solved: the camera is a
-#      damped spring on roll, pan and focal length that heavy events push and
-#      that recovers by itself; the suspended matter has a world position, a
-#      height off the boards and a velocity, and is depth-sorted with the
-#      bodies; the orbiting copies are on real circles about a moving centre
-#      and are released on the tangent. Nothing in act two adds a constant to
-#      a coordinate, and nothing shakes for the sake of shaking.
-#
-# THE ARCHIVIST
-#   It is wearing Matsuda. It is not Matsuda, it never speaks in her voice,
-#   and it never speaks at all. The shape is a filing decision. It is not
-#   trying to kill the party member; it is trying to finish the entry, and the
-#   party member is what the entry is about.
-#
-#   THE SPRITE ALREADY HOLDS ITS GLAIVE. Nothing may draw a second one in its
-#   hands -- an unattached weapon sliding around beside it is the exact
-#   failure rule 2 exists to catch. glaive_biography.png is used ONLY for the
-#   spectral COPIES it throws, which are visibly not the real one (tinted,
-#   translucent, trailing).
-#
-# ARCHITECTURE (kototouhou.rpy / tsubaki_soul.rpy's proven 60fps pattern)
-#   * BIOGame owns ALL simulation state; plain dicts and lists, zero
-#     displayables, no rendering.
-#   * BIOStage is ONE creator-defined displayable that steps the sim on a
-#     fixed 1/60s accumulator inside render() and paints from cached-texture
-#     blits. The screen tree is static; only the CDD repaints.
-#   * Two shaders. inv.soup is the room: an opaque quad hosted ON
-#     hyperspace.png with mesh True, domain-warped, boiled, and carrying the
-#     wormhole vortex. inv.flesh is the body: band-warp, chromatic split,
-#     squash/stretch about a pivot, and an erosion dissolve for materializing.
-#     Both registered defensively; the fight degrades rather than dying.
-#
-# READ THIS FIRST IF YOU ARE LOST
-#   BIOGame.step() is a mode dispatcher. self.mode is one of:
-#     arrive  the rupture and the extrusion
-#     menu / sub    act one commands
-#     beat    the one-line mechanical readout for a resolved action; it WAITS
-#             for a keypress, it never auto-advances (nobody gets left behind)
-#     enemy   its turn
-#     shift   the corruptive tear
-#     open    act two, real time
-#   and in act two self.b_state is one of idle / wind / act / recover /
-#   BUCKLE, where buckle is the earned exposure and the only state in which a
-#   dagger takes real health.
-#     leave_w / leave_l   dragged back into the hole / the hole closing over you
-#   Units: screen pixels (1280x720), speeds are px per 1/60s tick, timers are
-#   ticks. Angles are DEGREES, clockwise, 0 = right (screen space, y down).
-# =============================================================================
+# step() dispatches arrive, menu/sub, beat, enemy, shift, open and leave modes.
+# In open combat b_state is idle/wind/act/recover/buckle. Beat readouts wait for
+# input. Coordinates are 1280x720 screen pixels; speeds and timers use 60Hz ticks.
+# Angles are degrees, clockwise from right in screen space (positive y down).
 
-# --- SHADERS -----------------------------------------------------------------
 init -9 python:
     BIO_SHADER_OK = False
     BIO_MISREG_OK = False
@@ -170,6 +25,21 @@ init -9 python:
         # underneath is the nausea. u_bio_corrupt crushes it toward act two.
         # u_bio_hole is the wormhole: a spiral vortex around a point, with a
         # black core and a hot rim.
+        #
+        # THE STAGE IS THERE IN BOTH ACTS (Oct 2 2026). Act one used to float
+        # the figure over a backdrop with nothing under it -- a picture on a
+        # picture. The boards now exist from the first frame, unlit and seen
+        # from a low camera (u_bio_stage.x is how lit they are), so the figure
+        # stands on something; the tear lights them from its feet outward
+        # (the wave) and the camera climbs to act two's proscenium.
+        #
+        # AND THE HAZARDS ARE PAINTED INTO THE FLOOR. Rings, sweeping bars,
+        # the blade's footprint, the lunge telegraph, the poise arc and the
+        # light pools are evaluated per pixel in the SIMULATION'S OWN WORLD
+        # COORDINATES, recovered by inverting bio_project() -- so they are
+        # perspective-correct by construction, glow, fog with depth, and can
+        # never drift from the hitbox they draw. (They were canvas polylines
+        # rasterised on the CPU and re-uploaded every frame.)
         renpy.register_shader("inv.soup", variables="""
             uniform sampler2D tex0;
             uniform vec2 u_bio_res;
@@ -188,6 +58,25 @@ init -9 python:
             uniform float u_bio_fury;
             uniform vec4 u_bio_cam;
             uniform vec4 u_bio_hole;
+            uniform vec4 u_bio_stage;
+            uniform vec4 u_bio_arena;
+            uniform vec2 u_bio_persp;
+            uniform vec4 u_bio_boss;
+            uniform vec4 u_bio_plr;
+            uniform vec4 u_bio_ring0;
+            uniform vec4 u_bio_ring1;
+            uniform vec4 u_bio_ring2;
+            uniform vec4 u_bio_ring3;
+            uniform vec4 u_bio_rings;
+            uniform vec4 u_bio_bar0;
+            uniform vec4 u_bio_bar1;
+            uniform vec4 u_bio_bar2;
+            uniform vec4 u_bio_blade;
+            uniform vec4 u_bio_bladek;
+            uniform vec4 u_bio_thrust;
+            uniform vec4 u_bio_dag01;
+            uniform vec4 u_bio_dag23;
+            uniform vec4 u_bio_dagk;
             varying vec2 v_tex_coord;
         """, fragment_functions="""
             float bio_hash(vec2 p) {
@@ -216,6 +105,44 @@ init -9 python:
             vec2 bio_mirror(vec2 p) {
                 return abs(fract(p * 0.5) * 2.0 - 1.0);
             }
+            float bio_ad(float a, float b) {
+                return mod(a - b + 180.0, 360.0) - 180.0;
+            }
+            // One telegraphed or live ring on the boards: a crisp core the
+            // width of the hitbox, a soft halo, gold while it is a warning
+            // and red once it moves.
+            vec3 bio_ring(vec4 r, float state, vec2 wp, float px, float t) {
+                if (state < 0.5) {
+                    return vec3(0.0);
+                }
+                float d = abs(distance(wp, r.xy) - r.z);
+                float w = max(r.w * 0.5, 1.0);
+                float core = 1.0 - smoothstep(w - px, w + px, d);
+                float halo = exp(-(d * d) / (w * w * 7.0));
+                float live = step(1.5, state);
+                vec3 c = mix(vec3(1.0, 0.80, 0.34), vec3(1.0, 0.16, 0.28), live);
+                float k = mix(0.62 + 0.38 * sin(t * 16.0), 1.0, live);
+                return c * (core * 1.25 + halo * 0.55) * k;
+            }
+            // A recital line sweeping across the boards.
+            vec3 bio_bar(vec4 b, vec2 wp, float px, float t) {
+                if (b.x < -0.5) {
+                    return vec3(0.0);
+                }
+                float v = mix(wp.y, wp.x, step(0.5, b.x));
+                float d = abs(v - b.y);
+                float w = max(b.z * 0.5, 1.0);
+                float core = 1.0 - smoothstep(w - px, w + px, d);
+                float halo = exp(-(d * d) / (w * w * 9.0));
+                float live = step(1.5, b.w);
+                vec3 c = mix(vec3(1.0, 0.80, 0.34), vec3(1.0, 0.16, 0.28), live);
+                float k = mix(0.55 + 0.45 * sin(t * 18.0), 1.0, live);
+                return c * (core * 1.15 + halo * 0.60) * k;
+            }
+            float bio_spot(vec2 wp, vec2 c, float r) {
+                vec2 d = (wp - c) / max(r, 1.0);
+                return 1.0 / (1.0 + dot(d, d) * 3.0);
+            }
         """, fragment_300="""
             const float BIO_TAU = 6.2831853;
 
@@ -224,10 +151,7 @@ init -9 python:
             // on its focal length. This fragment knows where it landed on the
             // SENSOR; everything downstream (the horizon, the floor, the hole)
             // is reasoned about in the camera's own un-rolled frame, so the
-            // shader and the projected entities agree exactly. Every term is
-            // an honest camera move -- a roll is an image rotation, a focal
-            // change is a scale about the principal point -- which is what
-            // keeps the nausea from reading as a rendering fault.
+            // shader and the projected entities agree exactly.
             vec2 cres = max(u_bio_res, vec2(1.0));
             vec2 cmid = cres * 0.5;
             vec2 cdd = v_tex_coord * cres - cmid - vec2(u_bio_cam.y, u_bio_cam.z);
@@ -241,14 +165,13 @@ init -9 python:
             float corrupt = clamp(u_bio_corrupt, 0.0, 1.0);
             float pulse = clamp(u_bio_pulse, 0.0, 1.0);
             float fury = clamp(u_bio_fury, 0.0, 1.0);
+            float lit = clamp(u_bio_stage.x, 0.0, 1.0);
 
             vec2 c = uv - 0.5;
 
             // --- the wormhole -------------------------------------------------
-            // Everything within its reach is dragged around the point and
-            // pulled inward; the core goes black and the lip burns.
-            vec2 hp = (u_bio_hole.xy / max(u_bio_res, vec2(1.0))) - 0.5;
-            float hr = max(u_bio_hole.z, 1.0) / max(u_bio_res.x, 1.0);
+            vec2 hp = (u_bio_hole.xy / cres) - 0.5;
+            float hr = max(u_bio_hole.z, 1.0) / cres.x;
             float hs = clamp(u_bio_hole.w, 0.0, 1.0);
             vec2 hv = c - hp;
             float hd = length(hv);
@@ -261,22 +184,10 @@ init -9 python:
                 c = hp + hv * (1.0 - 0.62 * hinf);
             }
 
-            // --- rotational momentum -----------------------------------------
-            // The soup does not only breathe in and out -- it TURNS, and it
-            // turns at a different rate at every radius, so the field is
-            // permanently shearing against itself rather than spinning like a
-            // picture on a spindle. The base angle is INTEGRATED in the sim
-            // (u_bio_spin), so changing the rate never jumps the phase; the
-            // differential term oscillates, so the twist winds and unwinds
-            // instead of degenerating into smear. The pivot drifts, so there
-            // is no fixed centre to read the rotation against.
+            // --- rotational momentum (integrated in the sim, see u_bio_spin)
             vec2 pivot = vec2(sin(t * 0.13) * 0.06, cos(t * 0.17) * 0.05);
             vec2 rc = c - pivot;
             float rr = length(rc);
-            // Three timescales, because one reads as a mechanism: a slow wind
-            // (~33s) that twists the outside against the inside, a slower
-            // counter-rock, and a short ripple that keeps the contortion
-            // legible from moment to moment instead of only in hindsight.
             float twist = u_bio_spin
                         + sin(t * 0.19) * 1.15 * rr
                         + sin(t * 0.11 + rr * 4.0) * 0.45 * (1.0 + corrupt)
@@ -286,11 +197,6 @@ init -9 python:
             c = pivot + vec2(rc.x * tcs - rc.y * tsn, rc.x * tsn + rc.y * tcs);
 
             // --- nausea: a slow barrel wobble the whole frame breathes with --
-            // FURY is how far through the entry it has got. It does not add a
-            // new effect, it leans on the ones already here: the barrel
-            // breathes harder, a second lens term fights the first at a
-            // different rate (so the distortion never settles into a loop the
-            // eye can pre-empt), and the whole frame shears on a slow drift.
             float r = length(c);
             float wob = sin(t * 0.37) * 0.055 + sin(t * 0.19 + 1.7) * 0.035;
             wob += (sin(t * 0.83 + 2.1) * 0.030 + sin(t * 1.29) * 0.018) * fury;
@@ -298,7 +204,7 @@ init -9 python:
             c.x += sin(c.y * 3.1 + t * 0.61) * 0.022 * fury;
             c.y += sin(c.x * 2.7 - t * 0.47) * 0.014 * fury;
 
-            // --- the rush: everything falls into (or out of) the middle ------
+            // --- the rush -----------------------------------------------------
             float rush = u_bio_rush;
             c *= 1.0 + 0.20 * sin(rush * 0.9 + r * 5.0);
             c += normalize(c + vec2(1e-5)) * 0.035 * sin(rush * 1.3 - r * 8.0);
@@ -306,9 +212,6 @@ init -9 python:
             // --- boiling: two warp fields at different scales and rates ------
             vec2 w1 = vec2(bio_fbm(c * 3.1 + vec2(t * 0.21, -t * 0.17)),
                         bio_fbm(c * 3.1 + vec2(9.2 - t * 0.13, 4.7 + t * 0.11)));
-            // The fine layer runs COUNTER to the coarse one, so the two boils
-            // grind against each other instead of travelling together -- this
-            // is what stops the rotation reading as one turning image.
             float ct = -twist * 0.55;
             float ccs = cos(ct);
             float csn = sin(ct);
@@ -321,16 +224,11 @@ init -9 python:
             float jolt = clamp(u_bio_jolt, 0.0, 1.0);
             float row = floor(uv.y * 96.0);
             sp.x += (bio_hash(vec2(row, floor(t * 24.0))) - 0.5) * 0.09 * jolt;
-
-            // A tear that sweeps down the frame rather than sitting still --
-            // one band of rows displaced, travelling, so the room reads as
-            // being read off a surface that is slipping.
             float tearpos = fract(t * 0.21);
             float tearband = 1.0 - smoothstep(0.0, 0.055, abs(uv.y - tearpos));
             sp.x += (bio_hash(vec2(row, 5.0)) - 0.5) * 0.11 * tearband * fury;
 
             vec2 base_uv = bio_mirror(sp + 0.5);
-
             float split = (0.0018 + 0.010 * corrupt) * (1.0 + 2.2 * pulse + 3.0 * jolt);
             vec2 dir = normalize(c + vec2(1e-5));
             vec3 col;
@@ -367,11 +265,6 @@ init -9 python:
             }
 
             // --- THE STAGE ----------------------------------------------------
-            // Act two is fought on a floor, not in a void. Everything below
-            // the horizon is inverse-projected back into world space and
-            // sampled from the same plate as the sky, so the ground is made
-            // of the same unfinished matter -- and it RUSHES, which is where
-            // the momentum comes from.
             if (u_bio_floor > 0.5) {
                 float py = cpu.y;
                 if (py > u_bio_horizon - 26.0) {
@@ -380,34 +273,149 @@ init -9 python:
                     float wz = 1.0 / persp;
                     float wx = (uv.x - 0.5) * u_bio_res.x / persp;
 
-                    vec2 fuv = vec2(wx * 0.00085,
-                                    wz * 0.30 + u_bio_fscroll);
+                    vec2 fuv = vec2(wx * 0.00085, wz * 0.30 + u_bio_fscroll);
                     vec3 fl = texture2D(tex0, bio_mirror(fuv)).rgb;
                     float flum = dot(fl, vec3(0.299, 0.587, 0.114));
-                    vec3 floorc = mix(fl * 0.42,
-                                    vec3(flum * 1.20, flum * 0.22, flum * 0.30),
-                                    corrupt);
+                    vec3 act1c = vec3(flum * 0.40, flum * 0.46, flum * 0.66);
+                    vec3 floorc = mix(mix(fl * 0.36, act1c, u_bio_stage.w),
+                                      vec3(flum * 0.82, flum * 0.15, flum * 0.22),
+                                      corrupt);
+                    floorc *= 0.16 + 0.84 * lit;
 
-                    // Rushing rings of depth and converging rails. These
-                    // ARE the floor -- without them the plate reads as more
-                    // sky and the whole stage collapses back into 2D, so they
-                    // are deliberately bright enough to see through the murk.
-                    float rings = abs(fract(wz * 1.15 - u_bio_fscroll * 2.2)
-                                    * 2.0 - 1.0);
-                    floorc += vec3(0.85, 0.16, 0.24)
-                            * smoothstep(0.72, 1.0, rings) * (0.55 + 0.7 * pulse);
+                    // Rushing rings of depth and converging rails -- these ARE
+                    // the floor; without them the plate reads as more sky.
+                    // Unlit, they are a faint survey grid; lit, they burn.
+                    float rings = abs(fract(wz * 1.15 - u_bio_fscroll * 2.2) * 2.0 - 1.0);
+                    vec3 ringc = mix(vec3(0.42, 0.52, 0.80), vec3(0.85, 0.16, 0.24), corrupt);
+                    floorc += ringc * smoothstep(0.74, 1.0, rings)
+                            * (0.36 + 0.5 * pulse) * (0.16 + 0.84 * lit * lit);
                     float rails = abs(fract(wx * 0.0018) * 2.0 - 1.0);
-                    floorc += vec3(0.42, 0.48, 0.62)
-                            * smoothstep(0.80, 1.0, rails) * 0.55;
+                    floorc += vec3(0.42, 0.48, 0.62) * smoothstep(0.82, 1.0, rails)
+                            * 0.40 * (0.22 + 0.78 * lit);
 
-                    // Haze toward the horizon, so distance actually reads.
+                    // GLOSS. The boards are a dark lacquer: near the horizon
+                    // they mirror the soup above them (cheap -- the unwarped
+                    // plate at the reflected row, Fresnel-weighted).
+                    vec2 ruv = vec2(uv.x, (2.0 * u_bio_horizon - py) / cres.y);
+                    vec3 refl = texture2D(tex0, bio_mirror(ruv * vec2(1.0, 1.4)
+                                    + vec2(sin(t * 0.07) * 0.02, 0.0))).rgb;
+                    float fres = exp(-persp * 4.2);
+                    floorc += mix(refl * vec3(0.55, 0.62, 0.95), refl * vec3(0.95, 0.30, 0.38),
+                                  corrupt) * fres * (0.12 + 0.22 * lit);
+
+                    // --- THE SIMULATION'S WORLD, recovered per pixel ----------
+                    // bio_project: pp = 1 / lerp(1/far, 1/near, u) and
+                    // sx = 640 + (wx - 640) * pp. Inverted here, exactly.
+                    float far = max(u_bio_persp.x, 0.01);
+                    float nr = max(u_bio_persp.y, 0.01);
+                    float uu = (1.0 / persp - 1.0 / far) / (1.0 / nr - 1.0 / far);
+                    vec2 wp = vec2(cmid.x + (cpu.x - cmid.x) / persp,
+                                   u_bio_arena.y + uu * (u_bio_arena.w - u_bio_arena.y));
+                    float pxw = 1.3 / persp;
+                    vec3 emit = vec3(0.0);
+
+                    // Light pools: the Archivist is a red lamp standing on its
+                    // own stage, you are a small teal one. This is most of
+                    // what makes the bodies sit ON the boards.
+                    emit += vec3(1.0, 0.16, 0.26) * bio_spot(wp, u_bio_boss.xy, 115.0)
+                            * u_bio_boss.z;
+                    emit += vec3(0.36, 0.92, 0.82) * bio_spot(wp, u_bio_plr.xy, 46.0)
+                            * u_bio_plr.z;
+
+                    // The stage lighting itself up from the figure's feet.
+                    if (u_bio_stage.z > 0.001) {
+                        float wq = (distance(wp, u_bio_boss.xy) - u_bio_stage.y) / 46.0;
+                        float wv = exp(-wq * wq);
+                        emit += vec3(1.0, 0.45, 0.55) * wv * u_bio_stage.z;
+                    }
+
+                    emit += bio_ring(u_bio_ring0, u_bio_rings.x, wp, pxw, t);
+                    emit += bio_ring(u_bio_ring1, u_bio_rings.y, wp, pxw, t);
+                    emit += bio_ring(u_bio_ring2, u_bio_rings.z, wp, pxw, t);
+                    emit += bio_ring(u_bio_ring3, u_bio_rings.w, wp, pxw, t);
+                    emit += bio_bar(u_bio_bar0, wp, pxw, t);
+                    emit += bio_bar(u_bio_bar1, wp, pxw, t);
+                    emit += bio_bar(u_bio_bar2, wp, pxw, t);
+
+                    // THE BLADE'S FOOTPRINT: the annular sector it is sweeping
+                    // right now, plus a fading wake behind it. The hitbox, drawn
+                    // where the collision is.
+                    if (u_bio_bladek.x > 0.5) {
+                        vec2 dv = wp - u_bio_boss.xy;
+                        float br = length(dv);
+                        float inner = u_bio_blade.z;
+                        float outer = u_bio_blade.w;
+                        float band = smoothstep(inner - pxw, inner + pxw, br)
+                                   * (1.0 - smoothstep(outer - pxw, outer + pxw, br));
+                        if (band > 0.0) {
+                            float ang = degrees(atan(dv.y, dv.x));
+                            float arc = u_bio_bladek.z;
+                            float hit = 0.0;
+                            float wake = 0.0;
+                            for (int k = 0; k < 2; k++) {
+                                if (float(k) < u_bio_bladek.x - 0.5) {
+                                    float arm = u_bio_blade.x + 180.0 * float(k);
+                                    float da = bio_ad(ang, arm);
+                                    hit = max(hit, 1.0 - smoothstep(arc - 2.5, arc + 2.5, abs(da)));
+                                    float tr = u_bio_blade.y;
+                                    if (abs(tr) > 0.5) {
+                                        float tu = -da / tr;
+                                        wake = max(wake, step(0.0, tu) * step(tu, 1.0)
+                                                         * (1.0 - tu) * 0.55);
+                                    }
+                                }
+                            }
+                            float mid = 1.0 - abs((br - inner) / max(outer - inner, 1.0) - 0.5) * 1.2;
+                            vec3 bc = mix(vec3(1.0, 0.80, 0.34), vec3(1.0, 0.22, 0.32),
+                                          step(0.5, 1.0 - u_bio_bladek.w));
+                            emit += bc * band * (hit * (0.85 + 0.35 * mid) + wake)
+                                    * u_bio_bladek.y;
+                        }
+                    }
+
+                    // The lunge, telegraphed on the boards along its line.
+                    if (u_bio_thrust.z > 0.001) {
+                        vec2 dv = wp - u_bio_boss.xy;
+                        float a = radians(u_bio_thrust.x);
+                        vec2 dirt = vec2(cos(a), sin(a));
+                        float along = dot(dv, dirt);
+                        float perp = abs(dv.x * dirt.y - dv.y * dirt.x);
+                        float w = u_bio_thrust.w * 0.5;
+                        float on = step(0.0, along) * (1.0 - smoothstep(u_bio_thrust.y - 40.0,
+                                                                        u_bio_thrust.y, along));
+                        float core = 1.0 - smoothstep(w - pxw, w + pxw, perp);
+                        float halo = exp(-(perp * perp) / (w * w * 6.0));
+                        float march = 0.6 + 0.4 * sin(along * 0.06 - t * 22.0);
+                        emit += vec3(1.0, 0.80, 0.34) * on * (core * march + halo * 0.4)
+                                * u_bio_thrust.z;
+                    }
+
+                    // POISE, as an arc of the player's colour at its feet.
+                    if (u_bio_boss.w > -0.5) {
+                        vec2 dv = wp - (u_bio_boss.xy + vec2(0.0, 14.0));
+                        vec2 e = vec2(dv.x, dv.y / 0.72);
+                        float er = length(e);
+                        float on = 1.0 - smoothstep(2.4 - pxw, 2.4 + pxw, abs(er - 96.0));
+                        float pa = mod(degrees(atan(e.y, e.x)) + 90.0, 360.0) / 360.0;
+                        float fill = step(pa, u_bio_boss.w);
+                        vec3 pc = mix(vec3(1.0, 0.82, 0.47), vec3(0.36, 0.91, 0.82),
+                                      step(0.30, u_bio_boss.w));
+                        emit += pc * on * (0.18 + 0.82 * fill) * 1.2;
+                    }
+
+                    // Daggers lying on the boards: small teal glints.
+                    vec4 dk = u_bio_dagk;
+                    emit += vec3(0.36, 0.91, 0.82) * bio_spot(wp, u_bio_dag01.xy, 16.0) * dk.x * 0.9;
+                    emit += vec3(0.36, 0.91, 0.82) * bio_spot(wp, u_bio_dag01.zw, 16.0) * dk.y * 0.9;
+                    emit += vec3(0.36, 0.91, 0.82) * bio_spot(wp, u_bio_dag23.xy, 16.0) * dk.z * 0.9;
+                    emit += vec3(0.36, 0.91, 0.82) * bio_spot(wp, u_bio_dag23.zw, 16.0) * dk.w * 0.9;
+
+                    // Fog: distant emission fades into the haze like the boards.
                     float haze = smoothstep(0.02, 0.55, persp);
+                    floorc += emit * (0.35 + 0.65 * haze);
                     floorc = mix(col * 0.85, floorc, haze);
                     floorc *= 0.55 + 0.65 * haze;
 
-                    // Feather the horizon instead of cutting it -- a hard
-                    // seam across the frame looked like a rendering error
-                    // rather than a distance.
                     float blend = smoothstep(u_bio_horizon - 26.0,
                                             u_bio_horizon + 34.0, py);
                     col = mix(col, floorc, blend);
@@ -420,8 +428,6 @@ init -9 python:
             col *= 1.0 - clamp(u_bio_dark, 0.0, 1.0);
             gl_FragColor = vec4(col, 1.0);
         """)
-
-
     def _bio_register_misreg():
         # BIOGRAPHY'S OWN BODY, and until Aug 23 2026 it did not have one --
         # it borrowed inv.flesh, the shared shader that also draws the HEART in
@@ -472,6 +478,9 @@ init -9 python:
             uniform float u_mis_pivot;
             uniform float u_mis_hurt;
             uniform float u_mis_diss;
+            uniform vec4 u_mis_tint;
+            uniform vec4 u_mis_rim;
+            uniform vec4 u_mis_scan;
             varying vec2 v_tex_coord;
         """, fragment_functions="""
             float mis_hash(vec2 p) {
@@ -562,6 +571,27 @@ init -9 python:
                 a *= k;
             }
 
+            // THE ROOM'S LIGHT ON IT (Oct 2 2026). A key tint from whatever
+            // it is standing in, and a RIM where the silhouette faces up and
+            // out -- two extra taps of alpha, read as "how much body is above
+            // and beside me". Without them the figure is lit by nothing and
+            // reads as a picture laid on the room instead of a thing in it.
+            col *= mix(vec3(1.0), u_mis_tint.rgb, clamp(u_mis_tint.a, 0.0, 1.0));
+            if (u_mis_rim.a > 0.001) {
+                float above = min(texture2D(tex0, uvg + vec2(0.007, -0.006)).a,
+                                  texture2D(tex0, uvg + vec2(-0.007, -0.006)).a);
+                float rim = clamp(cg.a - above, 0.0, 1.0);
+                col += u_mis_rim.rgb * rim * u_mis_rim.a * a;
+            }
+
+            // CHECK: a reading band travelling up the body.
+            if (u_mis_scan.y > 0.001) {
+                float sd = abs(uv.y - u_mis_scan.x);
+                float sb = 1.0 - smoothstep(0.0, max(u_mis_scan.z, 0.002), sd);
+                col += vec3(0.36, 0.91, 0.82) * sb * u_mis_scan.y * a;
+                col *= 1.0 - 0.35 * u_mis_scan.y * smoothstep(0.0, 0.25, uv.y - u_mis_scan.x);
+            }
+
             float hurt = clamp(u_mis_hurt, 0.0, 1.0);
             col = mix(col, vec3(a), hurt);
 
@@ -600,13 +630,16 @@ init -9 python:
 
 init -8 python:
     def bio_misreg(plate, W, H, t, warp=1.0, split=1.0, slip=1.0, mosh=0.0,
-                stretch=(1.0, 1.0), pivot=0.86, hurt=0.0, diss=0.0):
+                stretch=(1.0, 1.0), pivot=0.86, hurt=0.0, diss=0.0,
+                tint=(1.0, 1.0, 1.0, 0.0), rim=(0.0, 0.0, 0.0, 0.0),
+                scan=(0.0, 0.0, 0.02, 0.0)):
         """Wrap a padded plate in BIOGRAPHY'S OWN body shader.
 
         Mirrors inv_flesh()'s signature so the call site reads the same, plus
         the two knobs that are this shader's own: SLIP (how far a band samples
         from the wrong part of the body) and MOSH (how much of the plate is
-        holding a stale registration in macroblocks).
+        holding a stale registration in macroblocks). TINT and RIM are the
+        room's light on it; SCAN is CHECK's reading band.
         """
         return Transform(
             plate, mesh=True, shader="inv.misreg",
@@ -619,7 +652,10 @@ init -8 python:
             u_mis_stretch=(float(stretch[0]), float(stretch[1])),
             u_mis_pivot=float(pivot),
             u_mis_hurt=float(hurt),
-            u_mis_diss=float(diss))
+            u_mis_diss=float(diss),
+            u_mis_tint=tuple(float(v) for v in tint),
+            u_mis_rim=tuple(float(v) for v in rim),
+            u_mis_scan=tuple(float(v) for v in scan))
 
 
 # --- CONSTANTS AND TUNING ----------------------------------------------------
@@ -652,6 +688,17 @@ init python:
     BIO_ROT_BUCKETS = int(round(360.0 / BIO_ROT_STEP))
 
     BIO_BOSS_ZOOM_ACT1 = 0.30
+
+    # --- ACT ONE STANDS ON THE STAGE (Oct 2 2026) ---------------------------
+    # The bout is fought on the same boards as act two, unlit, from a low
+    # camera: a horizon at chest height instead of act two's high proscenium.
+    # BIO_A1_FIGURE is where its FEET stand on screen. The tear climbs the
+    # camera to act two's horizon and lights the boards from those feet.
+    BIO_A1_FIGURE = (640.0, 534.0)
+    BIO_A1_HORIZON = 300.0
+    BIO_A1_FLOORK = 394.0
+    BIO_A1_CHEST = 300.0            # feet minus this is the chest, roughly
+    inv_fx_register(INV_DIR + "glaive_biography.png", 174, 228)
     # Multiplied by perspective at draw time, so this is its size DOWNSTAGE.
     # It was small enough upstage that the warp shader ate the whole figure.
     BIO_BOSS_ZOOM_ACT2 = 0.27
@@ -890,7 +937,6 @@ init python:
     BIO_INK = "#f2f4ff"
     BIO_DIM = "#8f96b4"
     BIO_FAINT = "#5d6580"
-    BIO_WIN = "#05040be8"
     BIO_RED = "#ff2d4e"
     BIO_RED_DEEP = "#7c0f22"
     BIO_WARN = "#ffcf5c"
@@ -912,19 +958,47 @@ init python:
         """All of Biography's live state, stepped at a fixed 60Hz by BIOStage.
         Owns zero rendering."""
 
-        def __init__(self, retry=False, deaths=0, debug=False, start_open=False):
+        def __init__(self, retry=False, deaths=0, debug=False, start_open=False,
+                     resume=None):
             self.result = None
             self.paused = False
             self.debug = bool(debug)
             self.retry = bool(retry)
             self.deaths = int(deaths)
             self.god = inv_godmode_on()
+            # A loss in act two can be retried FROM THE TEAR. Biography carries
+            # nothing across it but the fact of having got there, so the
+            # checkpoint is just that fact.
+            self.checkpoint = None
+            if resume:
+                start_open = True
 
             self.tick = 0
             self.clock = 0.0
             self.rush = 0.0
             self.spin = 0.0             # integrated rotation of the whole room
             self.rng = inv_random.Random()
+
+            # --- presentation (Oct 2 2026) ----------------------------------
+            # Everything below is DECORATION owned by the sim, so a paused
+            # fight freezes it and every frame stays a pure function of state.
+            self.fx = InvFX(cap=440)
+            self.turn_log = []
+            self.stage_lit = 1.0 if start_open else 0.0
+            self.wave = [0.0, 0.0]          # floor wave: radius, strength
+            self.shock = [640.0, 360.0, 0.0, 0.0]   # lens shockwave
+            self.ca = 0.0                   # aberration spike
+            self.tear = 0.0                 # lens row tear
+            self.scan = -1.0                # CHECK's reading band, -1 = off
+            self.panel_kick = 0.0           # the status window taking a hit
+            self.react = 0.0                # the figure's knockback (px)
+            self.reactv = 0.0
+            self.windup = 0.0               # act-one enemy telegraph glow
+            self.windup_col = "#ff2d4e"
+            self.bar_reveal = 1.0 if start_open else 0.0
+            self.boss_flash = 0.0           # the BODY's hurt flash (not yours)
+            self.shock_world = False
+            self.pending_move = None        # act one: picked at the wind-up
             # Decoration draws from its OWN stream. Motes, bubbles and debris
             # respawn constantly, and pulling those numbers out of the same
             # generator the fight uses means the fight is no longer reproducible
@@ -1083,6 +1157,13 @@ init python:
                 self.panel_slide = 1.0
                 self.dark = 0.0
                 self.mode = "open"
+                self.checkpoint = {"slug": "biography"}
+                if resume:
+                    # Back in through the tear: a beat of black, then the
+                    # stage comes up lit from its feet.
+                    self.dark = 1.0
+                    self.wave = [0.0, 1.0]
+                    self.iframe = 70
                 inv_music_corruptive()
 
         # ----- tiny helpers ---------------------------------------------------
@@ -1113,13 +1194,17 @@ init python:
         def in_act_two(self):
             return self.corrupt > 0.5
 
-        def _beat(self, label, value="", after="enemy"):
-            """Queue the mechanical readout for one resolved action."""
+        def _beat(self, label, value="", after="enemy", kind="you"):
+            """Queue the mechanical readout for one resolved action -- and log
+            it, because the beat no longer waits for a key: the line stays in
+            the turn log until the next turn pushes it down."""
             self.beat_label = label
             self.beat_value = value
             self.beat_after = after
             self.mode = "beat"
             self.mtick = 0
+            if value or label:
+                inv_log_push(self, label, value, kind)
 
         # ----- ambience -------------------------------------------------------
 
@@ -1225,6 +1310,38 @@ init python:
             self.jolt *= 0.82
             self.shake *= 0.88
             self.hit_flash *= 0.88
+
+            # --- presentation state (decoration; owned here, see __init__) --
+            self.fx.step()
+            self.boss_flash *= 0.84
+            self.ca *= 0.86
+            self.tear *= 0.88
+            self.panel_kick *= 0.84
+            self.windup *= 0.94
+            if self.shock[3] > 0.004:
+                self.shock[2] += 16.0 + self.shock[2] * 0.05
+                self.shock[3] *= 0.90
+            else:
+                self.shock[3] = 0.0
+            if self.wave[1] > 0.004:
+                self.wave[0] += 9.0
+                self.wave[1] *= 0.975
+            else:
+                self.wave[1] = 0.0
+            if self.scan >= 0.0:
+                self.scan += 0.020
+                if self.scan > 1.25:
+                    self.scan = -1.0
+            if self.boss_known and self.bar_reveal < 1.0:
+                self.bar_reveal = min(1.0, self.bar_reveal + 0.035)
+            # The figure's knockback is a spring: hit, overshoot, settle.
+            self.reactv += -self.react * 0.16
+            self.reactv *= 0.78
+            self.react += self.reactv
+            want_lit = 1.0 if self.corrupt > 0.5 else 0.0
+            self.stage_lit = inv_approach(self.stage_lit, want_lit, 0.012)
+            if self.dark > 0.0 and self.mode == "open" and self.mtick < 60:
+                self.dark = max(0.0, self.dark - 0.03)
 
             speed = 1.0 + 2.4 * self.corrupt
             for m in self.motes:
@@ -1431,6 +1548,14 @@ init python:
             if x is not None:
                 self.float_text(x, y, "-%d" % amount,
                                 BIO_DIM if self.god else BIO_RED, True)
+            if self.mode == "open":
+                self._fx_world_burst(self.px, self.py, 26.0, "#ff2d4e", 18, True)
+                self.fx.burst(INV_SHARDS, self.px, self.py, 6, speed=(2.0, 5.0),
+                              life=(16, 30), size=(0.16, 0.30), col="#ff6f86",
+                              add=False, drag=0.92, layer="w_front", h=26.0,
+                              vh=(1.0, 5.0), ah=-0.25, vrot=(-12.0, 12.0),
+                              squash=0.45)
+                self._kick_lens(self.px, self.py, 0.6, 0.010, world=True)
 
         def damage_boss(self, amount, x=None, y=None, big=False, quiet=False):
             """`quiet` takes the health off without printing it -- act two's
@@ -1439,8 +1564,88 @@ init python:
             amount = int(max(0, amount))
             self.boss_hp = int(max(0, self.boss_hp - amount))
             self.boss_pose = -1.0
+            self.boss_flash = 1.0
             if x is not None and not quiet:
                 self.float_text(x, y, str(amount), BIO_WARN if big else BIO_INK, big)
+
+        # ----- VFX events (decoration only; nothing here touches a rule) ------
+        # Act one is screen space: the figure stands at BIO_A1_FIGURE, the
+        # status window is where an attack lands. Act two is WORLD space on
+        # the boards (x, depth, height) and the stage projects it.
+
+        def _kick_lens(self, x, y, strength, ca=0.0, world=False):
+            self.shock = [float(x), float(y), 8.0, float(strength)]
+            self.shock_world = bool(world)
+            self.ca = max(self.ca, ca)
+
+        def _fx_cut(self, x, y, big=False):
+            """BASH landing: a cut across the figure, sparks, the lens kicked."""
+            fx = self.fx
+            ang = self.rng_fx.uniform(-38.0, -18.0)
+            fx.emit("spark", x, y, life=12 if big else 9, size=3.8 if big else 2.8,
+                    size1=4.8 if big else 3.3, rot=ang, col="#ffffff", layer="front",
+                    fade="pop")
+            if big:
+                fx.emit("spark", x, y, life=13, size=3.6, size1=4.6,
+                        rot=ang + 78.0, col="#ff8aa0", layer="front", fade="pop")
+                fx.emit("flare", x, y, life=20, size=3.4, size1=5.0,
+                        col="#ffe3e8", alpha=0.9, layer="front", fade="pop")
+            fx.burst("spark", x, y, 26 if big else 14, speed=(5.0, 14.0),
+                     life=(10, 22), size=(0.22, 0.50), col="#ffd2da", drag=0.86,
+                     stretch=0.11, layer="front", fade="out2")
+            fx.burst("spark", x, y, 10 if big else 5, speed=(3.0, 8.0),
+                     life=(14, 26), size=(0.18, 0.36), col="#5ce8d0", drag=0.88,
+                     stretch=0.11, layer="front")
+            fx.burst(INV_SHARDS, x, y, 8 if big else 4, speed=(2.0, 6.5),
+                     life=(18, 34), size=(0.20, 0.42), col="#ff6f86", alpha=0.85,
+                     add=False, drag=0.93, ay=0.22, vrot=(-14.0, 14.0),
+                     layer="front")
+            fx.emit("glow", x, y, life=18, size=1.6 if big else 1.1,
+                    size1=2.6 if big else 1.7, col="#ff3b5c", alpha=0.85,
+                    layer="front", fade="out2")
+            self._kick_lens(x, y, 0.9 if big else 0.45, 0.012 if big else 0.006)
+            self.reactv += (16.0 if big else 9.0) * (1.0 if self.rng_fx.random() < 0.5 else -1.0)
+
+        def _fx_strike(self, col="#ff2d4e", big=False):
+            """An act-one attack ARRIVING: a cut from the figure to the status
+            window, which takes the hit. You have no avatar in a windowed
+            bout, so the window is what gets struck."""
+            fx = self.fx
+            x0, y0 = BIO_A1_FIGURE[0], BIO_A1_FIGURE[1] - BIO_A1_CHEST
+            x1, y1 = 1004.0, 612.0
+            ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
+            for i in range(9):
+                u = i / 8.0
+                fx.emit("spark", inv_lerp(x0, x1, u), inv_lerp(y0, y1, u),
+                        life=9, size=2.0 if big else 1.4, rot=ang, col=col,
+                        layer="hud", fade="pop", delay=int(i * 0.6))
+            fx.burst("spark", x1, y1, 18 if big else 10, speed=(3.0, 11.0),
+                     life=(10, 22), size=(0.22, 0.48), col="#ff8a9c",
+                     drag=0.86, stretch=0.11, layer="hud", delay=(5, 6))
+            fx.emit("glow", x1, y1, life=20, size=2.4, size1=3.6, col=col,
+                    alpha=0.75, layer="hud", fade="out2", delay=5)
+            self.panel_kick = 1.0
+            self._kick_lens(x1, y1, 0.75 if big else 0.4, 0.010 if big else 0.005)
+
+        def _fx_rise(self, col, n=18, x0=1004.0, y0=620.0):
+            """Motes rising off the status window -- a mend, a guard."""
+            self.fx.burst("dust", x0, y0, n, speed=(0.6, 2.2), life=(30, 60),
+                          size=(0.6, 1.4), col=col, drag=0.97, ay=-0.05,
+                          angle=-90.0, spread=70.0, jitter=120.0, squash=0.4,
+                          layer="hud")
+            self.fx.emit("glow", x0, y0, life=26, size=3.4, size1=4.2, col=col,
+                         alpha=0.45, layer="hud", fade="inout")
+
+        def _fx_world_burst(self, wx, wy, h, col, n=16, big=False):
+            """Act two: a burst on the boards, at a height above them."""
+            fx = self.fx
+            fx.burst("spark", wx, wy, n, speed=(3.0, 10.0 if big else 7.0),
+                     life=(10, 24), size=(0.22, 0.50), col=col, drag=0.87,
+                     stretch=0.10, layer="w_front", h=h, vh=(-2.5, 5.5),
+                     ah=-0.18, squash=0.45)
+            fx.emit("glow", wx, wy, life=16, size=1.4 if big else 0.9,
+                    size1=2.4 if big else 1.4, col=col, alpha=0.85,
+                    layer="w_front", fade="out2", h=h)
 
         # ----- input ----------------------------------------------------------
 
@@ -1560,9 +1765,11 @@ init python:
         # =====================================================================
 
         def _begin_player_turn(self):
+            # The cursor stays where you left it: repeating a command is the
+            # commonest thing a player does, and re-navigating to it every
+            # turn was friction with no decision in it.
             self.mode = "menu"
             self.mtick = 0
-            self.cursor = 0
             self.turn += 1
             self.guard = False
 
@@ -1601,9 +1808,13 @@ init python:
                 self._resolve_player(BIO_RECALLS[self.sub_cursor][0])
 
         def _step_beat(self, edges):
-            # WAITS. Never advances on its own -- rule for slow readers.
+            # HOLDS, THEN MOVES ON. It used to wait for a key, twice a turn,
+            # because the first build's typewriter outran slow readers. The
+            # readout now outlives the beat in the turn log, so nobody loses
+            # it -- and nobody presses Z three times to take one turn.
             self.mtick += 1
-            if self.mtick > 12 and (edges["z"] or edges["x"]):
+            if (self.mtick >= INV_BEAT_HOLD
+                    or (self.mtick > INV_BEAT_SKIP and (edges["z"] or edges["x"]))):
                 self.play("confirm", 0.7)
                 after = self.beat_after
                 self.beat_label = ""
@@ -1626,13 +1837,16 @@ init python:
                 if crit:
                     dmg = int(dmg * BIO_CRIT_MULT)
                     self.play("crit")
-                    self.flash = 0.5
+                    self.flash = 0.22
                     self.shake = 0.8
                     label = "BASH  CRITICAL"
                 else:
                     self.play("bash")
                     self.shake = 0.35
                 self.damage_boss(dmg, 640, 300, crit)
+                self._fx_cut(BIO_A1_FIGURE[0] + self.rng_fx.uniform(-30, 30),
+                             BIO_A1_FIGURE[1] - BIO_A1_CHEST
+                             + self.rng_fx.uniform(-50, 60), big=crit)
                 value = "-" + str(dmg)
 
             elif cmd == "mend":
@@ -1643,6 +1857,7 @@ init python:
                 self.pp -= BIO_MEND_PP
                 self.hp = int(min(BIO_HP_MAX, self.hp + BIO_MEND_HEAL))
                 self.play("heal")
+                self._fx_rise(BIO_TEAL, 26)
                 value = "+" + str(BIO_MEND_HEAL)
 
             elif cmd == "refuse":
@@ -1655,6 +1870,20 @@ init python:
                 self.flash = 0.4
                 self.shake = 0.6
                 self.damage_boss(BIO_REFUSE_DMG, 640, 280, True)
+                fx_x, fx_y = BIO_A1_FIGURE[0], BIO_A1_FIGURE[1] - 250
+                self.fx.ring(fx_x, fx_y, 20.0, 330.0, life=26, col="#5ce8d0",
+                             alpha=0.9, layer="front")
+                self.fx.ring(fx_x, fx_y, 10.0, 210.0, life=20, col="#ffffff",
+                             alpha=0.7, layer="front", tex="ring_soft")
+                for _k in range(5):
+                    self.fx.emit(INV_BOLTS[_k % 4], fx_x + self.rng_fx.uniform(-60, 60),
+                                 fx_y + self.rng_fx.uniform(-140, 140), life=8,
+                                 size=self.rng_fx.uniform(0.7, 1.2),
+                                 rot=self.rng_fx.uniform(0, 360), col="#5ce8d0",
+                                 layer="front", fade="pop",
+                                 delay=self.rng_fx.randint(0, 6))
+                self._kick_lens(fx_x, fx_y, 1.0, 0.014)
+                self.reactv += 12.0
                 value = "-" + str(BIO_REFUSE_DMG)
                 if self.telegraph:
                     self.telegraph = False
@@ -1665,17 +1894,22 @@ init python:
                 self.read = True
                 self.boss_known = True
                 self.play("scan")
+                self.scan = 0.0
                 value = str(self.boss_hp) + " / " + str(BIO_BOSS_HP_MAX)
 
             elif cmd == "defend":
                 self.guard = True
                 self.pp = int(min(BIO_PP_MAX, self.pp + BIO_DEFEND_PP_GAIN))
                 self.play("guard")
+                self._fx_rise("#9fb6ff", 12)
+                self.panel_kick = -0.6
                 value = "+" + str(BIO_DEFEND_PP_GAIN) + " PP"
 
             elif cmd == "run":
                 # It never works. It is never explained.
                 self.play("miss")
+                self.shake = max(self.shake, 0.45)
+                self.tear = max(self.tear, 0.5)
                 value = "FAILED"
 
             if self.boss_hp <= BIO_SHIFT_HP and self.corrupt <= 0.0:
@@ -1697,39 +1931,99 @@ init python:
 
         def _step_enemy(self):
             self.mtick += 1
+            if self.mtick == 1:
+                # CHOSEN AT THE WIND-UP, so the wind-up can say which it is:
+                # gold for the moves that are not an attack this turn, red for
+                # the ones that are. (One RNG draw either way, same order.)
+                self.pending_move = self._pick_enemy_move()
+                self.windup_col = (BIO_WARN if self.pending_move in
+                                   ("thumb", "correct") else BIO_RED)
+                self.play("wind", 0.40)
             if self.mtick < 26:
+                self.windup = min(1.0, self.windup + 0.07)
                 return
 
-            move = self._pick_enemy_move()
+            move = self.pending_move or self._pick_enemy_move()
+            self.pending_move = None
             self.last_enemy = move
             self.boss_pose = 1.0
             dmg = 0
             value = ""
+            fx = self.fx
+            hx, hy = BIO_A1_FIGURE[0], BIO_A1_FIGURE[1] - 395.0
 
             if move == "read":
                 dmg = 34
+                fx.emit("flare", hx, hy, life=16, size=2.2, size1=3.0,
+                        col="#ff6f86", alpha=0.95, layer="front", fade="pop")
+                self._fx_strike(BIO_RED)
             elif move == "cross":
                 dmg = 26
                 drain = min(self.pp, 6)
                 self.pp -= drain
                 if drain:
                     value = "-" + str(drain) + " PP  "
+                self._fx_strike(BIO_RED)
+                for a in (38.0, -38.0):
+                    fx.emit("spark", 1004.0, 612.0, life=12, size=3.2,
+                            size1=3.8, rot=a, col="#ff8a9c", layer="hud",
+                            fade="pop", delay=5)
             elif move == "margin":
                 dmg = 14
                 self.bleed = 3
+                self._fx_strike(BIO_RED)
+                fx.burst("drip", 1004.0, 560.0, 7, speed=(0.0, 0.6),
+                         life=(30, 50), size=(0.5, 0.9), col="#c0182f",
+                         alpha=0.9, add=False, drag=1.0, ay=0.20, angle=90.0,
+                         spread=20.0, jitter=150.0, squash=0.15, rot=0.0,
+                         layer="hud", delay=(4, 14))
             elif move == "thumb":
                 self.telegraph = True
                 value = "WINDING UP"
+                fx.ring(BIO_A1_FIGURE[0], BIO_A1_FIGURE[1] - 200, 260.0, 60.0,
+                        life=30, col=BIO_WARN, alpha=0.8, layer="front")
+                self.play("wind2", 0.7)
             elif move == "page":
                 dmg = 76
                 self.telegraph = False
                 self.flash = 0.6
                 self.jolt = 0.9
+                fx.emit("spark", 640.0, 360.0, life=16, size=9.0, size1=10.5,
+                        rot=-62.0, col="#ffffff", layer="hud", fade="pop")
+                fx.emit("flare", 640.0, 360.0, life=22, size=5.0, size1=7.0,
+                        col="#ff9aab", alpha=0.9, layer="hud", fade="pop")
+                self._fx_strike(BIO_RED, big=True)
+                fx.burst(INV_SHARDS, 1004.0, 612.0, 14, speed=(3.0, 9.0),
+                         life=(20, 40), size=(0.3, 0.6), col="#f2f4ff",
+                         add=False, drag=0.94, ay=0.30, vrot=(-16.0, 16.0),
+                         layer="hud", delay=(5, 7))
+                self._kick_lens(1004.0, 612.0, 1.2, 0.018)
+                self.tear = 0.8
             elif move == "glaive":
                 dmg = 42
+                # A spectral copy, thrown at the window. Never the real one.
+                for i in range(6):
+                    u = i / 5.0
+                    fx.emit(BIO_GLAIVE, inv_lerp(560.0, 1004.0, u),
+                            inv_lerp(330.0, 600.0, u), life=7,
+                            size=0.8 + 0.7 * u, rot=i * 61.0, col="#ff5a6e",
+                            alpha=0.55 + 0.4 * u, layer="hud", fade="pop",
+                            delay=int(i * 1.4))
+                self._fx_strike(BIO_RED)
             elif move == "correct":
                 self.boss_hp = int(min(BIO_BOSS_HP_MAX, self.boss_hp + 25))
                 value = "+25"
+                cx, cy = BIO_A1_FIGURE[0], BIO_A1_FIGURE[1] - 200
+                for i in range(22):
+                    a = i * 0.2856
+                    r0 = self.rng_fx.uniform(220.0, 300.0)
+                    fx.emit("spark", cx + math.cos(a) * r0, cy + math.sin(a) * r0,
+                            vx=-math.cos(a) * r0 / 18.0, vy=-math.sin(a) * r0 / 18.0,
+                            life=18, size=0.4, stretch=0.06,
+                            col=("#5ce8d0" if i % 2 else "#ff2d4e"),
+                            layer="front", fade="inout")
+                self.boss_flash = 0.6
+                self.play("phase", 0.5)
 
             if dmg > 0:
                 if self.guard:
@@ -1737,12 +2031,12 @@ init python:
                 if self.read:
                     dmg = int(dmg * BIO_READ_MULT)
                 self.play("enemy", 0.8)
-                self.hurt(dmg, 640, 470)
+                self.hurt(dmg, 1004, 586)
                 value += "-" + str(dmg)
 
             if self.bleed > 0 and move != "margin":
                 self.bleed -= 1
-                self.hurt(11, 640, 500)
+                self.hurt(11, 1004, 610)
                 value += "   -11"
 
             self.read = False
@@ -1752,7 +2046,7 @@ init python:
             if self.corrupt <= 0.0 and (self.boss_hp <= BIO_SHIFT_HP
                                         or self.turn >= BIO_SHIFT_TURN_CAP):
                 after = "shift"
-            self._beat("BIOGRAPHY", value, after)
+            self._beat("BIOGRAPHY", value, after, kind="it")
 
         # =====================================================================
         # THE CORRUPTIVE TEAR
@@ -1769,8 +2063,37 @@ init python:
             if t == 1:
                 inv_music_stop(0.3)
                 self.play("tear")
-            if 20 <= t < 110:
-                self.panel_slide = bio_smooth((t - 20) / 90.0)
+                self.tear = 1.0
+                self.ca = max(self.ca, 0.016)
+            if t == 24:
+                # THE WINDOWS BREAK. They used to slide politely off the
+                # bottom of the screen; a corruptive tear is not polite. The
+                # two panels go to pieces where they stand and the pieces fall
+                # out of the frame.
+                self.panel_slide = 1.0
+                self.play("break", 0.7)
+                for (bx0, by0, bw, bh) in (BIOStage.PANEL_CMD, BIOStage.PANEL_HUD):
+                    for _k in range(34):
+                        x = bx0 + self.rng_fx.uniform(0.0, bw)
+                        y = by0 + self.rng_fx.uniform(0.0, bh)
+                        ang = math.atan2(y - 360.0, x - 640.0)
+                        sp = self.rng_fx.uniform(2.0, 7.0)
+                        self.fx.emit(INV_SHARDS[_k % 4], x, y,
+                                     vx=math.cos(ang) * sp, vy=math.sin(ang) * sp - 3.0,
+                                     life=self.rng_fx.randint(36, 64),
+                                     size=self.rng_fx.uniform(0.35, 0.85),
+                                     rot=self.rng_fx.uniform(0, 360),
+                                     vrot=self.rng_fx.uniform(-12, 12),
+                                     col=("#f2f4ff" if _k % 3 else "#5ce8d0"),
+                                     alpha=0.9, add=False, drag=0.985, ay=0.28,
+                                     layer="hud", fade="late")
+                    self.fx.burst("dust", bx0 + bw * 0.5, by0 + bh * 0.5, 30,
+                                  speed=(1.0, 5.0), life=(20, 40),
+                                  size=(0.6, 1.4), col="#ff2d4e", drag=0.92,
+                                  jitter=180.0, squash=0.35, layer="hud")
+                self.tear = 1.0
+                self.ca = max(self.ca, 0.020)
+            if 24 <= t < 110:
                 self.jolt = max(self.jolt, 0.4)
                 self.shake = max(self.shake, 0.35)
             if t == 110:
@@ -1781,6 +2104,17 @@ init python:
                 # The camera is knocked loose here and never settles again.
                 self.cam_kick(roll=4.5, py=7.0, zoom=0.055)
                 inv_music_corruptive()
+                # The stage comes on from its feet outward.
+                self.wave = [0.0, 1.5]
+                self._kick_lens(BIO_A1_FIGURE[0], BIO_A1_FIGURE[1], 1.4, 0.024)
+                for _k in range(8):
+                    self.fx.emit(INV_BOLTS[_k % 4],
+                                 BIO_A1_FIGURE[0] + self.rng_fx.uniform(-260, 260),
+                                 BIO_A1_FIGURE[1] + self.rng_fx.uniform(-60, 30),
+                                 life=9, size=self.rng_fx.uniform(1.0, 1.8),
+                                 rot=self.rng_fx.uniform(-20, 20), col="#ff6f86",
+                                 layer="front", fade="pop",
+                                 delay=self.rng_fx.randint(0, 10))
                 # Whole again for the second half -- see BIO_SHIFT_RESET.
                 if BIO_SHIFT_RESET:
                     self.hp = BIO_HP_MAX
@@ -1821,6 +2155,8 @@ init python:
             self.boss_known = True
             self.iframe = 40
             self.play("break")
+            # The checkpoint. A loss from here on can be retried from the tear.
+            self.checkpoint = {"slug": "biography"}
 
         # --- motion model -------------------------------------------------------
 
@@ -1968,6 +2304,11 @@ init python:
             spare["spd"] = BIO_DAGGER_V0
             spare["t"] = 0
             self.play("note", 0.55)
+            rad = math.radians(ang)
+            self.fx.burst("spark", self.px, self.py, 5, speed=(1.5, 4.5),
+                          life=(6, 12), size=(0.18, 0.32), col=BIO_TEAL,
+                          angle=ang, spread=50.0, stretch=0.12, drag=0.85,
+                          layer="w_front", h=20.0)
 
         def _open_daggers(self):
             ax0, ay0, ax1, ay1 = BIO_ARENA
@@ -1989,6 +2330,14 @@ init python:
                 rad = math.radians(d["ang"])
                 d["x"] += math.cos(rad) * d["spd"]
                 d["y"] += math.sin(rad) * d["spd"]
+                # A wake, so a throw reads as a throw at speed and you can
+                # watch it lose that speed -- which is the damage model.
+                self.fx.emit("spark", d["x"], d["y"],
+                             vx=math.cos(rad) * d["spd"] * 0.25,
+                             vy=math.sin(rad) * d["spd"] * 0.25,
+                             life=9, size=0.34, size1=0.10, col=BIO_TEAL,
+                             alpha=0.30 + 0.55 * (d["spd"] / BIO_DAGGER_V0),
+                             stretch=0.35, layer="w_front", h=20.0)
 
                 if math.hypot(self.bx - d["x"], self.by - d["y"]) < BIO_BOSS_HURT_R:
                     self._dagger_hit(d)
@@ -2031,6 +2380,9 @@ init python:
                 self.freeze = 5
                 self.shake = 0.5
                 self.cam_kick(zoom=0.010, py=-2.2)
+                self._fx_world_burst(d["x"], d["y"], 80.0, "#ffffff", 20, True)
+                self._fx_world_burst(d["x"], d["y"], 80.0, BIO_RED, 10, True)
+                self._kick_lens(d["x"], d["y"], 0.55, 0.008, world=True)
             else:
                 # POISE, NOT HEALTH -- and double while it is committed to a
                 # move, which is the reason to stand where the blade is.
@@ -2052,6 +2404,8 @@ init python:
                                 committed)
                 self.play("cut", 0.55 + 0.35 * frac)
                 self.freeze = 2
+                self._fx_world_burst(d["x"], d["y"], 80.0, BIO_TEAL,
+                                     6 + int(8 * frac), committed)
                 if self.poise <= 0.0:
                     self._begin_buckle()
 
@@ -2113,14 +2467,28 @@ init python:
             self._burst_arcs(self.bx, self.by, 7, 430.0, ttl=13, width=1.15,
                             h=95.0)
             self._release_orbits()
+            # ...and the composure it was holding comes off it as matter: the
+            # body's own registration plates, shed in pieces.
+            self._fx_world_burst(self.bx, self.by, 120.0, "#ffffff", 26, True)
+            self.fx.burst(INV_SHARDS, self.bx, self.by, 18, speed=(2.5, 8.0),
+                          life=(26, 48), size=(0.30, 0.65), col="#ff6f86",
+                          add=False, drag=0.95, layer="w_front", h=120.0,
+                          vh=(2.0, 9.0), ah=-0.32, vrot=(-14.0, 14.0),
+                          squash=0.5)
+            self.fx.burst(INV_SHARDS, self.bx, self.by, 10, speed=(2.0, 6.0),
+                          life=(26, 48), size=(0.25, 0.5), col=BIO_TEAL,
+                          add=False, drag=0.95, layer="w_front", h=120.0,
+                          vh=(2.0, 9.0), ah=-0.32, vrot=(-14.0, 14.0),
+                          squash=0.5)
+            self._kick_lens(self.bx, self.by, 1.3, 0.020, world=True)
 
         # ----- discharge (cosmetic lightning) --------------------------------
         # The hyperspace "has not finished deciding what matter is", and until
-        # now it only ever said so in the shaders. These are the arcs from the
-        # shared atlas (asset_definitions/def_bullets.rpy, EMB_ARCS): four hand-drawn
-        # bolts that get stretched, rotated and cycled. They have NO mechanics
-        # -- nothing here can touch the player -- so they are free to be loud
-        # at exactly the moments that have earned it.
+        # now it only ever said so in the shaders. These are bolts from the
+        # invasions' OWN fx art (INV_BOLTS -- they were cut out of a ripped
+        # sheet until Oct 2 2026): four bolts that get stretched, rotated and
+        # cycled. They have NO mechanics -- nothing here can touch the player
+        # -- so they are free to be loud at exactly the moments that earned it.
 
         def _spawn_arc(self, x, y, ang, length, ttl=9, width=1.0, h=40.0):
             # x/y are WORLD coordinates on the boards and h is the height above
@@ -2287,6 +2655,9 @@ init python:
                 self.play("phase")
                 self.flash = 0.5
                 self.cam_kick(roll=2.4, zoom=0.03)
+                self._burst_arcs(self.bx, self.by, 5, 380.0, ttl=12, width=1.0,
+                                 h=110.0)
+                self._kick_lens(self.bx, self.by, 1.0, 0.016, world=True)
 
             self._body_pose()
 
@@ -2520,6 +2891,15 @@ init python:
                                 "spd": BIO_RING_SPEED,
                                 "warn": BIO_RING_WARN, "life": 400})
             self.shake = max(self.shake, 0.45)
+            # The plant: the boards crack and throw dust where it lands.
+            self.fx.burst(INV_SMOKES, self.bx, self.by + 30, 8, speed=(1.0, 3.5),
+                          life=(30, 54), size=(0.5, 1.0), size1=1.6,
+                          col="#ff7a90", alpha=0.35, add=False, drag=0.93,
+                          layer="w_front", h=8.0, vh=(0.3, 1.6), squash=0.4)
+            self.fx.burst("spark", self.bx, self.by + 30, 12, speed=(3.0, 8.0),
+                          life=(8, 16), size=(0.2, 0.4), col=BIO_WARN,
+                          stretch=0.10, drag=0.86, layer="w_front", h=6.0,
+                          vh=(1.0, 4.0), squash=0.4)
 
         def _spawn_bar(self):
             ax0, ay0, ax1, ay1 = BIO_ARENA
@@ -2546,6 +2926,7 @@ init python:
                                 "vy": math.sin(rad) * 9.0,
                                 "spin": self.rng.uniform(0, 360),
                                 "phase": "out", "t": 0, "life": 260})
+            self._fx_world_burst(self.bx, self.by, 90.0, "#ff5a6e", 8)
 
         def _spawn_orbit(self, ang, radius, rate):
             """A copy held in orbit around it. Position is DERIVED from the
@@ -2658,6 +3039,10 @@ init python:
                 self.graze_cd = 16
                 self.entry = max(0.0, self.entry - BIO_ENTRY_GRAZE)
                 self.play("graze", 0.5)
+                self.fx.burst("spark", self.px, self.py, 6, speed=(2.0, 5.0),
+                              life=(6, 12), size=(0.16, 0.28), col=BIO_WARN,
+                              stretch=0.12, drag=0.84, layer="w_front", h=24.0,
+                              squash=0.45)
 
             if self.b_state == "act" and self.b_move in ("sweep", "twirl"):
                 dx = self.px - self.bx
@@ -2821,6 +3206,7 @@ init python:
                     self.hole[2] = inv_lerp(30.0, 290.0, bio_smooth(t / 46.0))
                     if t == 8:
                         self.play("tear", 0.85)
+                        self.tear = 0.8
                 elif t < 120:
                     u = (t - 46) / 74.0
                     self.hole[3] = 1.0
@@ -2880,6 +3266,9 @@ init python:
                     self.flash = 0.75
                     self.shake = 1.0
                     self.cam_kick(roll=10.0, px=-16.0, zoom=0.13)
+                    self._kick_lens(self.bx, self.by, 1.6, 0.03, world=True)
+                    self._burst_arcs(self.bx, self.by, 9, 520.0, ttl=16,
+                                     width=1.3, h=110.0)
                 # A full pass and a half, smeared along its own axis, with the
                 # whole trail behind it. This is the only time in the fight the
                 # body goes all the way round.
@@ -2900,6 +3289,16 @@ init python:
                 if t == 208:
                     self.play("break", 0.9)
                     self.cam_kick(roll=-6.0, px=9.0)
+                    self.tear = 1.0
+                if t % 6 == 0:
+                    self.fx.burst(INV_SHARDS, self.bx, self.by, 3,
+                                  speed=(1.5, 5.0), life=(30, 50),
+                                  size=(0.25, 0.55),
+                                  col=("#ff6f86", "#5ce8d0", "#f2f4ff")[t % 3],
+                                  add=False, drag=0.96, layer="w_front",
+                                  h=self.rng_fx.uniform(40.0, 300.0),
+                                  vh=(-1.0, 3.0), vrot=(-10.0, 10.0),
+                                  squash=0.5)
                 # ...and it lands on nothing. The plate that has been very
                 # slightly out all fight stops being able to hold itself in
                 # register at all: the slices drift off it and do not come
@@ -2932,6 +3331,15 @@ init python:
                     self.flash = 0.55
                     self.shake = 1.0
                     self.cam_kick(roll=4.0, py=14.0, zoom=0.10)
+                    self._kick_lens(self.bx, self.by, 1.5, 0.026, world=True)
+                    # The boards go: pieces of the stage itself, falling up
+                    # out of the hole and then down into it.
+                    self.fx.burst(INV_SHARDS, self.bx, self.by, 40,
+                                  speed=(2.0, 9.0), life=(40, 70),
+                                  size=(0.4, 1.0), col="#7c0f22", add=False,
+                                  drag=0.97, layer="w_front", h=4.0,
+                                  vh=(3.0, 11.0), ah=-0.35,
+                                  vrot=(-12.0, 12.0), squash=0.45)
                 # THE HOLE OPENS UNDERNEATH IT. Not behind it and not beside
                 # it -- the stage it has spent the whole act standing on is
                 # what fails, so the mouth is on the boards at its own feet and
@@ -2974,6 +3382,24 @@ init python:
                 BIO_CAM_HORIZON + BIO_FLOOR_K * pp,
                 pp)
 
+    def bio_project_hk(wx, wy, hz, fk):
+        """bio_project with an arbitrary horizon and floor scale -- act one's
+        low camera, and the tear's climb from it to act two's proscenium."""
+        pp = bio_persp(wy)
+        return (640.0 + (wx - 640.0) * pp, hz + fk * pp, pp)
+
+    def bio_unproject(sx, sy, hz=None, fk=None):
+        """A (pre-camera) screen point on the boards -> world (wx, wy). The
+        exact inverse the soup shader runs per pixel, so a light pool placed
+        from Python lands where the floor says it is."""
+        ax0, ay0, ax1, ay1 = BIO_ARENA
+        hz = BIO_CAM_HORIZON if hz is None else hz
+        fk = BIO_FLOOR_K if fk is None else fk
+        pp = max(0.001, (sy - hz) / max(fk, 1.0))
+        u = ((1.0 / pp - 1.0 / BIO_PERSP_FAR)
+             / (1.0 / BIO_PERSP_NEAR - 1.0 / BIO_PERSP_FAR))
+        return (640.0 + (sx - 640.0) / pp, ay0 + u * (ay1 - ay0))
+
     def bio_persp_free(wy):
         """bio_persp WITHOUT the clamp, for things that are not standing on the
         stage -- suspended matter drifts past both edges of it, and a clamped
@@ -2983,12 +3409,6 @@ init python:
         u = (wy - ay0) / float(ay1 - ay0)
         den = inv_lerp(1.0 / BIO_PERSP_FAR, 1.0 / BIO_PERSP_NEAR, u)
         return 1.0 / max(den, 0.12)
-
-    def bio_project_free(wx, wy):
-        pp = bio_persp_free(wy)
-        return (640.0 + (wx - 640.0) * pp,
-                BIO_CAM_HORIZON + BIO_FLOOR_K * pp,
-                pp)
 
     def bio_screen_rate(wy):
         """How many screen pixels one world unit is worth here, per axis.
@@ -3058,19 +3478,35 @@ init python:
 
 
 # --- THE STAGE ---------------------------------------------------------------
+# Oct 2 2026: the renderer draws through the shared kit (inv_kit.rpy). The
+# WORLD -- room shader, bodies, hazards, particles -- goes through the lens
+# pass; the HUD is drawn after it. Nothing in here owns a rule: every value it
+# reads is simulation state, and a frame is a pure function of it.
 init python:
     class BIOStage(renpy.Displayable):
         """One creator-defined displayable. Steps BIOGame on a fixed 60Hz
         accumulator inside render() and paints from cached-texture blits."""
 
         _tf_cache = {}
-        _misc_cache = {}
-        _text_cache = {}
 
         # Act one panels. Deliberately short and pushed to the bottom corners
         # so the Archivist is never boxed in by furniture (rule 2).
         PANEL_CMD = (40, 548, 470, 148)
         PANEL_HUD = (770, 548, 470, 148)
+
+        # CHROME. Biography's windows are out of register like everything
+        # else it touches: the border carries a red and a teal ghost of itself
+        # two pixels either side, and the plate has scanlines.
+        STYLE_PANEL = {"top": "#0d0a18e8", "bot": "#05030aee",
+                       "edge": "#f2f4ffe0", "accent": "#5ce8d0ff",
+                       "border": 1.6, "cut": 10.0, "inset": 6.0,
+                       "inset_a": 0.16, "noise": 0.10, "scan": 0.12,
+                       "split": 2.0, "ticks": 16.0}
+        STYLE_PLATE = {"top": "#0b0814c8", "bot": "#05030ad8",
+                       "edge": "#f2f4ff70", "accent": "#ff2d4eff",
+                       "border": 1.0, "cut": 7.0, "inset": 4.0,
+                       "inset_a": 0.0, "noise": 0.08, "scan": 0.10,
+                       "split": 1.0, "ticks": 0.0}
 
         def __init__(self, game, **kwargs):
             super(BIOStage, self).__init__(**kwargs)
@@ -3080,26 +3516,14 @@ init python:
 
         # ----- cached factories ------------------------------------------------
 
-        def _misc(self, key, builder):
-            d = BIOStage._misc_cache.get(key)
-            if d is None:
-                if len(BIOStage._misc_cache) > 700:
-                    BIOStage._misc_cache.clear()
-                d = builder()
-                BIOStage._misc_cache[key] = d
-            return d
-
-        def _text(self, text, size, color, font=INV_FONT, bold=False, outline=True):
-            key = (text, size, color, font, bold, outline)
-            t = BIOStage._text_cache.get(key)
-            if t is None:
-                if len(BIOStage._text_cache) > 220:
-                    BIOStage._text_cache.clear()
-                outl = [(2, "#04030a", 0, 0)] if outline else []
-                t = Text(text, size=size, color=color, bold=bold, font=font,
-                        outlines=outl, substitute=False)
-                BIOStage._text_cache[key] = t
-            return t
+        def _tf(self, key, builder):
+            tf = BIOStage._tf_cache.get(key)
+            if tf is None:
+                if len(BIOStage._tf_cache) > 900:
+                    BIOStage._tf_cache.clear()
+                tf = builder()
+                BIOStage._tf_cache[key] = tf
+            return tf
 
         def _body_plate(self, zoom):
             # Shared with every other invasion -- see inv_body_plate(). The
@@ -3113,16 +3537,15 @@ init python:
             """Ghost/afterimage copies, and the no-shader fallback."""
             ab = int(inv_clamp(alpha, 0.0, 1.0) * 6)
             key = ("plain", round(zoom, 3), ab, tint)
-            tf = BIOStage._tf_cache.get(key)
-            if tf is None:
+
+            def build():
                 kw = dict(zoom=zoom, subpixel=True)
                 if ab < 6:
                     kw["alpha"] = ab / 6.0
                 if tint:
                     kw["matrixcolor"] = TintMatrix(tint)
-                tf = Transform(BIO_SPRITE, **kw)
-                BIOStage._tf_cache[key] = tf
-            return tf
+                return Transform(BIO_SPRITE, **kw)
+            return self._tf(key, build)
 
         def _zbucket(self, persp):
             """Quantised perspective, so a sprite that scales continuously with
@@ -3135,47 +3558,33 @@ init python:
         def _copy_tf(self, deg, zb=8):
             """A spectral duplicate of the glaive. Never the real one."""
             bucket = int(round(deg / BIO_ROT_STEP)) % BIO_ROT_BUCKETS
-            key = ("copy", bucket, zb)
-            tf = BIOStage._tf_cache.get(key)
-            if tf is None:
-                tf = Transform(BIO_GLAIVE,
-                            zoom=BIO_GLAIVE_ZOOM * self._zscale(zb),
-                            rotate=bucket * BIO_ROT_STEP - BIO_GLAIVE_REST_DEG,
-                            alpha=0.72, matrixcolor=TintMatrix("#ff5a6e"),
-                            subpixel=True)
-                BIOStage._tf_cache[key] = tf
-            return tf
+            return self._tf(("copy", bucket, zb), lambda: Transform(
+                BIO_GLAIVE, zoom=BIO_GLAIVE_ZOOM * self._zscale(zb),
+                rotate=bucket * BIO_ROT_STEP - BIO_GLAIVE_REST_DEG,
+                alpha=0.78, matrixcolor=TintMatrix("#ff5a6e"), subpixel=True))
 
         def _blade_tf(self, deg, zb=8, fade=0):
             """The swung blade: a spectral pass of the glaive rather than a
             drawn line. `fade` indexes its after-images along the arc, which is
             what turns one blade into a swing."""
             bucket = int(round(deg / BIO_ROT_STEP)) % BIO_ROT_BUCKETS
-            key = ("blade", bucket, zb, fade)
-            tf = BIOStage._tf_cache.get(key)
-            if tf is None:
-                alpha = (0.92, 0.46, 0.24, 0.13)[min(fade, 3)]
-                tint = ("#ffd8de", "#ff8496", "#ff5a6e", "#ff3d54")[min(fade, 3)]
-                tf = Transform(BIO_GLAIVE,
-                            zoom=BIO_GLAIVE_ZOOM * self._zscale(zb) * 1.25,
-                            rotate=bucket * BIO_ROT_STEP - BIO_GLAIVE_REST_DEG,
-                            alpha=alpha, matrixcolor=TintMatrix(tint),
-                            subpixel=True)
-                BIOStage._tf_cache[key] = tf
-            return tf
+            alpha = (0.92, 0.46, 0.24, 0.13)[min(fade, 3)]
+            tint = ("#ffd8de", "#ff8496", "#ff5a6e", "#ff3d54")[min(fade, 3)]
+            return self._tf(("blade", bucket, zb, fade), lambda: Transform(
+                BIO_GLAIVE, zoom=BIO_GLAIVE_ZOOM * self._zscale(zb) * 1.25,
+                rotate=bucket * BIO_ROT_STEP - BIO_GLAIVE_REST_DEG,
+                alpha=alpha, matrixcolor=TintMatrix(tint), subpixel=True,
+                blend=("add" if fade else None)))
 
-        def _dagger_tf(self, deg, zb=8):
+        def _dagger_tf(self, deg, zb=8, alpha=1.0):
             bucket = int(round(deg / BIO_ROT_STEP)) % BIO_ROT_BUCKETS
-            key = ("dag", bucket, zb)
-            tf = BIOStage._tf_cache.get(key)
-            if tf is None:
-                tf = Transform(BIO_DAGGER,
-                            zoom=BIO_DAGGER_ZOOM * self._zscale(zb),
-                            nearest=True,
-                            rotate=bucket * BIO_ROT_STEP - BIO_DAGGER_REST_DEG,
-                            matrixcolor=TintMatrix(BIO_TEAL), subpixel=True)
-                BIOStage._tf_cache[key] = tf
-            return tf
+            aq = int(inv_clamp(alpha, 0.0, 1.0) * 8)
+            return self._tf(("dag", bucket, zb, aq), lambda: Transform(
+                BIO_DAGGER, zoom=BIO_DAGGER_ZOOM * self._zscale(zb),
+                nearest=True,
+                rotate=bucket * BIO_ROT_STEP - BIO_DAGGER_REST_DEG,
+                matrixcolor=TintMatrix(BIO_TEAL), alpha=aq / 8.0,
+                subpixel=True))
 
         # ----- input -----------------------------------------------------------
 
@@ -3183,10 +3592,220 @@ init python:
             self.game.keys.handle_event(ev)
             return None
 
+        # ----- the camera and the boards ---------------------------------------
+
+        def _stage(self, g, sx, sy):
+            """Where the camera is and how the boards are projected THIS frame.
+            Act one is a low camera on the unlit stage, act two the proscenium,
+            and the tear (g.corrupt) carries one into the other -- the horizon
+            climbs, the floor flattens out, and the figure walks with it."""
+            s = bio_smooth(inv_clamp(g.corrupt, 0.0, 1.0))
+            hz = inv_lerp(BIO_A1_HORIZON, BIO_CAM_HORIZON, s)
+            fk = inv_lerp(BIO_A1_FLOORK, BIO_FLOOR_K, s)
+            c2 = g.cam_tuple()
+            w = 1.0 - s
+            t = g.clock
+            # Act one has no camera body, but a dead-still lens over a living
+            # room reads as a still picture. A slow sway on three unrelated
+            # periods: the eye cannot learn it, and it carries the figure
+            # with the floor it is standing on.
+            roll = math.radians(0.50 * math.sin(t * 0.21) + 0.28 * math.sin(t * 0.37 + 1.3)) * w
+            px = 10.0 * math.sin(t * 0.17 + 0.4) * w
+            py = 4.0 * math.sin(t * 0.23 + 2.0) * w
+            zm = 1.0 + 0.014 * math.sin(t * 0.19) * w
+            cam = (c2[0] + roll, c2[1] + px, c2[2] + py, c2[3] * zm)
+            return {"s": s, "hz": hz, "fk": fk, "cam": cam, "sx": sx, "sy": sy}
+
+        def _proj(self, sp, wx, wy):
+            x_, y_, pp = bio_project_hk(wx, wy, sp["hz"], sp["fk"])
+            x_, y_ = bio_cam_apply(x_, y_, sp["cam"])
+            return (x_ + sp["sx"], y_ + sp["sy"], pp)
+
+        def _proj_h(self, sp, wx, wy, h):
+            """For things off the boards (debris, sparks): unclamped depth and
+            a height that foreshortens like everything else."""
+            pp = bio_persp_free(wy)
+            x_ = 640.0 + (wx - 640.0) * pp
+            y_ = sp["hz"] + sp["fk"] * pp - h * pp
+            x_, y_ = bio_cam_apply(x_, y_, sp["cam"])
+            return (x_ + sp["sx"], y_ + sp["sy"], pp)
+
+        def _figure(self, g, sp):
+            """Act one / the tear: the figure's FEET on screen (pre-camera) and
+            its zoom. It stands at BIO_A1_FIGURE in act one and walks to its
+            act-two mark on the boards as the camera climbs."""
+            s = sp["s"]
+            fx1, fy1 = BIO_A1_FIGURE
+            x2, y2, pp2 = bio_project_hk(g.bx, g.by, BIO_CAM_HORIZON, BIO_FLOOR_K)
+            z2 = BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * pp2)
+            return (inv_lerp(fx1, x2, s) + g.react, inv_lerp(fy1, y2, s),
+                    inv_lerp(BIO_BOSS_ZOOM_ACT1, z2, s))
+
+        # ----- the room --------------------------------------------------------
+
+        def _room(self, g, p, sp, act_two):
+            global BIO_SHADER_OK
+            ax0, ay0, ax1, ay1 = BIO_ARENA
+            u = {}
+            off4 = (0.0, 0.0, 0.0, 0.0)
+            rings = [off4] * 4
+            rk = [0.0, 0.0, 0.0, 0.0]
+            bars = [(-1.0, 0.0, 0.0, 0.0)] * 3
+            blade = off4
+            bladek = off4
+            thrust = off4
+            dag = [0.0] * 8
+            dagk = [0.0] * 4
+            poise = -1.0
+
+            if act_two:
+                bx, by = g.bx, g.by
+                bglow = 0.50 + (0.45 if g._open_exposed() else 0.0)
+                pglow = 0.55 + (0.35 if g.dashing else 0.0)
+                ri = 0
+                bi = 0
+                for h in g.hazards:
+                    if h["kind"] == "ring" and ri < 4:
+                        rings[ri] = (float(h["x"]), float(h["y"]),
+                                     float(h["r"]), float(h["w"]))
+                        rk[ri] = 1.0 if h["warn"] > 0 else 2.0
+                        ri += 1
+                    elif h["kind"] == "bar" and bi < 3:
+                        warning = h["warn"] > 0
+                        if h["axis"] == "h":
+                            pos = h["p"] if not warning else (ay0 if h["spd"] > 0 else ay1)
+                        else:
+                            pos = h["p"] if not warning else (ax0 if h["spd"] > 0 else ax1)
+                        bars[bi] = (0.0 if h["axis"] == "h" else 1.0, float(pos),
+                                    float(h["th"]), 1.0 if warning else 2.0)
+                        bi += 1
+                if g.b_move in ("sweep", "twirl") and g.b_state in ("wind", "act"):
+                    arms = 1.0 if g.b_move == "sweep" else 2.0
+                    if g.b_state == "act":
+                        trail = 0.0
+                        if g.blade_arc:
+                            trail = bio_angdiff(g.blade, g.blade_arc[-1])
+                        blade = (float(g.blade), float(trail), BIO_BLADE_INNER,
+                                 BIO_BLADE_OUTER)
+                        bladek = (arms, 1.0, BIO_BLADE_ARC, 0.0)
+                    else:
+                        warn_a = inv_clamp(g.b_t / float(max(1, g.b_len)), 0.0, 1.0)
+                        blade = (float(g.blade), 0.0, BIO_BLADE_INNER, BIO_BLADE_OUTER)
+                        bladek = (arms, 0.35 + 0.55 * warn_a, 5.0, 1.0)
+                if g.b_move == "thrust" and g.b_state == "wind":
+                    warn_a = inv_clamp(g.b_t / float(max(1, g.b_len)), 0.0, 1.0)
+                    ang = math.degrees(math.atan2(g.py - g.by, g.px - g.bx))
+                    thrust = (ang, 600.0, 0.35 + 0.65 * warn_a, 62.0)
+                elif g.b_move == "thrust" and g.b_state == "act":
+                    thrust = (float(g.aim), 220.0, 1.0, 86.0)
+                leaving = g.mode in ("leave_w", "leave_l")
+                if not leaving and g.b_state != "buckle":
+                    poise = inv_clamp(g.poise_shown / g._poise_cap(), 0.0, 1.0)
+                k = 0
+                for d in g.daggers:
+                    if d["state"] == "ground" and k < 4:
+                        dag[k * 2] = float(d["x"])
+                        dag[k * 2 + 1] = float(d["y"])
+                        dagk[k] = 0.6 + 0.4 * math.sin(g.clock * 3.2 + d["x"] * 0.03)
+                        k += 1
+                pxw, pyw = g.px, g.py
+            else:
+                fx_, fy_, _z = self._figure(g, sp)
+                bx, by = bio_unproject(fx_, fy_, sp["hz"], sp["fk"])
+                bglow = 0.22 + 0.22 * g.windup + 0.28 * sp["s"]
+                pxw, pyw = 0.0, 0.0
+                pglow = 0.0
+
+            if BIO_SHADER_OK:
+                try:
+                    quad = Transform(
+                        inv_disp(BIO_SOUP_IMG), xysize=(1280, 720), mesh=True,
+                        shader="inv.soup",
+                        u_bio_res=(1280.0, 720.0),
+                        u_bio_time=g.clock,
+                        u_bio_corrupt=g.corrupt,
+                        u_bio_pulse=inv_clamp(g.beat_pulse * (0.45 + 0.55 * g.corrupt), 0.0, 1.0),
+                        u_bio_jolt=g.jolt,
+                        u_bio_flash=g.flash,
+                        u_bio_dark=g.dark,
+                        u_bio_rush=g.rush,
+                        u_bio_spin=g.spin,
+                        u_bio_floor=1.0,
+                        u_bio_horizon=sp["hz"],
+                        u_bio_floork=sp["fk"],
+                        u_bio_fscroll=g.rush * 0.35,
+                        u_bio_fury=g.fury,
+                        u_bio_cam=sp["cam"],
+                        u_bio_hole=(float(g.hole[0]), float(g.hole[1]),
+                                    float(g.hole[2]), float(g.hole[3])),
+                        u_bio_stage=(float(inv_clamp(0.32 + 0.68 * g.stage_lit, 0.0, 1.0)),
+                                     float(g.wave[0]), float(g.wave[1]),
+                                     float(1.0 - sp["s"])),
+                        u_bio_arena=(float(ax0), float(ay0), float(ax1), float(ay1)),
+                        u_bio_persp=(BIO_PERSP_FAR, BIO_PERSP_NEAR),
+                        u_bio_boss=(float(bx), float(by), float(bglow), float(poise)),
+                        u_bio_plr=(float(pxw), float(pyw), float(pglow), 0.0),
+                        u_bio_ring0=rings[0], u_bio_ring1=rings[1],
+                        u_bio_ring2=rings[2], u_bio_ring3=rings[3],
+                        u_bio_rings=tuple(rk),
+                        u_bio_bar0=bars[0], u_bio_bar1=bars[1], u_bio_bar2=bars[2],
+                        u_bio_blade=tuple(float(v) for v in blade),
+                        u_bio_bladek=tuple(float(v) for v in bladek),
+                        u_bio_thrust=tuple(float(v) for v in thrust),
+                        u_bio_dag01=tuple(dag[0:4]),
+                        u_bio_dag23=tuple(dag[4:8]),
+                        u_bio_dagk=tuple(dagk))
+                    # Through the Effects Resolution dial (perf.rpy). The one
+                    # backdrop measured to pay for the capped pass's own
+                    # render (Oct 9 2026, 1739x978 window, GPU per frame:
+                    # 0.69ms native, 0.63ms at 720p, 0.48ms at 540p). The
+                    # shader works in v_tex_coord and its own res uniform, so
+                    # only the sampling density changes, never the layout.
+                    r = renpy.render(msbf_fx_scaled(quad, 1280, 720, high_freq=True),
+                                     1280, 720, p.st, p.at)
+                    p.blit(r, (0, 0))
+                    return
+                except Exception as soup_e:
+                    BIO_SHADER_OK = False
+                    try:
+                        renpy.log("INV FX: soup render failed: %r" % soup_e)
+                    except Exception:
+                        pass
+            p.fill(BIO_BLACK, 0, 0, 1280, 720)
+
+        def _look(self, g, sp):
+            """The lens, per act. Act one is cold and a little soft; act two
+            leans on everything as the entry fills (fury)."""
+            s = sp["s"]
+            fury = g.fury
+            shock = (0.0, 0.0, 0.0, 0.0)
+            if g.shock[3] > 0.004:
+                if getattr(g, "shock_world", False):
+                    hx, hy, _pp = self._proj_h(sp, g.shock[0], g.shock[1], 60.0)
+                else:
+                    hx, hy = g.shock[0] + sp["sx"], g.shock[1] + sp["sy"]
+                shock = (hx, hy, g.shock[2], g.shock[3])
+            return {
+                "grade": (inv_lerp(1.02, 1.00, s), inv_lerp(1.05, 1.05, s),
+                          inv_lerp(1.02, 0.94, s), 0.45),
+                "lift": (inv_lerp(0.004, 0.018, s), 0.0, inv_lerp(0.018, 0.008, s)),
+                "gain": (inv_lerp(0.98, 1.00, s), inv_lerp(1.00, 0.95, s),
+                         inv_lerp(1.06, 0.98, s)),
+                "bloom": inv_lerp(0.42, 0.40, s) + 0.20 * fury,
+                "thresh": inv_lerp(0.62, 0.68, s),
+                "ca": 0.0022 + 0.004 * s + 0.006 * fury + g.ca,
+                "grain": 0.035 + 0.015 * s,
+                "vig": 0.55 + 0.15 * s,
+                "vigr": 1.08,
+                "barrel": 0.020 + 0.030 * s + 0.040 * fury,
+                "shock": shock,
+                "tear": (inv_clamp(g.tear, 0.0, 1.0), float(g.tick // 3),
+                         0.5 + 0.35 * math.sin(g.clock * 2.3), 0.45),
+            }
+
         # ----- render ----------------------------------------------------------
 
         def render(self, width, height, st, at):
-            global BIO_SHADER_OK
             g = self.game
 
             if self.last_st is None:
@@ -3207,269 +3826,107 @@ init python:
                 if steps >= INV_MAX_CATCHUP:
                     self.acc = 0.0
 
-            rv = renpy.Render(1280, 720)
-            frame_tex = {}
+            p = InvPaint(st, at)
 
-            def tex(key, disp, w=1280, h=720):
-                entry = frame_tex.get(key)
-                if entry is None:
-                    r = renpy.render(disp, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = (r, r.get_size())
-                    frame_tex[key] = entry
-                return entry
-
-            def rect(color, w, h):
-                w = max(1, int(w))
-                h = max(1, int(h))
-                key = ("rect", color, w, h)
-                entry = frame_tex.get(key)
-                if entry is None:
-                    solid = self._misc(("solid", color), lambda c=color: Solid(c))
-                    r = renpy.render(solid, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = r
-                    frame_tex[key] = entry
-                return entry
-
-            def qa(a):
-                return "%02x" % (int(inv_clamp(a, 0.0, 1.0) * 7.0) * 34 + 6)
-
-            def blit_text(disp_text, size, color, x, y, font=INV_FONT, bold=False,
-                        anchor=(0.0, 0.0), w=1200, h=200, key=None, outline=True):
-                t = self._text(disp_text, size, color, font=font, bold=bold,
-                            outline=outline)
-                r, (tw, th) = tex(key or ("t", disp_text, size, color, font, bold, w),
-                                t, w, h)
-                rv.blit(r, (int(x - tw * anchor[0]), int(y - th * anchor[1])))
-                return (tw, th)
-
-            canvas_layer = [None]
-
-            def canvas():
-                if canvas_layer[0] is None:
-                    layer = renpy.Render(1280, 720)
-                    canvas_layer[0] = layer.canvas()
-                    rv.blit(layer, (0, 0))
-                return canvas_layer[0]
-
-            # A sprite layer for the FLOOR. Matsu'Py fixes a layer's z-order at
-            # the moment it is first blitted into rv, and the floor canvas
-            # claims its slot before any figure is drawn -- so sprite art that
-            # belongs on the boards cannot just go through sblit, or it would
-            # draw on top of the people standing on it. This layer is created
-            # on first use, which happens inside the floor-hazard pass, i.e.
-            # after the canvas and before the bodies. Exactly where a hazard
-            # lives.
-            #
-            # NOTE: this is a closure over `render`'s locals, so it MUST be
-            # handed to _render_open explicitly -- that is a separate method
-            # and only sees what it is passed. Forgetting that raises a
-            # NameError which the hazard's own try/except swallows, and the
-            # bars simply stop drawing with no error anywhere.
-            floor_layer = [None]
-
-            def fblit(r, pos):
-                if floor_layer[0] is None:
-                    layer = renpy.Render(1280, 720)
-                    floor_layer[0] = layer
-                    rv.blit(layer, (0, 0))
-                floor_layer[0].subpixel_blit(r, pos)
-
-            sblit = rv.subpixel_blit
-
-            shake_x = shake_y = 0
+            sx = sy = 0
             if g.shake > 0.01:
                 amp = 13.0 * g.shake
-                shake_x = int(math.sin(g.tick * 1.9) * amp)
-                shake_y = int(math.cos(g.tick * 2.7) * amp * 0.6)
+                sx = int(math.sin(g.tick * 1.9) * amp)
+                sy = int(math.cos(g.tick * 2.7) * amp * 0.6)
 
-            # The camera body, resolved once per frame and handed to the soup
-            # shader and to every projection below, so the two never disagree.
-            cam = g.cam_tuple()
+            sp = self._stage(g, sx, sy)
+            act_two = (g.mode == "open"
+                       or (g.mode in ("leave_w", "leave_l") and g.corrupt > 0.4))
 
-            # --- 1. THE SOUP (and the hole in it) ------------------------------
-            if BIO_SHADER_OK:
-                try:
-                    quad = Transform(
-                        BIO_SOUP_IMG, xysize=(1280, 720), mesh=True,
-                        shader="inv.soup",
-                        u_bio_res=(1280.0, 720.0),
-                        u_bio_time=g.clock,
-                        u_bio_corrupt=g.corrupt,
-                        u_bio_pulse=inv_clamp(g.beat_pulse * (0.45 + 0.55 * g.corrupt), 0.0, 1.0),
-                        u_bio_jolt=g.jolt,
-                        u_bio_flash=g.flash,
-                        u_bio_dark=g.dark,
-                        u_bio_rush=g.rush,
-                        u_bio_spin=g.spin,
-                        u_bio_floor=(1.0 if g.corrupt > 0.55 else 0.0),
-                        u_bio_horizon=BIO_CAM_HORIZON,
-                        u_bio_floork=BIO_FLOOR_K,
-                        u_bio_fscroll=g.rush * 0.35,
-                        u_bio_fury=g.fury,
-                        u_bio_cam=cam,
-                        u_bio_hole=(float(g.hole[0]), float(g.hole[1]),
-                                    float(g.hole[2]), float(g.hole[3])))
-                    qr = renpy.render(quad, 1280, 720, st, at)
-                    rv.depends_on(qr)
-                    rv.blit(qr, (0, 0))
-                except Exception as soup_e:
-                    BIO_SHADER_OK = False
-                    try:
-                        renpy.log("INV FX: soup render failed: %r" % soup_e)
-                    except Exception:
-                        pass
-                    rv.blit(rect(BIO_BLACK, 1280, 720), (0, 0))
+            # --- the world (through the lens) -------------------------------
+            self._room(g, p, sp, act_two)
+            if act_two:
+                self._open_world(g, p, sp)
             else:
-                rv.blit(rect(BIO_BLACK, 1280, 720), (0, 0))
+                self._act_one_world(g, p, sp)
+            inv_fx_paint(p, g.fx, "front", sx, sy)
 
-            # --- 2. suspended matter -------------------------------------------
-            # SCREEN SPACE, so it hands over to the world-space debris as the
-            # stage comes up. Confetti painted flat across a perspective floor
-            # reads as dirt on the lens and undoes the depth the rest of the
-            # frame is working for; act one has no stage, so there it is fine.
-            flat = 1.0 - inv_clamp((g.corrupt - 0.35) / 0.45, 0.0, 1.0)
-            if g.dark < 0.95 and flat > 0.03:
-                mote_col = ("#dfe9ff" if g.corrupt < 0.5 else "#ffb9c6")
-                for m in g.motes:
-                    a = (0.10 + 0.35 * m["z"]) * flat
-                    if a < 0.145:
-                        continue
-                    s = m["s"]
-                    rv.blit(rect(mote_col + qa(a), s, s),
-                            (int(m["x"]) + shake_x, int(m["y"]) + shake_y))
-                ring_a = int((42 if g.corrupt < 0.5 else 46) * flat)
-                if ring_a > 5:
-                    ring_col = ((90, 140, 255, ring_a) if g.corrupt < 0.5
-                                else (255, 60, 90, ring_a))
-                    cv = canvas()
-                    for b in g.bubbles:
-                        try:
-                            cv.circle(ring_col,
-                                    (int(b["x"]) + shake_x, int(b["y"]) + shake_y),
-                                    int(max(4, b["r"])), 2)
-                        except Exception:
-                            pass
-
-            # --- 3. the fight ---------------------------------------------------
-            if g.mode == "open" or (g.mode in ("leave_w", "leave_l") and g.corrupt > 0.4):
-                self._render_open(g, rv, tex, rect, qa, blit_text, canvas,
-                                sblit, shake_x, shake_y, st, at, cam, fblit)
+            # --- the HUD (crisp, after the lens) ----------------------------
+            p.to_hud()
+            if act_two:
+                self._open_hud(g, p, sp)
             else:
-                self._render_act_one(g, rv, tex, rect, qa, blit_text, canvas,
-                                    sblit, shake_x, shake_y, st, at)
-
-            # --- 4. floating numbers --------------------------------------------
-            for f in g.floats:
-                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
-                if f.get("world"):
-                    fx, fy, fpp = bio_project(f["x"], f["y"])
-                    fx, fy = bio_cam_apply(fx, fy, cam)
-                    size = int((30 if f["big"] else 21) * (0.62 + 0.38 * fpp))
-                else:
-                    fx, fy = f["x"], f["y"]
-                    size = 30 if f["big"] else 21
-                blit_text(f["text"], size,
-                        f["color"] + qa(a), int(fx) + shake_x,
-                        int(fy) + shake_y, bold=f["big"], anchor=(0.5, 0.5),
-                        w=260, h=60)
-
-            # --- 5. pause --------------------------------------------------------
+                self._act_one_hud(g, p, sx, sy)
+            self._floats(g, p, sp)
+            inv_fx_paint(p, g.fx, "hud")
             if g.paused:
-                rv.blit(rect("#04030ac4", 1280, 720), (0, 0))
-                blit_text("PAUSED", 40, BIO_INK, 640, 316, bold=True,
-                        anchor=(0.5, 0.5), w=600, h=70)
-                blit_text("ESC  RESUME        Q  QUIT", 16, BIO_DIM,
-                        640, 372, anchor=(0.5, 0.5), w=800, h=44)
+                self._pause(g, p)
+
+            rv = inv_compose(p, self._look(g, sp), g.clock)
 
             # THE DRAW RATE IS THE TICK RATE. Every pixel above is a pure
-            # function of the simulation state: nothing in this method reads
-            # self.acc and nothing interpolates between ticks, so between two
-            # 1/60s ticks this stage paints a byte-identical picture. Asking
-            # for the next frame IMMEDIATELY meant a 165Hz or 240Hz panel ran
-            # the entire draw -- every python-side blit, every full-screen
-            # shader pass, and the mark-and-sweep over every Render they make
-            # -- two to four times per tick and threw the extra frames away.
-            #
-            # Handing redraw() the time remaining until the next tick lets the
-            # engine's scheduler wake us exactly when there is something new to
-            # draw. It wakes at the first vblank at or after the delay, so a
-            # 60Hz display is unaffected and only a high-refresh one stops
-            # paying. Input is unchanged: the key latch is polled inside
-            # step(), on the tick. Same governor as kototouhou.rpy.
+            # function of the simulation state, so between two 1/60s ticks
+            # this stage paints a byte-identical picture -- asking for the
+            # next frame immediately only made a high-refresh panel run the
+            # whole draw two to four times per tick. Same governor as
+            # kototouhou.rpy.
             if g.result is None and not g.paused:
                 renpy.redraw(self, max(0.0, INV_TICK - self.acc))
             return rv
 
         # ----- the body --------------------------------------------------------
 
-        def _draw_body(self, g, rv, tex, sblit, cx, cy, zoom, sx, sy,
-                    st, at, warp=1.0, rot=0.0, stretch=(1.0, 1.0),
-                    diss=0.0, hurt=0.0):
-            """Rule 3 lives here. One warped, contorting, banking body."""
+        def _draw_body(self, g, p, cx, cy, zoom, warp=1.0, rot=0.0,
+                       stretch=(1.0, 1.0), diss=0.0, hurt=0.0,
+                       tint=(1.0, 1.0, 1.0, 0.0), rim=(0.0, 0.0, 0.0, 0.0),
+                       scan=(0.0, 0.0, 0.02, 0.0), reflect=0.0, feet=None):
+            """Rule 3 lives here. One warped, contorting, banking body -- and,
+            when it is standing on lacquered boards, its reflection."""
             plate, W, H = self._body_plate(zoom)
-
-            # THE MISREGISTRATION CLIMBS WITH THE ENTRY. Act one is a plate
-            # that is very slightly out; by the corruptive state it is being
-            # assembled out of slices that do not belong to each other, and
-            # blocks of it are holding a registration from a second ago. Both
-            # knobs ride g.corrupt and g.fury rather than a clock, so the body
-            # comes apart at exactly the rate the fight does.
             slip = 0.30 + 0.60 * g.corrupt + 0.35 * g.fury
             mosh = 0.06 + 0.44 * g.corrupt + 0.34 * g.fury
-
+            body = None
             if BIO_MISREG_OK:
                 try:
-                    body = bio_misreg(plate, W, H, g.clock, warp=warp,
-                                    split=1.0, slip=slip, mosh=mosh,
-                                    stretch=stretch, pivot=0.86, hurt=hurt,
-                                    diss=diss)
-                    if abs(rot) > 0.05:
-                        body = Transform(body, rotate=rot, subpixel=True)
-                    r = renpy.render(body, W, H, st, at)
-                    rv.depends_on(r)
-                    w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
-                    return
-                except Exception as misreg_e:
-                    try:
-                        renpy.log("INV FX: misreg render failed: %r" % misreg_e)
-                    except Exception:
-                        pass
-
-            if INV_FLESH_OK:
+                    body = bio_misreg(plate, W, H, g.clock, warp=warp, split=1.0,
+                                      slip=slip, mosh=mosh, stretch=stretch,
+                                      pivot=0.86, hurt=hurt, diss=diss,
+                                      tint=tint, rim=rim, scan=scan)
+                except Exception:
+                    body = None
+            if body is None and INV_FLESH_OK:
+                body = inv_flesh(plate, W, H, g.clock, warp=warp, stretch=stretch,
+                                 pivot=0.86, hurt=hurt, diss=diss)
+            if body is None:
+                body = self._body_plain(zoom)
+            if abs(rot) > 0.05:
+                body = Transform(body, rotate=rot, subpixel=True)
+            try:
+                if reflect > 0.01 and feet is not None:
+                    # THE GLOSS. The same body, flipped about its own feet,
+                    # foreshortened and faint. The plate centres the sprite,
+                    # so its feet sit (H - h) / 2 above the plate's bottom.
+                    k = 0.56
+                    rd = Transform(body, yzoom=-k, alpha=reflect, subpixel=True)
+                    rr = renpy.render(rd, W, int(H * k) + 4, p.st, p.at)
+                    rw, rh = rr.get_size()
+                    h_body = BIO_SPRITE_H * zoom
+                    p.sblit(rr, (cx - rw * 0.5, feet - k * (H - h_body) * 0.5))
+                r = renpy.render(body, W, H, p.st, p.at)
+                w, h = r.get_size()
+                p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
+            except Exception as e:
                 try:
-                    body = inv_flesh(plate, W, H, g.clock, warp=warp,
-                                    stretch=stretch, pivot=0.86, hurt=hurt,
-                                    diss=diss)
-                    if abs(rot) > 0.05:
-                        body = Transform(body, rotate=rot, subpixel=True)
-                    r = renpy.render(body, W, H, st, at)
-                    rv.depends_on(r)
-                    w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
-                    return
-                except Exception as flesh_e:
-                    try:
-                        renpy.log("INV FX: flesh render failed: %r" % flesh_e)
-                    except Exception:
-                        pass
+                    renpy.log("INV FX: body render failed: %r" % e)
+                except Exception:
+                    pass
+            return body
 
-            r, (w, h) = tex(("plainbody", round(zoom, 3)),
-                            self._body_plain(zoom), 900, 900)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
-
-        def _draw_heart(self, g, rv, tex, sblit, cx, cy, sx, sy, st, at,
-                    scale=1.0):
+        def _draw_heart(self, g, p, cx, cy, scale=1.0):
             """The player's avatar in a corruptive state: the SOUL heart the
-            other game modes run on, put through the same shader as the
-            Archivist and warped harder than anything else on screen. It beats
-            -- squashing on the downbeat -- and it is never drawn clean."""
+            other game modes run on, put through the shared shader and warped
+            harder than anything else on screen. It beats -- squashing on the
+            downbeat -- and it is never drawn clean."""
             plate, W, H = inv_body_plate(INV_HEART, INV_HEART_W, INV_HEART_H,
                                         BIO_HEART_ZOOM * max(0.18, scale),
                                         pad_x=2.2, pad_y=2.2, nearest=True)
             beat = 1.0 - 0.16 * g.beat_pulse
+            p.glow(cx, cy, 30 * scale, 30 * scale, col="#ff3a56", alpha=0.35)
             if INV_FLESH_OK:
                 try:
                     d = inv_flesh(plate, W, H, g.clock * 2.3,
@@ -3477,88 +3934,140 @@ init python:
                                 stretch=(1.0 / max(0.5, beat), beat),
                                 pivot=0.5, hurt=0.0,
                                 diss=0.04 + 0.04 * math.sin(g.clock * 3.1))
-                    r = renpy.render(d, W, H, st, at)
-                    rv.depends_on(r)
+                    r = renpy.render(d, W, H, p.st, p.at)
                     w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+                    p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
                     return
                 except Exception:
                     pass
             hz = BIO_HEART_ZOOM * max(0.18, scale)
-            heart = self._misc(("heartplain", round(hz, 2)),
-                            lambda z=hz: Transform(INV_HEART, zoom=z,
-                                                nearest=True, subpixel=True))
-            r, (w, h) = tex(("heartplain", round(hz, 2)), heart, 160, 160)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+            heart = self._tf(("heartplain", round(hz, 2)),
+                             lambda z=hz: Transform(INV_HEART, zoom=z,
+                                                    nearest=True, subpixel=True))
+            r, (w, h) = p.tex(("heartplain", round(hz, 2)), heart, 160, 160)
+            p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
 
         # ----- ACT ONE ---------------------------------------------------------
 
-        def _render_act_one(self, g, rv, tex, rect, qa, blit_text, canvas,
-                            sblit, sx, sy, st, at):
+        def _act_one_world(self, g, p, sp):
+            """The figure stands on its stage. The boards are unlit; the room's
+            own light rims it; a shadow and a reflection put it ON the floor
+            rather than in front of the picture of one."""
             arriving = (g.mode == "arrive")
-            bob = math.sin(g.clock * 1.15) * 9.0
-            zoom = BIO_BOSS_ZOOM_ACT1
-            cy = 300 + bob
-
+            fx_, fy_, zoom = self._figure(g, sp)
+            cam = sp["cam"]
+            czoom = cam[3]
+            zoom *= czoom
+            body_h = BIO_SPRITE_H * zoom
+            # It hovers -- it always has -- a little, and the shadow says so.
+            bob = (math.sin(g.clock * 1.15) * 6.0 - 6.0) * (1.0 - sp["s"])
+            feet_x, feet_y = bio_cam_apply(fx_, fy_, cam)
+            feet_x += sp["sx"]
+            feet_y += sp["sy"]
+            cy = feet_y - body_h * 0.5 + bob
             if arriving:
-                # Comes out of the hole: too tall for the room, still eroding.
-                # IT ARRIVES AT ITS RESTING POSITION. This used to place the
-                # body relative to the HOLE for the whole arrival and then
-                # switch to an absolute resting cy the instant the bout began,
-                # so the last frame of the entrance and the first frame of act
-                # one were 60-80px apart and the figure visibly jumped as the
-                # panels came up. (Mystery never had the bug because it uses
-                # one expression throughout -- that is the fix, generalised.)
-                #
-                # Lerping the REST position toward the hole by `emerge` makes
-                # the seam impossible rather than merely unlikely: emerge is
-                # driven to exactly 0.0 at the end of the arrival, so the last
-                # arrival frame IS the resting frame, whatever either value is
-                # tuned to later.
+                # IT ARRIVES AT ITS RESTING POSITION: the rest pose lerped
+                # toward the hole by `emerge`, which is driven to exactly 0 at
+                # the end of the arrival -- the last arrival frame IS the
+                # resting frame, whatever either value is later tuned to.
                 cy = inv_lerp(cy, g.hole[1] + 40.0, g.emerge)
                 stretch = (1.0 / max(0.35, g.body_scale) ** 0.4, g.body_scale)
                 warp = 1.0 + 1.0 * g.emerge
                 diss = g.emerge * 0.85
             else:
-                stretch = (getattr(g, "body_sx", 1.0), getattr(g, "body_sy", 1.0))
-                warp = 0.55 + 0.35 * math.sin(g.clock * 0.7)
+                stretch = (g.body_sx, g.body_sy)
+                # Act one is a plate VERY SLIGHTLY out of register; a hit or a
+                # wind-up throws it further, and act two is where it comes
+                # apart.
+                warp = (0.30 + 0.18 * math.sin(g.clock * 0.7)
+                        + 0.9 * g.boss_flash + 0.5 * g.windup)
                 diss = 0.0
 
-            self._draw_body(g, rv, tex, sblit, 640, cy, zoom, sx, sy, st, at,
-                            warp=warp, rot=g.boss_pose * 3.0, stretch=stretch,
-                            diss=diss, hurt=0.85 if g.hit_flash > 0.4 else 0.0)
+            inv_fx_paint(p, g.fx, "back", sp["sx"], sp["sy"])
 
-            if arriving:
+            # Its own light under it, and the shadow it casts.
+            standing = 1.0 - (g.emerge if arriving else 0.0)
+            if standing > 0.02:
+                p.shadow(feet_x, feet_y + 3.0, 150.0 * zoom / 0.30,
+                         26.0 * zoom / 0.30, alpha=0.62 * standing)
+
+            # The wind-up: a glow gathering behind it, in the colour of what
+            # it is about to do (gold: not an attack this turn; red: one).
+            glow_a = g.windup * 0.55
+            if g.telegraph:
+                glow_a = max(glow_a, 0.30 + 0.20 * math.sin(g.clock * 6.0))
+            if glow_a > 0.02:
+                col = BIO_WARN if (g.telegraph or g.windup_col == BIO_WARN) else BIO_RED
+                p.glow(feet_x, cy, 230.0 * zoom / 0.30, 300.0 * zoom / 0.30,
+                       col=col, alpha=glow_a)
+
+            scan = (0.0, 0.0, 0.02, 0.0)
+            if g.scan >= 0.0:
+                scan = (1.0 - g.scan, 0.9 * inv_clamp(1.25 - g.scan, 0.0, 1.0), 0.03, 0.0)
+            pull = -g.windup * 4.0
+            self._draw_body(
+                g, p, feet_x, cy, zoom, warp=warp,
+                rot=g.boss_pose * 3.0 + pull,
+                stretch=(stretch[0] * (1.0 - 0.05 * g.windup),
+                         stretch[1] * (1.0 + 0.06 * g.windup)),
+                diss=diss, hurt=0.85 if g.boss_flash > 0.4 else 0.0,
+                tint=inv_lerp_tint((0.86, 0.92, 1.10), (1.06, 0.86, 0.90), sp["s"]),
+                rim=inv_lerp_rim((0.45, 0.62, 1.0, 0.55), (1.0, 0.25, 0.38, 0.70), sp["s"]),
+                scan=scan, reflect=(0.20 * standing if not arriving else 0.0),
+                feet=feet_y)
+
+        def _act_one_hud(self, g, p, sx, sy):
+            if g.mode == "arrive":
                 return
 
             # --- the only chrome act one gets ------------------------------------
             # A name and a bar, both small, both far from the sprite. The bar is
-            # empty until CHECK has been used.
-            blit_text("BIOGRAPHY", 15, BIO_RED, 380, 28, bold=True, w=300, h=30)
-            bar_w = 520
-            rv.blit(rect("#04030ab4", bar_w + 4, 12), (380 - 2, 52))
+            # empty until CHECK has been used -- and then it is READ in, left to
+            # right, the way a scan would find it.
+            inv_draw_panel(p, 370, 16, 540, 54, BIOStage.STYLE_PLATE)
+            p.text("BIOGRAPHY", 15, BIO_RED, 386, 22, bold=True, w=300, h=30,
+                   outline="#04030a")
+            bar_w = 508
+            p.fill("#1a0610", 386, 48, bar_w, 9)
             if g.boss_known:
-                rv.blit(rect(BIO_RED_DEEP, bar_w, 8), (380, 54))
-                fill = int(bar_w * inv_clamp(g.boss_shown / float(BIO_BOSS_HP_MAX),
-                                            0.0, 1.0))
+                p.fill(BIO_RED_DEEP, 386, 48, int(bar_w * g.bar_reveal), 9)
+                fill = int(bar_w * g.bar_reveal * inv_clamp(
+                    g.boss_shown / float(BIO_BOSS_HP_MAX), 0.0, 1.0))
                 if fill > 0:
-                    rv.blit(rect(BIO_RED, fill, 8), (380, 54))
+                    p.fill(BIO_RED, 386, 48, fill, 9)
+                    p.fill("#ffffff60", 386, 48, fill, 2)
+                for k in range(1, 10):
+                    p.fill("#04030ab0", 386 + int(bar_w * k / 10.0), 48, 1, 9)
+                mark = 386 + int(bar_w * BIO_SHIFT_HP / float(BIO_BOSS_HP_MAX))
+                p.fill(BIO_WARN + "c0", mark, 45, 2, 15)
+            else:
+                for k in range(0, bar_w, 12):
+                    p.fill("#ff2d4e22", 386 + k, 51, 6, 3)
+
+            # THE TURN LOG. Top right, clear of the figure; it is where a slow
+            # reader finds what the last turn did while choosing this one.
+            inv_draw_log(p, g, 930, 20, 310,
+                         {"you": (BIO_INK, BIO_TEAL), "it": (BIO_RED, BIO_WARN)})
 
             slide = int(g.panel_slide * 200)
             if g.panel_slide < 1.0:
-                self._panel(rv, rect, BIOStage.PANEL_CMD, sx, sy + slide)
-                self._panel(rv, rect, BIOStage.PANEL_HUD, sx, sy + slide)
-                self._panel_contents(g, rv, tex, rect, qa, blit_text, sx, sy + slide)
+                kick = g.panel_kick
+                kx = int(math.sin(g.tick * 2.3) * 9.0 * max(0.0, kick))
+                ky = int(abs(kick) * 4.0)
+                self._panel(g, p, BIOStage.PANEL_CMD, sx, sy + slide)
+                self._panel(g, p, BIOStage.PANEL_HUD, sx + kx, sy + slide + ky,
+                            hit=kick)
+                self._panel_contents(g, p, sx, sy + slide, kx, ky)
 
-        def _panel(self, rv, rect, box, sx, sy):
+        def _panel(self, g, p, box, sx, sy, hit=0.0):
             x, y, w, h = box
-            x += sx
-            y += sy
-            rv.blit(rect(BIO_INK, w + 6, h + 6), (x - 3, y - 3))
-            rv.blit(rect(BIO_BLACK, w + 2, h + 2), (x - 1, y - 1))
-            rv.blit(rect(BIO_WIN, w, h), (x, y))
+            inv_draw_panel(p, x + sx, y + sy, w, h, BIOStage.STYLE_PANEL)
+            if hit > 0.05:
+                p.fill(inv_hex(BIO_RED, 0.45 * hit), x + sx, y + sy, w, h)
+            elif hit < -0.05:
+                p.fill(inv_hex(BIO_TEAL, 0.30 * -hit), x + sx, y + sy, w, h)
 
-        def _panel_contents(self, g, rv, tex, rect, qa, blit_text, sx, sy):
+        def _panel_contents(self, g, p, sx, sy, kx=0, ky=0):
             cx, cy, cw, ch = BIOStage.PANEL_CMD
             cx += sx
             cy += sy
@@ -3568,638 +4077,410 @@ init python:
                 cursor = g.cursor if g.mode == "menu" else g.sub_cursor
                 for i, row in enumerate(rows):
                     live = (i == cursor)
-                    ry = cy + 16 + i * 30
+                    ry = cy + 18 + i * 30
                     if live:
-                        rv.blit(rect(BIO_INK + qa(0.13), cw - 28, 26), (cx + 14, ry - 3))
-                        rv.blit(rect(BIO_TEAL, 9, 9), (cx + 22, ry + 6))
-                    blit_text(row[1], 20, BIO_INK if live else BIO_FAINT,
-                            cx + 42, ry, bold=live, w=260, h=30)
+                        p.fill(BIO_INK + "1c", cx + 14, ry - 4, cw - 28, 27)
+                        p.fill(BIO_TEAL, cx + 14, ry - 4, 3, 27)
+                        p.quad("glow", cx + 30, ry + 9, 0.16, col=BIO_TEAL,
+                               alpha=0.8, add=True)
+                        p.fill(BIO_TEAL, cx + 26, ry + 5, 8, 8)
+                    p.text(row[1], 20, BIO_INK if live else BIO_FAINT,
+                           cx + 46, ry, bold=live, w=260, h=30, outline="#04030a")
                     if g.mode == "sub" and row[2]:
-                        blit_text(str(row[2]) + " PP", 14,
-                                BIO_TEAL if live else BIO_FAINT,
-                                cx + cw - 22, ry + 4, anchor=(1.0, 0.0), w=120, h=26)
-                # Tucked into the bottom-right corner rather than sitting
-                # directly under the last command, where it reads as a fifth
-                # entry in the list.
-                blit_text("Z  OK      X  BACK      ESC  PAUSE", 12, BIO_FAINT,
-                        cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0),
-                        w=420, h=24)
+                        p.text(str(row[2]) + " PP", 14,
+                               BIO_TEAL if live else BIO_FAINT,
+                               cx + cw - 22, ry + 4, anchor=(1.0, 0.0), w=120, h=26)
+                p.text("Z  OK      X  BACK      ESC  PAUSE", 12, BIO_FAINT,
+                       cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0), w=420, h=24)
 
             elif g.mode == "beat":
-                blit_text(g.beat_label, 22, BIO_INK, cx + 20, cy + 30, bold=True,
-                        w=cw - 40, h=40)
+                # The resolved action, large -- for exactly as long as the
+                # beat holds. It is in the log after that.
+                u = inv_clamp(g.mtick / 6.0, 0.0, 1.0)
+                p.text(g.beat_label, 22, BIO_INK, cx + 22, cy + 28, bold=True,
+                       w=cw - 40, h=40, outline="#04030a")
                 if g.beat_value:
-                    blit_text(g.beat_value, 30, BIO_WARN, cx + 20, cy + 62,
-                            bold=True, w=cw - 40, h=44)
-                if g.mtick > 12 and (g.tick // 20) % 2 == 0:
-                    rv.blit(rect(BIO_INK, 14, 4), (cx + cw - 36, cy + ch - 26))
+                    p.text(g.beat_value, int(24 + 8 * u), BIO_WARN, cx + 22,
+                           cy + 62, bold=True, w=cw - 40, h=48, outline="#04030a")
+                hold = inv_clamp(g.mtick / float(INV_BEAT_HOLD), 0.0, 1.0)
+                p.fill(BIO_FAINT + "60", cx + 22, cy + ch - 18, cw - 44, 2)
+                p.fill(BIO_TEAL, cx + 22, cy + ch - 18, int((cw - 44) * hold), 2)
+
+            elif g.mode == "enemy":
+                # Its turn: no readout, the figure is the readout. A thin
+                # gathering line says something is coming.
+                u = inv_clamp(g.mtick / 26.0, 0.0, 1.0)
+                col = BIO_WARN if g.windup_col == BIO_WARN else BIO_RED
+                p.text("BIOGRAPHY", 18, col, cx + 22, cy + 30, bold=True,
+                       w=cw - 40, h=34, outline="#04030a")
+                p.fill(col + "50", cx + 22, cy + 70, cw - 44, 2)
+                p.fill(col, cx + 22, cy + 70, int((cw - 44) * u), 2)
 
             # --- status ---------------------------------------------------------
             hx, hy, hw, hh = BIOStage.PANEL_HUD
-            hx += sx
-            hy += sy
-            blit_text(inv_player_name(), 19, BIO_INK, hx + 20, hy + 12,
-                    bold=True, w=hw - 40, h=32)
-            self._odometer(g, rv, tex, rect, qa, blit_text, "HP", g.hp_shown,
-                        g.hp, hx + 20, hy + 44, BIO_INK)
-            self._odometer(g, rv, tex, rect, qa, blit_text, "PP", g.pp_shown,
-                        g.pp, hx + 20, hy + 96, BIO_TEAL, small=True)
+            hx += sx + kx
+            hy += sy + ky
+            p.text(inv_player_name(), 19, BIO_INK, hx + 22, hy + 12,
+                   bold=True, w=hw - 40, h=32, outline="#04030a")
+            self._odometer(g, p, "HP", g.hp_shown, g.hp, hx + 22, hy + 44,
+                           BIO_INK)
+            self._odometer(g, p, "PP", g.pp_shown, g.pp, hx + 22, hy + 96,
+                           BIO_TEAL, small=True)
             if g.telegraph:
-                blit_text("INCOMING", 13, BIO_WARN, hx + hw - 20, hy + 16,
-                        anchor=(1.0, 0.0), w=200, h=26)
+                a = 0.6 + 0.4 * math.sin(g.clock * 7.0)
+                p.text("INCOMING", 13, inv_hex(BIO_WARN, a), hx + hw - 22, hy + 16,
+                       anchor=(1.0, 0.0), w=200, h=26, bold=True)
+            if g.guard:
+                p.text("GUARD", 12, BIO_TEAL, hx + hw - 22, hy + 40,
+                       anchor=(1.0, 0.0), w=200, h=24)
             if g.god:
-                blit_text("GOD", 12, BIO_WARN + "aa", hx + hw - 20, hy + hh - 24,
-                        anchor=(1.0, 0.0), w=120, h=24)
+                p.text("GOD", 12, BIO_WARN + "aa", hx + hw - 22, hy + hh - 24,
+                       anchor=(1.0, 0.0), w=120, h=24)
 
-        def _odometer(self, g, rv, tex, rect, qa, blit_text, label, shown, real,
-                    x, y, color, small=False):
+        def _odometer(self, g, p, label, shown, real, x, y, color, small=False):
             """An EarthBound counter: fixed-width cells, and the digits that are
             moving are drawn mid-roll rather than swapped."""
             size = 22 if small else 30
             cell_w = 22 if small else 28
             cell_h = 32 if small else 42
-            blit_text(label, 14, color, x, y + (6 if small else 12), bold=True,
-                    w=50, h=28)
-
+            p.text(label, 14, color, x, y + (6 if small else 12), bold=True,
+                   w=50, h=28)
             value = int(math.ceil(shown - 0.0001)) if shown > 0 else 0
             rolling = abs(shown - real) > 0.05
             digits = "%03d" % inv_clamp(value, 0, 999)
             frac = shown - math.floor(shown)
             base_x = x + 40
-
             for i, ch in enumerate(digits):
                 dx = base_x + i * cell_w
-                rv.blit(rect("#0a0812e0", cell_w - 4, cell_h), (dx, y))
+                p.fill("#120d1ee8", dx, y, cell_w - 4, cell_h)
+                p.fill("#ffffff10", dx, y, cell_w - 4, 1)
                 if rolling:
                     off = int(frac * cell_h * (1 if real < shown else -1))
                     nxt = str((int(ch) + (1 if real > shown else -1)) % 10)
-                    blit_text(nxt, size, color + qa(0.45), dx + (cell_w - 4) // 2,
-                            y + off - (cell_h if real < shown else -cell_h) + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2, y + off + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(nxt, size, inv_hex(color, 0.45), dx + (cell_w - 4) // 2,
+                           y + off - (cell_h if real < shown else -cell_h) + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2, y + off + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
                 else:
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
 
         # ----- ACT TWO ---------------------------------------------------------
 
-        def _render_open(self, g, rv, tex, rect, qa, blit_text, canvas,
-                        sblit, sx, sy, st, at, cam=None, fblit=None):
-            """Act two, drawn on a stage.
-
-            The simulation is still the flat plane it always was -- world y is
-            depth, and only this function knows that. Everything is projected
-            through bio_project(), pushed through the camera body, and then
-            drawn FAR FIRST, because depth sorting is what actually sells the
-            third dimension; without it a perspective arena is just a picture
-            of one.
-            """
+        def _open_world(self, g, p, sp):
+            """Act two, drawn on a stage. The simulation is still the flat
+            plane it always was -- world y is depth, and only the renderer
+            knows that. The hazards are already on the boards (the room
+            shader paints them); everything that STANDS is projected and drawn
+            far first, because depth sorting is what sells the third
+            dimension."""
             ax0, ay0, ax1, ay1 = BIO_ARENA
-            cv = canvas()
-
-            def proj(wx, wy):
-                px_, py_, pp = bio_project(wx, wy)
-                px_, py_ = bio_cam_apply(px_, py_, cam)
-                return (px_ + sx, py_ + sy, pp)
-
-            def proj_h(wx, wy, height):
-                """Same, for something suspended off the boards rather than
-                standing on them: unclamped in depth, and lifted by a HEIGHT
-                that foreshortens like everything else."""
-                px_, py_, pp = bio_project_free(wx, wy)
-                px_, py_ = bio_cam_apply(px_, py_ - height * pp, cam)
-                return (px_ + sx, py_ + sy, pp)
-
+            proj = lambda wx, wy: self._proj(sp, wx, wy)
+            projh = lambda wx, wy, h: self._proj_h(sp, wx, wy, h)
             exposed = g._open_exposed()
             leaving = g.mode in ("leave_w", "leave_l")
 
-            # --- the boards ------------------------------------------------------
-            # The arena is a trapezoid now, so its edge is four projected
-            # corners rather than four screen-aligned bars.
-            c_fl = proj(ax0, ay0)
-            c_fr = proj(ax1, ay0)
-            c_nl = proj(ax0, ay1)
-            c_nr = proj(ax1, ay1)
-            try:
-                cv.lines((255, 45, 78, 90), True,
-                        [(int(c_fl[0]), int(c_fl[1])), (int(c_fr[0]), int(c_fr[1])),
-                        (int(c_nr[0]), int(c_nr[1])), (int(c_nl[0]), int(c_nl[1]))],
-                        2)
-            except Exception:
-                pass
+            # --- the boards' edge: four projected corners, a thin red line --
+            c = [proj(ax0, ay0), proj(ax1, ay0), proj(ax1, ay1), proj(ax0, ay1)]
+            for i in range(4):
+                a_, b_ = c[i], c[(i + 1) % 4]
+                p.line(a_[0], a_[1], b_[0], b_[1], width=1.4, col=BIO_RED,
+                       alpha=0.45, add=True)
 
-            # --- floor hazards, which live UNDER everything that stands on it ---
+            # --- the bars rise as CURTAINS of light off their floor line ----
             for h in g.hazards:
-                kind = h["kind"]
-                if kind == "ring":
-                    # A circle on the floor is a chain of projected points --
-                    # rows bunch toward the horizon, so an ellipse would float.
-                    # Points outside the stage are DROPPED AND THE CHAIN IS
-                    # BROKEN; joining across the gap is what turned a shockwave
-                    # into a red lump on screen.
-                    warn = h["warn"] > 0
-                    col = ((255, 207, 92, 150) if warn else (255, 45, 78, 200))
-                    thick = 2 if warn else max(2, int(h["w"] * 0.22))
-                    runs = []
-                    run = []
-                    steps = 44
-                    for k in range(steps + 1):
-                        a2 = k * 6.2831853 / steps
-                        wx = h["x"] + math.cos(a2) * h["r"]
-                        wy = h["y"] + math.sin(a2) * h["r"]
-                        ok = (ax0 - 90 < wx < ax1 + 90
-                            and ay0 - 40 < wy < ay1 + 90)
-                        if ok:
-                            sxx, syy, _pp = proj(wx, wy)
-                            if -400 < sxx < 1700 and 0 < syy < 1100:
-                                run.append((int(sxx), int(syy)))
-                                continue
-                        if len(run) > 1:
-                            runs.append(run)
-                        run = []
-                    if len(run) > 1:
-                        runs.append(run)
-                    for r_ in runs:
-                        try:
-                            cv.lines(col, False, r_, thick)
-                        except Exception:
-                            pass
-
-                elif kind == "bar":
-                    # A sweeping wall. This used to be a flat canvas line; it
-                    # is now the `lens` beam art from the shared atlas, drawn
-                    # between the SAME two projected endpoints, so it keeps the
-                    # perspective exactly and gains the hot core + falloff that
-                    # a hazard this lethal should have had all along. It goes
-                    # through fblit, not sblit -- see floor_layer.
-                    warning = h["warn"] > 0
-                    bcol = "#ffcf5c" if warning else "#ff2d4e"
+                if h["kind"] != "bar":
+                    continue
+                warning = h["warn"] > 0
+                col = BIO_WARN if warning else BIO_RED
+                a = (0.14 + 0.12 * math.sin(g.tick * 0.6)) if warning else 0.30
+                for k in range(7):
+                    u = (k + 0.5) / 7.0
                     if h["axis"] == "h":
                         wy = h["p"] if not warning else (ay0 if h["spd"] > 0 else ay1)
-                        a_, b_, _p1 = proj(ax0, wy)
-                        c_, d_, _p2 = proj(ax1, wy)
-                        bthick = max(3, int(h["th"] * bio_persp(wy) * 1.05))
+                        wx = inv_lerp(ax0, ax1, u)
                     else:
                         wx = h["p"] if not warning else (ax0 if h["spd"] > 0 else ax1)
-                        a_, b_, _p1 = proj(wx, ay0)
-                        c_, d_, _p2 = proj(wx, ay1)
-                        bthick = max(3, int(h["th"] * 0.95))
-                    blen = max(8, int(math.hypot(c_ - a_, d_ - b_)))
-                    bbkt = int(math.degrees(math.atan2(d_ - b_, c_ - a_)) / 6.0) % 60
-                    baq = 3 if warning else 5
-                    bkey = ("biobar", bcol, blen // 10, bthick, bbkt, baq)
-                    bar_d = self._misc(bkey, (lambda c=bcol, L=blen, T=bthick,
-                                                bk=bbkt, aq=baq: Transform(
-                        emb_cell("lens"),
-                        xzoom=L / float(emb_size("lens")[0]),
-                        yzoom=T / float(emb_size("lens")[1]),
-                        rotate=bk * 6.0, subpixel=True,
-                        matrixcolor=TintMatrix(c), alpha=(aq + 0.5) / 6.0)))
-                    try:
-                        bquad = blen + bthick + 24
-                        brr_, (brw_, brh_) = tex(bkey, bar_d, bquad, bquad)
-                        fblit(brr_, ((a_ + c_) * 0.5 - brw_ * 0.5,
-                                    (b_ + d_) * 0.5 - brh_ * 0.5))
-                    except Exception:
-                        pass
+                        wy = inv_lerp(ay0, ay1, u)
+                    x0_, y0_, pp = projh(wx, wy, 0.0)
+                    x1_, y1_, _pp = projh(wx, wy, 120.0)
+                    p.line(x0_, y0_, x1_, y1_, width=4.0 * pp + 1.0, col=col,
+                           alpha=a * (0.5 + 0.5 * pp), add=True, tex="beam")
 
-                elif kind == "orbit":
-                    # The orbit is DRAWN, as the track on the boards plus a
-                    # tether back to the hand holding it. Without the track you
-                    # cannot see where the next revolution is going and the
-                    # move is a guess; with it, it is a pattern to walk through.
-                    runs = []
-                    run = []
-                    for k in range(37):
-                        a2 = k * 6.2831853 / 36.0
-                        rr = h["r"] * h["grow"]
-                        wx = g.bx + math.cos(a2) * rr
-                        wy = g.by + math.sin(a2) * rr * 0.72
-                        if ax0 - 90 < wx < ax1 + 90 and ay0 - 60 < wy < ay1 + 90:
-                            pt = proj(wx, wy)
-                            run.append((int(pt[0]), int(pt[1])))
-                            continue
-                        if len(run) > 1:
-                            runs.append(run)
-                        run = []
-                    if len(run) > 1:
-                        runs.append(run)
-                    for r_ in runs:
-                        try:
-                            cv.lines((255, 90, 118, 60), False, r_, 1)
-                        except Exception:
-                            pass
-                    a_, b_, _p1 = proj(g.bx, g.by)
-                    c_, d_, _p2 = proj(h["x"], h["y"])
-                    try:
-                        cv.line((255, 90, 118, 46), (int(a_), int(b_)),
-                                (int(c_), int(d_)), 1)
-                    except Exception:
-                        pass
+            inv_fx_paint(p, g.fx, "w_floor", proj=projh)
 
-            # --- telegraphs, also on the floor ----------------------------------
-            if g.b_state == "wind":
-                warn_a = inv_clamp(g.b_t / float(max(1, g.b_len)), 0.0, 1.0)
-                if g.b_move == "thrust":
-                    rad = math.radians(math.degrees(math.atan2(
-                        g.py - g.by, g.px - g.bx)))
-                    a_, b_, _p = proj(g.bx, g.by)
-                    c_, d_, _p2 = proj(g.bx + math.cos(rad) * 600,
-                                    g.by + math.sin(rad) * 600)
-                    try:
-                        cv.line((255, 207, 92, int(120 + 110 * warn_a)),
-                                (int(a_), int(b_)), (int(c_), int(d_)),
-                                int(3 + 5 * warn_a))
-                    except Exception:
-                        pass
-                elif g.b_move in ("sweep", "twirl"):
-                    rad = math.radians(g.blade)
-                    a_, b_, _p = proj(g.bx + math.cos(rad) * BIO_BLADE_INNER,
-                                    g.by + math.sin(rad) * BIO_BLADE_INNER)
-                    c_, d_, _p2 = proj(g.bx + math.cos(rad) * BIO_BLADE_OUTER,
-                                    g.by + math.sin(rad) * BIO_BLADE_OUTER)
-                    try:
-                        cv.line((255, 207, 92, 150), (int(a_), int(b_)),
-                                (int(c_), int(d_)), 2)
-                    except Exception:
-                        pass
-
-            # --- THE SWEEP, IN TWO PARTS ----------------------------------------
-            # 1. The FOOTPRINT on the boards. This is the hitbox and the only
-            #    thing you actually have to read, so it is drawn on the floor
-            #    where the collision really is.
-            for i, ang in enumerate(g.blade_arc):
-                a_al = int(130 * (1.0 - i / float(len(g.blade_arc) + 1)))
-                arms = (ang,) if g.b_move == "sweep" else (ang, ang + 180.0)
-                for arm in arms:
-                    rad = math.radians(arm)
-                    a_, b_, _p = proj(g.bx + math.cos(rad) * BIO_BLADE_INNER,
-                                    g.by + math.sin(rad) * BIO_BLADE_INNER)
-                    c_, d_, pp2 = proj(g.bx + math.cos(rad) * BIO_BLADE_OUTER,
-                                    g.by + math.sin(rad) * BIO_BLADE_OUTER)
-                    try:
-                        cv.line((255, 60, 90, a_al), (int(a_), int(b_)),
-                                (int(c_), int(d_)), max(2, int(7 * pp2)))
-                    except Exception:
-                        pass
-
-            # 2. The BLADE ITSELF, riding at hand height above that footprint:
-            #    a spectral pass of the glaive per arm, with after-images
-            #    trailing back along the arc so a sweep is a sweep and not a
-            #    line. Billboarded -- its on-screen angle is measured from the
-            #    projected inner and outer points, because a blade pointing
-            #    away from the camera has to foreshorten like everything else.
+            # --- the blade itself, riding at hand height ---------------------
+            # Spectral passes of the glaive per arm, after-images trailing back
+            # along the arc, billboarded: its on-screen angle is measured from
+            # the projected inner and outer points, so a blade pointing away
+            # from the camera foreshortens like everything else. (The
+            # FOOTPRINT -- the hitbox -- is on the boards, in the shader.)
             if g.b_state == "act" and g.b_move in ("sweep", "twirl"):
                 trail_angs = [g.blade] + list(g.blade_arc[:3])
                 for fade, ang in enumerate(trail_angs):
-                    arms = ((ang,) if g.b_move == "sweep"
-                            else (ang, ang + 180.0))
+                    arms = ((ang,) if g.b_move == "sweep" else (ang, ang + 180.0))
                     for arm in arms:
                         rad = math.radians(arm)
-                        ix, iy, ip = proj(
-                            g.bx + math.cos(rad) * BIO_BLADE_INNER,
-                            g.by + math.sin(rad) * BIO_BLADE_INNER)
-                        ox, oy, op = proj(
-                            g.bx + math.cos(rad) * BIO_BLADE_OUTER,
-                            g.by + math.sin(rad) * BIO_BLADE_OUTER)
+                        ix, iy, ip = proj(g.bx + math.cos(rad) * BIO_BLADE_INNER,
+                                          g.by + math.sin(rad) * BIO_BLADE_INNER)
+                        ox, oy, op = proj(g.bx + math.cos(rad) * BIO_BLADE_OUTER,
+                                          g.by + math.sin(rad) * BIO_BLADE_OUTER)
                         pmid = (ip + op) * 0.5
                         sang = math.degrees(math.atan2(oy - iy, ox - ix))
                         zb = self._zbucket(pmid * 1.2)
-                        bucket = (int(round(sang / BIO_ROT_STEP))
-                                % BIO_ROT_BUCKETS)
-                        br, (bw2, bh2) = tex(("blade", bucket, zb, fade),
-                                            self._blade_tf(sang, zb, fade),
-                                            560, 560)
-                        sblit(br, ((ix + ox) * 0.5 - bw2 * 0.5,
-                                (iy + oy) * 0.5 - BIO_BLADE_LIFT * pmid
-                                - bh2 * 0.5))
+                        bucket = int(round(sang / BIO_ROT_STEP)) % BIO_ROT_BUCKETS
+                        br, (bw2, bh2) = p.tex(("blade", bucket, zb, fade),
+                                               self._blade_tf(sang, zb, fade), 560, 560)
+                        bxm = (ix + ox) * 0.5
+                        bym = (iy + oy) * 0.5 - BIO_BLADE_LIFT * pmid
+                        if fade == 0:
+                            p.glow(bxm, bym, 120 * pmid, 60 * pmid, col=BIO_RED,
+                                   alpha=0.5)
+                        p.sblit(br, (bxm - bw2 * 0.5, bym - bh2 * 0.5))
 
-            # --- POISE, DRAWN ON THE BOARDS -------------------------------------
-            # There is no bar for it and no word anywhere near the sprite. It is
-            # an arc of light on the floor at its feet, teal because teal is the
-            # player's colour in this fight -- so what the ring says is "this
-            # much of it is yours", and it is read in the same glance as where
-            # its feet are. A crowded label over the sprite would break rule 2
-            # and would be read half a second later than this is.
-            if not leaving and g.b_state != "buckle":
-                pf = inv_clamp(g.poise_shown / g._poise_cap(), 0.0, 1.0)
-                if pf < 0.999:
-                    seg = 40
-                    lit = int(seg * pf)
-                    run = []
-                    for k in range(seg + 1):
-                        a2 = (k / float(seg)) * 6.2831853 - 1.5708
-                        wx = g.bx + math.cos(a2) * 96.0
-                        wy = g.by + math.sin(a2) * 96.0 * 0.72 + 14.0
-                        pt = proj(wx, wy)
-                        if k <= lit:
-                            run.append((int(pt[0]), int(pt[1])))
-                        elif len(run) > 1:
-                            break
-                    if len(run) > 1:
-                        low = pf < 0.30
-                        a_ = 175 + int(80 * (1.0 - pf))
-                        col = ((255, 210, 120, min(255, a_)) if low
-                            else (92, 232, 208, min(255, a_)))
-                        try:
-                            cv.lines(col, False, run, 5 if low else 4)
-                        except Exception:
-                            pass
-
-            # --- everything that STANDS on the floor, sorted far to near --------
+            # --- everything that STANDS on the floor, sorted far to near -----
             draw = []
-
             for h in g.hazards:
                 if h["kind"] in ("copy", "orbit"):
-                    draw.append((h["y"], "copy", h))
-                elif h["kind"] == "note":
-                    draw.append((h["y"], "note", h))
+                    draw.append((h["y"], 0, h))
             for d in g.daggers:
                 if d["state"] == "flight":
-                    draw.append((d["y"], "dagger", d))
+                    draw.append((d["y"], 1, d))
                 elif d["state"] == "ground":
-                    draw.append((d["y"], "grounded", d))
+                    draw.append((d["y"], 2, d))
             for d in g.debris:
-                draw.append((d["y"], "debris", d))
-            draw.append((g.by, "boss", None))
-            draw.append((g.py, "player", None))
+                draw.append((d["y"], 3, d))
+            draw.append((g.by, 4, None))
+            draw.append((g.py, 5, None))
             draw.sort(key=lambda e: e[0])
-
-            def contact(wx, wy, radius, alpha):
-                """A shadow on the boards. Ellipse, because a circle on the
-                floor is one -- wider than it is tall, and both scaled by how
-                far away the floor is at that depth."""
-                cxp, cyp, pp = proj(wx, wy)
-                rw = max(3, int(radius * pp))
-                rh = max(2, int(radius * pp * 0.34))
-                try:
-                    cv.ellipse((0, 0, 0, int(alpha * 255)),
-                            (int(cxp - rw), int(cyp - rh), rw * 2, rh * 2), 0)
-                except Exception:
-                    pass
 
             # Shadows go down before any body does, so every figure is drawn
             # standing on its own.
-            contact(g.bx, g.by, 96.0, 0.42)
-            contact(g.px, g.py, 26.0, 0.38)
+            def contact(wx, wy, radius, alpha):
+                cxp, cyp, pp = proj(wx, wy)
+                p.shadow(cxp, cyp, radius * pp, radius * pp * 0.34, alpha=alpha)
+
+            contact(g.bx, g.by, 104.0, 0.55)
+            contact(g.px, g.py, 26.0, 0.45)
             for h in g.hazards:
                 if h["kind"] in ("copy", "orbit"):
-                    contact(h["x"], h["y"], 34.0, 0.26)
+                    contact(h["x"], h["y"], 34.0, 0.30)
             for d in g.daggers:
                 if d["state"] == "ground":
-                    contact(d["x"], d["y"], 15.0, 0.30)
+                    contact(d["x"], d["y"], 15.0, 0.34)
 
+            debris_col = "#ffb9c6" if g.corrupt > 0.5 else "#dfe9ff"
             for _wy, kind, item in draw:
-                if kind == "debris":
+                if kind == 3:
                     # Suspended matter, standing off the boards at its own
-                    # height. It gets brighter and bigger as it comes downstage
-                    # and simply blows past the lens -- which is the cue that
-                    # does most of the work of making the room a volume.
-                    dxp, dyp, pp = proj_h(item["x"], item["y"], item["h"])
+                    # height: brighter and bigger as it comes downstage, and it
+                    # blows past the lens -- the cue that makes the room a
+                    # volume.
+                    dxp, dyp, pp = projh(item["x"], item["y"], item["h"])
                     if not (-90 < dxp < 1370 and -90 < dyp < 810):
                         continue
-                    size = max(1, int(item["s"] * pp
-                                    * (0.55 + 0.45 * item["w"])))
-                    # THE FLOOR GOES ON THE FINAL VALUE. qa() quantizes to
-                    # eight levels, so anything under ~0.143 collapses to
-                    # 6/255 and is simply not there -- multiplying a fade into
-                    # a fade is how a whole particle layer goes invisible.
-                    a = inv_clamp((0.10 + 0.40 * pp) * item["w"]
-                                * (0.7 + 0.3 * math.sin(g.clock * 1.7
-                                                        + item["p"])),
-                                0.16, 0.62)
-                    col = "#ffb9c6" if g.corrupt > 0.5 else "#dfe9ff"
-                    rv.blit(rect(col + qa(a), size, size),
-                            (int(dxp) - size // 2, int(dyp) - size // 2))
-                    # The close ones smear, because at that size and speed they
-                    # would.
+                    size = item["s"] * pp * (0.55 + 0.45 * item["w"])
+                    a = inv_clamp((0.12 + 0.48 * pp) * item["w"]
+                                  * (0.7 + 0.3 * math.sin(g.clock * 1.7 + item["p"])),
+                                  0.0, 0.85)
+                    p.quad("dust", dxp, dyp, size * 0.22, col=debris_col,
+                           alpha=a, add=True)
                     if pp > 0.86 and size > 4:
-                        streak = max(2, int(abs(item["vy"]) * 7.0 * pp))
-                        rv.blit(rect(col + qa(a * 0.45), max(1, size // 2),
-                                    streak),
-                                (int(dxp) - size // 4,
-                                int(dyp) - size // 2 - streak))
+                        streak = max(2.0, abs(item["vy"]) * 7.0 * pp)
+                        p.quad("spark", dxp, dyp - streak * 0.5, size * 0.02 + streak / 128.0,
+                               0.06 + size * 0.008, rot=90.0, col=debris_col,
+                               alpha=a * 0.6, add=True)
 
-                elif kind == "grounded":
-                    # A dagger lying where it came to rest: half-buried, small,
-                    # and ringed so it can be found across a loud floor. This
-                    # is the ammunition, and it is over there.
+                elif kind == 2:
+                    # A dagger lying where it came to rest, with a beacon of
+                    # the player's colour standing up off it so the
+                    # ammunition can be found across a loud floor.
                     gx_, gy_, pp = proj(item["x"], item["y"])
-                    puls = 0.5 + 0.5 * math.sin(g.clock * 3.2
-                                                + item["x"] * 0.03)
-                    rr = int(max(4, (13 + 5 * puls) * pp))
-                    try:
-                        cv.ellipse((92, 232, 208,
-                                    int(70 + 60 * puls)),
-                                (int(gx_ - rr), int(gy_ - rr * 0.4),
-                                    rr * 2, max(2, int(rr * 0.8))), 1)
-                    except Exception:
-                        pass
+                    puls = 0.5 + 0.5 * math.sin(g.clock * 3.2 + item["x"] * 0.03)
+                    p.line(gx_, gy_, gx_, gy_ - (46.0 + 18.0 * puls) * pp,
+                           width=3.0 * pp + 1.0, col=BIO_TEAL,
+                           alpha=0.35 + 0.30 * puls, add=True)
+                    p.glow(gx_, gy_, 20.0 * pp, 8.0 * pp, col=BIO_TEAL,
+                           alpha=0.6 + 0.3 * puls)
                     zb = self._zbucket(pp * 0.8)
-                    dr, (dw, dh) = tex(("dag",
-                                        int(round(-58.0 / BIO_ROT_STEP))
-                                        % BIO_ROT_BUCKETS, zb),
-                                    self._dagger_tf(-58.0, zb), 140, 140)
-                    sblit(dr, (gx_ - dw * 0.5, gy_ - dh * 0.5 - 9 * pp))
+                    dr, (dw, dh) = p.tex(("dag", int(round(-58.0 / BIO_ROT_STEP))
+                                          % BIO_ROT_BUCKETS, zb, 8),
+                                         self._dagger_tf(-58.0, zb), 140, 140)
+                    p.sblit(dr, (gx_ - dw * 0.5, gy_ - dh * 0.5 - 9 * pp))
 
-                elif kind == "copy":
+                elif kind == 0:
                     cx_, cy_, pp = proj(item["x"], item["y"])
                     zb = self._zbucket(pp)
-                    cr, (cw2, ch2) = tex(("copy",
-                                        int(round(item["spin"] / BIO_ROT_STEP))
-                                        % BIO_ROT_BUCKETS, zb),
-                                        self._copy_tf(item["spin"], zb),
-                                        520, 520)
-                    sblit(cr, (cx_ - cw2 * 0.5, cy_ - ch2 * 0.5 - 30 * pp))
+                    p.glow(cx_, cy_ - 30 * pp, 64.0 * pp, 64.0 * pp,
+                           col="#ff3a56", alpha=0.45)
+                    cr, (cw2, ch2) = p.tex(("copy", int(round(item["spin"] / BIO_ROT_STEP))
+                                            % BIO_ROT_BUCKETS, zb),
+                                           self._copy_tf(item["spin"], zb), 520, 520)
+                    p.sblit(cr, (cx_ - cw2 * 0.5, cy_ - ch2 * 0.5 - 30 * pp))
 
-                elif kind == "note":
-                    nx, ny, pp = proj(item["x"], item["y"])
-                    sz = max(4, int(10 * pp))
-                    rv.blit(rect(BIO_WARN + qa(0.85), sz, sz),
-                            (int(nx) - sz // 2, int(ny) - sz // 2))
-                    rv.blit(rect(BIO_RED + qa(0.45), int(sz * 1.8), 2),
-                            (int(nx) - sz, int(ny)))
-
-                elif kind == "dagger":
-                    dx_, dy_, pp = proj(item["x"], item["y"])
+                elif kind == 1:
+                    dx_, dy_, pp = projh(item["x"], item["y"], 20.0)
                     zb = self._zbucket(pp)
-                    dr, (dw, dh) = tex(("dag",
-                                        int(round(item["ang"] / BIO_ROT_STEP))
-                                        % BIO_ROT_BUCKETS, zb),
-                                    self._dagger_tf(item["ang"], zb), 140, 140)
-                    sblit(dr, (dx_ - dw * 0.5, dy_ - dh * 0.5 - 18 * pp))
+                    p.glow(dx_, dy_, 18.0 * pp, 18.0 * pp, col=BIO_TEAL, alpha=0.7)
+                    dr, (dw, dh) = p.tex(("dag", int(round(item["ang"] / BIO_ROT_STEP))
+                                          % BIO_ROT_BUCKETS, zb, 8),
+                                         self._dagger_tf(item["ang"], zb), 140, 140)
+                    p.sblit(dr, (dx_ - dw * 0.5, dy_ - dh * 0.5))
 
-                elif kind == "boss":
+                elif kind == 4:
                     bx_, by_, pp = proj(g.bx, g.by)
-                    zoom = BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * pp)
-                    tint = ("#ffffff" if g.hit_flash > 0.4
-                            else ("#ffb0c0" if exposed else None))
+                    zoom = BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * pp) * sp["cam"][3]
                     # Afterimages first, so the live body sits on top of them.
                     for i, (gx, gy, grot, gsc) in enumerate(g.ghosts):
-                        a = 0.20 * (1.0 - i / float(len(g.ghosts) + 1))
+                        a = 0.22 * (1.0 - i / float(len(g.ghosts) + 1))
                         ggx, ggy, gpp = proj(gx, gy)
-                        gz = BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * gpp)
-                        gr, (gw, gh) = tex(("ghost", round(gz, 3), i),
-                                        self._body_plain(gz, alpha=a,
-                                                        tint="#ff6a7e"),
-                                        900, 900)
-                        sblit(gr, (ggx - gw * 0.5, ggy - gh))
+                        gz = BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * gpp) * sp["cam"][3]
+                        gr, (gw, gh) = p.tex(("ghost", round(gz, 3), i),
+                                             self._body_plain(gz, alpha=a,
+                                                              tint="#ff6a7e"),
+                                             900, 900)
+                        p.sblit(gr, (ggx - gw * 0.5, ggy - gh))
                     body_h = BIO_SPRITE_H * zoom
-                    self._draw_body(g, rv, tex, sblit, bx_,
-                                    by_ - body_h * 0.5, zoom, 0, 0, st, at,
-                                    warp=(0.85 if not g.last_page else 1.25),
-                                    rot=inv_clamp(
-                                        math.sin(math.radians(g.body_rot)) * 11.0,
-                                        -11.0, 11.0),
-                                    stretch=(getattr(g, "body_sx", 1.0),
-                                            getattr(g, "body_sy", 1.0)),
-                                    diss=(g.emerge if leaving else 0.0),
-                                    hurt=0.9 if g.hit_flash > 0.45 else 0.0)
+                    if exposed:
+                        p.glow(bx_, by_ - body_h * 0.45, 170.0 * pp, 230.0 * pp,
+                               col=BIO_WARN, alpha=0.30 + 0.15 * math.sin(g.tick * 0.45))
+                    self._draw_body(
+                        g, p, bx_, by_ - body_h * 0.5, zoom,
+                        warp=(0.70 if not g.last_page else 1.10),
+                        rot=inv_clamp(math.sin(math.radians(g.body_rot)) * 11.0,
+                                      -11.0, 11.0),
+                        stretch=(g.body_sx, g.body_sy),
+                        diss=(g.emerge if leaving else 0.0),
+                        hurt=0.9 if g.boss_flash > 0.45 else 0.0,
+                        tint=((1.10, 0.92, 0.80, 1.0) if exposed
+                              else (1.06, 0.84, 0.90, 1.0)),
+                        rim=(1.0, 0.25, 0.40, 0.75 + 0.5 * g.fury),
+                        reflect=0.18 * (1.0 - (g.emerge if leaving else 0.0)),
+                        feet=by_)
 
-                elif kind == "player":
+                elif kind == 5:
                     px_, py_, pp = proj(g.px, g.py)
                     for i, (tx, ty, dashing) in enumerate(g.trail):
                         if i == 0:
                             continue
-                        a = 0.30 * (1.0 - i / float(len(g.trail)))
+                        a = 0.34 * (1.0 - i / float(len(g.trail)))
                         if dashing:
                             a *= 1.8
                         ttx, tty, tpp = proj(tx, ty)
-                        size = max(2, int((11 - i) * tpp))
-                        rv.blit(rect("#ff4a5e" + qa(a), size, size),
-                                (int(ttx) - size // 2, int(tty) - size // 2))
+                        p.quad("core", ttx, tty - 26 * tpp, (0.34 - i * 0.02) * tpp,
+                               col="#ff4a5e", alpha=a, add=True)
                     blink = (g.iframe > 0 and (g.tick // 3) % 2 == 0)
                     if not blink:
-                        self._draw_heart(g, rv, tex, sblit, px_,
-                                        py_ - 26 * pp, 0, 0, st, at,
-                                        scale=pp)
+                        self._draw_heart(g, p, px_, py_ - 26 * pp, scale=pp)
 
-            # --- OCCLUSION. Depth sorting means standing upstage of it puts
-            # its body between you and the camera, and losing your own avatar
-            # behind the boss is not a difficulty, it is a defect. If it is in
-            # front of you and overlapping, a ghost of the heart is drawn on
-            # top so your position is never in question.
+            # --- OCCLUSION. Standing upstage of it puts its body between you
+            # and the camera, and losing your own avatar behind the boss is a
+            # defect, not a difficulty: a ghost of the heart is drawn on top.
             if g.py < g.by:
                 pxs, pys, ppp = proj(g.px, g.py)
                 bxs, bys, bpp = proj(g.bx, g.by)
                 body_w = BIO_SPRITE_W * BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * bpp)
                 body_h = BIO_SPRITE_H * BIO_BOSS_ZOOM_ACT2 * (0.55 + 0.45 * bpp)
-                if (abs(pxs - bxs) < body_w * 0.42
-                        and bys - body_h < pys < bys + 40):
-                    ghost = self._misc(("occl",), lambda: Transform(
-                        Solid(BIO_TEAL), xysize=(13, 13), rotate=45,
-                        alpha=0.85, subpixel=True))
-                    gr2, (gw2, gh2) = tex(("occl",), ghost, 60, 60)
-                    sblit(gr2, (pxs - gw2 * 0.5,
-                                pys - 26 * ppp - gh2 * 0.5))
+                if (abs(pxs - bxs) < body_w * 0.42 and bys - body_h < pys < bys + 40):
+                    p.quad("core", pxs, pys - 26 * ppp, 0.55, col=BIO_TEAL,
+                           alpha=0.9, add=True)
+                    p.ring(pxs, pys - 26 * ppp, 14.0, col=BIO_TEAL, alpha=0.9)
 
             # --- DISCHARGE. Drawn over the figures on purpose: a bolt is light,
-            # and light does not queue behind the thing it is lighting. The art
-            # is the four lightning arcs from the shared atlas
-            # (asset_definitions/def_bullets.rpy); the frame is CYCLED per tick so a
-            # bolt crackles instead of sitting there.
+            # and light does not queue behind the thing it is lighting.
             for a_ in g.arcs:
-                a_age = g.tick - a_["born"]
-                if a_age < 0 or a_age >= a_["ttl"]:
+                age = g.tick - a_["born"]
+                if age < 0 or age >= a_["ttl"]:
                     continue
-                axp, ayp, app_ = proj_h(a_["x"], a_["y"], a_["h"])
+                axp, ayp, app_ = projh(a_["x"], a_["y"], a_["h"])
                 if not (-260 < axp < 1540 and -160 < ayp < 880):
                     continue
-                # Bolts snap on bright and drop off fast -- the decay is what
-                # makes it read as a discharge and not a ribbon.
-                a_fr = 1.0 - (a_age / float(a_["ttl"]))
-                a_al = 0.45 + 0.55 * a_fr
-                # Everything the cache keys on is an int. Thickness is derived
-                # from LENGTH rather than set independently, because the art is
-                # a 252x32 jagged bolt -- squash that ratio and the jaggedness
-                # flattens into a smooth bar, which is the one thing lightning
-                # must not look like.
-                a_len = max(40, int(a_["len"] * app_))
-                a_th = max(6, int(a_len * 0.15 * a_["w"]))
-                a_bkt = int(math.degrees(a_["ang"]) / 12.0) % 30
-                a_frame = EMB_ARCS[(a_["seed"] + a_age // 2) % len(EMB_ARCS)]
-                a_aq = int(a_al * 5.999)
-                a_key = ("bioarc", a_frame, a_len // 12, a_th, a_bkt, a_aq)
-                arc_d = self._misc(a_key, (lambda nm=a_frame, L=a_len, T=a_th,
-                                            bk=a_bkt, aq=a_aq: Transform(
-                    emb_cell(nm),
-                    xzoom=L / float(emb_size(nm)[0]),
-                    yzoom=T / float(emb_size(nm)[1]),
-                    rotate=bk * 12.0, subpixel=True,
-                    matrixcolor=TintMatrix(BIO_TEAL),
-                    alpha=(aq + 0.5) / 6.0)))
-                try:
-                    a_quad = a_len + a_th + 24
-                    arr_, (arw_, arh_) = tex(a_key, arc_d, a_quad, a_quad)
-                    sblit(arr_, (axp - arw_ * 0.5, ayp - arh_ * 0.5))
-                except Exception:
-                    pass
+                fr = 1.0 - (age / float(a_["ttl"]))
+                L = max(40.0, a_["len"] * app_)
+                frame = INV_BOLTS[(a_["seed"] + age // 2) % len(INV_BOLTS)]
+                bw, bh = inv_fx_size(frame)
+                p.quad(frame, axp, ayp, L / bw, max(0.4, L * 0.16 * a_["w"] / bh),
+                       rot=math.degrees(a_["ang"]), col=BIO_TEAL,
+                       alpha=0.45 + 0.55 * fr, add=True, rstep=6.0)
+                p.glow(axp, ayp, L * 0.35, L * 0.12, col=BIO_TEAL, alpha=0.18 * fr)
+
+            inv_fx_paint(p, g.fx, "w_front", proj=projh)
+
+        def _open_hud(self, g, p, sp):
+            exposed = g._open_exposed()
+            fade = 1.0
+            if g.mode in ("leave_w", "leave_l"):
+                fade = inv_clamp(1.0 - g.mtick / 60.0, 0.0, 1.0)
+            if fade <= 0.02:
+                return
 
             if exposed:
-                bx_, by_, pp = proj(g.bx, g.by)
+                bx_, by_, pp = self._proj(sp, g.bx, g.by)
                 pulse = 0.5 + 0.5 * math.sin(g.tick * 0.45)
-                blit_text("OVER-EXTENDED", 15,
-                        BIO_WARN + qa(0.55 + 0.45 * pulse),
-                        int(bx_), int(by_ - BIO_SPRITE_H * BIO_BOSS_ZOOM_ACT2
-                                    * (0.55 + 0.45 * pp)) - 26,
-                        bold=True, anchor=(0.5, 0.0), w=340, h=34)
+                p.text("OVER-EXTENDED", 15, inv_hex(BIO_WARN, (0.55 + 0.45 * pulse) * fade),
+                       int(bx_), int(by_ - BIO_SPRITE_H * BIO_BOSS_ZOOM_ACT2
+                                     * (0.55 + 0.45 * pp)) - 26,
+                       bold=True, anchor=(0.5, 0.0), w=340, h=34, outline="#04030a")
 
-            # --- HUD: as little as will still do the job --------------------------
+            # --- the top plate: health, composure, the entry -----------------
             bar_w = 620
             bx0 = 640 - bar_w // 2
-            rv.blit(rect("#04030ac8", bar_w + 4, 32), (bx0 - 2, 28))
-            rv.blit(rect(BIO_RED_DEEP, bar_w, 10), (bx0, 30))
-            fill = int(bar_w * inv_clamp(g.boss_shown / float(BIO_BOSS_HP_MAX),
-                                        0.0, 1.0))
+            inv_draw_panel(p, bx0 - 16, 6, bar_w + 32, 66, BIOStage.STYLE_PLATE)
+            p.text("BIOGRAPHY", 13, BIO_RED, bx0, 12, bold=True, w=300, h=26,
+                   outline="#04030a")
+            p.fill("#2a0712", bx0, 32, bar_w, 10)
+            fill = int(bar_w * inv_clamp(g.boss_shown / float(BIO_BOSS_HP_MAX), 0.0, 1.0))
             if fill > 0:
-                rv.blit(rect(BIO_RED, fill, 10), (bx0, 30))
+                p.fill(BIO_RED, bx0, 32, fill, 10)
+                p.fill("#ffffff55", bx0, 32, fill, 2)
+            for k in range(1, 10):
+                p.fill("#04030ac0", bx0 + int(bar_w * k / 10.0), 32, 1, 10)
+            last = bx0 + int(bar_w * BIO_LAST_PAGE_HP / float(BIO_BOSS_HP_MAX))
+            p.fill(BIO_WARN + "b0", last, 29, 2, 16)
 
-            # POISE, DIRECTLY UNDER ITS HEALTH, in the player's colour. The
-            # arc on the boards says where; this says how much, and it is the
-            # bar you are actually playing against between buckles. Without it
-            # the loop has no visible progress at all -- the whole reason the
-            # daggers read as doing nothing.
+            # POISE, directly under its health, in the player's colour: the bar
+            # you are actually playing against between buckles.
             pf = inv_clamp(g.poise_shown / g._poise_cap(), 0.0, 1.0)
-            rv.blit(rect("#0d1a1a", bar_w, 6), (bx0, 42))
+            p.fill("#0d1a1a", bx0, 46, bar_w, 6)
             if g.b_state == "buckle":
-                # Broken: it drains away and stays empty for the window.
                 flick = 0.35 + 0.65 * (0.5 + 0.5 * math.sin(g.tick * 0.9))
-                rv.blit(rect(BIO_WARN + qa(flick), bar_w, 6), (bx0, 42))
+                p.fill(inv_hex(BIO_WARN, flick), bx0, 46, bar_w, 6)
             else:
                 pfill = int(bar_w * pf)
                 if pfill > 0:
-                    rv.blit(rect(BIO_TEAL if pf > 0.30 else BIO_WARN,
-                                pfill, 6), (bx0, 42))
+                    p.fill(BIO_TEAL if pf > 0.30 else BIO_WARN, bx0, 46, pfill, 6)
 
-            # THE ENTRY, under both, because it is the third way this ends and
-            # the only one that is not yours.
+            # THE ENTRY: the third way this ends, and the only one not yours.
             ef = inv_clamp(g.entry_shown / BIO_ENTRY_MAX, 0.0, 1.0)
-            rv.blit(rect("#1b1420", bar_w, 4), (bx0, 52))
+            p.fill("#1b1420", bx0, 56, bar_w, 4)
             efill = int(bar_w * ef)
             if efill > 0:
                 hot = ef > 0.72
-                ecol = BIO_WARN if not hot else (
-                    "#ffffff" if (g.tick // 8) % 2 == 0 else BIO_WARN)
-                rv.blit(rect(ecol, efill, 4), (bx0, 52))
-            blit_text("BIOGRAPHY", 13, BIO_RED, bx0, 10, bold=True, w=300, h=26)
-            blit_text("ENTRY", 10, BIO_WARN + qa(0.30 + 0.55 * ef),
-                    bx0 + bar_w + 8, 50, anchor=(0.0, 0.0), w=140, h=22)
+                ecol = BIO_WARN if not hot else ("#ffffff" if (g.tick // 8) % 2 == 0 else BIO_WARN)
+                p.fill(ecol, bx0, 56, efill, 4)
+            p.text("ENTRY", 10, inv_hex(BIO_WARN, 0.30 + 0.55 * ef),
+                   bx0 + bar_w + 8, 53, w=140, h=22)
             if exposed:
                 pulse = 0.5 + 0.5 * math.sin(g.tick * 0.4)
-                blit_text("EXPOSED", 13, BIO_WARN + qa(0.4 + 0.6 * pulse),
-                        bx0 + bar_w, 10, bold=True, anchor=(1.0, 0.0), w=220, h=26)
+                p.text("EXPOSED", 13, inv_hex(BIO_WARN, 0.4 + 0.6 * pulse),
+                       bx0 + bar_w, 12, bold=True, anchor=(1.0, 0.0), w=220, h=26)
+            if ef > 0.72:
+                # The edges of the frame warm as the entry nears completion.
+                hot_a = (ef - 0.72) / 0.28 * (0.5 + 0.5 * math.sin(g.tick * 0.25))
+                p.fill(inv_hex(BIO_WARN, 0.10 * hot_a), 0, 0, 1280, 6)
+                p.fill(inv_hex(BIO_WARN, 0.10 * hot_a), 0, 714, 1280, 6)
 
-            hud = (24, 620, 300, 76)
-            self._panel(rv, rect, hud, 0, 0)
-            self._odometer(g, rv, tex, rect, qa, blit_text, "HP", g.hp_shown,
-                        g.hp, hud[0] + 16, hud[1] + 16, BIO_INK)
+            # --- you ---------------------------------------------------------
+            hud = (24, 618, 300, 80)
+            inv_draw_panel(p, hud[0], hud[1], hud[2], hud[3], BIOStage.STYLE_PANEL)
+            self._odometer(g, p, "HP", g.hp_shown, g.hp, hud[0] + 18, hud[1] + 18,
+                           BIO_INK)
 
-            # Dash charge, because it is the only defence there is.
-            px0, py0 = 344, 654
-            blit_text("DASH", 11, BIO_FAINT, px0, py0 - 16, w=90, h=22)
+            px0, py0 = 344, 660
+            p.text("DASH", 11, BIO_FAINT, px0, py0 - 17, w=90, h=22)
             pw = 150
-            rv.blit(rect("#0a0812c8", pw, 8), (px0, py0))
+            p.fill("#0a0812c8", px0, py0, pw, 8)
             if g.dashing:
                 frac = 1.0 - (g.dash_t / float(BIO_DASH_MAX))
                 col = BIO_INK
@@ -4209,32 +4490,52 @@ init python:
             else:
                 frac = 1.0
                 col = BIO_TEAL
-            rv.blit(rect(col, max(0, int(pw * frac)), 8), (px0, py0))
+            p.fill(col, px0, py0, max(0, int(pw * frac)), 8)
 
-            # THE FOUR DAGGERS, as four pips: filled if it is in your hand,
-            # hollow if it is out there somewhere. No count, no word -- the
-            # thing you need to know is how many are left, and four shapes say
-            # that faster than a number does.
-            qx0, qy0 = 344, 616
+            # THE FOUR DAGGERS, as four small daggers: bright in your hand, dim
+            # if they are out there somewhere.
+            qx0, qy0 = 352, 622
             for i, d in enumerate(g.daggers):
-                x_ = qx0 + i * 17
-                if d["state"] == "held":
-                    rv.blit(rect(BIO_TEAL, 9, 14), (x_, qy0))
-                else:
-                    flying = d["state"] == "flight"
-                    a = 0.62 if flying else 0.34
-                    rv.blit(rect(BIO_TEAL + qa(a), 9, 1), (x_, qy0))
-                    rv.blit(rect(BIO_TEAL + qa(a), 9, 1), (x_, qy0 + 13))
-                    rv.blit(rect(BIO_TEAL + qa(a), 1, 14), (x_, qy0))
-                    rv.blit(rect(BIO_TEAL + qa(a), 1, 14), (x_ + 8, qy0))
+                held = d["state"] == "held"
+                a = 1.0 if held else (0.40 if d["state"] == "flight" else 0.22)
+                dr, (dw, dh) = p.tex(("daghud", held, int(a * 8)),
+                                     self._dagger_tf(-90.0, 8, a), 80, 80)
+                p.sblit(dr, (qx0 + i * 20 - dw * 0.5, qy0 - dh * 0.5 + 6))
+                if held:
+                    p.quad("glow", qx0 + i * 20, qy0 + 6, 0.16, col=BIO_TEAL,
+                           alpha=0.35, add=True)
 
-            blit_text("MOVE  WASD      Z  THROW      X  DASH  (HOLD)", 12,
-                    BIO_FAINT, 1256, 690, anchor=(1.0, 1.0), w=760, h=28)
+            p.text("MOVE  WASD      Z  THROW      X  DASH  (HOLD)", 12,
+                   BIO_FAINT, 1256, 690, anchor=(1.0, 1.0), w=760, h=28,
+                   outline="#04030a")
             if g.god:
-                blit_text("GOD", 12, BIO_WARN + "aa", 1256, 664,
-                        anchor=(1.0, 1.0), w=120, h=24)
+                p.text("GOD", 12, BIO_WARN + "aa", 1256, 664, anchor=(1.0, 1.0),
+                       w=120, h=24)
 
+        # ----- numbers and pause -----------------------------------------------
 
+        def _floats(self, g, p, sp):
+            for f in g.floats:
+                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
+                age = 52 - f["life"]
+                pop = 1.0 + 0.35 * inv_clamp(1.0 - age / 6.0, 0.0, 1.0)
+                if f.get("world"):
+                    fx_, fy_, fpp = self._proj_h(sp, f["x"], f["y"], 0.0)
+                    size = int((30 if f["big"] else 21) * (0.62 + 0.38 * fpp) * pop)
+                else:
+                    fx_, fy_ = f["x"] + sp["sx"], f["y"] + sp["sy"]
+                    size = int((30 if f["big"] else 21) * pop)
+                p.text(f["text"], size, inv_hex(f["color"], a), int(fx_), int(fy_),
+                       bold=f["big"], anchor=(0.5, 0.5), w=260, h=70,
+                       outline="#04030a")
+
+        def _pause(self, g, p):
+            p.fill("#04030ac8", 0, 0, 1280, 720)
+            inv_draw_panel(p, 440, 270, 400, 150, BIOStage.STYLE_PANEL)
+            p.text("PAUSED", 40, BIO_INK, 640, 322, bold=True,
+                   anchor=(0.5, 0.5), w=600, h=70)
+            p.text("ESC  RESUME        Q  QUIT", 16, BIO_DIM,
+                   640, 378, anchor=(0.5, 0.5), w=800, h=44)
 # --- THE SCREEN --------------------------------------------------------------
 screen inv_biography_screen(game):
     modal True
@@ -4260,16 +4561,22 @@ screen inv_biography_screen(game):
 default bio_game = None
 default bio_deaths = 0
 default bio_retry = False
+# A RETRY FROM THE TEAR. Set by the retry overlay when a loss happened after
+# the checkpoint; the fight reads it once and starts in the corruptive state.
+default bio_resume = None
 
 label archivist_invasion_biography:
     $ bio_deaths = 0
     $ bio_retry = False
+    $ bio_resume = None
 
 label inv_biography_fight:
     $ renpy.block_rollback()
 
     $ bio_game = BIOGame(retry=bio_retry, deaths=bio_deaths,
-                        debug=config.developer, start_open=inv_dev_start_open)
+                        debug=config.developer, start_open=inv_dev_start_open,
+                        resume=bio_resume)
+    $ bio_resume = None
 
     $ _bio_prev_quick_menu = quick_menu
     $ quick_menu = False
@@ -4279,6 +4586,7 @@ label inv_biography_fight:
 
     call screen inv_biography_screen(bio_game)
     $ _bio_result = _return
+    $ _bio_checkpoint = bio_game.checkpoint
 
     $ bio_game = None
     $ quick_menu = _bio_prev_quick_menu
@@ -4308,15 +4616,23 @@ label inv_biography_defeat:
     $ bio_deaths += 1
     $ bio_retry = True
 
-    menu:
-        "AGAIN":
-            scene black
-            jump inv_biography_fight
-
-        "STOP":
-            if inv_dev_test:
-                $ renpy.notify("BIOGRAPHY: lost. Recorded.")
-            return
+    # The overlay is the fight's own -- its font, its colours, its words --
+    # rather than the game's choice menu, which was a style break at the worst
+    # possible moment. RETRY from the tear when the loss came after it.
+    call screen inv_retry_screen("BIOGRAPHY", "FILED",
+                                 inv_retry_options(_bio_checkpoint),
+                                 ink=BIO_INK, dim=BIO_DIM, accent=BIO_RED,
+                                 bg=BIO_BLACK)
+    if _return == "tear":
+        $ bio_resume = _bio_checkpoint
+        scene black
+        jump inv_biography_fight
+    elif _return == "start":
+        scene black
+        jump inv_biography_fight
+    if inv_dev_test:
+        $ renpy.notify("BIOGRAPHY: lost. Recorded.")
+    return
 
 label inv_biography_quit:
     $ bio_retry = True

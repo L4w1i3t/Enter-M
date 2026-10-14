@@ -113,13 +113,10 @@ define -50 audio.mm_music_crush1 = "assets/audio/bgm/mm_phase4_crush1.ogg"
 define -50 audio.mm_music_crush2 = "assets/audio/bgm/mm_phase4_crush2.ogg"
 define -50 audio.mm_music_crush3 = "assets/audio/bgm/mm_phase4_crush3.ogg"
 
-# Pre-baked BITCRUSHED renders of the phase-4 track, from mild grit to a screaming
-# 3-bit ruin. All three are duration-identical to phase4.ogg (same sample rate,
-# sample-and-hold decimation + bit-depth quantization only), so when started on
-# the same frame as the clean track they stay phase-locked -- raising them is a
-# clean crossfade, not an echo. Pre-baking is the ONLY way to get real bitcrush
-# here: Matsu'Py 8.1.1 ships no real-time audio-filter DSP (renpy.audio.filter and
-# renpy.music.set_audio_filter are 8.2+). See mm_lr_audio_apply.
+# Phase-four bitcrush uses three pre-rendered stems on dedicated channels.
+# mm_lr_audio_prime() starts them muted alongside the clean track; matching
+# duration/timing keeps the layers aligned. mm_lr_audio_apply() crossfades their
+# volumes using whiteout intensity, with separate static and pan modulation.
 define mm_lr_crush_stems = [
     ("mmcrush1", audio.mm_music_crush1),
     ("mmcrush2", audio.mm_music_crush2),
@@ -1490,10 +1487,10 @@ label mm_victory:
     scene black with mm_static
     $ mm_static_off()
     pause 2.0
-    play music enterm
+    play music theme_matsuda_a
     # The mode is over. Matsuda uses an ordinary `say` statement, so automatic
     # window management restores the standard box before she speaks.
-    scene bg ether with dissolve_scene_full
+    scene bg matsudavr with dissolve_scene_full
     show matsuda neut at t11 zorder 2
 
     ma "...Huh. You actually walked her all the way back down. Color me impressed."

@@ -1,35 +1,9 @@
-# =============================================================================
-# poem_display.rpy  --  reusable vanilla-style POEM-ON-PAPER presentation
-# =============================================================================
-#
-# WHAT IT IS
-#   A neutral, project-wide way to show a DDLC-style poem on paper (scrollable,
-#   with a page-turn sound and click-to-dismiss). The base game's poem code lives
-#   in inherited archives; THIS file is the clean, shared version main-story days
-#   use. (The "Lies and Poems" story once carried its own themed replica; that
-#   story was cut, so this is now the only poem presentation in the project.)
-#
-# PUBLIC ENTRY POINT
-#   call enter_m_showpoem(poem)   -- poem is a Poem(author, title, text, ...).
-#   Used by the main story (e.g. game/story/season1/0524.rpy, 0530.rpy). It clears
-#   the dialogue window immediately, disables auto-forward, shows the poem, and
-#   waits for a click. The FIRST time ever (persistent.first_poem) it also shows a
-#   one-off "click to dismiss" hint image.
-#
-# AUTHOR -> FONT
-#   The screen picks a handwriting style by poem.author: "monika" -> m1.TTF,
-#   "mc" -> Halogen, anything else -> the default Halogen style.
-#
-# NOTE: the Poem class is defined here ONLY IF not already present (guarded with
-#   hasattr) so it coexists with any inherited base-game definition.
-# =============================================================================
+# Shared paper/viewport poem presentation: call enter_m_showpoem(poem).
+# Poem stores author, title and text; the guarded class declaration also supports
+# an existing compatible store.Poem. Monika uses m1.TTF; other authors use Halogen.
+# Playback hides dialogue, temporarily disables AFM, turns the page and waits for
+# dismissal. persistent.first_poem controls the one-time dismissal hint.
 
-# Reusable vanilla-style DDLC poem presentation for ENTER M's main story.
-# The original project keeps the poem assets/fonts in the inherited archives.
-# This neutral wrapper gives daily story files the same paper, viewport,
-# page-turn, and click-to-dismiss interaction.
-
-# init -2 (early) + hasattr guard: define Poem only if nothing else already has.
 init -2 python:
     if not hasattr(store, "Poem"):
         class Poem:

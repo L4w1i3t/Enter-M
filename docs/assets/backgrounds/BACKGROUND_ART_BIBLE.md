@@ -1,8 +1,23 @@
 # ENTER M Background Art Bible
 
+Design/provenance reference retained September 25, 2026. Fixed landmarks and
+camera relationships remain authoring guidance. Current registered variants
+and filenames come from `game/asset_definitions/def_images.rpy`; historical
+production inventories below are not a runtime asset audit.
+
 This file is the source of truth for the story-canon background families. It
 records spatial invariants, rendering language, selected generation outputs,
 and the prompt set used for the August 26-27, 2026 replacement pass.
+
+October 12, 2026 approved polish covered the rooftop and both grocery plates.
+The `_polished_20261012.png` filenames from that pass are historical; current
+declarations use `rooftop.png`, `store_checkout.png`, and `store_techsection.png`.
+
+October 14, 2026 rooftop cleanup replaces `rooftop.png` in place with cleaner
+concrete, coherent distant buildings, and clearer fixture detail. Both benches,
+the full left/far perimeter fence, the stairwell, and service equipment remain.
+The pre-edit plate, generation prompts, and validation details are preserved in
+the [dated cleanup report](rooftop_cleanup_2026-10-14/README.md).
 
 ## Authority and scope
 

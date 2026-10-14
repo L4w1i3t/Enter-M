@@ -1,24 +1,8 @@
-# ENTER M main menu -- "the room after the performance."
-#
-# The title screen is deliberately quieter than the game's other interface
-# families. It belongs to Matsuda without announcing that fact: small groups of
-# objects are meticulously aligned while the room as a whole cannot settle on
-# one hobby, genre, or version of her. The interface follows the same rule.
-# Warm editorial typography and domestic materials form the calm first read;
-# the STORY / GAME / MEMORY line and the mixed menu verbs register later.
-#
-# Every ATL in THIS file comes to rest. The entrance, the hover lift, the row
-# marker and the selection glint are all gestures with an end -- not because
-# the frame budget needs it (measured: the whole ambient layer costs ~0.2ms a
-# frame) but because the list is the part of this screen the player is reading,
-# and a permanent animation under text is a permanent distraction from it.
-#
-# The room behind the sidebar is the part that is allowed to keep moving, and
-# it is a setting rather than a decision -- see main_menu_fx.rpy, which owns
-# every light, particle and loop on this screen.
+# Illustrated title sidebar: palette, entrance, selection marker and hover.
+# Sidebar gestures settle after playing; main_menu_fx.rpy owns the room's
+# continuing camera, grade and particles under the Atmosphere preference.
 
 define MM_ROOM_INK = ROOM_MENU_INK
-define MM_ROOM_MUTED = ROOM_MENU_MUTED
 define MM_ROOM_TEAL = ROOM_MENU_TEAL
 define MM_ROOM_RED = ROOM_MENU_CORAL
 define MM_ROOM_SHADOW = "#061014c5"
@@ -79,6 +63,10 @@ transform mm_room_detail_swap(key=0):
 screen main_menu():
 
     tag menu
+    on "show" action Function(illustrated_menu_predict)
+    on "replace" action Function(illustrated_menu_predict)
+    on "hide" action Function(illustrated_menu_stop_predict)
+    on "replaced" action Function(illustrated_menu_stop_predict)
 
     default mm_room_sel = 0
 
@@ -86,7 +74,7 @@ screen main_menu():
         # One table owns the visible row, its quiet category, the contextual
         # sentence below the list, and the action that opens it.
         mm_room_entries = [
-            (_("New Game"),  _("BEGIN"),    _("Start at the first page."),                         Start()),
+            (_("New Game"),  _("BEGIN"),    _("Start at the first page."),                         [Function(illustrated_menu_stop_predict), Start()]),
             (_("Load Game"), _("RETURN"),   _("Pick up from a place you left behind."),            ShowMenu("data_bank")),
             (_("Arcade"),    _("PLAY"),     _("Spend a while somewhere with no story attached."), ShowMenu("arcade_hub")),
             (_("Archive"),   _("REMEMBER"), _("Look through everything the game kept."),          ShowMenu("archive")),
@@ -107,9 +95,8 @@ screen main_menu():
     # The room, its lights, its air and its grade. main_menu_fx.rpy.
     use mmfx_room_layer
 
-    # The art already owns the blue-hour grade. The sidebar is a single quiet
-    # value block, not a full-screen filter, so the window and desk keep their
-    # natural warm/cool exposure.
+    # The scene owns its own light. The sidebar is a single quiet value block,
+    # not a full-screen filter, so the orrery keeps its colour beside it.
     add Solid(MM_ROOM_SHADOW) xysize (430, 720)
     add Solid("#eadbc02e") xpos 429 ypos 24 xysize (1, 672)
     add Solid("#70bbb34a") xpos 426 ypos 24 xysize (2, 672)
@@ -148,6 +135,7 @@ screen main_menu():
     for mm_room_i, (mm_room_i_label, mm_room_i_kind, mm_room_i_note, mm_room_i_action) in enumerate(mm_room_entries):
 
         button:
+            id ("main_menu_option_%d" % mm_room_i)
             style "mm_room_option_button"
             xysize (376, 42)
             xpos 28
@@ -254,27 +242,12 @@ screen main_menu():
     key "K_ESCAPE" action Quit(confirm=False)
 
 
-style mm_room_title is gui_text:
-    font gui.default_font
-    size 58
-    kerning 2.0
-    color MM_ROOM_INK
-    outlines [(2, "#05090db8", 0, 1)]
-
 style mm_room_identity is gui_text:
     font gui.interface_font
     size 11
     kerning 1.5
     color "#aebbb8"
     outlines [(1, "#05090d99", 0, 1)]
-
-style mm_room_identity_alt is mm_room_identity:
-    font gui.name_font
-    color MM_ROOM_TEAL
-    yoffset -1
-
-style mm_room_identity_slash is mm_room_identity:
-    color "#756f68"
 
 style mm_room_header_note is gui_text:
     font gui.interface_font

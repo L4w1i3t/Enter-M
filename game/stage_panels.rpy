@@ -1,131 +1,85 @@
-# =============================================================================
-# ENTER-M :: STAGE PANELS  --  the split-screen story layout
-# -----------------------------------------------------------------------------
-# WHAT IT DOES
-#   While the main story is running, the BACKGROUND is cut into one panel per
-#   on-stage character, divided by slanted gutters, and each panel frames its
-#   own slice of the room. Two people talking are two shots side by side; a
-#   third arrives and the room splits again to make space. Nobody on stage and
-#   the background is exactly what it has always been.
+# Main-story background panels. A bg-tag shader divides the room into up to
+# six views; sprites remain unclipped in front. Larger crowds group neighbors.
+# Slot centers in ENTER_M_PANEL_SLOT_X must match transforms.rpy. Source views
+# tile left-to-right; eased zoom engages from an unchanged background.
 #
-#   THE CAST AND THE CUTS ARE ONE PIECE OF GEOMETRY. An N-person stage divides
-#   the screen into N equal panels, and game/transforms.rpy's slot i stands in
-#   the middle of panel i -- x = (i - 0.5) / N * 1280 -- so a character is never
-#   crowded against a gutter nor marooned at a screen edge, whichever way the
-#   room is split. The slot table is mirrored below in ENTER_M_PANEL_SLOT_X;
-#   move a slot in one and you must move it in the other. On top of that, a cut
-#   is then held ENTER_M_PANEL_CLEARANCE away from the characters either side of
-#   it, so neither the speaker's claim nor a hand-placed sprite can put a gutter
-#   through somebody's face.
+# An explicit bg at-list opts out. Master-layer transforms and atmosphere's
+# camera remain independent; scene cuts reset panel geometry. Frame-time
+# integration advances shared state once even when transitions draw two bgs.
+# Season 1 source enables the scope latch; other presentation roots disable
+# it; shared helpers leave it alone. stage_panels_suspend/resume override it.
+# Settings owns persistent.enter_m_panels via stage_panels_set_enabled().
 #
-#   What the panels do NOT do is clip. Sprites keep their slots, their poses,
-#   their entrances, Autofocus, and every transform the story has ever put on
-#   them -- they stand IN FRONT of the panel structure and are free to break the
-#   frame, which an outflung arm will. That is a deliberate choice, not a
-#   shortcut: this project's sprites are 300-440px wide depending on the pose,
-#   so no gutter position cleanly separates them and a hard per-panel clip would
-#   always leave a sliver of somebody's arm on the wrong side of a cut.
-#   Everything below therefore happens in ONE fragment shader hung on the `bg`
-#   tag, underneath every sprite.
+# Shader uniforms u_em_sp_p0..p5 hold (left, right, source center, screen center).
+# Unused panels sit outside the screen. Selection uses slanted coordinates;
+# source sampling uses unskewed coordinates so the room is not sheared.
+# ENTER_M_PANEL_MAX cannot exceed six without extending the shader.
 #
-# WHY IT IS SAFE WITH THE REST OF THE ENGINE
-#   * It is a per-tag transform on `bg`, installed through config.tag_transform,
-#     which Matsu'Py only applies to a show that carries NO `at` clause. A scene
-#     written as `scene bg cafeteria at fx_push(...)` therefore opts itself out
-#     and behaves exactly as it did before. SceneLists.clear() wipes at_list on
-#     every `scene`, so the transform is re-applied per cut, predictably.
-#   * It never touches the master layer at_list (fx_shake_screen) or the master
-#     CAMERA list (atmosphere's saturation). Both stacks stay free.
-#   * Transitions compose: a `with dissolve_scene_full` blends two frames that
-#     are each already panelled, and a `scene` snaps the geometry (see
-#     _stage_panels_scene) so the layout never slides across a cut.
-#   * A split that OPENS mid-scene is seamless by construction, not by timing.
-#     Every framing quantity is derived from the current eased zoom, and at zoom
-#     1.0 each panel's window onto the room comes out exactly equal to its own
-#     screen span -- the identity mapping. So engagement 0 is the untouched
-#     background however many panels exist, and the room appears to crack apart
-#     from the frame already on screen. (It used to map every panel's centre to
-#     the CENTRE of the plate regardless of engagement, so the instant a second
-#     panel was born the background jumped sideways under the gutter, and only
-#     the gutter itself faded in.)
-#   * The atmosphere grade, its particles and the theater house-lights all draw
-#     ABOVE this, so the gutters are graded with the room instead of sitting on
-#     top of it.
-#
-# WHY THE EASING IS CLOCKED ON frame_time AND NOT ON `st`
-#   During a scene transition the OLD bg and the NEW bg are both on screen, so
-#   the driver runs TWICE per frame with two unrelated `st` values. Integrating
-#   dt from `st` would double-step the animation and desynchronise the two
-#   copies. renpy.display.interface.frame_time is stamped once per drawn frame
-#   (renpy/display/core.py:4168), so the first copy to render advances the
-#   shared state and the second one reads it -- identical geometry, correct
-#   speed. This is also why the fx.rpy layer-at-list `st` restart problem
-#   cannot bite here: `st` is never read.
-#
-# SCOPE  --  MAIN STORY ONLY
-#   Panels are for season 1. The scope latch reads the filename of the running
-#   statement: a season 1 file turns it ON, one of the other presentation roots
-#   (side stories, lost records, out-of-context scenes, the game modes, the OP,
-#   the trailer) turns it OFF, and anything else -- helpers, addons, screens --
-#   leaves the latch alone so a `call` into a shared label cannot flicker it.
-#   stage_panels_suspend() / stage_panels_resume() are the manual override.
-#
-# PUBLIC API
-#   persistent.enter_m_panels          on/off, wired to Settings > Graphics.
-#   stage_panels_set_enabled(bool)     the setter the option calls.
-#   stage_panels_suspend() / _resume() force it off around bespoke sequences.
-#   stage_panels_refresh()             recompute now (after a manual re-stage).
-#
-# NO TWO PANELS SHOW THE SAME PART OF THE ROOM
-#   Each panel's window onto the plate is a slice of a left-to-right TILING, not
-#   a free-floating crop -- see _stage_panel_frames. Panel order and room order
-#   therefore agree, adjacent shots are separated by a little deliberately
-#   skipped background, and the same chair cannot appear either side of a cut.
-#   (The windows were previously all centred on the plate and merely nudged
-#   toward their character, which at two panels put ~13% of the background
-#   inside both of them -- visibly duplicated furniture across the gutter.)
-#
-# HOW MANY PEOPLE IT HANDLES
-#   Six, and gracefully more: the shader carries six panels, transforms.rpy
-#   defines stages of one through six, and past six the closest neighbours on
-#   stage share a panel (_stage_panel_group) rather than the format switching
-#   itself off in the middle of a crowd scene. Panel zoom rises with the count,
-#   because a narrower panel is a tighter shot -- which is what a camera would
-#   do, and is also what buys the room for six windows to be six different
-#   places.
-#
-# TUNING lives in section 2. The look is: gutter width, slant, the rim light
-# and the shading that falls into each gutter. The framing is: panel zoom per
-# stage size, how much room is skipped between panels, how hard a window leans
-# toward its own character, and the clearance a cut keeps from the cast.
-# =============================================================================
+# THE CAST LIVES INSIDE THE PANELS (Sep 26 2026). The same cut geometry is
+# published every paint as _stage_mask, and story_cast_framing.rpy masks each
+# framed sprite to its own panel with enter_m.cast_mask, so a gutter cuts
+# through the cast exactly where it cuts the room. Both shaders pick panels by
+# SCREEN position (gl_Position, see _EM_SCREEN_VERTEX), not plate position:
+# a layer shake moves the room and the cast inside a frame that holds still,
+# and the two can never disagree about where a cut is. Per-panel u_em_sp_f*
+# carry (listener dim, speaker accent, open glint); _EM_EDGE_LOOK is the one
+# seam/shade/dim treatment both shaders apply, so a seam runs unbroken from
+# the wall across a shoulder.
 
-
-# -----------------------------------------------------------------------------
-# 1. SHADER
-# -----------------------------------------------------------------------------
-# GLSL ES 1.00, matching atmosphere.rpy and theater_fx.rpy: no derivatives, no
-# dynamic loops, every smoothstep with edge0 strictly below edge1, and every
-# identifier prefixed because Matsu'Py 8.1.1 combines shader-part source into a
-# single scope. fragment_300 so it wins against renpy.texture's fragment_200.
-#
-# Panel selection is SIX unrolled compares rather than a loop over an array:
-# u_em_sp_p0..p5 are (left_edge, right_edge, source_center_x, screen_center_x),
-# ordered left to right, and an unused panel parks its left edge at 3.0 where
-# nothing can select it. The FIRST panel's left edge is -1.0 and the LAST
-# panel's right edge is 2.0, which is what keeps a gutter from being drawn down
-# the sides of the screen without needing a flag for it. Six is the ceiling on
-# how many people the format will split the room between; ENTER_M_PANEL_MAX may
-# be lowered but never raised past it without adding uniforms here.
-#
-# The cut is slanted, the CONTENT is not: panel selection and gutter distance
-# use the skewed x, while the source lookup uses the true x. Slanting both
-# would shear the room.
 init -10 python:
+
+    # Clip space -> screen fraction, top-left origin. Runs after renpy.geometry
+    # (vertex_100) has applied u_transform, so it already includes every slot
+    # transform, the focus push and any master-layer shake.
+    #
+    # RENDER-TO-TEXTURE FLIPS Y (measured Sep 26 2026). Drawing into a texture
+    # -- every dissolve renders both scenes that way -- inverts the projection's
+    # y, and the documented `-gl_Position.y * .5 + .5` then puts the top of the
+    # screen at the bottom: mid-dissolve the gutters leaned the wrong way and
+    # their signal marks sat at the foot of the frame. Model y (down the image)
+    # maps to clip -y on screen and to clip +y into a texture, so the sign of
+    # u_transform[1][1] says which, for anything drawn upright.
+    _EM_SCREEN_VERTEX = """
+            {v} = vec2(0.5 + 0.5 * gl_Position.x / gl_Position.w,
+                       0.5 - 0.5 * sign(-u_transform[1][1]) * gl_Position.y / gl_Position.w);
+    """
+
+    # THE EDGE LOOK, shared by the room and the cast. Inputs: {d} distance to
+    # this panel's nearer cut (skewed screen fraction), {y} screen y, {fx}
+    # (listener dim, speaker accent, open glint), {acc} the speaker's voice
+    # colour, {col} straight colour. The seam is the ENTER M coachwork line from
+    # the dialogue box: a bright inner hairline plus a faint second rule, cyan,
+    # burning hottest at the top of the frame and cooling toward the text. The
+    # live speaker's panel runs it in their own colour (ENTER_M_PANEL_VOICE),
+    # with a soft {glow} of it thrown into the shot. Listener panels desaturate
+    # and fall back as one camera.
+    _EM_EDGE_LOOK = """
+            float {p}aa = 0.0014;
+            float {p}cut = 1.0 - smoothstep(max({gap} - {p}aa, 0.0), {gap} + {p}aa, {d});
+            float {p}sh = 1.0 - smoothstep({gap}, {gap} + max({falloff}, 0.001), {d});
+            float {p}sm = (1.0 - smoothstep({gap}, {gap} + max({rim}, 0.0005), {d})) * (1.0 - {p}cut);
+            float {p}s2 = smoothstep({gap} + 3.4 * {rim}, {gap} + 4.2 * {rim}, {d})
+                - smoothstep({gap} + 4.6 * {rim}, {gap} + 5.4 * {rim}, {d});
+            float {p}prof = mix(1.0, 0.28, smoothstep(0.04, 0.82, {y}));
+            vec3 {p}sc = mix(vec3(0.51, 0.84, 0.86), {acc}, {fx}.y);
+            float {p}gain = {edge} * {p}prof * (1.0 + 1.1 * {fx}.y + 2.6 * {fx}.z) * {fade};
+            float {p}lum = dot({col}, vec3(0.299, 0.587, 0.114));
+            {col} = mix({col}, vec3({p}lum) * vec3(0.90, 0.97, 1.06), 0.38 * {fx}.x);
+            {col} *= 1.0 - 0.40 * {fx}.x;
+            {col} *= 1.0 - {p}sh * {shade} * {fade};
+            {col} += {p}sc * ({p}sm + 0.32 * {p}s2) * {p}gain;
+            float {p}gl = exp(-max({d} - {gap}, 0.0) / 0.011) * (1.0 - {p}cut);
+            {col} += {acc} * {p}gl * {glow} * {fx}.y * {p}prof * {fade};
+    """
+
+    def _em_edge_look(prefix, **names):
+        names["p"] = prefix
+        return _EM_EDGE_LOOK.format(**names)
 
     def _enter_m_stage_panels_register_shader():
         renpy.register_shader("enter_m.stage_panels", variables="""
             uniform sampler2D tex0;
+            uniform mat4  u_transform;
             uniform vec2  u_model_size;
             uniform vec2  u_em_sp_screen;
             uniform vec4  u_em_sp_p0;
@@ -134,6 +88,18 @@ init -10 python:
             uniform vec4  u_em_sp_p3;
             uniform vec4  u_em_sp_p4;
             uniform vec4  u_em_sp_p5;
+            uniform vec3  u_em_sp_f0;
+            uniform vec3  u_em_sp_f1;
+            uniform vec3  u_em_sp_f2;
+            uniform vec3  u_em_sp_f3;
+            uniform vec3  u_em_sp_f4;
+            uniform vec3  u_em_sp_f5;
+            uniform vec3  u_em_sp_c0;
+            uniform vec3  u_em_sp_c1;
+            uniform vec3  u_em_sp_c2;
+            uniform vec3  u_em_sp_c3;
+            uniform vec3  u_em_sp_c4;
+            uniform vec3  u_em_sp_c5;
             uniform float u_em_sp_zoom;
             uniform float u_em_sp_gap;
             uniform float u_em_sp_slant;
@@ -141,32 +107,46 @@ init -10 python:
             uniform float u_em_sp_edge;
             uniform float u_em_sp_shade;
             uniform float u_em_sp_falloff;
+            uniform float u_em_sp_tick;
+            uniform float u_em_sp_push;
+            uniform float u_em_sp_glow;
             varying vec2  v_tex_coord;
-        """, fragment_300="""
-            // Child pixels -> screen fraction. Every background in the story is
-            // 1280x720 at the origin, so this is the identity there; an odd-
-            // sized plate degrades to the right scale instead of tearing.
+            varying vec2  v_em_sp_scr;
+        """, vertex_300=_EM_SCREEN_VERTEX.format(v="v_em_sp_scr"), fragment_300="""
+            // Child pixels -> plate fraction, for SAMPLING. Every background in
+            // the story is 1280x720 at the origin, so this is the identity
+            // there; an odd-sized plate degrades to the right scale.
             vec2 em_sp_size = max(u_model_size, vec2(1.0));
             vec2 em_sp_screen = max(u_em_sp_screen, vec2(1.0));
             vec2 em_sp_ratio = em_sp_size / em_sp_screen;
             vec2 em_sp_suv = v_tex_coord * em_sp_ratio;
 
-            float em_sp_xs = em_sp_suv.x + (em_sp_suv.y - 0.5) * u_em_sp_slant;
+            // Panel SELECTION is in screen space; see the header.
+            vec2 em_sp_scr = v_em_sp_scr;
+            float em_sp_xs = em_sp_scr.x + (em_sp_scr.y - 0.5) * u_em_sp_slant;
 
             vec4 em_sp_pan = u_em_sp_p0;
-            if (em_sp_xs >= u_em_sp_p1.x) { em_sp_pan = u_em_sp_p1; }
-            if (em_sp_xs >= u_em_sp_p2.x) { em_sp_pan = u_em_sp_p2; }
-            if (em_sp_xs >= u_em_sp_p3.x) { em_sp_pan = u_em_sp_p3; }
-            if (em_sp_xs >= u_em_sp_p4.x) { em_sp_pan = u_em_sp_p4; }
-            if (em_sp_xs >= u_em_sp_p5.x) { em_sp_pan = u_em_sp_p5; }
+            vec3 em_sp_fx = u_em_sp_f0;
+            vec3 em_sp_acc = u_em_sp_c0;
+            if (em_sp_xs >= u_em_sp_p1.x) { em_sp_pan = u_em_sp_p1; em_sp_fx = u_em_sp_f1; em_sp_acc = u_em_sp_c1; }
+            if (em_sp_xs >= u_em_sp_p2.x) { em_sp_pan = u_em_sp_p2; em_sp_fx = u_em_sp_f2; em_sp_acc = u_em_sp_c2; }
+            if (em_sp_xs >= u_em_sp_p3.x) { em_sp_pan = u_em_sp_p3; em_sp_fx = u_em_sp_f3; em_sp_acc = u_em_sp_c3; }
+            if (em_sp_xs >= u_em_sp_p4.x) { em_sp_pan = u_em_sp_p4; em_sp_fx = u_em_sp_f4; em_sp_acc = u_em_sp_c4; }
+            if (em_sp_xs >= u_em_sp_p5.x) { em_sp_pan = u_em_sp_p5; em_sp_fx = u_em_sp_f5; em_sp_acc = u_em_sp_c5; }
 
             // This panel's window onto the room: its own centre of the source
             // plate, scaled about that centre. Python has already clamped the
             // centre so the window cannot run off the edge of the plate.
             float em_sp_zoom = max(u_em_sp_zoom, 0.01);
+
+            // The live panel's camera pushes in a little, about the cast's eye
+            // height, so the speaker's room tightens while the rest hold.
+            float em_sp_k = 1.0 + u_em_sp_push * em_sp_fx.y;
+            vec2 em_sp_pivot = vec2(em_sp_pan.w, 0.40);
+            vec2 em_sp_q = em_sp_pivot + (em_sp_suv - em_sp_pivot) / em_sp_k;
             vec2 em_sp_src = vec2(
-                em_sp_pan.z + (em_sp_suv.x - em_sp_pan.w) / em_sp_zoom,
-                0.5 + (em_sp_suv.y - 0.5) / em_sp_zoom);
+                em_sp_pan.z + (em_sp_q.x - em_sp_pan.w) / em_sp_zoom,
+                0.5 + (em_sp_q.y - 0.5) / em_sp_zoom);
             vec2 em_sp_uv = clamp(
                 em_sp_src / em_sp_ratio, vec2(0.0005), vec2(0.9995));
 
@@ -176,29 +156,58 @@ init -10 python:
 
             // Distance to the nearer edge of this panel, in the skewed x.
             float em_sp_d = min(em_sp_xs - em_sp_pan.x, em_sp_pan.y - em_sp_xs);
-            float em_sp_aa = 0.0014;
             float em_sp_gap = max(u_em_sp_gap, 0.0);
-            float em_sp_cut = 1.0 - smoothstep(
-                max(em_sp_gap - em_sp_aa, 0.0),
-                em_sp_gap + em_sp_aa,
-                em_sp_d);
-
-            // Shading that falls INTO the gutter gives the panels an edge to
-            // sit on; the rim is the thin catch-light just inside the cut.
-            float em_sp_shade = 1.0 - smoothstep(
-                em_sp_gap,
-                em_sp_gap + max(u_em_sp_falloff, 0.001),
-                em_sp_d);
-            float em_sp_rim = (1.0 - smoothstep(
-                em_sp_gap,
-                em_sp_gap + max(u_em_sp_rim, 0.0005),
-                em_sp_d)) * (1.0 - em_sp_cut);
-
-            em_sp_col *= 1.0 - em_sp_shade * clamp(u_em_sp_shade, 0.0, 1.0);
-            em_sp_col += vec3(1.0) * em_sp_rim * max(u_em_sp_edge, 0.0);
-            em_sp_col *= 1.0 - em_sp_cut;
+            """ + _em_edge_look("em_sp_e_", d="em_sp_d", y="em_sp_scr.y", fx="em_sp_fx",
+            acc="em_sp_acc", col="em_sp_col", gap="em_sp_gap", rim="u_em_sp_rim",
+            edge="u_em_sp_edge", shade="clamp(u_em_sp_shade, 0.0, 1.0)",
+            falloff="u_em_sp_falloff", glow="u_em_sp_glow", fade="1.0") + """
+            // The gutter is graphite, carrying the dialogue box's signal
+            // marks near the top of every cut -- a cyan bar and a short
+            // crimson one, down the centre third of the gutter.
+            float em_sp_mid = 1.0 - smoothstep(em_sp_gap * 0.34, em_sp_gap * 0.52, em_sp_d);
+            float em_sp_t1 = smoothstep(0.052, 0.056, em_sp_scr.y) * (1.0 - smoothstep(0.112, 0.116, em_sp_scr.y));
+            float em_sp_t2 = smoothstep(0.126, 0.130, em_sp_scr.y) * (1.0 - smoothstep(0.146, 0.150, em_sp_scr.y));
+            vec3 em_sp_gutter = vec3(0.025, 0.038, 0.047);
+            vec3 em_sp_mark = mix(vec3(0.44, 0.77, 0.82), em_sp_acc, em_sp_fx.y);
+            em_sp_gutter = mix(em_sp_gutter, em_sp_mark, em_sp_mid * em_sp_t1 * u_em_sp_tick);
+            em_sp_gutter = mix(em_sp_gutter, vec3(0.85, 0.47, 0.48), em_sp_mid * em_sp_t2 * u_em_sp_tick);
+            em_sp_col = mix(em_sp_col, em_sp_gutter, em_sp_e_cut);
 
             gl_FragColor = vec4(em_sp_col * em_sp_a, em_sp_a);
+        """)
+
+        # THE CAST MASK. Applied by story_cast_framing.rpy to a framed story
+        # sprite's Render (no mesh: the part rides the sprite's own texture
+        # draw, so this costs no render-to-texture). u_em_cm_edge is (left
+        # cut, right cut, slant, half gutter); u_em_cm_fx is (dim, accent,
+        # glint, slack). Slack pushes the cuts outward -- the speaker breaking
+        # the frame, or the whole layout disengaging -- and fades the edge
+        # treatment with it, so an open frame carries no seam across a face.
+        renpy.register_shader("enter_m.cast_mask", variables="""
+            uniform mat4  u_transform;
+            uniform vec4  u_em_cm_edge;
+            uniform vec4  u_em_cm_look;
+            uniform vec4  u_em_cm_fx;
+            uniform vec3  u_em_cm_acc;
+            uniform float u_em_cm_glow;
+            varying vec2  v_em_cm_scr;
+        """, vertex_300=_EM_SCREEN_VERTEX.format(v="v_em_cm_scr"), fragment_300="""
+            float em_cm_xs = v_em_cm_scr.x + (v_em_cm_scr.y - 0.5) * u_em_cm_edge.z;
+            float em_cm_d = min(em_cm_xs - u_em_cm_edge.x, u_em_cm_edge.y - em_cm_xs);
+            float em_cm_gap = max(u_em_cm_edge.w, 0.0);
+            float em_cm_slack = max(u_em_cm_fx.w, 0.0);
+            float em_cm_keep = smoothstep(max(em_cm_gap - 0.0014, 0.0),
+                em_cm_gap + 0.0014, em_cm_d + em_cm_slack);
+            float em_cm_fade = 1.0 - smoothstep(0.0, 0.006, em_cm_slack);
+            float em_cm_a = max(gl_FragColor.a, 0.0001);
+            vec3 em_cm_col = gl_FragColor.rgb / em_cm_a;
+            vec3 em_cm_fx3 = u_em_cm_fx.xyz;
+            """ + _em_edge_look("em_cm_e_", d="em_cm_d", y="v_em_cm_scr.y", fx="em_cm_fx3",
+            acc="u_em_cm_acc", col="em_cm_col", gap="em_cm_gap", rim="u_em_cm_look.x",
+            edge="u_em_cm_look.y", shade="u_em_cm_look.z",
+            falloff="u_em_cm_look.w", glow="u_em_cm_glow",
+            fade="em_cm_fade") + """
+            gl_FragColor = vec4(em_cm_col * em_cm_a, em_cm_a) * em_cm_keep;
         """)
 
     try:
@@ -247,13 +256,16 @@ define ENTER_M_PANEL_MAX = 6
 define ENTER_M_PANEL_MIN_W = 0.13     # narrowest a panel may be, as a fraction
 
 # LOOK
-define ENTER_M_PANEL_GAP = 16.0       # gutter width in px at full engagement
+define ENTER_M_PANEL_GAP = 12.0       # gutter width in px at full engagement
 define ENTER_M_PANEL_SLANT = 74.0     # px the cut leans across the screen height
 define ENTER_M_PANEL_SLANT_FIT = 340.0  # panels narrower than this lean less
-define ENTER_M_PANEL_RIM = 2.6        # px of catch-light inside each cut
-define ENTER_M_PANEL_EDGE = 0.30      # how bright that catch-light burns
-define ENTER_M_PANEL_SHADE = 0.34     # how dark the plate goes into the gutter
-define ENTER_M_PANEL_FALLOFF = 26.0   # px that shading reaches into the panel
+define ENTER_M_PANEL_RIM = 1.5        # px of the seam's bright inner hairline
+define ENTER_M_PANEL_EDGE = 0.50      # how bright the seam burns at the top
+define ENTER_M_PANEL_SHADE = 0.26     # how dark the plate goes into the gutter
+define ENTER_M_PANEL_FALLOFF = 22.0   # px that shading reaches into the panel
+define ENTER_M_PANEL_TICK = 1.0       # the cyan/crimson signal marks in each gutter
+define ENTER_M_PANEL_GLOW = 0.30      # voice-coloured light the live seam throws in
+define ENTER_M_PANEL_PUSH = 0.03      # how far the live panel's camera pushes in
 
 # FRAMING. How far each panel pushes into the plate, by how many panels there
 # are: a narrow panel is a tighter shot, which is both what a camera would do
@@ -274,10 +286,42 @@ define ENTER_M_PANEL_SEP_SHARE = 0.65
 
 # How hard a panel's window leans toward its own character when the character is
 # not standing in the middle of their panel (the speaker's claim, or a
-# hand-placed sprite). 0 frames every panel dead centre.
+# hand-placed sprite). 0 frames every panel dead centre. This is the SMALL-OFFSET
+# gain; _stage_panel_frames caps it so the lean can never run out of room before
+# the character reaches their panel's edge (see the note there).
 define ENTER_M_PANEL_LEAN = 0.55
 
 define ENTER_M_PANEL_EXPAND = 0.036   # extra width the speaker's panel claims
+
+# THE LIVE CAMERA. While someone on stage is speaking, every other panel -- room
+# AND sprite, one grade for both -- falls back, and the speaker's own seams run
+# crimson. DIM scales the fall-back; it only applies while Speaker Focus is on
+# "Darken" (the panel then does Autofocus's darkening for framed story sprites,
+# see story_cast_framing.rpy), so "Fade" and "Off" keep their exact behaviour.
+# BREAKOUT is how far, in px, the speaker's figure may cross their own cuts:
+# the comic-panel pop-out. FOCUS is the time constant all three ease on.
+define ENTER_M_PANEL_DIM = 1.0
+define ENTER_M_PANEL_BREAKOUT = 30.0
+define ENTER_M_PANEL_FOCUS = 0.085
+
+# A cut glints as its panel opens or closes, and every cut glints as the whole
+# layout cracks open from a plain background.
+define ENTER_M_PANEL_GLINT = 1.0
+
+# VOICE COLOURS. The live speaker's seams burn in their own colour, taken from
+# their art, so a character is recognisable by the edge of their shot before
+# the name box is read. Anyone unlisted speaks in the interface crimson.
+define ENTER_M_PANEL_VOICE = {
+    "matsuda": "#ff4b55",
+    "monika": "#4fe08e",
+    "kotonoha": "#b69cff",
+    "sam": "#ffc849",
+    "asahina": "#5fb2ff",
+    "tsubaki": "#f3b25e",
+    "mom": "#ff907a",
+    "mc": "#a8bdd2",
+}
+define ENTER_M_PANEL_VOICE_DEFAULT = "#ff315b"
 
 # THE EXIT SLIDE. How far past the frame the last cut is carried as the panel
 # beyond it finishes collapsing, as a fraction of the screen. A cut that merely
@@ -300,9 +344,19 @@ define ENTER_M_PANEL_CLEARANCE = 0.085
 define ENTER_M_PANEL_EASE = 0.115
 define ENTER_M_PANEL_OPEN = 0.20
 
+# A character MOVING between slots (t11 -> t31) is not a correction, it is the
+# sprite gliding, and the room should pan with it rather than get there first.
+# So a panel whose character changes position follows tcommon's own curve --
+# `easein_cubic .30` in game/transforms.rpy, fast start and decelerating --
+# instead of the exponential above. Keep this equal to that duration.
+define ENTER_M_PANEL_GLIDE = 0.30
+
 # SCOPE. Prefixes are matched against the filename of the running statement.
-# ON wins over OFF; anything in neither list leaves the latch where it is, so a
-# `call` into a shared helper label cannot strobe the layout.
+# Loose scripts report `game/...`; archived scripts report the path INSIDE the
+# archive (without `game/`), and protected bundles lowercase that path. Section
+# 5 canonicalises all three forms before matching. ON wins over OFF; anything in
+# neither list leaves the latch where it is, so a `call` into a shared helper
+# label cannot strobe the layout.
 define ENTER_M_PANEL_SCOPE_ON = (
     "game/story/season1/",
 )
@@ -342,6 +396,36 @@ init python:
     _SP_LAYER = "master"
 
     _stage_panels = []
+
+    # The cut geometry as of the last paint, for the cast mask. `panels` maps
+    # every cast tag on stage (group members included) to
+    # (left cut, right cut, (dim, accent, glint), slack, width).
+    _stage_mask = {"on": False, "t": None, "panels": {},
+        "edge": (0.0, 0.0), "look": (0.0, 0.0, 0.0, 0.0)}
+
+    # Called whenever the layout gets a new target, after the bg is woken:
+    # anything else drawn from this geometry (the cast mask) must redraw too.
+    _stage_panels_wake_hooks = []
+
+    def _stage_mask_for(tag):
+        if not _stage_mask["on"]:
+            return None
+
+        return _stage_mask["panels"].get(tag)
+
+    def _stage_panel_voice(tag):
+        """A speaker's seam colour as a straight 0..1 RGB triple."""
+        return tuple(Color(ENTER_M_PANEL_VOICE.get(
+            tag, ENTER_M_PANEL_VOICE_DEFAULT)).rgb)
+
+    def _stage_panel_dim_strength():
+        if not getattr(store, "autofocus_enabled", False):
+            return 0.0
+
+        if persistent.autofocus_dim_mode != "darken":
+            return 0.0
+
+        return float(ENTER_M_PANEL_DIM)
 
     _stage_state = {
         "amt": 0.0,          # engagement 0..1: gutters, zoom and parallax ride it
@@ -474,12 +558,17 @@ init python:
     # keeps the leftmost member's tag as its identity, so a crowd that holds
     # still produces the same grouping on every pass.
     def _stage_panel_group(stage):
+        return [(x, tag) for x, tag, _members in _stage_panel_group_members(stage)]
+
+    # The same grouping, remembering who is in each panel: the speaker may be a
+    # merged panel's second member, and the cast mask needs every member.
+    def _stage_panel_group_members(stage):
         limit = _stage_panel_limit()
 
         if len(stage) <= limit:
-            return stage
+            return [(x, tag, [tag]) for x, tag in stage]
 
-        groups = [[x, tag, 1] for x, tag in stage]
+        groups = [[x, tag, 1, [tag]] for x, tag in stage]
 
         while len(groups) > limit:
             best = 0
@@ -497,8 +586,9 @@ init python:
             total = left[2] + right[2]
             left[0] = (left[0] * left[2] + right[0] * right[2]) / total
             left[2] = total
+            left[3].extend(right[3])
 
-        return [(x, tag) for x, tag, _count in groups]
+        return [(x, tag, members) for x, tag, _count, members in groups]
 
     # --- target widths -------------------------------------------------------
     # A boundary sits at the midpoint between two neighbours, which -- because
@@ -604,6 +694,10 @@ init python:
             panel["alive"] = False
 
         panel["w"] = 0.0
+        # A leaving panel stops being the speaker's; a dimmed listener who
+        # leaves stays dim on the way out rather than flashing back up.
+        panel["acc_t"] = 0.0
+        panel["out_t"] = 0.0
 
     def _stage_panel_exit(panel):
         """0 the moment a panel is retired, 1 once it has finished collapsing.
@@ -624,9 +718,8 @@ init python:
     def _stage_panels_retarget():
         """Re-derive every panel's target from who is on stage right now."""
         stage = _stage_panels_scan() if _stage_panels_active() else []
-
-        if stage:
-            stage = _stage_panel_group(stage)
+        grouped = _stage_panel_group_members(stage) if stage else []
+        stage = [(x, tag) for x, tag, _members in grouped]
 
         if not stage:
             # Nobody on stage: every panel dies and the plate returns to being a
@@ -644,6 +737,22 @@ init python:
 
         speaker = _stage_state["speaker"]
         widths = _stage_panel_widths(stage, speaker)
+
+        # Which panel is live. A speaker who shares a merged panel lights the
+        # whole panel; a speaker with no panel (off stage) lights nobody's.
+        speaker_index = None
+
+        # Speaker Focus switched off means no speaker emphasis at all: no
+        # listener dim, no live seam, no pop-out, no push-in.
+        emphasis = bool(getattr(store, "autofocus_enabled", True))
+
+        for index, (_x, _tag, members) in enumerate(grouped):
+            if emphasis and speaker is not None and speaker in members:
+                speaker_index = index
+                break
+
+        dim = _stage_panel_dim_strength() if speaker_index is not None else 0.0
+        breakout = float(ENTER_M_PANEL_BREAKOUT) if len(stage) > 1 else 0.0
 
         # The framing targets belong to the stage that is ARRIVING, so they are
         # read from the live cast and its settled widths -- never from the panel
@@ -672,10 +781,28 @@ init python:
                 panel = {"tag": tag, "x": x, "cx": x, "w": 0.0, "cw": 0.0,
                         "alive": True, "ref": 0.0}
                 _stage_panels.append(panel)
+            elif abs(panel["x"] - x) > 1e-6:
+                # The character moved. Glide from wherever the panel is NOW
+                # (which may be partway through an earlier glide) on the
+                # sprite's own curve; the clock starts on the next drawn frame
+                # -- see _stage_panels_advance for why not here.
+                panel["x0"] = panel["cx"]
+                panel["t0"] = None
+                panel["glide"] = True
 
             panel["x"] = x
             panel["w"] = widths[index]
             panel["alive"] = True
+            panel["members"] = tuple(grouped[index][2])
+            speaking = index == speaker_index
+            panel["dim_t"] = 0.0 if speaking else dim
+
+            # The colour is only ever SET: a panel whose speaker falls silent
+            # keeps it while its accent fades, so it cools rather than flicks.
+            if speaking:
+                panel["voice"] = _stage_panel_voice(speaker)
+            panel["acc_t"] = 1.0 if speaking and len(stage) > 1 else 0.0
+            panel["out_t"] = breakout if speaking else 0.0
             # Identity, not equality: two panels with the same contents are
             # equal as dicts, and `panel in keep` would then keep the wrong one.
             keep.add(id(panel))
@@ -684,8 +811,13 @@ init python:
             if id(panel) not in keep:
                 _stage_panel_retire(panel)
 
-        # Left to right, dying panels included, so a panel collapses in place.
-        _stage_panels.sort(key=lambda p: p["x"] if p["alive"] else p["cx"])
+        # Left to right by where each panel IS, dying panels included, so a
+        # panel collapses in place. Current position, not target: two
+        # characters swapping sides used to trade panels on the first frame --
+        # the whole room jumped 62px -- whereas ordered by position they keep
+        # their panels until the glide actually carries them past each other,
+        # and the order is kept up to date per frame in _stage_panels_advance.
+        _stage_panels.sort(key=lambda p: p["cx"])
 
         # The shader carries six panels. A cast swap can briefly stack live
         # panels on top of dying ones, so the faintest ghosts are dropped
@@ -709,7 +841,9 @@ init python:
     def _stage_panels_signature():
         return (
             round(_stage_state["amt_target"], 4),
-            tuple((p["tag"], p["alive"], round(p["w"], 4), round(p["x"], 4))
+            tuple((p["tag"], p["alive"], round(p["w"], 4), round(p["x"], 4),
+                round(p.get("dim_t", 0.0), 3), round(p.get("acc_t", 0.0), 3),
+                round(p.get("out_t", 0.0), 2))
                 for p in _stage_panels))
 
     def _stage_panels_wake():
@@ -729,6 +863,12 @@ init python:
         if shown is not None:
             renpy.redraw(shown, 0)
 
+        for hook in _stage_panels_wake_hooks:
+            try:
+                hook()
+            except Exception:
+                pass
+
     # --- the ease ------------------------------------------------------------
     # Advances AT MOST once per drawn frame. See the header for why the clock is
     # frame_time and not the transform's st.
@@ -740,6 +880,7 @@ init python:
         if _stage_state["snap"]:
             blend = 1.0
             opening = 1.0
+            focus = 1.0
         elif now is None or last is None or now <= last:
             return
         else:
@@ -752,10 +893,13 @@ init python:
                 -delta / max(ENTER_M_PANEL_EASE, 0.001))
             opening = 1.0 - _enter_m_sp_math.exp(
                 -delta / max(ENTER_M_PANEL_OPEN, 0.001))
+            focus = 1.0 - _enter_m_sp_math.exp(
+                -delta / max(ENTER_M_PANEL_FOCUS, 0.001))
 
         if blend <= 0.0:
             return
 
+        snapping = _stage_state["snap"]
         _stage_state["snap"] = False
         _stage_state["amt"] += (
             _stage_state["amt_target"] - _stage_state["amt"]) * opening
@@ -767,11 +911,50 @@ init python:
 
         for panel in _stage_panels:
             panel["cw"] += (panel["w"] - panel["cw"]) * blend
-            panel["cx"] += (panel["x"] - panel["cx"]) * blend
+
+            for key in ("dim", "acc", "out"):
+                value = panel.get(key, 0.0)
+                panel[key] = value + (panel.get(key + "_t", 0.0) - value) * focus
+
+            if not panel.get("glide"):
+                panel["cx"] += (panel["x"] - panel["cx"]) * blend
+                continue
+
+            if snapping or now is None:
+                panel["cx"] = panel["x"]
+                panel["glide"] = False
+                continue
+
+            # THE GLIDE CLOCK STARTS HERE, NOT IN _stage_panels_retarget. That
+            # runs at interaction start, when the last drawn frame can be a
+            # whole line of dialogue old (Low-Resource Mode presents every
+            # 200ms), and a start time that stale would put the first frame
+            # most of the way through the move -- the snap all over again. So
+            # the move is dated one frame back from the first frame that draws
+            # it, the same single-frame clamp the ease above uses.
+            if panel.get("t0") is None:
+                step = min(now - last, 1.0 / 30.0) if last is not None else 1.0 / 60.0
+                panel["t0"] = now - step
+
+            progress = (now - panel["t0"]) / max(ENTER_M_PANEL_GLIDE, 0.001)
+
+            if progress >= 1.0:
+                panel["cx"] = panel["x"]
+                panel["glide"] = False
+            else:
+                # easein_cubic, Matsu'Py's naming: fast out of the gate,
+                # settling into place -- the same curve the sprite is on.
+                eased = 1.0 - (1.0 - progress) ** 3
+                panel["cx"] = panel["x0"] + (panel["x"] - panel["x0"]) * eased
 
         for panel in list(_stage_panels):
             if not panel["alive"] and panel["cw"] <= 0.0015:
                 _stage_panels.remove(panel)
+
+        # Keep the row in the order the panels actually stand in. A swap
+        # crosses over mid-glide, on a frame where both characters are at the
+        # same x -- so the handover is continuous rather than a jump.
+        _stage_panels.sort(key=lambda p: p["cx"])
 
     def _stage_panels_settled():
         if abs(_stage_state["amt_target"] - _stage_state["amt"]) > 0.0015:
@@ -788,6 +971,21 @@ init python:
                 return False
 
             if abs(panel["x"] - panel["cx"]) > 0.0015:
+                return False
+
+            if abs(panel.get("dim_t", 0.0) - panel.get("dim", 0.0)) > 0.002:
+                return False
+
+            if abs(panel.get("acc_t", 0.0) - panel.get("acc", 0.0)) > 0.002:
+                return False
+
+            if abs(panel.get("out_t", 0.0) - panel.get("out", 0.0)) > 0.05:
+                return False
+
+            # The cubic's tail spends its last ~50ms inside the tolerance
+            # above; a driver that fell asleep there would finish the glide
+            # with a jump on whatever frame woke it.
+            if panel.get("glide"):
                 return False
 
         return True
@@ -932,8 +1130,24 @@ init python:
             # right-hand panel was looking 54px off, and snapped back the frame
             # the ghosts were dropped. A panel with no width has nothing to
             # look at, so it gets no say in where anything points.
+            #
+            # CAPPED SO IT CANNOT RUN OUT OF ROOM MID-MOVE. The whole row can
+            # only shift by `margin` before the clamp passes below pin it to
+            # the plate edge, and with one person on stage (zoom 1.10) that is
+            # 4.5% of the plate. At the raw 0.55 gain a character used all of
+            # it after crossing a tenth of the way from t11 to t31 -- two
+            # frames into a 0.3s glide -- so the room lurched 64px and then sat
+            # pinned while the sprite was still travelling: the "background
+            # snaps instead of panning" bug. The gain is therefore limited to
+            # margin / reach, where reach is half the panel: a character only
+            # spends the full margin when standing at their panel's very edge,
+            # and the pan stays proportional to where they are all the way
+            # there. Multi-panel stages, whose offsets are small (the
+            # speaker's claim), mostly keep the raw gain.
+            reach = max((right - left) * 0.5, 1e-4)
+            gain = min(ENTER_M_PANEL_LEAN, margin / reach)
             lean = ((char_x - (left + right) * 0.5)
-                * ENTER_M_PANEL_LEAN * amt * presence[index])
+                * gain * amt * presence[index])
             centres.append(cursor + size * 0.5 + lean)
             cursor += size
 
@@ -973,6 +1187,8 @@ init python:
 
         if amt <= 0.0015 and not live:
             del panels[:]
+            _stage_mask["on"] = False
+            _stage_mask["panels"] = {}
             trans.mesh = False
             trans.shader = None
             return None
@@ -1098,6 +1314,62 @@ init python:
         slant = ENTER_M_PANEL_SLANT * min(
             1.0, narrowest / max(ENTER_M_PANEL_SLANT_FIT, 1.0))
 
+        # Per-panel look: (listener dim, speaker accent, glint). Everything is
+        # scaled by engagement, so a retracted layout is the untouched plate.
+        # The glint peaks halfway through a panel opening or closing, and
+        # halfway through the whole layout cracking open.
+        crack = 4.0 * amt * (1.0 - amt)
+        fx = []
+
+        for index in range(count):
+            # `spans` gets a placeholder when the last ghost has been dropped
+            # but engagement is still easing out; it has no panel behind it.
+            panel = panels[index] if index < len(panels) else {}
+            p = presence[index]
+            glint = ENTER_M_PANEL_GLINT * max(4.0 * p * (1.0 - p), crack)
+            fx.append((panel.get("dim", 0.0) * amt,
+                panel.get("acc", 0.0) * amt, glint))
+
+        while len(fx) < _SP_SHADER_PANELS:
+            fx.append((0.0, 0.0, 0.0))
+
+        default_voice = _stage_panel_voice(None)
+        voices = [
+            (panels[index].get("voice") if index < len(panels) else None)
+                or default_voice
+            for index in range(count)]
+
+        while len(voices) < _SP_SHADER_PANELS:
+            voices.append(default_voice)
+
+        # Publish the cuts for the cast mask, in the shader's own units. Slack
+        # opens every mask as the layout disengages, so a sprite is never
+        # clipped by a cut the room is not showing.
+        slack = (1.0 - amt) * 0.6
+        mask = {}
+
+        for index in range(min(count, len(panels))):
+            panel = panels[index]
+            left, right = values[index][0], values[index][1]
+            entry = (left, right, fx[index],
+                slack + panel.get("out", 0.0) * amt / width, right - left,
+                voices[index], count)
+
+            for member in panel.get("members") or (panel["tag"],):
+                prior = mask.get(member)
+
+                if prior is None or entry[4] > prior[4]:
+                    mask[member] = entry
+
+        _stage_mask["panels"] = mask
+        _stage_mask["edge"] = ((slant / width) * amt,
+            (ENTER_M_PANEL_GAP * 0.5 / width) * amt)
+        _stage_mask["look"] = (ENTER_M_PANEL_RIM / width,
+            ENTER_M_PANEL_EDGE * amt, ENTER_M_PANEL_SHADE * amt,
+            ENTER_M_PANEL_FALLOFF / width)
+        _stage_mask["t"] = getattr(renpy.display.interface, "frame_time", None)
+        _stage_mask["on"] = True
+
         trans.mesh = True
         trans.shader = "enter_m.stage_panels"
         trans.u_em_sp_screen = (width, height)
@@ -1107,6 +1379,21 @@ init python:
         trans.u_em_sp_p3 = values[3]
         trans.u_em_sp_p4 = values[4]
         trans.u_em_sp_p5 = values[5]
+        trans.u_em_sp_f0 = fx[0]
+        trans.u_em_sp_f1 = fx[1]
+        trans.u_em_sp_f2 = fx[2]
+        trans.u_em_sp_f3 = fx[3]
+        trans.u_em_sp_f4 = fx[4]
+        trans.u_em_sp_f5 = fx[5]
+        trans.u_em_sp_tick = ENTER_M_PANEL_TICK * amt
+        trans.u_em_sp_push = ENTER_M_PANEL_PUSH
+        trans.u_em_sp_glow = ENTER_M_PANEL_GLOW
+        trans.u_em_sp_c0 = voices[0]
+        trans.u_em_sp_c1 = voices[1]
+        trans.u_em_sp_c2 = voices[2]
+        trans.u_em_sp_c3 = voices[3]
+        trans.u_em_sp_c4 = voices[4]
+        trans.u_em_sp_c5 = voices[5]
         trans.u_em_sp_zoom = zoom
         trans.u_em_sp_gap = (ENTER_M_PANEL_GAP * 0.5 / width) * amt
         trans.u_em_sp_slant = (slant / width) * amt
@@ -1140,29 +1427,59 @@ init python:
 # -----------------------------------------------------------------------------
 init python:
 
+    def _stage_panels_scope_classify(filename):
+        """True for story, False for isolated content, None for a helper."""
+        if not filename:
+            return None
+
+        # In development, AST filenames are `game/story/...`. The archive
+        # builder strips that first component, so the same statement becomes
+        # `story/...` in a release. An absolute filename can also reach this
+        # helper through tooling. Reduce every form to one case-insensitive
+        # `game/...` logical path before applying the public scope tables.
+        logical = filename.replace("\\", "/")
+        game_marker = logical.lower().rfind("/game/")
+
+        if game_marker >= 0:
+            logical = logical[game_marker + 1:]
+        else:
+            logical = logical.lstrip("/")
+            if not logical.lower().startswith("game/"):
+                logical = "game/" + logical
+
+        logical = logical.lower()
+
+        for prefix in ENTER_M_PANEL_SCOPE_ON:
+            if logical.startswith(prefix.replace("\\", "/").lower()):
+                return True
+
+        for prefix in ENTER_M_PANEL_SCOPE_OFF:
+            if logical.startswith(prefix.replace("\\", "/").lower()):
+                return False
+
+        return None
+
     def _stage_panels_scope_update():
         try:
             filename = renpy.get_filename_line()[0]
         except Exception:
             return
 
-        if not filename:
-            return
+        scope = _stage_panels_scope_classify(filename)
 
-        filename = filename.replace("\\", "/")
-
-        for prefix in ENTER_M_PANEL_SCOPE_ON:
-            if filename.startswith(prefix):
-                _stage_state["scope"] = True
-                return
-
-        for prefix in ENTER_M_PANEL_SCOPE_OFF:
-            if filename.startswith(prefix):
-                _stage_state["scope"] = False
-                return
+        if scope is not None:
+            _stage_state["scope"] = scope
 
         # Anything else -- a helper label, an addon, a screen -- says nothing
         # about scope, so the latch holds.
+
+    def enter_m_main_story_active():
+        """True in the main-story presentation scope, independent of panels."""
+        # Refresh at the call site as well as at interaction start. This keeps
+        # screen actions and programmatic phone checks correct even before the
+        # first interaction in a freshly started standalone story.
+        _stage_panels_scope_update()
+        return bool(_stage_state["scope"])
 
     def stage_panels_refresh():
         """Recompute the layout from the current stage. Cheap; idempotent."""
@@ -1218,6 +1535,8 @@ init python:
     # that resumes, and land the first frame instantly.
     def _stage_panels_after_load():
         del _stage_panels[:]
+        _stage_mask["on"] = False
+        _stage_mask["panels"] = {}
         _stage_state["amt"] = 0.0
         _stage_state["amt_target"] = 0.0
         _stage_state["speaker"] = None

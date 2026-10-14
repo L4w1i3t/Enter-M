@@ -10,7 +10,7 @@
 #   are layered on top via a few `show screen` hooks here.
 #
 # ENTRY POINTS
-#   label enter_m_sick_ass_anime_op       -> plays the whole OP (line ~1242).
+#   label enter_m_sick_ass_anime_op       -> plays the whole OP.
 #   label enter_m_sick_ass_anime_op_skip  -> the SKIP target: stop music, run
 #                                            cleanup, fade out, restore quick_menu.
 #   enter_m_op_cleanup_screens()          -> hides every OP screen (call this
@@ -74,7 +74,7 @@ image enter_m_op_sam_bus = "addons/Sick Ass Anime OP/sambus.png"
 image enter_m_op_sam_villain = "addons/Sick Ass Anime OP/samvillain.png"
 image enter_m_op_turmoil = "addons/Sick Ass Anime OP/turmoil.png"
 image enter_m_op_title_drop = "addons/Sick Ass Anime OP/titledropalt.png"
-image enter_m_op_bg_arcade = "assets/dump/arcade.png"
+image enter_m_op_bg_arcade = "assets/backgrounds/arcade.png"
 image enter_m_op_bg_cafe = "assets/dump/cafe.png"
 image enter_m_op_bg_bookstore = "assets/dump/bookstore.png"
 image enter_m_op_bg_courtyard = "assets/dump/courtyard.png"
@@ -1630,6 +1630,7 @@ label enter_m_sick_ass_anime_op:
     hide screen enter_m_op_meta_monika
 
     scene enter_m_op_dark
+    # NUDGE P3 / DECIDE 10.3: the Smug Sam CG plays on every boot, before the story's slow read of Sam. Keep it, swap the image (keeps bar timing), or hold it back.
     show enter_m_op_sam_villain as enter_m_op_sam_villain_back at enter_m_op_sam_villain_backplate(enter_m_op_bar * 2.0)
     show enter_m_op_sam_villain as enter_m_op_sam_villain_front at enter_m_op_sam_villain_stage(enter_m_op_bar * 2.0)
     $ enter_m_op_cg_unlock("Smug Sam")

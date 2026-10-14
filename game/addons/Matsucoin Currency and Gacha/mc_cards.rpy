@@ -1,58 +1,10 @@
-# =============================================================================
-# mc_cards.rpy  --  THE CARD CATALOG + collection state
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   Every collectible card, what it is worth, and the record of which ones the
-#   player owns. It owns NO UI: the machine that hands cards out is mc_gacha.rpy
-#   and the binder that shows them off is mc_collection.rpy. Coins are
-#   matsucoin.rpy.
-#
-# THE THREE TIERS, AND WHAT DECIDES ONE
-#   R   -- the cast as the story shows them. Default sprites, uniform or casual,
-#          plus the four full-body reaction poses and the faces from around
-#          school. If you have played the game you have seen every R card.
-#   SR  -- the cast as something else. The seven MSBF party archetypes, the
-#          16-bit Kotonoha, Tsubaki after the metamorphosis, the Purgatorium
-#          girl: alternative sprites and portraits that exist because some mode
-#          or side story needed her to look different.
-#   SSR -- what was at the other end of a fight. Final phases, superboss forms,
-#          and the Archivists. Every SSR is something that was trying to end a
-#          run when you last saw it.
-#
-# ART IS REFERENCED, NEVER COPIED
-#   Card ILLUSTRATIONS point at sprites and mode art that already ship. The
-#   collection screen owns one separate binder-prop asset, but the 41 faces do
-#   not duplicate source art. That keeps the set small and makes every card
-#   consistent with the thing it depicts, because it IS the thing it depicts.
-#
-# PIXEL SOURCES
-#   Three cards (the 16-bit Kotonoha and both marionette Tsubaki phases) use
-#   low-resolution pixel sprites. They carry pixel=True, which pre-scales them
-#   with nearest sampling before the portrait cropper ever sees them. Without
-#   it, sprite art blown up to a 300px card face is mush; the crop's own scaling
-#   is smooth, so the source has to arrive already large.
-#
-# ADDING A CARD
-#   Append one McCard(...) below. The id is a permanent ledger key -- it is what
-#   persistent.mc_cards_owned stores -- so never recycle one for a different
-#   subject, and never rename one that has shipped.
-# =============================================================================
+# Collectible catalog, rarity/refund data and persistent ownership.
+# McCard illustrations reference shared game art; pixel=True pre-scales small
+# sprites with nearest sampling before the portrait crop. R/SR/SSR distinguish
+# everyday portraits, alternate forms and CG/encounter artwork.
+# Card IDs are permanent ledger keys. Ownership is a set; mc_pull converts
+# duplicates to coins immediately. persistent.mc_pity counts pulls since an SSR.
 
-# -----------------------------------------------------------------------------
-# COLLECTION STATE
-# owned : the SET of card ids the player has. Not a count.
-#
-#   DUPLICATES ARE NOT KEPT. A duplicate's entire job is to turn into coins at
-#   the moment it is pulled (card.refund), and it does that inside mc_pull --
-#   after which there is nothing left to remember. Storing copy counts bought a
-#   "x3" badge and a SPARES readout that told the player a number they could
-#   never spend, act on, or care about. So a card is owned or it is not, which
-#   also makes it structurally impossible for a duplicate to re-flag something
-#   as NEW.
-#
-# pity  : pulls since the last SSR (see mc_gacha.rpy for how it is spent).
-# -----------------------------------------------------------------------------
 default persistent.mc_cards_owned = set()
 default persistent.mc_pulls_total = 0
 default persistent.mc_pity = 0
@@ -95,9 +47,10 @@ init -4 python:
         id      : permanent ledger key. Never recycle or rename a shipped one.
         rarity  : "r" / "sr" / "ssr".
         name    : what the card is called.
-        subject : grouping key for the binder's dividers -- normally a roster
-                id, but "seer"/"archivist"/"school" for the ones that are not
-                a cast member in their own right.
+        subject : grouping key for the binder's dividers. One of the seven
+                core cast ids, or "other" for everything else. A character's
+                alternate forms file under that CHARACTER, never under the
+                mode that produced them.
         flavor  : one line under the art. Written to be readable by someone who
                 has not reached that content yet: no card spoils its own
                 source, the same rule the Side Stories list follows.
@@ -235,19 +188,19 @@ init -4 python:
             "Academically gifted. Emotionally unavailable. Present.",
             "mc neut", focus=0.02),
 
-        McCard("r_hikari", "r", "Hikari", "school",
+        McCard("r_hikari", "r", "Hikari", "other",
             "A classmate. She has a whole life you will never open.",
             "hikari neut", focus=0.02),
-        McCard("r_homura", "r", "Homura", "school",
-            "A classmate. Same deal.",
+        McCard("r_homura", "r", "Homura", "other",
+            "A classmate. She has a whole life you will never open.",
             "homura neut", focus=0.02),
-        McCard("r_coach", "r", "Track Coach", "school",
+        McCard("r_coach", "r", "Track Coach", "other",
             "Still alive, whatever that trial insisted.",
             "track_coach neut", focus=0.02),
-        McCard("r_math", "r", "Math Teacher", "school",
+        McCard("r_math", "r", "Math Teacher", "other",
             "Owns your third period and one recurring nightmare.",
             "math_teacher neut", focus=0.02),
-        McCard("r_civics", "r", "Civics Teacher", "school",
+        McCard("r_civics", "r", "Civics Teacher", "other",
             "Grades on participation, which you have never once done.",
             "civics_teacher neut", focus=0.02),
 
@@ -283,22 +236,22 @@ init -4 python:
             MC_KOTO + "archive/kotobosssprite_legacy.png",
             focus=0.0, aspect=60.0 / 102.0, pixel=True),
 
-        McCard("sr_purg_girl", "sr", "The Girl in Purgatorium", "purg",
+        McCard("sr_purg_girl", "sr", "The Girl in Purgatorium", "other",
             "She has been in this classroom longer than the classroom has.",
             "purg_girl", focus=0.03, aspect=1024.0 / 1536.0),
-        McCard("sr_purg_day7", "sr", "Day Seven", "purg",
+        McCard("sr_purg_day7", "sr", "Day Seven", "other",
             "Six days of composure, spent.",
             "purg_girl_day7", focus=0.03, aspect=1024.0 / 1536.0),
 
         # ===== SSR -- what was at the other end of a fight ===================
-        McCard("ssr_seer_1", "ssr", "Ontological Seer", "seer",
+        McCard("ssr_seer_1", "ssr", "Ontological Seer", "matsuda",
             "The transfer student, four-on-one, and still ahead on tempo.",
             MC_MSBF + "phase1.png", focus=0.03, aspect=MC_A_TALL),
-        McCard("ssr_seer_2", "ssr", "Ontological Seer // Second Movement", "seer",
-            "The stage stopped pretending to be a classroom.",
+        McCard("ssr_seer_2", "ssr", "Ontological Seer // Second Movement",
+            "matsuda", "The stage stopped pretending to be a classroom.",
             MC_MSBF + "phase2.png", focus=0.06, scale=1.15,
             aspect=1426.0 / 1103.0),
-        McCard("ssr_seer_id", "ssr", "ONTOLOGICAL SEER: ID", "seer",
+        McCard("ssr_seer_id", "ssr", "ONTOLOGICAL SEER: ID", "matsuda",
             "She swore she would never build it. She built it.",
             MC_IDMODE + "idphase.png", focus=0.06, scale=1.15,
             aspect=1536.0 / 1024.0),
@@ -320,17 +273,17 @@ init -4 python:
             MC_MSBF + "monikamode/mon_heart.png",
             aspect=376.0 / 336.0, scale=0.86, fit="contain"),
 
-        McCard("ssr_inv_biography", "ssr", "BIOGRAPHY", "archivist",
+        McCard("ssr_inv_biography", "ssr", "BIOGRAPHY", "other",
             "It is trying to finish the entry.",
             MC_INV + "biography.png", focus=0.03, aspect=MC_A_TALL),
-        McCard("ssr_inv_horror", "ssr", "HORROR", "archivist",
+        McCard("ssr_inv_horror", "ssr", "HORROR", "other",
             "It brought its own light.",
             MC_INV + "horror.png", focus=0.05, scale=1.05, aspect=1.0),
-        McCard("ssr_inv_nonfiction", "ssr", "NONFICTION", "archivist",
+        McCard("ssr_inv_nonfiction", "ssr", "NONFICTION", "other",
             "Whatever it cannot corroborate does not get to have happened.",
             MC_INV + "nonfiction.png", focus=0.03,
             aspect=1024.0 / 1536.0),
-        McCard("ssr_inv_mystery", "ssr", "MYSTERY", "archivist",
+        McCard("ssr_inv_mystery", "ssr", "MYSTERY", "other",
             "Elucidation.",
             MC_INV + "mystery.png", focus=0.05, scale=1.05, aspect=MC_A_TALL),
     ]
@@ -345,8 +298,15 @@ init -4 python:
     }
 
     # -- SUBJECT GROUPS (the binder's divider index) --------------------------
-    # Ordered deliberately, not alphabetically: the cast in roster order, then
-    # the three groups that are not a single cast member.
+    # One divider per cast member, in roster order, then OTHER for everything
+    # else: the faces from around school, the Purgatorium girl and the
+    # Archivists. Twelve dividers meant half of them held two or three cards,
+    # so the index read as a list of one-offs instead of an index.
+    #
+    # A character's alternate forms file under that CHARACTER, not under the
+    # mode that produced them. The Seer is Matsuda, so her three boss plates
+    # sit behind MATSUDA next to her school uniform -- the same arrangement
+    # the marionette phases already had behind TSUBAKI.
     MC_SUBJECTS = [
         ("matsuda",   "MATSUDA"),
         ("tsubaki",   "TSUBAKI"),
@@ -356,10 +316,7 @@ init -4 python:
         ("mom",       "MOM"),
         ("monika",    "MONIKA"),
         ("mc",        "PLAYER"),
-        ("seer",      "THE SEER"),
-        ("archivist", "ARCHIVISTS"),
-        ("purg",      "PURGATORIUM"),
-        ("school",    "SCHOOL"),
+        ("other",     "OTHER"),
     ]
     MC_SUBJECT_LABEL = dict(MC_SUBJECTS)
 
@@ -434,21 +391,11 @@ init -4 python:
             persistent.mc_new_ids = new_ids
         return None
 
-    def mc_is_new(card_id):
-        _mc_ensure_cards()
-        return card_id in persistent.mc_new_ids
-
     # -- census ---------------------------------------------------------------
     def mc_collection_counts(rarity=None):
         """(owned, total) over the whole catalog or one tier."""
         _mc_ensure_cards()
         pool = MC_CARDS if rarity is None else MC_CARDS_BY_RARITY.get(rarity, [])
-        owned = persistent.mc_cards_owned
-        return (sum(1 for c in pool if c.id in owned), len(pool))
-
-    def mc_subject_counts(subject):
-        _mc_ensure_cards()
-        pool = MC_CARDS_BY_SUBJECT.get(subject, ())
         owned = persistent.mc_cards_owned
         return (sum(1 for c in pool if c.id in owned), len(pool))
 

@@ -1,39 +1,10 @@
-# =============================================================================
-# planner_display.rpy -- reusable immersive planner presentation
-# =============================================================================
-#
-# PUBLIC ENTRY POINT
-#   call enter_m_show_planner(
-#       left_day, left_date, left_items,
-#       right_day, right_date, right_items,
-#       left_note=None, right_note=None,
-#   )
-#
-# Each item is a (category, text) pair; notes are plain strings. Entries write
-# themselves out one character at a time, in order, left page then right page.
-# A dismiss input while writing fast-forwards to the finished planner; the next
-# one closes it. Escape always closes. AFM is temporarily disabled while open.
-#
-# HOW THE WRITING WORKS (and why it's done this way)
-#   The reveal is driven manually by a repeating `timer` + plain Python state
-#   (the _enter_m_planner_* store vars below), NOT by Text(slow=...). The slow-
-#   text path is unreliable inside a re-evaluating screen (it tends to pop the
-#   whole line in at once), and it gives no clean signal for "writing is still
-#   happening" -- which we need for the sustained pencil SFX. The manual driver
-#   is deterministic and exposes that signal via _enter_m_planner_writing().
-#
-#   To avoid text reflowing as it types (words jumping lines when they wrap), we
-#   keep the FULL line laid out and hide the un-written tail with an {alpha=0}
-#   tag -- only the written prefix shows. See enter_m_planner_reveal_text().
-#   (Assumes planner text contains no raw { or [ -- the story data is plain text.)
-#
-# WRITING SFX
-#   `modwriting` (assets/audio/sfx/writing.ogg) loops on its own "planner_write"
-#   channel for the entire writing duration, then stops the moment the last
-#   character lands. page_turn still plays once when the planner opens.
-# =============================================================================
+# Two-page planner: call enter_m_show_planner(left_day, left_date, left_items,
+# right_day, right_date, right_items, left_note=None, right_note=None).
+# Items are (category, text) pairs. A timer reveals entries left page first,
+# keeping the full line laid out and hiding its unwritten tail to avoid reflow.
+# Input finishes writing, then closes; Escape closes immediately. AFM is restored
+# on exit. The planner_write channel loops modwriting only during the reveal.
 
-# Tunables for the typewriter pacing.
 define ENTER_M_PLANNER_TICK = 0.03   # seconds between reveal ticks
 define ENTER_M_PLANNER_CPS = 1       # characters revealed per tick (~33 cps)
 define ENTER_M_PLANNER_CLOSE = 0.24  # how long the exit animation runs before Return

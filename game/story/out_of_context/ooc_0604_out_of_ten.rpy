@@ -1,71 +1,20 @@
-# Wednesday, June 4. Lunch. MC has a hiding place in the west corridor and
-# Matsuda has found it, and he has not moved. Then a boy called Daichi walks up
-# and asks her out, and she takes the entire thing apart in public.
+# Wednesday, June 4, lunch. Unwired future main-story draft.
+# Revised 2026-09-05 after reading the current May introduction sequence.
 #
-# WHY THIS SCENE EXISTS
-#   To say, structurally and without anybody announcing it, that this is not a
-#   dating sim.
+# Scene contracts: MC and Matsuda share their corridor lunch spot; the orange
+# drink recalls his May 15 bottle cap. Daichi asks Matsuda out, and she declines
+# without consulting MC or turning him into a romantic rival. Her public
+# overreach remains hers: neither Daichi nor the narrator validates claims she
+# cannot know about his motives. His awkwardness does not revoke his dignity.
 #
-#   Daichi's approach is a confession event with every prop in place: he picked
-#   a day, he picked a place, he waited for a gap, his friends are watching from
-#   the stairwell. Any player who has touched the genre knows the shape of it
-#   from four seconds out. What the scene does with that shape is the point --
-#   Matsuda does not answer the MAN, she answers the REQUEST, and what she
-#   refuses is the transaction rather than the person. Nothing unlocks. No flag
-#   moves. The menu after it is a stance menu that changes nothing, which is the
-#   s1_choices contract doing the theme's job for free.
+# The television compliment stops her drinking. Keep its significance private;
+# no biography, explanation, or premature meta disclosure belongs here. The
+# repeated Thursday line changes in delivery when the audience is gone. She
+# resumes drinking after MC finally rates the soda seven out of ten.
 #
-#   Second half of the brief: Matsuda knows exactly what she has. She says so
-#   out loud, at volume, crudely, and it is not flirtation and it is not
-#   modesty-fishing -- it is an inventory, delivered as a public service, by a
-#   woman who has been through this before and would like to do it once.
-#
-# THE RULE THIS SCENE IS BUILT ON -- MC IS NOT IN THE TRIANGLE
-#   Four people in the corridor and one of them is the narrator, and at no
-#   point does anything wait for him. He is not asked. He does not get jealous.
-#   Matsuda never checks his face. He gets exactly one line about the impulse to
-#   speak -- "nothing in the corridor was waiting for me to" -- and then he
-#   drinks his drink. That single line is the entire meta statement and it must
-#   never be topped up with a second one. Do not let a later pass add a beat
-#   where MC feels something about her turning a boy down.
-#
-# CONTINUITY LOCKS
-#   * Eighteen days after they met on 05/17 and four days after the arcade on
-#     05/31 -- MC counts it in days on-screen, because he is the narrator who
-#     ran an internet search on a bottle cap. MC has decided to
-#     be friends with her; the decision is administrative, not warm, and the
-#     scene shows it by having him keep turning up rather than by saying it.
-#   * THE ORANGE DRINK is the 05/15 bottle cap paying off (0515.rpy:167 --
-#     "some sort of imported soda", planted for exactly this). Per the
-#     arbitrary-setting rule nothing on the can names a country: the only word
-#     on it in our alphabet is ORIGINAL.
-#   * "Out of ten" is the spine. She asks four times and he refuses four times,
-#     and the number he finally gives is the last line of the scene. It is
-#     SEVEN, it is not generous, and that is why it works. Nobody connects it to
-#     Daichi out loud and nobody may be allowed to later.
-#   * The public joke and the private truth are THE SAME SENTENCE -- "if I say
-#     it small they ask again on Thursday" -- once at hallway volume as a laugh
-#     line, once flat, four minutes apart. If either half moves, both move.
-#   * She stops drinking the moment Daichi says the television line and does not
-#     pick the can up again until MC gives her the number. That is her whole
-#     reaction to being told she should be famous and it gets no narration.
-#   * She does not take the bard off. On 05/19 MC asked her to and she did, and
-#     she has done it for him since. Here she keeps it on for the rest of lunch
-#     except for one sentence. MC notices and says nothing.
-#   * Two-hander on purpose. Monika, Tsubaki and Asahina are all in this
-#     building and none of them may walk past.
-#   * Daichi is a decent person for ninety seconds and then he is gone forever.
-#     The narration takes him completely seriously the whole time. He is not a
-#     joke, he is not a creep, and the game simply does not follow him.
-#
-# AUDIO -- THE LOUDEST DECISION IN THE FILE
-#   `schooldays` runs from the first line to the last and never changes. There
-#   is no second cue, no fade on the ask, no sting on the shutdown.
-#   Specifically: `enterm` DOES NOT PLAY. On 05/19 Matsuda's theme starts the
-#   instant she goes theatrical. Here she performs harder than she has all year
-#   and the game declines to score it, because a hero cue would make this a
-#   victory and it is not one. The building does not notice any of this happen.
-#   That is the production note and it is the whole thesis.
+# Both menus change MC's stance only. Keep the single school_day_a cue, the
+# isolated return, and the absence of other cast entrances. These are staging
+# and continuity notes, not sentence-length or repetition quotas.
 
 label ooc_0604_out_of_ten:
 
@@ -75,26 +24,22 @@ label ooc_0604_out_of_ten:
     scene bg corridor
     $ atmos("afternoon")
     with dissolve_scene_full
-    play music schooldays
+    play music school_day_a
     $ show_calendar()
 
     # SFX SUGGESTION: A corridor at lunch -- distant doors, shoes on hard floor,
     # two hundred conversations with none of the words in any of them.
-    "The west corridor at lunch is loud in a way that works out in my favor."
-    "Nobody tries to sit with you here. There is nowhere to sit. There is a radiator, a run of windows with the sun coming in at an angle that will be gone by fifth period, and enough noise that a person standing on his own reads as a person waiting for somebody."
-    "Twenty-five minutes, back against the wall, food in one hand. I built the whole system myself and I was proud of it for about a year."
-    "Last week Matsuda found it."
-    "I could have moved. There is an entire building. There is a roof."
-    "I keep turning up at my own hiding place on time instead, and lately there are two of us in it, and I have not put a lot of effort into examining that."
+    "The west corridor is loud at lunch, but people mostly pass through on their way somewhere else. If I stand beside the radiator, I can eat without having to move for them."
+    "The windows get sun until fifth period, and there's a ledge wide enough for a drink. It took a few lunches to find the spot where I could lean without catching my bag on a valve."
+    "Last week Matsuda found me here. Today, I leave my bag by my feet so she'll have somewhere to put hers."
 
     show matsuda uniform neut at t11
     ma "--and I said to him, sir, that is not a queue, that is a CLOT."
     mc "Hey."
     ma "Hello. Hold this."
 
-    "Two cans. One of them arrives in my hand before I agree to it."
-    "They're orange. Not orange-flavored, not orange-colored. Orange the way a traffic cone commits to it."
-    "The label is in a language I don't read. The only word on the whole can in our alphabet is ORIGINAL, in a font nobody has redrawn since about 1950."
+    "She puts one of her two cans into my free hand while she gets her bag off her shoulder."
+    "I recognize the orange logo from the bottle cap I found last month. The can is just as bright, with ORIGINAL printed across a silver band."
 
     menu:
         "\"This is my spot, you know.\"":
@@ -105,87 +50,70 @@ label ooc_0604_out_of_ten:
             ma "It's what you'll mean by Friday."
         "(Move over.)":
             $ s1_pick("ooc0604_wall_spot", "room")
-            "I shift about eight inches down the wall without deciding to."
-            "She takes the eight inches."
+            "I shift along the wall so she can stand clear of the valve. She puts her bag beside mine."
             ma "Thank you."
         "\"How did you even find me?\"":
             $ s1_pick("ooc0604_wall_spot", "ask")
             mc "How did you find me the first time?"
-            ma "You are six feet tall and you eat standing up in a corridor."
-            ma "I did not find you. I noticed you, the way one notices scaffolding."
+            ma "You're tall and you eat standing up by a window. I could see you from the stairs, lad."
 
-    ma "Drink it."
-    mc "What is it?"
-    ma "Imported."
-    mc "From where?"
-    ma "Away."
+    ma "Go on. I've brought enough for an independent verdict."
+    mc "Where'd you find it? The machine by my stop is always sold out."
+    ma "I have a supplier. A specialist."
+    mc "A shop?"
+    ma "An excellent shop. Drink."
 
-    "I drink some of the away."
-    "..."
-    "It is a lot."
+    "I take a sip and pull the can away before the fizz gets up my nose. Whatever I expected the orange to mean, it wasn't this."
 
-    ma "Verdict."
-    mc "I've had one sip."
-    ma "One sip is the whole event. Everything after it is politics."
-    mc "...It's orange."
-    ma "That is a color."
-    mc "It's aggressively orange."
-    ma "That is a color with an ADVERB. I asked for a verdict."
-    mc "What flavor is it supposed to be?"
-    ma "It doesn't say."
-    mc "It doesn't say?"
-    ma "It says ORIGINAL."
-    mc "Original what?"
-    ma "That is the mystery, and I'd thank you not to solve it."
+    show matsuda uniform curious
+    ma "Well? Out of ten."
+    mc "Give me a second. I still can't work out what flavor it's supposed to be."
+    ma "Original, as the label so helpfully informs you."
+    mc "Original what? It starts like bubblegum, then there's something else."
+    ma "The manufacturer guards that mystery with its life. Or I failed to read the website."
 
-    "She has a swallow of hers and does the face people do when they've decided in advance that they like something."
+    "She takes a swallow of hers, pressing her lips together while the fizz settles. I try another mouthful."
 
     mc "It tastes like a candy shop that also does plumbing."
-    ma "YES."
-    "The volume turns a couple of heads down by the stairwell and she does not adjust for them."
-    ma "Yes. Thank you. Six weeks I have been trying to land that."
-    mc "Six weeks?"
-    ma "I have a notebook."
-    mc "You have a notebook for the orange one."
-    ma "I have a notebook for several things, and the orange one has a page."
-    ma "Out of ten."
-    mc "No."
-    ma "Why not?"
-    mc "Because you'd write it down."
-    ma "Obviously I'd write it down. That is what the page is FOR."
-    mc "Then no."
+    show matsuda uniform happy
+    ma "YES! The pipes! That's what's been missing from every description!"
+    "A couple of people near the stairwell look over as she fishes a notebook out of her bag."
+    mc "You brought notes?"
+    ma "I keep a page for it. Tsubaki wrote 'orange' and refused to elaborate."
+    mc "I'd have accepted that as a complete review."
+    ma "You see my difficulty. Give me a number, at least."
+    mc "No, because you'll write it down before I've finished the can."
+    show matsuda uniform smug
+    ma "An interim score, then. I permit revisions."
+    mc "I know how interim scores work. You frame them and call them promises."
 
-    "She points the can at me like she's about to make a ruling, and doesn't, and drinks instead."
-    "There's a stretch of about a minute where neither of us says anything and it doesn't turn into work. That's newer than I'd like to admit."
+    "She writes down the candy shop and plumbing while I unwrap the second half of my lunch. When I need a napkin, she passes one from her bag without looking up."
 
-    "Then I see him coming."
-    "There is a specific walk. I have never done it and I would not know how, but it's obvious from the other end of a corridor: too much purpose for a hallway, both hands empty, eyes fixed on a point that turns out to be a person."
-    "He's a third-year. I've seen him around the science wing. Three of his friends have stopped at the stairwell and are looking at a phone that none of them are holding."
+    "A boy from the science wing looks toward us from the stairwell, says something to the three people with him, and comes over."
+    "I think he's in our year. He slows when Matsuda starts to speak, then waits for her to finish reading Tsubaki's review aloud."
 
-    show matsuda uniform neut
+    show matsuda uniform neut at t21
     show daichi neut at t22
-    "He gets to us and stops about four feet out. It's the right distance, and I notice him getting it right."
+    "He stops clear of the radiator and shifts his bag strap before saying anything."
 
     dai "Hey. Matsuda, right?"
     ma "Correct on the first attempt. A promising start."
     dai "I'm Daichi. Third year, class four."
     ma "Daichi of the fourth. Noted."
 
-    "He has clearly rehearsed the next part and he clearly knows that we can tell, and he does it anyway, which takes something."
+    "He glances at the can in her hand, then starts again when two passing students force him closer to the wall."
 
-    dai "So there's a place by the station that does the imported stuff. The soda. The, uh--"
+    dai "There's a place by the station with a whole wall of imported drinks. They've got the one you're having, and--"
     "He nods at the can in her hand."
-    dai "--that."
-    dai "They've got a whole wall of it. Like forty kinds."
+    dai "Well, about forty others."
     ma "Forty."
     dai "About forty."
-    dai "I thought maybe Saturday. If you're free."
-    "Somebody two doors down laughs at something else entirely and it lands in the wrong place."
-    dai "And--look, I'll just say it. I've seen you do the thing in the hall. The voice, the whole bit."
+    dai "I wondered if you'd want to go with me Saturday, if you're free."
+    "Someone two doors down laughs, and he looks over before returning to her."
+    dai "I see you around sometimes. You're funny, and I wanted to ask you properly."
     dai "You should be on TV."
 
-    "Matsuda takes the can away from her mouth."
-    "She does not put it back."
+    "Matsuda lowers the can from her mouth, keeping it level in her hand."
 
     ma "..."
     ma "Say the last part again."
@@ -194,149 +122,131 @@ label ooc_0604_out_of_ten:
     dai "I said you should be on TV."
     ma "Mm."
 
-    "She sets the can down on the windowsill. Squares it up against the frame. Turns it so the label faces the corridor, which nobody asked her to do."
+    "She puts the can on the windowsill and turns the label toward the corridor, using both hands to set it against the frame."
 
     show matsuda uniform neut at fx_lean_in, i21
     ma "HOLD."
 
-    "It goes the length of the hall and comes back."
-    "The corridor does not stop, exactly. It slows to about a third and gets very interested in the middle distance."
+    "Two students behind him stop talking, and one of the boys at the stairwell turns around."
 
     ma "Hold, and attend, and let it be entered into the record that a man has come before me in the lunch hour and made a REQUEST."
     dai "You don't have to--"
     ma "I do, though. I truly do."
-    ma "Because if I say it small, sir, you'll ask me again on Thursday, and then I have to say it twice, and I am a busy woman."
+    ma "Because if I say it small, they ask again on Thursday, and then I have to do it twice!"
 
     "Three or four people laugh. One of them is at the stairwell."
 
-    ma "ITEM ONE. You prepared. You picked a day and you picked a place and you waited for a gap in a conversation instead of walking through one, and you did not do it in front of a teacher."
-    ma "That is competence and it is going in the record in your favor."
-    "The back of his neck has gone red. He is holding very still."
-    ma "ITEM TWO. You have watched me. Not creepily -- sit DOWN, all of you -- attentively."
-    ma "You know I do a voice. You know I do a bit. You have seen the act, and you have come here to book the act."
-    dai "That's not what--"
-    ma "ITEM THREE."
-    ma "You do not want to take me to a shop by the station on Saturday."
-    ma "You want to take me to bed, and you have selected an extremely long route."
+    show matsuda uniform determined
+    ma "First, credit where it's due: you picked a day and a place, and you came over yourself. Several of your predecessors could not manage that!"
+    ma "Second, you have seen me perform in a hallway, which is an extremely misleading brochure for a Saturday afternoon."
+    "His neck reddens above his collar while she counts the points on her fingers."
+    dai "I'm asking you on a date. I don't need you to do a show."
+    show matsuda uniform smug
+    ma "Quite! A date. Let us put the soda aside and acknowledge that I am hot enough to make a man develop an interest in imported beverages!"
+    dai "I already like the drinks."
+    ma "Then we share a taste for questionable flavorings! It remains a poor basis for putting me in your bed."
 
-    "The corridor makes a noise."
-    "It's the noise a room makes when it has decided, all together, that it is not going to be able to un-hear something."
+    "Somebody by the stairwell laughs. Daichi looks toward the sound, then back at her."
 
-    ma "That is not a slight upon your character! That is arithmetic. You are eighteen, and I look like this."
-    "She indicates herself, top to bottom, with the flat of one gloved hand, the way you'd present a car at a show."
-    ma "I am fully aware of what I have. I have taken inventory. I do it in a mirror every morning and it takes a WHILE."
-    ma "So let us not pretend the wall of soda is the load-bearing element here."
+    dai "That's not what I asked."
+    "She still has one hand raised to continue the list. He waits until she lowers it."
+    dai "You can say no. I wasn't going to argue."
 
     dai "..."
-    ma "And now the part that ruins it, which is the part I am actually here to say."
-    ma "You'd have had a magnificent Saturday. I would have been ON. Four hours, no dead air, and you would have told people."
-    "She tips two fingers toward the stairwell without looking at it."
-    ma "You'd have told THEM by Sunday lunch."
-    ma "And somewhere in the second hour you'd start waiting for the girl from the advertisement to arrive."
-    ma "She's not running late, Daichi of the fourth. There's a woman who talks like this at a soda can and then goes home and puts the gloves in a drawer."
+    show matsuda uniform unamused
+    ma "Then no, Daichi. I don't want to go on a date."
+    "Her gloved hand catches against the seam of her skirt when she brings it down."
+    ma "And yes, I could have started there."
 
-    "And then the volume goes."
-    "All of it, at once, like something got unplugged at the wall."
+    "The last sentence barely reaches beyond the three of us."
 
     show matsuda uniform neut
-    ma "No."
-    ma "But thank you for saying it to my face instead of putting it in my locker. That's rarer than you'd think."
+    ma "Thank you for asking me yourself. I do mean that part."
 
-    "Daichi takes about a second and a half with that."
+    "Daichi looks down the corridor while a group passes between us and the stairs."
 
     dai "...Okay."
-    dai "Yeah. No, that's fair."
-    "He nods roughly four more times than the sentence requires."
-    dai "Sorry about the--yeah."
-    ma "Do not apologize for asking."
-    ma "Apologize for the phrasing if you must. Never for the asking."
-    dai "Right. Okay."
+    dai "Thanks for telling me. I could've done without the rest."
+    "He shifts his bag strap again, pulling it clear of his collar."
+    dai "I'll leave you to your lunch."
+    ma "For what it's worth, the rest wasn't all about you."
+    dai "I don't really know what to do with that."
 
-    "He gets his bag strap onto his shoulder on the second attempt."
+    "She looks at him without answering, and he turns toward the stairs."
 
-    dai "For what it's worth, the TV thing wasn't a line."
-    dai "I'd have said it anyway."
+    dai "The TV thing wasn't a line. I'd have said it anyway."
 
-    "Matsuda opens her mouth."
-    "Nothing comes out of it."
-    "I have known this woman for eighteen days and I have not once seen that happen."
+    "Matsuda opens her mouth as if to call him back, then closes it. I've known her eighteen days, and I'm still waiting when he says goodbye."
 
-    dai "Okay. Cool."
-    dai "See you around."
+    dai "Right. See you around."
     show daichi at thide
     hide daichi
 
-    "He goes."
-    "Not fast. He does the entire length of that corridor at a completely ordinary speed with his shoulders exactly where a person's shoulders go, and it is the most work I have ever watched anybody do."
-    "At the stairwell one of the three says something to him. I don't hear it."
-    "He laughs."
-    "It's a good laugh. It carries. He has been building it since he turned around."
-    "They go down the stairs together and the hall closes over the place where he was standing."
+    "He walks back to the stairs without looking around. One of his friends speaks as he gets there, too quietly for me to hear."
+    "Daichi laughs once and keeps walking. The others follow him down, leaving a gap that fills with people coming the other way."
 
     show matsuda uniform neut
-    "Somewhere in the middle of all that I realized I had been holding my drink up at chest height for about a minute, ready to say something."
-    "And that nothing in the corridor was waiting for me to."
-    "So I drank it instead."
+    "I've been holding my drink near my mouth without taking a sip. I lower it and wipe the condensation off my hand."
 
     menu:
         "\"You didn't have to do it like that.\"":
             $ s1_pick("ooc0604_after_the_ask", "challenge")
             mc "You didn't have to do it like that."
-            ma "I did not."
-            mc "He was being decent about it."
-            ma "He was."
-            "She doesn't argue past it. Somehow that's worse than if she had."
+            ma "No. I didn't."
+            mc "He gave you room to answer. You could've let him finish."
+            ma "I know. I heard him."
+            "She pushes her notebook farther along the sill, away from the wet ring under her drink."
         "(Ask if that happens a lot.)":
             $ s1_pick("ooc0604_after_the_ask", "curious")
             mc "Does that happen a lot?"
-            ma "Define a lot."
-            mc "I feel like you've just answered it."
-            ma "I feel like I have."
+            ma "Enough that I have stopped finding new ways to answer."
+            mc "He seemed pretty surprised by that one."
+            ma "Yes. He did."
         "(Leave it alone.)":
             $ s1_pick("ooc0604_after_the_ask", "leave")
-            "I don't say anything."
-            "The hall goes back to being a hall around us, one conversation at a time."
+            "I finish the last of my lunch while the passing conversations fill the space where Daichi stood."
             ma "You're allowed to ask."
             mc "I know."
             ma "You're not going to."
             mc "No."
 
-    "She looks at the sill for a while. The can is still where she put it, label out."
+    "She watches a bead of water move down the can, which is still on the sill with its label facing out."
 
     ma "..."
     ma "If I say it small, they ask again on Thursday."
 
-    "That's all of it. Same sentence as before, minus everything that was holding it up."
-    "Then she has it back on before I've finished registering that it was off."
+    "I can barely hear her over the students passing behind us. She picks at her notebook, and I check the time instead of trying to guess what I'm supposed to say."
 
-    ma "ANYWAY! Fourth period approaches, and it approaches with GEOGRAPHY."
-    mc "It's Wednesday. You have language arts."
-    ma "It approaches with LANGUAGE ARTS, which is worse, because I will be asked to have opinions in complete sentences."
+    show matsuda uniform determined
+    ma "ANYWAY! The afternoon approaches with murderous intent, and I have neglected to finish my lunch!"
+    mc "You've got a few minutes. Your bag's by your feet."
+    ma "Excellent intelligence. I shall make use of it immediately."
 
-    "She does not pick the can up."
-    "She talks at it for four more minutes -- something about a coastline, something about a man at the station who folds the newspapers wrong -- and it sits there on the sill going flat, and she does not pick it up."
+    "She unwraps the rest of her sandwich and tells me about a man at the station who kept opening his newspaper across her seat. The story takes most of the time we have left."
+    "I finish my drink while she demonstrates the newspaper with both hands, holding the sandwich between two fingers. Her can stays on the sill."
 
-    # SFX SUGGESTION: A single warning bell down a long corridor, half a period early.
+    # SFX SUGGESTION: The end-of-lunch warning bell down the corridor.
     "The warning bell goes and the hall starts emptying itself toward the stairs."
 
     ma "Right. Up. Away. Go be tall somewhere else, [player]."
     mc "Matsuda."
     ma "Mm?"
     mc "Seven."
-    "She stops."
+    "She stops with her bag halfway onto her shoulder."
     ma "...Seven."
-    mc "Seven."
-    ma "People say eight. To be nice."
-    mc "I know."
+    mc "For the drink. I'd buy it again, but I'd want something salty with it."
+    ma "People usually say eight when I give them one."
+    mc "Then stop asking people while you're watching them take the first sip."
     ma "..."
-    ma "Seven's better."
+    show matsuda uniform teasing
+    ma "Seven, pending snacks. I can work with that."
 
-    "She picks the can up off the sill, and she drinks the rest of it standing there in a hallway that has almost finished leaving."
+    "She adds 'snacks required' to the notebook, then picks up her drink while I put my lunch wrapper away. By the time she finishes the can, most of the corridor has emptied."
 
     show matsuda at thide
     hide matsuda
-    "Then she's gone toward the stairs with the empty in one hand, looking for a bin and telling somebody about the coastline on her way past."
-    "I get about four steps down the corridor before I realize I never asked what the flavor was supposed to be."
+    "She heads toward the stairs with the empty can in one hand, calling to someone to hold the door. I collect my bag and check the radiator ledge for anything we've left."
+    "Her notebook has a fresh line beneath Tsubaki's review: 'Candy shop. Plumbing. Snacks required.' I catch up to return it before she reaches the stairs."
 
     $ hide_calendar()
     scene black with dissolve_scene_full

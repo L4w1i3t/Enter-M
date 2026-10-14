@@ -1,87 +1,61 @@
-FIX:
-- any overengineered, spaghetti, or suboptimal code
-- make args and variables more verbose/defined if they look incomprehensible from a first glance or don't have a comment attached to them explaining what is going on
-ADD:
-- [ ] panning, ATL, and other VFX to the main story to make it feel more animated/alive than just characters on a screen (separate from the shaders) - 0/17 days
-  ON HOLD (2026-08-08). The old motion system was torn out and every call site
-  in 0515-0521 removed, to be rebuilt from scratch. Atmosphere, shaders and the
-  scene transitions were NOT touched.
+ENTER M — open work (reviewed 2026-09-25)
 
-  READ game/fx.rpy's header before starting the rebuild. The short version:
-  any `show` that passes an at_list restarts the ATL on it, because
-  SceneLists.add only preserves a running transform on the no-at_list path and
-  otherwise calls transform_state() with execution=False. config.sticky_positions
-  (Autofocus) injects the previous at_list into every attribute-carrying say
-  line, so a one-shot modifier on a talking sprite replays in full on every one
-  of that character's lines. Verified with Autofocus disabled, so it is not the
-  addon. Decide how the rebuild handles that BEFORE authoring any gestures --
-  fx.rpy lists the three known options and their costs.
-  - [ ] 0515
-  - [ ] 0516
-  - [ ] 0517
-  - [ ] 0518
-  - [ ] 0519
-  - [ ] 0520
-  - [ ] 0521
-  - [ ] 0522
-  - [ ] 0523
-  - [ ] 0524
-  - [ ] 0525
-  - [ ] 0526
-  - [ ] 0527
-  - [ ] 0528
-  - [ ] 0529
-  - [ ] 0530
-  - [ ] 0531
+FIX / MAINTENANCE
+- Continue evidence-based simplification of overengineered, tangled, or
+  inefficient code. Do not claim the whole codebase optimal from a scoped pass.
+- Clarify opaque local names and arguments; document units or invariants where
+  naming alone cannot explain them. Check Ren'Py/persistent/public-name consumers
+  before renaming a compatibility boundary.
+- Keep current documentation aligned with source and dated outcomes in
+  docs/history/. The September 25 pass consolidated stale task reports and
+  refreshed current guides; its manifest is in dev/maintenance/2026-09-25/.
+- Prune vanilla DDLC leftovers only after checking current literal and dynamic
+  consumers, modified reuse, archive contents, and packaging. The fresh vanilla
+  copy is a comparison input, not the definition of what ENTER M needs.
 
-ENSURE:
+STORY PRESENTATION
+- Continue scene-specific motion, gestures, panning and visual pacing where
+  useful. There is no current per-day completion claim: the old 0/17 tally was
+  an August teardown note, not an audit of the present code.
+- Read game/transforms.rpy, game/story_crowd_slots.rpy,
+  game/story_cast_framing.rpy, game/stage_panels.rpy, and game/fx.rpy before
+  extending motion. Attribute shows, transform ownership, Autofocus and retained
+  ATL state must be considered together. Validate the actual dialogue sequence.
+- Preserve existing atmosphere, character proportions and source artwork.
 
-- All custom backgrounds are spatially consistent (for example, the house backgrounds, the school backgrounds, etc)
-  - Canon cameras, fixed landmarks, warranted variants, and generation provenance are recorded in `docs/assets/backgrounds/BACKGROUND_ART_BIBLE.md`; new plates must pass its QA gate.
-- the alternate sprite expressions for layeredimages are consistent with the rest of the sprites with no cropping, no misalignment, etc.
-  - also make sure they're spatially and stylistically consistent. for instance, with matsuda's alternate expressions, she has this weird subtle checker-board pattern going on that's baked into the face and it's weird
-- also make sure the alternate sprite poses are stylistically consistent with the original sprites
+ASSET QUALITY
+- Check spatial consistency against docs/assets/backgrounds/BACKGROUND_ART_BIBLE.md.
+- Inspect actual layered pose/expression combinations for seams, checkerboard
+  contamination, cropping, misalignment, duplicate features, and style drift.
+  Historical repair/QA reports do not establish current visual approval.
 
-EMOTIONS TO CONSIDER FOR SPRITE EXPRESSIONS:
+AUTHOR'S EXPRESSION VOCABULARY / IDEAS
+This is an authoring vocabulary, not a claim every expression is missing.
+Runtime names come from game/asset_definitions/def_characters.rpy; Neutral
+retains the compatibility token neut.
 
-Neutral
-Happy
-Smug
-Teasing
-Thinking
-Curious
-Unamused ("bruh" face)
-Annoyed
-Frustrated
-Angry
-Sad
-Crying
-Embarrassed
-Nervous
-Worried
-Shocked
-Afraid
-Panicked
-Determined
-Empty/Dead-eyed
-Disgusted
+Neutral; Happy; Smug; Teasing; Thinking; Curious; Unamused (bruh face);
+Annoyed; Frustrated; Angry; Sad; Crying; Embarrassed; Nervous; Worried;
+Shocked; Afraid; Panicked; Determined; Empty/Dead-eyed; Disgusted.
 
-MATSUDA ALTERNATE POSES:
+ALTERNATE POSE IDEAS (verify installed art before producing duplicates)
+Matsuda: uncontrollable laughter (casual/uniform); smug shrug; theatrical
+facepalm; chuuni without a prop.
+Asahina: smug hair flip; pointing/raised voice with other hand on hip;
+head back/eye roll; phone anxiety bordering on fainting.
+Himeko: five-too-many-shots inebriation; irrational fury with visible tension;
+Phoenix Wright-like Take that!/Objection pose.
 
-- Uncontrollably laughing (casual and uniform)
-- Smug shrug
-- Facepalm (theatrical disbelief, not upset)
-- Chuuni (no prop)
+NARRATIVE / AUDIO
+- Follow docs/GOALS.txt, docs/project/roadmap.md, and the current prose guide.
+- Later chapters, multi-term ranking/graduation, remaining dependency-route
+  insertions, erasure behavior, and Chapter 5 narration still require authored
+  decisions and implementation.
+- Continue music identity/credit work in docs/keeping_tabs.txt. New music cue
+  placement waits on the author's track meanings. Ambience planning is not
+  implemented until source actually starts/stops the corresponding playback.
 
-ASAHINA ALTERNATE POSES:
-
-Leaning back slightly and flipping her hair with her hand, smugly/arrogantly
-Pointing and raising her voice at the camera, other hand on her hip
-Head slightly back and rolling her eyes
-Looking at her phone about to have an anxiety attack/like she's about to pass out from anxiety
-
-HIMEKO ALTERNATE POSES:
-
-Absolutely inebriated--five too many shots deep
-Angry beyond rationality, like she's about to tear into someone, veins popping from her head and slightly red from blood flow
-"Take that!"/"Objection" pose reminiscent of Phoenix Wright's pose
+VALIDATION
+- Record what each change actually exercised. Full-route, human navigation,
+  acoustic, normal-speed and packaged checks remain separate requirements;
+  compile/static/model checks do not substitute for them.

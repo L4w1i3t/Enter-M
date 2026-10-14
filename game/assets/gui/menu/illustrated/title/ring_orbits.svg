@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+<circle cx="320.00" cy="320.00" r="150.00" fill="none" stroke="#c5a0bd" stroke-width="0.80" opacity="0.350"/>
+<circle cx="320.00" cy="320.00" r="110.00" fill="none" stroke="#d9b77b" stroke-width="0.60" stroke-dasharray="3 5" opacity="0.250"/>
+<ellipse cx="320" cy="320" rx="200" ry="72" transform="rotate(28 320 320)" fill="none" stroke="#d9b77b" stroke-width=".7" opacity=".3"/>
+<ellipse cx="320" cy="320" rx="200" ry="72" transform="rotate(-28 320 320)" fill="none" stroke="#d9b77b" stroke-width=".7" opacity=".3"/>
+<circle cx="403.29" cy="428.16" r="5.50" fill="#c5a0bd" opacity="0.850"/>
+<circle cx="146.68" cy="376.07" r="4.00" fill="#f0e6d2" opacity="0.850"/>
+<circle cx="297.89" cy="230.65" r="3.00" fill="#d9b77b" opacity="0.850"/>
+<circle cx="320.00" cy="320.00" r="30.00" fill="none" stroke="#c5a0bd" stroke-width="0.80" opacity="0.300"/>
+<circle cx="320.00" cy="320.00" r="22.00" fill="none" stroke="#d9b77b" stroke-width="0.80" opacity="0.500"/>
+<path d="M320.00 311.00L329.00 320.00L320.00 329.00L311.00 320.00Z" fill="#d9b77b" opacity="0.600"/>
+<path d="M323 323h-6.4v-6.4h12.8v12.8h-12.8z" transform="rotate(45 320 320)" fill="none" stroke="#d9b77b" stroke-width=".7" opacity=".55"/>
+</svg>

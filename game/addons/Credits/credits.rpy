@@ -1,35 +1,7 @@
-# =============================================================================
-# credits.rpy  --  CREDITS MENU (main-menu feature)
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   A two-pane credits browser: a left sidebar listing sections (Project,
-#   Systems, Writing, Characters, Visuals, Music, Sound, Thanks), and a right
-#   content pane showing the selected section's entries. Pure data + one screen.
-#
-# HOW IT IS REACHED
-#   - Main menu / game menu "Credits" button -> ShowMenu("credits_menu")
-#     (game/screens.rpy lines ~425 and ~527). `tag menu` => it slots into the
-#     menu screen group like the other menu screens.
-#
-# DATA MODEL (credits_sections, built in init python below)
-#   credits_sections = [ CreditSection(title, subtitle, accent, [CreditEntry...]) ]
-#     CreditEntry(title, credit, details=None)
-#       title   : the credited item / person (bold heading on the card)
-#       credit  : the attribution line
-#       details : optional list of extra lines (track lists, notes, caveats)
-#     CreditSection.accent : the section's highlight color (sidebar pip + rule).
-#   To add a credit: append a CreditEntry to the right section's list; to add a
-#   whole category: append a CreditSection. Nothing else needs editing.
-#
-# THEME NOTE
-#   This screen belongs to the domestic menu family: the same painted evening
-#   room, selector assets, and warm editorial palette as the title screen. Its
-#   folio chrome and scrollbar are local so Archive keeps its own identity.
-# =============================================================================
-
-# Credits Menu Addon
-# Standalone screen so it can be opened cleanly from the main menu.
+# Credits menu: credits_sections groups CreditEntry attribution records into
+# CreditSection categories. ShowMenu("credits_menu") opens the shared menu screen.
+# Section accents drive the sidebar and folio rules; details supply extra credit
+# lines. Keep attribution data with its entry when changing the presentation.
 
 init python:
     # One credited item: a title, an attribution line, and optional detail lines.
@@ -182,16 +154,7 @@ init python:
             "Tracks and music room library",
             "#75f7ff",
             [
-                CreditEntry("Doki Doki Literature Club OST", "Dan Salvato.", ["Base game music and original DDLC audio."]),
-                CreditEntry("NieR Replicant ver. 1.22...", "Square Enix / Keiichi Okabe.", ["Grandma", "The Incomplete Stone", "City of Commerce", "Fleeting Words - Family", "Snow in Summer", "Song of the Ancients - Devola / Popola / Hollow Dreams", "This Dream", "Temple of Drifting Sands", "Wretched Automatons", "Blu Bird"]),
-                CreditEntry("San-Z Studio", "Music Room tracks.", ["The Way Home", "60% Daily Fantasy", "60% Fantasy Passion", "60% Daily Leisure", "60% Daily", "60% Fantasy Serenity"]),
-                CreditEntry("Toby Fox", "Deltarune and related placeholder tracks.", ["13 AM", "12 AM", "Dump"]),
-                CreditEntry("Intelligent Systems / Nintendo", "Fire Emblem: Radiant Dawn music.", ["Hymn of the Righteous", "Proud Flight", "The Devoted"]),
-                CreditEntry("Spike Chunsoft / Masafumi Takada", "Danganronpa series music.", ["Beautiful Days (16-bit)", "All Star Apologies (16-bit)"]),
-                CreditEntry("Torchkas", "Can You Feel.", ["Main menu theme."]),
-                CreditEntry("Menu and Mode Themes", "Attribution review pending.", ["Archive theme, Arcade hub theme, and the per-mode tracks.", "Confirm each source before public release."]),
-                CreditEntry("Opening Theme", "Attribution review pending.", ["Working title: ENTER M Opening Theme. Final title and source credit pending confirmation."]),
-                CreditEntry("Additional Dump-Folder Tracks", "Attribution review pending.", ["A Flower of Melancholy", "An Empty Bliss Beyond This World", "Clair de Lune", "Darkness Space", "December Quartet", "Hidden Sea Buried Deep", "Holiday Mood", "It's Fruitful and Ephemeral", "Neon Purple", "Night Run Away", "Oh How My World Breaks", "Piano Sinking in Water", "Rain Lovers", "Serious Mentality", "Sprouting Kogane", "Summer Fog", "Take a Walk With a Pug"]),
+                CreditEntry("TEMP", ["TEMP"]),
             ],
         ),
         CreditSection(
@@ -206,6 +169,18 @@ init python:
             ],
         ),
         CreditSection(
+            "Backers",
+            "Funding support",
+            "#f4fbff",
+            [
+                CreditEntry("JQilinGaming", "Playtesting, publicity, content creation, writing assistance."),
+                CreditEntry("TuneEternal", "Publicity, playtesting, writing assistance."),
+                CreditEntry("Iris Candy", "Publicity, playtesting, writing assistance."),
+                CreditEntry("HoldThisL", "Funding support, writing assistance, playtesting."),
+                CreditEntry("RJTCougar", "Publicity, playtesting, writing assistance."),
+            ],
+        ),
+        CreditSection(
             "Thanks",
             "Community and support",
             "#f4fbff",
@@ -216,6 +191,12 @@ init python:
             ],
         ),
     ]
+
+# A print palette is applied by the view; historical attribution data remains
+# untouched, including its independent section definitions and ordering.
+define CREDITS_PRINT_ACCENTS = ("#9c7442", "#367069", "#765974", "#926737", "#7b5b71", "#4e7664", "#3c7579", "#947a3d", "#80694d", "#80694d", "#80694d")
+define CREDITS_PRINT_TAB = Frame("assets/gui/menu/illustrated/credits/section_tab.svg", 12, 10, 12, 10)
+define CREDITS_PRINT_TAB_SELECTED = Frame("assets/gui/menu/illustrated/credits/section_tab_selected.svg", 12, 10, 12, 10)
 
 # Entrance animations (cosmetic): panels slide/fade in; cards stagger in.
 transform credits_panel_enter(delay=0.0, xoff=0, yoff=18):
@@ -254,9 +235,9 @@ screen credits_menu():
     # Resolve the currently-selected section + total count for the header/counter.
     $ section = credits_sections[selected_section]
     $ section_count = len(credits_sections)
+    $ credits_ink = CREDITS_PRINT_ACCENTS[selected_section % len(CREDITS_PRINT_ACCENTS)]
 
-    add "enter_m_main_menu_bg" at room_menu_bg_arrive
-    add Solid("#04090c73")
+    add illustrated_menu_backdrop("credits")
 
     key "game_menu" action Return()
     key "K_ESCAPE" action Return()
@@ -296,8 +277,7 @@ screen credits_menu():
                             xsize 282
                             ysize 104
 
-                            add "assets/gui/logo.png":
-                                fit "contain"
+                            add illustrated_menu_motif("credits", 96, 106):
                                 xsize 104
                                 ysize 104
 
@@ -330,12 +310,13 @@ screen credits_menu():
                                         style "credits_nav_button"
                                         xfill True
                                         ysize 54
+                                        id ("credits_section_%d" % idx)
                                         if idx == selected_section:
-                                            background ROOM_MENU_SELECTOR_SELECTED
-                                            hover_background ROOM_MENU_SELECTOR_SELECTED
+                                            background CREDITS_PRINT_TAB_SELECTED
+                                            hover_background CREDITS_PRINT_TAB_SELECTED
                                         else:
-                                            background ROOM_MENU_SELECTOR_IDLE
-                                            hover_background ROOM_MENU_SELECTOR_HOVER
+                                            background CREDITS_PRINT_TAB
+                                            hover_background CREDITS_PRINT_TAB_SELECTED
 
                                         action [
                                             SetScreenVariable("selected_section", idx),
@@ -347,7 +328,7 @@ screen credits_menu():
                                             spacing 10
                                             yalign 0.5
 
-                                            add Solid(item.accent):
+                                            add Solid(IM_GOLD if idx == selected_section else IM_MUTED):
                                                 xsize 4
                                                 ysize 34
                                                 yalign 0.5
@@ -355,17 +336,18 @@ screen credits_menu():
                                             vbox:
                                                 spacing 1
                                                 yalign 0.5
-                                                xsize 244
+                                                xsize 232
 
                                                 text item.title style "credits_nav_title"
                                                 text item.subtitle style "credits_nav_subtitle"
 
                         textbutton _("Return"):
                             style "credits_return_button"
+                            id "credits_return"
                             action Return()
 
-                add Solid("#e8dbc536"):
-                    xsize 2
+                add "assets/gui/menu/illustrated/credits/binding.svg":
+                    xsize 20
                     ysize 628
 
                 # --- RIGHT: selected section's title + scrollable entry cards -
@@ -383,7 +365,7 @@ screen credits_menu():
                             vbox:
                                 spacing 3
                                 yalign 0.5
-                                xsize 650
+                                xsize 620
 
                                 text section.title style "credits_section_title"
                                 text section.subtitle style "credits_section_subtitle"
@@ -395,19 +377,19 @@ screen credits_menu():
                                 xsize 122
                                 ysize 34
                                 padding (10, 5)
-                                background ROOM_MENU_SELECTOR_IDLE
+                                background CREDITS_PRINT_TAB
 
                                 hbox:
                                     spacing 7
                                     xalign 0.5
                                     yalign 0.5
 
-                                    add Solid(section.accent) xysize (6, 6) yalign 0.5
+                                    add Solid(IM_GOLD) xysize (6, 6) yalign 0.5
                                     text _("{:02d} of {:02d}").format(selected_section + 1, section_count):
                                         style "credits_counter"
                                         yalign 0.5
 
-                        add Solid(section.accent):
+                        add Solid(credits_ink):
                             xsize 780
                             ysize 3
                             at credits_rule_enter(selected_section)
@@ -418,6 +400,7 @@ screen credits_menu():
                             mousewheel True
                             draggable True
                             pagekeys True
+                            id "credits_content_viewport"
                             yadjustment credits_content_yadj
                             xsize 800
                             ysize 470
@@ -437,9 +420,9 @@ screen credits_menu():
                                             spacing 0
                                             xfill True
 
-                                            add Solid(section.accent):
-                                                xsize 780
-                                                ysize 3
+                                            add Solid(credits_ink + "58"):
+                                                xsize 740
+                                                ysize 1
 
                                             frame:
                                                 background None
@@ -460,14 +443,13 @@ screen credits_menu():
                                                             for line_idx, line index (section.title + "::" + entry.title + "::" + str(line_idx)) in enumerate(entry.details):
                                                                 text line style "credits_entry_detail"
 
-    # Paper/coral rules sit over the folio plate, replacing the old console
-    # brackets with one quiet editorial edge.
+    # A printed gold rule closes the programme cover and its reading page.
     add Solid("#e8dbc536") xpos 46 ypos 46 xysize (1168, 1)
-    add Solid(ROOM_MENU_CORAL) xpos 46 ypos 46 xysize (126, 3) at credits_rule_enter
+    add Solid(IM_GOLD) xpos 46 ypos 46 xysize (126, 3) at credits_rule_enter
     add Solid("#e8dbc528") xpos 46 ypos 673 xysize (1168, 1)
 
 # =============================================================================
-# STYLES -- a quiet production folio over the domestic menu background.
+# STYLES -- a production programme with a clear paper reading surface.
 # `is empty` bases keep every panel's geometry explicit and predictable.
 # =============================================================================
 style credits_shell is empty:
@@ -475,24 +457,24 @@ style credits_shell is empty:
     ypos 46
     xsize 1168
     ysize 628
-    background Solid(ROOM_MENU_PANEL)
+    background IM_PAPER_PANEL
     padding (0, 0)
 
 style credits_sidebar is empty:
     xsize 318
     ysize 628
-    background Solid("#091419eb")
+    background IM_DARK_PANEL
     padding (18, 18)
 
 style credits_title_block is empty:
     xsize 168
     ysize 104
-    background Solid("#172124d9")
+    background None
     padding (12, 10)
 
 style credits_screen_kicker is room_menu_kicker:
     size 8
-    color ROOM_MENU_OCHRE
+    color IM_GOLD
     xmaximum 144
 
 style credits_screen_title is room_menu_heading:
@@ -511,14 +493,16 @@ style credits_nav_button is room_menu_button:
 style credits_nav_title is room_menu_body:
     size 17
     color ROOM_MENU_INK
-    xmaximum 244
+    xmaximum 232
 
 style credits_nav_subtitle is room_menu_meta:
     size 9
     color ROOM_MENU_MUTED
-    xmaximum 244
+    xmaximum 232
 
 style credits_return_button is room_menu_button:
+    background IM_RETURN_IDLE
+    hover_background IM_RETURN_HOVER
     xsize 282
     ysize 42
     padding (15, 8)
@@ -529,43 +513,50 @@ style credits_return_button_text is room_menu_button_text:
     text_align 0.5
 
 style credits_content is empty:
-    xsize 848
+    xsize 830
     ysize 628
-    background Solid(ROOM_MENU_PANEL_SOFT)
-    padding (24, 20)
+    background None
+    padding (16, 20)
 
 style credits_section_title is room_menu_heading:
-    size 34
-    xmaximum 650
+    size 36
+    color IM_INK
+    outlines []
+    xmaximum 620
 
 style credits_section_subtitle is room_menu_meta:
     size 13
-    color ROOM_MENU_PAPER
-    xmaximum 650
+    color "#746756"
+    outlines []
+    xmaximum 620
 
 style credits_counter is room_menu_meta:
     size 11
-    color ROOM_MENU_TEAL
+    color IM_PAPER
 
 style credits_entry_card is empty:
     xfill True
     yminimum 78
-    background Solid("#162125e8")
+    background None
     padding (0, 0)
 
 style credits_entry_title is room_menu_heading:
-    size 20
+    size 22
+    color IM_INK
+    outlines []
     xmaximum 720
 
 style credits_entry_credit is room_menu_body:
-    size 15
-    color ROOM_MENU_PAPER
+    size 16
+    color "#41484a"
+    outlines []
     xmaximum 720
     line_spacing 2
 
 style credits_entry_detail is room_menu_meta:
     size 12
-    color ROOM_MENU_MUTED
+    color "#6c675e"
+    outlines []
     xmaximum 720
     line_spacing 2
 
@@ -573,6 +564,6 @@ style credits_entry_detail is room_menu_meta:
 # inherited or modified, so the two menus can evolve independently.
 style credits_room_sv_vscrollbar:
     xsize 7
-    base_bar Frame(Solid("#26332f"), 0, 0, 0, 0)
-    thumb Frame(Solid(ROOM_MENU_CORAL), 2, 2, 2, 2)
+    base_bar Frame(Solid("#8e796436"), 0, 0, 0, 0)
+    thumb Frame(Solid("#aa8652"), 2, 2, 2, 2)
     unscrollable "hide"

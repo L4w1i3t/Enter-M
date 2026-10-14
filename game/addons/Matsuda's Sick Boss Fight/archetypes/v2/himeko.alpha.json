@@ -1,0 +1,24 @@
+{
+  "source": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\docs\\addons\\Matsuda's Sick Boss Fight\\art_sources\\2026-09-08-seer\\himeko_chroma.png",
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\game\\addons\\Matsuda's Sick Boss Fight\\archetypes\\v2\\himeko.png",
+  "native_size": [
+    1024,
+    1536
+  ],
+  "source_sha256": "ad43db190180bc6e6c99ee96a25be0e6f08f270340081d69ba232ba8dd89cca4",
+  "output_sha256": "acaadf2296c32677e0b0bd26a9c83b96b3df6e50ea14941c466c9d4a92e04165",
+  "alpha_bbox": [
+    36,
+    30,
+    996,
+    1516
+  ],
+  "protected_boxes": [],
+  "partial_alpha_pixels": 50679,
+  "method": "whole-matte-alpha-first-local-core-colour",
+  "resized": false,
+  "cropped": false,
+  "native_color_repair": "seer_20260920/himeko",
+  "native_color_repair_changed_pixels": 387,
+  "native_color_repair_provenance": "docs/sprite_audit/2026-09-20/additional_modes/seer_hair_candidates/manifest.json"
+}

@@ -1,31 +1,9 @@
-# =============================================================================
-# auto_dialogue_font_size.rpy  --  auto-shrink long ADV dialogue to fit
-# =============================================================================
-#
-# WHAT IT DOES
-#   Keeps ADV dialogue at the normal gui.say_text_size, but if a given line would
-#   render taller than a "line budget" (say_text_fit_max_lines lines), it steps
-#   the size down toward say_text_fit_min_size until it fits. Stops long lines
-#   from overflowing the textbox without shrinking everything globally.
-#
-# HOW IT'S WIRED IN
-#   The say screen calls it per line:
-#     game/screens.rpy ~line 141:  text what id "what" size enter_m_auto_say_text_size(what)
-#   So enter_m_auto_say_text_size(text) -> the pixel font size to use for `text`.
-#
-# TUNABLES (gui.* defines below)
-#   say_text_fit_max_lines    : how many lines = the budget (default 3).
-#   say_text_fit_min_size     : smallest size it will shrink to (18).
-#   say_text_fit_height_fudge : slack px added to the budget (2).
-#   say_text_fit_cache_limit  : LRU cache cap for measured results (256).
-#
-# WHY THE CACHES
-#   Measuring text by actually rendering it (renpy.render) is costly, and the say
-#   screen re-evaluates every interaction, so results are memoized: one LRU cache
-#   keyed by (text, sizes, width, font, align) and one for the per-size budget.
-# =============================================================================
+# Fit ADV dialogue within gui.say_text_fit_max_lines, shrinking no further than
+# gui.say_text_fit_min_size. The say screen calls enter_m_auto_say_text_size().
+# Rendered measurements use say_dialogue styling and gui.text_width. Final sizes
+# use an LRU cache keyed by text and fit settings; line budgets are cached by size.
+# Measurement failures keep the normal font size.
 
-# Tunables (see header).
 define gui.say_text_fit_max_lines = 3
 define gui.say_text_fit_min_size = 18
 define gui.say_text_fit_height_fudge = 2
@@ -84,6 +62,7 @@ init -1 python:
         min_size = min(base_size, int(getattr(gui, "say_text_fit_min_size", base_size)))
         max_lines = max(1, int(getattr(gui, "say_text_fit_max_lines", 3)))
         width = int(gui.text_width)
+        height_slack = int(gui.say_text_fit_height_fudge)
 
         if not text or base_size <= min_size:
             return base_size
@@ -99,6 +78,7 @@ init -1 python:
             min_size,
             max_lines,
             width,
+            height_slack,
             getattr(gui, "default_font", None),
             getattr(gui, "text_xalign", None),
         )
@@ -115,7 +95,7 @@ init -1 python:
                 text_height = _enter_m_say_text_render_height(measured_text, candidate_size, width)
                 line_budget = _enter_m_say_text_line_budget_height(candidate_size, width, max_lines)
 
-                if text_height <= line_budget + int(gui.say_text_fit_height_fudge):
+                if text_height <= line_budget + height_slack:
                     result = candidate_size
                     break
 

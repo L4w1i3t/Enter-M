@@ -16,7 +16,8 @@
 #   * MC knows before anyone else does. He gets exactly one tell -- he is already
 #     looking at the doors when she reaches them -- and the narration never
 #     explains it. He is asked directly tonight. He is not asked here.
-#   * Asahina is still hiding Sam from Mom. She says she has already cleared
+#   * Mom already knows Sam from May; the later private facts stay withheld.
+#     Asahina says she has already cleared
 #     tomorrow, in the past tense, about a thing she has not done. Nobody catches
 #     it and nothing marks it.
 #   * Sam is at this table. He is the subject of the message and he is four feet
@@ -77,18 +78,18 @@ label ooc_1030_uhoh:
     $ atmos("winter")
     with dissolve_scene_full
     play sfxtrack1 ac loop
-    play music emotions
+    play music ch4_day
     $ show_calendar()
     "The cafeteria seats four hundred and today it is doing about ninety, all of them packed down at the far end by the serving line. That leaves the window row to us and the light."
-    "Six trays. One long table. Four bars of sun lying across the tile at an angle that gives them about twenty minutes to live."
+    "Our trays share a long table by the windows, where bars of sun stretch across the tile under our feet."
     show tsubaki uniform neut at t41
     show matsuda uniform neut at t42
     show asahina uniform neut at t43
     show sam uniform neut at t44
-    "Matsuda has cleared a landing zone by stacking three trays on top of each other. She performed this as a public service and narrated it as one."
+    "Matsuda has cleared a landing zone by stacking three trays on top of each other. She made us thank her before she dealt with the third."
     ma "Behold."
     "She sets a box down in the middle of the table."
-    "It is red. It is loud. A cartoon businessman is coming apart on the front of it, tie horizontal, four separate sweat droplets rendered with real commitment."
+    "The box is red, with a cartoon businessman sweating through his shirt while his tie points sideways. Four separate droplets, in case the title wasn't clear."
     show asahina uniform curious
     ah "What is that?"
     ma "{i}CRISIS!{/i}"
@@ -117,7 +118,7 @@ label ooc_1030_uhoh:
     ah "OH, that's beautiful."
     mc "Can I see the businessman again?"
     ma "You may not. He is evidence."
-    "Sam reaches across me for the box lid and I let him have it, and then he holds it up next to Matsuda's face and looks between the two of them for a while."
+    "When Sam reaches for the lid, I slide it over so he can hold it beside Matsuda's face. He looks between them until she notices."
     show sam uniform smug
     sa "Yeah, no, I see it."
     ma "See {i}what{/i}?"
@@ -126,8 +127,7 @@ label ooc_1030_uhoh:
     ma "I do not wear a tie."
     ah "Spiritually!"
     "Matsuda takes the lid back with the dignity of a woman who has decided not to hear something."
-    "She deals. She deals in white gloves, at speed, and the cards come off the deck in clean flat arcs that reach each of us face-down and square."
-    "Nobody comments on it. I think we all decided months ago that asking would cost us something."
+    "She starts dealing before Asahina can add anything, sending the cards across the table in flat arcs. I barely catch mine before the next one lands on it."
     "Sam picks his hand up and has it sorted in about four seconds."
     show sam uniform thinking
     sa "Okay, it's the color one."
@@ -147,7 +147,7 @@ label ooc_1030_uhoh:
     show asahina uniform frustrated
     ah "SEE?"
     show tsubaki uniform shocked
-    "Tsubaki has gone very still behind the rules sheet in the way she does when a document turns out to be worse than expected."
+    "Tsubaki lowers the rules sheet, checks the front of the box, and reads the same paragraph again."
     show tsubaki uniform worried
     ts "...There's a translation problem."
     ma "Read it."
@@ -155,7 +155,7 @@ label ooc_1030_uhoh:
     ts "\"When the player is holding one card only, the player must announce.\""
     ma "Standard."
     ts "\"The announcement is: I AM IN CRISIS.\""
-    "There is a pause at the table that lasts about a second and a half."
+    "Asahina looks at the card in her hand, then at the title on the box."
     show asahina uniform shocked
     ah "The whole sentence?"
     ts "The whole sentence."
@@ -167,8 +167,8 @@ label ooc_1030_uhoh:
     ts "One dollar of value."
     ma "{i}KAREDA.{/i}"
     show tsubaki uniform happy
-    "That one gets Tsubaki properly, and she has to put the sheet down on the table and press the back of her wrist against her mouth, and she is no good for about ten seconds."
-    "In May she would have apologized for that."
+    "Tsubaki puts the sheet down and presses her wrist against her mouth, but that only makes the laugh come out through her nose."
+    "She has to wave Matsuda away when she tries to take the rules back."
     show tsubaki uniform happy
     mc "What happens if you don't say it?"
     show tsubaki uniform neut
@@ -176,7 +176,7 @@ label ooc_1030_uhoh:
     mc "Three?"
     ts "Three."
     ma "The penalty is three because the penalty in the real game is two, and this game does not want to be sued."
-    "The first hand takes eleven minutes and produces two rules disputes, one of which Tsubaki settles by reading the same sentence out loud twice until everybody hears it the same way."
+    "The first hand takes a few minutes longer than it should because we keep arguing about the rules. Tsubaki settles one dispute by reading the relevant sentence twice, louder the second time."
     "Sam wins it."
     show asahina uniform smug
     ah "I {i}said{/i}."
@@ -187,7 +187,7 @@ label ooc_1030_uhoh:
     sa "...I had good cards."
     show asahina uniform annoyed
     ah "That's worse! Do you understand that that's worse?"
-    "Somewhere in the second hand my sister discovers that Sam's tray has the good bread on it and begins a slow annexation that he does not contest at any point."
+    "During the second hand, Asahina breaks a piece off Sam's bread. He pushes the tray closer without looking away from his cards."
     "Halfway through she holds a piece up and blows on it, twice, with enormous care."
     show asahina uniform happy
     ah "Careful. It's still hot."
@@ -207,7 +207,7 @@ label ooc_1030_uhoh:
     ma "He is compromised and his vote is struck."
     "Tsubaki wins the second hand."
     show tsubaki uniform happy
-    "She wins it from four cards down with a chain nobody sees coming, and she puts her last card on the pile and then sits back and folds her hands and does not say anything at all, and the smile she is doing is not a small one."
+    "She chains four cards together before we can stop her, announces her last one, and places it squarely on the pile. Then she sits back, grinning while Asahina checks the cards."
     show asahina uniform shocked
     ah "...Okay, no."
     ts "Yes."
@@ -225,26 +225,26 @@ label ooc_1030_uhoh:
     show sam at thide
     hide sam
     show monika forward uniform happ om oe nobl rdown lpoint at t44
-    "Monika arrives at the end of it with a tray and the expression of someone who has spent forty minutes in a room with a laminator."
-    m forward uniform happ cm oe nobl rdown ldown "Is this a closed table, or may a civilian sit down?"
+    "Monika arrives with a tray while we're collecting the second hand. She has a strip of laminating film stuck to her sleeve."
+    m forward uniform happ cm oe nobl rdown ldown "Please tell me you have room for one more."
     ma "The civilian may sit if the civilian accepts the ruleset without amendment."
-    m forward uniform curi om oe nobl rdown ldown "That is the kind of sentence people say right before you find out about the ruleset."
-    ma "It is exactly that."
+    m forward uniform curi om oe nobl rdown ldown "I'm hungry. Can I eat before I agree to anything?"
+    ma "You may chew while you consider your allegiance."
     m forward uniform happ cm ce nobl rdown ldown "Deal me in."
-    "The whole table shunts down one to make it work. Sam ends up past the tray tower at the far end, where he will spend the rest of lunch being a voice with an arm attached."
+    "I make room beside me while Sam moves past the trays at the far end. Monika sits down before Matsuda has finished dealing her cards."
     "Asahina takes one of Monika's fries during the transfer, in full view, at arm's length, with no attempt at concealment whatsoever."
     m forward uniform laug om ce nobl rdown ldown "I watched you do that."
     show asahina uniform smug
     ah "I know."
     m forward uniform happ cm oe nobl rdown ldown "You looked directly at me while you did it."
-    ah "It's a courtesy. So you know it's happening."
-    m forward uniform happ om oe nobl rhip ldown "I appreciate the transparency."
-    ah "It's the only kind of theft I respect."
+    ah "You took ages to sit down. I thought you weren't hungry."
+    m forward uniform happ om oe nobl rhip ldown "I'm starving. Steal his."
+    "She moves her tray out of reach and takes two of my fries before I can object."
     "Three hands in, Sam plays a card with a briefcase on it."
     "Everybody stops."
     mc "What's the briefcase?"
     show tsubaki uniform thinking
-    "Tsubaki turns the sheet over. Turns it back. Runs a finger down one column and then the other, and then down the back of it, where there is nothing but a diagram of a hand."
+    "Tsubaki checks both columns, then turns the sheet over to study the diagram on the back."
     show tsubaki uniform frustrated
     ts "It isn't in here."
     ma "It is in the deck."
@@ -252,7 +252,7 @@ label ooc_1030_uhoh:
     "Matsuda picks the card up and holds it toward the window like a jeweler."
     ma "Then the briefcase means what I say it means."
     show asahina uniform frustrated
-    ah "That's not how anything works!"
+    ah "You're making this shit up!"
     ma "It is how {i}this{/i} works, because the alternative is that we do not play, and we are playing."
     "She sets it down."
     ma "The briefcase reverses direction and is worth nine."
@@ -271,14 +271,14 @@ label ooc_1030_uhoh:
     mc "For the record, that's a suitcase."
     "The table goes up."
     ma "It is a BRIEFCASE."
-    mc "It has a handle on the long side."
+    mc "It has wheels. Two of them, look."
     show tsubaki uniform unamused
     ts "That's a suitcase."
     ma "Kareda, do not do this to me."
     show tsubaki uniform smug
     ts "I'm looking at it."
     m forward uniform happ om oe nobl rdown lpoint "It's a little bit of a suitcase."
-    ma "It is the briefcase, it has been the briefcase for three hands, and if it becomes the suitcase now then every ruling I have made today is retroactively--"
+    ma "It is the briefcase, we have been calling it the briefcase all hand, and if it becomes the suitcase now then every ruling I have made today is retroactively--"
     show asahina uniform smug
     ah "Say it."
     ma "--{i}unsound{/i}."
@@ -287,12 +287,11 @@ label ooc_1030_uhoh:
     "Over the next four hands the briefcase also means skip everybody, draw one, draw four, and once, memorably, nothing at all, because Matsuda decides on the spot that this particular briefcase is empty."
     ah "It's a briefcase!"
     ma "Briefcases are frequently empty. It is the great tragedy of the form."
-    "The light comes off the window row somewhere in there."
-    "It goes the way it always goes, which is all at once and then not at all: the bars on the tile shorten, slide under the tables, and are gone, and the room turns the flat gray-white it stays until the end of the day."
+    "While we play, the bars of sunlight slide under the tables until I can no longer feel the warmth against my ankles."
     show bg cafeteria_winter_dim
     $ atmos("winter_dim")
     with Dissolve(1.6)
-    "Nobody looks up. Ninety people at the far end and not one of them notices the building change color."
+    "I pull my feet back under the chair as Matsuda reaches for the discard pile."
     show matsuda uniform neut at fx_lean_in, i42
     "Matsuda gets up on her chair."
     ma "RULING."
@@ -309,7 +308,7 @@ label ooc_1030_uhoh:
     ah "You got told off."
     ma "The matter is closed."
     "By now the trays are stacked four high at the end of the table and everybody has stopped pretending they are going to eat any more of it."
-    "Somebody's phone is playing something at the next table over with the treble turned all the way up, and Monika has been quietly conducting it with one finger for about a minute without seeming to know she is doing it."
+    "A phone at the next table plays the same tinny chorus twice. Monika taps it out beside her cards until I join in and she catches me watching."
     mc "So tomorrow."
     ma "TOMORROW."
     "The volume turns a couple of heads at the far end. She sees them and does not lower it much."
@@ -325,8 +324,8 @@ label ooc_1030_uhoh:
     ma "...I was going to ask you."
     m forward uniform happ cm oe nobl rhip ldown "I can't. Council has the gym until six, and then I have to give it back in the condition I found it."
     show asahina uniform teasing
-    ah "That's so sad. That's the saddest thing anybody's said at this table."
-    m forward uniform laug om ce nobl rdown ldown "Thank you. I've been sitting with it since Tuesday."
+    ah "They're making you clean up as well? That sucks."
+    m forward uniform laug om ce nobl rdown ldown "I agreed before they told me about the glitter."
     show asahina uniform curious
     ah "What is it, though? The costume."
     ma "You will see it tomorrow."
@@ -345,20 +344,18 @@ label ooc_1030_uhoh:
     mc "You cleared it?"
     show asahina uniform neut
     ah "I already asked."
-    "She has four cards left, and she is fanning them out and closing them again, over and over, in a way that is going to absolutely destroy the corners."
+    "She fans her four cards, then closes them again, bending the corners against her palm."
     ah "It's fine. Friday's fine."
     sa "I can be there about five."
     ah "Five's good."
     "She says it to the cards."
     "Play comes back around. Monika drops a color change on the table and takes the whole thing sideways, and Asahina goes from four cards to one in a single turn nobody expected, including her."
-    "She looks at the card in her hand."
-    "She looks up."
-    "Everybody at the table understands what is about to happen and not one person moves to stop it."
+    "She looks from her last card to us while Matsuda raises a finger, waiting for the announcement."
     # SFX SUGGESTION: A chair-back thump as she plants both hands and sits up.
     show asahina uniform determined
     ah "I AM IN CRISIS!"
     "It gets all the way across the room and comes back."
-    "At the far end, the teacher on lunch duty looks up, identifies the source, evaluates the threat, and returns to a plate of something beige."
+    "The teacher on lunch duty looks up, sees Asahina waving her card, and goes back to eating."
     ma "PENALTY."
     show asahina uniform shocked
     ah "WHAT?"
@@ -369,9 +366,7 @@ label ooc_1030_uhoh:
     ah "There's no--" with fx_punch_soft
     ah "Tsubaki. Tell her there's no conviction clause."
     show tsubaki uniform thinking
-    "Tsubaki reads the sheet for a long moment."
-    "Then she looks at Matsuda."
-    "Then she folds the sheet in half."
+    "After checking the sheet, Tsubaki looks at Matsuda and folds the paper before Asahina can get a hand on it."
     show tsubaki uniform neut
     ts "There's a conviction clause."
     ah "THERE IS NOT!"
@@ -383,7 +378,7 @@ label ooc_1030_uhoh:
     m forward uniform laug om ce nobl rdown ldown "Oh, that's {i}excellent{/i}."
     ah "Monika!"
     m forward uniform laug om ce nobl rdown ldown "I'm sorry. I'm so sorry. That was excellent."
-    "Asahina takes her three cards one at a time, with a look on her face for each one, and Matsuda watches her do it with her chin on her gloved hands like a woman at the theater."
+    "Asahina takes the penalty cards one at a time, holding each up for Matsuda to inspect. Matsuda rests her chin on her gloves and applauds the third."
     show asahina uniform determined
     ah "I'm going to win from here."
     ma "You are four cards from the announcement and there are two players ahead of you."
@@ -393,32 +388,28 @@ label ooc_1030_uhoh:
     ma "The reigning champion elects to savor!"
     show asahina uniform pose_hairflip
     ah "The reigning champion elects to SAVOR."
-    "She sheds two on her next turn and the table starts making noise about it."
+    "She taps her four cards into a neat pile while she waits for play to come around again."
     # SFX SUGGESTION: A phone buzzing face-down against a laminate table, twice.
     "Her phone goes off next to her tray."
     "She flips it over one-handed without breaking stride, the way you check a clock."
     show asahina uniform happy
     ah "And I want it noted, when it happens, that I did the whole sentence every single time even when this table--"
-    "She stops."
-    "She stops in the middle of a word."
-    "..."
-    "I watch her eyes go back up to the top and start it over."
+    "The word breaks off before she finishes it. I watch her eyes move back up the screen and start again."
     # SFX SUGGESTION: Cards hitting a laminate table and tile, scattered, not a stack.
     $ fx_shake_screen(11.0, 0.55)
     show asahina uniform terror at fx_flinch, i43
     "Her hand opens."
     "Cards go across the table, off the edge, under the chair beside her. One skids out past the tray tower and lands face-down on its own, and nobody picks anything up."
     "She has the phone in both hands now."
-    "There is no color in my sister's face. None. She has gone the shade of the tile."
-    "She tries to say something and the front half of it comes out with nothing behind it, so she stops and does not try again."
+    "Her face has gone pale, and she keeps pressing her thumb against the edge of the phone."
+    "She starts to say something, but I can't hear the word. Her mouth closes while Matsuda leans forward."
     ma "{i}Behold.{/i}"
-    "Matsuda has both hands out over the table like a woman presenting a body."
+    "Matsuda spreads her hands over the discarded cards."
     ma "The moment the challenger's nerve departs the building."
     "Asahina does not look up."
     stop music fadeout 3.0
     ma "Do not look away from this. This is where the legend fractures. This is the part they put in the documentary."
-    "Sam laughs. It's a good line."
-    "Nobody else does."
+    "Sam laughs from the far end, then stops when he sees Monika's face."
     show tsubaki uniform shocked
     "Tsubaki has stopped with the rules sheet half-folded in her lap."
     ma "She's stalling. Kareda, is stalling addressed?"
@@ -429,18 +420,15 @@ label ooc_1030_uhoh:
     "She stands up too fast."
     # SFX SUGGESTION: A cafeteria chair going over backward onto tile, at volume.
     "Her chair goes over behind her." with fx_thud
-    "Ninety people at the far end of the room look at us all at once."
+    "Heads turn at the far end of the room."
     ah "Bathroom."
-    "It comes out wrong. It comes out about half an octave off and with a break in the middle of a two-syllable word, and she hears it happen."
-    "So she stops. And she resets. And she does it again."
+    "Her voice cracks on the second syllable. She swallows before trying again."
     ah "Bathroom. Sorry. Two seconds."
-    "That one is perfect."
-    "That one sounds exactly like my sister."
+    "This time she says it in the voice she uses when she needs someone to move out of her way."
     ah "Don't let her rule anything while I'm gone."
     ma "I make no such undertaking."
     ah "Yeah."
-    "She takes the phone."
-    "She leaves her tray, her bag, her drink, and her cards all over the floor, and my sister has never once in her life left a table without her drink."
+    "She takes the phone but leaves everything else, including the drink her sleeve almost knocks over as she passes."
     # SFX SUGGESTION: Footsteps on tile crossing a large room, then a swing door and its return.
     show asahina at thide
     hide asahina
@@ -448,26 +436,26 @@ label ooc_1030_uhoh:
     "..."
     "The far end of the room goes back to what it was doing. Trays, chairs, somebody's speaker with all the treble and none of the rest."
     ma "...Ladies and gentlemen, the reigning champion has withdrawn to consult her attorneys."
-    "It lands on the table and does not do anything."
+    "Monika keeps her eyes on Asahina's empty chair."
     ma "Which I want on the record is a {i}very{/i} strong--"
     m forward uniform neut cm oe nobl rdown ldown "Matsuda."
     ma "--closing statement, and--"
     m forward uniform neut cm oe nobl rdown ldown "Read the room."
     "Matsuda's hands come down."
     show tsubaki uniform afraid
-    "She looks at Tsubaki, who is looking at the doors. She looks at the chair on its back on the tile. She looks at the tray, and the drink, and the cards all over the table and the floor."
+    "She follows Tsubaki's gaze to the doors, then looks down at the overturned chair and the cards under it."
     ma "..."
     ma "Yeah."
-    "That is all she says. She does not apologize, and nobody asks her to, and I think if she had it would have been worse."
+    "She draws her hands back from the table and puts them in her lap."
     show sam uniform neut at t43
-    "Sam comes up the table and rights the chair and pushes it back in, and then he does not sit down in it."
+    "Sam comes up the table to right the chair, pushing it in before he looks toward the doors."
     show sam uniform determined
     sa "I'll go check on her."
     menu:
         "\"It's a family thing. She's fine.\"":
             $ s1_pick("ooc1030_lunch_table", "cover")
             mc "It's a family thing. She's fine."
-            "It comes out level, and it comes out fast, and it is the first thing I have said in about ninety seconds."
+            "I answer before he has finished turning toward me. My voice sounds too loud after sitting silent."
             show sam uniform thinking
             sa "...Okay."
             mc "Sit down. Eat your food."
@@ -482,7 +470,7 @@ label ooc_1030_uhoh:
         "(Say nothing.)":
             $ s1_pick("ooc1030_lunch_table", "silent")
             mc "..."
-            "I look at him until he stops asking."
+            "He looks at me for an answer, but I keep my hands on the table."
             show sam uniform worried
             sa "...Right."
     show sam uniform neut
@@ -491,12 +479,12 @@ label ooc_1030_uhoh:
     "He goes back to his end and picks his cards up. He does not look at them."
     show sam at thide
     hide sam
-    "Monika has stacked her hand neatly in front of her and put both palms flat on the table on either side of it."
+    "Monika lays her cards facedown, then reaches toward the box."
     m forward uniform neut cm oe nobl rdown ldown "We can pack it up."
     ma "No."
     ma "Leave it exactly like this."
     "Nobody argues with her."
-    "So it sits there. Five hands face-down, Asahina's four all over the table and the floor, one of them out past the tray tower on its own, and a drink nobody is going to finish."
+    "We leave the cards where they are, including Asahina's four scattered across the table and floor. One lies face-down beyond the tray tower, beside her drink."
     show tsubaki uniform worried
     "Tsubaki folds the rules sheet along its original creases, all six of them, and does not put it away."
     ts "...Should somebody--"
@@ -504,19 +492,16 @@ label ooc_1030_uhoh:
     show tsubaki uniform sad
     ts "Okay."
     "Four minutes go by."
-    "I know it is four because the clock over the serving line is the kind with a hand that jumps, and I watch all of them."
+    "I watch the minute hand jump four times on the clock over the serving line."
     # SFX SUGGESTION: The swing door again, from across the room.
     show asahina uniform neut at t43
-    "She comes back."
-    "She sits down, pulls the chair in, and puts her phone face-down beside her tray with the screen against the table."
+    "When she comes back, she pulls the chair in and places her phone facedown beside the tray."
     ah "Okay. Sorry. Whose turn?"
-    "Her face is completely fine."
-    "That is the part."
+    "She looks from Matsuda to the pile, waiting for an answer."
     ma "Yours."
     ah "Right."
-    "The only card left in front of her is the one that went out past the trays on its own."
-    "She reaches over and turns it up."
-    "She checks it for a second, like it might have changed since it landed, and then she plays it, and it is the briefcase, and the color on the table has been wrong for two turns."
+    "The card beyond the trays is the only one she can reach without getting up."
+    "She reaches over and turns it up, studying it before placing the briefcase on a red card, though the case is blue."
     "The rules sheet does not get consulted."
     show tsubaki uniform neut
     "Tsubaki says nothing."
@@ -525,7 +510,7 @@ label ooc_1030_uhoh:
     ah "It wins?"
     ma "It's the briefcase."
     ah "Ha. Yeah it is."
-    "She sits back and lets herself have it, and Matsuda starts collecting the cards in, gloves and all, off the table and then off the floor, squaring them against the laminate in three sharp taps."
+    "Asahina sits back while Matsuda gathers the cards, reaching under the table for the ones by her chair. She squares the deck against the laminate with three sharp taps."
     m forward uniform happ cm oe nobl rdown ldown "Undefeated."
     ah "Undefeated."
     ma "Undefeated and under review."
@@ -549,7 +534,7 @@ label ooc_1030_uhoh:
     "She picks up her bag."
     ah "I'll text you."
     sa "Cool."
-    "And that is it. That is the whole thing."
+    "Sam takes the trays to the return while Asahina shoulders her bag."
     show tsubaki at thide
     hide tsubaki
     show matsuda at thide
@@ -558,13 +543,10 @@ label ooc_1030_uhoh:
     hide monika
     show asahina at thide
     hide asahina
-    "They go one way toward the third-year stairs and Asahina goes the other way with the rest of her year, and the tile where the light was is the same flat gray as the rest of it."
-    "I stand there for a second with the room emptying around me."
-    "Then I take my phone out."
-    "..."
-    "Nothing."
-    "No missed call. No message. Not from Mom, not from anybody."
-    "I check it twice, in case."
+    "The others head for the stairs, with Tsubaki breaking off toward the second-year corridor. Asahina goes the other way without looking back."
+    "As the room empties, I take out my phone and check the notifications."
+    "Nothing from Mom."
+    "I open her thread to make sure."
     $ hide_calendar()
     scene black with dissolve_scene_full
     stop sfxtrack1 fadeout 4.0

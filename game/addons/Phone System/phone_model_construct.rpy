@@ -1,55 +1,12 @@
-# =============================================================================
-# Phone Model  --  SHARED PHONE CHASSIS for the in-story phone UI
-# =============================================================================
+# Shared phone chassis, geometry, status bar, home screen and rounded surfaces.
+# Apps in text.rpy, call.rpy and facetime.rpy transclude content into phone_device.
+# PHONE_SCREEN_* / PHONE_SAFE_* define their shared layout. Cached SVG icons and
+# nine-slice frames use assets/ui/phone; phone_round clips portrait/video content.
+# PhonePanel remains a compatibility helper.
 #
-# WHAT THIS FILE IS
-#   The reusable "phone hardware": the body frame, glass screen, side keys,
-#   status bar, app icons, the home screen, AND the rounded-surface toolkit that
-#   gives the whole phone its modern look. The three phone "apps" each live in a
-#   sibling file and BUILD ON the constants + sub-screens here:
-#     - text.rpy     : contacts list + message threads (phone_text_*).
-#     - call.rpy     : incoming-call + active-call transcript screens.
-#     - facetime.rpy : video-call screen.
-#
-# ROUNDED-SURFACE TOOLKIT (the "flair")
-#   Every panel that used to be a hard-cornered Solid is now a rounded, softly
-#   shaded panel drawn by two tiny SDF shaders (asset-free, registered at init -10
-#   exactly like the OP / boss-fight shaders):
-#     - enter_m.phonepanel : a fixed-size rounded rect with an optional vertical
-#       gradient + optional border. Used via the PhonePanel(w,h,...) factory.
-#     - enter_m.roundmask  : rounds the corners of ANY already-rendered child
-#       (used for auto-sized content like message bubbles). Applied via the
-#       `phone_round(radius)` transform (`at phone_round(18)`).
-#   Helpers: PhonePanel(), _phx_rgba()/_phx_shade() (hex<->float color math).
-#   (Depth comes from the body's rim-light border + gradients, not drop shadows:
-#   a blurred phone-sized panel still leaves a faint filled rectangle.)
-#
-# SHARED PIECES OTHER FILES REUSE
-#   Constants (init -2): PHONE_MODEL_WIDTH/HEIGHT, PHONE_SCREEN_X/Y/WIDTH/HEIGHT,
-#     PHONE_SAFE_LEFT/TOP -- every app sizes its screen to these so the device
-#     looks identical across apps.
-#   Helper: phone_contact_initials(name) -> 1-2 letter avatar initials.
-#   THE CHASSIS: `use phone_device(screen_fill=..., status_clock=...): <content>`
-#     draws the scrim + body + glass + notch + status bar + home bar ONCE and
-#     transcludes each app's content into the screen area. Every app screen uses
-#     it, so the device is pixel-identical everywhere and defined in one place.
-#   Sub-screens: phone_side_keys, phone_status_bar(clock,dark), phone_app_icon.
-#   Style: phone_model_body (the outer device shell). Transform: phone_model_enter.
-#
-# ENTRY POINTS (from the menus / story)
-#   - Quick menu "Phone" button -> Show("phone_contacts_screen") (in text.rpy).
-#   - label phone_home (bottom of this file) shows the app grid; the grid's icons
-#     are currently decorative (no per-icon actions wired yet).
-#
-# AUDIO HOOKS
-#   phone_text_in / phone_text_out : the received / sent message SFX, wired into
-#     the animated message thread -- each bubble plays its sound as it reveals
-#     (see phone_play_reveal_sound in text.rpy). phone_notification deliberately
-#     reuses the received-message cue for the small in-game availability alert.
-#     phone_ringtone loops on the dedicated "phone_ring" channel while an incoming
-#     call rings (see phone_call in call.rpy). phone_open stays a None placeholder
-#     (no "raise phone" SFX yet).
-# =============================================================================
+# phone_text_in/out provide message cues; phone_notification shares the incoming
+# cue. Dedicated phone_alert and phone_ring SFX channels preserve story sounds.
+# phone_home is the blocking story entry; menu access uses phone_contacts_screen.
 
 define -50 audio.phone_text_in = "assets/audio/sfx/phone/messagereceive.ogg"
 define -50 audio.phone_text_out = "assets/audio/sfx/phone/messagesend.ogg"
@@ -155,14 +112,41 @@ init -10 python:
 # Geometry constants + the rounded-surface toolkit. init -2 so they exist before
 # any screen OR style statement (init 0) that references them.
 init -2 python:
+    PHONE_UI_FONT = "DejaVuSans.ttf"
+    PHONE_UI_ROOT = "assets/ui/phone/"
+    # Asset-backed surfaces share cached image/Frame instances. Screen rebuilds
+    # during typing never regenerate artwork or allocate per-panel shaders.
+    _phone_ui_surfaces = {}
+    _phone_ui_icons = {}
+
+    def phone_ui_surface(kind="surface"):
+        if kind not in _phone_ui_surfaces:
+            source = PHONE_UI_ROOT + kind + ".svg"
+            # Small badges need corners at their own scale, not 24px corners
+            # squeezed into a 20px target (which produces a diamond shape).
+            frame = (Frame(Transform(source, xysize=(24, 24)), 8, 8)
+                if kind == "badge" else Frame(source, 24, 24))
+            # Assemble the nine sections at logical pixel boundaries before
+            # window scaling. Separate section meshes can leave hairline gaps
+            # at 1.5x (1920x1080); flattening only this small background avoids
+            # both those seams and flattening the high-resolution text above it.
+            _phone_ui_surfaces[kind] = Flatten(frame, drawable_resolution=False)
+        return _phone_ui_surfaces[kind]
+
+    def phone_ui_icon(name, size=24, color="#ffffff"):
+        key = (name, int(size), color)
+        if key not in _phone_ui_icons:
+            _phone_ui_icons[key] = Transform(
+                PHONE_UI_ROOT + "icons/" + name + ".svg",
+                xysize=(int(size), int(size)), matrixcolor=TintMatrix(color))
+        return _phone_ui_icons[key]
+
     PHONE_MODEL_WIDTH = 394
     PHONE_MODEL_HEIGHT = 668
     PHONE_SCREEN_X = 13
     PHONE_SCREEN_Y = 18
     PHONE_SCREEN_WIDTH = 368
     PHONE_SCREEN_HEIGHT = 632
-    PHONE_SAFE_LEFT = 28
-    PHONE_SAFE_TOP = 26
 
     # --- Color math -----------------------------------------------------------
     # _phx_rgba: hex string ("#rgb"/"#rgba"/"#rrggbb"/"#rrggbbaa") OR an rgba/rgb
@@ -215,9 +199,9 @@ init -2 python:
 
 
 # -----------------------------------------------------------------------------
-# COLOR EMOJI  --  drop-in image emoji (works on Matsu'Py 8.1.1, which can't render
-# color-emoji FONTS). Put Twemoji/OpenMoji-style PNGs in game/assets/emoji/
-# named by codepoint (Twemoji convention): 👍 -> "1f44d.png", 👍🏽 -> "1f44d-1f3fd.png",
+# Inline emoji use registered PNG images from game/assets/emoji/, independently
+# of font glyph support. Filenames use codepoints (Twemoji convention):
+# 👍 -> "1f44d.png", 👍🏽 -> "1f44d-1f3fd.png",
 # ❤️ -> "2764.png" (the FE0F variation selector is dropped). Then just type the
 # literal emoji in a message body -- phone_emojify() swaps it for the image.
 # The system is dormant until the folder has PNGs (missing emoji stay as text,
@@ -359,10 +343,24 @@ transform phone_model_enter:
         yoffset 34
         zoom 0.985
         easeout_quad 0.22 alpha 1.0 yoffset 0 zoom 1.0
+    on replace:
+        # Changing apps keeps the hardware in place, including when the
+        # player navigates before its entrance has finished.
+        alpha 1.0
+        yoffset 0
+        zoom 1.0
     on hide:
         alpha 1.0
         yoffset 0
         easein_quad 0.14 alpha 0.0 yoffset 18
+
+
+transform phone_page_enter(direction=1):
+    # Nested transforms do not receive screen show/replace events. Changing
+    # direction restarts this ATL block; ordinary screen updates retain it.
+    alpha 0.35
+    xoffset 48 * direction
+    easeout_cubic 0.22 alpha 1.0 xoffset 0
 
 # Rounds the corners of whatever displayable it is applied to (`at phone_round(18)`).
 # Renders the child to a texture (mesh) then masks it with a rounded-rect SDF.
@@ -390,16 +388,12 @@ transform phone_round(radius=20.0):
 #                  want it dark because nothing behind them matters; the calls
 #                  lighten it, because the scene is still half the picture.
 # =============================================================================
-screen phone_device(screen_fill="#0b1220", status_clock=None, status_dark=False, show_status=True, show_home_bar=True, home_bar_color="#c7d2e480", device_xalign=0.5, device_yalign=0.5, scrim="#000000aa"):
+screen phone_device(screen_fill="#0b1220", status_clock=None, status_dark=False, show_status=True, show_home_bar=True, home_bar_color="#c7d2e480", device_xalign=0.5, device_yalign=0.5, scrim="#000000aa", wallpaper_alpha=0.55, page_direction=None):
     add Solid(scrim)
 
-    # NOTE: the whole device (body + glass + notch + status + transcluded app
-    # content) animates in/out as ONE unit via `at phone_model_enter` on this
-    # frame. Keep the frame as the single animated root -- adding un-animated
-    # siblings here (e.g. a drop-shadow) makes them pop in instantly and mask
-    # the slide/fade, which reads as "the phone just pops in".
     frame:
         style "phone_model_body"
+        id "phone_hardware"
         at phone_model_enter
         xalign device_xalign
         yalign device_yalign
@@ -407,106 +401,70 @@ screen phone_device(screen_fill="#0b1220", status_clock=None, status_dark=False,
         fixed:
             xysize (PHONE_MODEL_WIDTH, PHONE_MODEL_HEIGHT)
 
-            use phone_side_keys
-
-            # Glass bezel: a near-black rounded inset that frames the display.
-            add PhonePanel(PHONE_SCREEN_WIDTH, PHONE_SCREEN_HEIGHT, "#02040a", radius=34):
+            fixed:
                 xpos PHONE_SCREEN_X
                 ypos PHONE_SCREEN_Y
-
-            # The active display, with a subtle top->bottom gradient.
-            add PhonePanel(346, 596, screen_fill, bottom=_phx_shade(screen_fill, 0.78), radius=30):
-                xpos 24
-                ypos 30
-
-            # Dynamic-island style notch + camera lens.
-            add PhonePanel(104, 22, "#000000", radius=11):
-                xpos 145
-                ypos 40
-            add PhonePanel(9, 9, "#0a1626", bottom="#16304e", radius=5):
-                xpos 227
-                ypos 46
+                xysize (PHONE_SCREEN_WIDTH, PHONE_SCREEN_HEIGHT)
+                at phone_round(26)
+                add Solid(screen_fill)
+                add Transform(PHONE_UI_ROOT + "wallpaper_glass.png", xysize=(PHONE_SCREEN_WIDTH, PHONE_SCREEN_HEIGHT), fit="cover", alpha=wallpaper_alpha)
 
             if show_status:
-                use phone_status_bar(status_clock if status_clock is not None else "21:12", status_dark)
+                use phone_status_bar(status_clock if status_clock is not None else phone_status_text(), status_dark)
 
-            transclude
+            if page_direction is not None:
+                # Only app content slides. Clip it below the status bar and
+                # above the gesture bar, preserving model-relative positions.
+                viewport:
+                    xpos PHONE_SCREEN_X
+                    ypos 72
+                    xysize (PHONE_SCREEN_WIDTH, 548)
+                    fixed:
+                        xysize (PHONE_SCREEN_WIDTH, 548)
+                        fixed:
+                            # A viewport ignores its child's placement. This
+                            # extra fixed places the moving page before clipping.
+                            xysize (PHONE_SCREEN_WIDTH, 548)
+                            id "phone_app_page"
+                            at phone_page_enter(page_direction)
+                            fixed:
+                                xpos -PHONE_SCREEN_X
+                                ypos -72
+                                xysize (PHONE_MODEL_WIDTH, PHONE_MODEL_HEIGHT)
+                                transclude
+            else:
+                transclude
 
             if show_home_bar:
-                add PhonePanel(108, 5, home_bar_color, radius=2):
+                add PHONE_UI_ROOT + "home_indicator.svg":
                     xpos 143
                     ypos 636
 
-
-# Decorative power/volume buttons drawn on the device edges (purely cosmetic).
-screen phone_side_keys():
-    add PhonePanel(5, 78, "#171f2d", radius=2):
-        xpos 390
-        ypos 128
-    add PhonePanel(5, 48, "#171f2d", radius=2):
-        xpos 390
-        ypos 224
-    add PhonePanel(5, 92, "#171f2d", radius=2):
-        xpos -1
-        ypos 176
+            # Original graphite frame and centered punch-hole camera. Rendered
+            # last so the physical rim always stays above application content.
+            add PHONE_UI_ROOT + "device_shell.svg"
 
 
-# The top status bar: clock on the left, signal bars + battery on the right.
-# `dark=True` flips the text/icon colors for use over light backgrounds.
-# clock_text is whatever caller passes (often a date label or a HH:MM string).
+
 screen phone_status_bar(clock_text="21:12", dark=False):
     $ _phone_status_style = "phone_status_dark_text" if dark else "phone_status_text"
     $ _phone_status_color = "#101722" if dark else "#f4f7fb"
-    $ _phone_status_dim = "#10172255" if dark else "#f4f7fb55"
-
     fixed:
-        xpos 31
-        ypos 47
-        xysize (332, 24)
+        xpos 35
+        ypos 42
+        xysize (324, 24)
 
         text clock_text style _phone_status_style:
-            xpos 0
-            yalign 0.5
+            ypos 3
+            xmaximum 190
 
         hbox:
             xalign 1.0
             yalign 0.5
-            spacing 6
-
-            text "LTE" style _phone_status_style
-
-            hbox:
-                spacing 2
-                yalign 0.5
-                add Solid(_phone_status_color):
-                    xsize 3
-                    ysize 5
-                    yalign 1.0
-                add Solid(_phone_status_color):
-                    xsize 3
-                    ysize 8
-                    yalign 1.0
-                add Solid(_phone_status_color):
-                    xsize 3
-                    ysize 11
-                    yalign 1.0
-                add Solid(_phone_status_dim):
-                    xsize 3
-                    ysize 14
-                    yalign 1.0
-
-            fixed:
-                xysize (27, 14)
-                yalign 0.5
-
-                add PhonePanel(24, 12, "#00000000", radius=3, border=1.5, border_color=_phone_status_color):
-                    ypos 1
-                add PhonePanel(17, 7, _phone_status_color, radius=1.5):
-                    xpos 2
-                    ypos 3
-                add PhonePanel(2, 5, _phone_status_color, radius=1):
-                    xpos 24
-                    ypos 4
+            spacing 5
+            add phone_ui_icon("signal", 16, _phone_status_color)
+            add phone_ui_icon("wifi", 16, _phone_status_color)
+            add phone_ui_icon("battery", 22, _phone_status_color)
 
 
 # -----------------------------------------------------------------------------
@@ -523,9 +481,9 @@ screen phone_avatar(name, size=44, text_style="phone_contact_avatar_text"):
 
     if _avatar_pfp:
         add Transform(_avatar_pfp, xysize=(_avatar_size, _avatar_size), fit="cover") at phone_round(_avatar_radius)
-        add PhonePanel(_avatar_size, _avatar_size, "#00000000", radius=_avatar_radius, border=2.0, border_color="#ffffff33")
+        add Transform(PHONE_UI_ROOT + "avatar_ring.svg", xysize=(_avatar_size, _avatar_size))
     else:
-        add PhonePanel(_avatar_size, _avatar_size, "#3a8dff", bottom="#1f6fe0", radius=_avatar_radius)
+        add AlphaMask(Transform(phone_ui_surface("outgoing"), xysize=(_avatar_size, _avatar_size)), Transform(PHONE_UI_ROOT + "avatar_mask.svg", xysize=(_avatar_size, _avatar_size)))
         text phone_contact_initials(name) style text_style:
             xalign 0.5
             yalign 0.5
@@ -535,83 +493,27 @@ screen phone_avatar(name, size=44, text_style="phone_contact_avatar_text"):
 # its short-lived alert chip. Drawing it from the phone's existing panel toolkit
 # keeps it crisp at the game's native resolution without adding another asset.
 screen phone_notification_glyph(color="#ffffff"):
-    fixed:
-        xysize (18, 25)
-
-        add PhonePanel(16, 24, "#00000000", radius=4, border=2.0, border_color=color):
-            xpos 1
-            ypos 0
-
-        add PhonePanel(5, 2, color, radius=1):
-            xpos 7
-            ypos 3
-
-        add PhonePanel(4, 2, color, radius=1):
-            xpos 7
-            ypos 19
+    add phone_ui_icon("message", 18, color):
+        xalign 0.5
+        yalign 0.5
 
 
-# A home-screen app icon: a gradient "squircle" with a soft shadow under it,
-# the short glyph centered, and the label beneath. Decorative (no action wired).
-screen phone_app_icon(short_label, label, color):
-    fixed:
-        xysize (92, 104)
-
-        fixed:
-            xalign 0.5
-            ypos 0
-            xysize (58, 58)
-
-            add PhonePanel(58, 58, _phx_shade(color, 1.16), bottom=_phx_shade(color, 0.78), radius=15, border=1.0, border_color=_phx_rgba(_phx_shade(color, 1.5), alpha=0.5)):
-                xalign 0.5
-                yalign 0.5
-
-            text short_label style "phone_app_icon_text":
-                xalign 0.5
-                yalign 0.5
-
-        text label style "phone_app_label":
-            xalign 0.5
-            ypos 68
-
-
+# This public story helper now opens a useful inbox instead of a decorative
+# app grid. Blocking calls and quick-menu overlays have distinct close actions.
 screen phone_home_screen(title="Phone", subtitle=None):
-    modal True
-    zorder 220
-
-    use phone_device(screen_fill="#0b1220", status_clock="21:12"):
-
-        text title style "phone_home_title":
-            xalign 0.5
-            ypos 92
-
-        if subtitle:
-            text subtitle style "phone_home_subtitle":
-                xalign 0.5
-                ypos 130
-
-        grid 2 2:
-            xpos 78
-            ypos 214
-            spacing 28
-
-            use phone_app_icon("MSG", "Messages", "#2f7dff")
-            use phone_app_icon("CAL", "Calendar", "#ff3b30")
-            use phone_app_icon("CON", "Contacts", "#34c759")
-            use phone_app_icon("TEL", "Calls", "#30b85b")
-
-    key "dismiss" action Return()
+    tag phone_browser
+    use phone_contacts_screen(close_action=Return(), title=title, subtitle=subtitle)
 
 
 style phone_model_body is empty:
     xalign 0.5
     yalign 0.5
     xysize (394, 668)
-    background PhonePanel(394, 668, "#0c111b", bottom="#04060c", radius=50, border=2.0, border_color="#1b2536")
+    background None
     padding (0, 0)
 
 style phone_status_text:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 13
     color "#f4f7fb"
     bold True
@@ -620,39 +522,11 @@ style phone_status_text:
 style phone_status_dark_text is phone_status_text:
     color "#101722"
 
-style phone_home_title:
-    font gui.name_font
-    size 31
-    color "#f8fafc"
-    text_align 0.5
-    outlines [(2, "#000000", 0, 0)]
-
-style phone_home_subtitle:
-    font gui.interface_font
-    size 16
-    color "#aab2c0"
-    text_align 0.5
-    outlines []
-
-style phone_app_icon_text:
-    font gui.name_font
-    size 17
-    color "#ffffff"
-    bold True
-    text_align 0.5
-    outlines [(1, "#00000066", 0, 0)]
-
-style phone_app_label:
-    font gui.interface_font
-    size 14
-    color "#e6edf7"
-    text_align 0.5
-    outlines [(1, "#000000", 0, 0)]
-
 
 # Story/script helper: open the home screen as a blocking call. Automatic window
 # management owns the dialogue box while the screen is active.
 label phone_home(title="Phone", subtitle=None):
-    play sound phone_open
+    if audio.phone_open:
+        $ renpy.music.play(audio.phone_open, channel="phone_alert", loop=False)
     call screen phone_home_screen(title, subtitle)
     return

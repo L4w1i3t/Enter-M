@@ -58,7 +58,7 @@ default persistent.enter_m_atmos_quality = "full"
 # grain part is separate, so Light does not merely hide particles -- it avoids
 # u_time and the animated shader work entirely.
 #
-# All custom shader identifiers are prefixed. Matsu'Py 8.1.1 combines shader-part
+# Prefix custom shader identifiers: the engine combines shader-part
 # source into one scope and predates the newer l__ local-variable convention.
 # The source stays within GLSL ES 1.00: no derivatives, dynamic loops, or newer
 # syntax, and every smoothstep has ordered edges.
@@ -557,24 +557,6 @@ transform atmos_sat_to(s0=1.0, s1=1.0, secs=0.0):
 
 
 # -----------------------------------------------------------------------------
-# 4.6 BACKGROUND-ONLY DRAIN
-# -----------------------------------------------------------------------------
-# Authored OOC effect: the background loses colour while cast sprites retain
-# theirs. The start/end expressions have identical ColorMatrix structure, so
-# Matsu'Py interpolates them safely. Mild contrast, cool tint, and brightness loss
-# now support the drain without forcing the sequence below its saturation floor.
-transform atmos_bg_drain(s0=1.0, s1=1.0, secs=40.0, zoom_to=1.06, zoom_secs=65.0):
-    subpixel True
-    align (0.5, 0.5)
-    zoom 1.0
-    matrixcolor SaturationMatrix(s0) * ContrastMatrix(1.00) * TintMatrix("#ffffff") * BrightnessMatrix(0.0)
-    parallel:
-        easein_quad secs matrixcolor SaturationMatrix(s1) * ContrastMatrix(1.04) * TintMatrix("#edf3ff") * BrightnessMatrix(-0.015)
-    parallel:
-        easein_quad zoom_secs zoom zoom_to
-
-
-# -----------------------------------------------------------------------------
 # 5. HELPER API AND LIFECYCLE
 # -----------------------------------------------------------------------------
 init python:
@@ -909,33 +891,7 @@ init python:
 # -----------------------------------------------------------------------------
 # 6. SAVED STATE  --  DO NOT MOVE THIS BACK INTO init python
 # -----------------------------------------------------------------------------
-# `_atmos_state` MUST be declared with `default`, and this is load-bearing.
-#
-# Matsu'Py only writes a store variable into a save if that variable is in the
-# store's `ever_been_changed` set (see Rollback.get_roots: "A variable is only in
-# this map if it has ever been changed since the init phase finished"). That set
-# is populated by REBINDING a name -- `find_changes` diffs the store dict's
-# name -> object mapping. Everything this file does to the state
-# (`_atmos_state["preset"] = ...`, `.clear()`, `.update()`) mutates the dict IN
-# PLACE, so the binding never changes, the name never enters
-# `ever_been_changed`, and the dict is never saved.
-#
-# What that caused: on load the scene lists came back correctly -- and then
-# `_atmos_after_load` read a state dict that had been reset to the init default,
-# saw `preset is None`, and actively TORE DOWN the grade it had just restored.
-# Hot reload / autoreload has the same shape, because reload is a save+load
-# round trip. Result: the story ran unlit after every load until the next
-# `atmos(...)` call, which is often a whole scene later.
-#
-# `default` fixes it by adding the name to `ever_been_changed` itself
-# (ast.Default.execute_default), which makes it a save root. It also does the
-# right thing in both directions afterwards: on a NEW game it installs a fresh
-# state, and after a LOAD it leaves the restored dict alone, because it only
-# assigns when `start` is true or the name is absent from `ever_been_changed`.
-# Saves written before this existed simply get the fresh default, exactly as
-# they behave today.
-#
-# The `_atmos_state = _atmos_default_state()` up in `init python` is kept purely
-# so the name resolves if anything reaches for it before defaults run. It is
-# overwritten by this statement at game start.
+# default makes this in-place-mutated dictionary a save/rollback root.
+# The init value supports early readers; this installs fresh-game state and
+# preserves restored state on load.
 default _atmos_state = _atmos_default_state()

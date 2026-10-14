@@ -1,48 +1,15 @@
-# =============================================================================
-# Phone Video Calls  --  the "FaceTime"-style video-call screen
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   A video call laid out like the voice call in call.rpy -- handset pushed to
-#   the LEFT, the conversation read in the space beside it -- with the contact's
-#   own sprite living on the phone's screen as the video feed.
-#
-# WHAT MAKES IT READ AS A VIDEO CALL
-#   A still portrait in a rectangle reads as a photograph. Four cheap, purely
-#   ATL touches (no shaders -- see the u_time note in the project memory) turn
-#   it into a picture coming down a wire:
-#     1. phone_video_handheld : the framing drifts and breathes, because the
-#        other end of a video call is somebody's hand, not a tripod.
-#     2. phone_video_hitch    : every few seconds the picture twitches and
-#        recovers -- the connection dipping.
-#     3. phone_video_refresh  : a pale bar crawling down the feed.
-#     4. phone_video_flicker  : the exposure hunting slightly, the way a phone
-#        camera does indoors.
-#   Plus the furniture that sells the frame: a self-view of MC in the corner,
-#   a running call clock, and the Mute / End / Cam row.
-#
-# THE FEED CROP
-#   Every sprite in this project is 960 tall (the project's own are
-#   Transform(..., fit="contain", xysize=(640, 960)); the DDLC composites are
-#   960x960), so the feed just scales by height and shows the top of the sprite
-#   -- which is head and shoulders. PHONE_VIDEO_FEED_ZOOM / _HEAD_BIAS are the
-#   two knobs if a particular character sits high or low in their canvas.
-#
-# PUBLIC API (story labels)
-#   call phone_video_call(contact, lines=None, sprite=, status=, date_label=)
-#       -> plays the conversation if given lines; returns "end" | "dismiss".
-#   call phone_facetime(contact, ...) -> alias that forwards to phone_video_call.
-#   Lines are the SAME phone_call_line / phone_call_note dicts the voice call
-#   uses, so a scene can move between the two without rewriting anything.
-#   Mute/Cam are decorative (NullAction); only End/dismiss return.
-# =============================================================================
+# Video calls share voice-call transcript data and the phone chassis.
+# phone_video_call(contact, lines=None, sprite=, ...) plays the feed/transcript;
+# phone_facetime forwards to it. Continue advances lines; End call follows the last.
+# A contact portrait, MC self-view and clock identify the call. PHONE_VIDEO_FEED_ZOOM
+# and PHONE_VIDEO_FEED_HEAD_BIAS frame the normalized portrait canvas.
 
 init -2 python:
     # --- feed geometry, inside the phone's 394x668 body ----------------------
-    PHONE_VIDEO_FEED_X = 40
-    PHONE_VIDEO_FEED_Y = 74
-    PHONE_VIDEO_FEED_WIDTH = 314
-    PHONE_VIDEO_FEED_HEIGHT = 452
+    PHONE_VIDEO_FEED_X = 34
+    PHONE_VIDEO_FEED_Y = 110
+    PHONE_VIDEO_FEED_WIDTH = 326
+    PHONE_VIDEO_FEED_HEIGHT = 414
 
     # How much taller than the feed the scaled sprite is. Bigger = closer crop.
     # 2.1 puts head and shoulders in frame for a standard 960-tall sprite.
@@ -112,50 +79,6 @@ transform phone_video_handheld:
             ease 4.7 zoom 1.0
             repeat
 
-# The connection dipping. Applied to the CONTAINER of the feed rather than
-# stacked in the same at-list as the drift, so the two never fight over
-# transform state (see the at_list/take_state note in the project memory).
-transform phone_video_hitch:
-    subpixel True
-    block:
-        pause 5.2
-        xoffset 3
-        pause 0.05
-        xoffset -2
-        pause 0.05
-        xoffset 0
-        pause 7.4
-        xoffset -3
-        pause 0.05
-        yoffset 2
-        pause 0.06
-        xoffset 0
-        yoffset 0
-        repeat
-
-# The exposure hunting, the way a phone camera does indoors.
-transform phone_video_flicker:
-    alpha 0.0
-    block:
-        ease 2.2 alpha 0.05
-        ease 1.7 alpha 0.0
-        ease 3.1 alpha 0.04
-        ease 2.4 alpha 0.0
-        repeat
-
-# A pale bar crawling down the picture.
-transform phone_video_refresh(travel=452):
-    subpixel True
-    block:
-        alpha 0.0
-        ypos 0
-        linear 0.25 alpha 0.30
-        linear 2.6 ypos travel
-        linear 0.25 alpha 0.0
-        pause 3.2
-        repeat
-
-
 # =============================================================================
 #  SCREENS
 # =============================================================================
@@ -177,7 +100,7 @@ screen phone_video_call_screen(contact_name, lines=None, sprite=None, status="Vi
     $ _all_lines = lines or []
     $ _line_total = len(_all_lines)
     $ _has_lines = _line_total > 0
-    $ _index = min(line_index, _line_total - 1) if _has_lines else 0
+    $ _index = max(0, min(line_index, _line_total - 1)) if _has_lines else 0
     $ _line = _all_lines[_index] if _has_lines else None
     $ _sender = _line.get("sender", "them") if _line else "system"
     $ _is_note = (_sender == "system")
@@ -195,12 +118,12 @@ screen phone_video_call_screen(contact_name, lines=None, sprite=None, status="Vi
     $ _advance_action = _next_line_action if _line_done else SetScreenVariable("reveal_chars", _body_length)
 
     use phone_device(
-        screen_fill="#0a0f18",
+        screen_fill="#141820",
         status_clock=_phone_date_label,
-        device_xalign=PHONE_CALL_DEVICE_XALIGN,
+        device_xalign=PHONE_CALL_DEVICE_XALIGN if _has_lines else 0.5,
         scrim=PHONE_CALL_SCRIM):
 
-        use phone_video_face(contact_name, _feed_sprite, phone_call_clock(call_seconds), _advance_action)
+        use phone_video_face(contact_name, _feed_sprite, phone_call_clock(call_seconds), _advance_action, _complete and _line_done, status)
 
     # --- the conversation, read beside the handset ---------------------------
     if _has_lines:
@@ -226,7 +149,7 @@ screen phone_video_call_screen(contact_name, lines=None, sprite=None, status="Vi
                         xalign 0.5
 
             if _line_done:
-                text "‣" style "phone_call_advance" at phone_call_advance_blink:
+                add phone_ui_icon("chevron", 26, "#cfe0f5") at phone_call_advance_blink:
                     xanchor 1.0
                     xpos PHONE_CALL_TEXT_WIDTH - 44
                     ypos 668
@@ -245,7 +168,18 @@ screen phone_video_call_screen(contact_name, lines=None, sprite=None, status="Vi
 
 # The handset's display during a video call: the feed, the name plate over it,
 # the self-view, and the controls.
-screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
+screen phone_video_face(contact_name, feed_sprite, clock_text, advance_action, can_end=False, status="Video Call"):
+
+    hbox:
+        xpos PHONE_VIDEO_FEED_X + 6
+        ypos 79
+        spacing 9
+
+        add phone_ui_icon("video", 18, "#b8c7ef"):
+            yalign 0.5
+
+        text phone_safe_text(status) style "phone_video_status":
+            xmaximum 290
 
     fixed:
         xpos PHONE_VIDEO_FEED_X
@@ -253,7 +187,8 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
         xysize (PHONE_VIDEO_FEED_WIDTH, PHONE_VIDEO_FEED_HEIGHT)
         at phone_round(18)
 
-        add PhonePanel(PHONE_VIDEO_FEED_WIDTH, PHONE_VIDEO_FEED_HEIGHT, "#161f31", bottom="#0c1220", radius=0)
+        add phone_ui_surface("surface"):
+            xysize (PHONE_VIDEO_FEED_WIDTH, PHONE_VIDEO_FEED_HEIGHT)
 
         if feed_sprite:
             # The viewport is here purely to CLIP: the feed is deliberately
@@ -264,16 +199,7 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
 
                 fixed:
                     xysize (PHONE_VIDEO_FEED_WIDTH, PHONE_VIDEO_FEED_HEIGHT)
-                    at phone_video_hitch
-
                     add phone_contact_feed(contact_name, feed_sprite) at phone_video_handheld
-
-            # Exposure hunt, then the refresh bar over the top of everything.
-            add Solid("#dbeaff") at phone_video_flicker:
-                xysize (PHONE_VIDEO_FEED_WIDTH, PHONE_VIDEO_FEED_HEIGHT)
-
-            add Solid("#bfe0ff") at phone_video_refresh(PHONE_VIDEO_FEED_HEIGHT):
-                xysize (PHONE_VIDEO_FEED_WIDTH, 2)
 
         else:
             # No sprite on file: an honest "camera off" card rather than a
@@ -290,7 +216,7 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
                 ypos 262
 
         # Name plate, bottom-left of the feed the way a call app labels it.
-        text contact_name style "phone_video_nameplate":
+        text phone_safe_text(contact_name) style "phone_video_nameplate":
             xpos 14
             ypos PHONE_VIDEO_FEED_HEIGHT - 34
             xmaximum 190
@@ -301,12 +227,13 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
 
     # --- self-view -----------------------------------------------------------
     fixed:
-        xpos 254
+        xpos 260
         ypos 396
         xysize (86, 112)
         at phone_round(12)
 
-        add PhonePanel(86, 112, "#0d1220", bottom="#070a12", radius=0)
+        add phone_ui_surface("surface"):
+            xysize (86, 112)
 
         # MC is a layered image, so its public attribute string resolves through
         # the normal non-exact image lookup rather than an exact registry key.
@@ -331,22 +258,11 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
                 yalign 0.5
 
     # --- controls ------------------------------------------------------------
-    hbox:
+    use phone_call_progress_button(advance_action, can_end, 549)
+
+    text ("Call complete" if can_end else "Click or press Space to continue") style "phone_call_prompt":
         xalign 0.5
-        ypos 548
-        spacing 18
-
-        textbutton "Mute":
-            style "phone_video_tool_button"
-            action NullAction()
-
-        textbutton "End":
-            style "phone_video_end_button"
-            action end_action
-
-        textbutton "Cam":
-            style "phone_video_tool_button"
-            action NullAction()
+        ypos 610
 
 
 # =============================================================================
@@ -354,14 +270,14 @@ screen phone_video_face(contact_name, feed_sprite, clock_text, end_action):
 # =============================================================================
 
 style phone_video_avatar_text:
-    font gui.name_font
+    font PHONE_UI_FONT
     size 38
     color "#ffffff"
     bold True
     outlines [(2, "#00000066", 0, 0)]
 
 style phone_video_status:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 15
     color "#aab2c0"
     text_align 0.5
@@ -369,60 +285,38 @@ style phone_video_status:
 
 # Over live picture, so both of these carry a hard outline.
 style phone_video_nameplate:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 17
     color "#ffffff"
     bold True
     outlines [(2, "#000000cc", 0, 0)]
 
 style phone_video_clock:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 13
     color "#dbe6f5"
     bold True
     outlines [(2, "#000000cc", 0, 0)]
 
 style phone_video_self_text:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 14
     color "#f8fafc"
     bold True
     outlines [(1, "#000000", 0, 0)]
 
-style phone_video_tool_button is button:
-    xysize (66, 44)
-    background PhonePanel(66, 44, "#26334a", bottom="#1d2840", radius=14)
-    hover_background PhonePanel(66, 44, "#344762", bottom="#283a55", radius=14)
-    padding (0, 0)
-
-style phone_video_tool_button_text is button_text:
-    font gui.interface_font
-    size 13
-    color "#ffffff"
-    bold True
-    xalign 0.5
-    yalign 0.5
-    text_align 0.5
-    outlines [(1, "#00000066", 0, 0)]
-
-style phone_video_end_button is phone_video_tool_button:
-    background PhonePanel(66, 44, "#d23b4e", bottom="#b32638", radius=14)
-    hover_background PhonePanel(66, 44, "#e8485c", bottom="#c92f43", radius=14)
-
-style phone_video_end_button_text is phone_video_tool_button_text
-
-
 # =============================================================================
 #  PUBLIC LABELS
 # =============================================================================
 
-# PUBLIC: show the video-call screen; returns "end" or "dismiss".
+# PUBLIC: show the video-call screen; returns "end".
 #   lines  : optional transcript (phone_call_line/phone_call_note dicts). With
 #            none, the call is a tableau the player dismisses.
 #   sprite : override the contact's catalog sprite for this call (a different
 #            outfit or expression). None uses phone_contact_sprite().
 label phone_video_call(contact_name, lines=None, status="Video Call", clock_text=None, date_label=None, sprite=None):
-    play sound phone_open
+    if audio.phone_open:
+        $ renpy.music.play(audio.phone_open, channel="phone_alert", loop=False)
     $ _phone_video_date_label = phone_call_date_label(date_label)
     call screen phone_video_call_screen(contact_name, lines, sprite, status, _phone_video_date_label)
     $ _phone_video_call_result = _return

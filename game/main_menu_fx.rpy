@@ -1,84 +1,16 @@
-# =============================================================================
-# ENTER-M :: MAIN MENU AMBIENT LAYER  ("the room is still awake")
-# -----------------------------------------------------------------------------
-# The title screen is a painting of Matsuda's bedroom at blue hour. The art
-# already owns its grade, so nothing in here re-lights the room -- every quad
-# below ADDS light where the painting says a light source already is, and the
-# only thing that actually moves is the amount. A lamp that breathes, a laptop
-# that flickers, dust hanging in the one beam, four windows across the street
-# that change their minds: the room is doing nothing, and it is doing it live.
+# Title-scene camera, grade, particles and shared menu lighting primitives.
+# The grade works across the image; sidebar geometry is owned by
+# main_menu_room.rpy. Ambient cycles are independent of music playback phase.
+# Atmosphere Full animates the layer, Light holds the grade, and Off disables
+# the shader layer. mmfx_lit() also requires model rendering and registration.
 #
-# WHAT LIVES WHERE
-#   main_menu_fx.rpy   (here)  the ROOM -- shaders, lights, dust, grade.
-#   main_menu_room.rpy         the SIDEBAR -- list, marker, glint, caret.
-#
-# THE BUDGET, AND WHY IT IS A SETTING
-#
-#     Settings -> Graphics -> Atmosphere
-#       Full   every loop below runs. The room breathes.
-#       Light  the lights are drawn but HELD -- no loops, no dust, no grain.
-#              The screen comes to rest.
-#       Off    nothing here draws at all. The painting, as painted.
-#
-#   MEASURED, idle on the title screen (240Hz panel, developer build):
-#     Full 228.1 fps   Light 238.1 fps   Off 239.3 fps
-#   i.e. the whole layer -- eleven shader quads, thirty-eight motes, the drift
-#   and the grain -- costs about 0.2ms a frame. The setting is there for the
-#   same reason the story's is, not to buy back anything expensive.
-#
-#   THE PREDICTION WORRY DOES NOT APPLY HERE, AND IT WAS CHECKED RATHER THAN
-#   ASSUMED (Aug 31 2026). The known trap is real -- a screen that wants a
-#   frame at every instant never reaches an "expensive" idle frame, and that is
-#   the only kind Matsu'Py preloads on -- so an ambient title screen ought to
-#   make the next menu hitch harder. It does not, because NOTHING ASKS FOR
-#   THOSE MENUS TO BE PREDICTED IN THE FIRST PLACE: `_predict_screen` holds
-#   exactly ['main_menu'], and Arcade/Archive/Settings/Credits/Records are
-#   never queued at any quality. Measured, after four seconds sitting on the
-#   title screen, opening the Arcade cost:
-#     Full 100.2ms    Light 92.9ms    Off 95.3ms
-#   -- one measurement, three settings, no difference. A menu's first open is
-#   paid on first open whatever this file is doing.
-#
-#   (The screens.rpy comment block about warming those menus is still correct
-#   about why it was reverted. Nothing here touches config.periodic_callbacks,
-#   _predict_screen, or any other global that gameplay also lives in, which is
-#   the line the Aug 27 experiment crossed and why the boss fights lagged.)
-#
-#   Note Light and Off measure at the panel's full rate above only because the
-#   developer build's DEV pill (dev_hub_pill_lamp) is a perpetual 1.2s loop of
-#   its own -- in a shipping build nothing is left animating at either setting.
-#
-# HOUSE RULES OBSERVED HERE
-#   * Every animated shader value is an ATL-interpolated UNIFORM, never the
-#     ambient u_time. A running `linear`/`ease` asks for a redraw on every
-#     frame it runs, so an effect pays for its own smoothness; a u_time effect
-#     renders at whatever cadence the rest of the screen happens to produce
-#     and freezes solid the moment the screen stops asking for frames.
-#   * Every `shader=` has `mesh True` next to it. Without the mesh the
-#     fragment program never runs and the quad draws NOTHING -- silently,
-#     lint-clean, no exception.
-#   * The light quads live INSIDE the drifting fixed, not on top of it. They
-#     are glued to the pixels they are lighting; if the room moves 12px and
-#     the lamp glow does not, the laptop pane peels off the laptop.
-#   * Additive output is `vec4(col * a, 0.0)`: alpha zero, so gl2's
-#     `src + dst * (1 - a)` is a pure add and the quad can only ever brighten.
-#     Every falloff is forced to exactly zero before the plate edge, because a
-#     mesh is clipped dead at its rectangle and a glow that is still lit at
-#     the boundary is a visible box.
-#
-# COORDINATES are the background's own pixels (1280x720), measured off
-# assets/gui/menu/main_menu_matsuda_evening.png. The sidebar covers x < 430,
-# so nothing here is placed to the left of it.
-# =============================================================================
+# Animated shader uniforms use ATL to request their own redraws. Shader
+# transforms require mesh True and sit inside the camera transform.
 
+define MMFX_HAZE_COL = (1.00, 0.86, 0.68)
+define MMFX_LEAK_COL = (1.00, 0.72, 0.44)
 
-# --- the room's light sources, as the painting has them ----------------------
-define MMFX_LAMP_COL = (1.00, 0.74, 0.42)     # desk lamp, tungsten
-define MMFX_SCREEN_COL = (0.40, 0.72, 1.00)   # the laptop's editor
-define MMFX_WAVE_COL = (0.48, 0.86, 1.00)     # the waveform print
-define MMFX_CITY_COL = (1.00, 0.68, 0.34)     # somebody else's kitchen
-
-# --- the sidebar's own light -------------------------------------------------
+# --- the sidebar's own light --------------------------------------------------
 define MMFX_MARK_COL = (0.96, 0.55, 0.40)     # coral: this is the selected row
 define MMFX_GLINT_COL = (1.00, 0.88, 0.74)
 define MMFX_SEAM_COL = (0.44, 0.76, 0.72)     # teal: the seam down the edge
@@ -99,21 +31,94 @@ define MMFX_SEAM_Y0 = 24
 define MMFX_SEAM_H = 672
 define MMFX_SEAM_NODE_H = 148
 
+# The room is everything right of the sidebar. This is a UI number, not an art
+# one -- it is where the panel ends, and it moves only if the panel does.
+define MMFX_ROOM_X = 462
+
 
 # -----------------------------------------------------------------------------
 # 1. SHADERS
 # -----------------------------------------------------------------------------
-# Three parts, one job each. All output premultiplied-additive (alpha 0), all
-# stay inside GLSL ES 1.00, and every smoothstep has strictly ordered edges.
-#
-#   enter_m.mmfx_bloom   a soft radial light. Every lamp, spill and window.
-#   enter_m.mmfx_pane    a soft-edged emissive rectangle with a scan band.
-#                        The laptop screen -- a display, not a lamp.
+#   enter_m.mmfx_lofi    the grade. Runs ON the background, sampling it.
+#   enter_m.mmfx_bloom   a soft radial light. The light leak and the sidebar.
 #   enter_m.mmfx_sweep   a specular band travelling across a quad. The glint
 #                        that crosses whichever menu row you are on.
 init -10 python:
 
     def _enter_m_mmfx_register_shaders():
+
+        # THE GRADE. Four whole-frame operations, none of which needs to know
+        # what it is looking at: tape wobble, chromatic aberration, halation,
+        # and a warm haze in the shadows.
+        #
+        # tex0 is the background's own render target (mesh True makes one), so
+        # v_tex_coord is a clean 0..1 over the picture and the source is fully
+        # opaque -- which is why the taps below composite straight RGB without
+        # un-premultiplying each one.
+        renpy.register_shader("enter_m.mmfx_lofi", variables="""
+            uniform sampler2D tex0;
+            uniform float u_em_lofi_warp;
+            uniform float u_em_lofi_phase;
+            uniform float u_em_lofi_ca;
+            uniform float u_em_lofi_bloom;
+            uniform float u_em_lofi_haze;
+            uniform vec3  u_em_lofi_tint;
+            varying vec2  v_tex_coord;
+        """, fragment_functions="""
+            vec2 em_lofi_safe(vec2 em_lofi_uv) {
+                return clamp(em_lofi_uv, vec2(0.0015), vec2(0.9985));
+            }
+        """, fragment_300="""
+            vec2 em_lofi_uv = v_tex_coord;
+
+            // TAPE WOBBLE. Two spatial frequencies, both advanced by the same
+            // phase at INTEGER multiples so the pair wraps seamlessly when the
+            // ATL resets the phase at 2*pi.
+            float em_lofi_wob =
+                sin(em_lofi_uv.y * 6.3 + u_em_lofi_phase) * 0.62 +
+                sin(em_lofi_uv.y * 2.1 - u_em_lofi_phase * 3.0) * 0.38;
+            em_lofi_uv.x += em_lofi_wob * u_em_lofi_warp;
+            em_lofi_uv = em_lofi_safe(em_lofi_uv);
+
+            // CHROMATIC ABERRATION, zero in the middle and growing with the
+            // square of the radius, which is where a real lens puts it.
+            vec2 em_lofi_rc = em_lofi_uv - vec2(0.5);
+            vec2 em_lofi_off = em_lofi_rc * dot(em_lofi_rc, em_lofi_rc) *
+                u_em_lofi_ca;
+
+            vec4 em_lofi_base = texture2D(tex0, em_lofi_uv);
+            vec3 em_lofi_col = vec3(
+                texture2D(tex0, em_lofi_safe(em_lofi_uv + em_lofi_off)).r,
+                em_lofi_base.g,
+                texture2D(tex0, em_lofi_safe(em_lofi_uv - em_lofi_off)).b);
+
+            // HALATION. Four taps, and only what is ALREADY bright blooms --
+            // this is what makes the lamp and the laptop glow without anything
+            // in this file knowing that a lamp or a laptop is there.
+            vec3 em_lofi_blur =
+                texture2D(tex0, em_lofi_safe(em_lofi_uv + vec2( 0.0052, 0.0))).rgb +
+                texture2D(tex0, em_lofi_safe(em_lofi_uv + vec2(-0.0052, 0.0))).rgb +
+                texture2D(tex0, em_lofi_safe(em_lofi_uv + vec2(0.0,  0.0092))).rgb +
+                texture2D(tex0, em_lofi_safe(em_lofi_uv + vec2(0.0, -0.0092))).rgb;
+            em_lofi_blur *= 0.25;
+
+            vec3 em_lofi_hi = max(em_lofi_blur - vec3(0.52), vec3(0.0)) *
+                (1.0 / 0.48);
+            em_lofi_col += em_lofi_hi * u_em_lofi_tint * u_em_lofi_bloom;
+
+            // WARM HAZE, weighted toward the SHADOWS. Lifting the floor toward
+            // a warm tint is the "printed to tape" part; doing it everywhere
+            // would just be a veil, and a veil costs the picture its colour.
+            float em_lofi_lum = dot(em_lofi_col, vec3(0.299, 0.587, 0.114));
+            em_lofi_col = mix(
+                em_lofi_col,
+                u_em_lofi_tint,
+                u_em_lofi_haze * (1.0 - em_lofi_lum));
+
+            float em_lofi_a = em_lofi_base.a;
+            gl_FragColor = vec4(
+                clamp(em_lofi_col, 0.0, 1.0) * em_lofi_a, em_lofi_a);
+        """)
 
         renpy.register_shader("enter_m.mmfx_bloom", variables="""
             uniform vec3  u_em_mmfx_col;
@@ -144,36 +149,6 @@ init -10 python:
             float em_mmfx_a = clamp(
                 em_mmfx_m * max(u_em_mmfx_gain, 0.0), 0.0, 1.0);
             gl_FragColor = vec4(u_em_mmfx_col * em_mmfx_a, 0.0);
-        """)
-
-        renpy.register_shader("enter_m.mmfx_pane", variables="""
-            uniform vec3  u_em_mmfx_pane_col;
-            uniform float u_em_mmfx_pane_gain;
-            uniform float u_em_mmfx_pane_scan;
-            uniform float u_em_mmfx_pane_phase;
-            uniform float u_em_mmfx_pane_soft;
-            varying vec2  v_tex_coord;
-        """, fragment_300="""
-            vec2 em_mmfx_uv = v_tex_coord;
-            float em_mmfx_s = clamp(u_em_mmfx_pane_soft, 0.02, 0.48);
-
-            float em_mmfx_edge =
-                smoothstep(0.0, em_mmfx_s, em_mmfx_uv.x) *
-                (1.0 - smoothstep(1.0 - em_mmfx_s, 1.0, em_mmfx_uv.x)) *
-                smoothstep(0.0, em_mmfx_s, em_mmfx_uv.y) *
-                (1.0 - smoothstep(1.0 - em_mmfx_s, 1.0, em_mmfx_uv.y));
-
-            // A slow horizontal banding, scrolled by u_..._phase. This is the
-            // difference between "a blue rectangle" and "a screen that is on".
-            float em_mmfx_band = 0.5 + 0.5 * sin(
-                (em_mmfx_uv.y * 9.0 + u_em_mmfx_pane_phase) * 6.28318530718);
-            float em_mmfx_scan = clamp(u_em_mmfx_pane_scan, 0.0, 1.0);
-
-            float em_mmfx_a = clamp(
-                max(u_em_mmfx_pane_gain, 0.0) * em_mmfx_edge *
-                (1.0 - em_mmfx_scan + em_mmfx_scan * em_mmfx_band),
-                0.0, 1.0);
-            gl_FragColor = vec4(u_em_mmfx_pane_col * em_mmfx_a, 0.0);
         """)
 
         renpy.register_shader("enter_m.mmfx_sweep", variables="""
@@ -219,10 +194,6 @@ init -10 python:
 # -----------------------------------------------------------------------------
 # 2. QUALITY
 # -----------------------------------------------------------------------------
-# One dial, already in Settings, already understood by the player: Atmosphere.
-# The title screen reads it the same way the story does -- Full animates,
-# Light holds, Off abstains -- so a machine that cannot afford a live menu is
-# fixed in the same place a machine that cannot afford a live scene is.
 init -9 python:
 
     def mmfx_level():
@@ -234,7 +205,7 @@ init -9 python:
         return _enter_m_q
 
     def mmfx_lit():
-        """True when the additive light layer can actually be drawn.
+        """True when the shader layer can actually be drawn.
 
         Off opts out; so does a machine with no model renderer, or a driver
         that refused the shader source. In every one of those cases the room
@@ -246,7 +217,7 @@ init -9 python:
             and renpy.display.render.models)
 
     def mmfx_alive():
-        """True when the ambient loops may run: breath, dust, drift, grain."""
+        """True when the ambient loops may run: camera, grade, air, grain."""
 
         return mmfx_level() == "full"
 
@@ -261,229 +232,222 @@ init python:
 
 
 # -----------------------------------------------------------------------------
-# 3. THE ROOM'S OWN MOTION
+# 2b. THE SCENE
 # -----------------------------------------------------------------------------
-# A very slow push around the frame. This is the single cheapest thing that
-# stops a painting reading as a screenshot, and it is why the light quads live
-# inside this transform rather than over it -- the whole room, glows included,
-# is one moving object.
+# Not a place: an engraved orrery of the calendar -- a month ring, a day ring,
+# crossed orbits -- floating in a night field with a few constellations, in the
+# illustrated menu family's gold, plum, teal and paper. The game is told in
+# dates; this is where the dates are kept between stories.
 #
-# zoom 1.028 buys 17.9px of overscan per side at 1280 wide, so the +/-12px of
-# travel never exposes an edge.
-transform mmfx_room_breathe:
+# The rings are separate layers so Full can turn them. Light and Off use the
+# composite, which has every ring at the angle the turning starts from, so the
+# two agree on their first frame. Engravings: assets/gui/menu/illustrated/title/.
+image mmfx_title_field = "assets/gui/menu/illustrated/title/field.svg"
+image mmfx_title_months = "assets/gui/menu/illustrated/title/ring_months.svg"
+image mmfx_title_days = "assets/gui/menu/illustrated/title/ring_days.svg"
+image mmfx_title_orbits = "assets/gui/menu/illustrated/title/ring_orbits.svg"
+image enter_m_title_scene = Composite(
+    (1280, 720),
+    (0, 0), "mmfx_title_field",
+    (535, 40), "mmfx_title_months",
+    (535, 40), "mmfx_title_days",
+    (535, 40), "mmfx_title_orbits")
+
+# One ring turning about the orrery's centre (855, 360). Negative period turns
+# it the other way. A whole turn takes minutes: this is a clock nobody is
+# meant to read, and `rotate 0` after a full turn is the same angle, so the
+# loop has no seam.
+transform mmfx_orrery_spin(period=300.0):
     subpixel True
-    zoom 1.028
+    anchor (0.5, 0.5)
+    transform_anchor True
+    pos (855, 360)
+    rotate 0
+    block:
+        linear abs(period) rotate (360.0 if period > 0 else -360.0)
+        rotate 0
+        repeat
+
+# A warm light at the heart of the mechanism. A gain ramp in, then a slow
+# breath; held at Light. Additive, so it lifts the gold engraving it sits on.
+transform mmfx_orrery_glow:
+    mesh True
+    shader "enter_m.mmfx_bloom"
+    u_em_mmfx_col MMFX_LEAK_COL
+    u_em_mmfx_core 0.0
+    u_em_mmfx_edge 1.0
+    u_em_mmfx_fall 2.0
+    u_em_mmfx_gain 0.0
+    linear 1.2 u_em_mmfx_gain 0.30
+    block:
+        ease 7.0 u_em_mmfx_gain 0.40
+        ease 7.0 u_em_mmfx_gain 0.26
+        repeat
+
+transform mmfx_orrery_glow_still:
+    mesh True
+    shader "enter_m.mmfx_bloom"
+    u_em_mmfx_col MMFX_LEAK_COL
+    u_em_mmfx_core 0.0
+    u_em_mmfx_edge 1.0
+    u_em_mmfx_fall 2.0
+    u_em_mmfx_gain 0.30
+
+
+# -----------------------------------------------------------------------------
+# 3. THE CAMERA
+# -----------------------------------------------------------------------------
+# Three independent moves on three coprime bar counts -- 8, 5 and 7 -- so the
+# composite path takes 1120s to come back to where it started. Each is its own
+# `parallel` branch touching ONE property, because two branches that both
+# touch xoffset fight over it and the loser's value is simply gone.
+#
+# zoom bottoms out at 1.045, which buys 28.8px of overscan per side across and
+# 16.2px down. The pan uses 18 of the first and the lift 10 of the second, so
+# an edge can never crawl into frame at the extremes of the move.
+transform mmfx_room_camera:
+    subpixel True
+    zoom 1.045
     xalign 0.5
     yalign 0.5
-    block:
-        ease 21.0 xoffset -12 yoffset 7
-        ease 23.0 xoffset 11 yoffset -6
+    parallel:
+        ease 32.0 xoffset -18
+        ease 32.0 xoffset 18
+        repeat
+    parallel:
+        ease 20.0 yoffset 10
+        ease 20.0 yoffset -10
+        repeat
+    parallel:
+        ease 28.0 zoom 1.062
+        ease 28.0 zoom 1.045
         repeat
 
 
 transform mmfx_room_still:
     subpixel True
-    zoom 1.028
+    zoom 1.045
     xalign 0.5
     yalign 0.5
 
 
 # -----------------------------------------------------------------------------
-# 4. THE LIGHTS
+# 4. THE GRADE
 # -----------------------------------------------------------------------------
-# Held variants first: Light quality wants the lamp lit, not the lamp alive.
-transform mmfx_bloom_still(col=(1.0, 1.0, 1.0), gain=0.2, core=0.0, edge=1.0, fall=2.0):
+# Held first: Light wants the look, not the motion.
+transform mmfx_lofi_still:
     mesh True
-    shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col col
-    u_em_mmfx_gain gain
-    u_em_mmfx_core core
-    u_em_mmfx_edge edge
-    u_em_mmfx_fall fall
+    shader "enter_m.mmfx_lofi"
+    u_em_lofi_tint MMFX_HAZE_COL
+    u_em_lofi_warp 0.0
+    u_em_lofi_phase 0.0
+    u_em_lofi_ca 0.0060
+    u_em_lofi_bloom 0.55
+    u_em_lofi_haze 0.070
 
 
-transform mmfx_pane_still(col=(1.0, 1.0, 1.0), gain=0.2, scan=0.3, soft=0.24):
+# The wobble phase resets at 2*pi, where both of the shader's sine terms are
+# back where they started, so the loop has no seam. 8s is two bars.
+transform mmfx_lofi:
     mesh True
-    shader "enter_m.mmfx_pane"
-    u_em_mmfx_pane_col col
-    u_em_mmfx_pane_gain gain
-    u_em_mmfx_pane_scan scan
-    u_em_mmfx_pane_soft soft
-    u_em_mmfx_pane_phase 0.0
-
-
-# The bulb. Long uneven breaths -- no two legs the same length, so the eye
-# never finds the loop -- and once every ~21s the filament stumbles. The
-# stumble is four near-instant steps, not an ease: a flicker that eases is a
-# dimmer, and a bedside lamp does not have one.
-transform mmfx_lamp_bulb:
-    mesh True
-    shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col MMFX_LAMP_COL
-    u_em_mmfx_core 0.0
-    u_em_mmfx_edge 0.94
-    u_em_mmfx_fall 2.4
-    u_em_mmfx_gain 0.26
-    block:
-        ease 3.6 u_em_mmfx_gain 0.310
-        ease 4.2 u_em_mmfx_gain 0.238
-        ease 3.0 u_em_mmfx_gain 0.284
-        ease 5.4 u_em_mmfx_gain 0.252
-        linear 0.05 u_em_mmfx_gain 0.150
-        linear 0.06 u_em_mmfx_gain 0.295
-        linear 0.04 u_em_mmfx_gain 0.192
-        linear 0.10 u_em_mmfx_gain 0.262
-        ease 4.6 u_em_mmfx_gain 0.300
-        repeat
-
-
-# The pool the bulb throws onto the wall and the desk. Deliberately out of
-# phase with the bulb and much lower: this is bounce, and bounce is slower to
-# answer than the source.
-transform mmfx_lamp_pool:
-    mesh True
-    shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col MMFX_LAMP_COL
-    u_em_mmfx_core 0.0
-    u_em_mmfx_edge 1.0
-    u_em_mmfx_fall 2.0
-    u_em_mmfx_gain 0.085
-    block:
-        ease 5.2 u_em_mmfx_gain 0.106
-        ease 6.4 u_em_mmfx_gain 0.072
-        ease 4.1 u_em_mmfx_gain 0.094
-        repeat
-
-
-# The laptop. Two concurrent branches on DISJOINT properties -- phase scrolls
-# the scan band, gain does the content flicker -- because two branches touching
-# the same property fight over it and the loser's value is simply gone.
-transform mmfx_laptop_pane:
-    mesh True
-    shader "enter_m.mmfx_pane"
-    u_em_mmfx_pane_col MMFX_SCREEN_COL
-    u_em_mmfx_pane_soft 0.26
-    u_em_mmfx_pane_scan 0.30
-    u_em_mmfx_pane_phase 0.0
-    u_em_mmfx_pane_gain 0.19
+    shader "enter_m.mmfx_lofi"
+    u_em_lofi_tint MMFX_HAZE_COL
+    u_em_lofi_warp 0.0013
+    u_em_lofi_ca 0.0060
+    u_em_lofi_phase 0.0
+    u_em_lofi_bloom 0.50
+    u_em_lofi_haze 0.060
     parallel:
-        linear 9.0 u_em_mmfx_pane_phase 1.0
-        u_em_mmfx_pane_phase 0.0
+        linear 8.0 u_em_lofi_phase 6.28318530718
+        u_em_lofi_phase 0.0
         repeat
     parallel:
-        ease 1.9 u_em_mmfx_pane_gain 0.230
-        ease 1.3 u_em_mmfx_pane_gain 0.168
-        ease 2.6 u_em_mmfx_pane_gain 0.212
-        linear 0.08 u_em_mmfx_pane_gain 0.268
-        linear 0.12 u_em_mmfx_pane_gain 0.178
-        ease 2.2 u_em_mmfx_pane_gain 0.198
+        ease 16.0 u_em_lofi_haze 0.086
+        ease 16.0 u_em_lofi_haze 0.052
+        repeat
+    parallel:
+        ease 16.0 u_em_lofi_bloom 0.62
+        ease 32.0 u_em_lofi_bloom 0.44
+        ease 16.0 u_em_lofi_bloom 0.56
         repeat
 
 
-transform mmfx_laptop_spill:
+# The light leak: one soft warm blob wandering the frame on eight bars across
+# and five down. It is screen-locked, not room-locked -- a leak happens in the
+# lens, not in the bedroom -- and it is the only element here that is pure
+# invention rather than something the picture already had.
+transform mmfx_leak_drift:
     mesh True
     shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col MMFX_SCREEN_COL
+    u_em_mmfx_col MMFX_LEAK_COL
     u_em_mmfx_core 0.0
     u_em_mmfx_edge 1.0
-    u_em_mmfx_fall 2.2
-    u_em_mmfx_gain 0.055
-    block:
-        ease 3.1 u_em_mmfx_gain 0.071
-        ease 2.4 u_em_mmfx_gain 0.047
-        ease 3.8 u_em_mmfx_gain 0.062
-        repeat
-
-
-# The waveform print. It is paper, so it does not emit -- what breathes here
-# is lamp light sitting on a glossy surface, which is why the rhythm is the
-# lamp's kind of slow and not a music visualiser's kind of fast.
-transform mmfx_poster_wave:
-    mesh True
-    shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col MMFX_WAVE_COL
-    u_em_mmfx_core 0.0
-    u_em_mmfx_edge 1.0
-    u_em_mmfx_fall 1.8
-    u_em_mmfx_gain 0.060
-    block:
-        ease 2.3 u_em_mmfx_gain 0.128
-        ease 2.9 u_em_mmfx_gain 0.045
-        ease 1.7 u_em_mmfx_gain 0.098
-        ease 3.3 u_em_mmfx_gain 0.055
-        repeat
-
-
-# A window across the street. The `pause` legs are the point: nothing is
-# moving during them, so each costs ONE scheduled redraw instead of one per
-# frame, and four windows on four different periods never sync up.
-transform mmfx_window_light(peak=0.30, up=1.6, hold=9.0, down=2.4, dark=13.0, delay=0.0):
-    mesh True
-    shader "enter_m.mmfx_bloom"
-    u_em_mmfx_col MMFX_CITY_COL
-    u_em_mmfx_core 0.0
-    u_em_mmfx_edge 1.0
-    u_em_mmfx_fall 1.7
+    u_em_mmfx_fall 2.3
     u_em_mmfx_gain 0.0
-    pause delay
-    block:
-        ease up u_em_mmfx_gain peak
-        pause hold
-        ease down u_em_mmfx_gain 0.0
-        pause dark
+    parallel:
+        ease 32.0 xpos 900
+        ease 32.0 xpos 340
+        repeat
+    parallel:
+        ease 20.0 ypos 150
+        ease 20.0 ypos -180
+        repeat
+    parallel:
+        linear 6.0 u_em_mmfx_gain 0.075
+        ease 16.0 u_em_mmfx_gain 0.115
+        ease 16.0 u_em_mmfx_gain 0.045
         repeat
 
 
 # -----------------------------------------------------------------------------
-# 5. DUST
+# 5. AIR
 # -----------------------------------------------------------------------------
-# Dust with no beam to hang in is just noise on the screen, so brightness here
-# is a FUNCTION OF DISTANCE to the lamp pool: a mote is only visible while it
-# is passing through the light, and the far corners of the room stay empty.
-# Five pre-made children and set_child() rather than thirty alpha tweens -- a
-# Sprite has x, y and zorder, and nothing else to animate.
+# Motes, spread evenly over the visible room and lit ONLY by their own slow
+# twinkle. The first version weighted brightness by distance to the desk lamp,
+# which looked lovely and was another coordinate pinned to one painting; this
+# version assumes nothing except that the room has air in it.
 
 image mmfx_dust_0:
     Solid("#fff0d6")
     subpixel True
     additive 1.0
     xysize (2, 2)
-    alpha 0.05
+    alpha 0.04
 
 image mmfx_dust_1:
     Solid("#fff0d6")
     subpixel True
     additive 1.0
     xysize (2, 2)
-    alpha 0.11
+    alpha 0.08
 
 image mmfx_dust_2:
     Solid("#fff3de")
     subpixel True
     additive 1.0
     xysize (3, 3)
-    alpha 0.18
+    alpha 0.13
 
 image mmfx_dust_3:
     Solid("#fff6e6")
     subpixel True
     additive 1.0
     xysize (3, 3)
-    alpha 0.26
+    alpha 0.18
 
 image mmfx_dust_4:
     Solid("#fffaf0")
     subpixel True
     additive 1.0
     xysize (4, 4)
-    alpha 0.34
+    alpha 0.24
 
 
 init python:
     import math as _enter_m_mmfx_math
 
     class EnterMMenuDust(object):
-        """A small deterministic mote field confined to the visible room.
+        """A small deterministic mote field over the visible room.
 
         Motion is derived from the SpriteManager's own st, so the field has no
         state to desync and no dependence on frame rate. The seed drives a
@@ -491,8 +455,7 @@ init python:
         rollback-aware global RNG.
         """
 
-        def __init__(self, children, count, seed, bounds, vy, vx, amp,
-                speed, lamp, radius):
+        def __init__(self, children, count, seed, bounds, vy, vx, amp, speed):
 
             self.children = list(children)
             self.x0, self.y0, self.x1, self.y1 = [float(v) for v in bounds]
@@ -502,12 +465,38 @@ init python:
             self.vx = float(vx)
             self.amp = float(amp)
             self.speed = float(speed)
-            self.lamp_x, self.lamp_y = [float(v) for v in lamp]
-            self.radius = max(float(radius), 1.0)
             self.parts = []
             self.manager = SpriteManager(
                 update=self.update,
                 ignore_time=True)
+
+            # THE FIELD DOES NOT DRAW WITHOUT THIS LINE. Measured on 8.6.0
+            # gl2, September 2026, after the field had been silently invisible
+            # for some time.
+            #
+            # SpriteManager sets `_duplicatable = True`, and its `_duplicate()`
+            # copies the update, event and predict functions into a BRAND NEW
+            # manager -- and nothing else. Not `children`, which is where every
+            # sprite lives. So the moment a screen `add`s one, the engine
+            # duplicates it and draws the duplicate: a manager with an empty
+            # sprite list. No exception, no lint warning, no missing-image
+            # placeholder. Just nothing, on a transparent layer, which is
+            # indistinguishable from a field tuned too dim to see.
+            #
+            # Proven rather than reasoned: 24 sprites of 8x8 over a flat plate
+            # rendered 0 changed pixels with the flag left alone and exactly
+            # 1536 (24 * 64) with it cleared. Bare managers, custom update
+            # functions and mesh-wrapped children all rendered nothing; only
+            # the flag mattered.
+            #
+            # Clearing it is also what these fields actually want. Both callers
+            # build ONE manager and reuse it for the life of the process (see
+            # mmfx_dust_field below, and vault_fx.rpy's three), so per-use
+            # duplication was never the intent. The update function derives
+            # every position from `st` alone and keeps no state, so sharing one
+            # manager between two screens on screen at once is safe: each pass
+            # recomputes the same positions from the same clock.
+            self.manager._duplicatable = False
 
             _enter_m_state = int(seed) & 0xffffffff
 
@@ -531,7 +520,8 @@ init python:
                     _enter_m_next() * 6.28318530718,         # sway phase
                     self.speed * (0.70 + _enter_m_next() * 0.60),
                     _enter_m_next() * 6.28318530718,         # twinkle phase
-                    0.55 + _enter_m_next() * 0.75,           # twinkle rate
+                    0.16 + _enter_m_next() * 0.34,           # twinkle rate
+                    0.35 + _enter_m_next() * 0.65,           # how near it is
                     -1,                                      # current child
                 ])
 
@@ -541,7 +531,7 @@ init python:
             for _enter_m_p in self.parts:
                 (_enter_m_sprite, _enter_m_px0, _enter_m_py0, _enter_m_vx,
                     _enter_m_vy, _enter_m_sway, _enter_m_sp, _enter_m_tph,
-                    _enter_m_tr, _enter_m_cur) = _enter_m_p
+                    _enter_m_tr, _enter_m_near, _enter_m_cur) = _enter_m_p
 
                 _enter_m_y = self.y0 + (
                     (_enter_m_py0 - self.y0 + _enter_m_vy * st) % self.span_y)
@@ -554,18 +544,9 @@ init python:
                 _enter_m_sprite.x = _enter_m_x
                 _enter_m_sprite.y = _enter_m_y
 
-                # How much of the lamp's light is falling on this mote. The
-                # y radius is tighter than the x radius because the pool on
-                # the desk is wider than it is deep.
-                _enter_m_dx = (_enter_m_x - self.lamp_x) / self.radius
-                _enter_m_dy = (_enter_m_y - self.lamp_y) / (self.radius * 0.72)
-                _enter_m_lit = 1.0 - min(
-                    _enter_m_mmfx_math.sqrt(
-                        _enter_m_dx * _enter_m_dx + _enter_m_dy * _enter_m_dy),
-                    1.0)
-                _enter_m_lit = _enter_m_lit ** 1.3
-
-                _enter_m_b = _enter_m_lit * (0.55 + 0.45 *
+                # Brightness is depth times a slow twinkle -- nothing spatial,
+                # so the field does not care what is painted behind it.
+                _enter_m_b = _enter_m_near * (0.55 + 0.45 *
                     _enter_m_mmfx_math.sin(st * _enter_m_tr + _enter_m_tph))
                 _enter_m_idx = int(_enter_m_b * (_enter_m_top + 0.999))
                 if _enter_m_idx < 0:
@@ -575,7 +556,7 @@ init python:
 
                 if _enter_m_idx != _enter_m_cur:
                     _enter_m_sprite.set_child(self.children[_enter_m_idx])
-                    _enter_m_p[9] = _enter_m_idx
+                    _enter_m_p[10] = _enter_m_idx
 
             return 1.0 / 30.0
 
@@ -585,41 +566,38 @@ init python:
         """The mote field, built once and reused for the life of the process."""
 
         if _MMFX_DUST_FIELD[0] is None:
-            # BOUNDS ARE THE BEAM, NOT THE ROOM. Spread over the whole visible
-            # room, thirty motes put barely one inside the lamp's falloff at
-            # any moment and the field read as empty -- measured on the first
-            # pass. Confined to the desk, the same thirty-eight are ~16 lit at
-            # once, and because the falloff is already zero at every edge of
-            # this box, a mote wrapping around it is invisible.
             _MMFX_DUST_FIELD[0] = EnterMMenuDust(
                 children=(
                     "mmfx_dust_0", "mmfx_dust_1", "mmfx_dust_2",
                     "mmfx_dust_3", "mmfx_dust_4"),
-                count=38,
+                count=34,
                 seed=0x4d4d4658,
-                bounds=(620.0, 180.0, 1140.0, 580.0),
-                vy=4.6, vx=1.8, amp=19.0, speed=0.40,
-                lamp=(858.0, 372.0), radius=290.0).manager
+                bounds=(MMFX_ROOM_X - 40.0, 60.0, 1320.0, 700.0),
+                vy=4.6, vx=1.8, amp=19.0, speed=0.40).manager
 
         return _MMFX_DUST_FIELD[0]
 
 
 # -----------------------------------------------------------------------------
-# 6. GRADE
+# 6. VIGNETTE + GRAIN
 # -----------------------------------------------------------------------------
 # Borrowed wholesale from the story's atmosphere layer -- same shader parts,
-# menu-tuned uniforms. fill and key are BOTH ZERO here: the painting is already
-# lit, and the one rule that layer learned the hard way is that added light
-# costs colour. What is left is a vignette (which darkens, so it costs no
-# colour and gains contrast) and, at Full, the signed grain that keeps a flat
-# digital painting from reading as a flat digital painting.
+# menu-tuned uniforms. fill and key are BOTH ZERO here: the lo-fi grade already
+# owns the light, and the one rule that layer learned the hard way is that
+# added light costs colour. What is left is a vignette (which darkens, so it
+# costs no colour and gains contrast) and, at Full, the signed grain that keeps
+# a flat digital painting from reading as a flat digital painting.
+#
+# These two are SCREEN-LOCKED, outside the camera: a vignette and film grain
+# belong to the lens, not to the room, and would give the whole trick away if
+# they slid about with the picture.
 init -8 python:
 
     _MMFX_GRADE_BASE = dict(
-        u_em_atmos_vig_strength=0.24,
-        u_em_atmos_vig_inner=0.60,
+        u_em_atmos_vig_strength=0.26,
+        u_em_atmos_vig_inner=0.58,
         u_em_atmos_vig_outer=1.12,
-        u_em_atmos_vig_tint=(0.018, 0.024, 0.044),
+        u_em_atmos_vig_tint=(0.016, 0.020, 0.038),
         u_em_atmos_key_pos=(0.68, 0.42),
         u_em_atmos_key_col=(1.0, 0.78, 0.48),
         u_em_atmos_fill_top=(0.50, 0.56, 0.70),
@@ -638,7 +616,7 @@ init -8 python:
 
         if _enter_m_grain:
             _enter_m_kw.update(
-                u_em_atmos_grain=0.011,
+                u_em_atmos_grain=0.013,
                 u_em_atmos_grain_rate=15.0,
                 u_em_atmos_pulse=0.0,
                 u_em_atmos_pulse_rate=1.0)
@@ -655,64 +633,47 @@ init -8 python:
 # -----------------------------------------------------------------------------
 # 7. THE ROOM, ASSEMBLED
 # -----------------------------------------------------------------------------
-# Draw order is the physical one: the painting, then the light already in it,
-# then the air, then the glass the whole thing is being watched through. The
-# grade is the only part left OUTSIDE the drifting fixed -- a vignette belongs
-# to the frame, not to the room.
+# The camera wraps the graded picture, the air drifts inside the camera with
+# it, and the lens effects sit outside where they cannot be panned around.
 screen mmfx_room_layer():
 
     python:
         _mmfx_alive = mmfx_alive()
         _mmfx_lit = mmfx_lit()
 
-        _mmfx_room_at = [mm_room_bg_arrive,
-            mmfx_room_breathe if _mmfx_alive else mmfx_room_still]
-
-        # The held stand-ins carry the same base numbers as the animated
-        # versions, so Light is this room with its breath held -- not a
-        # dimmer, flatter one.
-        _mmfx_lamp = (mmfx_lamp_bulb if _mmfx_alive
-            else mmfx_bloom_still(MMFX_LAMP_COL, 0.26, 0.0, 0.94, 2.4))
-        _mmfx_pool = (mmfx_lamp_pool if _mmfx_alive
-            else mmfx_bloom_still(MMFX_LAMP_COL, 0.085, 0.0, 1.0, 2.0))
-        _mmfx_screen = (mmfx_laptop_pane if _mmfx_alive
-            else mmfx_pane_still(MMFX_SCREEN_COL, 0.19, 0.30, 0.26))
-        _mmfx_spill = (mmfx_laptop_spill if _mmfx_alive
-            else mmfx_bloom_still(MMFX_SCREEN_COL, 0.055, 0.0, 1.0, 2.2))
-        _mmfx_wave = (mmfx_poster_wave if _mmfx_alive
-            else mmfx_bloom_still(MMFX_WAVE_COL, 0.075, 0.0, 1.0, 1.8))
+        _mmfx_camera_at = [mm_room_bg_arrive,
+            mmfx_room_camera if _mmfx_alive else mmfx_room_still]
+        _mmfx_grade = mmfx_lofi if _mmfx_alive else mmfx_lofi_still
 
     fixed:
         xysize (config.screen_width, config.screen_height)
-        at _mmfx_room_at
+        at _mmfx_camera_at
 
-        add gui.main_menu_background
+        if _mmfx_lit and _mmfx_alive:
+            # Full: the rings turn, each at its own pace, under the grade --
+            # the grade wraps the whole scene, so halation lights the gold
+            # wherever it has turned to.
+            fixed:
+                xysize (config.screen_width, config.screen_height)
+                at _mmfx_grade
+                add "mmfx_title_field"
+                add "mmfx_title_months" at mmfx_orrery_spin(360.0)
+                add "mmfx_title_days" at mmfx_orrery_spin(-240.0)
+                add "mmfx_title_orbits" at mmfx_orrery_spin(150.0)
+        elif _mmfx_lit:
+            add gui.main_menu_background at _mmfx_grade
+        else:
+            add gui.main_menu_background
 
         if _mmfx_lit:
-
-            # The desk lamp: bulb at (905, 300), and the pool it throws onto
-            # the wall and across the desk, centred (850, 400).
-            add mmfx_quad(160, 140) xpos 825 ypos 230 at _mmfx_lamp
-            add mmfx_quad(440, 300) xpos 630 ypos 250 at _mmfx_pool
-
-            # The laptop: the panel itself, then what it puts on the desk.
-            add mmfx_quad(104, 82) xpos 980 ypos 334 at _mmfx_screen
-            add mmfx_quad(300, 230) xpos 890 ypos 275 at _mmfx_spill
-
-            # The waveform print, x 605..738, on its bright centre line.
-            add mmfx_quad(170, 74) xpos 585 ypos 260 at _mmfx_wave
-
-            # Four apartments across the street, on four different clocks.
-            if _mmfx_alive:
-                add mmfx_quad(26, 22) xpos 1021 ypos 266 at mmfx_window_light(0.30, 1.6, 9.0, 2.4, 13.0, 2.0)
-                add mmfx_quad(26, 22) xpos 1125 ypos 276 at mmfx_window_light(0.24, 2.2, 15.0, 1.8, 8.0, 11.0)
-                add mmfx_quad(24, 20) xpos 1236 ypos 225 at mmfx_window_light(0.34, 1.1, 6.0, 3.1, 19.0, 6.5)
-                add mmfx_quad(22, 20) xpos 921 ypos 235 at mmfx_window_light(0.22, 2.8, 12.0, 2.6, 16.0, 17.0)
+            add mmfx_quad(300, 300) xpos 705 ypos 210 at (mmfx_orrery_glow if _mmfx_alive else mmfx_orrery_glow_still)
 
         if _mmfx_alive:
             add mmfx_dust_field()
 
     if _mmfx_lit:
+        if _mmfx_alive:
+            add mmfx_quad(680, 680) at mmfx_leak_drift
         add (MMFX_GRADE_FULL if _mmfx_alive else MMFX_GRADE_LIGHT)
 
 
@@ -791,7 +752,8 @@ transform mmfx_row_glint(idx=0):
 
 # A node riding the seam between the sidebar and the room. Both ends are
 # derived from the seam's own span so the node cannot overshoot the rail, and
-# the 3.0s pause at the top of the loop is a genuine rest, not a slow move.
+# the whole cycle is eight bars: 3s of rest, then a 4.6s fall, then 0.4s more
+# rest to land it on the downbeat of the ninth.
 transform mmfx_seam_scan:
     subpixel True
     mesh True
@@ -811,15 +773,10 @@ transform mmfx_seam_scan:
         parallel:
             ease 4.6 ypos (MMFX_SEAM_Y0 + MMFX_SEAM_H - MMFX_SEAM_NODE_H)
         ypos MMFX_SEAM_Y0
+        pause 0.4
         repeat
 
 
-# A halo has to survive the thing it is behind. The logo plate is 108px on a
-# 210px quad, so everything inside r = 0.51 is hidden -- and a plain
-# core 0 / fall 2.8 falloff has decayed to under 1% of its gain by then, which
-# is why the first pass drew a halo that measured (9, 15, 14) against a (10,
-# 19, 22) panel and could not be seen at all. `core` holds the light out to
-# the plate's own edge before it starts falling.
 transform mmfx_logo_halo:
     mesh True
     shader "enter_m.mmfx_bloom"
@@ -829,8 +786,8 @@ transform mmfx_logo_halo:
     u_em_mmfx_fall 1.2
     u_em_mmfx_gain 0.30
     block:
-        ease 4.4 u_em_mmfx_gain 0.46
-        ease 5.8 u_em_mmfx_gain 0.28
+        ease 16.0 u_em_mmfx_gain 0.46
+        ease 16.0 u_em_mmfx_gain 0.28
         repeat
 
 
@@ -845,10 +802,12 @@ transform mmfx_logo_halo_still:
 
 
 # Instant alpha steps with real pauses between them: two redraws a second and
-# nothing in between, which is as close to free as a blinking thing gets.
+# nothing in between, which is as close to free as a blinking thing gets. One
+# second is also exactly one beat, which is the only place anything here is
+# allowed to agree with the drums.
 transform mmfx_caret_blink:
     alpha 1.0
     pause 0.62
     alpha 0.10
-    pause 0.44
+    pause 0.38
     repeat

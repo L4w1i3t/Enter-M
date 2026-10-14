@@ -1,68 +1,10 @@
-# =============================================================================
-# archive.rpy  --  THE ARCHIVE HUB ("extras" / bonus-content menu)
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   This is the central "Archive" menu reachable from the main menu / game menu.
-#   It is a grid of seven cards, each card being a gateway to one bonus feature
-#   (Roster, CG Gallery, Music Room, Side Stories, Lost Records, Achievements,
-#   Cards), gated by the persistent.archive_unlocked_* flags defined at the top
-#   of this file. Six of the seven now ship OPEN -- read the flag block for why,
-#   where the per-item gating moved to instead.
-#
-# HOW IT IS REACHED (who opens this screen)
-#   - game/screens.rpy line ~424 and ~522:  textbutton "Archive" -> ShowMenu("archive")
-#     (so the "archive" screen below is the entry point from the menus).
-#
-# WHO FLIPS THE UNLOCK FLAGS (the persistent.archive_unlocked_* below)
-#   - game/story/season1/0531.rpy          : end of Chapter 0.5, opens the Music Room.
-#   - Developer Date Jump/dev_date_jump.rpy: the ALL SIDE CONTENT dev switch.
-#
-# WHERE THE TARGET SCREENS LIVE (what each card opens)
-#   - "roster_view_screen"  -> game/addons/Roster View/roster_view.rpy
-#   - "cg_gallery"          -> game/addons/CG View/cg_gallery.rpy
-#   - "music_room"          -> game/addons/Music Room/music_room.rpy
-#   - "character_stories"   -> game/addons/Character Stories/char_stories.rpy
-#   - "lost_records"        -> game/addons/Lost Records View/lost_records.rpy
-#   - "dialog"              -> generic OK dialog screen (used for locked cards)
-#
-# EXTERNAL SYMBOLS THIS FILE LEANS ON (defined elsewhere)
-#   - image "bg ether"             : background art (defined in definitions/images).
-#   - label enter_m_sick_ass_anime_op + enter_m_op_cleanup_screens()
-#                                  : the OP intro sequence (game/addons/Sick Ass Anime OP/op.rpy),
-#                                    reused here by the "Replay OP" button.
-#   - gui.hover_sound / gui.activate_sound : standard UI sounds (game/gui.rpy).
-#   - BGM tracks under assets/audio/bgm/ (roster_place, canyoufeel).
-# =============================================================================
+# Archive hub and shared catalog UI. archive_items defines the seven doors
+# and their persistent unlock keys. Six doors start open; Music Room opens
+# after Chapter 0.5. Individual galleries/rosters/stories own their item gates.
+# archive_unlocked_poems is retained state but has no card in archive_items.
+# Shared portrait crops use original image dimensions, independent of story
+# framing. Replay OP uses the OP's entry label and cleanup helpers.
 
-# Custom screens/labels for archive
-
-# -----------------------------------------------------------------------------
-# UNLOCK FLAGS
-# One persistent bool per archive feature. `default` means "set this once on a
-# fresh save and never overwrite it after". These are the single source of truth
-# for whether a card is playable; story/dev code only ever flips these.
-# NOTE: archive_unlocked_poems exists but currently has no card in archive_items
-#       (poems are surfaced elsewhere -- see game/addons/poem_display.rpy).
-#
-# WHAT IS GATED AND WHAT IS NOT
-#   The SHELL is not the reward. Six of the seven panels ship open on a brand new
-#   save, because an Archive that is seven identical "???" cards tells a first-time
-#   player nothing about what is in there or how to earn it. What is actually
-#   withheld lives one level DOWN, per item, and is visibly incomplete instead of
-#   invisible:
-#       Roster        -- slot per character, grayed until she is met
-#                        (Roster View/roster_view.rpy)
-#       CG Gallery    -- entry per CG, grayed until it has been on screen
-#                        (CG View/cg_gallery.rpy)
-#       Side Stories  -- rows stay HIDDEN, not grayed, because a title is a
-#                        spoiler (Character Stories/char_stories.rpy)
-#       Lost Records  -- unconditional, all of it, from the first launch
-#       Achievements  -- a roadmap/checklist, so showing it locked is pointless
-#   The Music Room is the one whole-panel reward left, because a soundtrack is
-#   the thing you go back for once the story is over: it opens on clearing the
-#   main campaign, which for now means the end of Chapter 0.5 (0531.rpy).
-# -----------------------------------------------------------------------------
 default persistent.archive_unlocked_roster = True
 default persistent.archive_unlocked_cgs = True
 default persistent.archive_unlocked_music = False
@@ -106,16 +48,29 @@ init 50 python:
 # -----------------------------------------------------------------------------
 # Data-driven archive item definitions
 init python:
+    def archive_start_isolated_content(label_name):
+        """Start standalone Archive content with a clean per-game store."""
+        if not label_name or not renpy.has_label(label_name):
+            if config.developer:
+                raise Exception("archive_start_isolated_content: unknown label %r." % (label_name,))
+            return None
+
+        # Start(label) only jumps out of the menu context. From the in-game
+        # Archive that lands in the loaded save and exposes all of its per-save
+        # state to the standalone story. A full restart restores Ren'Py's clean
+        # stores first, then jumps directly to the requested content label.
+        renpy.full_restart(label=label_name, save=False)
+
     # Each entry: (label, unlock_persistent_key, unlocked_action, icon)
     # unlock_persistent_key of None means always locked (placeholder)
     archive_items = [
-        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen"), "assets/gui/archive_panels/roster.png"),
-        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery"),         "assets/gui/archive_panels/cg_gallery.png"),
-        ("Music Room",   "archive_unlocked_music",             Show("music_room"),         "assets/gui/archive_panels/music_room.png"),
-        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories"),  "assets/gui/archive_panels/side_stories.png"),
-        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records"),       "assets/gui/archive_panels/lost_records.png"),
-        ("Achievements", "archive_unlocked_achievements",      Show("achievements"),       "assets/gui/archive_panels/achievements.png"),
-        ("Cards",        "archive_unlocked_cards",             Show("mc_collection"),      "assets/gui/archive_panels/cards.png"),
+        ("Roster",       "archive_unlocked_roster",            Show("roster_view_screen", transition=enter_m_menu_doorway), "assets/gui/archive_panels/roster.png"),
+        ("CG Gallery",   "archive_unlocked_cgs",               Show("cg_gallery", transition=enter_m_menu_doorway),         "assets/gui/archive_panels/cg_gallery.png"),
+        ("Music Room",   "archive_unlocked_music",             Show("music_room", transition=enter_m_menu_doorway),         "assets/gui/archive_panels/music_room.png"),
+        ("Side Stories", "archive_unlocked_character_stories", Show("character_stories", transition=enter_m_menu_doorway),  "assets/gui/archive_panels/side_stories.png"),
+        ("Lost Records", "archive_unlocked_lost_records",      Show("lost_records", transition=enter_m_menu_doorway),       "assets/gui/archive_panels/lost_records.png"),
+        ("Achievements", "archive_unlocked_achievements",      Show("achievements", transition=enter_m_menu_doorway),       "assets/gui/archive_panels/achievements.png"),
+        ("Cards",        "archive_unlocked_cards",             Show("mc_collection", transition=enter_m_menu_doorway),      "assets/gui/archive_panels/cards.png"),
     ]
 
     # Each hub panel also has a full-resolution CG Gallery master. The module
@@ -292,27 +247,26 @@ label enter_m_archive_replay_op:
     call enter_m_sick_ass_anime_op from _call_enter_m_sick_ass_anime_op
     $ enter_m_op_cleanup_screens()
     scene black
-    $ enter_m_menu_music(audio.roster_place)
+    $ enter_m_menu_music(audio.archive)
     $ renpy.show_screen("archive")
     return
 
 # -----------------------------------------------------------------------------
 # TRANSFORMS (animation)
 # -----------------------------------------------------------------------------
-# Per-card entrance + hover. `delay` staggers each card so they cascade in (the
-# screen passes i*0.07). Fades up from below with an easein_back overshoot, then
-# bobs up slightly on hover.
+# Per-card entrance + hover. `delay` staggers a short settling motion. Idle
+# cards are still; Transitions Off skips the arrival animation.
 # Combined entrance + hover for archive cards
 transform archive_card_anim(delay=0.0):
-    alpha 0.0
-    yoffset 30
+    alpha (0.0 if _preferences.transitions != 0 else 1.0)
+    yoffset (16 if _preferences.transitions != 0 else 0)
     subpixel True
-    pause delay
-    easein_back 0.45 alpha 1.0 yoffset 0
+    pause (delay if _preferences.transitions != 0 else 0.0)
+    easeout_cubic (0.35 if _preferences.transitions != 0 else 0.0) alpha 1.0 yoffset 0
     on idle:
         ease 0.15 yoffset 0
     on hover:
-        ease 0.15 yoffset -5
+        ease 0.15 yoffset -3
 
 # Whole-panel entrance/exit: drops in from above on show, lifts out and fades on
 # hide. Applied to the main archive frame.
@@ -324,30 +278,12 @@ transform archive_card_anim(delay=0.0):
 # entrance was a six-file edit -- pass the numbers instead of forking the ATL.
 transform archive_frame_enter(rise=40, secs=0.45, fall=25, out=0.25):
     on show:
-        alpha 0.0
-        yoffset -rise
-        easein_back secs alpha 1.0 yoffset 0
+        alpha (0.0 if _preferences.transitions != 0 else 1.0)
+        yoffset (-min(rise, 18) if _preferences.transitions != 0 else 0)
+        easeout_cubic (secs if _preferences.transitions != 0 else 0.0) alpha 1.0 yoffset 0
     on hide:
         alpha 1.0
-        easeout_quad out alpha 0.0 yoffset -fall
-
-# Locked-card "corrupted signal" flicker -- a subtle periodic opacity dip with a
-# tiny horizontal jitter, so locked modules read as unstable/encrypted. Applied
-# to the placeholder icon of locked cards.
-transform enter_m_locked_flicker:
-    subpixel True
-    block:
-        alpha 1.0 xoffset 0
-        pause 1.7
-        alpha 0.66
-        pause 0.04
-        alpha 1.0
-        pause 0.05
-        alpha 0.85 xoffset 1
-        pause 0.03
-        alpha 1.0 xoffset 0
-        pause 2.4
-        repeat
+        easeout_quad (out if _preferences.transitions != 0 else 0.0) alpha 0.0 yoffset -min(fall, 12)
 
 # Accent rule that wipes out from its left edge. Reused by the credits section
 # rule so it re-plays whenever the selected section changes.
@@ -367,20 +303,17 @@ transform enter_m_pip_pulse:
         easein 0.9 alpha 0.55
         repeat
 
-# Reusable portrait-window scanline. `h` is the window height so the thin bar
-# sweeps from the top of the frame to the bottom and loops. Parameterised so any
-# sub-screen (roster detail, lost records, etc.) can share one look regardless of
-# its portrait size. Pair it with a clipping viewport so it never bleeds out.
-transform archive_scanline(h=156):
-    subpixel True
-    ypos 0
-    alpha 0.0
-    linear 0.2 alpha 1.0
-    block:
-        ypos 0
-        linear 2.6 ypos h
-        pause 0.5
-        repeat
+# A mounted print under the cursor comes up to full colour from a faded idle,
+# like a photo taken off the pile (Roster cards, CG Gallery prints). 8.6
+# containers pass hover/idle down to nested transforms
+# (config.containers_pass_transform_events), so this sits on the print itself
+# and the paper around it stays one stock.
+transform archive_print_develop:
+    matrixcolor SaturationMatrix(0.6)
+    on hover:
+        easeout_cubic 0.18 matrixcolor SaturationMatrix(1.0)
+    on idle:
+        easeout_cubic 0.18 matrixcolor SaturationMatrix(0.6)
 
 # -----------------------------------------------------------------------------
 # BACKDROP
@@ -396,7 +329,7 @@ screen archive_backdrop():
 
 # -----------------------------------------------------------------------------
 # REUSABLE HEADER
-# A titled header bar with an accent rule and a "Return" button. Parameterised so
+# An engraved book mark, title, and "Return" button. Parameterised so
 # sub-screens (roster/music/etc.) can reuse the same look:
 #   title         : heading text
 #   return_action : action list run by the Return button
@@ -409,48 +342,29 @@ screen archive_header(title, return_action, return_text=_("Return"), static=Fals
 
         frame:
             style "archive_header_title_frame"
-            at transform:
-                on show:
-                    alpha 0.0
-                    xoffset -18
-                    easeout 0.35 alpha 1.0 xoffset 0
 
             hbox:
-                spacing 13
+                spacing 12
                 yalign 0.5
-
-                if static:
-                    add Solid("#56d7ff") xysize (11, 11) yalign 0.5
-                else:
-                    add Solid("#56d7ff") xysize (11, 11) yalign 0.5 at console_blink
-                text title style "archive_title"
-
-        if static:
-            add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16
-        else:
-            add Solid("#56d7ff") xysize (3, 46) yalign 0.5 xoffset 16 at enter_m_pip_pulse
+                use illustrated_menu_motif("archive", 48, 54)
+                text title style "archive_title" yalign 0.5
 
         null width 1 xfill True
 
         textbutton return_text:
+            id "archive_return"
             style "archive_return_button"
             yalign 0.5
             action return_action
-            at transform:
-                on show:
-                    alpha 0.0
-                    pause 0.18
-                    ease 0.25 alpha 1.0
 
 # -----------------------------------------------------------------------------
 # REUSABLE CENSUS / READOUT STRIP
-# The thin "SUBSYSTEM // x/y ONLINE ......... STATUS" line the archive hub and the
-# Side Stories screen both show under their header. Factored out here so every
-# sub-screen renders an identical strip:
-#   left_text  : primary readout (left, next to a blinking pip)
+# The thin catalogue census the hub and child screens show under their header.
+# Factored out here so every sub-screen renders an identical strip:
+#   left_text  : primary readout (left, next to a small printed diamond)
 #   right_text : secondary readout (right-aligned); omit for none
 #   width      : rail width (defaults to the shell content width)
-#   rule       : draw the cyan hairline under the strip (default True)
+#   rule       : draw the plum hairline under the strip (default True)
 # -----------------------------------------------------------------------------
 # NB the layout here is a `fixed` with explicit xpos/xanchor, NOT an hbox with a
 # greedy `null xfill`. Measured in an isolated harness: giving a box an explicit
@@ -475,10 +389,7 @@ screen archive_readout(left_text, right_text="", width=1150, rule=True, right_sl
             xsize width
             ysize 20
 
-            if static:
-                add Solid("#56d7ff") xysize (6, 6) xpos 0 yalign 0.5
-            else:
-                add Solid("#56d7ff") xysize (6, 6) xpos 0 yalign 0.5 at console_blink
+            add Solid(IM_PLUM) xysize (5, 5) xpos 1 yalign 0.5 rotate 45
             text left_text style text_style xpos 16 yalign 0.5
 
             if right_text:
@@ -495,12 +406,11 @@ screen archive_readout(left_text, right_text="", width=1150, rule=True, right_sl
                     transclude
 
         if rule:
-            add Solid("#56d7ff66") xysize (width, 2)
+            add Solid("#c5a0bd55") xysize (width, 1)
 
 # -----------------------------------------------------------------------------
 # REUSABLE PORTRAIT WINDOW
-# A framed sprite window with the archive's technical dressing: dark backing, a
-# sweeping scanline, and cyan hairlines top and bottom.
+# A framed sprite window with a textured dark mount and fine plum rules.
 #   img       : sprite/displayable to show
 #   w, h      : window size in px
 #   fit_mode  : "cover"   -- the art FILLS the window and the overflow is clipped
@@ -523,9 +433,9 @@ screen archive_readout(left_text, right_text="", width=1150, rule=True, right_sl
 #               DDLC layeredimage is a 960x960 square, so she passes 1.0. See
 #               ArchivePortraitCrop for why this is needed.
 #   locked    : REDACT the subject. `img` is not drawn at all -- the window keeps
-#               its frame, backing and scanline but shows the hub's unavailable
-#               placeholder under enter_m_locked_flicker, and its hairlines go
-#               grey. Use it for a subject the player has not met: a desaturated
+#               its frame and backing but shows the hub's sealed-record art,
+#               and its hairlines go grey. Use it for a subject the player has
+#               not met: a desaturated
 #               sprite is still a recognisable sprite, so greying is not
 #               concealment. Nothing else about the window changes, which is the
 #               point -- an unmet slot is visibly a slot, the same size and in
@@ -546,17 +456,12 @@ screen archive_portrait(img, w, h, fit_mode="contain", gray=False, focus=0.0, sc
     fixed:
         xysize (w, h)
 
-        add Solid("#07101add") xysize (w, h)
+        add IM_DARK_PANEL xysize (w, h)
 
         if locked:
-            # The placeholder is sized against the window rather than pinned at
-            # the hub's 80x112, so the same redaction reads right in a 300px
-            # dossier and a 118px People chip.
-            $ _ap_icon_w = int(w * 0.34)
-            $ _ap_icon_h = int(w * 0.48)
-            add Transform("assets/dump/unavailable_icon_placeholder.png", size=(_ap_icon_w, _ap_icon_h)):
+            # One sealed-record engraving conceals the subject at every size.
+            add Transform("assets/gui/menu/illustrated/archive/sealed_record.svg", xysize=(int(w * 0.84), int(h * 0.72)), fit="contain"):
                 align (0.5, 0.5)
-                at enter_m_locked_flicker
         elif fit_mode == "cover":
             if gray:
                 add ArchivePortraitCrop(img, w, h, focus, scale, aspect):
@@ -574,21 +479,34 @@ screen archive_portrait(img, w, h, fit_mode="contain", gray=False, focus=0.0, sc
                     fit fit_mode
                     xysize (w, h)
 
-        add Solid("#76e6ff18") xysize (w, 2) at archive_scanline(h - 2)
-        add Solid("#33414d" if locked else "#56d7ff66") xysize (w, 2)
-        add Solid("#33414d" if locked else "#56d7ff66") xysize (w, 2) ypos (h - 2)
+        add Solid("#5b525e" if locked else "#c5a0bd88") xysize (w, 1)
+        add Solid("#5b525e" if locked else "#c5a0bd88") xysize (w, 1) ypos (h - 1)
 
 # -----------------------------------------------------------------------------
-# THE SHELL'S CORNER BRACKETS
+# THE SHELL'S BOOKPLATE CORNERS
 # Every archive sub-screen sits in an `archive_shell_frame` (1200x690, styled
-# below) and draws console brackets around it. Those four numbers ARE the frame,
+# below) and draws engraved corners around it. Those four numbers ARE the frame,
 # so they live here once instead of being restated at each sub-screen -- an
 # earlier round of copies drifted to a narrower 1160 and clipped the right edge.
-# `console_brackets` itself stays parameterised for the genuinely bespoke
-# callers (pause menu, splash, main menu).
 # -----------------------------------------------------------------------------
 screen archive_shell_brackets():
-    add enter_m_brackets(1200, 690, "#56d7ff7a", 24, 2) xpos 40 ypos 15
+    # Engraved bookplate corners retain the 1200 x 690 shell boundary.
+    use archive_bookplate_corners(40, 15, 1200, 690)
+
+screen archive_bookplate_corners(x, y, w, h):
+    add "assets/gui/menu/illustrated/archive/bookplate_corner.svg" xpos x ypos y
+    add "assets/gui/menu/illustrated/archive/bookplate_corner.svg" xpos (x + w - 50) ypos y xzoom -1
+    add "assets/gui/menu/illustrated/archive/bookplate_corner.svg" xpos x ypos (y + h - 50) yzoom -1
+    add "assets/gui/menu/illustrated/archive/bookplate_corner.svg" xpos (x + w - 50) ypos (y + h - 50) xzoom -1 yzoom -1
+
+# Gold photo corners holding a print at (x, y, w, h): one corner engraving,
+# mirrored into place the same way. Roster mounts, its case file, and the CG
+# Gallery's prints and viewer all hold their art with these.
+screen archive_photo_corners(x, y, w, h):
+    add "assets/gui/menu/illustrated/archive/photo_corner.svg" xpos (x - 4) ypos (y - 4)
+    add "assets/gui/menu/illustrated/archive/photo_corner.svg" xpos (x + w - 26) ypos (y - 4) xzoom -1
+    add "assets/gui/menu/illustrated/archive/photo_corner.svg" xpos (x - 4) ypos (y + h - 26) yzoom -1
+    add "assets/gui/menu/illustrated/archive/photo_corner.svg" xpos (x + w - 26) ypos (y + h - 26) xzoom -1 yzoom -1
 
 # -----------------------------------------------------------------------------
 # HUB MINI-CG
@@ -596,31 +514,23 @@ screen archive_shell_brackets():
 # need room for interactions, so every module now gets a 16:9 window while the
 # 250x230 card and the surrounding 4+3 wall remain exactly the same size.
 # Production art is stored at 384x216 (2x this window) for clean downsampling.
-# The frame stays code-drawn so locked and unlocked modules share one silhouette,
-# and so the art itself remains reusable without Archive-specific chrome baked in.
+# A fine mount keeps the mini-CGs reusable without catalogue marks baked in.
 # -----------------------------------------------------------------------------
 screen archive_module_thumbnail(img, unlocked):
     fixed:
         xysize (192, 108)
         xalign 0.5
 
-        add Solid("#02050a") xysize (192, 108)
-
         if unlocked and img:
             add Transform(img, xysize=(192, 108), fit="contain")
         else:
-            add Transform(
-                "assets/dump/unavailable_icon_placeholder.png",
-                xysize=(72, 108),
-                fit="contain"):
-                xalign 0.5
-                at enter_m_locked_flicker
+            add "assets/gui/menu/illustrated/archive/sealed_record.svg"
 
-        $ _amt_rule = "#56d7ff99" if unlocked else "#33414d"
-        add Solid(_amt_rule) xysize (192, 2)
-        add Solid(_amt_rule) xysize (192, 2) ypos 106
-        add Solid(_amt_rule) xysize (2, 108)
-        add Solid(_amt_rule) xysize (2, 108) xpos 190
+        $ _amt_rule = "#71496688" if unlocked else "#8d788b"
+        add Solid(_amt_rule) xysize (192, 1)
+        add Solid(_amt_rule) xysize (192, 1) ypos 107
+        add Solid(_amt_rule) xysize (1, 108)
+        add Solid(_amt_rule) xysize (1, 108) xpos 191
 
 # -----------------------------------------------------------------------------
 # THE ARCHIVE SCREEN (main hub)
@@ -636,12 +546,12 @@ screen archive():
     # The archive theme is asked for HERE rather than later, because the ask has
     # to happen in the same interaction that starts the move: the main-menu
     # track then fades out across the black beat of enter_m_menu_shutter and
-    # roster_place starts, at full volume, on the frame this screen appears.
+    # archive starts, at full volume, on the frame this screen appears.
     # See menu_transitions.rpy section 6.
-    on "show" action [EnterMMenuMusic(audio.roster_place), Function(archive_sync_panel_cgs), Function(ach_refresh)]
-    on "replace" action [EnterMMenuMusic(audio.roster_place), Function(archive_sync_panel_cgs), Function(ach_refresh)]
+    on "show" action [EnterMMenuMusic(audio.archive), Function(archive_sync_panel_cgs), Function(ach_refresh)]
+    on "replace" action [EnterMMenuMusic(audio.archive), Function(archive_sync_panel_cgs), Function(ach_refresh)]
 
-    use archive_backdrop
+    use illustrated_menu_backdrop("archive")
 
     # Back/Escape both bail out: restore menu BGM, then Return() to the caller.
     # The track is handed over with a fade rather than cut -- see section 6 of
@@ -668,11 +578,11 @@ screen archive():
             # Reuse the header defined above; its Return mirrors the key actions.
             use archive_header("ARCHIVE", [EnterMMenuMusic(audio.mainmenu), Return()])
 
-            # Subsystem readout + accent rail -- the same strip every sub-screen
+            # Collection census and accent rule -- the same strip every sub-screen
             # uses, so the hub is styled by the same definition it exports.
             use archive_readout(
-                "ARCHIVE SUBSYSTEM // %d/%d MODULES ONLINE" % (a_online, a_total),
-                "SIGNAL LOCKED // 0x4D",
+                "THE COLLECTION / %d OF %d ROOMS OPEN" % (a_online, a_total),
+                "STORY / ART / MEMORY",
                 1100)
 
             # Card wall, 4 across. Chunked into rows here rather than handed to
@@ -706,9 +616,10 @@ screen archive():
                             $ a_label, a_key, a_action, a_icon = item
                             $ a_unlocked = archive_is_unlocked(a_key)
                             $ a_delay = i * 0.07   # staggered entrance delay per card
-                            $ a_id = "MOD_%02d" % (i + 1)
+                            $ a_id = "NO. %02d" % (i + 1)
 
                             button:
+                                id ("archive_module_%02d" % (i + 1))
                                 style "archive_item_button"
                                 at archive_card_anim(a_delay)
 
@@ -737,42 +648,43 @@ screen archive():
                                             # Static status is enough here; seven
                                             # independent blink loops added motion
                                             # without conveying changing state.
-                                            add Solid("#56d7ff") xysize (7, 7) xanchor 1.0 xpos 214 yalign 0.5
+                                            add Solid("#714966") xysize (6, 6) rotate 45 xanchor 1.0 xpos 214 yalign 0.5
                                         else:
-                                            add Solid("#4f5b67") xysize (7, 7) xanchor 1.0 xpos 214 yalign 0.5
+                                            add Solid("#99878e") xysize (6, 6) rotate 45 xanchor 1.0 xpos 214 yalign 0.5
 
-                                    add Solid("#56d7ff" if a_unlocked else "#33414d"):
+                                    add Solid("#71496688" if a_unlocked else "#99878e66"):
                                         xsize 214
                                         ysize 2
 
-                                    # Both states use the same landscape mini-CG frame;
-                                    # a locked module swaps its art for the flickering X.
+                                    # The sealed-book engraving conceals locked art.
                                     use archive_module_thumbnail(a_icon, a_unlocked)
 
-                                    # Visual fork: real label + AVAILABLE vs. ??? + LOCKED.
+                                    # The title stays legible while the contents remain
+                                    # sealed. Music Room is the only gated whole room.
                                     if a_unlocked and a_icon:
                                         text a_label style "archive_item_text" xalign 0.5
-                                        text "AVAILABLE" style "archive_item_status" xalign 0.5
+                                        text "OPEN COLLECTION" style "archive_item_status" xalign 0.5
                                     else:
-                                        text "???" style "archive_locked_text" xalign 0.5
-                                        text "LOCKED" style "archive_locked_status" xalign 0.5
+                                        text a_label style "archive_locked_text" xalign 0.5
+                                        text ("FINISH CHAPTER 0.5 TO OPEN" if a_key == "archive_unlocked_music" else "NOT YET AVAILABLE") style "archive_locked_status" xalign 0.5
 
-            # Subsystem footer status line.
+            # The catalogue's colophon.
             fixed:
                 xsize 1100
                 ysize 16
 
-                add Solid("#345a6b") xysize (5, 5) xpos 0 yalign 0.5
-                text "ARCHIVE.SYS :: STATUS NOMINAL" style "archive_footer_text" xpos 13 yalign 0.5
-                text "CONNECTION STABLE" style "archive_footer_text" xanchor 1.0 xpos 1100 yalign 0.5
+                add Solid(IM_PLUM) xysize (5, 5) xpos 0 yalign 0.5
+                text "THE THINGS WE KEEP" style "archive_footer_text" xpos 13 yalign 0.5
+                text "ENTER M / THE ARCHIVE" style "archive_footer_text" xanchor 1.0 xpos 1100 yalign 0.5
 
-    # Console brackets framing the archive panel.
-    add enter_m_brackets(1160, 664, "#56d7ff7a", 24, 2) xpos 60 ypos 28
+    # Engraved corners framing the catalogue.
+    use archive_bookplate_corners(60, 28, 1160, 664)
 
     # Floating corner button: relaunch the opening movie. Uses call_in_new_context
     # so the OP plays in its own context and returns here cleanly (see the
     # enter_m_archive_replay_op label above).
     textbutton _("Replay OP"):
+        id "archive_replay_op"
         style "archive_corner_button"
         xalign 0.985
         yalign 0.025
@@ -784,10 +696,31 @@ screen archive():
                 pause 0.22
                 easeout 0.22 alpha 1.0 xoffset 0
 
+    # The Vault: the one room in here that isn't finished. Bottom-right,
+    # mirroring Replay OP in the top-right and in the same corner style,
+    # because it is an Archive door and should read as one. vault_open()
+    # hands the music over, greets a first-timer, and SHOWS the room over
+    # this screen rather than replacing it -- so leaving the Vault lands
+    # back here, not on the title. Guarded, so deleting addons/Vault/ takes
+    # the button with it. See addons/Vault/vault.rpy.
+    if renpy.has_screen("vault"):
+        textbutton _("The Vault"):
+            id "archive_vault"
+            style "archive_corner_button"
+            xalign 0.985
+            yalign 0.975
+            action Function(vault_open)
+            at transform:
+                on show:
+                    alpha 0.0
+                    xoffset 14
+                    pause 0.28
+                    easeout 0.22 alpha 1.0 xoffset 0
+
 # =============================================================================
 # STYLES
-# Visual theme for the archive. Color language: near-black panels (#050811 /
-# #07111d) with cyan (#56d7ff) accents and a red drop-shadow on titles. Several
+# The Archive is an engraved plum-and-paper catalogue. The hub's cards use
+# light ink stock; shared child shells retain cream-on-dark contrast. Several
 # styles use `is <parent>` to inherit and tweak (e.g. corner button is the
 # return button at a different size). archive_shell_frame / archive_panel* /
 # archive_sv_vscrollbar are shared building blocks the sub-screens reuse.
@@ -797,9 +730,7 @@ style archive_frame:
     yalign 0.5
     xsize 1160
     ysize 664
-    # The preservation-room art should remain legible through the shell while
-    # this dark plate keeps text and thumbnails comfortably separated from it.
-    background Solid("#050811c4")
+    background IM_DARK_PANEL
     padding (30, 22)
 
 style archive_shell_frame is archive_frame:
@@ -808,126 +739,108 @@ style archive_shell_frame is archive_frame:
     padding (24, 16)
 
 style archive_header_title_frame:
-    background Solid("#07111dcc")
-    padding (24, 12)
+    background None
+    padding (0, 0)
     yalign 0.5
 
 style archive_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 40
-    color "#f4fbff"
+    font gui.default_font
+    size 36
+    color IM_PAPER
     bold True
-    outlines [(2, "#02040b", 0, 0), (2, "#ff315bcc", 1, 1)]
+    outlines []
 
 style archive_item_button:
     xysize (250, 230)
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
-    selected_background Solid("#12314af2")
+    background "assets/gui/menu/illustrated/archive/catalogue_card_idle.svg"
+    hover_background "assets/gui/menu/illustrated/archive/catalogue_card_hover.svg"
+    selected_background "assets/gui/menu/illustrated/archive/catalogue_card_hover.svg"
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
     padding (18, 12)
 
 style archive_item_text:
-    font gui.interface_font
-    color "#dff8ff"
+    font gui.default_font
+    color IM_INK
     size 22
     xalign 0.5
     text_align 0.5
     bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    outlines []
 
 style archive_item_status:
     font gui.interface_font
-    color "#56d7ff"
-    size 12
+    color "#714966"
+    size 11
     xalign 0.5
     text_align 0.5
-    outlines [(1, "#02040b", 0, 0)]
+    kerning 0.8
+    outlines []
 
-style archive_locked_text:
-    font gui.interface_font
-    color "#687787"
-    size 26
-    xalign 0.5
-    text_align 0.5
-    bold True
-    outlines [(2, "#02040b", 0, 0)]
+style archive_locked_text is archive_item_text:
+    color "#6b5a67"
 
 style archive_locked_status is archive_item_status:
-    color "#4f5b67"
+    color "#766471"
+    size 10
+    kerning 0.0
 
-style archive_meta_text is gui_text:
+style archive_meta_text is default:
     font gui.interface_font
     size 12
-    color "#7fcfe0"
+    color IM_PLUM
     kerning 1.0
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
-style archive_footer_text is gui_text:
+style archive_footer_text is default:
     font gui.interface_font
     size 10
-    color "#5d7886"
+    color IM_MUTED
     kerning 1.0
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
-style archive_card_id is gui_text:
+style archive_card_id is default:
     font gui.interface_font
     size 11
-    color "#56d7ff"
+    color "#714966"
     kerning 1.0
-    outlines [(1, "#02040b", 0, 0)]
+    outlines []
 
 style archive_return_button:
     xsize 126
     ysize 42
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
+    background IM_RETURN_IDLE
+    hover_background IM_RETURN_HOVER
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
     padding (15, 8)
 
 style archive_return_button_text:
     font gui.interface_font
-    color "#dff8ff"
+    color IM_PAPER
     hover_color "#ffffff"
-    size 22
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    size 20
+    bold False
+    outlines []
 
 style archive_corner_button is archive_return_button:
     xsize 150
     ysize 38
-    background Solid("#07111dee")
-    hover_background Solid("#12314af2")
 
 style archive_corner_button_text is archive_return_button_text:
     size 18
 
 style archive_panel:
-    background Solid("#07101add")
+    background IM_DARK_PANEL
     padding (18, 18)
 
 style archive_sidebar_panel is archive_panel:
-    background Solid("#050811e8")
-
-style archive_panel_label:
-    font gui.interface_font
-    color "#f4fbff"
-    size 20
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-style archive_panel_small:
-    font gui.interface_font
-    color "#9fc9d6"
-    size 14
-    outlines [(1, "#02040b", 0, 0)]
+    background IM_DARK_PANEL
 
 style archive_sv_vscrollbar:
     xsize 6
-    base_bar Frame(Solid("#102338"), 0, 0, 0, 0)
-    thumb Frame(Solid("#56d7ff"), 2, 2, 2, 2)
+    base_bar Frame(Solid("#4b4350"), 0, 0, 0, 0)
+    thumb Frame(Solid(IM_PLUM), 2, 2, 2, 2)
     unscrollable "hide"
 
 # Shared status-chip text styles. Draw a chip as a small frame with a Solid
@@ -961,24 +874,3 @@ style archive_chip_off_text:
     color "#6f7d88"
     bold True
     outlines [(1, "#02040b", 0, 0)]
-
-# -----------------------------------------------------------------------------
-# PLACEHOLDER SCREENS
-# The CG Gallery screen referenced by the "CG Gallery" card is NOT here; it is
-# defined in addons/CG View/cg_gallery.rpy. poem_archive below is a stub
-# "coming soon" screen kept for future use.
-# -----------------------------------------------------------------------------
-# Placeholder screens for features
-# CG Gallery screen is defined in addons/CG View/cg_gallery.rpy
-
-screen poem_archive():
-    tag menu
-    frame:
-        xalign 0.5
-        yalign 0.5
-        padding (50, 50)
-
-        vbox:
-            text "Poem Archive - Coming Soon" size 32
-            null height 20
-            textbutton "Return" action Return()

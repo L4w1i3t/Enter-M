@@ -1,28 +1,9 @@
-# =============================================================================
-# Phone Calls  --  INCOMING-CALL + ACTIVE-CALL TRANSCRIPT screens
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   The voice-call half of the phone: a ringing/incoming screen (answer/decline)
-#   and an active-call screen that plays the conversation line-by-line. Builds on
-#   the shared chassis (phone_model_construct.rpy) and reuses helpers from
-#   text.rpy (phone_contact_initials, phone_current_date_label).
-#
-# LAYOUT
-#   The RINGING screen is centred -- a phone going off is the only thing
-#   happening. Once the call connects the handset moves to the LEFT edge and the
-#   conversation is read in the space beside it, one line at a time, over the
-#   scene the player is still standing in. See phone_active_call_screen.
-#
-# PUBLIC API (story labels)
-#   call phone_call(contact, status=, can_decline=, date_label=)
-#       -> shows the incoming-call screen; returns "answer" | "decline" | "dismiss".
-#   call phone_call_conversation(contact, lines, status=, date_label=)
-#       -> plays a transcript (tap to advance); returns "end" (or nothing if empty).
-#   Line builders: phone_call_line(sender, body, time=), phone_call_note(body)
-#       [sender is "me" | "them" | "system"].
-#   (See docs/addons/ADDON_CHEATSHEET.md for usage; not used in s1 story yet.)
-# =============================================================================
+# Voice calls on the shared phone chassis.
+# phone_call(contact, ...) returns answer/decline/dismiss from the ringing screen;
+# phone_call_conversation(contact, lines, ...) advances the connected transcript.
+# Build lines with phone_call_line(sender, body, time=) or phone_call_note(body).
+# The ringing handset is centered; connected calls move left beside the transcript.
+# Contact/date helpers are shared with text.rpy, transcript data with facetime.rpy.
 
 init -2 python:
     # --- side-by-side call layout --------------------------------------------
@@ -70,15 +51,36 @@ init -1 python:
                 if close == -1:
                     yield markup[index:], True
                     return
-                yield markup[index:close + 1], False   # a tag: whole, uncounted
+                chunk = markup[index:close + 1]
+                # Inline images occupy one visible character. Treating them
+                # as formatting made an emoji appear before its reveal tick.
+                yield chunk, chunk.startswith("{image=")
                 index = close + 1
             elif markup[index] == "[":
-                close = markup.find("]", index)
-                if close == -1:
+                # Interpolation can contain nested indexing and quoted closing
+                # brackets, such as [people[0].name] or [names['a]b']]. A first-
+                # closing-bracket search would reveal an invalid expression.
+                close, depth, quote = index + 1, 1, None
+                while close < length and depth:
+                    character = markup[close]
+                    if quote:
+                        if character == "\\":
+                            close += 2
+                            continue
+                        if character == quote:
+                            quote = None
+                    elif character in ("'", '"'):
+                        quote = character
+                    elif character == "[":
+                        depth += 1
+                    elif character == "]":
+                        depth -= 1
+                    close += 1
+                if depth:
                     yield markup[index:], True
                     return
-                yield markup[index:close + 1], True    # an interpolation: whole
-                index = close + 1
+                yield markup[index:close], True        # an interpolation: whole
+                index = close
             else:
                 yield markup[index], True
                 index += 1
@@ -88,8 +90,8 @@ init -1 python:
 
     def phone_reveal_markup(markup, count):
         # The first `count` visible characters of `markup`, tags kept intact.
-        # (Phone bodies only ever carry self-closing {image=...} tags, so there
-        # is never an open tag left dangling by cutting here.)
+        # Ren'Py closes formatting tags at the end of a text block, so a
+        # partially revealed emphasis span is valid as well.
         if not markup:
             return ""
         shown, out = 0, []
@@ -139,8 +141,8 @@ init -1 python:
         return phone_current_date_label() or ""
 
 
-# Incoming-call screen: big avatar + name + status, and either Answer/Decline
-# buttons (can_decline) or a "tap to answer" prompt. Returns via Return("...").
+# Incoming-call screen: avatar, name, status, and an explicit Answer button.
+# Optional calls also expose Decline. Returns via Return("...").
 screen phone_call_screen(contact_name, status="Calling...", date_label=None, can_decline=True):
     modal True
     zorder 230
@@ -148,40 +150,62 @@ screen phone_call_screen(contact_name, status="Calling...", date_label=None, can
     $ _dismiss_action = Return("dismiss") if can_decline else Return("answer")
     $ _phone_date_label = phone_call_date_label(date_label)
 
-    use phone_device(screen_fill="#101722", status_clock=_phone_date_label):
+    use phone_device(screen_fill="#141820", status_clock=_phone_date_label):
+
+        text "INCOMING CALL" style "phone_call_eyebrow":
+            xalign 0.5
+            ypos 94
 
         fixed:
             xalign 0.5
-            ypos 128
-            xysize (104, 104)
+            ypos 157
+            xysize (116, 116)
 
-            use phone_avatar(contact_name, 104, "phone_call_avatar_text")
+            use phone_avatar(contact_name, 116, "phone_call_avatar_text")
 
-        text contact_name style "phone_call_contact":
+        text phone_safe_text(contact_name) style "phone_call_contact":
             xalign 0.5
-            ypos 256
+            ypos 302
+            xmaximum 302
 
-        text status style "phone_call_status":
+        text phone_safe_text(status) style "phone_call_status":
             xalign 0.5
-            ypos 294
+            ypos 349
+            xmaximum 302
 
-        if can_decline:
-            hbox:
-                xalign 0.5
-                ypos 510
-                spacing 50
+        hbox:
+            xalign 0.5
+            ypos 497
+            spacing 22
 
-                textbutton "Decline":
+            if can_decline:
+                button:
+                    id "phone_call_decline"
                     style "phone_call_decline_button"
                     action Return("decline")
+                    alt "Decline call"
+                    hbox:
+                        xalign 0.5
+                        yalign 0.5
+                        spacing 8
+                        add phone_ui_icon("call_end", 20) yalign 0.5
+                        text "Decline" style "phone_call_button_text"
 
-                textbutton "Answer":
-                    style "phone_call_answer_button"
-                    action Return("answer")
-        else:
-            text "Tap to answer" style "phone_call_prompt":
-                xalign 0.5
-                ypos 530
+            button:
+                id "phone_call_answer"
+                style "phone_call_answer_button"
+                action Return("answer")
+                alt "Answer call"
+                hbox:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 8
+                    add phone_ui_icon("phone", 20) yalign 0.5
+                    text "Answer" style "phone_call_button_text"
+
+        text "Tap Answer to connect" style "phone_call_prompt":
+            xalign 0.5
+            ypos 573
 
     key "dismiss" action _dismiss_action
 
@@ -193,7 +217,7 @@ screen phone_call_screen(contact_name, status="Calling...", date_label=None, can
 # fifty-line call had to be scrolled through at four words a line, while the
 # rest of the screen sat empty. It is now laid out the way the call actually
 # divides -- the handset is pushed to the left edge and shows what a phone
-# shows during a call (who, how long, and the button that ends it), and the
+# shows during a call (who, how long, and a reading control), and the
 # talking happens beside it at reading size, one line at a time like any other
 # conversation in the game.
 #
@@ -214,7 +238,7 @@ screen phone_active_call_screen(contact_name, lines, start_line_index=0, status=
     $ _phone_date_label = phone_call_date_label(date_label)
     $ _all_lines = lines or []
     $ _line_total = len(_all_lines)
-    $ _index = min(line_index, _line_total - 1) if _line_total else 0
+    $ _index = max(0, min(line_index, _line_total - 1)) if _line_total else 0
     $ _line = _all_lines[_index] if _line_total else None
     $ _sender = _line.get("sender", "them") if _line else "system"
     $ _is_note = (_sender == "system")
@@ -232,12 +256,12 @@ screen phone_active_call_screen(contact_name, lines, start_line_index=0, status=
     $ _advance_action = _next_line_action if _line_done else SetScreenVariable("reveal_chars", _body_length)
 
     use phone_device(
-        screen_fill="#101722",
+        screen_fill="#141820",
         status_clock=_phone_date_label,
         device_xalign=PHONE_CALL_DEVICE_XALIGN,
         scrim=PHONE_CALL_SCRIM):
 
-        use phone_in_call_face(contact_name, phone_call_clock(call_seconds), _advance_action)
+        use phone_in_call_face(contact_name, phone_call_clock(call_seconds), _advance_action, _complete and _line_done, status)
 
     # --- the conversation, read beside the handset ---------------------------
     fixed:
@@ -268,7 +292,7 @@ screen phone_active_call_screen(contact_name, lines, start_line_index=0, status=
         # Advance chevron, bottom right, exactly where the say screen puts one.
         # Only once there is nothing left to say.
         if _line_done:
-            text "‣" style "phone_call_advance" at phone_call_advance_blink:
+            add phone_ui_icon("chevron", 26, "#cfe0f5") at phone_call_advance_blink:
                 xanchor 1.0
                 xpos PHONE_CALL_TEXT_WIDTH - 44
                 ypos 668
@@ -286,78 +310,69 @@ screen phone_active_call_screen(contact_name, lines, start_line_index=0, status=
     key "skip" action _advance_action
 
 
-# The handset's own display during a call: who you are talking to, how long it
-# has been, and the button that hangs up. Deliberately NOT the transcript --
-# that is what the right-hand side of the screen is for.
-screen phone_in_call_face(contact_name, clock_text, end_action):
+# The handset follows the transcript's actual action: Continue while there is
+# more to read, End call once the last line has finished revealing.
+screen phone_in_call_face(contact_name, clock_text, advance_action, can_end=False, status="Connected"):
 
-    text contact_name style "phone_in_call_contact":
+    text "VOICE CALL" style "phone_call_eyebrow":
         xalign 0.5
-        ypos 118
-        xmaximum 300
+        ypos 96
 
-    text clock_text style "phone_in_call_clock":
+    text phone_safe_text(contact_name) style "phone_in_call_contact":
         xalign 0.5
-        ypos 152
+        ypos 145
+        xmaximum 302
+
+    hbox:
+        xalign 0.5
+        ypos 190
+        spacing 10
+
+        add phone_ui_icon("phone", 16, "#a9bdf5"):
+            yalign 0.5
+
+        text (phone_safe_text(status) + "  ·  " + clock_text) style "phone_in_call_clock":
+            xmaximum 272
 
     fixed:
         xalign 0.5
-        ypos 226
+        ypos 265
         xysize (132, 132)
 
         use phone_avatar(contact_name, 132, "phone_call_avatar_text")
 
-    button:
-        style "phone_hangup_button"
+    text ("Call complete" if can_end else "Conversation in progress") style "phone_call_prompt":
         xalign 0.5
-        ypos 497
-        action end_action
+        ypos 451
 
-        fixed:
-            xysize (58, 58)
+    use phone_call_progress_button(advance_action, can_end, 504)
 
-            add PhonePanel(58, 58, "#f4566b", bottom="#d3283f", radius=29)
+    text ("Ready to hang up" if can_end else "Click or press Space to continue") style "phone_call_prompt":
+        xalign 0.5
+        ypos 574
 
-            fixed:
-                xysize (30, 30)
-                xalign 0.5
+
+screen phone_call_progress_button(advance_action, can_end=False, button_y=548):
+    button:
+        id "phone_call_progress"
+        style "phone_call_progress_button"
+        xalign 0.5
+        ypos button_y
+        background phone_ui_surface("call_end" if can_end else "outgoing")
+        hover_background phone_ui_surface("call_end_hover" if can_end else "surface_hover")
+        action advance_action
+
+        hbox:
+            xalign 0.5
+            yalign 0.5
+            spacing 12
+
+            add phone_ui_icon("call_end" if can_end else "chevron", 22, "#ffffff"):
                 yalign 0.5
-                at phone_hangup_tilt
 
-                use phone_handset_glyph("#ffffff")
-
-
-# A telephone handset drawn out of three rounded plates: the grip and the two
-# bells. Tilted by phone_hangup_tilt at the call site, which is what turns it
-# from "call" into "hang up".
-screen phone_handset_glyph(color="#ffffff"):
-    # Grip along the top, earpiece and mouthpiece hanging off it at the ends.
-    #
-    # THE ONE THING THAT MATTERS: the two bells flare to ONE SIDE of the grip
-    # only -- the side that goes against your face. Centre them on the grip so
-    # they stand out above and below equally and the silhouette stops being a
-    # telephone and becomes a dumbbell.
-    add PhonePanel(24, 6, color, radius=3):
-        xpos 3
-        ypos 5
-    add PhonePanel(11, 14, color, radius=4):
-        xpos 0
-        ypos 5
-    add PhonePanel(11, 14, color, radius=4):
-        xpos 19
-        ypos 5
+            text ("End call" if can_end else "Continue") style "phone_call_button_text"
 
 
-# rotate_pad keeps the tilted glyph from being cropped by its own box.
-#
-# 225 is not arbitrary -- it is the only tilt at which this silhouette reads as
-# a telephone. Compared side by side at 4x: flat it is a staple, and at the
-# 133/135 the hang-up icon conventionally uses it turns into a tick mark. The
-# red disc behind it is what says "end"; the glyph only has to say "phone".
-transform phone_hangup_tilt:
-    subpixel True
-    rotate_pad True
-    rotate 225
 
 transform phone_call_advance_blink:
     alpha 1.0
@@ -368,78 +383,82 @@ transform phone_call_advance_blink:
 
 
 style phone_call_avatar_text:
-    font gui.name_font
+    font PHONE_UI_FONT
     size 38
     color "#ffffff"
     bold True
     outlines [(2, "#00000066", 0, 0)]
 
 style phone_call_contact:
-    font gui.name_font
-    size 30
+    font PHONE_UI_FONT
+    size 29
     color "#f8fafc"
     text_align 0.5
-    outlines [(2, "#000000", 0, 0)]
+    outlines []
 
 style phone_call_status:
-    font gui.interface_font
-    size 17
-    color "#aab2c0"
+    font PHONE_UI_FONT
+    size 16
+    color "#bcc4d4"
     text_align 0.5
     outlines []
 
 style phone_call_prompt:
-    font gui.interface_font
-    size 15
-    color "#a8b3c7"
-    bold True
+    font PHONE_UI_FONT
+    size 12
+    color "#aeb8ca"
     text_align 0.5
     outlines []
 
+style phone_call_eyebrow is phone_call_prompt:
+    size 12
+    color "#b8c7ef"
+    kerning 1.5
+
 style phone_call_button is button:
-    xysize (112, 50)
+    xysize (132, 54)
     padding (0, 0)
 
 style phone_call_button_text is button_text:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 15
     color "#ffffff"
     bold True
     xalign 0.5
     yalign 0.5
     text_align 0.5
-    outlines [(1, "#00000066", 0, 0)]
+    outlines []
 
 style phone_call_decline_button is phone_call_button:
-    background PhonePanel(112, 50, "#d23b4e", bottom="#b32638", radius=25)
-    hover_background PhonePanel(112, 50, "#e8485c", bottom="#c92f43", radius=25)
+    background phone_ui_surface("call_end")
+    hover_background phone_ui_surface("call_end_hover")
 
 style phone_call_decline_button_text is phone_call_button_text
 
 style phone_call_answer_button is phone_call_button:
-    background PhonePanel(112, 50, "#34b869", bottom="#1f9b51", radius=25)
-    hover_background PhonePanel(112, 50, "#42cc78", bottom="#2aae5e", radius=25)
+    background phone_ui_surface("call_accept")
+    hover_background phone_ui_surface("call_accept_hover")
 
 style phone_call_answer_button_text is phone_call_button_text
 
 # --- the handset's in-call display ------------------------------------------
 
 style phone_in_call_contact:
-    font gui.name_font
+    font PHONE_UI_FONT
     size 27
     color "#f8fafc"
     text_align 0.5
-    outlines [(2, "#000000", 0, 0)]
+    outlines []
 
 style phone_in_call_clock:
-    font gui.interface_font
+    font PHONE_UI_FONT
     size 14
     color "#94a1b8"
     text_align 0.5
     outlines []
 
-style phone_hangup_button is button:
-    xysize (58, 58)
+style phone_call_progress_button is button:
+    xysize (184, 52)
     padding (0, 0)
     background None
     hover_sound gui.hover_sound
@@ -471,25 +490,11 @@ style phone_call_note_line:
     italic True
     outlines [(2, "#000000", 0, 0)]
 
-# The advance arrow is U+2023 (TRIANGULAR BULLET) in the INTERFACE font, and
-# that pairing is not a matter of taste -- it is the only combination in the
-# project that draws. Measured against all three fonts: every U+25Bx arrow
-# (25B6/25B8/25BA/25B7) is a tofu box in ALL of them, and the default dialogue
-# font (Myanmar) has no arrow glyph whatsoever. NovaSquare renders 2023 as the
-# solid right-pointing triangle we actually want. Change either half of this
-# and you get a hollow rectangle.
-style phone_call_advance:
-    font gui.interface_font
-    size 26
-    color "#cfe0f5"
-    outlines [(2, "#000000", 0, 0)]
-
-
 # PUBLIC: show the incoming-call screen; returns "answer"/"decline"/"dismiss".
 label phone_call(contact_name, status="Calling...", clock_text=None, can_decline=True, date_label=None):
     $ _phone_call_date_label = phone_call_date_label(date_label)
     # Ring on the dedicated looping channel until the player answers/declines.
-    $ renpy.music.play(audio.phone_ringtone, channel="phone_ring", loop=False)
+    $ renpy.music.play(audio.phone_ringtone, channel="phone_ring", loop=True)
     call screen phone_call_screen(contact_name, status, _phone_call_date_label, can_decline)
     $ renpy.music.stop(channel="phone_ring")
     $ _phone_call_result = _return

@@ -1,4 +1,4 @@
-##### ENGINE SETTINGS FOR YOUR MOD #####
+# ENTER M engine and distribution settings.
 
 # Runtime art now lives in category-specific directories and is explicitly
 # declared. Disable Ren'Py's single-directory basename scan: pointing it at the
@@ -10,23 +10,22 @@ init -999 python:
     config.images_directory = None
     config.search_prefixes = ["", "assets/"]
 
-# The formal name of the mod. Change the value of this to your mod's name
+# Displayed project name and release version.
 define config.name = "ENTER-M"
 
-# The version of the mod
-define config.version = "0.1.0"
+define config.version = "0.17.0"
 
-# The description of the mod. Typically not used, but you can set it to whatever you want
+# Optional About-screen description.
 define gui.about = _("")
 
-# What your mod's filename will be called when it is built
+# Distribution basename.
 define build.name = "ENTER-M"
 
 # Toggles for different audio features.
 define config.has_sound = True
 define config.has_music = True
 define config.has_voice = False
-define config.main_menu_music = audio.mainmenu   # Set this to whatever you want the main menu music to be
+define config.main_menu_music = audio.mainmenu
 
 # The transitions BETWEEN MENUS (enter/exit/intra/game_main/end_game) live in
 # menu_transitions.rpy, next to the choreographies they are built from. The
@@ -73,6 +72,7 @@ init python:
     config.statement_callbacks.append(_enter_m_rearm_window_auto)
 
 # Default text speed and auto-forward mode timing
+# NUDGE DECIDE 10.5: default is 50 cps but the "Normal" preset is 60. Pick one (plan suggests 60); screens.rpy's reset-to-defaults also writes 50.
 default preferences.text_cps = 50          # Characters per second (bigger number = faster text)
 default preferences.afm_time = 15          # Auto-forward mode wait time
 
@@ -80,8 +80,7 @@ default preferences.afm_time = 15          # Auto-forward mode wait time
 default preferences.music_volume = 1.0
 default preferences.sfx_volume = 1.0
 
-# Save directory - change to match your mod's name. This is located in AppData/Roaming/Matsu'Py/ on Windows
-# and in ~/.renpy/ on Linux.
+# Save identity resolved by the installed MatsuPy launcher.
 define config.save_directory = "ENTERM"
 
 # Window icon that appears in your taskbar
@@ -97,7 +96,7 @@ define config.autosave_slots = 0
 define config.layers = [ 'master', 'cinematic', 'transient', 'screens', 'overlay', 'front' ]
 
 # Performance settings
-define config.image_cache_size = 64        # Number of images kept in active memory (higher = more memory usage)
+define config.image_cache_size = 64        # Cache budget in screen-sized images, not a file count.
 define config.predict_statements = 50      # How many statements to look ahead
 define config.rollback_enabled = config.developer  # Only enable rollback in dev mode
 
@@ -106,38 +105,46 @@ define config.menu_clear_layers = ["front"]
 define config.gl_test_image = "white"
 
 init python:
-    # Removes persistent data from other Matsu'Py games
-    if len(renpy.loadsave.location.locations) > 1: del(renpy.loadsave.location.locations[1])
+    # Keep the launcher's primary save location; omit its secondary sync location.
+    # This changes the active locations, not the files already on disk.
+    if len(renpy.loadsave.location.locations) > 1:
+        del renpy.loadsave.location.locations[1]
 
     # Disables gamepad support
     renpy.game.preferences.pad_enabled = False
 
     # Function to replace plain dashes with proper em dashes
-    def replace_text(s):
-        s = s.replace('--', u'\u2014')
-        s = s.replace(' - ', u'\u2014')
-        return s
+    def replace_text(text):
+        return text.replace('--', u'\u2014').replace(' - ', u'\u2014')
     config.replace_text = replace_text
 
-    # Function to handle game menu access
+    # Function to handle game menu access.
+    #
+    # Escape opens `_game_menu_screen`, and in play that name has exactly two
+    # legitimate values: the engine's own default (captured at the bottom of
+    # this file, after init) and None, which a game mode sets to switch the
+    # pause OFF for the length of a fight. Anything else is some menu screen's
+    # name that escaped from a menu. The title-screen leak that did that is
+    # now scoped away at the source (before_main_menu, splash.rpy) -- but a
+    # save written before that fix still carries the name, so it is put back
+    # here, on the only path that reads it outside a menu. None is left alone.
     def game_menu_check():
-        if quick_menu: renpy.call_in_new_context('_game_menu')
+        if not quick_menu:
+            return
+
+        default_menu_screen = ENTER_M_GAME_MENU_DEFAULT
+        if (default_menu_screen is not None
+                and store._game_menu_screen is not None
+                and store._game_menu_screen != default_menu_screen):
+            store._game_menu_screen = default_menu_screen
+
+        renpy.call_in_new_context('_game_menu')
 
     config.game_menu_action = game_menu_check
 
 init python:
-    # Build settings - defines how files are packaged when building your mod
-    # Usually you won't need to change this, but it's here for reference
-
-    # Define the archives (packages) that will contain your mod's files
-    # NOTE FROM MODCEN: WHEN INSTALLING MODS, BE SURE TO ADD ALL OF THESE COMMENTED OUT RPA ARCHIVES TO THE GAME FOLDER
-    # EXCEPT FOR scripts.rpa.
-    # OTHERWISE THE MOD WILL NOT WORK. LIKE, AT ALL.
-    # build.archive("scripts", "all")
-    # build.archive("images", "all")
-    # build.archive("audio", "all")
-    # build.archive("fonts", "all")
-    build.archive("mod", "all") # Custom archive to differentiate between mod files and vanilla files
+    # Runtime content is classified into the project's mod archive.
+    build.archive("mod", "all")
 
     # Build classification. build.classify is FIRST-MATCH-WINS, so all excludes
     # are grouped ABOVE the includes -- otherwise catch-all dir includes (e.g.
@@ -149,18 +156,22 @@ init python:
     build.classify("/docs/**", None)            # developer docs, including .txt guides
     build.classify("game/**.md", None)          # READMEs, cheatsheets, critiques
     build.classify("/**.md", None)
-    build.classify("game/assets/archive/**", None) # source/reference asset archive
     build.classify("game/assets/**.txt", None) # asset READMEs and vendor notes
     build.classify("/.claude/**", None)
     build.classify("/.agents/**", None)
-    build.classify("/vanilla/**", None)         # DDLC reference dump; not loaded at runtime
-    build.classify("/tools/**", None)           # dev/build scripts
+    build.classify("/dev/**", None)             # authoring drafts, rollback archives, maintenance evidence
+    build.classify("/tmp/**", None)             # isolated QA runs and SDK copies
     build.classify("**sync-conflict**", None)   # Syncthing conflict copies
     # Dev tools (gated by config.developer, never run in release). Do NOT exclude
     # dev.rpy -- it also defines runtime state (player name, singleton, defaults).
     build.classify("/game/addons/Dev Hub/**", None)
+    build.classify("/game/addons/Story Writer/**", None)
+    build.classify("/game/python-packages/story_writer_**", None)
     build.classify("/game/addons/Developer Date Jump/**", None)
-    build.classify("/game/story/dev_scene_manager.rpyc", None)  # rough unplaced scratch scenes
+    build.classify("/game/addons/Asahina Rhythm/chart_editor.rpyc", None)
+    build.classify("/game/addons/Asahina Rhythm/charts/exports/**", None)
+    build.classify("/game/python-packages/asahina_rhythm_editor.py", None)
+    build.classify("/game/python-packages/asahina_rhythm_editor.pyc", None)
     build.classify("/game/story/out_of_context/**", None)       # dated dev-only preview scenes
     # Backups / editor / OS junk (can appear in any subdir).
     build.classify("**~", None)
@@ -181,16 +192,20 @@ init python:
     build.classify("/errors.txt", None)
     build.classify("/log.txt", None)
     build.classify("/**.bat", None)
-    build.classify("script-regex.txt", None)
-    build.classify("/music/*.*", None)
-    build.classify("/game/10", None)
     build.classify("/game/firstrun", None)
     build.classify("/game/cache/*.*", None)
     build.classify("/game/**.rpa", None)
     build.classify("/game/saves/**", None)
-    # NOTE: root characters/ is NOT excluded -- it holds the only copies of the
 
+    # NUDGE P5: nothing references assets/audio/sfx/kangaroo_court/ (checked Oct 12), so excluding it is free. Uncomment:
+    # build.classify("game/assets/audio/sfx/kangaroo_court/**", None)
+    # NUDGE P5: sfx/touhou/ IS played by six side modes (Arcade, Invasions, Asarhythm, gacha, Kotonoha, Tsubaki); excluding it silences them (no crash):
+    # build.classify("game/assets/audio/sfx/touhou/**", None)
     # --- Includes (only reached by files that survived the excludes) ---
+    # MatsuPy's importer reads python-packages through its archive loader. Its
+    # protected build converts this source to the corresponding protected .pyc.
+    # The chart editor module remains developer-only.
+    build.classify("game/python-packages/asahina_rhythm_core.py", "mod")
     build.classify("game/**.jpg", "mod")
     build.classify("game/**.png", "mod")
     build.classify("game/**.webp", "mod")
@@ -215,3 +230,11 @@ init python:
     build.include_old_themes = False
 
     build.package("Mod Export (All Platforms)", "zip", "windows mac linux renpy all")
+
+# The pause menu's destination exactly as the engine set it during init:
+# gui.init() -- called from gui.rpy at init offset -2 -- runs layout.defaults(),
+# which names the save screen. Read here at init 999, after every init block
+# in the project, so it is the pristine value and never one a menu wrote.
+# game_menu_check() above heals back to it.
+init 999 python:
+    ENTER_M_GAME_MENU_DEFAULT = _game_menu_screen

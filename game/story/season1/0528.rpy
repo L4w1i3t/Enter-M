@@ -5,369 +5,365 @@ label a0528:
     $ show_calendar()
     $ atmos("afternoon")
     with dissolve_scene_full
-    play music quiz
+    play music exam
     # Day 3: morning College Algebra, afternoon English.
     $ exam_guard_checkpoint_or_jump("algebra", "exam_start", "a0528_algebra_save_scum")
-    "Third day of exams."
+    "By day three, sitting down at this desk feels less like arriving and more like picking up something I left half-finished overnight."
     if persistent.exam_save_scum_subjects:
-        "The word third should mean progress."
-        "Instead, it means I have had two nights to imagine the school office turning my name into a conversation."
-        "Mom knowing has not made the fear smaller."
-        "It has only given the fear a chair at the table."
-        "{i}Math, finally.{/i}"
-        "{i}Please let me not make this worse.{/i}"
+        "The last day should mean almost done, but my hand stalls on the pencil-case zipper while last night's silence comes back."
+        "{i}Math, finally. Please, just let me get through one paper and not make anything worse.{/i}"
     else:
-        "{i}Math, finally.{/i}"
-        "{i}A walk in the park, says the part of me that should not be trusted with forecasts.{/i}"
+        "{i}Math, finally. This should be the easy part.{/i}"
+        "{i}... Says the part of me that has never once been trusted with a forecast.{/i}"
     # SFX SUGGESTION: A heavy exam packet landing flat on the desk.
-    "The thought dies the moment the algebra exam hits my desk at a page count that feels personal."
-    "College algebra does not threaten you directly."
-    "It simply places a rational expression in front of you and waits for arrogance to do the rest."
+    "The algebra packet lands flat on my desk, a few pages longer than I'd like."
     show math_teacher neut at t11
-    math_teacher "Read each question carefully."
-    math_teacher "If a value is excluded from a domain, I expect to see that exclusion respected."
-    math_teacher "Begin."
+    math_teacher "All right, everyone. One reminder before you start."
+    math_teacher "If the original domain excludes a value, it stays excluded after you simplify, and I expect to see that on the page."
+    math_teacher "Canceling a factor doesn't hand you a new function. Keep the {i}original{/i} domain in view."
+    math_teacher "You may begin."
     show math_teacher at thide
     hide math_teacher
     $ exam_guard_checkpoint_or_jump("algebra", "q1_open", "a0528_algebra_save_scum")
-    "{i}Question 1. What is the domain of f(x) equals (x plus 2) over (x squared minus 9)?{/i}"
+    "{i}Question 1. For g of x equals (x squared minus x minus 6) over (x squared minus 5x plus 6).{/i}"
+    "{i}Identify the discontinuities.{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "All real numbers except x equals -2.":
+        "A hole at 2 and a vertical asymptote at 3.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I mark it."
-        "All real numbers except x equals -3 and x equals 3.":
+            "I factor the denominator, write its first root beside {i}hole{/i}, and don't bother checking which factor actually canceled."
+        "A hole at 3 and an asymptote at 2. Both remain excluded.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "All real numbers except negative three and positive three."
-            "The denominator factors into x minus three and x plus three, and division by zero remains out of bounds."
-            "{i}Boundaries respected.{/i}"
-        "All real numbers.":
+            "The factor cancels out of the formula. Not out of the {i}original domain{/i}."
+            "So three stays excluded as the hole, and two stays the asymptote."
+        "Only 2 is excluded, because canceling x minus 3 restores 3.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I mark it and move on."
+            "Once it's simplified, the expression stops dividing by x minus three. I let that cancellation hand back an input the original function never allowed."
     $ exam_guard_checkpoint_or_jump("algebra", "q1_answered", "a0528_algebra_save_scum")
-    "The next few problems ask for transformations, intercepts, and one graph that looks like it got scared halfway through existing."
+    "I get through transformations and intercepts and reach the logarithms with plenty of room left on my scratch paper."
     $ exam_guard_checkpoint_or_jump("algebra", "q2_open", "a0528_algebra_save_scum")
-    "{i}Question 2. Solve log base 2 of (x minus 1) equals 4.{/i}"
+    "{i}Question 2. Solve log base 2 of (x minus 2), plus log base 2 of (x minus 4), equals 3.{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "x equals 17.":
+        "Combine the logs, reject 0 from the original domain, and keep x equals 6.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "x equals seventeen."
-            "If log base two of x minus one is four, then x minus one is sixteen."
-            "{i}The algebra behaves. I check it twice.{/i}"
-        "x equals 15.":
+            "The quadratic offers zero and six. The original logarithms throw zero straight back out."
+        "Keep both x equals 0 and x equals 6 because both solve the quadratic.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "The pencil goes down before I can talk myself back out of it."
-        "x equals 8.":
+            "The quadratic hands me two roots, so I keep both. Neither one ever has to report back to the logarithms that produced it."
+        "Add the inputs inside one logarithm and get x equals 7.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "It looks right enough at this speed."
+            "Somewhere in my head, the two logarithms merge into one, and I add their inputs instead of multiplying them. Seven appears."
     $ exam_guard_checkpoint_or_jump("algebra", "q2_answered", "a0528_algebra_save_scum")
-    "The third section gives me a quadratic in vertex form."
-    "I almost relax, then remember relaxation is how signs ambush people."
+    "The third section restricts a quadratic to half its graph, then asks me to reverse what's left."
     $ exam_guard_checkpoint_or_jump("algebra", "q3_open", "a0528_algebra_save_scum")
-    "{i}Question 3. For f(x) equals 2 times (x minus 3) squared minus 5, what is the vertex and does the graph open up or down?{/i}"
+    "{i}Question 3. For f of x equals 3 times (x plus 1) squared minus 2, restricted to x greater than or equal to negative 1.{/i}"
+    "{i}Choose its inverse.{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "Vertex (-3, -5), opens up.":
+        "Negative 1 minus the square-root branch. The domain starts at negative 2.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I circle it and keep going."
-        "Vertex (3, -5), opens down.":
+            "The square root opens up two directions, and I take the negative one. The original restriction had already kept the other half of the parabola."
+        "Negative 1 plus or minus both square-root branches.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "Good enough. Next question."
-        "Vertex (3, -5), opens up.":
+            "The plus-or-minus shows up on autopilot after the square root. I copy both branches and never ask whether the result is still a function."
+        "Negative 1 plus the square-root branch. The domain starts at negative 2.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "Vertex three, negative five, opens up."
-            "The coefficient is positive, so the parabola opens upward."
-            "{i}One sign behaving itself.{/i}"
+            "The original restriction keeps the {i}positive{/i} square-root branch, and the old range becomes the inverse's domain."
     $ exam_guard_checkpoint_or_jump("algebra", "q3_answered", "a0528_algebra_save_scum")
-    "The rest of the exam passes through functions, sequences, and one word problem that tries to disguise itself as a train schedule."
-    "I finish with five minutes left and spend four of them checking signs."
-    "The remaining minute is for staring at the wall and letting my hand stop clenching."
+    "The remaining functions and sequences go quickly until a word problem buries a simple recurrence under three different arrival times."
+    "I finish with five minutes to spare and spend four of them checking signs. The last one goes to staring at the wall while my hand remembers how to unclench."
 label a0528_after_algebra:
     $ hide_calendar()
     scene black with wipeleft_scene
     if persistent.did_save_scum_algebra:
-        nier "The morning session ends with a bell that does not release me."
-        nier "It only proves the room can move on from a public failure faster than the person inside it can."
-        nier "Outside the classroom, people compare answers immediately. I hear the number seventeen twice and feel my stomach fold around itself."
+        nier "The bell ends the morning session, but it doesn't let me go."
+        nier "Everyone else is packed by the time my hand agrees to move."
+        nier "Outside, people start comparing answers immediately, and by the second time somebody says {i}six{/i}, my stomach has folded in on itself."
     else:
-        nier "The morning session ends with a bell and the particular relief of surviving a subject that can punish you for a single missing minus sign."
-        nier "Outside the classroom, people compare answers immediately. I hear the number seventeen twice and decide that is all the validation I am emotionally prepared to receive."
+        nier "The bell sounds unusually merciful after a subject where one missing minus sign can sink a whole page."
+        nier "The exam follows us into the hall anyway."
+        nier "Somebody says {i}six{/i} in three different conversations. Another student argues for zero."
+        nier "I bury both hands in my pockets and keep walking."
     call nier_clear from _call_nier_clear_0528_1
+    stop music fadeout 1.0
     pause 2.0
     scene bg corridor
     $ show_calendar()
     $ atmos("afternoon")
-    stop music fadeout 1.0
     with wipeleft_scene
     if persistent.did_save_scum_algebra:
         play music hopeless
     else:
-        play music daily
+        play music day_c
     if persistent.did_save_scum_algebra:
-        "Lunch on the final exam day has an unstable mood."
-        "Everyone else has started acting alive again."
-        "I am close enough to the end to understand how much damage can still fit into one afternoon."
-        "I open my English notes and read the same line four times."
-        "The line says something about conditionals."
-        "{i}If I had not been stupid.{/i}"
-        "{i}If Mom had not trusted me to handle midterms.{/i}"
-        "{i}If Monika never asks why I stopped showing up in the top score cluster.{/i}"
-        "None of those are useful English sentences."
-        "They are still the only ones my brain wants to conjugate."
+        "With one paper left, the corridor has already started acting alive again. I'm still one afternoon away from making the week worse."
+        "I open my foreign language notes and read the same line about conditionals four times. I never make it past the first clause."
+        "{i}If I hadn't changed it...{/i}"
+        "Every ending I supply puts Mom back across the table from me."
+        "I shut the notes and leave the sentence where it is."
     else:
-        "Lunch on the final exam day has an unstable mood."
-        "Everyone is quieter, and the end is near enough that hope keeps making people careless."
-        "Someone near the vending machines announces that English will be easy."
-        "Three people tell him to shut up with impressive unity."
-        "{i}The room has spoken.{/i}"
-        "I drink water, eat what I packed, and refuse to open my English notes until five minutes before the bell."
-        "Then I open them with six minutes left."
-        "{i}Discipline remains easier in theory.{/i}"
+        "Somebody by the vending machines announces that foreign language is going to be easy and gets told to shut up by three people at once."
+        "I swear off my foreign language notes until five minutes before the bell, then cave with six to go. Close enough."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The afternoon pulls us back in."
-    nier "By this point, desks feel less like furniture and more like assigned positions."
+    nier "The afternoon bell herds us back to our assigned desks one last time."
     call nier_clear from _call_nier_clear_0528_2
+    stop music fadeout 1.0
     pause 2.0
     scene bg class_day
     $ show_calendar()
     $ atmos("afternoon")
-    stop music fadeout 1.0
     with wipeleft_scene
-    play music quiz
+    play music exam
     $ exam_guard_checkpoint_or_jump("english", "exam_start", "a0528_english_save_scum")
     show english_teacher neut at t11
-    english_teacher "Last exam of the set."
-    english_teacher "Listening section first, grammar and reading after that. Stay with the timing."
-    "The speakers crackle once."
-    "A recorded voice greets us. Whoever recorded it was never going to be in the room."
-    english_teacher "Begin."
+    english_teacher "All right. Last exam of the set."
+    english_teacher "Listening first, then grammar and reading. Stay with the timing, and when the recording moves on, so do you."
+    english_teacher "Some grammar choices are going to look right at first. Read the whole sentence, then choose the one that matches the time relationship and emphasis you were actually given."
+    english_teacher "For the reading, mark the strongest claim the evidence {i}earns{/i}, not the stronger one you can imagine around it."
+    "The speakers crackle overhead, and a recorded voice greets us with the impossible calm of somebody who will never have to wait for our answers."
+    english_teacher "You may begin."
     show english_teacher at thide
     hide english_teacher
-    "The listening section comes and goes in neat little conversations about train stations, weather plans, and one student who apparently cannot find his umbrella despite the recording giving him three clues."
+    "The listening section passes in tidy conversations about train stations and weather plans. One recorded student gets three separate chances to find his umbrella and blows all of them."
     $ exam_guard_checkpoint_or_jump("english", "q1_open", "a0528_english_save_scum")
-    "{i}Question 1. Choose the sentence that correctly uses the present perfect with since.{/i}"
+    "{i}Question 1. Mei began translating at nine o'clock and is still doing it.{/i}"
+    "{i}The speaker wants to emphasize the continuing activity.{/i}"
+    "{i}Which sentence fits?{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "She lived here since 2020.":
+        "Mei translates the report since nine o'clock.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I mark it."
-        "She has lived here since 2020.":
+            "The translating is true right now, so simple present starts to feel defensible. I leave {i}since{/i} to carry the rest of the timeline by itself."
+        "Mei has been translating the report since nine o'clock.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "She has lived here since 2020."
-            "Started in the past, still true now. Since gets the starting point."
-            "{i}Grammar behaving like a timeline. Fine.{/i}"
-        "She has lived here for 2020.":
+            "The translating started earlier and is {i}still happening{/i}. Only present perfect progressive carries both the start and the work that hasn't stopped."
+        "Mei had been translating the report since nine o'clock.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I mark it and move on."
+            "Past perfect progressive looks suitably complicated on the page. I mark it and ignore the missing later event."
     $ exam_guard_checkpoint_or_jump("english", "q1_answered", "a0528_english_save_scum")
-    "The next grammar question looks friendlier."
-    "Experience says friendliness is how exams lure people into rushing."
+    "The next grammar question looks friendlier, and I catch myself rushing before I've even reached the second sentence."
     $ exam_guard_checkpoint_or_jump("english", "q2_open", "a0528_english_save_scum")
-    "{i}Question 2. Which sentence correctly expresses an unreal past condition?{/i}"
+    "{i}Question 2. Riku rejected an internship last year. As a result, he still lives in his hometown now.{/i}"
+    "{i}Which sentence expresses that unreal past condition and present result?{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "If I had studied more, I would have felt less nervous.":
+        "If Riku had accepted the internship last year, he would be living in a large city now.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "If I had studied more, I would have felt less nervous."
-            "Past perfect in the condition, would have in the result."
-            "{i}Also known as the official grammar of regret.{/i}"
-        "If I study more, I would have felt less nervous.":
+            "{i}Had accepted{/i} reaches back to the unreal decision, while {i}would be living{/i} carries its result into the present."
+        "If Riku accepted the internship last year, he would have lived in a large city now.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "The pencil goes down before I can talk myself back out of it."
-        "If I had studied more, I feel less nervous.":
+            "The completed form in {i}would have lived{/i} sounds properly unreal. I mark it before I ever look back at {i}now{/i}."
+        "If Riku had accepted the internship last year, he will be living in a large city now.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "It looks right enough at this speed."
+            "The unreal past is right, so I stop checking after {i}had accepted{/i} and leave the present result to a future form that can't hold it."
     $ exam_guard_checkpoint_or_jump("english", "q2_answered", "a0528_english_save_scum")
-    "The reading passage is about a student deciding whether to join a volunteer program abroad."
-    "Which feels targeted."
-    "There are paragraphs about wanting distance, worrying about family, and learning that leaving does not automatically mean abandoning people."
-    "{i}Even the foreign language exam has discovered my home life.{/i}"
+    "The reading passage reports that students who chose to listen to foreign-language podcasts outside class later scored higher on a listening test."
+    "Nobody measured their earlier proficiency, and the groups selected themselves."
+    "For once, a question seems willing to admit how much it doesn't know."
     $ exam_guard_checkpoint_or_jump("english", "q3_open", "a0528_english_save_scum")
-    "{i}Question 3. Based on the passage, why is the narrator hesitant to join the program?{/i}"
+    "{i}Question 3. Which conclusion is best supported by the report?{/i}"
     $ atmos_pressure()
     with dissolve
     menu:
-        "He dislikes travel and wants to avoid new places.":
+        "Podcast listening caused the higher scores.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "I circle it and keep going."
-        "He believes the program has no academic value.":
+            "The listeners scored higher, and practice is the obvious route to improvement. I upgrade a plausible explanation into proof the study never produced."
+        "The report shows no meaningful relationship because groups were self-selected.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(False)
             with dissolve
-            "Good enough. Next question."
-        "He wants the opportunity but worries about leaving people who depend on him.":
+            "No random assignment means no proof of cause, and I stretch that warning into {i}no relationship{/i}, erasing a real score difference along the way."
+        "Podcast use was associated with higher scores, but causation remains unproven.":
             $ atmos_pressure_clear()
             $ s1_exam_mark(True)
             with dissolve
-            "He wants the opportunity but worries about leaving people who depend on him."
-            "Main idea with emotional friction."
-            "{i}I resent how answerable this is.{/i}"
+            "Podcast use and higher scores moved together in the report, but the design never established why they did."
     $ exam_guard_checkpoint_or_jump("english", "q3_answered", "a0528_english_save_scum")
-    "The last written response asks for a short opinion in English."
-    "I choose the least embarrassing version of honesty and write that distance can be healthy if it does not become disappearance."
-    "It looks simple."
-    "It still takes me longer than it should."
+    "The final response asks whether the school should recommend the podcasts, and I argue for a voluntary trial with better follow-up data instead of pretending the report settled anything."
+    "Every hedged verb takes longer to write than the confident one I put down first."
+    "I keep all of them."
 label a0528_after_english:
     $ hide_calendar()
     scene black with wipeleft_scene
     # SFX SUGGESTION: The final bell followed by chairs dragging back and the room's held breath releasing.
-    if persistent.exam_save_scum_subjects:
-        nier "When the final bell rings, the exam period does not loosen."
-        nier "Not for me."
-        nier "For everyone else, chairs drag and shoulders drop and someone laughs at absolutely nothing because the body occasionally discovers freedom before the mind catches up."
-        nier "My body discovers a different message."
-        nier "Go to the office. Tell Mom. Explain Monika. Rebuild, if rebuilding is even available."
+    if exam_guard_day_scummed("algebra", "english"):
+        nier "The last bell goes. Chairs drag back. Somebody laughs at nothing at all."
+        nier "None of the pressure lets up anywhere near my desk."
+        if exam_guard_scummed_subjects_outside(exam_guard_scummed_subjects("algebra", "english")):
+            nier "An office notice outside will add a second stopped section to the one Mom already knows about."
+        else:
+            nier "The bell hands me one clear instruction."
+            nier "Go to the office. Tell Mom. Say what I changed before anybody has to pull it out of me."
+    elif persistent.exam_save_scum_subjects:
+        nier "When the final bell rings, chairs scrape back around me, and my two clean papers leave with everybody else's."
+        nier "This time, nobody stops at my desk."
     else:
-        nier "When the final bell rings, the exam period does not explode into cheers."
-        nier "It loosens."
-        nier "Shoulders drop. Chairs drag. Someone laughs at absolutely nothing because the body occasionally discovers freedom before the mind catches up."
+        nier "Nobody cheers at the last bell of exam week."
+        nier "Chairs drag back, shoulders drop, and somebody starts laughing at absolutely nothing until two other people join in."
     call nier_clear from _call_nier_clear_0528_3
+    stop music fadeout 1.0
     pause 2.0
     scene bg corridor
     $ show_calendar()
     $ atmos("afternoon")
-    stop music fadeout 1.0
     with wipeleft_scene
     if persistent.exam_save_scum_subjects:
         play music hopeless
     else:
-        play music daily
+        play music day_c
     # SFX SUGGESTION: One close phone buzz cutting sharply through the released hallway noise.
     if persistent.exam_save_scum_subjects:
-        "The corridor outside class is loud in a way it has not been since Monday morning."
-        "Not happy exactly -- just released."
-        "I pick up my bag and almost drop it because my hand forgets how straps work."
-        "My phone buzzes."
-        "The sound cuts straight through the hallway."
-        "{i}Mom? Monika? The office?{/i}"
-        "I do not check it immediately because for three seconds I would rather not know which future has reached me first."
-        "Then I check it anyway."
-        "Nothing important."
-        "That is worse, because it means the important thing is still coming."
+        "The corridor's louder than it's been since Monday morning, voices ricocheting off the lockers while the whole released crowd shoves toward every exit at once."
+        if exam_guard_day_scummed("algebra", "english"):
+            "I reach for my bag and miss the strap. It takes a second try to catch it, with fingers that won't settle."
+            if exam_guard_scummed_subjects_outside(exam_guard_scummed_subjects("algebra", "english")):
+                "A phone buzzes somewhere behind me, and my hand still goes to the pocket Mom emptied."
+                "The school doesn't need my phone to reach her. I remember that a little too late."
+            else:
+                "My phone vibrates against my hip, and I turn so fast that my shoulder clips the locker."
+                "{i}Mom? The office?{/i}"
+                "It's only a carrier notification. A thin laugh gets out of me, and somebody nearby looks over."
+        else:
+            "I get my bag onto one shoulder and let the crowd break around me."
+            "A phone buzzes somewhere behind us, and my hand goes to the pocket Mom emptied."
+            "{i}She still has mine. The next notification that matters is the review tomorrow morning.{/i}"
+        "A woman from student services catches me before the stairs and checks my face against the name on her clipboard."
+        "She holds out a sealed envelope and doesn't bother trying to talk over the hallway."
+        "The front reads {i}ACADEMIC CONDUCT REVIEW: MAY 29, 7:40 A.M.{/i}"
+        "Beneath that, three smaller lines. Counselor. Examining teacher. Notified parent or guardian."
+        "Students stream around us, making plans for food, sleep, and karaoke."
+        "I brace the receipt against the wall to sign it while, behind me, somebody tries to fit six people into one celebration photo."
+        "The woman tears off my copy and reminds me not to be late."
+        "I slide the envelope into my bag, careful not to bend it."
+        "My fingers keep shaking until the zipper catches."
     else:
-        "The corridor outside class is loud in a way it has not been since Monday morning."
-        "Not happy exactly -- just released."
-        "I shoulder my bag and let the crowd move around me for a second."
-        "{i}Six subjects. Three days. Still standing.{/i}"
-        "My phone buzzes."
-        "I do not check it immediately."
-        "The world can wait until I make it down the hall."
+        "The corridor's louder than it's been since Monday morning, every voice breaking loose at once."
+        "I get my bag onto one shoulder and step aside to let the first rush go by."
+        "{i}Six subjects in three days, and I'm still standing.{/i}"
+        "My pocket buzzes. I leave the phone where it is until I've made it down the hall at whatever pace my legs feel like offering."
+        "Somebody two doors down is explaining, at volume, exactly which conditional he chose."
+        "Nobody stops him. Nobody agrees with him, either."
+        "Near the stairs, a first-year is asleep upright against the wall with her bag still on both shoulders."
+        "Her friend is guarding her with an arm out, the way you'd guard a full cup."
+        "{i}... That's the whole week, honestly.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    if persistent.exam_save_scum_subjects:
-        nier "Midterms are over."
-        nier "Not graded, not forgotten, not harmless."
-        nier "The word over has never sounded less like an ending."
-        nier "Somewhere between Friday's college page and today's zero, I gave every adult in my life a new question to ask."
-        nier "And Mom, unfortunately, is very good at questions."
+    if exam_guard_day_scummed("algebra", "english"):
+        nier "Midterms are over. The last papers haven't even been graded yet, and the conduct notice is already in my bag."
+        if exam_guard_scum_count() >= 2:
+            if len(exam_guard_scummed_subjects("algebra", "english")) > 1:
+                nier "The last day added two zeros before I'd even made it out of the building."
+            else:
+                nier "The last day added another zero to a week that was already under review."
+            nier "Mom is about to hear that I did it again."
+            nier "Every opening line I try falls apart before I reach the stairs."
+        else:
+            nier "Friday's college page keeps flashing behind my eyes while I walk."
+            nier "When Mom asks me why, I still won't have an answer that survives being said out loud."
+    elif persistent.exam_save_scum_subjects:
+        nier "Midterms are over, and the last two sections stayed clean."
+        nier "The first zero is still in a folder somewhere, with tomorrow morning stapled to it."
+        nier "Whatever repair looks like, it's scheduled to start at 7:40."
     else:
         nier "Midterms are over."
-        nier "Not graded, not forgotten, not harmless."
-        nier "Just over. Enough for the afternoon to feel like it has opened one window."
+        nier "For the first time since Monday, the grades can wait somewhere I don't have to follow them."
     call nier_clear from _call_nier_clear_0528_4
     if exam_guard_day_scummed("algebra", "english"):
         call exam_guard_home_confrontation("May 28", "algebra", "english") from _call_exam_guard_home_confrontation_0528
     if exam_guard_should_bad_end():
         jump exam_guard_bad_ending
-    if persistent.exam_save_scum_subjects:
+    if exam_guard_day_scummed("algebra", "english"):
+        $ hide_calendar()
+        scene black with wipeleft_scene
+        nier "Wednesday ends upstairs, with my phone downstairs and the review notice still square inside my bag."
+        nier "At 7:40 tomorrow, I have to say it all again, in front of my teacher and Mom."
+        call nier_clear from _call_nier_clear_0528_5_new_scum
+    elif persistent.exam_save_scum_subjects:
+        stop music fadeout 1.0
         pause 2.0
         scene bg living_room_night
         $ show_calendar()
         $ atmos("home_night")
-        stop music fadeout 1.0
         with wipeleft_scene
         play music hopeless
-        "Midterms being over does not give the house permission to relax."
-        "My bag stays by the coffee table."
-        "My phone stays with Mom."
-        "The laptop stays downstairs, closed, visible, and much less interesting than all the silence around it."
-        show mom neut at t11
+        "I come in and leave my bag beside the coffee table. Mom has my phone next to her, and I set the closed laptop down between us."
+        show mom sad at t11
         mom "The exams are done."
         mc "Yeah."
         show mom determined
-        mom "That means tomorrow is about meetings and repair, not escape."
+        mom "I've arranged to be there tomorrow. We'll hear what the school needs from you, then talk at home."
         mc "I know."
-        show mom thinking
-        "She studies me long enough to make sure the answer is not just a reflex."
+        show mom worried
+        "She waits for something past the familiar answer."
+        "I make myself hold her eyes instead of reaching for the same one again."
         mom "I hope so."
-        "There is no clean response to that."
-        "The house fills it with ordinary sounds instead."
-        "Water moving through pipes."
-        "A cabinet closing in the kitchen."
-        "Asahina's footsteps upstairs, stopping once near the landing before deciding not to come down."
-        "The week is over for everyone else in the shape people recognize."
-        "For me, it has changed shape rather than ending."
-        "I sit with that until the living room light starts to feel too bright."
+        "Upstairs, Asahina takes two steps toward the landing and turns back."
+        "Mom hears it too. She keeps looking at me."
         $ hide_calendar()
         scene black with wipeleft_scene
-        nier "Wednesday ends without release."
-        nier "There are no more exam papers to take honestly tomorrow."
-        nier "Only the part where honesty has to survive without a paper in front of it."
+        nier "Wednesday ends without settling anything, and tomorrow begins at 7:40 in student services."
         call nier_clear from _call_nier_clear_0528_5_scum
     else:
+        stop music fadeout 1.0
         pause 2.0
         scene bg corridor
         $ show_calendar()
         $ atmos("afternoon")
-        stop music fadeout 1.0
         with wipeleft_scene
-        play music schooldays
-        "I make it halfway down the hall before checking my phone."
-        "There are three messages."
-        "One from Mom, asking for the required confirmation that I remain alive."
-        "One from Asahina, consisting only of the word {i}food{/i} and six question marks."
-        "One from Monika."
+        play music school_day_a
+        "Halfway down the hall, I give in and check my phone. Mom wants confirmation that I'm still alive, and Asahina's entire contribution is {i}food??????{/i}"
+        "Monika's two messages are waiting underneath theirs."
         python:
             _phone_messages = [
-                phone_msg("them", "Club room for a little bit?"),
+                phone_msg("them", "We're FREE! Club room for a little bit?"),
                 phone_msg("them", "No studying. I mean it."),
                 phone_msg("me", "I'll hold you to that."),
                 phone_msg("them", "Please do."),
                 phone_msg("me", "On my way."),
             ]
         call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0528_1
-        "I text Mom first."
-        "Then Asahina, who replies with {i}rude{/i} when I tell her dinner exists as a concept but not yet as an object."
-        "By the time I reach the club hallway, the building has started making the noise of students remembering their bodies are allowed to leave."
+        "I answer Mom, then inform Asahina that dinner exists as a concept but not yet as an object."
+        "{i}rude{/i} arrives before I've even reached the club hallway."
+        "Down there, lockers are slamming, and the footsteps outside the club room have finally lost their exam-week hush."
         $ hide_calendar()
         scene black with wipeleft_scene
         pause 2.0
@@ -377,149 +373,118 @@ label a0528_after_english:
         with wipeleft_scene
         play sound moddooropen
         show monika forward uniform dist cm oe nobl rdown ldown at t11
-        "The club room has no study materials on the center desks."
-        "This is so strange that I stop in the doorway."
-        "On the board, Monika has written two words in clean letters."
-        "{i}NO STUDYING.{/i}"
-        "Below them, in smaller writing:"
-        "{i}Leave before you start reviewing again.{/i}"
-        m forward uniform happ cm ce nobl rdown ldown "I told you."
-        mc "You prepared the absence of studying."
-        m forward uniform happ om oe nobl rdown lpoint "I needed proof."
-        "A couple of members near the back gather their bags and leave with tired little waves."
-        "Then the room is mostly empty."
-        "She sits at one of the center desks and sets her folder facedown where neither of us can open it by accident."
-        "I take the chair beside her."
-        "For a minute, neither of us does anything."
-        "The windows are cracked open enough to let in traffic noise from the street."
-        "Someone laughs in the hallway, already moving on to the part of the week where exams become stories instead of events."
-        mc "This feels wrong."
-        m forward uniform curi om oe nobl rdown ldown "Doing nothing?"
-        mc "Doing nothing on purpose."
-        m forward uniform happ om oe nobl rdown ldown "That's why we're practicing."
-        "The lightness is a choice. Her shoulders have not been that low all week."
-        "The quiet does not ask us to make it interesting."
-        "It just holds."
-        "Eventually, Monika lets out a breath that almost becomes a laugh."
-        m forward uniform wry om oe nobl rdown ldown "This is harder than studying."
-        mc "Doing nothing?"
-        m forward uniform happ cm oe nobl rdown ldown "Letting the week stop."
-        mc "...Yeah."
-        "My answer stays in the room."
-        "For a second, the club room is only late light, stacked desks, and two people letting their hands rest empty on the table."
-        "She smiles."
-        "Not the quiet library version -- a real one, still tired but freer around the edges."
-        $ hide_calendar()
-        scene black with wipeleft_scene
-        nier "The meeting lasts less than half an hour."
-        nier "No poems are exchanged. No grades are predicted. No one says the phrase final answer."
-        nier "The club room simply lets the exam period end without asking us to feel relieved on schedule."
-        call nier_clear from _call_nier_clear_0528_5
-        pause 2.0
-        scene bg club_day
-        $ show_calendar()
+        # NUDGE KEEP: Monika's piano scene.
+        "Monika has rubbed Monday's warning off the board, though {i}POSTMORTEMS{/i} survives as a gray smudge."
+        m forward uniform happ cm ce nobl rdown ldown "There. We're allowed to complain again."
+        mc "Good, because I've got a queue."
+        m forward uniform wry om oe nobl rdown lpoint "Oh, so have I, believe me. I just don't want to spend the whole afternoon on it."
+        "The last two members head out with tired waves, leaving us the center desks and the traffic noise through the cracked windows."
+        "She nudges her folder under the chair beside hers with one foot, and I sit down on that one, folder and all."
+        mc "Then show me what you were listening to on the way in."
+        m forward uniform curi om oe nobl rdown ldown "You saw me?"
+        mc "From the stairs. You were conducting with your keys."
+        "She checks the open doorway before she takes out her phone."
+        m forward uniform nerv om oe awkw rdown ldown "I was {i}counting{/i}. There's a piano part I want to learn, and I keep losing track of where the left hand comes in."
+        mc "Play it. I want to hear what justifies that much key movement."
+        "She sets the phone between us and turns it down until we both have to lean in toward the speaker."
+        "I recognize the tune as soon as the piano comes in, though only from an ad where a dog runs across a carpet."
+        mc "Oh, it's the vacuum-cleaner song."
+        m forward uniform anno om oe nobl rhip ldown "Please don't call it that."
+        "The melody gets to the bit where the dog usually knocks something over. I try not to watch her hands."
+        m forward uniform wry om oe nobl rdown ldown "You're picturing the dog, aren't you?"
+        mc "He's very well trained."
+        m forward uniform laug om ce nobl rdown ldown "I liked this {i}before{/i} that stupid ad! And now you've put the dog back in my head."
+        "She starts it again from the passage she wants to learn, tapping out the two parts with different hands. I lose her at the third bar."
+        mc "Okay, fine. That's doing a lot more than selling a vacuum."
+        m forward uniform happ cm oe nobl rdown ldown "Thank you!"
+        "When she finds the full recording, I turn the phone so we can both see the title."
+        mc "Leave it on. I want to hear what happens after the bit I know."
+        "Her fingers stop tapping once we're past that passage, and we listen while the last voices in the hall drift toward the stairs."
         $ atmos("evening")
-        show monika forward uniform dist cm oe nobl rdown ldown at t11
-        with wipeleft_scene
-        "Monika stays behind to straighten the chairs."
-        "I help because standing near her is easier than deciding how to leave."
+        "When the track ends, Monika stretches both arms over her head and gets up, pocketing her phone while I put my chair back."
         m forward uniform happ cm ce nobl rdown ldown "We made it."
-        mc "Pending grading, yes."
-        m forward uniform curi om oe nobl rdown ldown "[player]."
-        mc "Sorry."
-        "She sets the last chair in place."
-        mc "Yeah."
-        mc "We made it."
-        "It isn't triumphant."
-        "It's quieter than that, maybe more useful."
-        "The late light has gone amber across the desks, and the rule is still on the board where she left it."
-        "The rule on the board gets one more look before she turns to me."
-        m forward uniform neut cm oe nobl rhip ldown "No studying tonight."
-        mc "None?"
-        m forward uniform neut cm oe nobl rdown ldown "None."
-        mc "That feels illegal."
-        m forward uniform happ cm ce nobl rdown ldown "Then be brave."
-        "She smiles when she says it."
-        "I do not argue."
-        $ update_character_thought("monika", "Monika kept her no-studying promise by making us sit still long enough for the end of midterms to feel real.")
+        mc "Yeah. We did."
+        show monika forward uniform dist cm oe nobl rdown ldown
+        "She rests both hands on the back of her chair and doesn't push it in right away."
+        "The light across the desks has gone amber."
+        "She looks over at the gray smudge on the board, then back at me."
+        m forward uniform neut cm oe blus rdown ldown "Send me something to listen to on the bus?"
+        mc "I've got a few. How long is the ride?"
+        m forward uniform happ cm ce nobl rdown ldown "Twenty minutes. Please leave room for me to get off."
+        "I start looking through my music while she checks that we've closed the windows."
+        $ update_character_thought("monika", "Monika wants to learn the piano piece I know from a vacuum-cleaner ad. We listened to the full recording after exams, and she asked me to pick something for her bus ride.")
         $ hide_calendar()
         scene black with wipeleft_scene
+        stop music fadeout 1.0
         pause 2.0
         scene bg dining_table_night
         $ show_calendar()
         $ atmos("home_night")
-        stop music fadeout 1.0
         with wipeleft_scene
-        play music dailyleisure
-        "Home smells like rice, eggs, and the faint sweet edge of something Mom is pretending not to have bought for morale."
-        show mom determined at t31
-        show asahina neut at t32
-        mom "Shoes off, hands washed, bag down."
-        ah "Food?"
-        show mom unamused
-        mom "After he washes his hands."
-        ah "Food soon?"
-        show mom teasing
-        mom "That's the spirit."
-        "Asahina turns on me flat and unfiltered, her last exam having stripped out several settings she normally runs."
-        ah "Are yours over?"
+        play music house_day_a
+        "The smell of rice and eggs meets me at the door, and there's a stack of dessert bowls waiting on the counter. I approve of whatever that means."
+        show mom determined at t22
+        show asahina neut at t21
+        mom "Dinner's ready. Go wash up, and I'll bring the soup over."
+        ah "Finally! All I've had since second period is a granola bar."
+        show mom neut
+        mom "There's plenty. Take a bowl."
+        show asahina neut
+        "Asahina pulls out her chair, then goes back for the chopsticks before Mom has to ask."
+        ah "Oh, wait--are yours over?"
         mc "Over."
         ah "Mine too."
-        "We stare at each other for a second."
-        "Then she holds out one fist."
-        "I bump it with mine."
-        "It is not ceremonial."
-        "It just happens, which makes it better."
+        "We look at each other. Then she holds out a fist."
+        "I bump it with mine, and she's already turning toward the table when our hands drop."
         show mom neut
-        mom "No one ask anyone how it went until after dessert."
+        mom "Nobody asks how anybody did until after dessert. I mean it."
         mc "There's dessert?"
         show asahina shocked
-        ah "You hid dessert?"
+        ah "Wait, where? I checked the freezer yesterday!"
         show mom smug
-        mom "I preserved dessert."
-        "She opens the freezer and produces a small carton of ice cream with the care she usually reserves for important documents."
+        mom "I {i}preserved{/i} dessert. There's a difference."
+        "She opens the freezer and presents a small carton of ice cream on both palms until Asahina notices."
         show asahina happy
-        ah "Oh my god."
-        mc "Morale confirmed."
-        mom "Dessert waits until after dinner."
-        "Dinner is simple enough to trust."
-        "Eggs over rice. Soup. Pickles. A plate of vegetables that Asahina circles with strategic reluctance until Mom raises one eyebrow."
-        "No one successfully avoids the vegetables."
-        "No one mentions answer keys."
-        "The conversation finds other work."
-        "Asahina explains that Sam sent her a sticker of a calculator on fire, which Mom says sounds less encouraging than intended."
-        "I tell them Monika banned studying in the club room."
-        "Asahina asks whether that counts as a club activity."
-        "Mom wants to know whether it worked."
-        "I say it did for a few minutes."
-        "They both accept that more easily than I expect."
-        "After dinner, Mom divides the ice cream into three bowls."
-        "Not evenly -- deliberately unevenly."
+        ah "Oh my god!"
+        mc "Behind the frozen peas. You were never going to look there."
+        mom "And it waits until after dinner."
+        "Dinner is eggs over rice with soup and pickles, and Asahina circles the vegetables with strategic reluctance until Mom raises one eyebrow over her bowl."
+        "She takes some without comment."
+        "Then she announces, apropos of nothing, that Sam sent her a sticker of a calculator on fire."
+        ah teasing "That's supportive, right?"
+        mom thinking "Was it meant to be encouraging?"
+        ah unamused "...Probably."
+        mc "Monika played me the vacuum-cleaner song. Apparently there's a whole other two minutes."
+        mom curious "The one with the dog?"
+        mc "Don't tell her you said that."
+        "Mom hums the tune until Asahina joins in, and then they can't agree on how the next part goes."
+        "From there, the conversation drifts back to whether a burning calculator is motivational."
+        show mom neut
+        "After dinner, Mom divides the ice cream among three bowls, and the portions are visibly uneven before the carton's even back in the freezer."
         show asahina annoyed
-        ah "Hey."
-        mom "Randomized distribution."
-        mc "That's not random. Mine's larger."
+        ah "Hey, hold on."
+        mom "You both have ice cream."
+        mc "Mine's definitely bigger."
         show mom unamused
-        mom "Interesting claim."
+        mom "Then switch if it bothers you."
         show asahina unamused
-        ah "Objection."
+        ah "No, because now I don't trust him. He looked at both of them way too long. That's evidence."
         show mom teasing
-        mom "Sustained. Trade if you want."
-        "Asahina and I swap bowls twice and end up with the same ones we started with."
+        mom "Both bowls are on the table. Work it out before they melt."
+        "Asahina and I inspect both bowls from three angles and swap twice. We end up with the ones we started with."
         show mom happy
-        "Mom watches this, tired and quietly pleased. She engineered a small household argument purely to prove the house could still have one."
-        "The ice cream is cold enough to make my teeth complain."
-        "It tastes like the week finally stopped pressing on the back of my neck."
-        $ update_character_thought("asahina", "Asahina and I ended midterms with a fist bump and an argument about ice cream portions. That feels exactly right.")
-        $ update_character_thought("mom", "Mom bought morale ice cream and pretended uneven servings were randomized. She knew exactly what she was doing.")
+        "Mom eats from hers through the whole thing, watching over the rim of her spoon, and does not help."
+        "When my eyes drift toward Asahina's bowl, she drags it closer."
+        "The first bite makes my teeth complain. I take another one anyway."
+        "The dishes wait in the sink, and nobody reaches for a textbook."
+        $ update_character_thought("asahina", "Asahina and I fist-bumped over surviving exams, then spent dessert trading the same two bowls of ice cream.")
+        $ update_character_thought("mom", "Mom bought ice cream for morale and pretended the uneven servings did not matter. Mine was larger.")
         $ hide_calendar()
         scene black with wipeleft_scene
-        nier "Wednesday night does not become a victory lap."
-        nier "It becomes dishes, a freezer spoon rinsed clean, the club room's no-studying rule, and a bag left unopened by the door."
-        nier "Grades will come later."
-        nier "For tonight, later is allowed to stay later."
+        nier "My bag spends the night zipped shut by the door, and I don't go near it."
+        nier "What I keep seeing instead is Monika's folder, nudged under my chair with one foot and still shut when she picked it up to leave."
         call nier_clear from _call_nier_clear_0528_6
-    $ exam_guard_clear_active_checkpoint()
+    $ exam_guard_finish_exam_period()
     stop music fadeout 2.0
     pause 2.0
     call calendar_advance(days=1) from _call_calendar_advance_0528_1
@@ -530,39 +495,28 @@ label a0528_algebra_save_scum:
     $ calendar.set_date(2025, 5, 28)
     $ hide_calendar()
     scene black with dissolve_scene_full
+    stop music fadeout 0.5
     pause 2.0
     scene bg class_day
     $ show_calendar()
     $ atmos("pressure")
-    stop music fadeout 0.5
     with dissolve_scene_full
     play music safety
     show math_teacher neut at t11
     math_teacher "[player]."
-    "The teacher does not raise his voice."
-    "He just taps the answer sheet with two fingers, which is worse."
+    "He taps my answer sheet with two fingers while the calculators around us keep clicking."
     math_teacher "Walk me through this."
-    "I know exactly what he is asking. That is the whole problem."
-    mc "...I'd rather not."
-    math_teacher "I imagine not."
-    math_teacher "You saw the domain restriction, made a choice, and then still ended up back at the same decision point with new information."
-    "He keeps his hand on the paper."
-    "His handwriting on the board is always clean."
-    "His anger is not."
-    math_teacher "You are one of the students I use as a pacing check."
-    math_teacher "If you look lost, I know the problem is too dense. If you look bored, I know we can move faster."
-    math_teacher "So I am struggling to decide whether this is laziness, arrogance, or panic."
+    mc "I... made a mistake."
+    math_teacher "Which mistake?"
+    "My pencil lead snaps against the paper, and the answer I need doesn't come out with it."
+    math_teacher "The answer I saw before you turned the page is gone. This one uses the restriction you missed the first time."
+    math_teacher "I use you to pace this class, [player]. I {i}know{/i} what you look like when a problem has you stuck, and that wasn't it."
     mc "...I don't know."
-    "That is the most honest thing I have said all morning, and it still sounds pathetic."
-    "{i}Honor students are supposed to make teachers worry less.{/i}"
-    "{i}I have apparently discovered a way to become extra paperwork.{/i}"
-    math_teacher "Then take the zero and figure that part out."
-    math_teacher "Algebra section is done. Pencil down."
-    mc "What happens to my standing?"
-    "The words come out too fast. Both of us hear where my head already is."
-    math_teacher "That depends on what happens after this room."
-    math_teacher "Which is why you should spend less energy calculating outcomes and more energy deciding how honest you intend to be."
-    "{i}A missing minus sign would have been a mistake -- he'd have marked it, I'd have learned it, and tonight would just be a bad grade. This isn't a sign error, and there's no honest version of it waiting on the next line for me to fix.{/i}"
+    math_teacher "Then don't hand me an explanation you don't believe. Take the zero, and figure that part out before you try to explain it again."
+    mc "Can I at least finish the other problems?"
+    math_teacher "No. Algebra is done for you, so put the pencil down."
+    "He moves to the next row. Somebody presses a calculator key."
+    "The broken point stays caught beneath the side of my hand."
     show math_teacher at thide
     hide math_teacher
     play music hopeless fadeout 1.0
@@ -573,36 +527,29 @@ label a0528_english_save_scum:
     $ calendar.set_date(2025, 5, 28)
     $ hide_calendar()
     scene black with dissolve_scene_full
+    stop music fadeout 0.5
     pause 2.0
     scene bg class_day
     $ show_calendar()
     $ atmos("pressure")
-    stop music fadeout 0.5
     with dissolve_scene_full
     play music safety
     show english_teacher neut at t11
     english_teacher "[player]."
-    "The recorded voice keeps talking a moment longer before the teacher stops the audio."
-    "The sudden silence pulls half the room upright."
+    "She reaches my desk before I hear her cross the room."
+    "One hand settles on the blank margin. Three nearby pencils pause, then start moving again."
     english_teacher "Paper facedown, [player]."
+    "I turn it over too fast and crease it down the middle under my palm."
     mc "...Did I miss the timing?"
-    english_teacher "Do not."
-    "One syllable, flat and tired and sharper than the red pen in her hand."
-    english_teacher "You have spent this whole year answering reading questions by noticing what a passage tries to hide."
-    english_teacher "You know when timing matters. You know when a correction belongs to a draft and when it does not belong to an exam."
-    "She glances at the sheet, then back at me."
-    english_teacher "I am not angry because you failed English."
-    english_teacher "I am angry because you did not."
-    "The room pretends not to hear that."
-    "I wish it were better at pretending."
-    english_teacher "Zero for the section. Paper facedown."
-    mc "Is Monika going to hear about this?"
-    "I hate myself the second I ask, and the worst part is that it isn't even the wrong fear -- it just isn't the only one."
-    english_teacher "I am not discussing other students with you during an exam."
-    english_teacher "You should be more concerned with what you are going to say when an adult asks you the same question without giving you answer choices."
-    "{i}Unreal past condition, real present consequence.{/i}"
-    "{i}If I had studied more, I would have felt less nervous.{/i}"
-    "{i}If I had been honest, I would still have something clean to be nervous about.{/i}"
+    english_teacher "{i}Do not.{/i}"
+    english_teacher "You know the difference between revising your work in this room and replacing an answer afterward."
+    english_teacher "You were doing fine on this paper, and you changed it anyway. That's why I'm angry."
+    "Nobody looks up, though the silence around the nearest desks tells me they heard."
+    english_teacher "Zero for this section. Leave the paper facedown."
+    mc "...Can we do this outside?"
+    english_teacher "No. Everyone else is still working."
+    "She returns to the front, and the room's paper-and-pencil noise closes over me."
+    "I can't make myself smooth out the crease under my hand."
     show english_teacher at thide
     hide english_teacher
     play music hopeless fadeout 1.0

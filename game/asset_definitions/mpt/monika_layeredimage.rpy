@@ -1,6 +1,3 @@
-
-
-
 layeredimage monika forward: #All definitions are for her facing forward.
     at Flatten
     always "assets/mpt/monika/monika_forward_facebase.png" #We always use the basic face.
@@ -9,21 +6,10 @@ layeredimage monika forward: #All definitions are for her facing forward.
         
         attribute uniform default null
         attribute casual null
-    
-    
-    
-    # ENTER-M addition: `wry`, built only out of parts that already shipped.
-    # Monika's main-story register is a smile she decides to wear, so the story
-    # needs to tell her three smiles apart: `happ` is the one she means, `nerv`
-    # is the one that is failing, and `wry` is the one she holds on top of being
-    # unimpressed -- the face for a backhanded compliment, a pointed "new club
-    # rule", or a joke with a blade in it. It is happ's mouth over the annoyed
-    # eyes and brow, which is the whole trick: the mouth agrees with the line and
-    # nothing above it does.
-    group mood: #Mood determines what the defaults images are for the following attributes:
-        #"oe", "ce", "om", "cm", "brow".
-        #By changing what the "mood" attribute is, you can easily switch between premade sets of expressions that work well together, speeding up your workflow.
-        #Additionally, you can add in any new ones as you like.
+
+    # wry pairs a smiling mouth with annoyed eyes and brows.
+    # Mood selects the default eye, mouth, and eyebrow parts.
+    group mood:
         attribute neut default null #neutral
         attribute angr null #angry
         attribute anno null #annoyed
@@ -46,18 +32,13 @@ layeredimage monika forward: #All definitions are for her facing forward.
         attribute worr null #worried
         attribute wry null  #wry -- the smile she keeps on while she is done with you
         attribute yand null #yandere
-        #attribute xxxx null #xxxx #Do you want to define a new mood?  Here, have a template!
-    
-    
-    
+
     group blush: #These are intentionally separate from mood; the idea being that these aren't consciously controlled by the character - rather, they're a result of their emotions making them blush/sweat/etc.
         attribute nobl default null #Default, no blush.
         attribute awkw null #awkward.  defaults for n
         attribute blus null #blushing.  defaults for n
         attribute blaw null #blushing and awkward.  defaults for n
-    
-    
-    
+
     group left:
         anchor (0,0) subpixel (True)
         yoffset (-0.5)
@@ -69,9 +50,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_uniform_left_point.png"
         attribute lpoint if_any(["casual"]):
             "assets/mpt/monika/monika_forward_casual_left_point.png"
-    
-    
-    
+
     group right:
         anchor (0,0) subpixel (True)
         yoffset (-0.5)
@@ -83,9 +62,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_uniform_right_hip.png"
         attribute rhip if_any(["casual"]):
             "assets/mpt/monika/monika_forward_casual_right_hip.png"
-    
-    
-    
+
     group nose:
         
         #Default nose/blush.
@@ -97,8 +74,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_nose_n3.png"
         attribute nose default if_any(["blaw"]):#default nose when "blushing and awkward"
             "assets/mpt/monika/monika_forward_nose_n4.png"
-        
-        
+
         #All noses - truncated tags:
         attribute n1:
             "assets/mpt/monika/monika_forward_nose_n1.png"
@@ -108,9 +84,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_nose_n3.png"
         attribute n4:
             "assets/mpt/monika/monika_forward_nose_n4.png"
-    
-    
-    
+
     group mouth:
         
         #Default Closed Mouths:
@@ -152,8 +126,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_mouth_ml.png"
         attribute om if_any(["vang","angr","doub","pani"]):
             "assets/mpt/monika/monika_forward_mouth_mq.png"
-        
-        
+
         ###All mouths - truncated tags:
         attribute ma:
             "assets/mpt/monika/monika_forward_mouth_ma.png"
@@ -191,9 +164,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_mouth_mq.png"
         attribute mr:
             "assets/mpt/monika/monika_forward_mouth_mr.png"
-    
-    
-    
+
     group eyes:
         
         #Default Opened eyes:
@@ -221,8 +192,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_eyes_e4b.png"#
         attribute ce if_any(["cry"]):
             "assets/mpt/monika/monika_forward_eyes_e4e.png"
-        
-        
+
         ###All eyes - truncated tags:
         attribute e1a:
             "assets/mpt/monika/monika_forward_eyes_e1a.png"
@@ -266,9 +236,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_eyes_e0a.png"
         attribute e0b:
             "assets/mpt/monika/monika_forward_eyes_e0b.png"
-    
-    
-    
+
     group eyebrows:
         
         #Default Eyebrows:
@@ -294,8 +262,7 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_eyebrows_b1f.png"#
         attribute brow default if_any(["doub"]) if_all(["ce"]) if_not(["oe"]):
             "assets/mpt/monika/monika_forward_eyebrows_b3b.png"#
-        
-        
+
         #All eyebrows - truncated tags:
         attribute b1a:
             "assets/mpt/monika/monika_forward_eyebrows_b1a.png"
@@ -321,16 +288,12 @@ layeredimage monika forward: #All definitions are for her facing forward.
             "assets/mpt/monika/monika_forward_eyebrows_b3b.png"
         attribute b3c if_any(["e4a","e4b","e4c","e4d","e4e","ce"]):
             "assets/mpt/monika/monika_forward_eyebrows_b3c.png"
-    
-    
-    
+
     #This group is intentionally last on this list, so it will render over top of every other thing on the face.
     group special:
     
         attribute s_scream:
             "assets/mpt/monika/monika_forward_special_scream.png"
-
-
 
 layeredimage monika lean:
     at Flatten
@@ -339,9 +302,7 @@ layeredimage monika lean:
         
         attribute uniform default null
         attribute casual null
-    
-    
-    
+
     group mood: #Mood determines what the defaults images are for the following attributes:
         #"oe", "ce", "om", "cm", "brow".
         #By changing what the "mood" attribute is, you can easily switch between premade sets of expressions that work well together, speeding up your workflow.
@@ -350,34 +311,26 @@ layeredimage monika lean:
         attribute angr null #angry
         attribute anno null #annoyed
         attribute neut null #neutral
-    
-    
-    
+
     group blush: #Have to separate these out, they can't share moods.
         attribute nobl default null #Default, no blush.
         attribute awkw null #awkward.  defaults for n
         attribute blus null #blushing.  defaults for n
         attribute blaw null #blushing and awkward.  defaults for n
         attribute bful null #attribute bful null #full face blush.
-    
-    
-    
+
     group body:
         attribute body default if_any(["uniform"]):
             "assets/mpt/monika/monika_lean_uniform_bodybase.png"
         attribute body default if_any(["casual"]):
             "assets/mpt/monika/monika_lean_casual_bodybase.png"
-    
-    
-    
+
     group head:
         attribute head default if_any(["uniform"]):
             "assets/mpt/monika/monika_lean_uniform_facebase.png"
         attribute head default if_any(["casual"]):
             "assets/mpt/monika/monika_lean_casual_facebase.png"
-    
-    
-    
+
     group nose:
         
         #Default nose/blush.
@@ -391,8 +344,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_nose_n4.png"
         attribute nose default if_any(["bful"]):#full face blush, obscures eyes/eyebrows.
             "assets/mpt/monika/monika_lean_nose_n5.png"
-        
-        
+
         #All noses - truncated tags:
         attribute n1:
             "assets/mpt/monika/monika_lean_nose_n1.png"
@@ -404,9 +356,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_nose_n4.png"
         attribute n5:
             "assets/mpt/monika/monika_lean_nose_n5.png"
-    
-    
-    
+
     group mouth:
         
         #Default Closed Mouths:
@@ -420,8 +370,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_mouth_m2.png"
         attribute om if_any(["happ"]):
             "assets/mpt/monika/monika_lean_mouth_m3.png"
-        
-        
+
         #All mouths - truncated tags:
         attribute m1:
             "assets/mpt/monika/monika_lean_mouth_m1.png"
@@ -431,9 +380,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_mouth_m3.png"
         attribute m4:
             "assets/mpt/monika/monika_lean_mouth_m4.png"
-    
-    
-    
+
     group eyes if_not(["n5","bful"]): #Cannot show if full-face blush is present.
         
         ##Default Opened eyes:
@@ -449,8 +396,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_eyes_e4.png"
         attribute ce if_any(["neut","angr","anno"]):
             "assets/mpt/monika/monika_lean_eyes_e5.png"
-        
-        
+
         #All eyes - truncated tags:
         attribute e1:
             "assets/mpt/monika/monika_lean_eyes_e1.png"
@@ -464,9 +410,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_eyes_e5.png"
         attribute e6:
             "assets/mpt/monika/monika_lean_eyes_e6.png"
-    
-    
-    
+
     group eyebrows if_not(["n5","bful"]): #Cannot show if full-face blush is present.
         
         #Default Eyebrows:
@@ -474,8 +418,7 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_eyebrows_b1.png"
         attribute brow default if_any(["angr","anno"]):
             "assets/mpt/monika/monika_lean_eyebrows_b2.png"
-        
-        
+
         #All eyebrows - truncated tags:
         attribute b1:
             "assets/mpt/monika/monika_lean_eyebrows_b1.png"
@@ -483,6 +426,3 @@ layeredimage monika lean:
             "assets/mpt/monika/monika_lean_eyebrows_b2.png"
         attribute b3:
             "assets/mpt/monika/monika_lean_eyebrows_b3.png"
-
-
-

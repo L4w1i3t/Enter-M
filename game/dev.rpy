@@ -1,10 +1,9 @@
-##### DEVTOOLS #####
-##### Disable these when building your mod
+# Developer mode follows the engine's source-build detection. This file also
+# owns runtime defaults and singleton startup; keep it in release builds.
 define config.developer = "auto"
 define config.autoreload = "auto"
 
-#### Define/Default Variables found in Definitions.RPY that have multiple uses across the template,
-#### and were rather hidden deep in the files, so we moved it here for ease-of-access. ####
+# Shared player, load-hint and skipping state.
 define _dismiss_pause = config.developer
 default persistent.playername = ""
 default player = persistent.playername

@@ -1,349 +1,57 @@
-# =============================================================================
-# ARCHIVIST INVASION 02 -- HORROR
-# =============================================================================
+# Horror invasion: a turn-based dread/nerve bout followed by a corridor chase.
+# HORGame owns simulation state; HORStage advances/render it at 60Hz. The
+# chase's opening gap derives from act-one dread, and distance determines a win.
+# Act-one aspect readouts can lie; flicker identifies the unreliable reading.
 #
-# WHAT THIS IS
-#   The second Archivist Invasion. Same two-act shape as Biography, built out
-#   of the opposite materials: where Biography is a thing that wants to finish
-#   something, Horror is a thing that wants to be near you.
-#
-#   ACT ONE -- the room. Turn-based, EarthBound furniture, same odometer. But
-#   the kit is inverted: YOU CANNOT HURT IT WITH YOUR HANDS. The lantern is
-#   the only thing it flinches from, and light costs NERVE. The real number on
-#   screen is not its health, it is DREAD -- how close it is standing. Dread
-#   climbs every single turn and light is the only thing that pushes it back.
-#
-#   ACT TWO -- the CORRUPTIVE STATE: a chase. There is nothing to attack, no
-#   invulnerability to dodge behind, and no boss health bar. You run, it
-#   follows, and the only win condition in the entire fight is DISTANCE.
-#
-#   THE CORRIDOR COMES TO THE BOIL (rebuilt Aug 11 2026). The first version of
-#   this act read as EMPTY rather than claustrophobic, and the reason was
-#   structural rather than decorative: the corridor was a fixed 920px slot
-#   with two thin wriggling lines at the sides of it, and nothing about the
-#   SPACE ever got worse -- only the spawn rate did. A corridor with nothing
-#   at its edges is a field. So:
-#     * THE WALLS CLOSE, continuously, 920px down to 496px across the run,
-#       and they are solid mass now with the wriggle on their inner face.
-#       Slowly enough that no single moment announces it -- you are meant to
-#       notice you are cornered, not watch it happen.
-#     * FOUR RUNGS (HOR_PHASE_AT), each adding a KIND of thing rather than
-#       more of the same, each announcing itself once with a jolt and never
-#       again: the corridor / the walls start reaching in / something
-#       enormous is out there / it is close enough to be constant.
-#     * WALL REACHERS grow inward off the edges and are drawn joined to the
-#       wall they came from, so the corridor itself becomes the hazard.
-#     * SOMETHING ENORMOUS goes past outside the walls, three or four times a
-#       run. It cannot touch you and it has no mechanics at all. Its entire
-#       job is scale -- a chase you can win is frightening; a chase you can
-#       win while something the size of the sky goes by is a different
-#       feeling, and it costs nothing.
-#
-#   THE CORRIDOR GETS A KIT AND A CEILING (Aug 14 2026). Two complaints, one
-#   root: "a heart running down an empty corridor avoiding boxes", and a
-#   runner who could drift vertically off the collision plane and then be hit
-#   by a mass drawn well below them. Both are fixed by taking the vertical
-#   axis away from steering and spending it on something worth having:
-#
-#     * THE PLANE. The runner is pinned to HOR_PLANE_Y for good. Collision
-#       fires on the frame an obstacle's DEPTH crosses that plane and tests x
-#       only -- so anything that lets the avatar leave the plane is a promise
-#       the hit test does not keep, and it read exactly as advertised: a
-#       collision with an invisible surface above the actual box.
-#     * THE LANTERN COMES BACK, on the freed keys, INVERTED by the genre
-#       shift. In act one light pushes it away and costs nerve; in the chase
-#       light SHOWS IT WHERE YOU ARE -- it closes faster the whole time you
-#       are lit -- and the tank never refills. See the block above
-#       HOR_POWER_MAX.
-#     * THE WATCHERS, and they are a cheap trick on purpose. A thing set into
-#       the corridor wall that advances in hard discrete steps whenever
-#       nobody is shining a light on it, and holds perfectly still otherwise.
-#       The lantern is the only answer and the answer is DIRECTIONAL: it only
-#       drives back a watcher on the side of the corridor you are standing
-#       on, so answering one means crossing toward it. A bite does not make
-#       it go away -- it drops back to the far end of the wall and starts
-#       again, so ignoring one is not a tax you pay once. See HOR_WATCH_*.
-#       The half of the corridor it can be answered from is bracketed on the
-#       floor and headed with act one's own command word, which stops
-#       printing the moment the player drives one back for the first time.
-#     * STRUCTURE. Struts hooping the tunnel, rails running away to the
-#       vanishing point, masses growing off the walls, and pairs of points in
-#       them that open as they go past. No mechanics, no hitboxes, and no
-#       colour -- the act is meant to stay shrill, it was just meant to stay
-#       shrill somewhere rather than nowhere. See HOR_STRUCT_PHASE.
-#
-# THE JOINT BETWEEN THE ACTS (the thing that makes act one matter)
-#   How close it is when the room turns is exactly how much head start you get.
-#   Dread at the shift sets the chase's opening gap. Playing act one badly does
-#   not cost you health -- health is handed back -- it costs you the only
-#   currency act two spends.
-#
-# THE KIT: A PSYCHIC TYPE IS WEAK TO GHOST, DARK AND BUG
-#   Horror is a psychic type, and those three weaknesses are themselves FEARS.
-#   So there is no sword in this fight -- the only things that touch it are
-#   the three things that frighten it, and each answers one aspect it wears:
-#
-#       PRESENCE  it is HERE, solid, close        -> GHOST  stop being there
-#       GAZE      it is looking at you            -> DARK   put the light out
-#       PATTERN   it is exact, ordered, endless   -> BUG    introduce a fault
-#
-#   Act one is therefore not a damage race, it is a READING. The aspect is
-#   printed in the middle of the room every turn -- AND THE READOUT LIES, more
-#   often the closer it gets. The only tell is that a lying word flickers.
-#   Catching a lie never tells you the right answer, it only takes one of the
-#   three off the table, which is the difference between a puzzle and a fear.
-#
-#   And in act two it spends all three back on you: GHOST is a phantom of it
-#   standing ahead of you (impossible), DARK puts the light out mid-run, BUG
-#   faults the encounter itself. None of the three can kill you. Each one
-#   costs you the thing that can.
-#
-# THE THREE HORRORS, ONE ENCOUNTER
-#   UNCANNY -- it does things a pursuer should not. It stands still and
-#     nothing happens (`still`, the only turn in this project that prints no
-#     number). It copies the move you just made and uses it (`mimic`). The
-#     room misreports what it is. In the chase it appears AHEAD of you, which
-#     is impossible, and it is not real, and it still scrambles your hands.
-#   PSYCHOLOGICAL -- nerve is a resource and running out of it takes your
-#     commands away from you for a turn (PANIC). Wind is the same bargain:
-#     the greedy runner empties the tank and gets WINDED, which is slower
-#     than walking. And LOOK BACK is the biggest bargain in the encounter --
-#     see the block above HOR_LOOK_TURN, it is the centrepiece of act two.
-#   THRILLING -- it lunges. Telegraphed, survivable, and it will take every
-#     scrap of wind you were saving.
-#
-# THE RULES (from the invasion spec -- restated because they bind here too)
-#   1. NO FLAVOR TEXT. Controls, numbers and state words only.
-#   2. NOTHING MAY BE FUNNY.
-#   3. IT MOVES LIKE SOMETHING THAT HAS SEEN A DIAGRAM. Drawn through
-#      inv.flesh, same as every Archivist.
-#   4. IT ARRIVES AND LEAVES THROUGH A HOLE.
-#   5. BEATABLE. The chase is brutal ON PURPOSE, but the maths has to close:
-#      see the BALANCE block below, which is the proof that it can be outrun.
-#
-# BALANCE, WRITTEN OUT (change one number here and re-check the others)
-#   Your walk is 1.00 and its speed starts at 1.20, so walking loses from the
-#   first frame -- modelled, a walked run is caught at ~71% of the distance.
-#   Your sprint is 1.80 and wind funds roughly a 54% duty cycle. Modelled
-#   outcomes at these numbers:
-#       clean running, wind released early  -> escapes, gap bottoms out ~60
-#       one stumble every 6s                -> escapes, gap bottoms out ~24
-#       one stumble every 4s                -> CAUGHT at ~76%
-#       greedy (sprints to empty, winded)   -> escapes at a gap of 9
-#       walked the whole way                -> CAUGHT at ~71%
-#   The slack that makes it winnable is NEAR MISSES: threading close to an
-#   obstacle without touching it refunds wind, so a runner who weaves buys a
-#   higher duty cycle than one who plays safe. That is the whole skill curve.
-#   Retune HOR_THEIR_SPEED and every one of those outcomes moves.
-#
-#   WHAT THE LANTERN COSTS, ARITHMETICALLY. A full tank is 770 lit ticks
-#   (HOR_POWER_MAX / HOR_POWER_DRAIN) and being lit adds HOR_LAMP_SEEN to its
-#   speed, so spending the entire tank costs 770 * 0.40 * HOR_GAP_K = ~17 gap
-#   across the whole run, against an opening gap of 30-80 and a sprint that
-#   buys 0.033/tick back. It is a real price and it is a payable one. The
-#   watchers are what it is FOR: driving one off from stage 0 is 70 lit ticks
-#   (9 power), from stage 2 it is 210 (27), and from stage 3 you cannot
-#   finish before it arrives -- you can only push it back to 2 and start
-#   again. Deal with them early is the whole lesson, and the maths says it
-#   rather than a caption.
-#
-#   RE-MEASURED AFTER THE Aug 14 NERF (6 seeded runs a line). `slop` is how
-#   late the bot reacts -- 0.22 is a competent pilot, 0.42 is someone not
-#   really looking, and the bot is pessimistic against a human either way
-#   because it only starts moving at a fixed depth while a player can move
-#   the moment the outline lights:
-#       clean, answers the watchers   6/6, 70-73s, gap floor 45 (its opening
-#                                     value -- it never loses ground at all)
-#       slop 0.22                     6/6, 71-74s, gap floor 45
-#       slop 0.32                     2/6, ~21 stumbles
-#       slop 0.42                     0/6, ~20 stumbles
-#       never raises the lantern      5/6, 75-78s, gap floor 2-32, 4-5 bites
-#       holds the lantern down        0/3, dead at 47-51s with an empty tank
-#   READ THE FLOOR, NOT THE WIN COUNT -- the same reading LOOK BACK was tuned
-#   on. The lantern is not required to finish (5/6 without it) and it is the
-#   difference between a safety margin of 45 and one of 2: it does not win
-#   you the chase, it wins you room. And the last line is why the tank exists
-#   -- a light you can simply leave on is not a bargain.
-#
-#   WHAT THE NERF ACTUALLY WAS, because the obvious lever was wrong twice.
-#   "Nigh-impossible" was NOT the chase being fast: a sloppy bot died at HP 0
-#   with sixteen stumbles and a gap that had never once been in danger. The
-#   chase was being lost by BLEEDING OUT, silently, on a bar nobody watches
-#   during a chase. And slowing the pursuer down to compensate pinned the
-#   clean bot's gap at the ceiling for a whole run, which is not an easier
-#   chase, it is no chase. So the speeds went nearly back to where they were
-#   and the fix landed on the bleed (HOR_STUMBLE_HP 18->12, HOR_GAP_STUMBLE
-#   6.0->3.5, and HOR_HP_NEARMISS, a mend on the skill the act already asks
-#   for) and on the dice (HOR_SPAWN_CLEAR_FRAC, HOR_LANE_NEAR, HOR_REACH_W,
-#   HOR_MIN_WARN, all widened). Measure the thing that is actually killing
-#   people before touching the thing that looks like it is.
-#
-#   LOOK BACK, MEASURED (6 seeded runs each, bots -- so a floor, not a human):
-#       never looks back    6/6, 64-69s, gap bottoming out at  9-45
-#       stares and releases 5/6, 63-67s, gap bottoming out at 21-41
-#       stares until taken  0/6, dead in 9-13s
-#   Read the MIDDLE column, not the first: the win counts are inside seed
-#   noise at this sample size, but the safety FLOOR more than doubles. A
-#   runner who takes the bargain is not finishing faster, they are finishing
-#   with room to spare -- which is the whole promise of the mechanic. And it
-#   is never REQUIRED: a runner who refuses it still gets out.
-#   At the first set of numbers the stare bot won 4/6 against the refuser's
-#   5/6 -- i.e. the bargain cost more than it paid, which is worse than not
-#   having it, because the game was then inviting the player to lose.
-#
-# ARCHITECTURE
-#   Same as every invasion: HORGame owns the simulation, HORStage is one CDD
-#   stepping it at a fixed 60Hz inside render(). Two shaders of its own --
-#   inv.pall (act one: the soup with the colour drained out of it) and
-#   inv.dark (the chase: near-black, wriggling, breathing). The body shader
-#   and the padded plate come from invasions.rpy.
-#
-# READ THIS FIRST IF YOU ARE LOST
-#   HORGame.step() dispatches on self.mode:
-#     arrive   the rupture; it comes through and does not hurry
-#     menu     act one commands
-#     beat     the one-line readout; WAITS for a key, never auto-advances
-#     enemy    its turn
-#     shift    the corruptive tear
-#     run      the chase
-#     leave_w  you got away / leave_l  it reached you
-# =============================================================================
+# The runner stays on HOR_PLANE_Y: obstacles collide when their depth crosses
+# that plane, using horizontal position. Light spends a finite power reserve and
+# attracts the pursuer; directional light also drives back watchers on its side.
+# Look-back, wind, dread and the shrinking corridor govern the chase. Cosmetic
+# structure and outside silhouettes do not add collision surfaces.
+# Shared encounter presentation constraints live in invasions.rpy. Keep hazard
+# telegraphs and collision geometry aligned when changing the projected scene.
 
-# --- SHADERS -----------------------------------------------------------------
 init -9 python:
     HOR_PALL_OK = False
     HOR_DARK_OK = False
     HOR_WITHER_OK = False
 
     def _hor_register_shaders():
-        # ACT ONE. The same hyperspace plate every invasion is fought over,
-        # with the colour pulled out of it and something standing in it. Dread
-        # does not tint the room -- it DARKENS it, closing the vignette and
-        # thickening a slow crawl over everything, so the room gets smaller as
-        # it gets nearer without ever announcing itself.
-        renpy.register_shader("inv.pall", variables="""
-            uniform sampler2D tex0;
-            uniform vec2 u_hor_res;
-            uniform float u_hor_time;
-            uniform float u_hor_dread;
-            uniform float u_hor_pulse;
-            uniform float u_hor_flash;
-            uniform float u_hor_dark;
-            uniform float u_hor_spin;
-            uniform vec4 u_hor_hole;
-            varying vec2 v_tex_coord;
-        """, fragment_functions="""
-            float hor_hash(vec2 p) {
-                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-            }
-            float hor_noise(vec2 p) {
-                vec2 i = floor(p);
-                vec2 f = fract(p);
-                f = f * f * (3.0 - 2.0 * f);
-                float a = hor_hash(i);
-                float b = hor_hash(i + vec2(1.0, 0.0));
-                float c = hor_hash(i + vec2(0.0, 1.0));
-                float d = hor_hash(i + vec2(1.0, 1.0));
-                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-            }
-            float hor_fbm(vec2 p) {
-                float v = 0.0;
-                float a = 0.5;
-                for (int i = 0; i < 4; i++) {
-                    v += a * hor_noise(p);
-                    p = p * 2.03 + vec2(17.3, 9.1);
-                    a *= 0.5;
-                }
-                return v;
-            }
-            vec2 hor_mirror(vec2 p) {
-                return abs(fract(p * 0.5) * 2.0 - 1.0);
-            }
-        """, fragment_300="""
-            vec2 uv = v_tex_coord;
-            float t = u_hor_time;
-            float dread = clamp(u_hor_dread, 0.0, 1.0);
-
-            vec2 c = uv - 0.5;
-
-            // The wormhole it comes through, same instrument as every arrival.
-            vec2 hp = (u_hor_hole.xy / max(u_hor_res, vec2(1.0))) - 0.5;
-            float hr = max(u_hor_hole.z, 1.0) / max(u_hor_res.x, 1.0);
-            float hs = clamp(u_hor_hole.w, 0.0, 1.0);
-            vec2 hv = c - hp;
-            float hd = length(hv);
-            float hinf = (1.0 - smoothstep(0.0, hr, hd)) * hs;
-            if (hinf > 0.001) {
-                float ha = hinf * hinf * 4.6 + t * 0.4 * hinf;
-                float ccs = cos(ha);
-                float csn = sin(ha);
-                hv = vec2(hv.x * ccs - hv.y * csn, hv.x * csn + hv.y * ccs);
-                c = hp + hv * (1.0 - 0.62 * hinf);
-            }
-
-            // Rotational momentum, but sluggish -- this room turns like
-            // something too big to be turning.
-            vec2 pivot = vec2(sin(t * 0.09) * 0.05, cos(t * 0.11) * 0.04);
-            vec2 rc = c - pivot;
-            float rr = length(rc);
-            float twist = u_hor_spin + sin(t * 0.13) * 0.75 * rr;
-            float tcs = cos(twist);
-            float tsn = sin(twist);
-            c = pivot + vec2(rc.x * tcs - rc.y * tsn, rc.x * tsn + rc.y * tcs);
-
-            float r = length(c);
-            c *= 1.0 + (sin(t * 0.23) * 0.03) * r * r;
-
-            vec2 w1 = vec2(hor_fbm(c * 2.6 + vec2(t * 0.09, -t * 0.07)),
-                        hor_fbm(c * 2.6 + vec2(4.1 - t * 0.06, 8.3 + t * 0.05)));
-            vec2 sp = c + (w1 - 0.5) * (0.06 + 0.05 * dread);
-            vec3 src = texture2D(tex0, hor_mirror(sp + 0.5)).rgb;
-
-            // Drained. What is left is a wet grey-green, and dread takes even
-            // that away.
-            float lum = dot(src, vec3(0.299, 0.587, 0.114));
-            vec3 col = mix(vec3(lum * 0.72, lum * 0.86, lum * 0.74),
-                        vec3(lum * 0.30, lum * 0.34, lum * 0.31), dread);
-            col *= 0.42 - 0.16 * dread;
-
-            // Something moving under the surface, slowly, never resolving.
-            float crawl = hor_fbm(c * 6.0 + vec2(-t * 0.05, t * 0.04));
-            col += vec3(0.06, 0.09, 0.07) * smoothstep(0.55, 0.95, crawl)
-                * (0.5 + 1.4 * dread);
-
-            // A single slow breath, the room's, not yours.
-            col *= 1.0 + 0.05 * sin(t * 0.9) * (0.4 + dread);
-            col += vec3(0.05, 0.02, 0.03) * u_hor_pulse * dread;
-
-            if (hs > 0.001) {
-                float core = 1.0 - smoothstep(hr * 0.12, hr * 0.52, hd);
-                col *= mix(1.0, 0.02, core * hs);
-                float lip = 1.0 - smoothstep(0.0, hr * 0.16, abs(hd - hr * 0.52));
-                col += vec3(0.42, 0.46, 0.40) * lip * hs * 1.15;
-            }
-
-            float vig = 1.0 - r * r * (1.35 + 1.55 * dread);
-            col *= max(vig, 0.0);
-            col = mix(col, vec3(0.86, 0.88, 0.84), clamp(u_hor_flash, 0.0, 1.0));
-            col *= 1.0 - clamp(u_hor_dark, 0.0, 1.0);
-            gl_FragColor = vec4(col, 1.0);
-        """)
-
-        # ACT TWO. NOT a black screen -- a hyperspace you are being driven
-        # down. The plate is remapped into a TUNNEL (polar around a vanishing
-        # point, radius inverted into depth) so the whole room rushes past you
-        # and there is somewhere to be running TO. It is kept dark by
-        # exposure, not by deletion: the spectacle is all there, drowned.
+        # THE CORRIDOR, BOTH ACTS (Oct 2 2026).
         #
-        # Over that: filaments streaming past to sell speed, a wriggle that
-        # never settles, arcs of far-off light, a heartbeat that squeezes the
-        # frame, and a pressure closing from the edges keyed to exactly one
-        # thing -- u_hor_near, 0 = it is nowhere, 1 = it is on you.
+        # Act one used to be a drained pall over the hyperspace plate with the
+        # thing floating in the middle of it, and act two a black screen with
+        # line-drawn hoops and hollow boxes -- "a heart running down an empty
+        # corridor". It is now ONE PLACE: a real corridor, floor, walls,
+        # ceiling and ribs, solved per pixel against the SAME projection the
+        # simulation uses (hor_project: persp = Z_NEAR / z, screen offsets
+        # scale by persp about the vanishing point), so every mass, watcher
+        # and strut drawn from Python stands exactly on the surfaces painted
+        # here.
+        #
+        # In act one the corridor is at rest and the thing is standing in it,
+        # as far down it as DREAD says -- the number that matters, made into
+        # a distance you can see. In act two the same corridor moves.
+        #
+        # THE LANTERN IS A LIGHT. It is a point source carried at hip height by
+        # whoever is running, with distance falloff, Lambert shading against
+        # each surface and a wet specular glint -- so raising it gives you the
+        # corridor back the way a lamp does, nearest first. It is the only
+        # warm thing in either act.
+        #
+        # The far end is the old "drowned spectacle": the plate mapped into a
+        # throat at the vanishing point, kept as the fog colour, so the
+        # corridor still runs into the hyperspace it is made of.
         renpy.register_shader("inv.dark", variables="""
             uniform sampler2D tex0;
+            uniform sampler2D tex1;
             uniform vec2 u_hor_res;
             uniform float u_hor_time;
-            uniform float u_hor_scroll;
+            uniform vec4 u_hor_geo;
+            uniform vec4 u_hor_lane;
+            uniform vec4 u_hor_lamp;
+            uniform vec4 u_hor_mood;
+            uniform vec4 u_hor_hole;
             uniform float u_hor_near;
             uniform float u_hor_beat;
             uniform float u_hor_lurch;
@@ -354,7 +62,6 @@ init -9 python:
             uniform float u_hor_look;
             uniform float u_hor_vast;
             uniform float u_hor_close;
-            uniform float u_hor_lamp;
             varying vec2 v_tex_coord;
         """, fragment_functions="""
             float dk_hash(vec2 p) {
@@ -373,7 +80,7 @@ init -9 python:
             float dk_fbm(vec2 p) {
                 float v = 0.0;
                 float a = 0.5;
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 3; i++) {
                     v += a * dk_noise(p);
                     p = p * 2.11 + vec2(11.7, 5.3);
                     a *= 0.5;
@@ -382,7 +89,9 @@ init -9 python:
             }
         """, fragment_300="""
             const float DK_TAU = 6.2831853;
-            vec2 uv = v_tex_coord;
+            const float DK_F = 900.0;           // focal length, px
+            vec2 res = max(u_hor_res, vec2(1.0));
+            vec2 px = v_tex_coord * res;
             float t = u_hor_time;
             float near = clamp(u_hor_near, 0.0, 1.0);
             float beat = clamp(u_hor_beat, 0.0, 1.0);
@@ -390,121 +99,185 @@ init -9 python:
             float glitch = clamp(u_hor_glitch, 0.0, 1.0);
             float look = clamp(u_hor_look, 0.0, 1.0);
             float vast = clamp(u_hor_vast, 0.0, 1.0);
-            float close = clamp(u_hor_close, 0.0, 1.0);
-            float lamp = clamp(u_hor_lamp, 0.0, 1.0);
+            float act = clamp(u_hor_mood.x, 0.0, 1.0);
+            float dread = clamp(u_hor_mood.y, 0.0, 1.0);
+            float spd = clamp(u_hor_mood.z, 0.0, 1.0);
+            float lamp = clamp(u_hor_lamp.x, 0.0, 1.0);
+            vec2 vp = u_hor_geo.xy;
 
-            vec2 c = uv - vec2(0.5, 0.46);
-            c.x *= u_hor_res.x / max(u_hor_res.y, 1.0);
+            // --- the frame, before the geometry ------------------------------
+            vec2 q = px - vp;
+            // The heartbeat squeezes the corridor toward its own end.
+            q *= 1.0 - 0.045 * beat * (0.5 + near) * act;
+            q.x += u_hor_lurch * 26.0 * sin(px.y * 0.036 + t * 9.0);
+            float grow = floor(px.y / 6.5);
+            q.x += (dk_hash(vec2(grow, floor(t * 20.0))) - 0.5) * 200.0 * glitch;
 
-            // The heartbeat squeezes the frame itself.
-            c *= 1.0 - 0.045 * beat * (0.5 + near);
-            c.x += u_hor_lurch * 0.05 * sin(uv.y * 26.0 + t * 9.0);
-            // A bug tears rows sideways.
-            float grow = floor(uv.y * 110.0);
-            c.x += (dk_hash(vec2(grow, floor(t * 20.0))) - 0.5) * 0.16 * glitch;
+            // The wormhole it comes through, same instrument as every arrival.
+            float hs = clamp(u_hor_hole.w, 0.0, 1.0);
+            vec2 hv = (vp + q) - u_hor_hole.xy;
+            float hd = length(hv);
+            float hr = max(u_hor_hole.z, 1.0);
+            if (hs > 0.001) {
+                float hinf = (1.0 - smoothstep(0.0, hr, hd)) * hs;
+                float ha = hinf * hinf * 4.6 + t * 0.4 * hinf;
+                vec2 hw = vec2(hv.x * cos(ha) - hv.y * sin(ha),
+                               hv.x * sin(ha) + hv.y * cos(ha));
+                q = (u_hor_hole.xy + hw * (1.0 - 0.62 * hinf)) - vp;
+            }
 
+            // --- THE CORRIDOR ------------------------------------------------
+            float lo = u_hor_lane.x;
+            float hi = u_hor_lane.y;
+            float zn = max(u_hor_lane.z, 0.01);
+            // TURNING ROUND REVERSES THE WORLD: everything that was coming at
+            // you goes away. The cheapest convincing "you are facing the other
+            // way" there is, and it costs no second camera.
+            float zs = u_hor_lane.w * (1.0 - 2.0 * look);
+            float fy = u_hor_geo.z - vp.y;
+            float cy = u_hor_geo.w - vp.y;
+            // The walls are not flat: their inner face breathes, out of step
+            // with everything else, harder the closer it is behind you.
+            float wig = (u_hor_mood.w + 60.0 * near) * (0.6 + 0.4 * sin(t * 1.3));
+            float wl = (lo - vp.x) + wig * 0.12;
+            float wr = (hi - vp.x) - wig * 0.12;
+
+            float pf = q.y > 0.0 ? q.y / fy : 0.0;
+            float pc = q.y < 0.0 ? q.y / cy : 0.0;
+            float pl = q.x < 0.0 ? q.x / min(wl, -1.0) : 0.0;
+            float pr = q.x > 0.0 ? q.x / max(wr, 1.0) : 0.0;
+            float persp = max(max(pf, pc), max(pl, pr));
+            persp = max(persp, 1e-4);
+            float z = zn / persp;
+            float zw = z + zs;
+            float onwall = step(max(pf, pc), max(pl, pr));
+            float onceil = step(pf, pc) * (1.0 - onwall);
+            float xw = q.x / persp;
+            float yw = q.y / persp;
+
+            // A second, finer wriggle on the wall face itself, so the edges of
+            // the corridor are never a ruled line.
+            float face = dk_fbm(vec2(zw * 9.0, yw * 0.012 + t * 0.15));
+            if (onwall > 0.5) {
+                float pw = (q.x < 0.0 ? -1.0 : 1.0);
+                xw += pw * (face - 0.5) * (18.0 + 30.0 * near);
+            }
+
+            vec2 tuv = mix(vec2(xw / 280.0, zw * 4.2), vec2(zw * 4.2, yw / 280.0), onwall);
+            vec3 tx = texture2D(tex1, tuv).rgb;
+
+            // RIBS: hoops round the corridor on the struts' own period, so the
+            // painted ones and the drawn ones can never disagree.
+            float ribp = fract(zw * 7.52);
+            float rib = smoothstep(0.80, 0.90, ribp) * (1.0 - smoothstep(0.93, 1.0, ribp));
+            float gap = smoothstep(0.62, 0.80, ribp) * (1.0 - smoothstep(0.80, 0.86, ribp));
+
+            vec3 alb = vec3(0.28, 0.31, 0.29) * (0.45 + 1.05 * tx.r);
+            alb = mix(alb, alb * vec3(0.78, 0.86, 0.80), onceil);
+            alb *= 1.0 - 0.55 * gap;
+            alb += vec3(0.16, 0.17, 0.16) * rib;
+            // Growths on the walls: dark lumps riding the same depth phase.
+            float lump = smoothstep(0.62, 0.86, dk_fbm(vec2(zw * 3.0, yw * 0.006)))
+                       * onwall;
+            alb = mix(alb, vec3(0.05, 0.05, 0.05), lump * 0.8);
+
+            // --- light ---------------------------------------------------------
+            vec3 P = vec3(xw, yw, z * DK_F / zn);
+            vec3 N = mix(mix(vec3(0.0, -1.0, 0.0), vec3(0.0, 1.0, 0.0), onceil),
+                         vec3(q.x < 0.0 ? 1.0 : -1.0, 0.0, 0.0), onwall);
+            vec3 L = vec3(u_hor_lamp.y - vp.x, fy - 70.0, DK_F * 1.05);
+            vec3 dL = L - P;
+            float dist = length(dL);
+            vec3 ld = dL / max(dist, 1.0);
+            float lam = max(dot(N, ld), 0.0);
+            float atten = 1.0 / (1.0 + (dist * dist) / (520.0 * 520.0));
+            vec3 V = normalize(-P);
+            vec3 H = normalize(ld + V);
+            float wet = 0.35 + 0.65 * tx.g;
+            float spec = pow(max(dot(N, H), 0.0), 28.0) * wet;
+            float flick = 0.86 + 0.14 * dk_noise(vec2(t * 8.0, 3.0));
+            flick = mix(flick, 1.0, clamp(u_hor_lamp.z, 0.0, 1.0));
+            float light = lamp * flick * atten;
+            vec3 warm = vec3(1.00, 0.86, 0.62);
+            vec3 col = alb * (0.075 + 0.045 * act)
+                     + alb * warm * lam * light * 2.6
+                     + warm * spec * light * 1.4;
+            // Without the lamp the corridor is not black -- it is lit, very
+            // faintly and coldly, from the far end, so the walls are a shape
+            // and not a void. Lowest near you, rising down the throat.
+            float farlit = smoothstep(0.20, 1.2, z) * (1.0 - smoothstep(1.4, 3.2, z));
+            col += alb * vec3(0.20, 0.26, 0.24) * farlit;
+            // THE SEAMS. Where floor meets wall and wall meets ceiling a thin
+            // cold line of light runs away to the vanishing point: the cheapest
+            // way to keep a dark corridor reading as a corridor.
+            float a1 = max(pf, pc);
+            float a2 = max(pl, pr);
+            float seam = 1.0 - smoothstep(0.0, 0.035, abs(a1 - a2) / max(persp, 0.02));
+            col += vec3(0.11, 0.14, 0.13) * seam * (0.5 + 0.5 * farlit)
+                 * (1.0 - smoothstep(1.6, 3.0, z));
+
+            // --- the far end: the drowned spectacle ------------------------------
+            vec2 c = q / res.y;
             float r = max(length(c), 0.0007);
             float ang = atan(c.y, c.x);
+            float tdepth = 0.34 / r + zs * 1.15;
+            vec2 tuv2 = vec2(ang / DK_TAU * 2.0 + sin(tdepth * 0.25) * 0.05, tdepth * 0.16);
+            vec3 src = texture2D(tex0, fract(tuv2)).rgb;
+            vec3 fogc = src * vec3(0.10, 0.13, 0.12) + vec3(0.012, 0.016, 0.015);
+            float fogk = mix(1.45, 2.10, dread * (1.0 - act)) + 0.6 * blind;
+            float fog = 1.0 - exp(-(max(z - zn, 0.0)) * fogk);
+            col = mix(col, fogc, fog);
 
-            // THE TUNNEL. Radius inverted into depth, angle into the wrap, so
-            // the plate becomes a throat you are being pulled down.
-            // TURNING ROUND REVERSES THE WORLD. Everything that was rushing
-            // at you is now rushing away from you, which is the cheapest and
-            // by far the most convincing way to say "you are facing the other
-            // direction" without building a second camera.
-            float depth = 0.34 / r + u_hor_scroll * 1.15 * (1.0 - 2.0 * look);
-            vec2 tuv = vec2(ang / DK_TAU * 2.0 + sin(depth * 0.25) * 0.05,
-                            depth * 0.16);
-            vec3 src = texture2D(tex0, fract(tuv)).rgb;
-
-            // Drowned, not deleted. Depth fog eats the far end.
-            float fog = smoothstep(0.02, 0.42, r);
-            vec3 col = src * (0.030 + 0.135 * fog);
-            col *= vec3(0.80, 0.94, 0.86);
-
-            // Structure in the walls: long ribs rushing past.
-            float ribs = sin(depth * 3.1 + ang * 3.0) * 0.5 + 0.5;
-            col += vec3(0.045, 0.055, 0.052) * pow(ribs, 6.0) * fog
-                * (0.7 + 0.8 * near);
-
-            // FILAMENTS streaming past -- keyed to scroll, so they are what
-            // tells the eye how fast it is going.
-            float fx = ang * 3.4;
-            float jitter = dk_hash(vec2(floor(fx * 2.0), 1.0));
-            float band = dk_fbm(vec2(fx * 1.6 + jitter * 9.0,
-                                    depth * 0.55 + jitter * 4.0));
-            col += vec3(0.055, 0.064, 0.070) * smoothstep(0.60, 0.95, band)
-                * fog * (0.6 + 0.9 * near);
-
-            // WRIGGLE, out of step with everything else.
-            float wr = dk_fbm(vec2(c.x * 4.5 + sin(t * 0.4) * 0.8,
-                                c.y * 4.5 - t * 0.16));
-            col += vec3(0.030, 0.026, 0.034) * smoothstep(0.58, 0.98, wr)
-                * (0.5 + 1.6 * near);
-
-            // THE LANTERN. It is being carried by the thing doing the
-            // running, so it lights the near walls hardest and gives out
-            // somewhere up the throat -- one lamp in a corridor, never a
-            // floodlight, and it flickers because it always has. It is the
-            // only warm thing in either act.
-            if (lamp > 0.001) {
-                float flick = 0.84 + 0.16 * dk_noise(vec2(t * 8.0, 3.0));
-                float reach = smoothstep(0.03, 0.34, r);
-                float down = smoothstep(-0.60, 0.30, c.y / max(r, 0.0007));
-                col += vec3(0.145, 0.136, 0.108) * lamp * flick * reach
-                    * (0.30 + 0.70 * down) * (0.45 + 0.55 * fog);
-                // And it picks the ribs out of the walls, which is most of
-                // why raising it feels like being given the corridor back.
-                col += vec3(0.070, 0.074, 0.066) * lamp * flick
-                    * pow(ribs, 3.0) * reach * 0.8;
-            }
-
-            // Far-off discharges, rare and cold.
-            float bolt = dk_hash(vec2(floor(t * 2.3), 7.0));
-            if (bolt > 0.955) {
-                float bx = dk_hash(vec2(floor(t * 2.3), 9.0));
-                float line = 1.0 - smoothstep(0.0, 0.03,
-                    abs(uv.x - bx) + abs(sin(uv.y * 8.0 + bx * 20.0)) * 0.02);
-                col += vec3(0.30, 0.36, 0.40) * line * 0.5;
-            }
-
-            // SOMETHING ENORMOUS, OUT PAST THE WALLS. Only ever at large
-            // radius -- outside the corridor, where you cannot go and it does
-            // not need to come. It occludes the far structure and carries one
-            // cold rim, and it never interacts with anything.
+            // SOMETHING ENORMOUS crossing the far end of the corridor. It
+            // occludes the throat and carries one cold rim, and it never
+            // touches anything.
             if (vast > 0.001) {
-                float far_mask = smoothstep(0.28, 0.56, r);
                 float body = sin(ang * 0.85 + t * 0.055) * 0.5 + 0.5;
-                float sil = smoothstep(0.40, 0.60, body);
-                col = mix(col, col * 0.04, sil * far_mask * vast);
-                float rim2 = 1.0 - smoothstep(0.0, 0.055, abs(body - 0.50));
-                col += vec3(0.055, 0.095, 0.125) * rim2 * far_mask * vast;
+                float sil = smoothstep(0.40, 0.60, body) * smoothstep(0.55, 1.0, fog);
+                col = mix(col, col * 0.05, sil * vast);
+                float rim2 = (1.0 - smoothstep(0.0, 0.055, abs(body - 0.50)))
+                           * smoothstep(0.55, 1.0, fog);
+                col += vec3(0.055, 0.095, 0.125) * rim2 * vast;
             }
 
-            // PRESSURE. The edges come in as it closes, breathing faster the
-            // nearer it is. A blackout slams it shut for a moment, the walls
-            // themselves close over the run, and a stare shuts everything
-            // that is not the thing you are staring at.
-            float squeeze = 0.80 + 1.75 * near + 3.2 * blind + 1.45 * close
-                        + 2.10 * look - 0.55 * lamp
-                        + 0.10 * sin(t * (1.6 + 3.4 * near)) * (0.3 + near);
-            float vig = 1.0 - dot(c, c) * squeeze;
-            col *= max(vig, 0.0);
+            // SPEED: filaments streaking down the walls at the rate you are
+            // actually running. Without them the corridor reads as wallpaper.
+            float fil = dk_hash(vec2(floor(ang * 18.0), 7.0));
+            float streak = smoothstep(0.92, 1.0, fil)
+                         * smoothstep(0.55, 1.0, fract(tdepth * 0.5))
+                         * spd * act * (1.0 - fog);
+            col += vec3(0.10, 0.12, 0.11) * streak;
+
+            // The hole's own mouth.
+            if (hs > 0.001) {
+                float core = 1.0 - smoothstep(hr * 0.12, hr * 0.52, hd);
+                col *= mix(1.0, 0.02, core * hs);
+                float lip = 1.0 - smoothstep(0.0, hr * 0.16, abs(hd - hr * 0.52));
+                col += vec3(0.42, 0.46, 0.40) * lip * hs * 1.15;
+            }
+
+            // --- PRESSURE ---------------------------------------------------------
+            // The edges come in as it closes, breathing faster the nearer it
+            // is. A blackout slams them shut, the walls close over the run,
+            // a stare shuts everything that is not the thing you are staring
+            // at -- and the lantern holds them back a little.
+            vec2 cc = (px - vp) / res.y;
+            float squeeze = 0.62 + 1.60 * near + 3.0 * blind + 1.15 * u_hor_close
+                          + 2.0 * look - 0.45 * lamp + 1.20 * dread * (1.0 - act)
+                          + 0.10 * sin(t * (1.6 + 3.4 * near)) * (0.3 + near);
+            col *= max(1.0 - dot(cc, cc) * squeeze, 0.0);
 
             // It is behind you, so the bottom of the frame is the worst place
-            // to be looking -- until you turn round, at which point the worst
-            // place to be looking is straight ahead.
-            float behind = smoothstep(0.30, 1.0, uv.y) * near * (1.0 - look);
+            // to look -- until you turn round.
+            float behind = smoothstep(0.62, 1.0, v_tex_coord.y) * near * (1.0 - look) * act;
             col *= 1.0 - 0.50 * behind;
             col += vec3(0.075, 0.012, 0.020) * behind * (0.35 + 0.65 * beat);
-            col += vec3(0.090, 0.014, 0.024) * look * near
-                * (0.30 + 0.70 * beat);
+            col += vec3(0.090, 0.014, 0.024) * look * near * (0.30 + 0.70 * beat);
 
             col = mix(col, vec3(0.80, 0.82, 0.80), clamp(u_hor_flash, 0.0, 1.0));
             col *= 1.0 - clamp(u_hor_dark, 0.0, 1.0);
             gl_FragColor = vec4(col, 1.0);
         """)
-
     def _hor_register_wither():
         # HORROR'S OWN BODY. Every Archivist gets its own way of being wrong,
         # or they all read as the same puppet in different hats.
@@ -531,6 +304,8 @@ init -9 python:
             uniform float u_wit_reach;
             uniform float u_wit_diss;
             uniform float u_wit_near;
+            uniform vec4 u_wit_tint;
+            uniform vec4 u_wit_rim;
             varying vec2 v_tex_coord;
         """, fragment_functions="""
             float wit_hash(vec2 p) {
@@ -692,24 +467,25 @@ init -9 python:
             }
 
 
+            // ---- THE CORRIDOR'S LIGHT ON IT (Oct 2 2026) --------------------
+            // A key tint (the lantern, warm, by how near and how lit) and a
+            // rim along its LOWER edges -- the lamp is held low, by whoever is
+            // running, so that is the side of it the light finds.
+            col.rgb *= mix(vec3(1.0), u_wit_tint.rgb, clamp(u_wit_tint.a, 0.0, 1.0));
+            if (u_wit_rim.a > 0.001) {
+                float below = min(texture2D(tex0, uv + vec2(0.006, 0.010)).a,
+                                  texture2D(tex0, uv + vec2(-0.006, 0.010)).a);
+                float rimv = clamp(col.a - below, 0.0, 1.0);
+                col.rgb += u_wit_rim.rgb * rimv * u_wit_rim.a * col.a;
+            }
+
             // ---- THE PLATE CONTRACT (shared by every Archivist body) -------
-            // Two things every one of these shaders has to do on its last
-            // line, and none of them did until Aug 23 2026.
-            //
-            // 1. PREMULTIPLIED ALPHA. gl2 blends src + dst * (1 - a), so a
-            //    pixel whose RGB is brighter than its own alpha ADDS light --
-            //    and at alpha zero with bright RGB it adds light while
-            //    claiming to be invisible. Every one of these shaders moves
-            //    colour around without reference to alpha somewhere, so all of
-            //    them were painting the transparent MARGIN of the padded plate
-            //    and drawing the plate's own rectangle on screen as a faint
+            // 1. PREMULTIPLIED ALPHA: RGB brighter than its own alpha ADDS
+            //    light, and at alpha zero draws the plate's own rectangle as a
             //    glowing box. Clamping RGB to alpha is the fix.
-            //
-            // 2. THE EDGE. A mesh shader is clipped dead at its plate
-            //    rectangle, so anything still opaque at the boundary is cut in
-            //    a straight line. Padding buys room; it guarantees nothing.
-            //    The feather is measured in the plate's OWN untransformed
-            //    coordinate, so warps, swells and strays cannot escape it.
+            // 2. THE EDGE: a mesh shader is clipped dead at its plate
+            //    rectangle, so the alpha is feathered in the plate's OWN
+            //    untransformed coordinate.
             vec2 pe = min(plate_uv, vec2(1.0) - plate_uv);
             col *= smoothstep(0.0, 0.050, min(pe.x, pe.y));
             gl_FragColor = vec4(min(col.rgb, vec3(col.a)), col.a);
@@ -748,7 +524,6 @@ init python:
     # These put the FIGURE where the code asks for it.
     HOR_FIG_DX, HOR_FIG_DY = 100.5, 10.0
 
-    HOR_ZOOM_ACT1 = 0.34
     # The plate is rasterised at this zoom at most; anything larger is applied
     # to the finished mesh instead. 1254 * 0.62 * 1.6 padding = ~1244px, well
     # inside the 4096 texture ceiling, where 2.7 * 1254 was not.
@@ -829,7 +604,6 @@ init python:
     #   BUG   -> the encounter itself faults: torn rows, lying readouts
     HOR_FEAR_EVERY = 620           # ticks between one fear and the next
     HOR_FEAR_JITTER = 180
-    HOR_BLIND_WARN = 26
     HOR_BLIND_LEN = 74
     HOR_GLITCH_LEN = 96
     HOR_SCRAMBLE_ON_GLITCH = 30
@@ -974,8 +748,6 @@ init python:
     # while scroll climbs at HOR_SCROLL_PX, so structure travels at the same
     # apparent rate at HOR_Z_RATE / ((HOR_Z_FAR - HOR_Z_GONE) * HOR_SCROLL_PX).
     HOR_STRUCT_PHASE = HOR_Z_RATE / ((HOR_Z_FAR - HOR_Z_GONE) * HOR_SCROLL_PX)
-    HOR_STRUTS = 7                 # hoops in flight at once
-    HOR_GROWTHS = 6                # masses clinging to the walls
     HOR_WALL_EYES = 5              # and things in them that are not masses
 
     # =========================================================================
@@ -1113,7 +885,6 @@ init python:
     HOR_RESOLVE_DRAIN = 0.46       # stamina drain multiplier
     HOR_LOOK_GAP_BACK = 10.0       # ground handed straight back on release
     HOR_RESOLVE_SIGHT = 1.38       # sight multiplier
-    HOR_RESOLVE_CALM = 0.62        # how much of the pressure it takes off
     HOR_LOOK_LOCK = 150            # ticks you cannot look after being taken
     HOR_LOOK_STAM_BACK = 34.0      # wind handed back on a good release
 
@@ -1127,7 +898,6 @@ init python:
     HOR_INK = "#e8ece8"
     HOR_DIM = "#7e8a84"
     HOR_FAINT = "#4e5a55"
-    HOR_WIN = "#040605e8"
     HOR_PALE = "#b8c4ba"
     HOR_WARN = "#c9b46a"
     HOR_BLOOD = "#8e1622"
@@ -1135,6 +905,20 @@ init python:
 
     HOR_CMDS = (("light", "LIGHT"), ("listen", "LISTEN"),
                 ("steady", "STEADY"), ("run", "RUN"))
+
+    # --- ACT ONE STANDS IN THE CORRIDOR (Oct 2 2026) -------------------------
+    # DREAD is how close it is standing, so in act one it is drawn as exactly
+    # that: a figure on the corridor floor, further down the throat at low
+    # dread and nearly on you at high dread. hor_a1_place(dread 0..1) gives
+    # its perspective and where its feet meet the boards.
+    HOR_A1_PERSP = (0.34, 0.60)
+    HOR_A1_ZOOM = 0.30             # its zoom at persp 0.5
+    HOR_FIG_H = 1222.0             # canvas px from the top of it to its feet
+    HOR_A1_LANE = (150.0, 1130.0)  # act one's corridor: wide, nothing closing
+
+    def hor_a1_place(dread):
+        persp = inv_lerp(HOR_A1_PERSP[0], HOR_A1_PERSP[1], inv_clamp(dread, 0.0, 1.0))
+        return (persp, HOR_VP[1] + (HOR_PLANE_Y - HOR_VP[1]) * persp)
 
     def hor_project(z):
         """Depth -> (scale, screen y). scale 1.0 is the runner's own plane."""
@@ -1156,18 +940,39 @@ init python:
     class HORGame(object):
         """All of Horror's live state, stepped at a fixed 60Hz by HORStage."""
 
-        def __init__(self, retry=False, deaths=0, debug=False, start_open=False):
+        def __init__(self, retry=False, deaths=0, debug=False, start_open=False,
+                     resume=None):
             self.result = None
             self.paused = False
             self.debug = bool(debug)
             self.retry = bool(retry)
             self.deaths = int(deaths)
             self.god = inv_godmode_on()
+            # THE CHECKPOINT carries the one thing act one hands the chase:
+            # how close it was standing when the room turned.
+            self.checkpoint = None
 
             self.tick = 0
             self.clock = 0.0
             self.spin = 0.0
             self.rng = inv_random.Random()
+            self.rng_fx = inv_random.Random()
+
+            # --- presentation (Oct 2 2026; decoration owned by the sim) ------
+            self.fx = InvFX(cap=420)
+            self.turn_log = []
+            self.shock = [640.0, 360.0, 0.0, 0.0]
+            self.ca = 0.0
+            self.tear = 0.0
+            self.panel_kick = 0.0
+            self.windup = 0.0
+            self.windup_col = HOR_BLOOD
+            self.pending_move = None
+            self.lamp1 = 0.62           # act one: the lantern you are holding
+            self.lamp1_still = 0.0      # STEADY: the flame stops guttering
+            self.dread_shown = float(HOR_DREAD_START)
+            self.blink_t = 0            # "behind": it is not there for a beat
+            self.lunge_k = 0.0          # act one: IT REACHES
 
             # --- the runner ----------------------------------------------------
             self.hp = HOR_HP_MAX
@@ -1293,8 +1098,14 @@ init python:
             self._prev = {"left": False, "right": False, "up": False,
                         "down": False, "z": False, "x": False}
 
-            if start_open:
+            if resume:
+                self.dread = float(resume.get("dread", 55.0))
+                self.dread_shown = self.dread
+                self._begin_run(dev=True)
+                self.dark = 1.0
+            elif start_open:
                 self.dread = 55.0
+                self.dread_shown = self.dread
                 self._begin_run(dev=True)
 
         # ----- helpers ---------------------------------------------------------
@@ -1366,12 +1177,33 @@ init python:
             mid = (lo + hi) * 0.5
             return (self.px < mid) if w["side"] == 0 else (self.px > mid)
 
-        def _beat(self, label, value="", after="enemy"):
+        def _beat(self, label, value="", after="enemy", kind="you"):
             self.beat_label = label
             self.beat_value = value
             self.beat_after = after
             self.mode = "beat"
             self.mtick = 0
+            if value or label:
+                inv_log_push(self, label, value, kind)
+
+        def _kick_lens(self, x, y, strength, ca=0.0):
+            self.shock = [float(x), float(y), 8.0, float(strength)]
+            self.ca = max(self.ca, ca)
+
+        def _fx_strike(self, big=False):
+            """Act one: something reaching out of the corridor at the window
+            that is standing in for you."""
+            fx = self.fx
+            x1, y1 = 1004.0, 612.0
+            fx.burst("smoke_%d" % self.rng_fx.randint(0, 3), x1, y1, 7 if big else 4,
+                     speed=(0.6, 2.4), life=(26, 44), size=(0.6, 1.2), size1=1.7,
+                     col="#1a0a0c", alpha=0.75, add=False, drag=0.95,
+                     jitter=120.0, squash=0.35, layer="hud")
+            fx.burst("spark", x1, y1, 12 if big else 6, speed=(2.0, 7.0),
+                     life=(10, 20), size=(0.2, 0.4), col="#c94a5a", drag=0.86,
+                     stretch=0.12, layer="hud")
+            self.panel_kick = 1.0
+            self._kick_lens(x1, y1, 0.8 if big else 0.4, 0.008 if big else 0.004)
 
         def float_text(self, x, y, text, color, big=False):
             self.floats.append({"x": x, "y": y, "vy": -1.6, "life": 52,
@@ -1494,6 +1326,30 @@ init python:
             self.hit_flash *= 0.88
             self.lurch *= 0.90
 
+            # --- presentation state ------------------------------------------
+            self.fx.step()
+            self.ca *= 0.86
+            self.tear *= 0.88
+            self.panel_kick *= 0.84
+            self.windup *= 0.94
+            self.lunge_k *= 0.92
+            if self.shock[3] > 0.004:
+                self.shock[2] += 15.0 + self.shock[2] * 0.05
+                self.shock[3] *= 0.90
+            else:
+                self.shock[3] = 0.0
+            if self.blink_t > 0:
+                self.blink_t -= 1
+            # The lantern in your hand: it gutters back to its resting level
+            # after a flare, and STEADY stops it guttering for a while.
+            self.lamp1 = inv_lerp(self.lamp1, 0.62 if not self.panic else 0.40, 0.03)
+            self.lamp1_still = max(0.0, self.lamp1_still - 0.006)
+            # DREAD IS A DISTANCE now, so it must never jump: the thing is
+            # drawn from a smoothed copy and walks to the new value.
+            self.dread_shown = inv_lerp(self.dread_shown, self.dread, 0.045)
+            if self.dark > 0.0 and self.mode == "run" and self.mtick < 70:
+                self.dark = max(0.0, self.dark - 0.03)
+
             for attr, real in (("hp_shown", self.hp),
                             ("nerve_shown", self.nerve)):
                 shown = getattr(self, attr)
@@ -1566,8 +1422,7 @@ init python:
             if self.panic:
                 # Nerve is gone: your hands are not yours this turn.
                 self.cursor = self.rng.randrange(len(HOR_CMDS))
-            else:
-                self.cursor = 0
+            # Otherwise the cursor stays where you left it.
 
         def _step_menu(self, edges):
             self.mtick += 1
@@ -1593,8 +1448,10 @@ init python:
                 self._resolve_player(HOR_CMDS[self.cursor][0])
 
         def _step_beat(self, edges):
+            # Holds, then moves on; the readout outlives it in the turn log.
             self.mtick += 1
-            if self.mtick > 12 and (edges["z"] or edges["x"]):
+            if (self.mtick >= INV_BEAT_HOLD
+                    or (self.mtick > INV_BEAT_SKIP and (edges["z"] or edges["x"]))):
                 self.play("confirm", 0.7)
                 after = self.beat_after
                 self.beat_label = ""
@@ -1625,25 +1482,50 @@ init python:
                 self.resolve = int(max(0, self.resolve - dmg))
                 self.dread = max(0.0, self.dread - HOR_LIGHT_DREAD)
                 self.play("scan")
-                self.flash = 0.55
+                self.flash = 0.18
+                # The lantern flares: the corridor comes back to its far
+                # walls, and the thing in it gives ground.
+                self.lamp1 = 1.75
+                self.fx.burst("dust", 640.0, 560.0, 34, speed=(0.8, 3.6),
+                              life=(30, 70), size=(0.5, 1.3), col="#ffd9a0",
+                              drag=0.975, ay=-0.02, angle=-90.0, spread=150.0,
+                              jitter=200.0, squash=0.5, layer="front")
+                hx, hy = self._a1_head()
+                self.fx.emit("glow", hx, hy, life=24, size=2.6, size1=3.6,
+                             col="#ffe2b0", alpha=0.5, layer="front", fade="out2")
+                self._kick_lens(hx, hy, 0.5, 0.004)
                 value = "-" + str(dmg)
 
             elif cmd == "listen":
                 self.gain_nerve(HOR_LISTEN_NERVE)
                 self.read = True
                 self.play("tick", 0.8)
+                # Holding still and listening: the light drops and the room
+                # comes in as a ripple from where it is standing.
+                self.lamp1 = min(self.lamp1, 0.38)
+                hx, hy = self._a1_head()
+                self.fx.ring(hx, hy + 120, 30.0, 420.0, life=40, col="#b8c4ba",
+                             alpha=0.35, layer="front", tex="ring_soft",
+                             squash=0.45)
                 value = "+" + str(HOR_LISTEN_NERVE)
 
             elif cmd == "steady":
                 self.gain_nerve(HOR_STEADY_NERVE)
                 self.guard = True
                 self.play("guard")
+                self.lamp1_still = 1.0
+                self.fx.burst("dust", 1004.0, 620.0, 16, speed=(0.4, 1.6),
+                              life=(30, 60), size=(0.5, 1.1), col="#e8d6a8",
+                              drag=0.97, ay=-0.04, angle=-90.0, spread=60.0,
+                              jitter=130.0, squash=0.35, layer="hud")
                 value = "+" + str(HOR_STEADY_NERVE)
 
             elif cmd == "run":
                 # It never works in here. In the next half it is the only
                 # thing that does.
                 self.play("miss")
+                self.lurch = max(self.lurch, 0.7)
+                self.tear = max(self.tear, 0.4)
                 value = "FAILED"
 
             after = "enemy"
@@ -1664,6 +1546,8 @@ init python:
         def _step_enemy(self):
             self.mtick += 1
             if self.mtick < 26:
+                # Its turn: the flame gutters while it decides.
+                self.windup = min(1.0, self.windup + 0.06)
                 return
 
             # It is always closer than it was.
@@ -1680,13 +1564,20 @@ init python:
                 dmg = 48
                 if self.guard:
                     dmg = int(dmg * HOR_GUARD_MULT)
-                self.hurt(dmg, 640, 470)
+                self.hurt(dmg, 1004, 586)
+                # IT REACHES: the whole of it comes at the lens, and then it
+                # is standing back where it was, as if it never moved.
+                self.lunge_k = 1.0
+                self.lamp1 = 0.15
+                self._fx_strike(big=True)
+                self.tear = 0.9
                 self.spend_nerve(14)
                 self.read = False
                 self.guard = False
                 self.held = False
                 self.last_enemy = "reach"
-                self._beat("IT REACHES", "-" + str(dmg), self._after_enemy())
+                self._beat("IT REACHES", "-" + str(dmg), self._after_enemy(),
+                           kind="it")
                 return
 
             move = self._pick_enemy_move()
@@ -1699,8 +1590,15 @@ init python:
             if move == "loom":
                 # The closer it is standing, the more it costs to be looked at.
                 dmg = int(22 + 28 * self.dread_frac())
+                self.lunge_k = max(self.lunge_k, 0.45)
             elif move == "whisper":
                 nerve_dmg = 9
+                hx, hy = self._a1_head()
+                for k in range(3):
+                    self.fx.ring(hx, hy, 12.0, 260.0 + 80.0 * k, life=34 + 8 * k,
+                                 col="#9aa89e", alpha=0.30, layer="front",
+                                 tex="ring_soft")
+                self.tear = max(self.tear, 0.45)
             elif move == "still":
                 # THE UNCANNY TURN. Nothing happens. Nothing is printed. The
                 # only turn in this project that resolves to a blank -- and it
@@ -1709,11 +1607,16 @@ init python:
                 self.play("tick", 0.4)
                 self.read = False
                 self.guard = False
-                self._beat(label, "", self._after_enemy())
+                self.lamp1_still = 1.0
+                self._beat(label, "", self._after_enemy(), kind="it")
                 return
             elif move == "behind":
                 self.dread = min(float(HOR_DREAD_MAX), self.dread + 26)
                 self.play("wind", 0.7)
+                # It is not there -- and then it is, nearer. No walk between.
+                self.blink_t = 26
+                self.dread_shown = self.dread
+                self.lamp1 = 0.22
                 value = "CLOSER"
             elif move == "mimic":
                 # It does what you just did, at you.
@@ -1739,7 +1642,8 @@ init python:
                 if self.read:
                     dmg = int(dmg * HOR_READ_MULT)
                 self.play("enemy", 0.8)
-                self.hurt(dmg, 640, 470)
+                self.hurt(dmg, 1004, 586)
+                self._fx_strike(big=dmg >= 40)
                 value = "-" + str(dmg)
             if nerve_dmg > 0:
                 if self.read:
@@ -1750,7 +1654,14 @@ init python:
 
             self.read = False
             self.guard = False
-            self._beat(label, value, self._after_enemy())
+            self._beat(label, value, self._after_enemy(), kind="it")
+
+        def _a1_head(self):
+            """Where its head is on screen in act one (for effects that come
+            from it). Same placement the stage draws it at."""
+            persp, feet = hor_a1_place(self.dread_shown / HOR_DREAD_MAX)
+            zoom = HOR_A1_ZOOM * persp / 0.5
+            return (640.0, feet - HOR_FIG_H * zoom * 0.86)
 
         def _after_enemy(self):
             if self.resolve <= HOR_SHIFT_RESOLVE or self.turn >= HOR_SHIFT_TURN_CAP:
@@ -1768,13 +1679,40 @@ init python:
             if t == 1:
                 inv_music_stop(0.3)
                 self.play("tear")
-            if 20 <= t < 110:
-                self.panel_slide = inv_smooth((t - 20) / 90.0)
+                self.tear = 0.8
+            if t == 24:
+                # THE WINDOWS GO OUT LIKE A LIGHT: they do not slide away,
+                # they crumble into the dark and the dark takes the pieces.
+                self.panel_slide = 1.0
+                for (bx0, by0, bw, bh) in (HORStage.PANEL_CMD, HORStage.PANEL_HUD):
+                    for _k in range(30):
+                        x = bx0 + self.rng_fx.uniform(0.0, bw)
+                        y = by0 + self.rng_fx.uniform(0.0, bh)
+                        self.fx.emit(INV_SHARDS[_k % 4], x, y,
+                                     vx=self.rng_fx.uniform(-1.5, 1.5),
+                                     vy=self.rng_fx.uniform(-2.5, 0.5),
+                                     life=self.rng_fx.randint(40, 70),
+                                     size=self.rng_fx.uniform(0.35, 0.8),
+                                     rot=self.rng_fx.uniform(0, 360),
+                                     vrot=self.rng_fx.uniform(-6, 6),
+                                     col="#b8c4ba", alpha=0.85, add=False,
+                                     drag=0.99, ay=0.16, layer="hud", fade="out")
+                    self.fx.burst(INV_SMOKES, bx0 + bw * 0.5, by0 + bh * 0.5, 10,
+                                  speed=(0.4, 1.6), life=(40, 70),
+                                  size=(0.8, 1.6), size1=2.2, col="#05070a",
+                                  alpha=0.8, add=False, drag=0.97,
+                                  jitter=160.0, squash=0.4, layer="hud")
+                self.play("break", 0.6)
+            if 24 <= t < 110:
                 self.shake = max(self.shake, 0.3)
+                # The lantern gutters down to nothing on the way.
+                self.lamp1 = min(self.lamp1, 0.62 * (1.0 - (t - 24) / 86.0))
             if t == 110:
                 self.play("slam")
                 self.flash = 0.9
                 self.shake = 1.0
+                self.tear = 1.0
+                self.ca = max(self.ca, 0.02)
                 inv_music_corruptive()
                 # Whole again for the second half: act one's currency was
                 # DREAD, and that is what carries.
@@ -1836,6 +1774,9 @@ init python:
             self.follow_zoom = inv_lerp(0.22, 0.62, self.near_frac())
             self.follow_alpha = inv_clamp(0.45 + 0.55 * self.near_frac(), 0.0, 1.0)
             self.play("break", 0.8)
+            # THE CHECKPOINT: a loss from here can be retried from the tear,
+            # with the same distance act one handed over.
+            self.checkpoint = {"slug": "horror", "dread": float(self.dread)}
             if dev:
                 self.hp = HOR_HP_MAX
                 self.hp_shown = float(HOR_HP_MAX)
@@ -1979,6 +1920,8 @@ init python:
             self.freeze = 6
             self.hurt(HOR_STUMBLE_HP, self.px, self.py - 30)
             self.play("struck", 0.95)
+            self.tear = 1.0
+            self._kick_lens(640.0, 400.0, 1.2, 0.02)
 
         def _step_lamp(self, held):
             """THE LANTERN. Hold W (or UP) to raise it.
@@ -2000,6 +1943,16 @@ init python:
                     self.shake = max(self.shake, 0.4)
                     self.float_text(self.px, self.py - 74, "OUT", HOR_BLOOD,
                                     True)
+                    self.fx.burst("spark", self.px + 22.0, self.py - 16.0, 14,
+                                  speed=(1.0, 4.0), life=(10, 26),
+                                  size=(0.18, 0.34), col="#ffcf8a",
+                                  drag=0.90, ay=0.12, stretch=0.10,
+                                  layer="front")
+                    self.fx.burst(INV_SMOKES, self.px + 22.0, self.py - 20.0, 4,
+                                  speed=(0.3, 1.0), life=(30, 50),
+                                  size=(0.3, 0.6), size1=1.8, col="#3a3a3a",
+                                  alpha=0.5, add=False, drag=0.98, ay=-0.03,
+                                  layer="front")
             else:
                 self.lamp_lit = max(0.0, self.lamp_lit - rate)
 
@@ -2070,6 +2023,16 @@ init python:
                 w["moved"] = 12
                 self.play("clash", 0.35 + 0.16 * w["stage"])
                 self.shake = max(self.shake, 0.12 + 0.10 * w["stage"])
+                # It comes off the wall in a hard step, and the wall gives up
+                # a little of itself where it was.
+                persp_w, wy_w = hor_project(w["z"])
+                lo_w, hi_w = self.lane()
+                wx_w = hor_screen_x(lo_w if w["side"] == 0 else hi_w, persp_w)
+                self.fx.burst(INV_SMOKES, wx_w, wy_w - 140.0 * persp_w, 4,
+                              speed=(0.3, 1.4), life=(30, 50),
+                              size=(0.4, 0.8), size1=1.7, col="#1c1d1c",
+                              alpha=0.6, add=False, drag=0.96,
+                              jitter=40.0 * persp_w, layer="front")
                 inv_heart_level(inv_clamp(0.4 + 0.18 * w["stage"], 0.0, 1.0))
             else:
                 return
@@ -2111,6 +2074,8 @@ init python:
             self.hurt(HOR_BITE_HP, self.px, self.py - 30)
             self.play("struck", 1.0)
             self.play("clash", 0.9)
+            self.tear = 1.0
+            self._kick_lens(640.0, 470.0, 1.4, 0.022)
 
         def _step_atmos(self):
             """The pot coming to the boil. Each rung announces itself exactly
@@ -2312,6 +2277,13 @@ init python:
                             self.hp = int(min(HOR_HP_MAX,
                                             self.hp + HOR_HP_NEARMISS))
                         self.play("graze", 0.5)
+                        side = 1.0 if o["x"] < self.px else -1.0
+                        self.fx.burst("spark", self.px - side * 14.0, self.py - 8.0, 7,
+                                      speed=(2.0, 6.0), life=(8, 14),
+                                      size=(0.16, 0.30), col="#e8e0c0",
+                                      angle=(0.0 if side > 0 else 180.0) - 90.0 * 0.4,
+                                      spread=90.0, stretch=0.12, drag=0.85,
+                                      layer="front")
                 if o["z"] > HOR_Z_GONE:
                     keep.append(o)
             self.obstacles = keep
@@ -2402,6 +2374,7 @@ init python:
             else:
                 self.glitch_t = HOR_GLITCH_LEN
                 self.play("tear", 0.6)
+                self.tear = 1.0
 
         def _stumble(self):
             self.stumble = HOR_STUMBLE_TICKS
@@ -2411,6 +2384,16 @@ init python:
             self.shake = 1.0
             self.freeze = 4
             self.play("cut_big", 0.8)
+            # Into it at speed: grit and dark matter thrown up off the floor.
+            self.fx.burst(INV_SMOKES, self.px, self.py, 5, speed=(1.0, 3.0),
+                          life=(24, 40), size=(0.5, 0.9), size1=1.6,
+                          col="#20171a", alpha=0.7, add=False, drag=0.94,
+                          angle=-90.0, spread=160.0, layer="front", squash=0.5)
+            self.fx.burst(INV_SHARDS, self.px, self.py - 10, 8, speed=(2.0, 6.0),
+                          life=(16, 30), size=(0.2, 0.4), col="#4a3a3c",
+                          add=False, drag=0.92, ay=0.30, angle=-90.0,
+                          spread=150.0, vrot=(-12.0, 12.0), layer="front")
+            self._kick_lens(self.px, self.py - 30, 0.7, 0.012)
 
         # =====================================================================
         # DEPARTURE
@@ -2613,17 +2596,32 @@ init python:
 
 
 # --- THE STAGE ---------------------------------------------------------------
+# Oct 2 2026: the corridor is one place in both acts (see inv.dark), the
+# renderer draws through the shared kit, the world goes through the lens and
+# the HUD is drawn after it. Every value read here is simulation state.
 init python:
+    from renpy.uguu import GL_REPEAT as _HOR_GL_REPEAT
+
     class HORStage(renpy.Displayable):
         """One CDD. Steps HORGame at a fixed 60Hz inside render() and paints
         the whole encounter from cached-texture blits."""
 
         _tf_cache = {}
-        _misc_cache = {}
-        _text_cache = {}
 
         PANEL_CMD = (40, 548, 470, 148)
         PANEL_HUD = (770, 548, 470, 148)
+
+        # Bone and soot. No split, no scanlines: a thing seen by lamplight.
+        STYLE_PANEL = {"top": "#0a0c0bd8", "bot": "#030404ee",
+                       "edge": "#b8c4bab0", "accent": "#8e1622ff",
+                       "border": 1.4, "cut": 4.0, "inset": 6.0,
+                       "inset_a": 0.12, "noise": 0.22, "scan": 0.0,
+                       "split": 0.0, "ticks": 0.0}
+        STYLE_PLATE = {"top": "#020303a0", "bot": "#020303c8",
+                       "edge": "#b8c4ba50", "accent": "#8e1622ff",
+                       "border": 1.0, "cut": 3.0, "inset": 4.0,
+                       "inset_a": 0.0, "noise": 0.25, "scan": 0.0,
+                       "split": 0.0, "ticks": 0.0}
 
         def __init__(self, game, **kwargs):
             super(HORStage, self).__init__(**kwargs)
@@ -2631,40 +2629,27 @@ init python:
             self.last_st = None
             self.acc = 0.0
 
-        def _misc(self, key, builder):
-            d = HORStage._misc_cache.get(key)
-            if d is None:
-                if len(HORStage._misc_cache) > 600:
-                    HORStage._misc_cache.clear()
-                d = builder()
-                HORStage._misc_cache[key] = d
-            return d
-
-        def _text(self, text, size, color, font=INV_FONT, bold=False, outline=True):
-            key = (text, size, color, font, bold, outline)
-            t = HORStage._text_cache.get(key)
-            if t is None:
-                if len(HORStage._text_cache) > 200:
-                    HORStage._text_cache.clear()
-                outl = [(2, "#020303", 0, 0)] if outline else []
-                t = Text(text, size=size, color=color, bold=bold, font=font,
-                        outlines=outl, substitute=False)
-                HORStage._text_cache[key] = t
-            return t
+        def _tf(self, key, builder):
+            tf = HORStage._tf_cache.get(key)
+            if tf is None:
+                if len(HORStage._tf_cache) > 600:
+                    HORStage._tf_cache.clear()
+                tf = builder()
+                HORStage._tf_cache[key] = tf
+            return tf
 
         def _body_plain(self, zoom, alpha=1.0, tint=None):
             ab = int(inv_clamp(alpha, 0.0, 1.0) * 6)
             key = ("plain", round(zoom, 3), ab, tint)
-            tf = HORStage._tf_cache.get(key)
-            if tf is None:
+
+            def build():
                 kw = dict(zoom=zoom, subpixel=True)
                 if ab < 6:
                     kw["alpha"] = ab / 6.0
                 if tint:
                     kw["matrixcolor"] = TintMatrix(tint)
-                tf = Transform(HOR_SPRITE, **kw)
-                HORStage._tf_cache[key] = tf
-            return tf
+                return Transform(HOR_SPRITE, **kw)
+            return self._tf(key, build)
 
         def event(self, ev, x, y, st):
             self.game.keys.handle_event(ev)
@@ -2673,7 +2658,6 @@ init python:
         # ----- render ----------------------------------------------------------
 
         def render(self, width, height, st, at):
-            global HOR_PALL_OK, HOR_DARK_OK
             g = self.game
 
             if self.last_st is None:
@@ -2694,234 +2678,186 @@ init python:
                 if steps >= INV_MAX_CATCHUP:
                     self.acc = 0.0
 
-            rv = renpy.Render(1280, 720)
-            frame_tex = {}
+            p = InvPaint(st, at)
 
-            def tex(key, disp, w=1280, h=720):
-                entry = frame_tex.get(key)
-                if entry is None:
-                    r = renpy.render(disp, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = (r, r.get_size())
-                    frame_tex[key] = entry
-                return entry
-
-            def rect(color, w, h):
-                w = max(1, int(w))
-                h = max(1, int(h))
-                key = ("rect", color, w, h)
-                entry = frame_tex.get(key)
-                if entry is None:
-                    solid = self._misc(("solid", color), lambda c=color: Solid(c))
-                    r = renpy.render(solid, w, h, st, at)
-                    rv.depends_on(r)
-                    entry = r
-                    frame_tex[key] = entry
-                return entry
-
-            def qa(a):
-                return "%02x" % (int(inv_clamp(a, 0.0, 1.0) * 7.0) * 34 + 6)
-
-            def blit_text(disp_text, size, color, x, y, font=INV_FONT, bold=False,
-                        anchor=(0.0, 0.0), w=1200, h=200, key=None, outline=True):
-                t = self._text(disp_text, size, color, font=font, bold=bold,
-                            outline=outline)
-                r, (tw, th) = tex(key or ("t", disp_text, size, color, font, bold, w),
-                                t, w, h)
-                rv.blit(r, (int(x - tw * anchor[0]), int(y - th * anchor[1])))
-                return (tw, th)
-
-            canvas_layer = [None]
-
-            def canvas():
-                if canvas_layer[0] is None:
-                    layer = renpy.Render(1280, 720)
-                    canvas_layer[0] = layer.canvas()
-                    rv.blit(layer, (0, 0))
-                return canvas_layer[0]
-
-            sblit = rv.subpixel_blit
-
-            shake_x = shake_y = 0
+            sx = sy = 0
             if g.shake > 0.01:
                 amp = 12.0 * g.shake
-                shake_x = int(math.sin(g.tick * 1.9) * amp)
-                shake_y = int(math.cos(g.tick * 2.7) * amp * 0.6)
+                sx = int(math.sin(g.tick * 1.9) * amp)
+                sy = int(math.cos(g.tick * 2.7) * amp * 0.6)
 
             chasing = g.mode == "run" or (g.mode in ("leave_w", "leave_l")
-                                        and g.corrupt > 0.4)
+                                         and g.corrupt > 0.4)
 
-            # --- 1. the room ----------------------------------------------------
+            self._room(g, p, chasing)
             if chasing:
-                self._render_dark(g, rv, rect, st, at)
+                self._chase_world(g, p, sx, sy)
             else:
-                self._render_pall(g, rv, rect, st, at)
+                self._room_world(g, p, sx, sy)
+            inv_fx_paint(p, g.fx, "front", sx, sy)
 
-            # --- 2. the encounter ------------------------------------------------
+            p.to_hud()
             if chasing:
-                self._render_chase(g, rv, tex, rect, qa, blit_text, canvas,
-                                sblit, shake_x, shake_y, st, at)
+                self._chase_hud(g, p, sx, sy)
             else:
-                self._render_room(g, rv, tex, rect, qa, blit_text, canvas,
-                                sblit, shake_x, shake_y, st, at)
-
-            # --- 3. numbers ------------------------------------------------------
-            for f in g.floats:
-                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
-                blit_text(f["text"], 30 if f["big"] else 21,
-                        f["color"] + qa(a), int(f["x"]) + shake_x,
-                        int(f["y"]) + shake_y, bold=f["big"], anchor=(0.5, 0.5),
-                        w=260, h=60)
-
+                self._room_hud(g, p, sx, sy)
+            self._floats(g, p, sx, sy)
+            inv_fx_paint(p, g.fx, "hud")
             if g.paused:
-                rv.blit(rect("#020303c8", 1280, 720), (0, 0))
-                blit_text("PAUSED", 40, HOR_INK, 640, 316, bold=True,
-                        anchor=(0.5, 0.5), w=600, h=70)
-                blit_text("ESC  RESUME        Q  QUIT", 16, HOR_DIM,
-                        640, 372, anchor=(0.5, 0.5), w=800, h=44)
+                self._pause(g, p)
 
-            # THE DRAW RATE IS THE TICK RATE. Every pixel above is a pure
-            # function of the simulation state: nothing in this method reads
-            # self.acc and nothing interpolates between ticks, so between two
-            # 1/60s ticks this stage paints a byte-identical picture. Asking
-            # for the next frame IMMEDIATELY meant a 165Hz or 240Hz panel ran
-            # the entire draw -- every python-side blit, every full-screen
-            # shader pass, and the mark-and-sweep over every Render they make
-            # -- two to four times per tick and threw the extra frames away.
-            #
-            # Handing redraw() the time remaining until the next tick lets the
-            # engine's scheduler wake us exactly when there is something new to
-            # draw. It wakes at the first vblank at or after the delay, so a
-            # 60Hz display is unaffected and only a high-refresh one stops
-            # paying. Input is unchanged: the key latch is polled inside
-            # step(), on the tick. Same governor as kototouhou.rpy.
+            rv = inv_compose(p, self._look(g, chasing), g.clock)
+
+            # THE DRAW RATE IS THE TICK RATE (same governor as every stage).
             if g.result is None and not g.paused:
                 renpy.redraw(self, max(0.0, INV_TICK - self.acc))
             return rv
 
-        # ----- backdrops -------------------------------------------------------
+        def _look(self, g, chasing):
+            """Almost no colour, a lot of grain, and the lantern is the only
+            thing allowed to bloom. Dread (act one) and nearness (the chase)
+            close the frame."""
+            near = g.near_frac() if chasing else g.dread_frac()
+            shock = (0.0, 0.0, 0.0, 0.0)
+            if g.shock[3] > 0.004:
+                shock = (g.shock[0], g.shock[1], g.shock[2], g.shock[3])
+            look = inv_clamp(g.look_view, 0.0, 1.0) if chasing else 0.0
+            return {
+                "grade": (1.04, 1.08 + 0.10 * near, 0.62 - 0.22 * near, 0.20),
+                "lift": (0.010, 0.014, 0.012),
+                "gain": (1.02, 1.00, 0.96),
+                "bloom": 0.55 + 0.25 * near,
+                "thresh": 0.40,
+                "ca": 0.0012 + 0.004 * near + 0.006 * look + g.ca,
+                "grain": 0.060 + 0.030 * near,
+                "vig": 0.55 + 0.25 * near,
+                "vigr": 1.02,
+                "barrel": 0.018 + 0.045 * look,
+                "shock": shock,
+                "tear": (inv_clamp(max(g.tear, g.glitch * 0.8), 0.0, 1.0),
+                         float(g.tick // 2), 0.5 + 0.4 * math.sin(g.clock * 3.1),
+                         0.55),
+            }
 
-        def _render_pall(self, g, rv, rect, st, at):
-            global HOR_PALL_OK
-            if HOR_PALL_OK:
-                try:
-                    quad = Transform(
-                        HOR_SOUP_IMG, xysize=(1280, 720), mesh=True,
-                        shader="inv.pall",
-                        u_hor_res=(1280.0, 720.0),
-                        u_hor_time=g.clock,
-                        u_hor_dread=g.dread_frac(),
-                        u_hor_pulse=g.beat_pulse,
-                        u_hor_flash=g.flash,
-                        u_hor_dark=g.dark,
-                        u_hor_spin=g.spin,
-                        u_hor_hole=(float(g.hole[0]), float(g.hole[1]),
-                                    float(g.hole[2]), float(g.hole[3])))
-                    qr = renpy.render(quad, 1280, 720, st, at)
-                    rv.depends_on(qr)
-                    rv.blit(qr, (0, 0))
-                    return
-                except Exception as e:
-                    HOR_PALL_OK = False
-                    try:
-                        renpy.log("INV FX: pall render failed: %r" % e)
-                    except Exception:
-                        pass
-            rv.blit(rect(HOR_BLACK, 1280, 720), (0, 0))
+        # ----- the corridor ------------------------------------------------------
 
-        def _render_dark(self, g, rv, rect, st, at):
+        def _room(self, g, p, chasing):
             global HOR_DARK_OK
+            if chasing:
+                lo, hi = g.lane()
+                act = 1.0
+                lamp_x = g.px + 22.0
+                lamp = g.lamp_lit * (0.0 if g.lamp_dead else 1.0)
+                # Even with the lamp down you can see a little of the floor
+                # right under you -- the fairness floor on sight lives in the
+                # masses' outlines, this only keeps the room a room.
+                lamp = max(lamp, 0.10 * (1.0 - g.blind))
+                spd = inv_clamp((g.speed - HOR_WINDED_SPEED)
+                                / (HOR_SPRINT - HOR_WINDED_SPEED), 0.0, 1.0)
+                near = g.near_frac()
+                wig = 26.0
+                still = 0.0
+                dread = 0.0
+            else:
+                lo, hi = HOR_A1_LANE
+                act = 0.0
+                lamp_x = 640.0
+                lamp = g.lamp1 * (1.0 - 0.55 * g.windup) * (1.0 - g.dark)
+                spd = 0.0
+                near = 0.0
+                wig = 10.0 + 20.0 * g.dread_frac()
+                still = g.lamp1_still
+                dread = g.dread_frac()
+            zs = g.scroll * (HOR_Z_RATE / HOR_SCROLL_PX)
             if HOR_DARK_OK:
                 try:
-                    quad = Transform(
-                        HOR_SOUP_IMG, xysize=(1280, 720), mesh=True,
-                        shader="inv.dark",
-                        u_hor_res=(1280.0, 720.0),
-                        u_hor_time=g.clock,
-                        u_hor_scroll=g.scroll * 0.004,
-                        u_hor_near=g.near_frac(),
-                        u_hor_beat=g.beat_pulse,
-                        u_hor_lurch=g.lurch,
-                        u_hor_blind=g.blind,
-                        u_hor_glitch=g.glitch,
-                        u_hor_flash=g.flash,
-                        u_hor_dark=g.dark,
-                        u_hor_look=g.look_view,
-                        u_hor_vast=g.vast,
-                        u_hor_close=g.run_frac(),
-                        u_hor_lamp=g.lamp_lit)
-                    qr = renpy.render(quad, 1280, 720, st, at)
-                    rv.depends_on(qr)
-                    rv.blit(qr, (0, 0))
+                    m = (Model((1280, 720))
+                         .texture(inv_disp(HOR_SOUP_IMG))
+                         .texture(inv_disp(inv_fx_img("tex_corridor")),
+                                  texture_wrap=(_HOR_GL_REPEAT, _HOR_GL_REPEAT))
+                         .shader("renpy.texture")
+                         .shader("inv.dark")
+                         .uniform("u_hor_res", (1280.0, 720.0))
+                         .uniform("u_hor_time", g.clock)
+                         .uniform("u_hor_geo", (HOR_VP[0], HOR_VP[1],
+                                                HOR_PLANE_Y, HOR_CEIL_Y))
+                         .uniform("u_hor_lane", (float(lo), float(hi),
+                                                 HOR_Z_NEAR, float(zs)))
+                         .uniform("u_hor_lamp", (float(inv_clamp(lamp, 0.0, 2.0)),
+                                                 float(lamp_x), float(still), 0.0))
+                         .uniform("u_hor_mood", (act, float(dread), float(spd), float(wig)))
+                         .uniform("u_hor_hole", (float(g.hole[0]), float(g.hole[1]),
+                                                 float(g.hole[2]), float(g.hole[3])))
+                         .uniform("u_hor_near", float(near))
+                         .uniform("u_hor_beat", float(g.beat_pulse))
+                         .uniform("u_hor_lurch", float(g.lurch))
+                         .uniform("u_hor_blind", float(g.blind))
+                         .uniform("u_hor_glitch", float(g.glitch))
+                         .uniform("u_hor_flash", float(g.flash))
+                         .uniform("u_hor_dark", float(g.dark))
+                         .uniform("u_hor_look", float(g.look_view))
+                         .uniform("u_hor_vast", float(g.vast))
+                         .uniform("u_hor_close", float(g.run_frac() if chasing else 0.0)))
+                    r = renpy.render(m, 1280, 720, p.st, p.at)
+                    p.blit(r, (0, 0))
                     return
                 except Exception as e:
                     HOR_DARK_OK = False
                     try:
-                        renpy.log("INV FX: dark render failed: %r" % e)
+                        renpy.log("INV FX: corridor render failed: %r" % e)
                     except Exception:
                         pass
-            rv.blit(rect(HOR_BLACK, 1280, 720), (0, 0))
+            p.fill(HOR_BLACK, 0, 0, 1280, 720)
 
         # ----- the body --------------------------------------------------------
 
-        def _draw_body(self, g, rv, tex, sblit, cx, cy, zoom, sx, sy, st, at,
-                    warp=1.0, stretch=(1.0, 1.0), diss=0.0, hurt=0.0,
-                    alpha=1.0, swell=1.0, reach=1.0):
-            # Generous margin: the warp displaces pixels outward and the
-            # fray grows smoke past the silhouette, and anything that leaves
-            # the plate is simply cut off.
+        def _draw_body(self, g, p, cx, cy, zoom, warp=1.0, stretch=(1.0, 1.0),
+                       diss=0.0, hurt=0.0, alpha=1.0, swell=1.0, reach=1.0,
+                       tint=(1.0, 1.0, 1.0, 0.0), rim=(0.0, 0.0, 0.0, 0.0)):
             plate_zoom = min(zoom, HOR_PLATE_MAX_ZOOM)
             extra = zoom / plate_zoom
             plate, W, H = inv_body_plate(HOR_SPRITE, HOR_SPRITE_W, HOR_SPRITE_H,
                                         plate_zoom, pad_x=1.60, pad_y=1.55)
-            # The figure is off-centre in its own canvas; put the FIGURE where
-            # the caller asked, not the canvas.
             cx = cx + HOR_FIG_DX * zoom
             cy = cy + HOR_FIG_DY * zoom
             zoom = float(zoom)
-
-            if HOR_WITHER_OK or INV_FLESH_OK:
-                try:
-                    if HOR_WITHER_OK:
-                        body = Transform(
-                            plate, mesh=True, shader="inv.wither",
-                            u_wit_res=(float(W), float(H)),
-                            u_wit_t=g.clock,
-                            u_wit_warp=float(warp),
-                            u_wit_swell=float(swell),
-                            u_wit_stretch=(float(stretch[0]), float(stretch[1])),
-                            u_wit_pivot=0.90,
-                            u_wit_reach=float(reach),
-                            # Act one measures how CLOSE it is standing (dread),
-                            # act two measures how little runway is left (near).
-                            # The body only cares that it is near you, so it takes
-                            # whichever of the two is currently saying so.
-                            u_wit_near=float(max(g.dread_frac(),
-                                                g.near_frac())),
-                            u_wit_diss=float(diss))
-                    else:
-                        body = inv_flesh(plate, W, H, g.clock, warp=warp,
-                                        stretch=stretch, pivot=0.90,
-                                        hurt=hurt, diss=diss)
+            body = None
+            try:
+                if HOR_WITHER_OK:
+                    body = Transform(
+                        plate, mesh=True, shader="inv.wither",
+                        u_wit_res=(float(W), float(H)),
+                        u_wit_t=g.clock,
+                        u_wit_warp=float(warp),
+                        u_wit_swell=float(swell),
+                        u_wit_stretch=(float(stretch[0]), float(stretch[1])),
+                        u_wit_pivot=0.90,
+                        u_wit_reach=float(reach),
+                        u_wit_near=float(max(g.dread_frac(), g.near_frac())),
+                        u_wit_diss=float(diss),
+                        u_wit_tint=tuple(float(v) for v in tint),
+                        u_wit_rim=tuple(float(v) for v in rim))
+                elif INV_FLESH_OK:
+                    body = inv_flesh(plate, W, H, g.clock, warp=warp,
+                                     stretch=stretch, pivot=0.90, hurt=hurt,
+                                     diss=diss)
+                if body is not None:
                     if extra > 1.01:
                         body = Transform(body, zoom=extra, subpixel=True)
                     if alpha < 0.99:
                         body = Transform(body, alpha=alpha)
                     r = renpy.render(body, int(W * extra) + 8,
-                                    int(H * extra) + 8, st, at)
-                    rv.depends_on(r)
+                                     int(H * extra) + 8, p.st, p.at)
                     w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+                    p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
                     return
-                except Exception:
-                    pass
+            except Exception:
+                pass
+            r, (w, h) = p.tex(("plainbody", round(zoom, 3), alpha),
+                              self._body_plain(zoom, alpha=alpha), 900, 900)
+            p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
 
-            r, (w, h) = tex(("plainbody", round(zoom, 3), alpha),
-                            self._body_plain(zoom, alpha=alpha), 900, 900)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
-
-        def _draw_heart(self, g, rv, tex, sblit, cx, cy, sx, sy, st, at,
-                    scale=1.0, diss=0.0):
+        def _draw_heart(self, g, p, cx, cy, scale=1.0, diss=0.0):
             """The runner. Same SOUL heart as the other modes, warped harder
             than anything else on screen and beating out of time."""
             plate, W, H = inv_body_plate(INV_HEART, INV_HEART_W, INV_HEART_H,
@@ -2929,6 +2865,7 @@ init python:
                                         pad_x=2.2, pad_y=2.2, nearest=True)
             squeeze = 1.0 - 0.20 * g.beat_pulse
             warp = HOR_HEART_WARP * (1.0 + 0.35 * g.near_frac())
+            p.glow(cx, cy, 34 * scale, 30 * scale, col="#ff4058", alpha=0.32)
             if INV_FLESH_OK:
                 try:
                     d = inv_flesh(plate, W, H, g.clock * 2.6, warp=warp,
@@ -2937,92 +2874,100 @@ init python:
                                 pivot=0.5, hurt=0.0,
                                 diss=inv_clamp(0.04 + 0.05 * g.near_frac()
                                             + 0.85 * diss, 0.0, 1.0))
-                    r = renpy.render(d, W, H, st, at)
-                    rv.depends_on(r)
+                    r = renpy.render(d, W, H, p.st, p.at)
                     w, h = r.get_size()
-                    sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+                    p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
                     return
                 except Exception:
                     pass
             hz = HOR_HEART_ZOOM * max(0.05, scale)
-            heart = self._misc(("heartplain", round(hz, 2)),
-                            lambda z=hz: Transform(INV_HEART, zoom=z,
-                                                nearest=True, subpixel=True))
-            r, (w, h) = tex(("heartplain", round(hz, 2)), heart, 160, 160)
-            sblit(r, (cx - w * 0.5 + sx, cy - h * 0.5 + sy))
+            heart = self._tf(("heartplain", round(hz, 2)),
+                             lambda z=hz: Transform(INV_HEART, zoom=z,
+                                                    nearest=True, subpixel=True))
+            r, (w, h) = p.tex(("heartplain", round(hz, 2)), heart, 160, 160)
+            p.sblit(r, (cx - w * 0.5, cy - h * 0.5))
 
         # ----- ACT ONE ---------------------------------------------------------
 
-        def _render_room(self, g, rv, tex, rect, qa, blit_text, canvas,
-                        sblit, sx, sy, st, at):
+        def _room_world(self, g, p, sx, sy):
+            """It is standing in the corridor, as far down it as DREAD says.
+            The lantern is yours; the light it throws finds it by distance."""
             arriving = (g.mode == "arrive")
-            dread = g.dread_frac()
-
-            # It stands closer as dread climbs: bigger, lower, and it stops
-            # bobbing -- the stillness is the tell.
-            zoom = HOR_ZOOM_ACT1 * (1.0 + 0.30 * dread)
-            bob = math.sin(g.clock * 0.7) * (7.0 * (1.0 - dread))
-            cy = 300 + bob + 40 * dread
-
+            dread = inv_clamp(g.dread_shown / HOR_DREAD_MAX, 0.0, 1.0)
+            persp, feet = hor_a1_place(dread)
+            zoom = HOR_A1_ZOOM * persp / 0.5
+            # IT REACHES / it looms: the whole of it comes at the lens.
+            surge = g.lunge_k
+            zoom *= 1.0 + 0.55 * surge
+            feet += 70.0 * surge
+            body_h = HOR_FIG_H * zoom
+            # It does not bob. It breathes, from the inside (inv.wither); the
+            # stillness of the outline is the tell.
+            cy = feet - body_h * 0.5
             if arriving:
-                # IT ARRIVES AT ITS RESTING POSITION. This used to place the
-                # body relative to the HOLE for the whole arrival and then
-                # switch to an absolute resting cy the instant the bout began,
-                # so the last frame of the entrance and the first frame of act
-                # one were 60-80px apart and the figure visibly jumped as the
-                # panels came up. (Mystery never had the bug because it uses
-                # one expression throughout -- that is the fix, generalised.)
-                #
-                # Lerping the REST position toward the hole by `emerge` makes
-                # the seam impossible rather than merely unlikely: emerge is
-                # driven to exactly 0.0 at the end of the arrival, so the last
-                # arrival frame IS the resting frame, whatever either value is
-                # tuned to later.
                 cy = inv_lerp(cy, g.hole[1] + 30.0, g.emerge)
                 stretch = (1.0, g.body_scale)
                 warp = 0.9 + 1.1 * g.emerge
                 diss = g.emerge * 0.9
             else:
-                stretch = (1.0 - 0.03 * math.sin(g.clock * 0.9),
-                        1.0 + 0.04 * math.sin(g.clock * 0.62))
-                warp = 0.7 + 0.9 * dread
+                breathe = 0.0 if g.lamp1_still > 0.5 and g.last_enemy == "still" else 1.0
+                stretch = (1.0 - 0.03 * math.sin(g.clock * 0.9) * breathe,
+                           1.0 + 0.04 * math.sin(g.clock * 0.62) * breathe)
+                warp = 0.7 + 0.9 * dread + 1.2 * surge
                 diss = 0.0
-
-            self._draw_body(g, rv, tex, sblit, 640, cy, zoom, sx, sy, st, at,
-                            warp=warp, stretch=stretch, diss=diss,
-                            hurt=0.7 if g.hit_flash > 0.4 else 0.0,
-                            swell=0.7 + 1.1 * dread,
-                            reach=0.5 + 1.1 * dread)
-
-            if arriving:
+            if g.blink_t > 0:
+                # "behind": it is not there. It will be, nearer.
                 return
 
-            blit_text("HORROR", 15, HOR_PALE, 380, 28, bold=True, w=300, h=30)
-            bar_w = 520
-            rv.blit(rect("#020303b4", bar_w + 4, 12), (380 - 2, 52))
-            rv.blit(rect("#2a1d20", bar_w, 8), (380, 54))
+            lamp = g.lamp1 * (1.0 - 0.55 * g.windup)
+            lit = inv_clamp(lamp * (0.25 + 0.95 * persp), 0.0, 1.0)
+            # Its shadow, thrown AWAY from the lantern -- down the corridor,
+            # behind it -- long when the lamp is up, gone when it is not.
+            if not arriving and lit > 0.05:
+                p.shadow(640 + sx, feet + sy - 8.0 * persp, 150.0 * persp,
+                         26.0 * persp + 60.0 * lit * persp, alpha=0.55 * lit)
+            self._draw_body(g, p, 640 + sx, cy + sy, zoom, warp=warp,
+                            stretch=stretch, diss=diss,
+                            hurt=0.7 if g.hit_flash > 0.4 else 0.0,
+                            swell=0.7 + 1.1 * dread + 0.8 * surge,
+                            reach=0.5 + 1.1 * dread + 0.8 * surge,
+                            tint=(inv_lerp(0.42, 1.10, lit), inv_lerp(0.48, 0.96, lit),
+                                  inv_lerp(0.46, 0.78, lit), 1.0),
+                            rim=(1.0, 0.82, 0.55, 0.9 * lit))
+
+        def _room_hud(self, g, p, sx, sy):
+            if g.mode == "arrive":
+                return
+            dread = g.dread_frac()
+            inv_draw_panel(p, 370, 16, 540, 54, HORStage.STYLE_PLATE)
+            p.text("HORROR", 15, HOR_PALE, 386, 22, bold=True, w=300, h=30,
+                   outline="#020303")
+            bar_w = 508
+            p.fill("#2a1d20", 386, 48, bar_w, 8)
             # The bar is DREAD, not its health. Its health is not your business.
-            fill = int(bar_w * dread)
+            fill = int(bar_w * inv_clamp(g.dread_shown / HOR_DREAD_MAX, 0.0, 1.0))
             if fill > 0:
-                rv.blit(rect(HOR_BLOOD if dread < 0.8 else "#d3283c", fill, 8),
-                        (380, 54))
+                p.fill(HOR_BLOOD if dread < 0.8 else "#d3283c", 386, 48, fill, 8)
+                p.fill("#ffffff30", 386, 48, fill, 1)
+            inv_draw_log(p, g, 930, 20, 310,
+                         {"you": (HOR_INK, HOR_PALE), "it": (HOR_BLOOD, HOR_WARN)})
 
             slide = int(g.panel_slide * 200)
             if g.panel_slide < 1.0:
-                self._panel(rv, rect, HORStage.PANEL_CMD, sx, sy + slide)
-                self._panel(rv, rect, HORStage.PANEL_HUD, sx, sy + slide)
-                self._panel_contents(g, rv, tex, rect, qa, blit_text, sx,
-                                    sy + slide)
+                kick = g.panel_kick
+                kx = int(math.sin(g.tick * 2.9) * 8.0 * max(0.0, kick))
+                ky = int(abs(kick) * 4.0)
+                self._panel(g, p, HORStage.PANEL_CMD, sx, sy + slide)
+                self._panel(g, p, HORStage.PANEL_HUD, sx + kx, sy + slide + ky, hit=kick)
+                self._panel_contents(g, p, sx, sy + slide, kx, ky)
 
-        def _panel(self, rv, rect, box, sx, sy):
+        def _panel(self, g, p, box, sx, sy, hit=0.0):
             x, y, w, h = box
-            x += sx
-            y += sy
-            rv.blit(rect(HOR_PALE, w + 6, h + 6), (x - 3, y - 3))
-            rv.blit(rect(HOR_BLACK, w + 2, h + 2), (x - 1, y - 1))
-            rv.blit(rect(HOR_WIN, w, h), (x, y))
+            inv_draw_panel(p, x + sx, y + sy, w, h, HORStage.STYLE_PANEL)
+            if hit > 0.05:
+                p.fill(inv_hex(HOR_BLOOD, 0.40 * hit), x + sx, y + sy, w, h)
 
-        def _panel_contents(self, g, rv, tex, rect, qa, blit_text, sx, sy):
+        def _panel_contents(self, g, p, sx, sy, kx=0, ky=0):
             cx, cy, cw, ch = HORStage.PANEL_CMD
             cx += sx
             cy += sy
@@ -3030,136 +2975,108 @@ init python:
             if g.mode == "menu":
                 for i, row in enumerate(HOR_CMDS):
                     live = (i == g.cursor)
-                    ry = cy + 16 + i * 30
+                    ry = cy + 18 + i * 30
                     if live:
-                        rv.blit(rect(HOR_PALE + qa(0.12), cw - 28, 26),
-                                (cx + 14, ry - 3))
-                        rv.blit(rect(HOR_BLOOD if g.panic else HOR_PALE, 9, 9),
-                                (cx + 22, ry + 6))
-                    blit_text(row[1], 20, HOR_INK if live else HOR_FAINT,
-                            cx + 42, ry, bold=live, w=260, h=30)
+                        p.fill(HOR_PALE + "1a", cx + 14, ry - 4, cw - 28, 27)
+                        col = HOR_BLOOD if g.panic else HOR_PALE
+                        p.fill(col, cx + 14, ry - 4, 3, 27)
+                        p.fill(col, cx + 26, ry + 5, 8, 8)
+                    p.text(row[1], 20, HOR_INK if live else HOR_FAINT,
+                           cx + 46, ry, bold=live, w=260, h=30, outline="#020303")
                     if row[0] == "light":
-                        blit_text(str(HOR_LIGHT_NERVE), 14,
-                                HOR_PALE if live else HOR_FAINT,
-                                cx + cw - 22, ry + 4, anchor=(1.0, 0.0),
-                                w=120, h=26)
-                blit_text("Z  OK      ESC  PAUSE", 12, HOR_FAINT,
-                        cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0),
-                        w=420, h=24)
+                        p.text(str(HOR_LIGHT_NERVE), 14,
+                               HOR_PALE if live else HOR_FAINT,
+                               cx + cw - 22, ry + 4, anchor=(1.0, 0.0), w=120, h=26)
+                p.text("Z  OK      ESC  PAUSE", 12, HOR_FAINT,
+                       cx + cw - 16, cy + ch - 22, anchor=(1.0, 0.0), w=420, h=24)
 
             elif g.mode == "beat":
-                blit_text(g.beat_label, 22, HOR_INK, cx + 20, cy + 30,
-                        bold=True, w=cw - 40, h=40)
+                u = inv_clamp(g.mtick / 6.0, 0.0, 1.0)
+                p.text(g.beat_label, 22, HOR_INK, cx + 22, cy + 28, bold=True,
+                       w=cw - 40, h=40, outline="#020303")
                 if g.beat_value:
-                    blit_text(g.beat_value, 30, HOR_WARN, cx + 20, cy + 62,
-                            bold=True, w=cw - 40, h=44)
-                if g.mtick > 12 and (g.tick // 20) % 2 == 0:
-                    rv.blit(rect(HOR_INK, 14, 4), (cx + cw - 36, cy + ch - 26))
+                    p.text(g.beat_value, int(24 + 6 * u), HOR_WARN, cx + 22, cy + 62,
+                           bold=True, w=cw - 40, h=48, outline="#020303")
+                hold = inv_clamp(g.mtick / float(INV_BEAT_HOLD), 0.0, 1.0)
+                p.fill(HOR_FAINT + "60", cx + 22, cy + ch - 18, cw - 44, 2)
+                p.fill(HOR_PALE, cx + 22, cy + ch - 18, int((cw - 44) * hold), 2)
+
+            elif g.mode == "enemy":
+                u = inv_clamp(g.mtick / 26.0, 0.0, 1.0)
+                p.text("IT", 18, HOR_BLOOD, cx + 22, cy + 30, bold=True,
+                       w=cw - 40, h=34, outline="#020303")
+                p.fill(HOR_BLOOD + "50", cx + 22, cy + 70, cw - 44, 2)
+                p.fill(HOR_BLOOD, cx + 22, cy + 70, int((cw - 44) * u), 2)
 
             hx, hy, hw, hh = HORStage.PANEL_HUD
-            hx += sx
-            hy += sy
-            blit_text(inv_player_name(), 19, HOR_INK, hx + 20, hy + 12,
-                    bold=True, w=hw - 40, h=32)
-            self._odometer(g, rv, tex, rect, qa, blit_text, "HP", g.hp_shown,
-                        g.hp, hx + 20, hy + 44, HOR_INK)
-            self._odometer(g, rv, tex, rect, qa, blit_text, "NV",
-                        g.nerve_shown, g.nerve, hx + 20, hy + 96, HOR_PALE,
-                        small=True)
+            hx += sx + kx
+            hy += sy + ky
+            p.text(inv_player_name(), 19, HOR_INK, hx + 22, hy + 12,
+                   bold=True, w=hw - 40, h=32, outline="#020303")
+            self._odometer(g, p, "HP", g.hp_shown, g.hp, hx + 22, hy + 44, HOR_INK)
+            self._odometer(g, p, "NV", g.nerve_shown, g.nerve, hx + 22, hy + 96,
+                           HOR_PALE, small=True)
             if g.panic:
-                blit_text("PANIC", 13, HOR_BLOOD, hx + hw - 20, hy + 16,
-                        anchor=(1.0, 0.0), w=200, h=26)
+                a = 0.6 + 0.4 * math.sin(g.clock * 9.0)
+                p.text("PANIC", 13, inv_hex(HOR_BLOOD, a), hx + hw - 22, hy + 16,
+                       anchor=(1.0, 0.0), w=200, h=26, bold=True)
             if g.god:
-                blit_text("GOD", 12, HOR_WARN + "aa", hx + hw - 20,
-                        hy + hh - 24, anchor=(1.0, 0.0), w=120, h=24)
+                p.text("GOD", 12, HOR_WARN + "aa", hx + hw - 22,
+                       hy + hh - 24, anchor=(1.0, 0.0), w=120, h=24)
 
-        def _odometer(self, g, rv, tex, rect, qa, blit_text, label, shown, real,
-                    x, y, color, small=False):
+        def _odometer(self, g, p, label, shown, real, x, y, color, small=False):
             size = 22 if small else 30
             cell_w = 22 if small else 28
             cell_h = 32 if small else 42
-            blit_text(label, 14, color, x, y + (6 if small else 12), bold=True,
-                    w=50, h=28)
-
+            p.text(label, 14, color, x, y + (6 if small else 12), bold=True,
+                   w=50, h=28)
             value = int(math.ceil(shown - 0.0001)) if shown > 0 else 0
             rolling = abs(shown - real) > 0.05
             digits = "%03d" % inv_clamp(value, 0, 999)
             frac = shown - math.floor(shown)
             base_x = x + 40
-
             for i, ch in enumerate(digits):
                 dx = base_x + i * cell_w
-                rv.blit(rect("#07090880", cell_w - 4, cell_h), (dx, y))
+                p.fill("#07090880", dx, y, cell_w - 4, cell_h)
                 if rolling:
                     off = int(frac * cell_h * (1 if real < shown else -1))
                     nxt = str((int(ch) + (1 if real > shown else -1)) % 10)
-                    blit_text(nxt, size, color + qa(0.45),
-                            dx + (cell_w - 4) // 2,
-                            y + off - (cell_h if real < shown else -cell_h) + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2,
-                            y + off + 2, anchor=(0.5, 0.0), w=cell_w,
-                            h=cell_h, bold=True)
+                    p.text(nxt, size, inv_hex(color, 0.45), dx + (cell_w - 4) // 2,
+                           y + off - (cell_h if real < shown else -cell_h) + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2,
+                           y + off + 2, anchor=(0.5, 0.0), w=cell_w,
+                           h=cell_h, bold=True)
                 else:
-                    blit_text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
-                            anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
+                    p.text(ch, size, color, dx + (cell_w - 4) // 2, y + 2,
+                           anchor=(0.5, 0.0), w=cell_w, h=cell_h, bold=True)
 
         # ----- ACT TWO: THE CHASE ----------------------------------------------
 
-        def _render_chase(self, g, rv, tex, rect, qa, blit_text, canvas,
-                        sblit, sx, sy, st, at):
+        def _chase_world(self, g, p, sx, sy):
             near = g.near_frac()
             lookv = inv_clamp(g.look_view, 0.0, 1.0)
-            cv = canvas()
-
-            # HOW MUCH YOU ARE ALLOWED TO SEE. The radius closes as it gets
-            # nearer -- being chased down takes your eyes first -- but it is
-            # FLOORED at however far the corridor travels in HOR_MIN_WARN
-            # ticks. Sprinting therefore widens the light instead of
-            # outrunning it, which is the difference between oppressive and
-            # unfair (fairness rule 1).
-            # Sight is now a DEPTH window, and it is still floored by warning
-            # time: whatever else happens, a mass is lit for at least
-            # HOR_MIN_WARN ticks before it reaches your plane.
-            dz_tick = max(g.speed, HOR_WALK) * HOR_Z_RATE
-            # THE LANTERN IS THE BIG TERM and the dead tank is the small one,
-            # and BOTH are inside the max() -- so raising it is a real gift and
-            # losing it is a real loss, while the warning-time floor underneath
-            # is never negotiated with either way.
-            sight_z = max(inv_lerp(0.62, 0.26, near) * (1.0 - 0.55 * g.blind)
-                        * inv_lerp(1.0, HOR_RESOLVE_SIGHT, g.resolved())
-                        * inv_lerp(1.0, HOR_LAMP_SIGHT, g.lamp_lit)
-                        * (HOR_LAMP_DEAD_SIGHT if g.lamp_dead else 1.0),
-                        dz_tick * HOR_MIN_WARN)
-
-            # --- SPEED. Radial streaks off the vanishing point, length and
-            # brightness driven by how fast you are actually going. Without
-            # these the tunnel reads as wallpaper and the masses read as
-            # falling boxes.
-            rush = inv_clamp((g.speed - HOR_WINDED_SPEED)
-                            / (HOR_SPRINT - HOR_WINDED_SPEED), 0.0, 1.0)
-
-            # --- RAILS. Four lines running away to the vanishing point, two
-            # along the foot of each wall and two along the head of it. They
-            # do not move -- they are where the corridor GOES -- and having
-            # somewhere for everything else to converge on is most of what
-            # tells the eye this is a throat rather than a gradient.
             lo, hi = g.lane()
-            rail_a = int(38 + 46 * g.lamp_lit + 22 * rush)
-            for wx in (lo, hi):
-                for wy in (HOR_PLANE_Y, HOR_CEIL_Y):
-                    try:
-                        cv.line((146, 158, 152, rail_a),
-                                (int(HOR_VP[0]) + sx, int(HOR_VP[1]) + sy),
-                                (int(wx) + sx, int(wy) + sy), 1)
-                    except Exception:
-                        pass
 
-            n_streak = 26
-            for k in range(n_streak):
+            # HOW MUCH YOU ARE ALLOWED TO SEE: a depth window, closing as it
+            # gets nearer -- but FLOORED at however far the corridor travels in
+            # HOR_MIN_WARN ticks, so sprinting widens your eyes instead of
+            # outrunning them (fairness rule 1).
+            dz_tick = max(g.speed, HOR_WALK) * HOR_Z_RATE
+            sight_z = max(inv_lerp(0.62, 0.26, near) * (1.0 - 0.55 * g.blind)
+                          * inv_lerp(1.0, HOR_RESOLVE_SIGHT, g.resolved())
+                          * inv_lerp(1.0, HOR_LAMP_SIGHT, g.lamp_lit)
+                          * (HOR_LAMP_DEAD_SIGHT if g.lamp_dead else 1.0),
+                          dz_tick * HOR_MIN_WARN)
+
+            rush = inv_clamp((g.speed - HOR_WINDED_SPEED)
+                             / (HOR_SPRINT - HOR_WINDED_SPEED), 0.0, 1.0)
+
+            # SPEED: streaks off the vanishing point, their length and weight
+            # set by how fast you are actually going.
+            for k in range(22):
                 seed = (k * 2654435761) % 1000 / 1000.0
-                ang = (seed * 6.2831853
-                    + math.sin(g.clock * 0.13 + k) * 0.05)
+                ang = seed * 6.2831853 + math.sin(g.clock * 0.13 + k) * 0.05
                 phase = (g.scroll * (0.0016 + 0.0011 * seed) + seed) % 1.0
                 z0 = 1.0 - phase
                 if z0 < 0.06:
@@ -3170,114 +3087,18 @@ init python:
                 r1 = 70.0 * p1 * (1.0 + 5.0 * seed)
                 if r1 < r0:
                     continue
-                a_st = int((26 + 92 * rush) * inv_clamp(p0 * 2.4, 0.0, 1.0))
-                try:
-                    cv.line((176, 190, 182, a_st),
-                            (int(HOR_VP[0] + math.cos(ang) * r0) + sx,
-                            int(HOR_VP[1] + math.sin(ang) * r0) + sy),
-                            (int(HOR_VP[0] + math.cos(ang) * r1) + sx,
-                            int(HOR_VP[1] + math.sin(ang) * r1) + sy),
-                            1 + int(2 * rush))
-                except Exception:
-                    pass
-
-            # --- the corridor's edges ------------------------------------------
-            # THE WALLS ARE THE PRESSURE. They were two thin wriggling lines
-            # over open black, which is what made the whole act read as empty:
-            # a corridor with nothing at the sides of it is a field. They are
-            # solid mass now, they come inward as the run goes on, and the
-            # wriggle rides on their inner face.
-            wrig = 26.0 + 60.0 * near
-            wall_a = 0.30 + 0.45 * g.run_frac()
-            for side in (0, 1):
-                base_x = lo if side == 0 else hi
-                pts = []
-                for k in range(13):
-                    yy = 96 + k * 52
-                    ph = g.clock * 1.3 + k * 0.7 + side * 2.1
-                    off = math.sin(ph) * wrig + math.sin(ph * 0.47) * wrig * 0.5
-                    ex = base_x + (off if side == 0 else -off)
-                    pts.append((int(ex) + sx, int(yy) + sy))
-                    # Fill everything outboard of the edge, so there is
-                    # somewhere the corridor stops being.
-                    if side == 0:
-                        w = max(1, int(ex))
-                        rv.blit(rect("#05070699", w, 54), (sx, int(yy) - 2 + sy))
-                    else:
-                        w = max(1, int(1280 - ex))
-                        rv.blit(rect("#05070699", w, 54),
-                                (int(ex) + sx, int(yy) - 2 + sy))
-                try:
-                    cv.lines((150, 160, 155, int(60 + 120 * wall_a)), False,
-                            pts, 3)
-                except Exception:
-                    pass
-
-            # --- STRUCTURE ---------------------------------------------------
-            # Hoops around the corridor and things growing off the walls, all
-            # of it on the same depth phase as the masses so nothing
-            # parallaxes against anything. None of it is a hazard; the entire
-            # job is to make the corridor a PLACE, because a corridor with
-            # nothing in it is the same picture at every speed.
-            phase0 = g.scroll * HOR_STRUCT_PHASE
-            lamp = g.lamp_lit
-
-            for k in range(HOR_STRUTS):
-                ph = (phase0 + k / float(HOR_STRUTS)) % 1.0
-                z = HOR_Z_FAR - ph * (HOR_Z_FAR - 0.07)
-                if z <= 0.055:
-                    continue
-                persp, _fy = hor_project(z)
-                x0 = int(hor_screen_x(lo, persp)) + sx
-                x1 = int(hor_screen_x(hi, persp)) + sx
-                y0 = int(hor_screen_y(HOR_CEIL_Y, persp)) + sy
-                y1 = int(hor_screen_y(HOR_PLANE_Y, persp)) + sy
-                w = max(2, x1 - x0)
-                h = max(2, y1 - y0)
-                # Fades in out of the far dark and out again as it goes past
-                # the lens, so nothing ever pops.
-                a = (inv_clamp(persp * 2.6, 0.0, 1.0)
-                    * inv_clamp((1.0 - ph) * 5.0, 0.0, 1.0)
-                    * (0.34 + 0.46 * lamp))
-                if a < 0.03:
-                    continue
-                col = HOR_FAINT + qa(a)
-                t_ = max(1, int(2 * persp) + 1)
-                rv.blit(rect(col, w, t_), (x0, y0))
-                rv.blit(rect(col, w, t_), (x0, y1 - t_))
-                rv.blit(rect(col, t_, h), (x0, y0))
-                rv.blit(rect(col, t_, h), (x1 - t_, y0))
-
-            for k in range(HOR_GROWTHS):
-                seed = ((k * 2246822519) % 997) / 997.0
-                ph = (phase0 * (0.94 + 0.12 * seed) + seed) % 1.0
-                z = HOR_Z_FAR - ph * (HOR_Z_FAR - 0.07)
-                if z <= 0.055:
-                    continue
-                persp, _fy = hor_project(z)
-                side = k % 2
-                wx = lo if side == 0 else hi
-                gw = max(2, int((30.0 + 70.0 * seed) * persp))
-                gh = max(2, int((90.0 + 180.0 * seed) * persp))
-                gy = int(hor_screen_y(inv_lerp(HOR_CEIL_Y + 40.0,
-                                            HOR_PLANE_Y - 60.0, seed),
-                                    persp)) + sy
-                gx = int(hor_screen_x(wx, persp)) + sx
-                if side == 1:
-                    gx -= gw
-                a = (inv_clamp(persp * 2.2, 0.0, 1.0)
-                    * inv_clamp((1.0 - ph) * 5.0, 0.0, 1.0))
-                if a < 0.03:
-                    continue
-                rv.blit(rect("#000000" + qa(0.80 * a), gw, gh), (gx, gy))
-                rv.blit(rect(HOR_FAINT + qa((0.24 + 0.34 * lamp) * a),
-                            max(1, int(2 * persp) + 1), gh),
-                        (gx if side == 1 else gx + gw - 1, gy))
+                a_st = (0.10 + 0.40 * rush) * inv_clamp(p0 * 2.4, 0.0, 1.0)
+                p.line(HOR_VP[0] + math.cos(ang) * r0 + sx,
+                       HOR_VP[1] + math.sin(ang) * r0 + sy,
+                       HOR_VP[0] + math.cos(ang) * r1 + sx,
+                       HOR_VP[1] + math.sin(ang) * r1 + sy,
+                       width=1.0 + 1.6 * rush, col="#b0beb6", alpha=a_st, add=True)
 
             # THINGS IN THE WALLS THAT ARE NOT MASSES. Pairs of points, mostly
             # shut, that open for a moment as they go past. No mechanics and
-            # no tell -- they are not the watchers and they never become them,
+            # no tell -- they are not the watchers and never become them,
             # which is exactly why the watchers work.
+            phase0 = g.scroll * HOR_STRUCT_PHASE
             for k in range(HOR_WALL_EYES):
                 seed = ((k * 3266489917) % 1009) / 1009.0
                 ph = (phase0 * (0.90 + 0.2 * seed) + seed * 0.77) % 1.0
@@ -3289,184 +3110,119 @@ init python:
                     continue
                 persp, _fy = hor_project(z)
                 side = k % 2
-                ex = int(hor_screen_x(lo if side == 0 else hi, persp)) + sx
-                ey = int(hor_screen_y(inv_lerp(HOR_CEIL_Y + 60.0,
-                                            HOR_PLANE_Y - 90.0, seed),
-                                    persp)) + sy
-                a = (0.34 + 0.40 * lamp) * inv_clamp(persp * 2.4, 0.0, 1.0) \
-                    * ((open_u - 0.72) / 0.28)
-                sz = max(1, int(5 * persp) + 1)
-                dx_e = max(2, int(16 * persp))
-                rv.blit(rect(HOR_PALE + qa(a), sz, sz),
-                        (ex - (dx_e if side == 1 else 0), ey))
-                rv.blit(rect(HOR_PALE + qa(a), sz, sz),
-                        (ex + (0 if side == 1 else dx_e), ey))
+                ex = hor_screen_x(lo if side == 0 else hi, persp) + sx
+                ey = hor_screen_y(inv_lerp(HOR_CEIL_Y + 60.0, HOR_PLANE_Y - 90.0, seed),
+                                  persp) + sy
+                a = ((0.34 + 0.40 * g.lamp_lit) * inv_clamp(persp * 2.4, 0.0, 1.0)
+                     * ((open_u - 0.72) / 0.28))
+                dx_e = max(2.0, 16.0 * persp)
+                for ox_ in ((-dx_e, 0.0) if side == 1 else (0.0, dx_e)):
+                    p.quad("core", ex + ox_, ey, 0.10 + 0.20 * persp, col="#d8e4da",
+                           alpha=a, add=True)
 
-            # --- THE LANTERN'S OWN LIGHT ---------------------------------------
-            # A strip of corridor, lit from where you are actually standing,
-            # narrowing up the throat. It moves when you steer, which is the
-            # whole graphic affordance for the directional rule on the
-            # watchers -- you can see the light is not on the thing.
-            if lamp > 0.02:
-                steps = 15
-                flick = 0.86 + 0.14 * math.sin(g.clock * 21.0) \
-                    * math.sin(g.clock * 7.3)
-                prev_y = None
-                for k in range(steps + 1):
-                    u = k / float(steps)
-                    z = inv_lerp(HOR_Z_NEAR, HOR_Z_NEAR + 0.66, u)
-                    persp, yy = hor_project(z)
-                    if prev_y is None:
-                        prev_y = yy
-                        continue
-                    hw = max(2, int(inv_lerp(210.0, 470.0, u) * persp))
-                    cxp = int(hor_screen_x(g.px, persp))
-                    hgt = max(1, int(prev_y - yy) + 1)
-                    a = 0.115 * lamp * flick * ((1.0 - u) ** 1.5)
-                    rv.blit(rect(HOR_PALE + qa(a), hw * 2, hgt),
-                            (cxp - hw + sx, int(yy) + sy))
-                    prev_y = yy
-                # The lamp itself, held out to one side of the runner.
-                lampx = int(g.px) + 22 + sx
-                lampy = int(g.py) - 16 + sy
-                rv.blit(rect("#e8e4c8" + qa(0.55 * lamp * flick), 7, 7),
-                        (lampx, lampy))
-                rv.blit(rect("#e8e4c8" + qa(0.20 * lamp * flick), 19, 19),
-                        (lampx - 6, lampy - 6))
-
-            # --- obstacles -------------------------------------------------------
-            for o in g.obstacles:
+            # --- obstacles: masses standing on the floor ----------------------
+            for o in sorted(g.obstacles, key=lambda e: -e["z"]):
                 persp, oy = hor_project(o["z"])
                 ox = hor_screen_x(o["x"], persp)
-                # Nearness in DEPTH is what the light gates on now.
                 a = inv_clamp(1.0 - (o["z"] - HOR_Z_NEAR) / max(0.05, sight_z),
-                            0.0, 1.0)
-                w = max(4, int(o["w"] * persp))
-                h = max(3, int(o["h"] * persp))
-                x0 = int(ox - w * 0.5) + sx
-                y0 = int(oy - h * 0.5) + sy
-
-                # THE OUTLINE IS ALWAYS LEGIBLE (fairness rule 2). A full box,
-                # not a hairline: from the moment it is in the frame you can
-                # read where it is and how wide, and the dark only ever hides
-                # the mass INSIDE it.
-                #
-                # NOTE the alpha floor is applied to the FINAL value, not
-                # multiplied into it. qa() quantizes to eight levels, so a
-                # floor of 0.34 scaled by 0.42 lands on 6/255 -- which is what
-                # "the edges are not even visible" looked like.
-                # A blackout dims the outline hard but never puts it out --
-                # the fear of the dark is allowed to terrify, not to kill.
-                # A STARE BLINDS YOU FORWARD -- but the outline never goes
-                # out entirely, because fairness rule 2 is not suspended just
-                # because the player chose this.
-                edge_a = (max(HOR_EDGE_FLOOR, a) * (1.0 - 0.55 * g.blind)
-                        * (1.0 - 0.42 * lookv))
-                edge = HOR_PALE + qa(edge_a)
-                rv.blit(rect(edge, w, 3), (x0, y0))
-                rv.blit(rect(edge, w, 3), (x0, y0 + h - 3))
-                rv.blit(rect(edge, 3, h), (x0, y0))
-                rv.blit(rect(edge, 3, h), (x0 + w - 3, y0))
-
-                # The mass itself: blacker than the black, with a wet underside.
-                am = a * (1.0 - 0.85 * lookv)
+                              0.0, 1.0)
+                w = max(4.0, o["w"] * persp)
+                h = max(3.0, o["h"] * persp * 1.35)
+                x0 = ox - w * 0.5 + sx
+                yb = oy + sy
+                # The mass itself: dark, organic, lit along its top by the
+                # lantern the nearer it comes. Hidden by the dark the further
+                # away it is -- but see the outline below.
+                # The dark hides what is IN it, never that it is there: the
+                # silhouette keeps a floor, the detail needs the lamp.
+                am = max(a, 0.30 * inv_clamp(persp * 2.0, 0.0, 1.0)) * (1.0 - 0.85 * lookv)
+                lit = inv_clamp(g.lamp_lit * (0.2 + 0.9 * persp), 0.0, 1.0)
+                lit = int(lit * 8.0 + 0.5) / 8.0
                 if am > 0.02:
-                    rv.blit(rect("#000000" + qa(0.85 * am), w - 6, h - 6),
-                            (x0 + 3, y0 + 3))
-                    rv.blit(rect("#3a2126" + qa(0.55 * am), w - 6, 3),
-                            (x0 + 3, y0 + h - 6))
-                # A REACHER is part of the wall it grew out of, so it is drawn
-                # joined to it. Nothing in this corridor should look like it is
-                # floating in the middle of the air.
-                if o.get("reach") is not None and am > 0.02:
-                    if o["reach"] == 0:
-                        rv.blit(rect("#000000" + qa(0.75 * am),
-                                    max(1, x0), h - 8),
-                                (sx, y0 + 4))
-                    else:
-                        rv.blit(rect("#000000" + qa(0.75 * am),
-                                    max(1, 1280 - (x0 + w)), h - 8),
-                                (x0 + w, y0 + 4))
+                    tex = INV_MASSES[int(o["seed"] * 997) % len(INV_MASSES)]
+                    tw, th = inv_fx_size(tex)
+                    col = "#%02x%02x%02x" % (int(inv_lerp(70, 160, lit)),
+                                             int(inv_lerp(66, 132, lit)),
+                                             int(inv_lerp(68, 112, lit)))
+                    p.quad(tex, ox + sx, yb - h * 0.5, w / tw, h / th, col=col,
+                           alpha=min(1.0, am * 1.15), add=False, zq=48.0)
+                    if o.get("reach") is not None:
+                        wall_x = hor_screen_x(lo if o["reach"] == 0 else hi, persp) + sx
+                        if o["reach"] == 0:
+                            p.fill(inv_hex("#050606", 0.85 * am), wall_x, yb - h * 0.85,
+                                   max(1, x0 - wall_x + 4), h * 0.85)
+                        else:
+                            p.fill(inv_hex("#050606", 0.85 * am), x0 + w - 4, yb - h * 0.85,
+                                   max(1, wall_x - (x0 + w) + 4), h * 0.85)
+                # THE EDGE IS ALWAYS LEGIBLE (fairness rule 2): the exact width
+                # it occupies at your row, drawn as two pale uprights and a
+                # base line at an alpha that never drops below the floor --
+                # applied to the FINAL value, never multiplied into it.
+                edge_a = (max(HOR_EDGE_FLOOR, a) * (1.0 - 0.55 * g.blind)
+                          * (1.0 - 0.42 * lookv))
+                ec = inv_hex(HOR_PALE, edge_a)
+                et = max(2, int(2.5 * persp + 1))
+                # The footprint, full width, where it meets the boards -- that
+                # is the hitbox -- and its two edges carried up a third of the
+                # way, so it reads as a THING with a width, not a box.
+                p.fill(ec, x0, yb - et, w, et)
+                p.fill(ec, x0, yb - h * 0.34, et, h * 0.34)
+                p.fill(ec, x0 + w - et, yb - h * 0.34, et, h * 0.34)
+                p.glow(ox + sx, yb, w * 0.62, 10.0 * persp + 3.0, col=HOR_PALE,
+                       alpha=0.18 * edge_a)
 
-            # --- THE WATCHER ---------------------------------------------------
-            # It is drawn where it IS and nowhere in between, because it does
-            # not travel between stages -- it is somewhere, and then it is
-            # somewhere nearer. Two things are readable about it at any
-            # moment: how far across the wall it has come (its size), and how
-            # long you have until it comes further (the bar beside it).
+            # --- THE WATCHER --------------------------------------------------
             wch = g.watcher
             if wch is not None:
                 persp, wy = hor_project(wch["z"])
                 wx = hor_screen_x(lo if wch["side"] == 0 else hi, persp)
-                # Set INTO the wall, not standing beside it.
                 wx += (26.0 if wch["side"] == 0 else -26.0) * persp
                 stage_u = wch["stage"] / float(HOR_WATCH_STAGES - 1)
                 pushing = g.lit() and g.watch_side_ok()
-                # It jolts on the frame it arrives and then is perfectly
-                # still, which is the entire effect.
                 jolt = wch["moved"] / 12.0
-                # Everything hung off it is measured in BODY units, not depth
-                # units -- the sprite is 1254px tall and its head is in the
-                # top eighth of that, so eye points placed off `persp` alone
-                # land on its chest and the clock beside it ends up level with
-                # its knees.
                 bz = inv_clamp(0.62 * persp, 0.02, 0.62)
                 bcy = wy - 96.0 * persp
-                self._draw_body(g, rv, tex, sblit, wx, bcy, bz,
-                                sx, sy, st, at,
+                lit = inv_clamp(g.lamp_lit * (0.3 + 0.8 * persp)
+                                * (1.0 if g.watch_side_ok() else 0.35), 0.0, 1.0)
+                self._draw_body(g, p, wx + sx, bcy + sy, bz,
                                 warp=0.35 + 1.9 * jolt,
-                                stretch=(1.0 + 0.20 * jolt,
-                                        1.0 - 0.14 * jolt),
+                                stretch=(1.0 + 0.20 * jolt, 1.0 - 0.14 * jolt),
                                 diss=0.0,
                                 alpha=inv_clamp(0.30 + 0.62 * stage_u, 0.0, 1.0),
                                 swell=0.2 + 1.4 * jolt,
-                                reach=0.5 + 1.1 * stage_u)
-                # ITS EYES, which are the only part of it that is bright, and
-                # which go out while the light is on it.
+                                reach=0.5 + 1.1 * stage_u,
+                                tint=(inv_lerp(0.40, 1.05, lit), inv_lerp(0.44, 0.92, lit),
+                                      inv_lerp(0.42, 0.76, lit), 1.0),
+                                rim=(1.0, 0.82, 0.55, 0.8 * lit))
+                # ITS EYES: the only part of it that is bright, and they go
+                # out while the light is on it.
                 eye_a = (0.30 + 0.60 * stage_u) * (1.0 - 0.75 * wch["seen"])
-                esz = max(2, int(30.0 * bz))
-                egap = max(4, int(132.0 * bz))
-                eye_y = int(bcy - 470.0 * bz) + sy
-                for side_dx in (-egap // 2, egap // 2):
-                    rv.blit(rect((HOR_PALE if not pushing else HOR_WARN)
-                                + qa(eye_a), esz, esz),
-                            (int(wx) + side_dx + sx, eye_y))
-                # THE ACCUMULATOR, drawn on the wall beside it, reading BOTH
-                # WAYS off a centre line: up in blood toward the next step
-                # toward you, down in pale toward the step back. That is the
-                # whole tutorial for the directional rule and it costs rule 1
-                # nothing -- cross to its side with the lantern up and you
-                # watch the bar reverse, which no sentence would teach faster.
+                egap = max(4.0, 132.0 * bz)
+                eye_y = bcy - 470.0 * bz + sy
+                for side_dx in (-egap * 0.5, egap * 0.5):
+                    p.quad("core", wx + side_dx + sx, eye_y, 0.10 + 0.5 * bz,
+                           col=(HOR_PALE if not pushing else HOR_WARN), alpha=eye_a,
+                           add=True)
+                # THE ACCUMULATOR, on the wall beside it, reading BOTH WAYS off
+                # a centre line -- the whole tutorial for the directional rule.
                 pw = inv_clamp(wch["p"], -1.0, 1.0)
                 bh = max(22, int(320.0 * bz))
                 half = bh // 2
                 bx_ = int(hor_screen_x(lo if wch["side"] == 0 else hi, persp)) \
                     + (4 if wch["side"] == 0 else -8) + sx
                 by_ = int(bcy - 470.0 * bz - bh * 0.5) + sy
-                rv.blit(rect("#05070699", 4, bh), (bx_, by_))
-                rv.blit(rect(HOR_FAINT + qa(0.60), 8, 1), (bx_ - 2, by_ + half))
+                p.fill("#05070699", bx_, by_, 4, bh)
+                p.fill(inv_hex(HOR_FAINT, 0.60), bx_ - 2, by_ + half, 8, 1)
                 fill = max(1, int(half * abs(pw)))
                 if pw >= 0.0:
-                    rv.blit(rect(HOR_BLOOD + qa(0.40 + 0.50 * stage_u),
-                                4, fill), (bx_, by_ + half - fill))
+                    p.fill(inv_hex(HOR_BLOOD, 0.40 + 0.50 * stage_u), bx_,
+                           by_ + half - fill, 4, fill)
                 else:
-                    rv.blit(rect(HOR_PALE + qa(0.75), 4, fill),
-                            (bx_, by_ + half))
+                    p.fill(inv_hex(HOR_PALE, 0.75), bx_, by_ + half, 4, fill)
 
-                # WHERE TO STAND, drawn on the boards. The directional rule is
-                # the one thing about a watcher that cannot be worked out by
-                # looking at it -- everything else (it is there, it is coming,
-                # it stops while lit) is legible from the picture, but "and
-                # only from that half of the corridor" is not. So the half it
-                # can be answered from is bracketed on the floor, brightest
-                # while you are outside it and while the lamp is down.
-                #
-                # AND IT IS HEADED WITH ACT ONE'S OWN COMMAND. LIGHT is the
-                # word this player already used on this creature for a whole
-                # act; rule 1 allows a state word and refuses a sentence, and
-                # this says which key without ever saying press it. It stops
-                # printing the moment the player drives one back for the first
-                # time -- a prompt still up after it worked is a nag.
+                # WHERE TO STAND, on the boards: the half of the corridor it can
+                # be answered from, headed with act one's own word while it has
+                # never yet been driven back.
                 zlo = lo if wch["side"] == 0 else (lo + hi) * 0.5
                 zhi = (lo + hi) * 0.5 if wch["side"] == 0 else hi
                 inside = zlo <= g.px <= zhi
@@ -3477,260 +3233,114 @@ init python:
                 zx0 = int(zlo) + sx
                 zw = max(6, int(zhi - zlo))
                 for seg in range(0, zw, 26):
-                    rv.blit(rect(HOR_PALE + qa(za), min(14, zw - seg), 2),
-                            (zx0 + seg, zy))
-                rv.blit(rect(HOR_PALE + qa(za), 2, 15), (zx0, zy - 13))
-                rv.blit(rect(HOR_PALE + qa(za), 2, 15), (zx0 + zw - 2, zy - 13))
+                    p.fill(inv_hex(HOR_PALE, za), zx0 + seg, zy, min(14, zw - seg), 2)
+                p.fill(inv_hex(HOR_PALE, za), zx0, zy - 13, 2, 15)
+                p.fill(inv_hex(HOR_PALE, za), zx0 + zw - 2, zy - 13, 2, 15)
                 if not g.watch_taught:
-                    blit_text("LIGHT", 13,
-                            HOR_WARN + qa(0.30 + 0.60 * need),
-                            zx0 + zw // 2, zy + 16, bold=True,
-                            anchor=(0.5, 0.0), w=200, h=26)
+                    p.text("LIGHT", 13, inv_hex(HOR_WARN, 0.30 + 0.60 * need),
+                           zx0 + zw // 2, zy + 16, bold=True, anchor=(0.5, 0.0),
+                           w=200, h=26)
 
-            # --- the thing that is ahead of you ----------------------------------
+            # --- the thing that is ahead of you --------------------------------
             if g.phantom is not None:
-                p = g.phantom
-                pp, pyy = hor_project(p["z"])
-                a = 0.55 * inv_clamp(p["life"] / 90.0, 0.0, 1.0)
-                self._draw_body(g, rv, tex, sblit,
-                                hor_screen_x(p["x"], pp), pyy,
+                ph_ = g.phantom
+                pp, pyy = hor_project(ph_["z"])
+                a = 0.55 * inv_clamp(ph_["life"] / 90.0, 0.0, 1.0)
+                self._draw_body(g, p, hor_screen_x(ph_["x"], pp) + sx, pyy + sy,
                                 inv_clamp(0.34 * pp, 0.03, 0.50),
-                                sx, sy, st, at, warp=2.4,
-                                stretch=(1.0, 1.25), diss=0.35, alpha=a,
-                                swell=1.6, reach=1.8)
+                                warp=2.4, stretch=(1.0, 1.25), diss=0.35, alpha=a,
+                                swell=1.6, reach=1.8,
+                                tint=(0.55, 0.62, 0.66, 1.0),
+                                rim=(0.6, 0.8, 0.9, 0.6))
 
-            # --- the runner --------------------------------------------------------
+            # --- the runner -----------------------------------------------------
             for i, (tx, ty, sprinting) in enumerate(g.trail):
                 if i == 0:
                     continue
-                a = 0.26 * (1.0 - i / float(len(g.trail)))
+                a = 0.30 * (1.0 - i / float(len(g.trail)))
                 if sprinting:
                     a *= 1.7
-                size = max(3, 11 - i)
-                rv.blit(rect("#ff4a5e" + qa(a * (1.0 - 0.7 * lookv)),
-                            size, size),
-                        (int(tx) - size // 2 + sx, int(ty) - size // 2 + sy))
+                p.quad("core", tx + sx, ty + sy, 0.34 - i * 0.022, col="#ff4a5e",
+                       alpha=a * (1.0 - 0.7 * lookv), add=True)
             leaving = g.mode in ("leave_w", "leave_l")
             if leaving:
-                self._draw_heart(g, rv, tex, sblit, g.heart_x, g.heart_y,
-                                sx, sy, st, at, scale=g.heart_scale,
-                                diss=g.heart_diss)
+                self._draw_heart(g, p, g.heart_x + sx, g.heart_y + sy,
+                                 scale=g.heart_scale, diss=g.heart_diss)
             elif not (g.stumble > 0 and (g.tick // 3) % 2 == 0):
-                self._draw_heart(g, rv, tex, sblit, g.px, g.py, sx, sy, st, at)
+                self._draw_heart(g, p, g.px + sx, g.py + sy)
+            # The lamp itself, held out to one side, and the warm circle it
+            # throws on the boards under you.
+            if g.lamp_lit > 0.02 and not leaving:
+                flick = 0.86 + 0.14 * math.sin(g.clock * 21.0) * math.sin(g.clock * 7.3)
+                lx, ly = g.px + 22.0 + sx, g.py - 16.0 + sy
+                p.glow(g.px + sx, g.py + 22.0 + sy, 120.0, 30.0, col="#ffcf8a",
+                       alpha=0.32 * g.lamp_lit * flick)
+                p.quad("core", lx, ly, 0.26, col="#fff0c8", alpha=0.9 * g.lamp_lit * flick,
+                       add=True)
+                p.glow(lx, ly, 40.0, 40.0, col="#ffb35a", alpha=0.45 * g.lamp_lit * flick)
 
             # --- IT ----------------------------------------------------------------
             # Rising out of the bottom of the frame. At full distance only the
             # top of its head is in the world at all; on your heels it owns a
             # third of the screen.
-            self._draw_body(g, rv, tex, sblit,
-                            g.follow_x, g.follow_y, g.follow_zoom, sx, sy,
-                            st, at,
+            red = 0.30 + 0.50 * near
+            self._draw_body(g, p, g.follow_x + sx, g.follow_y + sy, g.follow_zoom,
                             warp=(g.exit_warp if leaving else 1.6 + 1.6 * near),
                             stretch=(1.0 + 0.10 * math.sin(g.clock * 1.7),
-                                    1.0 + 0.16 * math.sin(g.clock * 1.1)),
+                                     1.0 + 0.16 * math.sin(g.clock * 1.1)),
                             diss=0.0,
                             alpha=g.follow_alpha * (1.0 - lookv),
                             swell=(1.9 if leaving else 0.6 + 1.3 * near),
-                            reach=(1.9 if leaving else 0.4 + 1.4 * near))
+                            reach=(1.9 if leaving else 0.4 + 1.4 * near),
+                            tint=(0.55 + 0.35 * red, 0.48, 0.48, 1.0),
+                            rim=(1.0, 0.82, 0.55, 0.65 * g.lamp_lit))
 
-            # --- THE STARE ---------------------------------------------------
             if lookv > 0.01:
-                self._render_stare(g, rv, tex, rect, qa, blit_text, sblit,
-                                lookv, sx, sy, st, at)
+                self._render_stare(g, p, lookv, sx, sy)
 
-            # THE BITE. A watcher got all the way across the wall. A held
-            # frame with it filling the corridor, and then the run simply goes
-            # on. The genre invented this move and there is no honest reason
-            # to be above it -- but it is a SHOCK, not a gag: nothing zooms,
-            # nothing squeals, it is suddenly all there is and then it is not.
-            # Drawn last of the world layers, because for those few ticks it
-            # IS the world.
+            # THE BITE. A held frame with it filling the corridor, and then the
+            # run simply goes on. A shock, not a gag: nothing zooms, nothing
+            # squeals, it is suddenly all there is and then it is not.
             if g.bite_t > 0:
                 bu = g.bite_t / float(HOR_BITE_FREEZE)
-                rv.blit(rect("#000000" + qa(0.55 * bu), 1280, 720), (0, 0))
-                self._draw_body(g, rv, tex, sblit, 640, 470,
-                                1.10 + 0.10 * (1.0 - bu), sx, sy, st, at,
+                p.fill(inv_hex("#000000", 0.55 * bu), 0, 0, 1280, 720)
+                self._draw_body(g, p, 640 + sx, 470 + sy, 1.10 + 0.10 * (1.0 - bu),
                                 warp=2.6, stretch=(1.06, 0.97), diss=0.0,
                                 alpha=inv_clamp(bu * 1.6, 0.0, 1.0),
-                                swell=2.2, reach=2.2)
-                rv.blit(rect(HOR_BLOOD + qa(0.22 * bu), 1280, 720), (0, 0))
+                                swell=2.2, reach=2.2,
+                                tint=(0.70, 0.60, 0.58, 1.0))
+                p.fill(inv_hex(HOR_BLOOD, 0.22 * bu), 0, 0, 1280, 720)
 
-            # A warning that costs nothing to read and everything to ignore.
             if g.lunge_state == "warn":
                 puls = 0.5 + 0.5 * math.sin(g.tick * 0.5)
-                rv.blit(rect("#8e1622" + qa(0.10 + 0.22 * puls), 1280, 720),
-                        (0, 0))
+                p.fill(inv_hex(HOR_BLOOD, 0.08 + 0.18 * puls), 0, 0, 1280, 720)
 
-            # --- HUD: a bar, a bar, and nothing else -------------------------------
-            # It fades out through the ending -- an outcome should not be read
-            # off a meter.
-            if g.hud_fade <= 0.02:
-                return
-            prog = inv_clamp(g.dist / HOR_GOAL, 0.0, 1.0)
-            bw = 620
-            bx0 = 640 - bw // 2
-            rv.blit(rect("#02030380", bw + 4, 10), (bx0 - 2, 26))
-            rv.blit(rect("#1c2422", bw, 6), (bx0, 28))
-            rv.blit(rect(HOR_PALE, int(bw * prog), 6), (bx0, 28))
-
-            sw = 220
-            rv.blit(rect("#02030380", sw + 4, 10), (34, 676))
-            rv.blit(rect("#241c1e", sw, 6), (36, 678))
-            if g.winded > 0:
-                # Winded reads as a bar that is REFUSING you, not one that is
-                # merely low.
-                puls = 0.5 + 0.5 * math.sin(g.tick * 0.5)
-                rv.blit(rect(HOR_BLOOD + qa(0.45 + 0.55 * puls),
-                            int(sw * (1.0 - g.winded / float(HOR_WINDED_TICKS))),
-                            6), (36, 678))
-            else:
-                stam_col = (HOR_PALE if g.stam > HOR_STAM_RELEASE_HINT
-                            else HOR_WARN)
-                rv.blit(rect(stam_col, int(sw * (g.stam / HOR_STAM_MAX)), 6),
-                        (36, 678))
-                # A mark at the point a careful runner lets go.
-                rv.blit(rect(HOR_FAINT, 2, 10),
-                        (36 + int(sw * (HOR_STAM_RELEASE_HINT / HOR_STAM_MAX)),
-                        676))
-            blit_text("WIND", 11, HOR_FAINT, 264, 674, w=160, h=22)
-
-            # THE TANK. It only ever goes one way, so it is the one number in
-            # the encounter that says how much run you have left in you rather
-            # than how you are doing right now.
-            rv.blit(rect("#02030380", sw + 4, 10), (34, 658))
-            rv.blit(rect("#241c1e", sw, 6), (36, 660))
-            if g.lamp_dead:
-                puls = 0.5 + 0.5 * math.sin(g.tick * 0.35)
-                rv.blit(rect(HOR_BLOOD + qa(0.16 + 0.20 * puls), sw, 6),
-                        (36, 660))
-            else:
-                pf = g.power_frac()
-                lamp_col = (HOR_WARN if g.lamp_lit > 0.5
-                            else (HOR_PALE if pf > 0.25 else HOR_WARN))
-                rv.blit(rect(lamp_col, int(sw * pf), 6), (36, 660))
-            blit_text("LAMP", 11, HOR_FAINT, 264, 656, w=160, h=22)
-
-            # A BUG in the encounter: the readouts stop being true. The bars
-            # jitter and the frame tears -- but the corridor never lies, so
-            # this costs composure and never a life.
-            if g.glitch > 0.02:
-                for k in range(5):
-                    gy = int(120 + (g.tick * 37 + k * 130) % 520)
-                    gh2 = 4 + ((g.tick + k * 7) % 9)
-                    gx = int(math.sin(g.tick * 0.7 + k) * 60 * g.glitch)
-                    rv.blit(rect(HOR_PALE + qa(0.20 * g.glitch), 1280, gh2),
-                            (gx, gy))
-                rv.blit(rect(HOR_BLOOD + qa(0.10 * g.glitch), 1280, 720), (0, 0))
-
-            # HOW LONG YOU HAVE BEEN LOOKING. This one is not decoration and
-            # it is not optional: a stare that can take you has to be a stare
-            # you can see coming to its end, or holding the key is a coin
-            # flip. It fills as you look and it is the only thing on screen
-            # that turns red.
-            if lookv > 0.01 or g.look_lock > 0:
-                lw = 300
-                lx = 640 - lw // 2
-                lf = g.look_frac()
-                rv.blit(rect("#02030390", lw + 4, 12), (lx - 2, 646))
-                rv.blit(rect("#241c1e", lw, 8), (lx, 648))
-                if g.look_lock > 0:
-                    puls = 0.5 + 0.5 * math.sin(g.tick * 0.5)
-                    rv.blit(rect(HOR_BLOOD + qa(0.30 + 0.45 * puls),
-                                int(lw * (1.0 - g.look_lock
-                                        / float(HOR_LOOK_LOCK))), 8),
-                            (lx, 648))
-                else:
-                    col = HOR_PALE if lf < 0.62 else (
-                        HOR_WARN if lf < 0.85 else HOR_BLOOD)
-                    rv.blit(rect(col, int(lw * lf), 8), (lx, 648))
-                    # Where a glance stops being worth nothing.
-                    rv.blit(rect(HOR_FAINT, 2, 14),
-                            (lx + int(lw * (HOR_LOOK_MIN
-                                            / float(HOR_LOOK_MAX))), 645))
-                # The distance, still -- but it is no longer why you looked.
-                blit_text("%d" % int(g.gap), 30, HOR_INK, 640, 620,
-                        bold=True, anchor=(0.5, 0.5), w=200, h=48)
-
-            # WHAT THE STARE LEFT BEHIND.
-            if g.resolve_t > 0.0:
-                rw = 220
-                rv.blit(rect("#02030380", rw + 4, 10), (34, 638))
-                rv.blit(rect("#1c2422", rw, 6), (36, 640))
-                rv.blit(rect(HOR_INK, int(rw * g.resolved()), 6), (36, 640))
-                blit_text("RESOLVE", 11, HOR_PALE, 264, 636, w=180, h=22)
-
-            if g.scramble > 0 and (g.tick // 6) % 2 == 0:
-                blit_text("?", 40, HOR_BLOOD, g.px + sx, g.py - 54 + sy,
-                        bold=True, anchor=(0.5, 0.5), w=80, h=60)
-
-            # THE HINT LINE POINTS. It is drawn in two pieces so the lantern's
-            # half can come up out of the murk on its own while a watcher is
-            # on the wall -- a control hint is rule-1 legal, and one that
-            # brightens exactly when the control matters is the difference
-            # between a legend and a nudge.
-            lamp_hot = (g.watcher is not None and not g.watch_taught)
-            lw2, _lh2 = blit_text("X  SPRINT      Z  LOOK BACK   (ALL HOLD)",
-                                12, HOR_FAINT, 1256, 690, anchor=(1.0, 1.0),
-                                w=520, h=28)
-            blit_text("A D  MOVE      W  LANTERN", 12,
-                    (HOR_WARN + qa(0.55 + 0.40
-                                * (0.5 + 0.5 * math.sin(g.tick * 0.13)))
-                    if lamp_hot else HOR_FAINT),
-                    1256 - lw2 - 22, 690, anchor=(1.0, 1.0), w=340, h=28)
-            if g.god:
-                blit_text("GOD", 12, HOR_WARN + "aa", 1256, 664,
-                        anchor=(1.0, 1.0), w=120, h=24)
-
-        # ----- THE STARE -------------------------------------------------------
-
-        def _render_stare(self, g, rv, tex, rect, qa, blit_text, sblit,
-                        lookv, sx, sy, st, at):
-            """You turned round.
-
-            This is the whole reason LOOK BACK exists. It used to print a
-            number -- a readout OF the most frightening thing in the
-            encounter, standing in for the thing itself. Now the camera comes
-            about, the corridor reverses behind the shader, and it is simply
-            there, in the middle of the frame, with nothing in the way and
-            nothing to do about it but decide how long you can keep doing this.
-
-            Everything here scales off two values and they pull in opposite
-            directions: NEAR (how close it actually is -- the payment) and
-            LOOK_FRAC (how long you have held -- the risk).
-            """
+        def _render_stare(self, g, p, lookv, sx, sy):
+            """You turned round. The camera comes about, the corridor reverses
+            in the shader, and it is simply there, in the middle of the frame,
+            with nothing in the way. NEAR is the payment, LOOK_FRAC the risk."""
             near = g.near_frac()
             lf = g.look_frac()
-
-            # THE WHIP. The turn is 15 ticks and it has to cost the eye
-            # something, or the camera reads as a cut rather than a head
-            # moving. Streaks peak halfway through the swing and are gone by
-            # the time it settles.
             swing = 1.0 - abs(lookv - 0.5) * 2.0
             if swing > 0.02 and lookv < 0.995:
                 for k in range(9):
-                    yy = int((g.tick * 23 + k * 149) % 720)
+                    yy = (g.tick * 23 + k * 149) % 720
                     hh = 3 + (k * 7) % 12
-                    rv.blit(rect(HOR_PALE + qa(0.10 * swing), 1280, hh),
-                            (int(math.sin(k * 1.7) * 120 * swing), yy))
-
-            rv.blit(rect("#000000" + qa(0.62 * lookv), 1280, 720), (0, 0))
-
-            # IT. At arm's length it owns the frame; at a full corridor's
-            # distance it is a shape down the far end -- which is its own kind
-            # of bad, because you can see how much of it there is.
+                    p.fill(inv_hex(HOR_PALE, 0.10 * swing), int(math.sin(k * 1.7) * 120 * swing),
+                           yy, 1280, hh)
+            p.fill(inv_hex("#000000", 0.62 * lookv), 0, 0, 1280, 720)
             zoom = inv_lerp(0.30, 1.05, near) * (1.0 + 0.32 * lf)
             cy = inv_lerp(292.0, 452.0, near) + 26.0 * lf
-            self._draw_body(g, rv, tex, sblit, 640, cy, zoom, sx, sy, st, at,
+            self._draw_body(g, p, 640 + sx, cy + sy, zoom,
                             warp=1.5 + 1.9 * near + 1.7 * lf,
                             stretch=(1.0 + 0.07 * math.sin(g.clock * 2.1),
-                                    1.0 + 0.11 * math.sin(g.clock * 1.3)),
+                                     1.0 + 0.11 * math.sin(g.clock * 1.3)),
                             diss=0.0, alpha=lookv,
                             swell=0.9 + 1.5 * near + 1.1 * lf,
-                            reach=0.8 + 1.4 * near + 1.4 * lf)
-
-            # IT IS GETTING WORSE THE LONGER YOU DO THIS, and it says so with
-            # the frame rather than with a word: rings closing on the middle,
-            # then the picture starting to come apart.
+                            reach=0.8 + 1.4 * near + 1.4 * lf,
+                            tint=(0.62 + 0.3 * near, 0.50, 0.50, 1.0))
+            # IT IS GETTING WORSE THE LONGER YOU DO THIS: rings closing on the
+            # middle, then the picture starting to come apart.
             if lf > 0.25:
                 puls = 0.5 + 0.5 * math.sin(g.tick * (0.22 + 0.5 * lf))
                 rings = 3 + int(4 * lf)
@@ -3738,23 +3348,115 @@ init python:
                     rr = 120 + k * 46 - int(70.0 * lf * puls)
                     if rr < 8:
                         continue
-                    a = 0.05 + 0.16 * lf * (1.0 - k / float(rings))
-                    rv.blit(rect(HOR_BLOOD + qa(a), rr * 2, 2),
-                            (640 - rr + sx, 400 - rr + sy))
-                    rv.blit(rect(HOR_BLOOD + qa(a), rr * 2, 2),
-                            (640 - rr + sx, 400 + rr + sy))
+                    a = 0.10 + 0.24 * lf * (1.0 - k / float(rings))
+                    p.ring(640 + sx, 400 + sy, rr, rr, col=HOR_BLOOD, alpha=a,
+                           add=True)
             if lf > 0.55:
                 tear = (lf - 0.55) / 0.45
-                for k in range(7):
-                    yy = int((g.tick * 31 + k * 173) % 720)
-                    hh = 2 + int((g.tick + k * 5) % 11)
-                    ox = int(math.sin(g.tick * 0.6 + k) * 90 * tear)
-                    rv.blit(rect(HOR_PALE + qa(0.16 * tear), 1280, hh),
-                            (ox, yy))
-                rv.blit(rect(HOR_BLOOD + qa(0.05 + 0.20 * tear), 1280, 720),
-                        (0, 0))
+                p.fill(inv_hex(HOR_BLOOD, 0.05 + 0.20 * tear), 0, 0, 1280, 720)
 
+        def _chase_hud(self, g, p, sx, sy):
+            if g.hud_fade <= 0.02:
+                return
+            lookv = inv_clamp(g.look_view, 0.0, 1.0)
+            prog = inv_clamp(g.dist / HOR_GOAL, 0.0, 1.0)
+            bw = 620
+            bx0 = 640 - bw // 2
+            inv_draw_panel(p, bx0 - 12, 14, bw + 24, 26, HORStage.STYLE_PLATE)
+            p.fill("#1c2422", bx0, 24, bw, 6)
+            p.fill(HOR_PALE, bx0, 24, int(bw * prog), 6)
+            for k, at in enumerate(HOR_PHASE_AT[1:]):
+                p.fill(inv_hex(HOR_PALE, 0.35 if prog < at else 0.15),
+                       bx0 + int(bw * at), 20, 1, 14)
 
+            plate = (24, 628, 300, 72)
+            inv_draw_panel(p, plate[0], plate[1], plate[2], plate[3], HORStage.STYLE_PANEL)
+            sw = 220
+            # THE TANK. It only ever goes one way.
+            p.fill("#241c1e", 38, 646, sw, 6)
+            if g.lamp_dead:
+                puls = 0.5 + 0.5 * math.sin(g.tick * 0.35)
+                p.fill(inv_hex(HOR_BLOOD, 0.16 + 0.20 * puls), 38, 646, sw, 6)
+            else:
+                pf = g.power_frac()
+                lamp_col = (HOR_WARN if g.lamp_lit > 0.5
+                            else (HOR_PALE if pf > 0.25 else HOR_WARN))
+                p.fill(lamp_col, 38, 646, int(sw * pf), 6)
+            p.text("LAMP", 11, HOR_FAINT, 266, 641, w=160, h=22)
+            # WIND.
+            p.fill("#241c1e", 38, 668, sw, 6)
+            if g.winded > 0:
+                puls = 0.5 + 0.5 * math.sin(g.tick * 0.5)
+                p.fill(inv_hex(HOR_BLOOD, 0.45 + 0.55 * puls), 38, 668,
+                       int(sw * (1.0 - g.winded / float(HOR_WINDED_TICKS))), 6)
+            else:
+                stam_col = HOR_PALE if g.stam > HOR_STAM_RELEASE_HINT else HOR_WARN
+                p.fill(stam_col, 38, 668, int(sw * (g.stam / HOR_STAM_MAX)), 6)
+                p.fill(HOR_FAINT, 38 + int(sw * (HOR_STAM_RELEASE_HINT / HOR_STAM_MAX)),
+                       665, 2, 12)
+            p.text("WIND", 11, HOR_FAINT, 266, 663, w=160, h=22)
+            # WHAT THE STARE LEFT BEHIND.
+            if g.resolve_t > 0.0:
+                p.fill("#1c2422", 38, 686, sw, 4)
+                p.fill(HOR_INK, 38, 686, int(sw * g.resolved()), 4)
+                p.text("RESOLVE", 10, HOR_PALE, 266, 681, w=180, h=22)
+
+            # HOW LONG YOU HAVE BEEN LOOKING -- mandatory, not decoration: a
+            # stare that can take you must be one you can see ending.
+            if lookv > 0.01 or g.look_lock > 0:
+                lw = 300
+                lx = 640 - lw // 2
+                lf = g.look_frac()
+                p.fill("#02030390", lx - 2, 646, lw + 4, 12)
+                p.fill("#241c1e", lx, 648, lw, 8)
+                if g.look_lock > 0:
+                    puls = 0.5 + 0.5 * math.sin(g.tick * 0.5)
+                    p.fill(inv_hex(HOR_BLOOD, 0.30 + 0.45 * puls), lx, 648,
+                           int(lw * (1.0 - g.look_lock / float(HOR_LOOK_LOCK))), 8)
+                else:
+                    col = HOR_PALE if lf < 0.62 else (HOR_WARN if lf < 0.85 else HOR_BLOOD)
+                    p.fill(col, lx, 648, int(lw * lf), 8)
+                    p.fill(HOR_FAINT, lx + int(lw * (HOR_LOOK_MIN / float(HOR_LOOK_MAX))),
+                           645, 2, 14)
+                p.text("%d" % int(g.gap), 30, HOR_INK, 640, 620, bold=True,
+                       anchor=(0.5, 0.5), w=200, h=48, outline="#020303")
+
+            if g.scramble > 0 and (g.tick // 6) % 2 == 0:
+                p.text("?", 40, HOR_BLOOD, g.px + sx, g.py - 54 + sy, bold=True,
+                       anchor=(0.5, 0.5), w=80, h=60)
+
+            lamp_hot = (g.watcher is not None and not g.watch_taught)
+            lw2, _lh2 = p.text("X  SPRINT      Z  LOOK BACK   (ALL HOLD)", 12, HOR_FAINT,
+                               1256, 690, anchor=(1.0, 1.0), w=520, h=28,
+                               outline="#020303")
+            p.text("A D  MOVE      W  LANTERN", 12,
+                   (inv_hex(HOR_WARN, 0.55 + 0.40 * (0.5 + 0.5 * math.sin(g.tick * 0.13)))
+                    if lamp_hot else HOR_FAINT),
+                   1256 - lw2 - 22, 690, anchor=(1.0, 1.0), w=340, h=28,
+                   outline="#020303")
+            if g.god:
+                p.text("GOD", 12, HOR_WARN + "aa", 1256, 664, anchor=(1.0, 1.0),
+                       w=120, h=24)
+
+        # ----- numbers and pause -----------------------------------------------
+
+        def _floats(self, g, p, sx, sy):
+            for f in g.floats:
+                a = inv_clamp(f["life"] / 26.0, 0.0, 1.0)
+                age = 52 - f["life"]
+                pop = 1.0 + 0.30 * inv_clamp(1.0 - age / 6.0, 0.0, 1.0)
+                p.text(f["text"], int((30 if f["big"] else 21) * pop),
+                       inv_hex(f["color"], a), int(f["x"]) + sx, int(f["y"]) + sy,
+                       bold=f["big"], anchor=(0.5, 0.5), w=260, h=70,
+                       outline="#020303")
+
+        def _pause(self, g, p):
+            p.fill("#020303c8", 0, 0, 1280, 720)
+            inv_draw_panel(p, 440, 270, 400, 150, HORStage.STYLE_PANEL)
+            p.text("PAUSED", 40, HOR_INK, 640, 322, bold=True,
+                   anchor=(0.5, 0.5), w=600, h=70)
+            p.text("ESC  RESUME        Q  QUIT", 16, HOR_DIM,
+                   640, 378, anchor=(0.5, 0.5), w=800, h=44)
 # --- THE SCREEN --------------------------------------------------------------
 screen inv_horror_screen(game):
     modal True
@@ -3778,16 +3480,21 @@ screen inv_horror_screen(game):
 default hor_game = None
 default hor_deaths = 0
 default hor_retry = False
+# A RETRY FROM THE TEAR, carrying the dread act one handed the chase.
+default hor_resume = None
 
 label archivist_invasion_horror:
     $ hor_deaths = 0
     $ hor_retry = False
+    $ hor_resume = None
 
 label inv_horror_fight:
     $ renpy.block_rollback()
 
     $ hor_game = HORGame(retry=hor_retry, deaths=hor_deaths,
-                        debug=config.developer, start_open=inv_dev_start_open)
+                        debug=config.developer, start_open=inv_dev_start_open,
+                        resume=hor_resume)
+    $ hor_resume = None
 
     $ _hor_prev_quick_menu = quick_menu
     $ quick_menu = False
@@ -3797,6 +3504,7 @@ label inv_horror_fight:
 
     call screen inv_horror_screen(hor_game)
     $ _hor_result = _return
+    $ _hor_checkpoint = hor_game.checkpoint
 
     $ hor_game = None
     $ quick_menu = _hor_prev_quick_menu
@@ -3826,15 +3534,20 @@ label inv_horror_defeat:
     $ hor_deaths += 1
     $ hor_retry = True
 
-    menu:
-        "AGAIN":
-            scene black
-            jump inv_horror_fight
-
-        "STOP":
-            if inv_dev_test:
-                $ renpy.notify("HORROR: lost. Recorded.")
-            return
+    call screen inv_retry_screen("HORROR", "CAUGHT",
+                                 inv_retry_options(_hor_checkpoint),
+                                 ink=HOR_INK, dim=HOR_DIM, accent=HOR_BLOOD,
+                                 bg=HOR_BLACK)
+    if _return == "tear":
+        $ hor_resume = _hor_checkpoint
+        scene black
+        jump inv_horror_fight
+    elif _return == "start":
+        scene black
+        jump inv_horror_fight
+    if inv_dev_test:
+        $ renpy.notify("HORROR: lost. Recorded.")
+    return
 
 label inv_horror_quit:
     $ hor_retry = True

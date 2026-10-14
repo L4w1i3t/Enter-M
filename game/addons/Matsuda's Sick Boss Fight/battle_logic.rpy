@@ -1366,19 +1366,10 @@ init -1 python:
         ratio = max(0.0, min(1.0, float(value) / float(max_value)))
         return int(width * ratio)
 
-    def msbf_scroll_adjustment_to_bottom(adjustment):
-        try:
-            adjustment.change(adjustment.range)
-        except Exception:
-            pass
-
     def msbf_affinity_label(elements):
         if not elements:
             return "None"
         return ", ".join(MSBF_AFFINITY_NAMES.get(element, element.title()) for element in elements)
-
-    def msbf_row_label(row):
-        return "Front" if row == "front" else "Rear"
 
     def msbf_default_rows(member_ids):
         rows = {}
@@ -1396,8 +1387,13 @@ init -1 python:
             picks.remove(member_id)
             rows.pop(member_id, None)
         elif len(picks) < 4:
+            # Count the front row BEFORE the newcomer joins. msbf_front_count
+            # reads a member with no row yet as front, so counting after the
+            # append put only the FIRST pick in front, not the first two that
+            # msbf_default_rows (and this test) mean (fixed Oct 1 2026).
+            front = msbf_front_count(picks, rows)
             picks.append(member_id)
-            rows[member_id] = "front" if msbf_front_count(picks, rows) < 2 else "rear"
+            rows[member_id] = "front" if front < 2 else "rear"
         return picks, rows
 
     def msbf_remove_member(picks, rows, member_id):
@@ -1519,6 +1515,10 @@ init -1 python:
         handover_delay = 1.15
         handover_serial = 0
         handover_mp_restored = False
+        # The FF-style action banner (seer_battle.rpy): who did what, raised
+        # once per action. Presentation only -- read by the HUD, never by rules.
+        action_banner = None
+        action_banner_serial = 0
 
         def __init__(self, member_config, id_mode=False):
             if isinstance(member_config, dict):
@@ -1804,6 +1804,11 @@ init -1 python:
         def clear_fx(self):
             self.fx_event = None
             self.fx_clear_delay = 0.70
+
+        def _raise_banner(self, who, what, element, side):
+            # (serial, actor name, action name, element, "party"/"enemy")
+            self.action_banner_serial = getattr(self, "action_banner_serial", 0) + 1
+            self.action_banner = (self.action_banner_serial, who, what, element, side)
 
         def emit_float(self, amount, kind="dmg", anchor="boss"):
             # Feed for floating combat numbers. anchor is "boss" or a party index.
@@ -2476,6 +2481,7 @@ init -1 python:
             if actor is None:
                 return
             self._consume_pass_turn()
+            self._raise_banner(actor.name, "Pass", "support", "party")
             self._record_phase_two_player_action(actor, None, "minor", 0)
             limit_reached = self._record_player_action()
             self.add_log("%s passes and spends half a press turn." % actor.name)
@@ -2513,6 +2519,7 @@ init -1 python:
 
             actor.mp -= skill.cost
             actor.clamp()
+            self._raise_banner(actor.name, skill.name, skill.element, "party")
             self.pending_half_turn = False
             boss_hp_before = self.boss.hp
             try:
@@ -3369,6 +3376,7 @@ init -1 python:
             return MSBF_SKILLS[random.choice(pool)]
 
         def _resolve_enemy_skill(self, skill):
+            self._raise_banner(self.boss.name, skill.name, skill.element, "enemy")
             if skill.kind == "focus":
                 self.boss.focus = True
                 self.add_log("Matsuda uses Limit Read. Her next hit is charged.")

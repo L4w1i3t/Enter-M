@@ -1,40 +1,10 @@
-# =============================================================================
-# calendar_system.rpy  --  IN-GAME DATE TRACKING + DISPLAY (Persona-style)
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   The single source of truth for the in-story date, a corner date overlay, an
-#   animated "day change" panel, and a full month-grid Calendar menu.
-#
-# THE CORE OBJECT
-#   `calendar` (a CalendarSystem, declared with `default` so it lives per-save).
-#   Story code reads/sets the date through it; other addons read it too (the
-#   Phone System pulls the current date label from calendar.get_snapshot()).
-#
-# PUBLIC API (see docs/addons/ADDON_CHEATSHEET.md for recipes)
-#   Set/advance:  $ calendar.set_date(y, m, d)  /  call calendar_advance(days=, animate=)
-#                 (animate=True shows the day-change panel; False is silent).
-#   Show/hide:    $ show_calendar()  /  $ hide_calendar()  (overlay on/off).
-#   Read:         calendar.get_formatted_date("full"|"short"|"numeric"|"persona"),
-#                 calendar.get_snapshot(), is_weekend(), get_day/month/year().
-#   Menu:         ShowMenu("calendar_menu")  (already wired in the game menu nav).
-#
-# PIECES IN THIS FILE
-#   CalendarSystem : the date model + formatters + get_snapshot() (a dict of every
-#                    pre-formatted field the screens/phone need).
-#   CalendarView   : the "which month am I browsing" state for the menu grid only;
-#                    independent of the actual current date.
-#   Labels         : calendar_advance / calendar_day_transition / calendar_set_date
-#                    / calendar_show / calendar_hide / calendar_toggle.
-#   Screens        : calendar_overlay (corner badge),
-#                    calendar_day_change (the animated rotary chrono-dial -- one
-#                    GLSL shader enter_m.cal_dial: swept pointer + month-progress
-#                    arc + ticks/bezel around a round hub the date rolls on),
-#                    calendar_menu.
-# =============================================================================
-
-# Calendar System - Persona-style date tracking and display.
-
+# Per-save story date (calendar), corner overlay, day transition and month grid.
+# CalendarSystem owns the date and formatted snapshots consumed by phone/screens;
+# CalendarView browses months independently of the current story date.
+# Use calendar.set_date(), calendar_advance(days=, animate=), show_calendar() and
+# hide_calendar(). ShowMenu("calendar_menu") opens the calendar from navigation.
+# The day-change screen snapshots old/new dates and animates the enter_m.cal_dial
+# shader and rolling date cells. Read get_snapshot() for shared display fields.
 
 init python:
     import calendar as py_calendar
@@ -140,28 +110,61 @@ init python:
     # Browsing state for the month-grid menu ONLY (which month is on screen).
     # Separate from CalendarSystem so paging around the menu never moves the
     # actual in-game date. Singleton instance `calendar_view` below.
-    class CalendarView:
+    #
+    # NoRollback because this is pure UI state: rolling the story back should
+    # not move the month the player happens to be looking at, and none of it
+    # belongs in a save. (It is not what caused the Sep 2026 "arrows skip a
+    # month" bug -- that was screen prediction; see the note on calendar_menu.)
+    class CalendarView(renpy.python.NoRollback):
         def __init__(self):
             self.viewing_year = None
             self.viewing_month = None
 
+        # Browsing is clamped to the story's own window (see
+        # CALENDAR_STORY_FIRST / _LAST): the player can walk every month the
+        # story reaches and no further.
+
+        def _bounds(self):
+            fy, fm, _ = CALENDAR_STORY_FIRST
+            ly, lm, _ = CALENDAR_STORY_LAST
+            return (fy * 12 + fm - 1, ly * 12 + lm - 1)
+
+        def current_month(self):
+            """
+            (year, month) the grid is showing. Falls back to the story's own
+            month and WRITES NOTHING: the menu screen has to stay side-effect
+            free (see the note on calendar_menu).
+            """
+            if self.viewing_year is None:
+                return (calendar.get_year(), calendar.get_month())
+            return (self.viewing_year, self.viewing_month)
+
+        def _index(self):
+            year, month = self.current_month()
+            return year * 12 + month - 1
+
+        def _go(self, index):
+            low, high = self._bounds()
+            index = max(low, min(high, index))
+            self.viewing_year, month = divmod(index, 12)
+            self.viewing_month = month + 1
+
+        def can_prev(self):
+            return self._index() > self._bounds()[0]
+
+        def can_next(self):
+            return self._index() < self._bounds()[1]
+
         def reset_to_current(self):
             self.viewing_year = calendar.get_year()
             self.viewing_month = calendar.get_month()
+            self._go(self._index())
 
         def next_month(self):
-            if self.viewing_month == 12:
-                self.viewing_month = 1
-                self.viewing_year += 1
-            else:
-                self.viewing_month += 1
+            self._go(self._index() + 1)
 
         def prev_month(self):
-            if self.viewing_month == 1:
-                self.viewing_month = 12
-                self.viewing_year -= 1
-            else:
-                self.viewing_month -= 1
+            self._go(self._index() - 1)
 
     calendar_view = CalendarView()
 
@@ -178,9 +181,54 @@ init python:
     def hide_calendar():
         renpy.hide_screen("calendar_overlay")
 
+    def calendar_story_window():
+        """The story's own span, as dates: (first playable, last playable)."""
+        return (datetime.date(*CALENDAR_STORY_FIRST),
+                datetime.date(*CALENDAR_STORY_LAST))
+
+    def calendar_cell_state(year, month, day):
+        """'outside', 'past', 'today' or 'future' for one menu grid cell."""
+        cell = datetime.date(year, month, day)
+        first, last = calendar_story_window()
+
+        if cell < first or cell > last:
+            return "outside"
+        if cell < calendar.current_date:
+            return "past"
+        if cell == calendar.current_date:
+            return "today"
+        return "future"
+
+    def calendar_cell_color(state, weekend):
+        if state == "outside":
+            return "#4f5c5a"
+        if state == "past":
+            return "#71807e"
+        return ROOM_MENU_CORAL if weekend else ROOM_MENU_PAPER
+
+    def calendar_month_fraction(date_value):
+        """
+        Where a date sits in its own month, as a fraction of a full turn:
+        0.0 on the 1st, one day short of 1.0 on the last. Dividing by the
+        month's length rather than by (length - 1) is what keeps the last day
+        of the month from pointing at exactly the same place as the first.
+
+        Drives the corner badge's dial pointer.
+        """
+        # py_calendar, not `calendar`: the latter is the game's own object.
+        days = py_calendar.monthrange(date_value.year, date_value.month)[1]
+        return (date_value.day - 1) / float(max(days, 1))
+
 # The live calendar object (per-save). Everything above is the blueprint; THIS
 # is the instance the whole game reads/writes.
 default calendar = CalendarSystem()
+
+# The story's span. The menu browses these months and no others, and days
+# outside the span are drawn as unreachable. Season 1 opens on 2025-05-15
+# (story/season1/0515.rpy); the Developer Date Jump calls the same span "the
+# May 2025-March 2026 story year".
+define CALENDAR_STORY_FIRST = (2025, 5, 15)
+define CALENDAR_STORY_LAST = (2026, 3, 7)
 
 define cal_dial_face_size = 350
 define cal_dial_glow_pad = 90
@@ -377,6 +425,12 @@ label calendar_toggle:
 # Overlay transforms. (calendar_rotary_old/new drive the day-change "flip":
 # the old date slides up and fades while the new date rises into its place.)
 # Overlay transforms.
+# The badge dial's pointer. Rotation is about the image's own centre, and the
+# 64px canvas is placed centred on the dial, so the nib tracks the rim.
+transform cal_overlay_hand(angle=0.0):
+    rotate angle
+
+
 transform calendar_overlay_enter:
     on show:
         alpha 0.0
@@ -457,35 +511,51 @@ screen calendar_overlay():
 
     if calendar.display_enabled:
         $ _cal = calendar.get_snapshot()
-        $ _cal_dow_color = "#e06b6b" if _cal["is_weekend"] else "#72b8d4"
+        $ _cal_weekend = _cal["is_weekend"]
+        $ _cal_dow_color = "#e06b6b" if _cal_weekend else "#72b8d4"
+        $ _cal_page = "assets/gui/hud/cal_page_weekend.png" if _cal_weekend else "assets/gui/hud/cal_page.png"
+        $ _cal_hand = "assets/gui/hud/cal_hand_weekend.png" if _cal_weekend else "assets/gui/hud/cal_hand.png"
+        $ _cal_angle = 360.0 * calendar_month_fraction(_cal["date"])
 
-        frame:
+        # A calendar page, not a button: square, with a punched month strip
+        # and one clipped corner. The day number sits in a clock dial whose
+        # pointer rides the rim at the day's place in the month -- the same
+        # sweep the day-change panel's big dial uses. Weekends swap the whole
+        # page (strip, ring and pointer) for the coral variant.
+        fixed:
             xalign 0.985
             yalign 0.025
-            xysize (158, 70)
-            background Solid("#090b10dd")
-            padding (10, 7, 10, 7)
+            xysize (176, 78)
             at calendar_overlay_enter
 
-            fixed:
-                text _cal["month_short"] style "cal_overlay_month":
-                    xpos 0
-                    ypos 2
+            add _cal_page
 
-                text _cal["day_padded"] style "cal_overlay_day":
-                    xpos 0
-                    ypos 22
+            text _cal["month_short"] style "cal_overlay_month":
+                xpos 12
+                ypos 4
 
-                add Solid("#ffffff22"):
-                    xpos 58
-                    ypos 10
-                    xsize 1
-                    ysize 44
+            # Centre-anchored: a rotated render grows to the rotated
+            # bounding box, so a top-left anchor would walk the pointer
+            # off the dial as the angle changes.
+            add _cal_hand:
+                xpos 50
+                ypos 49
+                xanchor 0.5
+                yanchor 0.5
+                at cal_overlay_hand(_cal_angle)
 
-                text _cal["dow_short"] style "cal_overlay_dow":
-                    xpos 74
-                    ypos 23
-                    color _cal_dow_color
+            text _cal["day_padded"] style "cal_overlay_day":
+                xpos 50
+                xanchor 0.5
+                ypos 49
+                yanchor 0.5
+
+            text _cal["dow_short"] style "cal_overlay_dow":
+                xpos 132
+                xanchor 0.5
+                ypos 49
+                yanchor 0.5
+                color _cal_dow_color
 
 
 # The animated "DATE SYNC" panel (shown by calendar_day_transition). Receives
@@ -647,14 +717,20 @@ screen calendar_menu():
         $ _cm_formatted = "{}, {} {}".format(calendar.get_day_name(), calendar.get_month_name(), calendar.get_day())
         $ _cm_year = calendar.get_year()
         $ _cm_month = calendar.get_month()
-        $ _cm_day = calendar.get_day()
         $ _cm_dow = calendar.get_day_of_week()
 
-        if calendar_view.viewing_year is None:
-            $ calendar_view.reset_to_current()
-
-        $ _cm_vy = calendar_view.viewing_year
-        $ _cm_vm = calendar_view.viewing_month
+        # NOTHING IN THIS SCREEN MAY CHANGE STATE. Ren'Py predicts screens on
+        # idle frames, and prediction runs EVERY branch of an `if` whatever
+        # the condition says. This screen used to carry
+        #   if calendar_view.viewing_year is None:
+        #       $ calendar_view.reset_to_current()
+        # and prediction duly ran that reset over and over, so the browsed
+        # month snapped back to today between clicks: the arrows could never
+        # move past the month beside today, and stepping back from it landed
+        # two months away. Measured Sep 20 2026 (the screen reported
+        # predicting=True while the value it "saw as None" was 2025-5).
+        # current_month() reads and falls back; it never writes.
+        $ _cm_vy, _cm_vm = calendar_view.current_month()
         $ _cm_month_name = calendar.month_names[_cm_vm - 1]
         $ _cm_grid = get_calendar_grid(_cm_vy, _cm_vm)
         $ _cm_is_current_month = (_cm_vy == _cm_year and _cm_vm == _cm_month)
@@ -691,7 +767,10 @@ screen calendar_menu():
                     xalign 0.5
                     yalign 0.5
 
-                    textbutton "<" style "cal_nav_button" action Function(calendar_view.prev_month)
+                    textbutton "<":
+                        style "cal_nav_button"
+                        action Function(calendar_view.prev_month)
+                        sensitive calendar_view.can_prev()
 
                     frame:
                         xysize (360, 48)
@@ -707,7 +786,10 @@ screen calendar_menu():
                         action Function(calendar_view.reset_to_current)
                         sensitive not _cm_is_current_month
 
-                    textbutton ">" style "cal_nav_button" action Function(calendar_view.next_month)
+                    textbutton ">":
+                        style "cal_nav_button"
+                        action Function(calendar_view.next_month)
+                        sensitive calendar_view.can_next()
 
                 vbox:
                     spacing 2
@@ -733,60 +815,75 @@ screen calendar_menu():
                                     elif _hdr_wkend:
                                         color ROOM_MENU_CORAL
 
-                    for _week in _cm_grid:
-                        hbox:
+                    # A month grid is 4, 5 or 6 weeks tall, and this block is
+                    # centred, so letting it size itself moved the whole
+                    # panel -- arrows included -- by half a row whenever the
+                    # month changed. The arrow then slid out from under the
+                    # pointer and the next click landed on nothing, which is
+                    # what made months appear to skip. Always reserve six.
+                    fixed:
+                        xysize (544, 298)
+
+                        vbox:
                             spacing 2
 
-                            for _wi, _wd in enumerate(_week):
-                                $ _is_today = (_wd == _cm_day and _cm_is_current_month and _wd != 0)
-                                $ _is_wkend = _wi >= 5
-                                $ _is_past = (_cm_is_current_month and _wd != 0 and _wd < _cm_day)
+                            for _week in _cm_grid:
+                                hbox:
+                                    spacing 2
 
-                                if _wd == 0:
-                                    frame:
-                                        style "cal_cell_empty"
+                                    for _wi, _wd in enumerate(_week):
+                                        if _wd == 0:
+                                            frame:
+                                                style "cal_cell_empty"
 
-                                elif _is_today:
-                                    frame:
-                                        style "cal_cell_today"
-                                        text "[_wd]" style "cal_cell_today_text"
+                                        else:
+                                            $ _state = calendar_cell_state(_cm_vy, _cm_vm, _wd)
+                                            $ _is_wkend = _wi >= 5
 
-                                else:
-                                    $ _cell_color = "#71807e" if _is_past else (ROOM_MENU_CORAL if _is_wkend else ROOM_MENU_PAPER)
+                                            if _state == "today":
+                                                frame:
+                                                    style "cal_cell_today"
+                                                    text "[_wd]" style "cal_cell_today_text"
 
-                                    frame:
-                                        style "cal_cell"
-                                        text "[_wd]" style "cal_cell_text":
-                                            color _cell_color
+                                            else:
+                                                frame:
+                                                    style ("cal_cell_outside" if _state == "outside" else "cal_cell")
+                                                    text "[_wd]" style "cal_cell_text":
+                                                        color calendar_cell_color(_state, _is_wkend)
 
 
 # =============================================================================
 # STYLES  -- story overlays retain their authored palette. The month-grid menu
 # below joins the quiet room family with teal, coral, ochre, and paper tones.
 # =============================================================================
+# Dark ink: the month sits ON the accent strip, not on the dark page.
 style cal_overlay_month:
     font gui.interface_font
-    size 16
-    color "#d6d9df"
+    size 13
+    color "#05121b"
+    kerning 2.2
     outlines []
 
+# Sized to sit inside the dial ring.
+#
+# The yoffsets are optical centring, and they are MEASURED, not guessed: a
+# text's box is its full line box (ascent + descent) grown by the outline,
+# but digits and caps only ink the upper part of it, so centring the box
+# leaves the glyphs riding 5px high on the dial and the divider. Re-measure
+# these two if the font, the size or the outline changes.
 style cal_overlay_day:
     font gui.name_font
-    size 31
+    size 26
     color "#ffffff"
     outlines [(2, "#000000", 0, 0)]
+    yoffset 5
 
 style cal_overlay_dow:
     font gui.name_font
     size 20
     color "#72b8d4"
     outlines [(1, "#000000", 0, 0)]
-
-style cal_overlay_year:
-    font gui.interface_font
-    size 16
-    color "#a8adb7"
-    outlines []
+    yoffset 5
 
 style cal_change_label:
     font gui.interface_font
@@ -822,12 +919,6 @@ style cal_change_dow:
     color "#56d7ff"
     kerning 2.0
     outlines [(2, "#02060a", 0, 0)]
-
-style cal_change_arrow:
-    font gui.name_font
-    size 42
-    color "#56d7ff66"
-    outlines []
 
 style cal_change_small_date:
     font gui.interface_font
@@ -882,6 +973,9 @@ style cal_nav_button:
     xysize (48, 48)
     background ROOM_MENU_SELECTOR_IDLE
     hover_background ROOM_MENU_SELECTOR_HOVER
+    # At either end of the story's months the arrow is dead, and has to look
+    # it -- otherwise the calendar just stops responding.
+    insensitive_background Solid("#0b1418c4")
     padding (0, 0)
     yalign 0.5
     hover_sound gui.hover_sound
@@ -892,6 +986,7 @@ style cal_nav_button_text:
     size 22
     color ROOM_MENU_PAPER
     hover_color "#fff8ea"
+    insensitive_color "#4f5c5a"
     xalign 0.5
     yalign 0.5
     outlines [(1, "#05090db8", 0, 1)]
@@ -931,6 +1026,12 @@ style cal_cell:
 style cal_cell_empty:
     xysize (76, 48)
     background Solid("#0711168f")
+    padding (0, 0)
+
+# A real day the story never reaches: before it opens, or after it ends.
+style cal_cell_outside:
+    xysize (76, 48)
+    background Solid("#0b1418c4")
     padding (0, 0)
 
 style cal_cell_text:

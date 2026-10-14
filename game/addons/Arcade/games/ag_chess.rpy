@@ -1376,7 +1376,7 @@ init python:
 
         def move_bonus(self, bd, mv):
             """The style tilt, applied to root scores only -- never inside the
-            tree, where it would poison the search's own judgement."""
+            tree, where it would poison the search's own judgment."""
             to = (mv >> 8) & 0xFF
             bonus = 0
             if self.aggr > 0.34:
@@ -1795,7 +1795,7 @@ init python:
         def _choose(self):
             """Turn the engine's ranking into the move this opponent plays.
 
-            Weakening is done by disturbing the JUDGEMENT, not the choice: a
+            Weakening is done by disturbing the judgment, not the choice: a
             random offset goes onto every root score and the best of the
             disturbed list is played. A casual opponent therefore hangs a piece
             the way a person does -- because it misread the position -- rather

@@ -1,69 +1,14 @@
-# =============================================================================
-# sticky_note_display.rpy -- reusable handwritten sticky-note presentation
-# =============================================================================
+# Handwritten note: call enter_m_show_sticky_note(lines, signature=None,
+# ink=None, sfx=True). Lines are plain strings; signature is a bare name.
+# Timer-driven text keeps its full layout and hides the unwritten tail. Input
+# completes writing, then closes; Escape closes immediately. AFM is restored.
+# The sticky_write channel loops modwriting while text reveals when sfx is enabled.
 #
-# PUBLIC ENTRY POINT
-#   call enter_m_show_sticky_note(lines, signature=None, ink=None, sfx=True)
-#
-#   `lines` is a plain string (one line) or a sequence of strings -- one per
-#   handwritten line. Long lines wrap inside the note; keep each entry to a
-#   sentence or clause and let the note break it. `signature` is a bare name;
-#   the note draws the em dash itself, so pass "Mom", not "-- Mom".
-#
-#   Lines write themselves out one character at a time, top to bottom, with the
-#   signature last. A dismiss input while writing fast-forwards to the finished
-#   note; the next one closes it. Escape always closes. AFM is temporarily
-#   disabled while the note is up.
-#
-# WHY IT EXISTS
-#   Mom's notes around the house used to be plain italic narration, which read
-#   as MC's inner voice rather than as an object on the counter. This gives them
-#   a physical page. Call sites: game/story/season1/0522, 0523, 0525, 0530.
-#
-# RELATIONSHIP TO planner_display.rpy
-#   This deliberately MIRRORS the planner's reveal technique instead of importing
-#   from it, so either file can be dropped without breaking the other. If you fix
-#   a reveal bug here, check whether the planner has the same one.
-#
-# HOW THE WRITING WORKS (and why it's done this way)
-#   The reveal is driven by a repeating `timer` + plain Python state (the
-#   _enter_m_sticky_* store vars below), NOT by Text(slow=...). The slow-text
-#   path is unreliable inside a re-evaluating screen (it tends to pop the whole
-#   line in at once) and gives no clean signal for "writing is still happening",
-#   which the sustained pen SFX needs.
-#
-#   To keep text from reflowing as it types (words jumping lines when they wrap),
-#   the FULL line stays laid out and the un-written tail is hidden with an
-#   {alpha=0} tag -- only the written prefix shows. This is also what lets the
-#   whole block sit vertically centred on the note without shifting as it fills.
-#   (Assumes note text contains no raw { or [ -- the story data is plain text.)
-#
-# GEOMETRY -- read this before moving any number
-#   The art (assets/gui/stickynote.png, 960x640) has the note drawn ALREADY
-#   TILTED about 5 degrees counter-clockwise, so the text has to be tilted to
-#   match. Rather than hand-place rotated text, the writing sits in its own
-#   960x640 overlay in "note space" -- axis-aligned coordinates, as if the note
-#   were straight -- and the whole overlay is rotated by ENTER_M_STICKY_TILT.
-#   Both the paper and the overlay are centred (align 0.5, 0.5) in the outer
-#   fixed, because rotate/blur padding re-centres a displayable and would throw
-#   off an xpos/ypos of 0.
-#
-#   Measured from the art, in note space:
-#     note quad        x 213..768, y 52..583
-#     bottom-right     the peeled corner eats everything past about (663, 517),
-#                      so the writing area stops short of it
-#   ENTER_M_STICKY_AREA is that safe writing area. If you swap the art, re-measure.
-#
-# WRITING SFX
-#   `modwriting` (assets/audio/sfx/writing.ogg) loops on its own "sticky_write"
-#   channel for the writing duration and stops the moment the last character
-#   lands. page_turn plays once when the note appears. Pass sfx=False for a note
-#   that should appear without the pen loop.
-# =============================================================================
+# Paper is a pre-tilted 960x640 canvas. The writing overlay uses note-space
+# coordinates and ENTER_M_STICKY_TILT; both layers stay centered despite rotation
+# padding. ENTER_M_STICKY_AREA excludes the peeled corner. Re-measure when art
+# changes. The planner uses the same reveal technique in its separate module.
 
-# -----------------------------------------------------------------------------
-# Tunables
-# -----------------------------------------------------------------------------
 define ENTER_M_STICKY_TICK = 0.026    # seconds between reveal ticks
 define ENTER_M_STICKY_CPS = 1         # characters revealed per tick (~38 cps)
 define ENTER_M_STICKY_CLOSE = 0.24    # how long the exit animation runs before Return

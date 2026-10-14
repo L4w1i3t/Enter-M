@@ -1,0 +1,21 @@
+{
+  "source": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\docs\\addons\\Matsuda's Sick Boss Fight\\art_sources\\2026-09-08-seer\\seeker_chroma.png",
+  "output": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\game\\addons\\Matsuda's Sick Boss Fight\\archetypes\\v2\\seeker.png",
+  "native_size": [
+    1060,
+    1484
+  ],
+  "source_sha256": "8412351a5e3a0520e154d2fde69058f08c9c70696ce2cac05a8724be47d45153",
+  "output_sha256": "0fa4461968cdf75ea75562dfae5463a2ee366623d140fafc17de75e28b3c376e",
+  "alpha_bbox": [
+    26,
+    26,
+    1031,
+    1456
+  ],
+  "protected_boxes": [],
+  "partial_alpha_pixels": 57428,
+  "method": "whole-matte-alpha-first-local-core-colour",
+  "resized": false,
+  "cropped": false
+}

@@ -6,30 +6,26 @@ label a0521:
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
     play music quiz
-    # CRITIQUE (ADDRESSED): Thinned the narrator quips at the open (and consolidated the three single-word italic lines) so the omitted-agency idea -- a direct mirror of the story's own evasions, and of MC's narration -- gets room to breathe before the lesson begins.
-    "Sleep took its time last night, so I walk into language arts running at about seventy percent. Naturally, this is the day the class is asked whether a comma can be morally implicated."
-    "The teacher has already filled half the board before the bell finishes surrendering."
-    "{i}Narrative distance. Narrative dissonance. Focalization. Agency through ellipsis.{/i}"
+    "Sleep took its time last night. I walk into language arts running at about seventy percent."
+    "Naturally, this is the day the class is asked whether a comma can be morally implicated."
+    "The teacher has filled half the board before the bell stops."
     show japanese_teacher neut at t11
     japanese_teacher "For the midterm, assume definitions are the bare minimum for what I ask."
-    japanese_teacher "If you write that focalization is merely who sees the scene, or that ellipsis is merely something left out, you have described the tool without explaining the work it performs."
-    "A small wave of movement passes through the room as everyone develops their personal relationships with dread."
-    japanese_teacher "Yes, that means written responses."
-    "The wave gets worse."
-    "{i}Or is it just me? Maybe I'm the problem.{/i}"
+    japanese_teacher "If you write that focalization is merely who sees the scene, or that ellipsis is something that was just left out, you have described the tool without explaining the work it performs."
+    "The girl in front of me puts down her highlighter and takes out a second sheet of paper."
+    japanese_teacher "...Yes, that means a lot of written responses."
+    "A few more people do the same."
+    "{i}I should probably leave more room under these headings...{/i}"
     japanese_teacher "A strong answer should move from syntax, to narrative effect, to thematic consequence."
-    japanese_teacher "Device, pressure, meaning. In that order. There's your bread and butter."
+    japanese_teacher "A correct label gets you started. The evidence is where the marks are."
     "{i}Cool. I love literature combos.{/i}"
     "The teacher taps the third phrase, the chalk giving a dry click."
     japanese_teacher "This kind of prose allows subjects to disappear without the sentence collapsing."
     japanese_teacher "That flexibility can be graceful, but in fiction it can also become evasive."
+    # NUDGE KEEP: this line is the key to how the chapter's prose works.
     japanese_teacher "When a passage repeatedly refuses to identify who acts, the omission does not only create ambiguity. It can redistribute guilt."
-    "My pen moves because my survival instincts still have administrative skills."
     japanese_teacher "Now, consider the passage on the handout."
     # SFX SUGGESTION: A brief wave of paper rustling across the classroom.
-    "Pages rustle across the classroom."
-    "The excerpt is short, which is usually how teachers hide knives."
-    "A narrator returns home after an argument to find the light off and a cup waiting on the table. The door is still open."
     "A formal passive construction describes the room as having been left behind, but the person who left it that way never gets named."
     "{i}Cheerful.{/i}"
     japanese_teacher "Notice the pattern."
@@ -38,8 +34,8 @@ label a0521:
     japanese_teacher "So the question is not whether the author forgot to name the subject."
     "I make the strategic error of looking at the handout like a person who knows how to read."
     japanese_teacher "[player]."
-    mc "...Yeah?"
-    japanese_teacher "Bell ringer for you: how does the repeated subject omission alter the reader's ability to assign agency, and how does that support the passage's treatment of guilt?"
+    mc "...Yes?"
+    japanese_teacher "How does the repeated subject omission alter the reader's ability to assign agency, and how does that support the passage's treatment of guilt?"
     $ atmos_pressure()
     with dissolve
     menu:
@@ -52,11 +48,12 @@ label a0521:
     label japanese_rightanswer1:
         $ atmos_pressure_clear()
         with dissolve
-        mc "It makes the reader participate in assigning culpability. The actions are concrete, but the missing subjects keep responsibility unstable."
-        mc "The reader has to decide whether the narrator is genuinely unsure or quietly steering blame elsewhere."
+        mc "It makes the reader participate in assigning culpability."
+        mc "We know what happened to the room, but we have to supply whoever did it."
+        mc "That leaves us deciding whether the narrator doesn't know, or just doesn't want to say."
         japanese_teacher "Great answer!"
-        "She circles the empty bracket, then draws a thin arrow from it to the phrase about guilt."
-        japanese_teacher "That is the kind of answer I expect on Monday."
+        "She circles the gap she left for the missing subject and draws an arrow to the sentence about guilt."
+        japanese_teacher "{i}That{/i} is the kind of answer I expect on Monday."
         jump japanese_answer1done
     label japanese_wronganswer1:
         $ atmos_pressure_clear()
@@ -64,7 +61,7 @@ label a0521:
         japanese_teacher "Not quite."
         japanese_teacher "The restrained diction may resemble objectivity, but the effect is not neutral."
         japanese_teacher "The omission controls where blame can settle."
-        "She circles the empty bracket, then draws a thin arrow from it to the phrase about guilt."
+        "She circles the gap she left for the missing subject and draws an arrow to the sentence about guilt."
         japanese_teacher "For the midterm, do not stop at tone. Explain what the syntax makes the reader {i}do{/i}."
         mc "Right. Got it."
         jump japanese_answer1done
@@ -72,11 +69,10 @@ label a0521:
         pass
     japanese_teacher "Everyone should annotate the passage with this in mind."
     japanese_teacher "Mark the verbs first, then identify where the sentence withholds the actor."
-    "The room closes around the scratch of pens and turning pages."
-    "I underline the evidence and the passive verb. Then I mark the sentence where the narrator refuses to say I without technically lying."
+    "The room closes around the scratch of pens and shuffling paper."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "By the end of class, my handout looks less annotated and more like a warzone of pencil lead."
+    nier "By the end of class, I need an arrow just to find the second half of my answer."
     call nier_clear from _call_nier_clear_0521_1
     stop music fadeout 1.0
     pause 2.0
@@ -84,17 +80,17 @@ label a0521:
     $ show_calendar()
     $ atmos("afternoon")
     with wipeleft_scene
-    play music schooldays
+    play music school_day_a
     "The rooftop is one of those places students call secret because teachers don't bother correcting the myth unless someone starts throwing things."
-    "A warm breeze moves over the fence and turns the plastic around my food, making it rattle like some sort of instrument."
-    "{i}Mom packed rice and vegetables before bolting out the door.{/i}"
+    "The wind keeps lifting the plastic around my lunch, and I trap it under the lid before anything worse can occur."
+    "{i}Definitely looks thrown together.{/i}"
     "I get two bites in before the rooftop door opens."
     show asahina uniform happy at l11
     ah "There you are!"
     mc "Uh oh, that sounded like a threat."
-    ah "I've been trying to find you everywhere!"
+    ah "You weren't in the hallway. I nearly gave up and ate on the stairs."
     mc "...You looked for me for, what, twenty seconds?"
-    ah "Hey, loyalty's all that matters."
+    ah "Twenty seconds? Try taking the stairs with actual children going both ways."
     play sound moddoorclose
     "My sister steps fully onto the roof and lets the door close behind her with a metallic click."
     scene bg rooftop
@@ -102,62 +98,53 @@ label a0521:
     $ atmos("afternoon")
     show asahina uniform neut at t11
     with dissolve
-    "Her lunch bag hangs from one hand. The other is already busy with her phone, since the phone has priority over balance."
+    "Her lunch bag hangs from one hand. The other is already busy with her phone, since that evidently has priority over balance."
     ah "I texted you before last period and didn't get a response."
-    mc "I was doing important senior business. I have a life, you know."
-    ah "Such as eating alone like a suspicious old hermit?"
+    mc "Sorry. Phone's been on silent since class."
+    ah "Well, check it occasionally. I could've been dying, y'know."
     "She sits beside me and claims the usual sibling share of my personal space."
-    $ hide_calendar()
-    scene black with wipeleft_scene
-    pause 2.0
-    scene bg rooftop
-    $ show_calendar()
-    $ atmos("afternoon")
-    show asahina uniform neut at t11
-    with wipeleft_scene
-    "For a minute we eat and nothing dramatic happens, a level of maturity neither of us has earned."
+    "She opens her lunch bag beside mine and reaches over for the napkin I'm sitting on."
     show asahina uniform happy
-    ah "Here's some news: poster went up this morning."
+    ah "So here's some news: poster went up this morning."
     mc "Oh?"
-    ah "And it's still on the wall, so my cheap-ass tape is doing a better job than I thought."
-    mc "Nature is healing, I see."
-    ah "Also, a couple people said it looked good."
+    ah "And it's still on the wall! Cheap-ass tape. Better than I thought."
+    mc "...How much tape did you use?"
+    ah "A whole roll, no biggie. Also, a couple people said it looked good."
     show asahina uniform embarrassed
-    "She says it into her chopsticks like the rice needs to hear it more than I do."
-    mc "Seems like people have good taste, then."
+    "She says it into her food like the rice needs to hear it more than I do."
+    mc "Seems like people have good--"
     show asahina uniform annoyed
     ah "Don't make it weird."
     mc "...I say {i}one{/i} nice thing, and you get defensive."
     show asahina uniform smug
-    ah "Exactly! Historically suspicious."
+    ah "Because you do that voice! Like you're about to bite my head off!"
     "I put a piece of carrot in my mouth and consider launching it at her."
-    mc "Oh yeah, track starts back up for me today, by the way."
+    mc "Track starts back up today, by the way."
     show asahina uniform unamused
     ah "Yeah, Mom said."
-    ah "Try not to die out there. I don't wanna have to arrange your funeral."
+    ah "Try not to die out there. I'm not arranging a funeral 'cause I have my own practice."
     mc "That was nearly concern. Should I document it?"
     show asahina uniform teasing
-    ah "I need you alive. Who else am I supposed to blame for stuff?"
+    ah "You'd make me carry your bag again. It weighs a freaking ton."
     mc "...I'm touched by my strategic value."
     show asahina uniform worried
     "She sets her chopsticks down across the lid of her food."
-    ah "Your foot {i}is{/i} actually fine, right?"
-    mc "Yeah."
-    mc "Mostly fine, anyway."
-    mc "Coach said light practice, so today is warmups and a few drills. The hard part is not getting overzealous."
+    ah "Your foot {i}is{/i} actually fine, right? Because Mom asks me first and I'm not lying for you."
+    mc "Mostly fine. Coach is keeping it light today, so I'll try to remember that when everyone passes me."
     ah "...Good."
-    mc "Wooooow. You meant that~"
+    mc "You can keep the blackmail for later."
     show asahina uniform embarrassed
-    ah "Don't make it a thing! I'll take it all back!"
-    mc "No takebacks, it's already in the history books."
-    "The rooftop door opens again before she can aim anything at me."
+    ah "Oh, I have plenty already."
+    mc "Good to know."
+    play sound moddooropen
+    "I move my bag so it's out of her way, when the rooftop door opens again."
     show asahina uniform curious at t21
     show tsubaki uniform neut at l22
     "A girl steps out with a small lunch bag clasped in both hands."
     show tsubaki uniform happy
     "For a beat, she looks relieved."
     show tsubaki uniform shocked
-    "Then she sees us and looks like she accidentally walked into the wrong meeting room."
+    "Then she sees us and stops with one hand still on the door."
     show tsubaki uniform nervous
     ts "Ah--sorry! I thought this side was empty."
     mc "...Tsubaki?"
@@ -165,109 +152,102 @@ label a0521:
     ts "...Oh!"
     ts "[player], right?"
     ah "Wait, you two know each other?"
-    mc "Uh...yeah...sorta."
+    mc "We met Saturday."
     show asahina uniform happy
-    ah "OH! Sidewalk traffic! That's her, right?!"
-    mc "No...that was Matsuda, 'member? {i}She{/i} was just collateral."
+    ah "OOHH! Sidewalk traffic! That's her, right?!"
+    mc "That was Matsuda. This girl, Tsubaki, was with her."
     show tsubaki uniform embarrassed
-    ts "I'm still very sorry about that."
+    ts "I'm still sorry about that. Really."
     mc "You weren't even the one I ran into, why are {i}you{/i} apologizing?"
     show tsubaki uniform nervous
-    ts "I still feel a little responsible..."
-    "My first instinct is to call it a habit. Then the paper bag gives a soft crackle in her grip."
-    "{i}Or maybe that answer is just convenient.{/i}"
-    show asahina uniform unamused
-    ah "You apologized for...being a witness?"
-    ts "Only a little."
+    ts "I was supposed to be watching where we were going. She'd started doing her stupid thing again."
+    "Her bag crackles as she shifts her grip."
     show asahina uniform pose_hairflip
     ah "I'm Asahina, by the way. I'm this idiot's superior sister."
     show tsubaki uniform curious
     ts "Asahina..."
-    ts "From the volleyball poster, right?"
-    show asahina uniform nervous
+    ts "That was your name on the bottom right corner of the volleyball poster, right?"
+    show asahina uniform curious
     ah "Oh. Yeah."
-    ah "Please tell me it didn't fall down already..."
+    mc "Okay, surely you can't be the only person in this school named Asahina, right?"
+    ah unamused "Bitch, I can guarantee that I am, now shut up."
+    mc "Wow, alright. Harsh."
+    ah nervous "And please don't tell me it already fell down..."
     show tsubaki uniform determined
     ts "No! It looked really good."
     show tsubaki uniform happy
-    ts "The lettering was clean, and the little motion lines around the ball made it easy to notice from the hall."
+    ts "I liked how the motion lines led into the lettering. I could read the larger words from the stairs."
     show tsubaki uniform thinking
-    ts "And the watermark in the corner...it weirdly works? I don't know how to explain it."
+    ts "And you really didn't have to go that in detail with the watermark."
     show asahina uniform embarrassed
     ah "...Thanks."
-    ah "It was whatever, though."
+    ah "Yeah. Took longer than the ball, which was stupid."
     mc "That means she's about to frame your review."
     show asahina uniform annoyed
     ah "I am NOT!"
     show tsubaki uniform neut
-    ts "It's okay to be proud of work."
+    ts "Oh, I do that {i}all{/i} the time. Spend an hour fixing something nobody's going to look at, much less remember."
     show tsubaki uniform happy
-    ts "I was glad I noticed it, if that helps!"
-    ah "Don't patronize me, you--"
-    "Tsubaki's correction is quiet. It lands before I can joke over it."
+    ts "You could make it bigger next time. It's a good signature."
+    "Asahina looks down at the initials inked on her own lunch bag."
     show asahina uniform neut
     ah "...Yeah, well."
     ah "It got the job done."
     show tsubaki uniform nervous
     "Tsubaki shifts one foot back toward the door."
     mc "You can sit if you want."
-    ts "Oh, uh, I don't want to intrude if you two are doing something."
+    ts "Are you sure? I can go round the other side."
     show asahina uniform happy
-    ah "There's no lunch court up here, dude. Total free-for-all."
+    ah "Sit down. You're making me nervous standing there."
     show tsubaki uniform embarrassed
-    ts "Right. Sorry."
-    "She sits a careful distance away and keeps her lunch bag on the door side of her knees."
-    scene black with wipeleft_scene
-    pause 1.0
-    scene bg rooftop
-    $ show_calendar()
-    $ atmos("afternoon")
-    show asahina uniform neut at t21
-    show tsubaki uniform neut at t22
-    with wipeleft_scene
-    "The three of us eat in an uneven rhythm. Asahina fills every pause without noticing."
-    "Tsubaki waits until the openings are unmistakably hers."
+    ts "Right, uh... Sorry."
+    "She sits a careful distance away and keeps her own bag on the door side of her knees."
+    "Asahina keeps talking between bites, and Tsubaki waits until she's busy with her drink before starting a sentence."
     show tsubaki uniform worried
-    ts "Is...your shoulder better?"
+    ts "Is, um... your shoulder better?"
     mc "Yeah. It was barely anything, I swear."
     show asahina uniform smug
-    ah "He complained about it like three times."
+    ah "He complained about it three times. In one day. One in writing."
     mc "Do NOT make up stories about me!"
     show tsubaki uniform neut
-    ts "Matsuda was worried for almost seven minutes at the vending machine after you left."
+    ts "Matsuda spent almost seven minutes worrying by the vending machine after you left."
     mc "...Almost seven?"
     show tsubaki uniform smug
-    ts "Hey, a win's a win. That's rather long for her when the worry isn't disguised as a speech."
+    ts "I was waiting for my drink. She kept asking if you looked annoyed."
     show asahina uniform curious
-    ah "So tell me, how much of the rumors are true? She always that much?"
-    ts thinking "She's...how do I put it?"
+    mc "Is she always like that? I could hear her halfway down the alley even after the exchange."
+    ts thinking "She's... how do I put it?"
     # Matsuda is a third-year and Tsubaki a second-year, so the public anecdote
     # stays in a mixed-year committee. Tsubaki keeps the private ending for a
     # later lunch, after the group has earned more of her confidence.
-    ts neut "At the start of the year, I got put on the supply committee. It's mixed years, and I was the only second-year there."
-    ts "At the first meeting, the teacher asked who would take inventory lead. Nobody moved."
-    ts teasing "Matsuda stood up and gave a two-minute acceptance speech for a job nobody had offered her."
-    ts "Then she thanked the committee for its unanimous confidence in her. We hadn't voted."
-    ah shocked "No."
-    ts happy "Two minutes, start to finish. She got the job, obviously."
+    ts neut "Okay, so... We were on the supply committee together in April. I was the only second-year."
+    ts "At the first meeting, nobody wanted to do inventory."
+    ts teasing "Matsuda stood up and gave an acceptance speech. Nobody had offered her the job."
+    ts "She thanked us for our confidence before anybody could interrupt."
+    ah shocked "Dear God..."
+    ts "Oh, believe me, there's more."
+    ah "No..."
+    ts happy "She brought notes. I still don't know when she wrote them."
     "Tsubaki looks down and smooths the same crease in her lunch bag twice."
-    mc "Oh, she's a third-year?"
-    ts neut "Mhm. Same year as you."
-    ts "She transferred in right at the start of it."
+    mc "So it's true that she's a third-year?"
+    ts neut "Mhm. Same year as... remind me, are you a third-year?"
+    mc "Yep. Basically one foot in the grave."
+    ts thinking "Ah."
+    ts neut "She transferred in at the start of the year."
     mc "Huh. Don't think it ever came up."
     ah unamused "You've shared a building since April and you found her with your shoulder."
     mc "...So she volunteered herself into a job and it worked."
-    ts teasing "By the second minute, saying no would have required its own speech."
-    ah happy "Okay. That's actually incredible."
-    ts happy "Besides, she's actually pretty harmless. Seriously."
-    "The answer is so earnest that Asahina blinks twice before laughing."
-    ts shocked "...Oh, shoot. I should go before the stairs get crowded."
-    mc "Already?"
-    ts neut "I need to return a book to my classroom before fifth period."
-    ts teasing "And, um, the Boogeywoman will start searching if I'm too hard to find."
-    ah unamused "That sounds exhausting."
-    ts sad "Sometimes it is, yeah."
-    ts neut "But honestly, I'd do the same for her. Scratch my back and all that."
+    ts teasing "The teacher gave her the clipboard halfway through and she kept going on and on and on."
+    ah happy "Okay, that's actually incredible. Somebody should carve that into the supply closet door."
+    ts curious "We did get the inventory done. She just wanted us to call the mop cupboard the armory for... some odd reason."
+    "Tsubaki folds the top of her lunch bag closed."
+    ts shocked "Oh crap, what time is it? I need to get going before things get crowded again!"
+    mc "Already? It's not even halfway."
+    ts neut "I borrowed someone's book and she desperately needs it back before fifth."
+    ts teasing "And I should tell Matsuda where I went, before she starts a search party."
+    ah unamused "Does... she seriously come looking every lunch?"
+    ts sad "Sometimes. Usually we eat together."
+    ts neut "She'll have been waiting downstairs because I, ah... forgot to let her know."
     "She stands and smooths the fold out of her skirt."
     ts happy "It was nice meeting you, Asahina."
     ts "And seeing you again, [player]."
@@ -276,23 +256,17 @@ label a0521:
     ts "Talk later!"
     show tsubaki at thide
     hide tsubaki
+    play sound moddooropen
     "She slips through the door with less noise than the door itself makes."
     play sound moddoorclose
     show asahina uniform determined at t11
-    ah "She apologized for witnessing you walk into someone."
-    ah "She's under my protection now."
-    mc "I can feel the balance of power shifting. Shiver me timbers."
-    ah "Yeah, obviously. Effective immediately."
-    # SFX SUGGESTION: A distant school warning bell, slightly muffled by the rooftop door.
-    "The warning bell rings from somewhere below us."
-    show asahina uniform frustrated
-    "Asahina groans like the school has personally betrayed her."
-    mc "Back to civilization we go..."
-    ah "Booooooo."
-    "We gather our things and head for the door, two heroic survivors of a break that lasted maybe four minutes."
+    ah "I like her. She actually looked at the poster."
+    mc "I looked at it too."
+    ah "You said the glue smelled weird. Doesn't count."
+    mc "Yeah, yeah..."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Chemistry reviews ions while algebra assigns more problems. English reminds us that vocabulary is also on the midterm."
+    nier "Chemistry works through reaction yields while algebra assigns more problems. Foreign language reminds us that vocabulary is also on the midterm."
     call nier_clear from _call_nier_clear_0521_2
     stop music fadeout 1.0
     pause 2.0
@@ -300,101 +274,89 @@ label a0521:
     $ show_calendar()
     $ atmos("afternoon")
     with wipeleft_scene
-    play music daily
-    # CRITIQUE (ADDRESSED): Thinned the legal/courtroom jokes that intruded on the running so the physicality can breathe -- the stride beats now stay with breath, foot, and lungs instead of "filing a formal objection." Kept one framing joke and the Coach banter, since those are MC's voice rather than intrusions.
-    "The track looks exactly how I remember it."
-    "Afternoon heat lifts in thin, restless waves from the red lanes and their white lines. A few team members are already jogging the curve."
-    "Their shoes land in the even cadence that makes running look less hostile than it truly is."
-    "{i}Have I really not done this since school started back up...? Time flies.{/i}"
+    play music day_c
+    "Heat lifts off the red lanes while a few teammates jog the curve in an easy, even rhythm. A month ago, I'd have been halfway through the warmup before any of them showed up."
+    "{i}A whole month of walking past this place. I'm sick of watching.{/i}"
     show track_coach neut at t11
     track_coach "[player]!"
-    "Coach's voice cuts across the infield before I can pretend to tie an already tied shoe."
+    "Coach's voice carries across the infield and catches me crouched over a shoelace that's already tied."
     track_coach "You're cleared for light practice, correct?"
     mc "That's the official verdict."
     track_coach "Then we follow it."
     track_coach "Warmup lap and mobility, then strides at seventy percent. No heroics."
     mc "I left my cape at home."
     track_coach "Good. It would slow you down."
-    track_coach "...Actually, one of these days I might have you on the parachute, so..."
-    "He says it flat, with no smile attached. That is what a decent mood looks like on him."
-    "I join the warmup line near the outside lane."
-    "The first few steps feel too careful."
-    "{i}No pain. Maybe some tightness, plus more paranoia than either one deserves.{/i}"
-    "By the first curve, the caution starts loosening."
-    "{i}Breath steady. Arms loose, eyes forward.{/i}"
-    "The track stops being a question and turns back into a shape."
+    track_coach "Keep joking and I'll get the resistance parachute out. When you're cleared for it."
+    "He says all of it without a flicker of a smile. For Coach, that's practically giddy."
+    "I take the outside of the warmup line, where nobody's going to clip me while I test the first few steps."
+    "{i}No pain. A little tightness, and way more paranoia than either one deserves.{/i}"
+    "By the first curve the caution starts to loosen, and by the back straight I've quit staring at my shoes."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Warmups give way to drills and the particular humiliation of dynamic stretching in public."
-    nier "Every high-knee and lunge makes us look like we're negotiating with invisible furniture."
-    nier "Coach watches as if bad form is a moral failing."
+    nier "Drills come next: high knees and walking lunges across the grass, like somebody scattered invisible furniture for us to step over."
+    nier "I rush the last lunge and make myself redo it, mostly so Coach doesn't get the satisfaction of telling me to."
     call nier_clear from _call_nier_clear_0521_3
     pause 2.0
     scene bg track_day
     $ show_calendar()
     $ atmos("afternoon")
     with wipeleft_scene
-    "The first stride starts at the curve."
-    "Seventy percent sounds gentle until your body remembers that percentages are lies invented by coaches to sell more practice."
-    "I push off anyway."
-    "I spend the first few seconds waiting for the foot to flare. By halfway, my lungs are the louder problem."
-    "Then I notice I'm moving faster than I meant to, and nothing has gone wrong yet."
-    "{i}Oh.{/i}"
-    "{i}So the body remembered. It just didn't bother telling me first.{/i}"
-    "I coast down before the end of the straightaway and walk out onto the grass, hands on my hips."
-    "My breath is rough, but not wrecked. My foot is present, but not angry."
+    "The first stride starts at the curve, and seventy percent sounds gentle right up until my body remembers that percentages are a scam coaches invented to sell more practice."
+    "For the first few seconds I'm braced for the foot to flare. By halfway my lungs are the louder complaint, and by the time I clock how fast I'm going, I've stopped waiting for the pain altogether."
+    "I'd happily take another straightaway at this pace. Instead I coast down early and walk it off on the grass, hands on my hips, while a faint pull through the arch fades a little more with every step."
     track_coach "Again."
-    mc "Was that a good again or a bad again?"
+    mc "Was that a good again, or a bad--"
     track_coach "Again without commentary, [player]."
     mc "...Got it."
-    "A couple of nearby runners snicker and Coach points to the curve."
+    "A couple of the guys nearby snicker while Coach points me back to the curve."
     track_coach "Seventy percent."
-    mc "Bro, that WAS seventy!"
+    mc "That {i}was{/i} seventy!"
     track_coach "That was closer to eighty."
-    mc "Hey, I don't know math, okay?"
-    "{i}Excellent. Next time, pick an excuse with a pulse.{/i}"
-    track_coach "Then use your lungs. Play it by ear instead of metric."
-    "I walk back to the start."
-    "{i}Fair enough. My lungs are giving me plenty to go on.{/i}"
-    "The second stride feels better because I stop waiting for disaster to RSVP."
-    "The third feels worse because confidence is an idiot and tries to add speed."
+    mc "Okay, fine. I was trying to catch him."
+    "Coach tips his head at the runner cooling down past the finish line."
+    track_coach "Let him go. You've got your own session."
+    "On the second stride I keep my eyes on the bend and let everybody else's race stay their problem."
+    "The third goes worse, because confidence is an idiot and decides to add speed."
     track_coach "Easy now..."
-    "The words snap me back before I do something impressively stupid."
-    "I pull off the pace and let the final meters roll under me."
+    "Two words, and they yank me back from something impressively stupid. I ease off and let the last few meters roll out under me."
     "{i}Right. Light practice, not a comeback montage.{/i}"
-    "{i}...Yet.{/i}"
+    "{i}... Yet.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The rest is cooldown and stretching while the main group starts intervals I would normally run."
+    nier "The rest is cooldown and stretching while the main group starts the intervals I'd normally be suffering through with them."
     call nier_clear from _call_nier_clear_0521_4
     pause 2.0
     scene bg track_evening
     $ show_calendar()
     $ atmos("evening")
     with wipeleft_scene
-    "By the time practice breaks, the afternoon has softened around the edges. I sit on the grass near my bag and tug at one shoelace until it gives."
-    "Sweat cools at the back of my neck. My legs feel used, but far from destroyed."
+    "By the time practice breaks up, the afternoon has gone soft around the edges. I drop onto the grass by my bag and pick at a stubborn shoelace while the sweat cools on the back of my neck."
+    "{i}Used, but nowhere near destroyed. I'll take it.{/i}"
     show track_coach neut at t11
     track_coach "How's the foot?"
     mc "Still attached."
     track_coach "You know what I mean, [player]."
     mc "A little tight. Not painful, just annoying."
     track_coach "Good. Ice it tonight if it starts talking."
-    track_coach "Friday, tell me before practice if it changes."
+    track_coach "One more thing. The district invitational is the second weekend of June, and entries go in the first week."
+    track_coach "So once exams are done, you and I are having a conversation about what you're running."
+    mc "Sixteen hundred and thirty-two hundred. Conversation over."
+    track_coach "That isn't a conversation. That's a wish list."
+    mc "It's a very reasonable wish list."
+    track_coach "We'll see what the foot has to say about it."
+    track_coach "If it changes its mind before Friday, you tell me before practice. Not after."
     mc "Got it."
     track_coach "And study, though I don't need to be the one to tell you that."
-    mc "...For track?"
-    track_coach "For midterms, smartass."
-    track_coach "Academic eligibility does not care what your excuses are."
-    mc "...I swear, every department hounds me these days..."
-    track_coach "Good. People gotta keep you on your toes."
+    mc "I've got it covered."
+    track_coach "Good. Then I expect you back Friday with the same foot."
+    mc "Wasn't planning to swap it."
+    track_coach "Go home, [player]."
     show track_coach at thide
     hide track_coach
-    "He walks off before I can decide whether that was encouragement or a threat."
+    "He walks off, and I honestly can't tell whether that was encouragement or a threat."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "I leave school tired in a cleaner way than yesterday."
-    nier "My bag thumps against my hip, and my clothes smell faintly of rubber. By the station, my calves have begun their slow argument with tomorrow."
+    nier "My calves start tightening on the walk to the station, so I slow down and let the bag bump along against my hip. By the time I'm home, I've planned dinner three different ways."
     call nier_clear from _call_nier_clear_0521_5
     stop music fadeout 1.0
     pause 2.0
@@ -402,29 +364,29 @@ label a0521:
     $ show_calendar()
     $ atmos("home")
     with wipeleft_scene
-    play music dailyleisure
+    play music house_day_a
     # SFX SUGGESTION: Gentle bubbling water layered with a low pan sizzle.
     "A pot boils on the stove while a pan of sauce warms beside it. Garlic nearly disguises the last respectable bell pepper in the fridge."
-    "Spaghetti. The traditional reward for ignoring groceries too long."
+    "Spaghetti: The traditional reward for ignoring groceries too long."
     "My shins are starting to remember practice."
     show asahina teasing at l11
-    ah "Why does it smell like you tried?"
+    ah "Wait, you're actually cooking? I thought we were microwaving stuff."
     mc "Because I'm a provider, thank you very much."
     show asahina unamused
-    ah "You're putting noodles in water."
-    mc "Okay, and? If you have a witty remark, just say it."
+    ah "You're boiling noodles. Calm down."
+    mc "The sauce is in the pan. Try that before you complain."
     show asahina curious
     "She leans around me to inspect the pan."
-    ah "Did you put vegetables in it?"
+    ah "Are those peppers? You put peppers in it?"
     mc "Yeah. Your favorite, actually."
     show asahina disgusted
     ah "...You're {i}actually{/i} a villain."
-    mc "You're not a little kid, ya spaz. Don't athletes need a well-balanced diet?"
+    mc "You can pick them out if you want."
+    mc "Or just try one. I cooked them this time. That, or you can explain to Mom why little Asa doesn't eat her veggies."
     show asahina frustrated
-    ah "Yeah, but you threw the whole Amazon in there! We got peppers with a side of sauce!"
+    ah "Last time they were crunchy! You barely warmed them up!"
     "My phone buzzes on the counter before the argument can escalate."
     "The screen lights up with Mom's name."
-    # CRITIQUE (ADDRESSED): Let the house feel thinner when Mom's gone instead of treating her absence as pure logistics -- the kitchen is too quiet without the noise she usually fills it with, "just two people and a pot." Gives her later illness arc some lived-in texture to land on. (The default third place setting, covered and waiting, stays as the other half of this.)
     python:
         _phone_messages = [
             phone_msg("them", "Court ran long and the file is still fighting back."),
@@ -439,16 +401,16 @@ label a0521:
     # Her first real thread rather than a note left on the counter, and it ends
     # with her being warm at him. Idle texting with Mom opens here.
     $ phone_open("mom")
-    "The house is quieter than it should be at this hour. Mom usually fills the kitchen with crooked pot lids and a podcast determined to explain parliament to her."
-    "Without her, dinner is just two people and a pot."
-    show asahina neut
+    "Without Mom's podcast playing from the counter, I can hear the pot lid rattle against its rim. I turn down the heat while Asahina gets plates."
+    show asahina curious
     ah "Late again?"
-    mc "Yeah. She says it should lighten up after a couple days if the schedule behaves."
-    ah "Yeah, sure, schedules behave on their own."
-    mc "Spoken like someone who doesn't."
+    mc "Yeah."
+    mc "She says it should ease up in a couple days."
+    ah neut "She said that on Monday."
+    mc "I know. Pass me a plate?"
     show asahina shocked
-    ah "Wow. Wowwww. Are you seriously slandering me?"
-    mc "Not slander if it's the truth."
+    ah "Are you giving her all the good sauce? I've got, like, one spoonful."
+    mc "You were {i}just{/i} complaining about the sauce."
     show asahina smug
     ah "...I'm telling your three girlfriends that you bully me."
     "She grabs two plates from the cabinet. After a pause, she reaches for a third."
@@ -456,7 +418,8 @@ label a0521:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Dinner is mostly successful."
-    nier "The sauce holds together, and the noodles are only slightly past the point where an Italian would throw me overboard. Asahina eats her vegetables after putting on a respectable tragedy about it."
+    nier "The sauce holds together. The noodles are a minute past the point where an Italian would throw me overboard."
+    nier "Asahina actually ends up eating her vegetables, though she puts on a respectable tragedy about it first."
     call nier_clear from _call_nier_clear_0521_6
     pause 2.0
     scene bg dining_table_night
@@ -464,13 +427,13 @@ label a0521:
     $ atmos("home_night")
     show asahina determined at t11
     with wipeleft_scene
-    "Asahina studies her fork as she winds spaghetti around it."
+    "My sister studies her fork as she winds spaghetti around it."
     show asahina curious
-    ah "So track didn't kill you."
+    ah "So track didn't kill you, which is disappointing for at least one of us."
     mc "True, but I probably flailed like a maniac."
     show asahina teasing
-    ah "That means you looked stupid."
-    mc "Coach stopped me before I made a poor decision. I was about five seconds from turning light practice into tempo work."
+    ah "So you looked stupid. How stupid we talking?"
+    mc "Coach stopped me before I turned light practice into a race, if that amounts to anything."
     show asahina smug
     ah "Rare adult W."
     show asahina neut
@@ -478,42 +441,40 @@ label a0521:
     ah "...Rooftop girl was kinda cool."
     mc "Tsubaki?"
     ah "Yeah."
-    ah "She looked like she wanted permission to sit down in an open area."
-    mc "That's...weirdly accurate."
+    ah "She was going to leave until you asked her to sit down."
+    mc "That's... I mean, yeah."
     show asahina unamused
-    ah "I have eyes, you know."
+    ah "I was sitting right there, dumbass."
     mc "Pfft, debatable."
-    # CRITIQUE (ADDRESSED): Swapped the boiling-water threat for a non-violent, messier one (wearing the spaghetti). With the script tracking food/body stress and family safety, a casual scalding joke read harsher than the sibling rhythm supports; the pun chain survives intact.
     show asahina annoyed
     ah "Keep talking and you're wearing the rest of the spaghetti!"
-    mc "Sorry, already strained and down the drain."
+    mc "Okay, okay, I'm sorry! Put the fork down."
     show asahina smug
-    ah "I'll make more. I've got noodles and a grudge."
-    mc "She's Matsuda's friend, and, like she said, the other girl I met the other night."
+    ah "Relax, it's spaghetti. Worst case, you catch a wet noodle to the face."
+    mc "Anyway, she's Matsuda's friend. The quiet one from Saturday."
     show asahina thinking
-    ah "Yeah, I got that. That must be exhausting, honestly."
-    "I remember Matsuda worrying for almost seven minutes, according to Tsubaki. I also remember her stopping mid-performance because I asked."
-    mc "...Probably."
-    mc "They call each other best friends. I figure they know what they're signing up for."
+    ah "Yeah, no, I got that part. Must be exhausting, honestly."
+    "Matsuda's three-part review of that game's menu screen from last night drifts back to me, and I end up grinning at my plate."
+    mc "Eh, Matsuda's fun. Who else is gonna trash a game's menu design with me at eleven at night?"
+    mc "Besides, Tsubaki's been her friend since April. She can't hate it that much."
     show asahina neut
-    ah "Best friends can still be exhausting. I have people I love who drain my whole social battery, so..."
-    "I don't have a smart answer ready."
-    mc "...Yeah, I guess it doesn't."
-    "She reaches over and steals a noodle from my plate."
+    ah "Liking somebody and wanting to eat lunch with them every single day are two different things."
+    "I open my mouth, and nothing smart comes out of it."
+    mc "...Yeah. Fair."
+    "Her fork darts across the table and comes back with a noodle off my plate."
     mc "Hey!"
     show asahina teasing
     ah "Sister tax."
-    mc "For...?"
+    mc "Tax on {i}what{/i}?"
     show asahina disgusted
-    ah "Making me eat {i}literally{/i} my least favorite vegetable."
+    ah "On making me eat {i}literally{/i} my least favorite vegetable. Pay up."
     mc "...This government is corrupt."
     show asahina smug
     ah "Sounds like a you problem~"
-    "She leans back like she believes the final word is her God-given human right."
+    "She hooks an ankle around the chair leg and takes her sweet time twirling the stolen noodle."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "After dinner, I clean the kitchen while Asahina helps by standing nearby and offering commentary, which she claims is emotional support."
-    nier "Mom's plate goes into the fridge with a note on top."
+    nier "I wash and Asahina dries, though mostly she argues about which cabinet everything lives in. Mom's plate goes into the fridge with a note on the lid, and we head upstairs."
     call nier_clear from _call_nier_clear_0521_7
     stop music fadeout 1.0
     pause 2.0
@@ -521,70 +482,73 @@ label a0521:
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
-    play music fantasyserenity
+    play music night_b
     "Night finds me at my desk with a notebook open and an ice pack balanced against my ankle."
     # SFX SUGGESTION: An incoming-call vibration rattling steadily against the desk.
-    "I finish half a page of chemistry notes and one matrix problem before my phone starts buzzing."
-    "{i}...Why am I not surprised it's you?{/i}"
+    "I've gotten through half a page of chemistry and exactly one matrix problem when my phone starts rattling against the desk."
+    "{i}... Why am I not surprised it's you?{/i}"
     call phone_call("Monika", status="Incoming Call", can_decline=False) from _call_phone_call_0521_1
     python:
         _phone_call_lines = [
             phone_call_line("me", "Jake's pizzeria and crematorium, where yesterday's loss is today's sauce. How can I help?"),
-            phone_call_line("them", "Wow...no hello?"),
+            phone_call_line("them", "Wow, not even a hello?"),
             phone_call_line("me", "...Hello, this is Jake's pizzeria and crematorium."),
-            phone_call_line("them", "Much better!"),
-            phone_call_line("them", "So, you alive?"),
+            phone_call_line("them", "Why hello, Jake! How was practice?"),
             phone_call_line("me", "I nearly promoted light practice to regular practice."),
-            phone_call_line("them", "'Least you're suffering responsibly, right?"),
-            phone_call_line("me", "The best kind, allegedly."),
-            phone_call_line("me", "Why are you calling, anyway?"),
-            phone_call_line("them", "To check on you, duh doy~"),
-            phone_call_line("me", "That's suspiciously direct."),
-            phone_call_line("them", "What can I say? Studying's kicking my butt, so I need a distraction."),
-            phone_call_line("me", "There's the second motive."),
-            phone_call_line("them", "Hey, both things can be true, you know!"),
-            phone_call_line("them", "For example, I'm currently looking at my literature notes."),
-            phone_call_line("me", "In the same way someone looks at a locked door?"),
-            phone_call_line("them", "Exactly! Very observant, you are."),
-            phone_call_line("me", "Speaking of, did you also get the handout with the cup and the ominous door?"),
-            phone_call_line("them", "Yep. I decided the cup did it."),
-            phone_call_line("me", "The cup, eh? Pray tell."),
-            phone_call_line("them", "It had motive, or at least more of one than the door."),
-            phone_call_line("me", "The door is clearly the mastermind. It was open when it should have been closed."),
-            phone_call_line("them", "So the door and the cup were working together, you argue..."),
-            phone_call_line("me", "A domestic conspiracy."),
-            phone_call_line("them", "That sounds like a title."),
-            phone_call_line("me", "My mom's a lawyer, so it definitely comes with the--"),
-            phone_call_line("me", "Hey, I heard that pen click! Don't make it a club pitch!"),
-            phone_call_line("them", "Too late, jotting it down now~"),
-            phone_call_line("me", "...Everything I say can and will be used against me."),
-            phone_call_line("them", "You really undersell yourself. Seriously, you come up with some profound stuff sometimes!"),
-            phone_call_line("me", "Only sometimes? Damn, I see how it is."),
-            phone_call_line("them", "Hahahaha~"),
-            phone_call_line("me", "Okay, don't we have homework to finish? We're getting derailed, and I'd rather snip this in the butt."),
-            phone_call_line("them", "Snip this in the--come ON, [player], you're better than that!"),
-            phone_call_line("them", "...Or are ya just screwin' with me, hmmmmmmm?"),
-            phone_call_line("me", "You tell me, Ms. Omnipotent."),
-            phone_call_line("them", "Eheh... Either way, it's working."),
-            phone_call_line("me", "Working toward...what?"),
-            phone_call_line("them", "You sounding less tired!"),
-            phone_call_line("me", "...Sneaky."),
-            phone_call_line("them", "*yawn* A little, yeah. Apparently my distraction has a bedtime."),
-            phone_call_line("me", "Mine should too. Track took a bite out of me before studying and two rooftop goblins got their turn."),
-            phone_call_line("them", "Huh?"),
-            phone_call_line("me", "...Guess I'll bite."),
-            phone_call_line("me", "Asa found me at lunch, then another girl showed up. Tsubaki was her name."),
+            phone_call_line("them", "Did Coach catch you?"),
+            phone_call_line("me", "Across the entire field. Everyone heard and it was kind of baffling."),
+            phone_call_line("them", "Good. Saves me doing it tomorrow!"),
+            phone_call_line("me", "I really missed running, though. Even the bit where I feel terrible afterward."),
+            phone_call_line("them", "I get that. My legs itch if I spend a whole afternoon sitting down."),
+            phone_call_line("me", "Then why are you still sitting there?"),
+            phone_call_line("them", "Because I keep thinking I'll finish this page if I stay another five minutes."),
+            phone_call_line("me", "Let me guess: the handout with the cup and the ominous door?"),
+            phone_call_line("them", "Yes! I understand the passage. I just don't like anything I've written about it."),
+            phone_call_line("me", "Say the cup did it. They'll {i}have{/i} to give you marks for originality."),
+            phone_call_line("them", "Something tells me they won't."),
+            phone_call_line("me", "Leave it a minute. I found something you'll like."),
+            phone_call_line("them", "If this is another man restoring a knife for forty minutes--"),
+            phone_call_line("me", "Three minutes. Monster effects. I'm sending it now."),
+            phone_call_line("them", "Oh! They actually built that thing?"),
+            phone_call_line("me", "Different film. Same guy doing the creatures, apparently."),
+            phone_call_line("them", "Wait, don't start. I'm getting my headphones."),
+            phone_call_line("me", "Ready? Three, two, one."),
+            phone_call_line("them", "Eeeugh, I hate those teeth. Why did they make them move separately?"),
+            phone_call_line("me", "Watch underneath. There are two people in there."),
+            phone_call_line("them", "I can see the shoes! Oh, that ruins it."),
+            phone_call_line("me", "It makes it better. Imagine being the back half of that thing all day."),
+            phone_call_line("them", "I'd want to be the front. If I'm going to sweat inside a monster, I'm getting the teeth."),
+            phone_call_line("me", "Naturally. I'd be the guy shaking the fence right here."),
+            phone_call_line("them", "You'd get bored and shake it before the monster arrived."),
+            phone_call_line("me", "Wind. Very atmospheric."),
+            phone_call_line("them", "Hold on, play that bit again. Did its head just fall off?"),
+            phone_call_line("me", "Yeah. He's still doing the claws."),
+            phone_call_line("them", "He can't see! Someone tell him!"),
+            phone_call_line("me", "Wait for it..."),
+            phone_call_line("them", "Oh, he's looking through its neck... That's horrible... I love it."),
+            phone_call_line("me", "I'll keep an eye out for the film. We should watch it when it's out."),
+            phone_call_line("them", "Yes! Even if the reviews are less than savory."),
+            phone_call_line("me", "{i}Especially{/i} then."),
+            phone_call_line("them", "Okay, I needed that. I was starting to hate that stupid cup."),
+            phone_call_line("me", "You're welcome. Asa would've complained about me pausing it."),
+            phone_call_line("them", "Because you do pause things constantly."),
+            phone_call_line("me", "Only the good bits."),
+            phone_call_line("them", "That's when I want to watch them! How is she, anyway?"),
+            phone_call_line("me", "Pleased with her poster. She had lunch with me and Tsubaki today."),
             phone_call_line("them", "Tsubaki Kareda?"),
             phone_call_line("me", "Yeah."),
-            phone_call_line("them", "Huh. Interdasting..."),
-            phone_call_line("me", "Do you know her?"),
-            phone_call_line("them", "Not well, but enough."),
-            phone_call_line("them", "She's usually with the recent transfer, and I honestly can't get a read on their chemistry."),
-            phone_call_line("me", "Yeah, that checks out...probably."),
-            phone_call_line("them", "Anyway, I'm going to rescue what's left of my notes and let you do the same."),
-            phone_call_line("me", "A voluntary adjournment. Look at us."),
+            phone_call_line("them", "Oh, I've seen her around."),
+            phone_call_line("me", "Do you know her? And am I the only one who doesn't think there's only one person with their own name at school?!"),
+            phone_call_line("them", "Ahhhhh, trust me, there's one one Tsubaki at school. Council has the whole roster, remember?"),
+            phone_call_line("me", "Uh huh... But yeah, you know her?"),
+            phone_call_line("them", "Only to say hello. She helped carry some council supplies in April."),
+            phone_call_line("me", "She knows Matsuda. Told us a story about her taking over the supply committee."),
+            phone_call_line("them", "That explains how a box of marker pens arrived labeled 'armaments.'"),
+            phone_call_line("me", "That sounds about right."),
+            phone_call_line("them", "Well, anyhoo, I'm going to try that page once more, then stop. You should get some sleep."),
+            phone_call_line("me", "Yeah. Thanks for calling."),
             phone_call_line("them", "Go ice your foot properly, track boy."),
-            phone_call_line("me", "Call me that again and track gets full custody."),
+            phone_call_line("me", "Call me that again and your head's on a pike."),
             phone_call_line("them", "Hahaha~"),
             phone_call_line("me", "Goodnight, Monika."),
             phone_call_line("them", "Goodnight, " + player + "!"),
@@ -593,12 +557,10 @@ label a0521:
     # A long, aimless late call that neither of them needed to make. Calling her
     # about nothing is now a normal thing to do.
     $ phone_open("monika_call")
-    "My room goes quiet again. The ice pack has slipped halfway off my ankle."
-    "I set it back in place and look at the half-finished notes on my desk."
+    "After she hangs up, I retrieve the ice pack from wherever it slid off to and finish the chemistry notes with the monster clip still paused in the corner of my screen."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "Mom gets home after I've turned out the light. I hear cabinet doors moving carefully downstairs, followed by the microwave."
-    nier "I fall asleep before I can ask whether the spaghetti survived cross-exam."
+    nier "After I turn out the light, I hear Mom come in and open the fridge downstairs. I'm still awake when the microwave beeps, but not when she comes up."
     call nier_clear from _call_nier_clear_0521_8
     stop music fadeout 2.0
     pause 2.0

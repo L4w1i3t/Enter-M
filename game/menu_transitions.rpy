@@ -1,44 +1,13 @@
-# =============================================================================
-# ENTER-M :: MENU TRANSITIONS  --  how one terminal becomes the next
-# -----------------------------------------------------------------------------
-# WHAT LIVES HERE
-#   Every transition that fires when the player moves between UI screens: main
-#   menu -> Archive / Arcade / Credits / Settings / Save / Load, gameplay -> the
-#   pause menu, one pause-menu page -> the next, and the way back out. They are
-#   all built on the same idea as the rest of the interface: this is a machine
-#   with a picture tube in it, and changing screens costs it something.
+# Menu transitions and destination dispatch. Story transitions live in
+# fx.rpy; options.rpy owns dialogue-window fades.
+# EnterMChoreo composes outgoing/incoming frames and optional overlay plates.
+# Overlay transforms are instantiated per move so each gets a fresh ATL clock.
+# Focus is gated until arrival and dispatch choices stay latched through
+# interaction rebuilds. The Scene Transitions preference disables transitions.
 #
-# WHAT DOES NOT LIVE HERE  (check these before adding anything)
-#   fx.rpy           The STORY scene transitions -- dissolve_scene_full /
-#                    _half / _soft and wipeleft_scene. Those punctuate the prose
-#                    and are deliberately soft. Nothing in this file should ever
-#                    be used on a `scene` statement, and nothing in there should
-#                    be used on a menu.
-#   options.rpy      Only the non-menu engine transitions are still declared
-#                    there (the say-window show/hide fades).
-#
-# THE PRIMITIVE
-#   Matsu'Py 8.1.1 has no ATL transitions (the `delay` ATL statement that drives
-#   them arrives in 8.2), so a transition that wants to MOVE the outgoing and
-#   incoming frames rather than blend them has to be a Transition object. That
-#   is what EnterMChoreo is: a transition that stages the two frames on top of
-#   an optional backdrop and under an optional set of overlay plates, each with
-#   its own ATL. Everything below is then declared rather than coded.
-#
-# HOUSE RULES
-#   * KEEP THEM SHORT. The screen underneath is playing its own staggered
-#     entrance at the same time; anything past about half a second stops
-#     reading as a transition and starts reading as a load.
-#   * The Settings > Scene Transitions toggle already switches all of this off
-#     (renpy.transition() is a no-op when preferences.transitions is 0), so no
-#     transition in this file needs its own opt-out.
-#   * Overlay plates are passed as (displayable, transform) pairs, NOT as
-#     pre-wrapped displayables. The transform is applied when the transition is
-#     instantiated, so every use gets its own ATL clock -- a shared, pre-built
-#     At() would replay from wherever the last transition left it.
-#   * THE MOVE IS NOT THE PLAYER'S UNTIL IT LANDS. Read section 1a before
-#     touching anything to do with focus, restarts, or per-move state.
-# =============================================================================
+# Frames are blitted with focus=False during gated moves: blocking click events
+# alone does not stop hovered actions from rebuilding a transition. A single
+# restart at arrival restores pointer focus. See enter_m_move_is_new().
 
 init offset = -5
 
@@ -535,45 +504,6 @@ transform enter_m_ch_cycle_line:
         easeout 0.24 yzoom 30.0
     parallel:
         easeout 0.22 alpha 0.0
-
-# --- the drawer: for the Archive -------------------------------------------
-# The Archive is a cabinet of other people's things, so it comes up out of one.
-# This used to be a venetian-blind ImageDissolve, which looked lovely and cost
-# a masked composite of two of the heaviest screens in the game on every frame
-# of a half-second move -- it stuttered. A drift and a complementary crossfade
-# read almost the same and cost nothing.
-
-transform enter_m_ch_drawer_out:
-    subpixel True
-    xalign 0.5
-    yalign 0.5
-    easein_quad 0.32 zoom 1.04 yoffset -26
-
-transform enter_m_ch_drawer_in:
-    subpixel True
-    xalign 0.5
-    yalign 0.5
-    alpha 0.0
-    yoffset 54
-    parallel:
-        easeout_cubic 0.32 yoffset 0
-    parallel:
-        linear 0.32 alpha 1.0
-
-transform enter_m_ch_drawer_edge:
-    subpixel True
-    additive 1.0
-    xysize (1280, 2)
-    xalign 0.5
-    yalign 0.5
-    yoffset 54
-    alpha 0.0
-    linear 0.05 alpha 0.9
-    parallel:
-        easeout_cubic 0.27 yoffset 0
-    parallel:
-        pause 0.12
-        linear 0.15 alpha 0.0
 
 # --- CUTTING THROUGH BLACK: the moves that carry a music handoff -----------
 #

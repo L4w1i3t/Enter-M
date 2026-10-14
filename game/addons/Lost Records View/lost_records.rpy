@@ -1,45 +1,9 @@
-# =============================================================================
-# lost_records.rpy  --  LOST RECORDS (archive feature)
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   An in-universe catalog of the creator's older/"lost" DDLC projects, presented
-#   as recoverable archive entries. Left = scrollable list of records; right =
-#   detail panel for the selected record with an "Open Record" button that (when
-#   the record is marked playable) launches a story label.
-#
-# HOW IT IS REACHED
-#   - Archive "Lost Records" card -> Show("lost_records")  (see game/archive.rpy).
-#   - Also available as a blocking `call screen` via the `lost_records` label
-#     at the bottom of this file.
-#   NOTE: the screen and the label are BOTH named "lost_records" (Matsu'Py allows a
-#   screen and a label to share a name; `Show(...)`/`call screen` target the
-#   screen, `call lost_records`/`Start` targets the label).
-#
-# DATA MODEL (built once by init_lost_records(); see init 5 python)
-#   lost_records = [ RecordsProfile(...) , ... ]
-#   RecordsProfile fields:
-#     title, genre, thumbnail, creation_date ("MMYYYY" or "MMDDYYYY" string),
-#     can_play (bool), label_name (story label to Start when opened),
-#     variants (optional list of (button text, story label) tuples).
-#   Computed props:
-#     display_date  -> human date via convert_to_date()
-#     playable      -> can_play AND a label_name or variants are set
-#     thumbnail_path-> the thumbnail or a placeholder fallback
-#
-#   Records default to can_play=False, so they show "NOT RESTORED" and the Open
-#   button raises the "not restored yet" dialog. To make one playable, pass
-#   can_play=True and either label_name="some_label" or variants=[(...), ...].
-#
-# SHARED THEME BORROWED FROM game/archive.rpy
-#   - screen archive_backdrop, screen archive_header(...)
-#   - styles archive_shell_frame / archive_sidebar_panel / archive_panel
-#   - transform archive_frame_enter; viewport style_prefix "archive_sv"
-#   - generic "dialog" screen (unavailable popup)
-# =============================================================================
-
-# Lost Records addon
-# A catalog of stories that span the creator's history.
+# Archive catalog of the creator's earlier projects.
+# RecordsProfile owns title/genre/art/date plus can_play, label_name and variants.
+# Playable entries launch a label or offer variant labels; unavailable entries
+# retain their catalog slots and explain that restoration is pending.
+# lost_records names both the screen and its blocking wrapper label; Show/call
+# screen targets the former, while call lost_records enters the latter.
 
 init python:
     import datetime
@@ -52,7 +16,7 @@ init python:
             self.thumbnail = thumbnail
             self.creation_date = creation_date
             self.can_play = can_play          # has its story file been "restored"?
-            self.label_name = label_name      # label to Start() when opened
+            self.label_name = label_name      # standalone label to launch
             self.variants = variants or []    # optional alternate playable versions
 
         # Human-readable creation date (delegates to convert_to_date below).
@@ -147,32 +111,48 @@ init python:
 init 5 python:
     init_lost_records()
 
-# Shell entrance/exit, matching the other archive sub-screens.
-# Entry stagger (list rows slide in from the left), with a small hover slide so
-# rows feel selectable (mirrors the Side Stories sidebar rows).
+# THE METAPHOR: a shelf of tapes. Each record is a cassette with a paper label
+# on its spine; choosing one draws it out of the shelf, and its paper insert
+# slides up out of the case on the right.
+
+# Label ink, one per tape in shelf order -- the coloured edge of a spine label.
+define LR_LABEL_INK = ("#8a3b3b", "#2c5b59", "#a8803a", "#714966", "#3a4f6b")
+
+# A tape on the shelf: the shelf fills in, a tape slides part-way out under the
+# pointer, and the chosen one has been drawn further out. The pull is driven by
+# BUTTON STATE (SetScreenVariable reports itself selected), not a parameter, so
+# changing the selection never rebuilds a row and replays its entrance -- see
+# cs_tab in Side Stories. Offsets stay >= 0: the list is a clipping viewport.
 transform lr_record_anim(delay=0.0):
     subpixel True
     alpha 0.0
-    xoffset -18
-    pause delay
-    easein_quad 0.28 alpha 1.0 xoffset 0
-    on idle:
-        easeout 0.16 xoffset 0
-    on hover:
-        easeout 0.14 xoffset 6
-
-# Detail panel re-entrance. Keyed on the selected record so it replays each time
-# the selection changes (the panel content slides in fresh).
-transform lr_detail_enter:
-    alpha 0.0
     xoffset 22
+    pause delay
+    easeout_quad 0.28 alpha 1.0 xoffset 0
+    on idle:
+        easeout_quad 0.18 xoffset 0
+    on hover:
+        easeout_quad 0.14 xoffset 8
+    on selected_idle:
+        easeout_quad 0.20 xoffset 14
+    on selected_hover:
+        easeout_quad 0.14 xoffset 14
+
+# The insert slides up out of its case each time the selection changes. `key`
+# is unused in the body; a new value is what restarts it.
+transform lr_detail_enter(key=0):
     subpixel True
+    alpha 0.0
+    yoffset 26
     pause 0.05
-    easeout_quad 0.30 alpha 1.0 xoffset 0
+    parallel:
+        easeout_quad 0.34 yoffset 0
+    parallel:
+        easeout_quad 0.22 alpha 1.0
 
 # =============================================================================
 # LOST RECORDS SCREEN
-# selected_idx (screen-local) tracks which record's detail is shown on the right.
+# selected_idx (screen-local) tracks which record's insert is shown on the right.
 # =============================================================================
 screen lost_records():
     modal True
@@ -181,8 +161,8 @@ screen lost_records():
 
     use archive_backdrop
 
-    key "game_menu" action Hide("lost_records")
-    key "K_ESCAPE" action Hide("lost_records")
+    key "game_menu" action Hide("lost_records", transition=enter_m_menu_doorway)
+    key "K_ESCAPE" action Hide("lost_records", transition=enter_m_menu_doorway)
 
     # Keyboard navigation through the record list (QoL: browse without the mouse).
     if len(lost_records) > 1:
@@ -201,17 +181,16 @@ screen lost_records():
         vbox:
             spacing 12
 
-            use archive_header("LOST RECORDS", Hide("lost_records"))
+            use archive_header("LOST RECORDS", Hide("lost_records", transition=enter_m_menu_doorway))
 
-            # Census / readout strip (shared with the archive hub + Side Stories).
             use archive_readout(
-                "SALVAGE ARCHIVE // {}/{} RECORDS RESTORED".format(_lr_restored, _lr_total),
-                "ENTRIES {}".format(_lr_total))
+                "THE TAPE SHELF / {} OF {} RECORDS RESTORED".format(_lr_restored, _lr_total),
+                "{} ON THE SHELF".format(_lr_total))
 
             hbox:
                 spacing 0
 
-                # --- LEFT: scrollable record list -------------------------
+                # --- LEFT: the shelf of tapes -----------------------------
                 frame:
                     xsize 400
                     ysize 520
@@ -231,82 +210,38 @@ screen lost_records():
 
                             if lost_records:
                                 for idx, record in enumerate(lost_records):
-                                    $ _record_delay = idx * 0.05
-                                    $ _lr_sel = (idx == selected_idx)
-
                                     button:
-                                        xfill True
-                                        ysize 108
-                                        padding (0, 0)
-                                        hover_sound gui.hover_sound
-                                        activate_sound gui.activate_sound
-                                        at lr_record_anim(_record_delay)
+                                        style "lr_tape_button"
+                                        at lr_record_anim(idx * 0.05)
                                         action SetScreenVariable("selected_idx", idx)
 
-                                        # Highlight the selected row.
-                                        if _lr_sel:
-                                            background Solid("#12314af2")
-                                            hover_background Solid("#17415fee")
-                                        else:
-                                            background Solid("#07111dcc")
-                                            hover_background Solid("#12314aee")
+                                        # Tape geometry matches tape_spine.svg: the
+                                        # case window is (10, 12, 62, 64), the label
+                                        # x 82..339 with ruled lines at y 44 and 61.
+                                        fixed:
+                                            xysize (350, 88)
 
-                                        hbox:
-                                            spacing 0
-                                            yfill True
+                                            add "assets/gui/menu/illustrated/archive/tape_spine.svg"
+                                            add Solid(LR_LABEL_INK[idx % len(LR_LABEL_INK)]) xpos 82 ypos 9 xysize (7, 69)
+                                            add Transform(record.thumbnail_path, fit="contain", xysize=(56, 58)) xpos 13 ypos 15
 
-                                            # Selection accent rail (pulses when active).
-                                            if _lr_sel:
-                                                add Solid("#56d7ff") xysize (4, 108) at enter_m_pip_pulse
-                                            else:
-                                                add Solid("#0c1a27") xysize (4, 108)
+                                            text record.title style "lr_record_name" xpos 98 ypos 12
+                                            text record.genre.upper() style "lr_record_meta" xpos 98 ypos 48
+                                            text record.display_date.upper() style "lr_record_date" xpos 98 ypos 65
 
-                                            hbox:
-                                                spacing 12
-                                                yalign 0.5
-                                                xoffset 10
-
-                                                frame:
-                                                    xsize 64
-                                                    ysize 64
-                                                    yalign 0.5
-                                                    background Solid("#07101add")
-                                                    padding (3, 3)
-
-                                                    add record.thumbnail_path:
-                                                        fit "contain"
-                                                        xalign 0.5
-                                                        yalign 0.5
-
-                                                vbox:
-                                                    spacing 4
-                                                    yalign 0.5
-                                                    xsize 268
-
-                                                    text record.title style "lr_record_name"
-                                                    text record.genre style "lr_record_meta"
-
-                                                    # Date + a live restored/indexed pip.
-                                                    hbox:
-                                                        spacing 8
-                                                        yalign 0.5
-
-                                                        if record.playable:
-                                                            add Solid("#56d7ff") xysize (6, 6) yalign 0.5 at console_blink
-                                                        else:
-                                                            add Solid("#374654") xysize (6, 6) yalign 0.5
-                                                        text record.display_date style "lr_record_date"
+                                            if record.playable:
+                                                text "RESTORED" style "lr_record_restored" xanchor 1.0 xpos 332 ypos 65
                             else:
                                 # Empty-catalog state.
                                 text "No records found." style "lr_empty_text":
                                     xalign 0.5
                                     yalign 0.5
 
-                add Solid("#56d7ff44"):
+                add Solid("#02050a66"):
                     xsize 2
                     ysize 520
 
-                # --- RIGHT: detail panel for the selected record ----------
+                # --- RIGHT: the selected tape's insert --------------------
                 frame:
                     xsize 748
                     ysize 520
@@ -316,81 +251,67 @@ screen lost_records():
                     if lost_records:
                         $ _sel_record = lost_records[selected_idx]
 
-                        # `at` keyed on selected_idx: the whole dossier re-enters
-                        # each time the selection changes.
+                        # Keyed on selected_idx: the insert slides up afresh
+                        # each time a different tape is drawn.
                         vbox:
                             spacing 16
-                            at lr_detail_enter
-
-                            hbox:
-                                spacing 22
-
-                                # Shared framed portrait window (scanline + rules).
-                                use archive_portrait(_sel_record.thumbnail_path, 210, 172, "contain", False)
-
-                                vbox:
-                                    spacing 10
-                                    yalign 0.5
-                                    xsize 456
-
-                                    hbox:
-                                        spacing 10
-                                        yalign 0.5
-                                        add Solid("#56d7ff") xysize (9, 9) yalign 0.5 at console_blink
-                                        text _sel_record.title style "lr_detail_title"
-
-                                    text _sel_record.genre style "lr_detail_genre"
-
-                                    hbox:
-                                        spacing 8
-                                        yalign 0.5
-                                        text "CREATED" style "lr_detail_label"
-                                        text _sel_record.display_date style "lr_detail_value"
-
-                                    null height 2
-
-                                    # Restored vs. not-restored status chip.
-                                    if _sel_record.playable:
-                                        frame:
-                                            background Solid("#56d7ff")
-                                            padding (14, 6)
-                                            text "RESTORED" style "archive_chip_on_text"
-                                    else:
-                                        frame:
-                                            background Solid("#1b2832")
-                                            padding (14, 6)
-                                            text "NOT RESTORED" style "archive_chip_off_text"
-
-                            add Solid("#56d7ff22"):
-                                xsize 700
-                                ysize 1
+                            at lr_detail_enter(selected_idx)
 
                             frame:
-                                xfill True
-                                ysize 176
-                                background Solid("#050811cc")
-                                padding (24, 20)
+                                style "lr_insert"
 
-                                vbox:
+                                fixed:
+                                    xysize (660, 212)
+
+                                    # The cover, printed on the insert's front panel.
+                                    add Solid("#1e2226") xysize (220, 196) ypos 0
+                                    add Transform(_sel_record.thumbnail_path, fit="contain", xysize=(204, 180)) xpos 8 ypos 8
+
+                                    add Solid(LR_LABEL_INK[selected_idx % len(LR_LABEL_INK)]) xpos 240 ypos 0 xysize (6, 196)
+
+                                    vbox:
+                                        xpos 262
+                                        ypos 2
+                                        spacing 8
+                                        xmaximum 396
+
+                                        text "LOST RECORD / NO. {:02d}".format(selected_idx + 1) style "lr_insert_kicker"
+                                        text _sel_record.title style "lr_detail_title"
+                                        text _sel_record.genre.upper() style "lr_detail_genre"
+
+                                        null height 4
+
+                                        hbox:
+                                            spacing 10
+                                            text "RECORDED" style "lr_detail_label" yalign 0.5
+                                            text _sel_record.display_date style "lr_detail_value" yalign 0.5
+
+                                        # Restored vs. not: a REC lamp, lit or dark.
+                                        hbox:
+                                            spacing 8
+                                            add Solid("#c0392b" if _sel_record.playable else "#a39a92") xysize (8, 8) yalign 0.5
+                                            text ("RESTORED" if _sel_record.playable else "NOT RESTORED"):
+                                                style ("lr_status_on" if _sel_record.playable else "lr_status_off")
+                                                yalign 0.5
+
+                            # The liner notes, on the case itself.
+                            vbox:
+                                spacing 8
+
+                                hbox:
                                     spacing 10
-                                    yalign 0.5
+                                    add Solid(IM_PLUM) xysize (6, 6) rotate 45 yalign 0.5
+                                    text "LINER NOTES" style "lr_section_title" yalign 0.5
 
-                                    hbox:
-                                        spacing 10
-                                        yalign 0.5
-                                        add Solid("#56d7ff") xysize (4, 22) yalign 0.5
-                                        text "ARCHIVE ENTRY" style "lr_section_title"
+                                if _sel_record.playable and _sel_record.variants:
+                                    text "This record has multiple restored versions. Choose which playback to open." style "lr_body_text"
+                                elif _sel_record.playable:
+                                    text "This record has been restored and is ready for playback." style "lr_body_text"
+                                else:
+                                    text "This record has been indexed for the archive. Playback will become available once its story file is restored." style "lr_body_text"
 
-                                    if _sel_record.playable and _sel_record.variants:
-                                        text "This record has multiple restored versions. Choose which playback to open." style "lr_body_text"
-                                    elif _sel_record.playable:
-                                        text "This record has been restored and is ready for playback." style "lr_body_text"
-                                    else:
-                                        text "This record has been indexed for the archive. Playback will become available once its story file is restored." style "lr_body_text"
-
-                            null height 2
-
-                            # Open if playable (Start the label); else show dialog.
+                            # Open playable records in a clean game store; otherwise
+                            # leave the Archive in place and explain the lock.
                             if _sel_record.playable:
                                 if _sel_record.variants:
                                     hbox:
@@ -399,11 +320,11 @@ screen lost_records():
                                         for _variant_title, _variant_label in _sel_record.variants:
                                             textbutton _variant_title:
                                                 style "lr_open_button"
-                                                action Start(_variant_label)
+                                                action Function(archive_start_isolated_content, _variant_label)
                                 else:
-                                    textbutton "Open Record":
+                                    textbutton "Play Record":
                                         style "lr_open_button"
-                                        action Start(_sel_record.label_name)
+                                        action Function(archive_start_isolated_content, _sel_record.label_name)
                             else:
                                 textbutton "Unavailable":
                                     style "lr_open_button_disabled"
@@ -414,7 +335,7 @@ screen lost_records():
                             xalign 0.5
                             yalign 0.5
 
-    # Console brackets framing the shell (cohesion with the archive hub).
+    # Engraved corners framing the shell (cohesion with the archive hub).
     use archive_shell_brackets()
 
 # Blocking-call entry point (story/script use). The Show() in archive.rpy uses
@@ -424,111 +345,111 @@ label lost_records:
     return
 
 # =============================================================================
-# STYLES  (same cyan-on-near-black archive palette)
+# STYLES  -- ink on paper labels and inserts, paper ink on the dark case
 # =============================================================================
-style lr_record_name:
-    font gui.interface_font
-    color "#dff8ff"
-    size 20
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style lr_tape_button:
+    xysize (350, 88)
+    padding (0, 0)
+    background None
+    hover_background None
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
 
-style lr_record_meta:
-    font gui.interface_font
-    color "#9fc9d6"
-    size 13
-    outlines [(1, "#02040b", 0, 0)]
+style lr_record_name is gui_text:
+    font gui.default_font
+    size 19
+    color IM_INK
+    outlines []
 
-style lr_record_date:
+style lr_record_meta is gui_text:
     font gui.interface_font
-    color "#56d7ff"
-    size 12
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    size 9
+    kerning 1.4
+    color "#6c5f66"
+    outlines []
 
-style lr_detail_title:
-    font gui.interface_font
-    color "#f4fbff"
+style lr_record_date is lr_record_meta
+
+style lr_record_restored is lr_record_meta:
+    color "#2c5b59"
+
+style lr_insert is frame:
+    background IM_PAPER_PANEL
+    xsize 700
+    ysize 248
+    padding (20, 18)
+
+style lr_insert_kicker is lr_record_meta:
+    size 10
+    kerning 2.0
+    color "#714966"
+
+style lr_detail_title is gui_text:
+    font gui.default_font
     size 30
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    color IM_INK
+    outlines []
 
-style lr_detail_genre:
-    font gui.interface_font
-    color "#9fc9d6"
-    size 16
-    outlines [(1, "#02040b", 0, 0)]
+style lr_detail_genre is lr_record_meta:
+    size 11
+    kerning 1.6
 
-style lr_detail_label:
-    font gui.interface_font
-    color "#56d7ff"
-    size 13
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style lr_detail_label is lr_record_meta:
+    size 10
+    kerning 1.6
+    color "#7a6472"
 
-style lr_detail_value:
-    font gui.interface_font
-    color "#dff8ff"
-    size 14
-    outlines [(1, "#02040b", 0, 0)]
+style lr_detail_value is gui_text:
+    font gui.default_font
+    size 17
+    color "#2f3a3d"
+    outlines []
 
-style lr_status_ready:
-    font gui.interface_font
-    color "#56d7ff"
-    size 14
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style lr_status_on is lr_record_meta:
+    size 10
+    color "#2c5b59"
 
-style lr_status_locked:
-    font gui.interface_font
-    color "#4f5b67"
-    size 14
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style lr_status_off is lr_record_meta:
+    size 10
+    color "#8f8580"
 
-style lr_section_title:
-    font gui.interface_font
-    color "#f4fbff"
-    size 18
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+style lr_section_title is archive_meta_text:
+    kerning 3.0
 
-style lr_body_text:
-    font gui.interface_font
-    color "#9fc9d6"
-    size 16
-    line_spacing 3
-    outlines [(1, "#02040b", 0, 0)]
+style lr_body_text is gui_text:
+    font gui.default_font
+    size 17
+    color "#d4cdbf"
+    line_spacing 4
+    xmaximum 690
+    outlines []
 
-style lr_empty_text:
-    font gui.interface_font
-    color "#687787"
+style lr_empty_text is gui_text:
+    font gui.default_font
     size 20
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    color IM_MUTED
+    outlines []
 
 style lr_open_button:
-    xysize (180, 46)
-    background Solid("#07111dcc")
-    hover_background Solid("#12314af2")
+    xysize (200, 46)
+    background IM_TAB_IDLE
+    hover_background IM_TAB_HOVER
     hover_sound gui.hover_sound
     activate_sound gui.activate_sound
     padding (14, 10)
 
 style lr_open_button_text:
     font gui.interface_font
-    color "#dff8ff"
+    color IM_PAPER
     hover_color "#ffffff"
-    size 20
-    bold True
+    size 18
     xalign 0.5
     text_align 0.5
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
+    outlines []
 
 style lr_open_button_disabled is lr_open_button:
-    background Solid("#050811cc")
-    hover_background Solid("#07111dcc")
+    hover_background IM_TAB_IDLE
 
 style lr_open_button_disabled_text is lr_open_button_text:
-    color "#4f5b67"
-    hover_color "#687787"
+    color "#8f8a86"
+    hover_color "#a9a39c"

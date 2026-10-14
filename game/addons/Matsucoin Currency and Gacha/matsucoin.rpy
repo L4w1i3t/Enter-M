@@ -1,57 +1,13 @@
-# =============================================================================
-# matsucoin.rpy  --  MATSUCOINS: the currency core
-# =============================================================================
+# Persistent Matsucoin wallet and earn receipts. mc_gacha spends coins;
+# mc_cards owns collectibles and mc_collection displays them in the Archive.
+# mc_sync() reconciles catalog-derived awards using persistent.mc_paid_keys.
+# mc_award(amount, source, key=...) pays a one-time key; omit key for repeat awards.
+# Permanent payout keys must not be renamed or recycled.
 #
-# WHAT THIS FILE IS
-#   The wallet and every way a coin gets into it. It owns no UI beyond a coin
-#   glyph, a balance chip and an earn toast; the machine that SPENDS coins is
-#   mc_gacha.rpy (Arcade lobby) and the binder that displays what they bought is
-#   mc_collection.rpy (Archive module 7). Card data lives in mc_cards.rpy.
-#
-# THE TWO FAUCETS, AND WHY THEY ARE BUILT DIFFERENTLY
-#   * DERIVED (mc_sync)  -- everything the game ALREADY persists: achievements
-#       earned, side stories read, CGs recovered, outfits worn, roster slots
-#       identified, Archivists fended off. These pay out by walking the owning
-#       catalogs and crediting anything not yet in persistent.mc_paid_keys. No
-#       story file is edited, nothing has to be remembered when content is
-#       added, and a profile that earned all of it before this feature existed
-#       gets paid retroactively the first time mc_sync runs.
-#       This is the same reasoning achievements.rpy gives for reading catalogs
-#       lazily instead of keeping hand-written copies -- a copied list goes
-#       stale the moment content is added, and here a stale list is money the
-#       player silently never receives.
-#   * VOLATILE (mc_award) -- score. An arcade run's payout is a fact about a run
-#       that nothing persists, so the cabinets and the fight result labels call
-#       mc_award directly as they finish. This is the REPEATABLE faucet: the
-#       derived pool is finite and a player who has done everything must still
-#       be able to earn, or the machine stops being usable exactly when the
-#       collection is closest to complete.
-#
-# THE ONE-TIME LEDGER
-#   persistent.mc_paid_keys is a set of strings that have already been paid for.
-#   Every derived payout and every "first clear" bonus goes through it, so a
-#   payout can never be collected twice -- and because it is keyed by STRING,
-#   not by index, reordering or renaming content only ever risks paying once
-#   more, never double-paying silently.
-#
-# ADDING A NEW EARN SOURCE
-#   Repeatable  -> call mc_award(n, "WHAT IT WAS") at the moment it happens.
-#   Once only   -> call mc_award(n, "WHAT IT WAS", key="unique_string").
-#   Derived     -> add a rule to MC_DERIVED_RULES below; mc_sync does the rest.
-# =============================================================================
+# Balance is spendable; lifetime and spent track totals. pending_notice_* persists
+# a receipt for the next title-screen visit. Coins are credited immediately;
+# only their notice is deferred. Balance-cap behavior must preserve unpaid keys.
 
-# -----------------------------------------------------------------------------
-# PERSISTENT STATE
-# balance  : coins on hand right now (spent by the gacha).
-# lifetime : every coin ever credited. Never decreases; it is what the machine's
-#            "TOTAL EARNED" readout reports, and it is the honest number for a
-#            player who has spent everything.
-# spent    : counterpart to lifetime, for the same readout.
-# paid_keys: the one-time ledger described above.
-# pending_notice_*: the persisted receipt waiting for the next title-screen
-#            visit. Coins are credited immediately; only their presentation is
-#            deferred, so quitting or reloading cannot lose either half.
-# -----------------------------------------------------------------------------
 default persistent.mc_balance = 0
 default persistent.mc_lifetime = 0
 default persistent.mc_spent = 0
@@ -112,6 +68,7 @@ init -5 python:
         "intake": 400,
         "sweep":  90,
         "chess":  40,
+        "peg":    450,
     }
     MC_SCORE_DIVISOR_DEFAULT = 150
 
@@ -171,11 +128,6 @@ init -5 python:
 
     def mc_can_afford(cost):
         return mc_balance() >= int(cost)
-
-    def mc_is_paid(key):
-        """Has this one-time payout already been collected?"""
-        _mc_ensure_store()
-        return bool(key) and key in persistent.mc_paid_keys
 
     def mc_award(amount, label=None, key=None, toast=True, save=True):
         """Credit coins. Returns what was actually credited (0 if nothing was).
@@ -533,19 +485,6 @@ init -5 python:
         persistent.mc_pending_notice_amount += amount
         persistent.mc_pending_notice_events += max(1, events)
         return amount
-
-    def mc_push_toast(amount, label=None):
-        """Compatibility wrapper for older console/addon calls.
-
-        Payout toasts are no longer immediate. A direct call now creates one
-        persisted payout event for the next main-menu entry. ``label`` remains
-        accepted so old callers do not break; the title screen intentionally
-        summarizes all sources under one neutral receipt.
-        """
-        queued = mc_queue_payout_notice(amount)
-        if queued:
-            _mc_save()
-        return queued
 
     def _mc_notice_label(events):
         events = max(1, int(events or 0))

@@ -47,7 +47,6 @@
 image msbf_matsuda_phase1 = Transform("addons/Matsuda's Sick Boss Fight/phase1.png", fit="contain", xysize=(620, 384))
 image msbf_matsuda_phase2 = Transform("addons/Matsuda's Sick Boss Fight/phase2.png", fit="contain", xysize=(735, 384))
 image msbf_matsuda_phase3 = Transform("addons/Matsuda's Sick Boss Fight/idmode/idphase.png", fit="contain", xysize=(735, 384))
-image msbf_rupture_backdrop = Transform("addons/Matsuda's Sick Boss Fight/idmode/rupture.png", fit="cover", xysize=(1280, 720))
 
 init -1 python:
     import math
@@ -76,24 +75,6 @@ init -1 python:
             phase = 1
         return MSBF_PHASE_ACCENT.get(min(3, max(1, phase)), MSBF_PHASE_ACCENT[1])
 
-    # -------------------------------------------------------------------------
-    # WHERE PARTY CARD `i` SITS
-    # Floating numbers, HP-bar chips, cast wind-ups, ally targeting and KO
-    # bursts all have to land on the same card, and each one used to re-derive
-    # the position from the raw deck constants -- so the +12 / +7 insets were
-    # baked into five places and retuning the grid meant finding all of them.
-    # `geom` is the tuple the battle screen builds once (_deck_geom).
-    # -------------------------------------------------------------------------
-    def msbf_card_origin(i, geom):
-        """Top-left of card `i`, in screen px."""
-        ox, oy, cols, step_x, step_y = geom[:5]
-        return (ox + (i % cols) * step_x, oy + (i // cols) * step_y)
-
-    def msbf_card_center(i, geom):
-        """Centre of card `i`, in whole screen px."""
-        x, y = msbf_card_origin(i, geom)
-        return (int(x + geom[5] // 2), int(y + geom[6] // 2))
-
 # =============================================================================
 # --- 2. TRANSFORM LIBRARY ---------------------------------------------------
 # The bulk of this file: parameterised animations the screens apply with `at`.
@@ -107,53 +88,6 @@ init -1 python:
 #   msbf_fx_* / msbf_stage_*                          : hit flashes, slashes, sweeps.
 # These are pure presentation; none of them touch battle rules.
 # =============================================================================
-transform msbf_bg_drift:
-    subpixel True
-    zoom 1.08
-    xalign 0.50
-    yalign 0.50
-    ease 6.0 xalign 0.47 yalign 0.48
-    ease 7.0 xalign 0.53 yalign 0.52
-    ease 5.5 xalign 0.50 yalign 0.50
-    repeat
-
-transform msbf_phase2_bg_dizzy:
-    subpixel True
-    zoom 1.42
-    xalign 0.50
-    yalign 0.50
-    rotate 0.0
-    parallel:
-        ease 7.0 xalign 0.45 yalign 0.46
-        ease 8.4 xalign 0.55 yalign 0.54
-        ease 6.2 xalign 0.48 yalign 0.56
-        ease 7.6 xalign 0.50 yalign 0.50
-        repeat
-    parallel:
-        ease 10.0 rotate 0.48
-        ease 12.0 rotate -0.42
-        repeat
-
-transform msbf_phase2_bg_veil(delay=0.0, alpha_max=0.18, direction=1.0):
-    subpixel True
-    alpha 0.0
-    zoom 1.58
-    xalign 0.50
-    yalign 0.50
-    rotate -0.8 * direction
-    pause delay
-    parallel:
-        block:
-            ease 1.4 alpha alpha_max
-            ease 4.2 alpha alpha_max * 0.42
-            ease 1.8 alpha alpha_max
-            repeat
-    parallel:
-        block:
-            ease 9.0 xalign 0.44 yalign 0.54 rotate 1.05 * direction
-            ease 11.0 xalign 0.56 yalign 0.46 rotate -0.90 * direction
-            ease 7.0 xalign 0.50 yalign 0.50 rotate 0.20 * direction
-            repeat
 
 
 transform msbf_phase2_boom_pressure(peak=0.46):
@@ -202,13 +136,6 @@ transform msbf_phase2_boom_scan(delay=0.0, alpha_max=0.32, direction=1.0):
     linear 0.060 alpha alpha_max * 0.32 xoffset -12 * direction
     linear 0.160 alpha 0.0 xoffset 0
 
-transform msbf_phase_break_flash(delay=0.0, peak=0.90):
-    alpha 0.0
-    pause delay
-    linear 0.025 alpha peak
-    linear 0.070 alpha peak * 0.36
-    linear 0.120 alpha 0.0
-
 transform msbf_phase_break_lance(angle=0.0, delay=0.0, alpha_max=0.90):
     subpixel True
     xanchor 0.5
@@ -220,26 +147,6 @@ transform msbf_phase_break_lance(angle=0.0, delay=0.0, alpha_max=0.90):
     linear 0.035 alpha alpha_max zoom 1.0
     linear 0.105 alpha 0.0 zoom 1.58
 
-transform msbf_phase_reveal_bloom(delay=0.0, peak=0.56):
-    alpha 0.0
-    pause delay
-    linear 0.035 alpha peak
-    linear 0.12 alpha 0.0
-    pause 0.18
-    linear 0.025 alpha peak * 0.42
-    linear 0.18 alpha 0.0
-
-transform msbf_phase_reveal_cut(angle=0.0, delay=0.0, alpha_max=0.84):
-    subpixel True
-    xanchor 0.5
-    yanchor 0.5
-    rotate angle
-    alpha 0.0
-    xzoom 0.20
-    pause delay
-    linear 0.06 alpha alpha_max xzoom 1.0
-    linear 0.28 alpha 0.0 xzoom 1.24
-
 transform msbf_phase_transition_blackout:
     alpha 1.0
     pause 0.74
@@ -249,37 +156,6 @@ transform msbf_phase_transition_blackout:
     linear 0.055 alpha 0.54
     linear 0.040 alpha 0.92
     linear 0.42 alpha 0.0
-
-transform msbf_phase_transition_curtain:
-    alpha 0.0
-    linear 0.16 alpha 0.78
-    pause 0.72
-    linear 0.58 alpha 0.42
-    pause 1.24
-    linear 0.78 alpha 0.0
-
-transform msbf_phase_transition_burst(delay=0.0, peak=0.72):
-    alpha 0.0
-    pause delay
-    linear 0.06 alpha peak
-    linear 0.12 alpha 0.0
-    pause 0.16
-    linear 0.04 alpha peak * 0.54
-    linear 0.20 alpha 0.0
-
-transform msbf_phase_transition_ring(delay=0.0, spin=1.0):
-    subpixel True
-    xanchor 0.5
-    yanchor 0.5
-    alpha 0.0
-    zoom 0.30
-    rotate 0.0
-    pause delay
-    parallel:
-        easeout 1.20 alpha 0.58 zoom 1.32
-        linear 0.46 alpha 0.0 zoom 1.58
-    parallel:
-        linear 1.66 rotate 180.0 * spin
 
 transform msbf_phase_transition_lance(angle=0.0, delay=0.0, alpha_max=0.78):
     subpixel True
@@ -356,52 +232,6 @@ transform msbf_final_victory_white_pressure:
     pause 0.34
     linear 0.05 alpha 0.52
     linear 0.22 alpha 0.0
-
-transform msbf_phase3_bg_rupture:
-    subpixel True
-    zoom 1.045
-    xalign 0.50
-    yalign 0.50
-    rotate 0.0
-    xoffset 0
-    yoffset 0
-    parallel:
-        block:
-            pause 0.92
-            linear 0.025 xoffset -8 yoffset 3 rotate -0.06
-            linear 0.035 xoffset 6 yoffset -2 rotate 0.05
-            easeout 0.09 xoffset 0 yoffset 0 rotate 0.0
-            pause 1.25
-            linear 0.020 xoffset 5 yoffset 4 rotate 0.04
-            linear 0.030 xoffset -4 yoffset -3 rotate -0.04
-            easeout 0.08 xoffset 0 yoffset 0 rotate 0.0
-            repeat
-    parallel:
-        block:
-            pause 1.80
-            linear 0.035 zoom 1.060
-            linear 0.075 zoom 1.045
-            pause 1.40
-            linear 0.025 zoom 1.055
-            linear 0.060 zoom 1.045
-            repeat
-
-transform msbf_phase3_bg_echo(delay=0.0, alpha_max=0.28, direction=1.0):
-    subpixel True
-    alpha 0.0
-    zoom 1.060
-    xoffset -18 * direction
-    yoffset 0
-    rotate -0.08 * direction
-    pause delay
-    block:
-        linear 0.030 alpha alpha_max xoffset 20 * direction
-        linear 0.055 alpha 0.0 xoffset -12 * direction yoffset -5
-        pause 0.52
-        linear 0.022 alpha alpha_max * 0.75 xoffset 16 * direction
-        linear 0.045 alpha 0.0 xoffset -20 * direction yoffset 4
-        pause 1.35
-        repeat
 
 transform msbf_phase3_fault_line(angle=0.0, delay=0.0, alpha_max=0.62, direction=1.0):
     subpixel True
@@ -496,57 +326,6 @@ transform msbf_phase3_pressure(delay=0.0, peak=0.32):
         pause 1.10
         repeat
 
-transform msbf_boss_backlight:
-    subpixel True
-    alpha 0.08
-    zoom 1.0
-    rotate 0.0
-    parallel:
-        ease 0.9 alpha 0.28 zoom 1.08
-        ease 1.1 alpha 0.08 zoom 1.0
-        repeat
-    parallel:
-        linear 2.0 rotate 2.0
-        linear 2.0 rotate -2.0
-        repeat
-
-
-transform msbf_boss_intro:
-    subpixel True
-    alpha 0.0
-    xoffset 0
-    yoffset 150
-    zoom 1.0
-    rotate 0.0
-    # loom up out of the dark, growing as he advances...
-    parallel:
-        easeout 1.05 alpha 1.0
-    parallel:
-        easeout 1.25 yoffset 0
-    parallel:
-        easeout 1.25 zoom 1.14
-    # ...land hard, then settle into a slow ominous breath.
-    block:
-        easeout 0.10 yoffset 12 zoom 1.16
-        easein 0.34 yoffset 0 zoom 1.14
-    block:
-        easein 1.5 yoffset -7
-        easeout 1.5 yoffset 0
-        repeat
-
-transform msbf_boss_intro_ghost(delay=0.0, ydrift=80):
-    subpixel True
-    alpha 0.0
-    yoffset ydrift + 60
-    zoom 1.22
-    pause delay
-    parallel:
-        linear 0.12 alpha 0.28
-        linear 0.7 alpha 0.0
-    parallel:
-        easeout 0.9 yoffset 0
-    parallel:
-        easeout 0.9 zoom 1.14
 
 
 
@@ -562,36 +341,6 @@ transform msbf_boss_intro_ghost(delay=0.0, ydrift=80):
 
 
 
-
-transform msbf_press_turn_pulse(delay=0.0):
-    alpha 0.58
-    pause delay
-    block:
-        ease 0.45 alpha 0.92
-        ease 0.55 alpha 0.42
-        repeat
-
-transform msbf_press_turn_shimmer(delay=0.0, travel=32):
-    subpixel True
-    alpha 0.0
-    xoffset 0
-    pause delay
-    block:
-        xoffset 0
-        linear 0.12 alpha 0.0
-        linear 0.18 alpha 0.62 xoffset travel * 0.45
-        linear 0.22 alpha 0.0 xoffset travel
-        pause 0.86
-        repeat
-
-transform msbf_press_turn_edge(delay=0.0):
-    alpha 0.32
-    pause delay
-    block:
-        ease 0.36 alpha 0.82
-        ease 0.64 alpha 0.28
-        pause 0.18
-        repeat
 
 transform msbf_press_turn_spend_fx(delay=0.0):
     subpixel True
@@ -621,18 +370,6 @@ transform msbf_press_turn_gain_fx(delay=0.0):
     linear 0.12 alpha 0.92 yoffset 0
     linear 0.30 alpha 0.0 yoffset -9
 
-transform msbf_button_focus:
-    on hover:
-        linear 0.08 xoffset 2
-    on idle:
-        linear 0.08 xoffset 0
-
-transform msbf_panel_enter(delay=0.0):
-    alpha 0.0
-    yoffset 16
-    pause delay
-    easeout_quad 0.25 alpha 1.0 yoffset 0
-
 transform msbf_fx_flash(color="#ffffff", max_alpha=0.22):
     alpha max_alpha
     linear 0.35 alpha 0.0
@@ -659,75 +396,7 @@ transform msbf_fx_text_big:
     parallel:
         easeout 0.68 yoffset -24 zoom 1.12
 
-transform msbf_fx_slash(angle=0.0, delay=0.0):
-    rotate angle
-    alpha 0.0
-    zoom 0.7
-    pause delay
-    linear 0.06 alpha 0.88 zoom 1.0
-    linear 0.20 alpha 0.0 zoom 1.25
-
-# -----------------------------------------------------------------------------
-# Howling wind (phase 1). A gust streak: a thin band that sweeps across from
-# x0->x1 with a smooth ease, fades in then trails off, waits `gap`, and repeats.
-# Used many times at varied y / delay / dur / gap so the gusts overlap unevenly
-# and read as turbulent wind rather than a metronome. The same transform drives
-# the soft, slow "moving air" haze sheets (just fed a tall, low-alpha Solid).
-transform msbf_wind_streak(y=0, delay=0.0, alpha_max=0.16, dur=1.2, x0=-360, x1=1360, gap=0.0):
-    subpixel True
-    ypos y
-    block:
-        xpos x0
-        alpha 0.0
-        pause delay
-        parallel:
-            ease dur xpos x1
-        parallel:
-            linear dur * 0.20 alpha alpha_max
-            linear dur * 0.46 alpha alpha_max
-            linear dur * 0.34 alpha 0.0
-        pause gap
-        repeat
-
 # ---- Phase-1 boss entrance cinematic (msbf_battle_intro_overlay) -------------
-# Dark wash that holds while the boss looms in, then lifts as he sets.
-transform msbf_intro_dim(peak=0.5):
-    alpha peak
-    pause 1.55
-    linear 0.95 alpha 0.0
-
-# Letterbox bars: slide in, hold through the reveal, then lift away.
-transform msbf_intro_letterbox_top(h=88):
-    ypos 0
-    yanchor 0.0
-    yoffset -h
-    ease 0.5 yoffset 0
-    pause 1.95
-    ease 0.55 yoffset -h
-
-transform msbf_intro_letterbox_bottom(h=88):
-    ypos 720
-    yanchor 1.0
-    yoffset h
-    ease 0.5 yoffset 0
-    pause 1.95
-    ease 0.55 yoffset h
-
-# The name card slams in big, overshoots slightly, settles, then fades.
-transform msbf_intro_title(delay=1.0):
-    subpixel True
-    xanchor 0.5
-    yanchor 0.5
-    alpha 0.0
-    zoom 1.5
-    pause delay
-    parallel:
-        easeout 0.32 zoom 0.96
-        easein 0.12 zoom 1.0
-    parallel:
-        linear 0.12 alpha 1.0
-        pause 1.2
-        linear 0.5 alpha 0.0
 
 # Kicker / tagline: rise + fade in, hold `life`, fade out.
 transform msbf_intro_caption(delay=0.0, rise=18, life=1.4):
@@ -742,73 +411,36 @@ transform msbf_intro_caption(delay=0.0, rise=18, life=1.4):
         pause life
         linear 0.45 alpha 0.0
 
-# Detonation flash the instant he lands.
-transform msbf_intro_flash(delay=1.7, peak=0.8):
-    alpha 0.0
-    pause delay
-    linear 0.05 alpha peak
-    linear 0.42 alpha 0.0
-
-# Per-phase animated battle background (the bg art + drifting overlays/scanlines).
-# `phase` swaps which ambient FX set is layered in. `wind` adds the phase-1
-# howling-wind layer -- it is opt-in (only the live phase-1 battle passes it) so
-# it does NOT bleed into phase 2, Id Mode, or the party-select screen, all of
-# which also draw this backdrop.
+# Compatibility entry point: all Seer backgrounds resolve to the same three
+# illustrated rooms. Keep the existing signature for callers; phase-specific
+# atmosphere is owned by the shared environment instead of old backdrop art.
 screen msbf_battle_backdrop(dim="#02050ab8", phase=1, wind=False):
-    if phase == 3:
-        if MSBF_FX_SHADERS:
-            add "msbf_rupture_backdrop" at msbf_fx_glitch_pulse(0.1, 0.55, 32.0), msbf_phase3_bg_rupture
-        else:
-            add "msbf_rupture_backdrop" at msbf_phase3_bg_rupture
-        add "msbf_rupture_backdrop" at msbf_phase3_bg_echo(0.16, 0.18, 1.0)
-    elif phase >= 2:
-        add "bg battle_setpiece" at msbf_phase2_bg_dizzy
-        add "bg battle_setpiece" at msbf_phase2_bg_veil(0.0, 0.18, 1.0)
-    else:
-        add "bg battle_setpiece" at msbf_bg_drift
+    use msbf_seer_environment(phase, getattr(store, "_msbf_id_mode", False))
     add Solid(dim)
-    # Procedural per-phase atmosphere -- ONE GPU draw replacing the old
-    # crossbeam / scanline / fault / tornado / static-slice Solid swarm.
-    use msbf_atmos_field(phase, "screen")
-    # Howling wind: drifting "moving air" haze, gust streaks ripping across at
-    # staggered cadences, and a field of wind-borne motes. Phase-1 battle only
-    # (opt-in via `wind`), so it never shows in phase 2 / Id Mode / party select.
-    if wind:
-        add Solid("#3a5f86") xysize (760, 220) at msbf_wind_streak(96, 0.0, 0.06, 4.4, -820, 2120, 0.0)
-        add Solid("#22405e") xysize (640, 250) at msbf_wind_streak(404, 1.9, 0.05, 5.0, -820, 2120, 0.0)
-        add Solid("#cfe9ff") xysize (560, 2) at msbf_wind_streak(92, 0.0, 0.16, 1.5, -440, 1440, 0.7)
-        add Solid("#9fd2ff") xysize (430, 2) at msbf_wind_streak(226, 0.6, 0.13, 1.2, -440, 1440, 1.1)
-        add Solid("#ffffff") xysize (660, 1) at msbf_wind_streak(348, 0.25, 0.11, 1.0, -460, 1460, 0.9)
-        add Solid("#bfe3ff") xysize (500, 2) at msbf_wind_streak(486, 1.0, 0.14, 1.6, -440, 1440, 0.6)
-        add Solid("#dff2ff") xysize (380, 1) at msbf_wind_streak(604, 0.4, 0.10, 1.3, -440, 1440, 1.4)
-        add Solid("#9fd2ff") xysize (320, 1) at msbf_wind_streak(540, 1.5, 0.10, 0.9, -420, 1420, 1.7)
-        if msbf_fx_particles_on():
-            add "msbf_fx_field_wind"
-
 screen msbf_phase2_boom_overlay(kind=0):
     $ _boom_kind = kind % 3
     $ _pressure_color = ["#000000", "#17030a", "#02131d"][_boom_kind]
     $ _accent_a = ["#ff3868", "#ffcf66", "#55ddff"][_boom_kind]
     $ _accent_b = ["#55ddff", "#ff3868", "#ffcf66"][_boom_kind]
 
-    add Solid(_pressure_color) at msbf_phase2_boom_pressure(0.48)
-    add Solid("#000000") xysize (1280, 34) at msbf_phase2_boom_scan(0.00, 0.30, 1.0):
+    add Solid(_pressure_color) at msbf_t(msbf_phase2_boom_pressure, 0.48)
+    add Solid("#000000") xysize (1280, 34) at msbf_t(msbf_phase2_boom_scan, 0.00, 0.30, 1.0):
         ypos 82
-    add Solid("#000000") xysize (1280, 42) at msbf_phase2_boom_scan(0.06, 0.26, -1.0):
+    add Solid("#000000") xysize (1280, 42) at msbf_t(msbf_phase2_boom_scan, 0.06, 0.26, -1.0):
         ypos 608
-    add Solid(_accent_a) xysize (1280, 5) at msbf_phase2_boom_wave(-9.0, 0.02, 0.38):
+    add Solid(_accent_a) xysize (1280, 5) at msbf_t(msbf_phase2_boom_wave, -9.0, 0.02, 0.38):
         xcenter 640
         ycenter 338
-    add Solid(_accent_b) xysize (1280, 4) at msbf_phase2_boom_wave(13.0, 0.07, 0.32):
+    add Solid(_accent_b) xysize (1280, 4) at msbf_t(msbf_phase2_boom_wave, 13.0, 0.07, 0.32):
         xcenter 640
         ycenter 380
-    add Solid("#000000") xysize (360, 900) at msbf_phase2_boom_slab(-18.0, 0.04, 0.34, 1.0):
+    add Solid("#000000") xysize (360, 900) at msbf_t(msbf_phase2_boom_slab, -18.0, 0.04, 0.34, 1.0):
         xcenter 640
         ycenter 360
-    add Solid(_accent_a) xysize (180, 900) at msbf_phase2_boom_slab(27.0, 0.10, 0.24, -1.0):
+    add Solid(_accent_a) xysize (180, 900) at msbf_t(msbf_phase2_boom_slab, 27.0, 0.10, 0.24, -1.0):
         xcenter 640
         ycenter 360
-    add Solid(_accent_b) xysize (1040, 3) at msbf_phase2_boom_wave(-34.0, 0.15, 0.26):
+    add Solid(_accent_b) xysize (1040, 3) at msbf_t(msbf_phase2_boom_wave, -34.0, 0.15, 0.26):
         xcenter 640
         ycenter 360
 
@@ -817,56 +449,24 @@ screen msbf_phase3_rupture_overlay(kind=0):
     $ _accent_a = ["#ff3868", "#ffffff", "#a66bff"][_rupture_kind]
     $ _accent_b = ["#f5fbff", "#ff3868", "#ff6b9f"][_rupture_kind]
 
-    add Solid("#050007") at msbf_phase3_pressure(0.0, 0.42)
-    add Solid(_accent_a) xysize (1280, 5) at msbf_phase3_fault_line(-29.0, 0.00, 0.70, 1.0):
+    add Solid("#050007") at msbf_t(msbf_phase3_pressure, 0.0, 0.42)
+    add Solid(_accent_a) xysize (1280, 5) at msbf_t(msbf_phase3_fault_line, -29.0, 0.00, 0.70, 1.0):
         xcenter 640
         ycenter 274
-    add Solid(_accent_b) xysize (1280, 4) at msbf_phase3_fault_line(17.0, 0.06, 0.58, -1.0):
+    add Solid(_accent_b) xysize (1280, 4) at msbf_t(msbf_phase3_fault_line, 17.0, 0.06, 0.58, -1.0):
         xcenter 640
         ycenter 398
-    add Solid(_accent_b) xysize (760, 5) at msbf_phase3_tornado_streak(640, 360, 620, 178, 0.02, 0.46, 1.0)
-    add Solid(_accent_a) xysize (640, 5) at msbf_phase3_tornado_streak(640, 382, 540, 206, 0.10, 0.38, -1.0)
-    add Solid("#000000ee") xysize (58, 12) at msbf_phase3_tornado_debris(640, 360, 640, 210, 0.00, 0.72, 1.0, 1.28)
-    add Solid(_accent_a) xysize (42, 10) at msbf_phase3_tornado_debris(640, 344, 540, 156, 0.08, 0.70, -1.0, 1.12)
-    add Solid("#ffffffcc") xysize (28, 8) at msbf_phase3_tornado_debris(640, 392, 600, 236, 0.16, 0.64, 1.0, 0.96)
-    add Solid("#ffffff66") xysize (1280, 2) at msbf_phase3_static_slice(0.02, 0.48, 1.0):
+    add Solid(_accent_b) xysize (760, 5) at msbf_t(msbf_phase3_tornado_streak, 640, 360, 620, 178, 0.02, 0.46, 1.0)
+    add Solid(_accent_a) xysize (640, 5) at msbf_t(msbf_phase3_tornado_streak, 640, 382, 540, 206, 0.10, 0.38, -1.0)
+    add Solid("#000000ee") xysize (58, 12) at msbf_t(msbf_phase3_tornado_debris, 640, 360, 640, 210, 0.00, 0.72, 1.0, 1.28)
+    add Solid(_accent_a) xysize (42, 10) at msbf_t(msbf_phase3_tornado_debris, 640, 344, 540, 156, 0.08, 0.70, -1.0, 1.12)
+    add Solid("#ffffffcc") xysize (28, 8) at msbf_t(msbf_phase3_tornado_debris, 640, 392, 600, 236, 0.16, 0.64, 1.0, 0.96)
+    add Solid("#ffffff66") xysize (1280, 2) at msbf_t(msbf_phase3_static_slice, 0.02, 0.48, 1.0):
         ypos 98
-    add Solid("#ff386866") xysize (1280, 5) at msbf_phase3_static_slice(0.11, 0.44, -1.0):
+    add Solid("#ff386866") xysize (1280, 5) at msbf_t(msbf_phase3_static_slice, 0.11, 0.44, -1.0):
         ypos 612
 
 # --- Extra "breathing + flair" transforms for breaks / reveals / death. ---
-# A charge core that swells and throbs while the screen is black -- turns the
-# dead hold before a reveal into a visible build-up of pressure.
-transform msbf_phase_charge(delay=0.0, peak=0.5):
-    subpixel True
-    xanchor 0.5
-    yanchor 0.5
-    alpha 0.0
-    zoom 0.18
-    rotate 45
-    pause delay
-    parallel:
-        easein 2.0 alpha peak zoom 1.0
-    parallel:
-        block:
-            ease 0.16 alpha peak
-            ease 0.16 alpha peak * 0.45
-            repeat
-
-# Rings collapsing inward -- "energy gathering" for the charge beat.
-transform msbf_phase_charge_ring(delay=0.0, spin=1.0, alpha_max=0.5):
-    subpixel True
-    xanchor 0.5
-    yanchor 0.5
-    block:
-        alpha 0.0
-        zoom 1.75
-        rotate 0.0
-        pause delay
-        linear 0.10 alpha alpha_max
-        linear 0.66 zoom 0.16 alpha 0.0 rotate 70.0 * spin
-        pause 0.16
-        repeat
 
 # A single hard shockwave ring punching outward (reveals + killing blow).
 transform msbf_big_shock(delay=0.0, alpha_max=0.85):
@@ -878,18 +478,6 @@ transform msbf_big_shock(delay=0.0, alpha_max=0.85):
     pause delay
     linear 0.05 alpha alpha_max
     linear 0.44 zoom 1.95 alpha 0.0
-
-# Sustained low rumble that any displayable can ride during a transition.
-transform msbf_transition_quake(strength=1.0, delay=0.0):
-    subpixel True
-    pause delay
-    block:
-        linear 0.028 xoffset -6 * strength yoffset 4 * strength
-        linear 0.028 xoffset 7 * strength yoffset -3 * strength
-        linear 0.032 xoffset -4 * strength yoffset -4 * strength
-        linear 0.028 xoffset 5 * strength yoffset 3 * strength
-        linear 0.030 xoffset -2 * strength yoffset 2 * strength
-        repeat
 
 screen msbf_phase_transition_overlay(battle):
     $ _phase_transition_title = getattr(battle, "phase_transition_title", "THE STAGE BEGINS ANEW")
@@ -911,89 +499,89 @@ screen msbf_phase_transition_overlay(battle):
         add Solid("#03060c") at msbf_nova_predark
         # inward-collapsing rings -- the star eating itself
         if MSBF_FX_SHADERS:
-            add Solid("#00000000") xysize (1500, 1500) at msbf_nova_inring_r(0.00, (1.0, 1.0, 1.0), 0.5):
+            add Solid("#00000000") xysize (1500, 1500) at msbf_t(msbf_nova_inring_r, 0.00, (1.0, 1.0, 1.0), 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (1500, 1500) at msbf_nova_inring_r(0.12, (1.0, 0.22, 0.41), 0.6):
+            add Solid("#00000000") xysize (1500, 1500) at msbf_t(msbf_nova_inring_r, 0.12, (1.0, 0.22, 0.41), 0.6):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (1500, 1500) at msbf_nova_inring_r(0.24, (0.65, 0.42, 1.0), 0.5):
+            add Solid("#00000000") xysize (1500, 1500) at msbf_t(msbf_nova_inring_r, 0.24, (0.65, 0.42, 1.0), 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (1500, 1500) at msbf_nova_inring_r(0.38, (0.33, 0.87, 1.0), 0.5):
+            add Solid("#00000000") xysize (1500, 1500) at msbf_t(msbf_nova_inring_r, 0.38, (0.33, 0.87, 1.0), 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (1500, 1500) at msbf_nova_inring_r(0.52, (1.0, 0.81, 0.40), 0.55):
+            add Solid("#00000000") xysize (1500, 1500) at msbf_t(msbf_nova_inring_r, 0.52, (1.0, 0.81, 0.40), 0.55):
                 xcenter _nx
                 ycenter _ny
         else:
-            add Solid("#ffffff") xysize (1400, 4) at msbf_nova_inring(0.00, 1.0, 0.5):
+            add Solid("#ffffff") xysize (1400, 4) at msbf_t(msbf_nova_inring, 0.00, 1.0, 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#ff3868") xysize (1400, 5) at msbf_nova_inring(0.12, -1.0, 0.6):
+            add Solid("#ff3868") xysize (1400, 5) at msbf_t(msbf_nova_inring, 0.12, -1.0, 0.6):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#a66bff") xysize (1400, 4) at msbf_nova_inring(0.24, 1.0, 0.5):
+            add Solid("#a66bff") xysize (1400, 4) at msbf_t(msbf_nova_inring, 0.24, 1.0, 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#55ddff") xysize (1400, 3) at msbf_nova_inring(0.38, -1.0, 0.5):
+            add Solid("#55ddff") xysize (1400, 3) at msbf_t(msbf_nova_inring, 0.38, -1.0, 0.5):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#ffcf66") xysize (1400, 4) at msbf_nova_inring(0.52, 1.0, 0.55):
+            add Solid("#ffcf66") xysize (1400, 4) at msbf_t(msbf_nova_inring, 0.52, 1.0, 0.55):
                 xcenter _nx
                 ycenter _ny
         # gathering core
         if MSBF_FX_SHADERS:
-            add Solid("#00000000") xysize (520, 520) at msbf_nova_core_glow(0.04, (1.0, 1.0, 1.0)):
+            add Solid("#00000000") xysize (520, 520) at msbf_t(msbf_nova_core_glow, 0.04, (1.0, 1.0, 1.0)):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (300, 300) at msbf_nova_core_glow(0.09, (1.0, 0.90, 0.75)):
+            add Solid("#00000000") xysize (300, 300) at msbf_t(msbf_nova_core_glow, 0.09, (1.0, 0.90, 0.75)):
                 xcenter _nx
                 ycenter _ny
         else:
-            add Solid("#ffffff") xysize (520, 520) at msbf_nova_core(0.04):
+            add Solid("#ffffff") xysize (520, 520) at msbf_t(msbf_nova_core, 0.04):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#ffe6c0") xysize (300, 300) at msbf_nova_core(0.09):
+            add Solid("#ffe6c0") xysize (300, 300) at msbf_t(msbf_nova_core, 0.09):
                 xcenter _nx
                 ycenter _ny
         # DETONATION flash
-        add Solid("#ffffff") at msbf_nova_flash(0.84, 1.0)
-        add Solid("#fff4dc") at msbf_nova_flash(0.90, 0.7)
-        add Solid("#ff3868") at msbf_nova_flash(0.86, 0.45)
+        add Solid("#ffffff") at msbf_t(msbf_nova_flash, 0.84, 1.0)
+        add Solid("#fff4dc") at msbf_t(msbf_nova_flash, 0.90, 0.7)
+        add Solid("#ff3868") at msbf_t(msbf_nova_flash, 0.86, 0.45)
         # outward shockwaves
         if MSBF_FX_SHADERS:
-            add Solid("#00000000") xysize (2000, 2000) at msbf_big_shock_r(0.84, (1.0, 1.0, 1.0), 0.95):
+            add Solid("#00000000") xysize (2000, 2000) at msbf_t(msbf_big_shock_r, 0.84, (1.0, 1.0, 1.0), 0.95):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (2000, 2000) at msbf_big_shock_r(0.92, (1.0, 0.22, 0.41), 0.72):
+            add Solid("#00000000") xysize (2000, 2000) at msbf_t(msbf_big_shock_r, 0.92, (1.0, 0.22, 0.41), 0.72):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#00000000") xysize (2000, 2000) at msbf_big_shock_r(1.05, (1.0, 0.81, 0.40), 0.5):
+            add Solid("#00000000") xysize (2000, 2000) at msbf_t(msbf_big_shock_r, 1.05, (1.0, 0.81, 0.40), 0.5):
                 xcenter _nx
                 ycenter _ny
         else:
-            add Solid("#ffffff") xysize (1500, 1500) at msbf_big_shock(0.84, 0.95):
+            add Solid("#ffffff") xysize (1500, 1500) at msbf_t(msbf_big_shock, 0.84, 0.95):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#ff3868") xysize (1500, 1500) at msbf_big_shock(0.92, 0.72):
+            add Solid("#ff3868") xysize (1500, 1500) at msbf_t(msbf_big_shock, 0.92, 0.72):
                 xcenter _nx
                 ycenter _ny
-            add Solid("#ffcf66") xysize (1500, 1500) at msbf_big_shock(1.05, 0.5):
+            add Solid("#ffcf66") xysize (1500, 1500) at msbf_t(msbf_big_shock, 1.05, 0.5):
                 xcenter _nx
                 ycenter _ny
         # blast jets firing out of the detonation
-        add Solid("#ffffff") xysize (1500, 13) at msbf_phase_break_lance(-7.0, 0.85, 1.0):
+        add Solid("#ffffff") xysize (1500, 13) at msbf_t(msbf_phase_break_lance, -7.0, 0.85, 1.0):
             xcenter _nx
             ycenter _ny
-        add Solid("#ff3868") xysize (1400, 10) at msbf_phase_break_lance(20.0, 0.88, 0.82):
+        add Solid("#ff3868") xysize (1400, 10) at msbf_t(msbf_phase_break_lance, 20.0, 0.88, 0.82):
             xcenter _nx
             ycenter _ny
-        add Solid("#a66bff") xysize (1320, 7) at msbf_phase_transition_lance(-30.0, 0.95, 0.7):
+        add Solid("#a66bff") xysize (1320, 7) at msbf_t(msbf_phase_transition_lance, -30.0, 0.95, 0.7):
             xcenter _nx
             ycenter _ny
         # whiteout blooms out from the detonation point and fills the screen
-        add Solid("#ffffff") xysize (1600, 1600) at msbf_nova_whiteout(0.86):
+        add Solid("#ffffff") xysize (1600, 1600) at msbf_t(msbf_nova_whiteout, 0.86):
             xcenter _nx
             ycenter _ny
         add Solid("#ffffff") at msbf_final_victory_white_pressure
@@ -1004,15 +592,15 @@ screen msbf_phase_transition_overlay(battle):
         $ _dnx, _dny = msbf_boss_anchor(battle.phase)
         add Solid("#7a0a18") at msbf_defeat_flash
         if MSBF_FX_SHADERS:
-            add Solid("#00000000") xysize (1280, 720) at msbf_defeat_postfx((0.17, 0.015, 0.04))
-            add Solid("#00000000") xysize (920, 780) at msbf_defeat_loom_glow((0.82, 0.10, 0.20)):
+            add Solid("#00000000") xysize (1280, 720) at msbf_t(msbf_defeat_postfx, (0.17, 0.015, 0.04))
+            add Solid("#00000000") xysize (920, 780) at msbf_t(msbf_defeat_loom_glow, (0.82, 0.10, 0.20)):
                 xcenter _dnx
                 ycenter _dny
         add Solid("#12000a") at msbf_defeat_pulse
-        add Solid("#000000") xysize (1280, 460) at msbf_defeat_letterbox_top(1.75):
+        add Solid("#000000") xysize (1280, 460) at msbf_t(msbf_defeat_letterbox_top, 1.75):
             ypos 0
             yanchor 0.0
-        add Solid("#000000") xysize (1280, 460) at msbf_defeat_letterbox_bottom(1.75):
+        add Solid("#000000") xysize (1280, 460) at msbf_t(msbf_defeat_letterbox_bottom, 1.75):
             ypos 720
             yanchor 1.0
         add Solid("#000000") at msbf_defeat_blackout
@@ -1046,8 +634,8 @@ screen msbf_phase_transition_overlay(battle):
 # WHAT IT KILLS (and only this): rollback / roll-forward (mouse wheel + PageUp),
 # skip (Ctrl / Tab / >), the accessibility menu (A -- collides with "left"),
 # self-voicing (V), hide-windows (H / middle-click), screenshot (S -- collides
-# with "down"), help (F1) and the progress screen (F2). Verified against the
-# 8.1.1 default keymap (00keymap.rpy).
+# with "down"), help (F1) and the progress screen (F2). Bindings below use
+# named keymap actions, so their physical keys follow the active configuration.
 #
 # WHAT IT LEAVES ALONE (on purpose): dismiss/activate + arrow focus, because
 # Monika's date drives its buttons with them; `game_menu` (each mode routes
@@ -1114,18 +702,10 @@ init python:
 
 # Pass None for a direction the screen doesn't use; it simply isn't bound.
 #
-# IT ALSO EATS REN'PY'S OWN ARROW FOCUS, and it has to.
-#   The 8.1.1 default keymap binds focus_left/right/up/down to the very same
-#   arrow keys (00keymap.rpy:73-76). enter_m_input_lock deliberately leaves
-#   those alone -- Monika's date mode drives its buttons with them -- so any
-#   screen that ALSO runs its own cursor on the arrows was running two cursors
-#   at once: mine (kb_index) and Matsu'Py's internal button focus, which paints
-#   hover_background. Two highlighted boxes, and because Matsu'Py's focus order is
-#   geometric and mine is grid arithmetic, holding a key walked them apart.
-#
-#   Using this screen IS the declaration that the screen owns the arrows, so
-#   killing the built-in focus movement belongs here rather than in the shared
-#   lock. `dismiss`/activate are untouched -- Enter and clicks still work.
+# This screen consumes focus_left/right/up/down before applying its own cursor
+# movement, preventing a second engine focus highlight. enter_m_input_lock leaves
+# those actions available for screens such as Monika's date that use native focus.
+# Dismiss/activate remain available; Enter and clicks still work.
 # -----------------------------------------------------------------------------
 screen msbf_nav_keys(up=None, down=None, left=None, right=None, confirm=None, back=None):
     key "focus_left" action NullAction()
@@ -1161,114 +741,65 @@ screen msbf_nav_keys(up=None, down=None, left=None, right=None, confirm=None, ba
 # float_events (the damage/heal numbers emitted by emit_float in battle_logic) --
 # and animates them. Serial numbers let it detect "a new event happened".
 screen msbf_fx_layer(battle):
+    # Since the Sep 30 2026 facelift the IMPACT itself -- the burst, the
+    # slash, the ring, the element -- is drawn by the pixel stage on the same
+    # pixel grid as the sprites it lands on (MSBFPixelStage._on_event). The
+    # smooth glow pops and the Solid "slash" bars that used to live here sat
+    # on top of the pixel art, washed the boss out entirely on a crit and
+    # read as a different game. What is left is the screen-wide flash and the
+    # call-out word, which are interface, not world.
     if battle.fx_event and battle.fx_event not in ("phase_blackout", "phase", "final_victory", "final_defeat"):
         timer battle.fx_clear_delay action Function(battle.clear_fx)
 
-        # EVERY POSITION IN HERE IS DERIVED, not typed. This layer was still
-        # firing at (875, 258) / (850, 240) / xalign 0.70 -- the boss's centre
-        # and the party deck's corner from back when the fight was three panels
-        # and the stage box started at x452. On the full-bleed arena that puts
-        # the whole impact package, AFFINITY SHIFT included, a couple of hundred
-        # pixels to the right of whatever it is supposed to be hitting.
         $ _fxb_x, _fxb_y = msbf_boss_anchor(battle.phase)
-        # Where the party lives: the centre of the tag row, which is the one
-        # place on screen that means "the party" regardless of party size.
-        $ _fxp_n = len(battle.party)
-        $ _fxp_x = 640
-        $ _fxp_y = msbf_stage_anchor(0, _fxp_n)[1] + 30
-        # Call-outs sit just off her centre so they never cover her face.
-        $ _fxt_x = _fxb_x + 210
-        $ _fxt_y = _fxb_y - 130
-
-        # Tint the impact bloom by the element the party just cast (player hits
-        # only -- enemy strikes use the enemy_* events below).
-        if battle.fx_event in ("hit", "weak", "crit") and getattr(battle, "last_cast_element", None):
-            $ _imp_rgb = msbf_hex_rgb(msbf_element_color(battle.last_cast_element))
-            use msbf_glow_pop(_fxb_x, _fxb_y, 300, 300, _imp_rgb, 0.7, 1.7, 0.45)
+        # Call-outs sit up and to her LEFT -- toward the party, clear of her
+        # face and of the nameplate over her.
+        $ _fxt_x = _fxb_x - 250
+        $ _fxt_y = _fxb_y - 120
+        $ _fxp_x, _fxp_y = msbf_stage_anchor(0, len(battle.party))
 
         if battle.fx_event in ("weak", "enemy_weak"):
-            add Solid("#ffcf6640") at msbf_fx_flash("#ffcf66", 0.24)
-            use msbf_glow_pop(_fxb_x, _fxb_y, 380, 380, (1.0, 0.81, 0.40), 0.85, 1.5, 0.5)
-            add Solid("#ffcf66") xysize (440, 16) at msbf_fx_slash(-12.0, 0.02):
-                xcenter _fxb_x
-                ycenter _fxb_y
+            add Solid("#ffcf6630") at msbf_t(msbf_fx_flash, "#ffcf66", 0.18)
             text "WEAK" style "msbf_fx_weak" at msbf_fx_text:
-                xcenter _fxt_x
-                ycenter _fxt_y
+                xcenter (_fxt_x if battle.fx_event == "weak" else _fxp_x + 120)
+                ycenter (_fxt_y if battle.fx_event == "weak" else _fxp_y - 150)
         elif battle.fx_event in ("crit", "enemy_crit"):
-            add Solid("#ffffff4c") at msbf_fx_flash("#ffffff", 0.28)
-            use msbf_glow_pop(_fxb_x, _fxb_y, 480, 480, (1.0, 0.96, 0.88), 1.0, 1.3, 0.55)
-            use msbf_shock_ring(_fxb_x, _fxb_y, 560, (1.0, 0.30, 0.45), 0.12, 1.15, 0.55)
-            add Solid("#ffffff") xysize (520, 18) at msbf_fx_slash(-18.0, 0.0):
-                xcenter _fxb_x
-                ycenter _fxb_y - 12
-            add Solid("#ff3868") xysize (420, 12) at msbf_fx_slash(12.0, 0.05):
-                xcenter _fxb_x
-                ycenter _fxb_y + 48
+            add Solid("#ffffff3c") at msbf_t(msbf_fx_flash, "#ffffff", 0.22)
             text "CRITICAL" style "msbf_fx_crit" at msbf_fx_text_big:
-                xcenter _fxt_x
-                ycenter _fxt_y
+                xcenter (_fxt_x if battle.fx_event == "crit" else _fxp_x + 140)
+                ycenter (_fxt_y if battle.fx_event == "crit" else _fxp_y - 150)
         elif battle.fx_event == "miss":
-            add Solid("#54637844") at msbf_fx_flash("#546378", 0.20)
             text "MISS" style "msbf_fx_resist" at msbf_fx_text:
                 xcenter _fxt_x
                 ycenter _fxt_y
         elif battle.fx_event in ("resist", "enemy_resist"):
-            add Solid("#54637844") at msbf_fx_flash("#546378", 0.20)
             text "RESIST" style "msbf_fx_resist" at msbf_fx_text:
                 xcenter _fxt_x
                 ycenter _fxt_y
-        elif battle.fx_event in ("heal", "enemy_heal"):
-            add Solid("#66e08a33") at msbf_fx_flash("#66e08a", 0.18)
-            use msbf_glow_pop(_fxp_x, _fxp_y, 620, 260, (0.40, 0.88, 0.54), 0.7, 1.6, 0.5)
-            text "RECOVER" style "msbf_fx_heal" at msbf_fx_text:
-                xcenter _fxp_x
-                ycenter _fxp_y - 96
         elif battle.fx_event == "revive":
-            add Solid("#66e08a44") at msbf_fx_flash("#66e08a", 0.24)
-            use msbf_glow_pop(_fxp_x, _fxp_y, 680, 300, (0.45, 1.0, 0.60), 0.9, 1.4, 0.6)
+            add Solid("#66e08a30") at msbf_t(msbf_fx_flash, "#66e08a", 0.18)
             text "REVIVE" style "msbf_fx_heal" at msbf_fx_text:
-                xcenter _fxp_x
-                ycenter _fxp_y - 96
+                xcenter _fxp_x + 60
+                ycenter _fxp_y - 170
         elif battle.fx_event == "shuffle":
-            add Solid("#55ddff48") at msbf_fx_flash("#55ddff", 0.34)
-            use msbf_glow_pop(_fxb_x, _fxb_y, 460, 420, (0.33, 0.87, 1.0), 0.9, 1.4, 0.55)
-            use msbf_shock_ring(_fxb_x, _fxb_y, 520, (0.33, 0.87, 1.0), 0.10, 0.95, 0.55)
-            use msbf_shock_ring(_fxb_x, _fxb_y, 700, (1.0, 0.81, 0.40), 0.08, 0.8, 0.62)
-            add Solid("#55ddff") xysize (660, 8) at msbf_fx_slash(0.0, 0.03):
-                xcenter _fxb_x
-                ycenter _fxb_y - 60
-            add Solid("#ffffffcc") xysize (1280, 3) at msbf_phase3_static_slice(0.00, 0.5, 1.0):
-                ypos _fxb_y - 40
-            add Solid("#ff3868aa") xysize (1280, 4) at msbf_phase3_static_slice(0.06, 0.5, -1.0):
-                ypos _fxb_y + 16
+            add Solid("#55ddff38") at msbf_t(msbf_fx_flash, "#55ddff", 0.26)
             text "AFFINITY SHIFT" style "msbf_fx_scan" at msbf_fx_text_big:
-                xcenter _fxb_x
-                ycenter _fxb_y - 190
+                xcenter _fxt_x
+                ycenter _fxt_y - 40
         elif battle.fx_event == "victory":
-            add Solid("#55ddff4a") at msbf_fx_flash("#55ddff", 0.30)
-            use msbf_shock_ring(640, 360, 1000, (0.33, 0.87, 1.0), 0.10, 1.2, 0.7)
-            use msbf_glow_pop(_fxb_x, _fxb_y, 700, 600, (0.60, 0.95, 1.0), 0.9, 1.3, 0.7)
-            add Solid("#55ddff") xysize (720, 14) at msbf_fx_slash(-4.0, 0.0):
-                xcenter _fxb_x
-                ycenter _fxb_y - 45
+            add Solid("#55ddff3a") at msbf_t(msbf_fx_flash, "#55ddff", 0.26)
             text "CLEAR" style "msbf_fx_scan" at msbf_fx_text_big:
-                xcenter _fxb_x
-                ycenter _fxb_y - 190
+                xcenter _fxt_x
+                ycenter _fxt_y - 40
         elif battle.fx_event == "defeat":
-            add Solid("#1a0206") at msbf_fx_flash("#1a0206", 0.62)
-            add Solid("#ff38684f") at msbf_fx_flash("#ff3868", 0.34)
-            use msbf_shock_ring(640, 360, 1100, (0.75, 0.10, 0.22), 0.10, 1.0, 0.6)
+            add Solid("#1a0206") at msbf_t(msbf_fx_flash, "#1a0206", 0.50)
             text "DOWN" style "msbf_fx_phase" at msbf_fx_text_big:
-                xcenter _fxb_x
-                ycenter _fxb_y - 190
-        elif battle.fx_event in ("enemy", "enemy_hit", "enemy_aoe", "enemy_guard"):
-            add Solid("#ff38682c") at msbf_fx_flash("#ff3868", 0.20)
-            add Solid("#ff3868") xysize (440, 10) at msbf_fx_slash(10.0, 0.0):
-                xcenter _fxb_x
-                ycenter _fxb_y + 12
-        elif battle.fx_event in ("hit", "guard", "buff", "debuff", "scan", "pass", "enemy_buff"):
-            add Solid("#55ddff22") at msbf_fx_flash("#55ddff", 0.14)
+                xcenter _fxt_x
+                ycenter _fxt_y - 40
+        elif battle.fx_event in ("enemy_aoe",):
+            add Solid("#ff386824") at msbf_t(msbf_fx_flash, "#ff3868", 0.18)
+        elif battle.fx_event in ("enemy", "enemy_hit", "enemy_guard"):
+            add Solid("#ff38681c") at msbf_t(msbf_fx_flash, "#ff3868", 0.12)
 
 
 # -----------------------------------------------------------------------------
@@ -1279,6 +810,8 @@ screen msbf_keyboard_notice():
     style_prefix "hw"
     modal True
     use enter_m_input_lock()
+    key "game_menu" action Show("msbf_pause_menu", prefight=True)
+    key "K_ESCAPE" action Show("msbf_pause_menu", prefight=True)
     add Solid("#000000")
 
     frame:
@@ -1330,6 +863,7 @@ screen msbf_keyboard_notice():
                     xalign 1.0
                     spacing 10
                     button:
+                        id "msbf_notice_continue"
                         background "#0a246a"
                         hover_background "#245edb"
                         padding (18, 6, 18, 6)
@@ -1341,14 +875,6 @@ screen msbf_keyboard_notice():
                             bold True
                             size 13
 
-
-screen msbf_select_stat_bar(label, value, max_value, fill_color):
-    fixed:
-        xysize (64, 14)
-        use msbf_energy_bar(value, max_value, 64, 14, fill_color, "#152333", danger=False)
-        text label style "msbf_select_stat_label":
-            xpos 4
-            yalign 0.5
 
 # -----------------------------------------------------------------------------
 # msbf_shmup_overlay: the phase-3 bullet-hell. The screen itself is STATIC
@@ -1365,7 +891,7 @@ screen msbf_select_stat_bar(label, value, max_value, fill_color):
 #     frame delta) and bullets are drawn with sub-tick extrapolation
 #     (x + vx * acc/tick), so motion is display-framerate smooth while the
 #     danmaku stays deterministic in the 30Hz tick;
-#   * bullets are the same pixel sprites as Kotonoha mode (bullet/dagger.png,
+#   * bullets are the shared pixel sprites in assets/bullets/ (dagger.png,
 #     colour-tinted via cached TintMatrix transforms, rotation-bucketed), so
 #     Id Mode's curtain reads as a miniature of the full Touhou stage;
 #   * the per-tick HUD (timer bar + countdown, clip pips, card declare, hit
@@ -1836,18 +1362,18 @@ screen msbf_typing_overlay(battle):
     if _match:
         timer 0.02 action Function(battle.finish_phase_three_typing, True)
 
-    add Solid("#00000ad6")
+    add Solid("#040710b8")
 
     # Prominent top countdown bar.
     add Solid("#12060c") xpos 0 ypos 0 xsize 1280 ysize 14
-    add Solid("#ff3868") xpos 0 ypos 0 ysize 14 at msbf_qte_drain(battle.typing_time_limit)
+    add Solid("#ff3868") xpos 0 ypos 0 ysize 14 at msbf_t(msbf_qte_drain, battle.typing_time_limit)
     add Solid("#ff3868") xpos 0 ypos 14 xsize 1280 ysize 2 at msbf_qte_timer_throb
 
     frame:
         xalign 0.5
         yalign 0.5
         xsize 880
-        background msbf_panel_bg(col="#0b1424", accent="#ff3868", alpha=0.96, edge=1.0, fallback="#06101cf6")
+        background msbf_seer_frame()
         padding (44, 34)
 
         vbox:
@@ -1906,10 +1432,10 @@ screen msbf_quiz_overlay(battle):
         for _qk in range(min(_q_count, 4)):
             key ("K_%d" % (_qk + 1)) action [MSBF_NAV_SFX["ok"], SetField(battle, "quiz_cursor", _qk), Function(battle.quiz_confirm)]
 
-    add Solid("#00000ad6")
+    add Solid("#040710b8")
 
     add Solid("#12060c") xpos 0 ypos 0 xsize 1280 ysize 14
-    add Solid("#ff3868") xpos 0 ypos 0 ysize 14 at msbf_qte_drain(battle.quiz_time_limit)
+    add Solid("#ff3868") xpos 0 ypos 0 ysize 14 at msbf_t(msbf_qte_drain, battle.quiz_time_limit)
     add Solid("#ff3868") xpos 0 ypos 14 xsize 1280 ysize 2 at msbf_qte_timer_throb
 
     vbox:
@@ -1922,7 +1448,7 @@ screen msbf_quiz_overlay(battle):
 
         frame:
             xfill True
-            background msbf_panel_bg(col="#0b1424", accent="#ff3868", alpha=0.96, edge=1.0, fallback="#06101cf6")
+            background msbf_seer_frame()
             padding (34, 22)
             text battle.quiz_prompt xalign 0.5 size 28 color "#e6e9ef" text_align 0.5 outlines [(2, "#000000cc", 0, 0)] xmaximum 860
 
@@ -1934,8 +1460,8 @@ screen msbf_quiz_overlay(battle):
                 button:
                     xsize 820
                     xalign 0.5
-                    background msbf_panel_bg(col=("#124060" if _q_sel else "#081220"), accent=("#9becff" if _q_sel else "#2a4258"), alpha=0.94, edge=(1.0 if _q_sel else 0.4), fallback=("#1d5c82ee" if _q_sel else "#0b1728ee"))
-                    hover_background msbf_panel_bg(col="#124060", accent="#9becff", alpha=0.94, edge=1.0, fallback="#1d5c82ee")
+                    background msbf_seer_frame(_q_sel, True)
+                    hover_background msbf_seer_frame(True, True)
                     padding (18, 12)
                     hover_sound MSBF_UI_SFX["hover"]
                     activate_sound MSBF_UI_SFX["accept"]
@@ -1956,863 +1482,56 @@ screen msbf_quiz_overlay(battle):
         text "Arrows / WASD move || Z / Enter answer || 1-4 quick-pick || beat the timer." xalign 0.5 size 18 color "#9fb4c4"
 
 # -----------------------------------------------------------------------------
-# msbf_battle_screen: THE fight (the screen cs_matsuda_02.rpy `call screen`s).
-# It composes the backdrop + boss + party cards + press-turn row + battle log +
-# the command menu, layering msbf_fx_layer / phase overlays / msbf_shmup_overlay
-# as the battle's turn_phase dictates. Every button action calls into the
-# `battle` (MSBFBattleState) -- player_use_skill / player_pass / target selection
-# / start_enemy_phase / advance_enemy_phase -- and the screen redraws from the
-# resulting state. It Returns battle.result ("victory"/...) when the fight ends.
-# Enemy turns and the shmup advance on timers so the action plays out hands-free.
+# msbf_battle_screen(battle) -- THE fight -- lives in seer_battle.rpy since the
+# Sep 30 2026 Seer facelift, beside the pixel stage it draws the world through
+# (pixel_stage.rpy). The pre-facelift screen is preserved in the snapshot
+# ENTER-M-backups/20260930-seer-facelift-before for reference.
 # -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-# msbf_battle_screen: THE FIGHT.
-#
-# LAYOUT, AND WHY IT IS SHAPED LIKE THIS
-#   The fight used to be three chrome-edged panels -- a left rail, a boxed
-#   stage, and a bottom deck -- always on screen, always at full strength. The
-#   boss lived inside the middle box with a visible seam around her, and the
-#   log box held one line of text in three hundred pixels of black.
-#
-#   Now there are two layers and no boxes:
-#
-#   THE WORLD (arena.rpy) fills the frame and never moves out of the way: the
-#   projected deck, the void, the boss standing in it with a shadow and a
-#   reflection, and the party downstage as silhouettes. All of it hangs off one
-#   camera rig so a hit can shove the entire room without anything drifting out
-#   of register.
-#
-#   THE HUD floats over it, unframed, and RETREATS WHEN IT IS NOT NEEDED. The
-#   command deck only materialises on the acting character's turn; during the
-#   enemy phase, the cinematics and the microgames the screen is just the
-#   fight. Readouts are grouped by what they answer:
-#       top-left     -- what is happening (boss, her health, the last 3 lines)
-#       top-right    -- whose tempo it is (press turns)
-#       over a head  -- that member's own state
-#       bottom band  -- what YOU can do, and only while you can do it
-#
-# WHAT THIS SCREEN OWNS vs WHAT IT READS
-#   It still owns no rules. It reads `battle` (an MSBFBattleState) every redraw
-#   and calls battle.player_use_skill / player_pass / advance_enemy_phase; the
-#   arena reads the same object through msbf_arena_uniforms(). Positions for
-#   anything that has to LAND on someone come from arena.rpy's
-#   msbf_stage_anchor / msbf_boss_anchor, so the FX and the figures cannot
-#   disagree about where a character is.
-# -----------------------------------------------------------------------------
-screen msbf_battle_screen(battle):
-    modal True
-    use enter_m_input_lock()
 
-    default hovered_skill = None
-    default pending_skill = None
-    default log_yadj = ui.adjustment()
-    default float_seen_serial = -1
-    default committing = None
-    default death_seen_serial = -1
-    default bar_seen_serial = -1
-    default kb_index = 0
-    # WHO OWNS THE HIGHLIGHT. The mouse pointer does not move when you use the
-    # keyboard, so a pointer parked over a skill chip kept painting that chip's
-    # hover_background while the keyboard cursor lit a different one -- two
-    # highlighted boxes, neither obviously the real selection. Whichever device
-    # moved last owns the highlight; the other one stops painting.
-    default kb_active = False
-    default show_controls = False
-    default show_log = False
-    default cam_token = None
-    default cam_seen = None
-    default cam_strength = 1.0
-    default ambient_wave = False
-    default ambient_delay = renpy.random.uniform(3.4, 6.6)
 
-    $ _actor = battle.current_actor
-    $ _actor_name = battle.active_actor_label
-    $ _actor_idx = battle.party.index(_actor) if (_actor is not None and _actor in battle.party) else None
-
-    # The room's geometry, resolved once. Everything below positions against
-    # these rather than against literals, so retuning the staging in arena.rpy
-    # moves the HUD's anchors with it.
-    $ _stage = msbf_boss_stage(battle.phase)
-    $ _boss_x, _boss_y = msbf_boss_anchor(battle.phase)
-    $ _accent, _accent2 = msbf_phase_accent(battle.phase)
-    $ _key_rgb = msbf_arena_cfg(battle.phase)["key"]
-
-    # The party is FOUR for most of the fight and SEVEN from the moment phase 3
-    # summons the full roster, so every position on the deck is derived from the
-    # live count rather than from a fixed table.
-    $ _party_n = len(battle.party)
-    $ _tag_w, _tag_h, _tag_bar_y = msbf_stage_tag_metrics(_party_n)
-
-    # WHO JUST TOOK A HIT. float_events already carries the damage numbers and
-    # each one is anchored to a party index, so the set of indices in the
-    # current batch IS the set of people who were just struck -- no new state
-    # in the battle object, and it cannot drift out of step with the numbers
-    # because it is the same feed drawing them.
-    python:
-        # The impact weight is resolved HERE, before anything reads it: the
-        # hit-set below scales off it and is computed early, while the camera
-        # and shockwave that also read it are set up further down.
-        _impact_w = msbf_impact_weight(battle.fx_event)
-        _impact_token = battle.fx_serial if _impact_w > 0.0 else None
-
-        _hit_set = set()
-        if battle.float_events:
-            for _fe_h in battle.float_events:
-                _fa_h = _fe_h.get("anchor", "boss")
-                if isinstance(_fa_h, int) and _fe_h.get("kind") in ("enemy", "dmg", "crit", "weak"):
-                    _hit_set.add(_fa_h)
-        _hit_tok = battle.float_serial
-        _hit_w = max(0.45, _impact_w) if _hit_set else 0.0
-
-    # When the HUD gets out of the way. The command deck is the only thing on
-    # screen the player can act through, so it is also the only thing whose
-    # absence is information: if it is not there, it is not your turn.
-    $ _cinematic = battle.phase_transition_active or battle.final_victory_active or battle.defeat_sequence_active or bool(battle.result)
-    $ _hud_on = not (_cinematic or battle.microgame_active)
-
-    # NOTHING DRAWS UNDER AN OPAQUE COVER. Three states in this fight lay a
-    # full-screen, fully-opaque Solid over the entire frame -- the defeat
-    # blackout, the victory whiteout, and the beat of a phase transition before
-    # the reveal cinematic takes over. The world layer underneath was still
-    # being built and drawn through all of them: the arena shader over the
-    # whole frame, plus one silhouette per party member, for a picture that is
-    # by definition invisible. Phase transitions are also the moment the
-    # cinematics are at their most expensive, so this is the cull that lands on
-    # the worst frames rather than the average ones.
-    #
-    # Only these three, and only because each is a bare `add Solid(...)` with
-    # no alpha: the break and reveal sequences animate their cover and the room
-    # legitimately shows through them.
-    $ _world_on = not (getattr(battle, "defeat_blackout", False)
-                    or getattr(battle, "final_victory_whiteout", False)
-                    or (battle.phase_transition_active and not battle.fx_event
-                        and not getattr(battle, "phase2_reveal_started", False)))
-    $ _deck_on = _hud_on and _actor is not None and battle.turn_phase == "player"
-
-    if battle.result:
-        timer 0.5 action Return(battle.result)
-    elif battle.final_victory_active:
-        timer battle.fx_clear_delay action Function(battle.finish_final_victory)
-    elif battle.defeat_sequence_active:
-        timer battle.fx_clear_delay action Function(battle.finish_defeat)
-    elif battle.phase_transition_active and battle.fx_event == "phase_blackout":
-        timer battle.fx_clear_delay action Function(battle.begin_phase_two_reveal)
-    elif battle.phase_transition_active and battle.fx_event == "phase":
-        timer battle.fx_clear_delay action Function(battle.finish_phase_transition)
-    elif battle.phase_transition_active and not battle.fx_event:
-        timer battle.phase_transition_delay action Function(battle.finish_phase_transition)
-    # NOTE: the shmup segment has no timer branch -- MSBFShmupField steps the
-    # simulation inside its own render() and hands control back via
-    # _finish_microgame_turn's single restart_interaction when the cast ends.
-    elif battle.handover_active and not battle.fx_event:
-        # The tempo changes here, a beat AFTER the action that ended the phase
-        # has finished playing -- see MSBFBattleState.handover_active.
-        timer battle.handover_delay action Function(battle.finish_handover)
-    elif battle.enemy_phase_active and not battle.fx_event:
-        timer battle.enemy_step_delay action Function(battle.advance_enemy_phase)
-
-    # --- THE IMPACT ---------------------------------------------------------
-    # ONE weight, from ONE table (MSBF_IMPACT_WEIGHT in arena.rpy), driving
-    # every consumer: the camera punch, the floor shockwave, and the reaction
-    # on whoever got hit. They cannot disagree about how big a moment this is
-    # because they are all reading the same number.
-    #
-    # THE TOKEN IS fx_serial, and that is the whole fix for the double-fire.
-    # It used to be (fx_event, log_serial), on the reasoning that fx_event
-    # alone repeats across consecutive identical actions -- but a single action
-    # writes SEVERAL log lines ("Matsuda uses X for 40 damage." then "Weakness
-    # hit." then "Seeker is downed."), so the pair changed two or three times
-    # per strike and fired an impact for each. fx_serial is incremented exactly
-    # once, inside set_fx, which is precisely "a new FX cue happened".
-    # TWO variables, and they are not redundant. `cam_seen` is the last token we
-    # have ever fired for and is never cleared; `cam_token` is the live one and
-    # clears itself to drop the shock branch. Testing the fire condition against
-    # the LIVE token instead played the impact twice: the clear-timer put
-    # cam_token back to None while battle.fx_event was still sitting on "hit",
-    # so the next redraw saw token != None and fired the whole thing again.
-    if _impact_token is not None and _impact_token != cam_seen:
-        timer 0.01 action [SetScreenVariable("cam_seen", _impact_token), SetScreenVariable("cam_token", _impact_token), SetScreenVariable("cam_strength", _impact_w)]
-    if cam_token is not None:
-        timer 0.70 action SetScreenVariable("cam_token", None)
-
-    # Ambient pressure pulse in phases 2-3: the room itself throws a wave every
-    # few seconds. This replaces the old msbf_phase2_boom_overlay / phase3
-    # rupture overlays, which were ~20 individually-animated Solid rectangles
-    # each; it is now one uniform on a shader that is already drawing.
-    #
-    # The flag has to go back DOWN between waves. Matsu'Py carries an ATL's
-    # execution state across screen re-executions when it is the same block at
-    # the same position, so the only thing that actually restarts the wave is
-    # the `if shock:` branch below flipping and rebuilding the node. A latching
-    # "have we ever pulsed" counter therefore fires exactly one wave, ever.
-    if battle.phase >= 2 and _hud_on and committing is None:
-        timer ambient_delay repeat True action [SetScreenVariable("ambient_wave", True), SetScreenVariable("ambient_delay", renpy.random.uniform(1.8, 3.4) if battle.phase == 3 else renpy.random.uniform(3.8, 7.0))]
-    if ambient_wave:
-        timer 0.70 action SetScreenVariable("ambient_wave", False)
-
-    if battle.float_events and float_seen_serial != battle.float_serial:
-        timer 1.15 action [Function(battle.clear_float_events), SetScreenVariable("float_seen_serial", battle.float_serial)]
-
-    # Dedicated fight pause menu (bare essentials + audio, no Main Menu/Save/
-    # Load) -- see pause_menu.rpy. Shown as a plain modal OVERLAY (Show, not
-    # ShowMenu): entering the game-menu context here made its Return/Escape
-    # unwind a call_in_new_context fight all the way to the main menu (and, in
-    # dev builds, the dev scene selector). Suppressed during the real-time
-    # microgames so it can't overlay a live shmup/typing/quiz cast.
-    if not battle.microgame_active:
-        key "game_menu" action Show("msbf_pause_menu")
-        key "K_ESCAPE" action Show("msbf_pause_menu")
-
-    # --- Keyboard command deck (Z/Enter confirm, X/LShift back, arrows + WASD
-    #     to move the cursor). Active only on the player's turn so it never eats
-    #     the typing-QTE input or the shmup's own movement keys. The cursor
-    #     navigates the skill grid, or the valid targets while choosing an ally
-    #     target. ---
-    python:
-        _kb_on = (_actor is not None and battle.turn_phase == "player" and committing is None and not battle.result)
-        _kb_targeting = pending_skill is not None
-        if _kb_targeting:
-            _kb_items = [m for m in battle.party if battle.can_target(pending_skill, m)]
-        elif _actor is not None:
-            _kb_items = list(_actor.skills)
-        else:
-            _kb_items = []
-        _kb_count = len(_kb_items)
-        _kb_cur = min(kb_index, _kb_count - 1) if _kb_count else 0
-        _kb_focus_member = _kb_items[_kb_cur] if (_kb_targeting and _kb_count) else None
-
-        # RELATIVE steps, not precomputed destinations -- see msbf_kb_step.
-        _kb_left = Function(msbf_kb_step, "kb_index", -1, _kb_count) if _kb_count else NullAction()
-        _kb_right = Function(msbf_kb_step, "kb_index", 1, _kb_count) if _kb_count else NullAction()
-        if _kb_targeting or _kb_count <= 4:
-            _kb_up = _kb_left
-            _kb_down = _kb_right
-        else:
-            _kb_up = Function(msbf_kb_step, "kb_index", -4, _kb_count)
-            _kb_down = Function(msbf_kb_step, "kb_index", 4, _kb_count)
-
-        # Confirm/back depend on the focused item; precompute so the key actions
-        # fire the exact same behaviour as clicking.
-        _kb_confirm = None
-        _kb_back = None
-        if _kb_on and _kb_count:
-            _focus = _kb_items[_kb_cur]
-            if _kb_targeting:
-                _kb_confirm = [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), SetScreenVariable("committing", {"skill": pending_skill, "target": _focus, "actor_index": _actor_idx, "element": pending_skill.element, "ally": True})]
-                _kb_back = [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None)]
-            else:
-                if battle.can_use(_focus) and battle.skill_needs_ally_target(_focus):
-                    _kb_confirm = [SetScreenVariable("hovered_skill", _focus), SetScreenVariable("pending_skill", _focus), SetScreenVariable("kb_index", 0)]
-                elif battle.can_use(_focus):
-                    _kb_confirm = [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), SetScreenVariable("committing", {"skill": _focus, "actor_index": _actor_idx, "element": _focus.element})]
-                _kb_back = Function(battle.player_pass)
-
-    if _kb_on:
-        use msbf_nav_keys(_kb_up, _kb_down, _kb_left, _kb_right, _kb_confirm, _kb_back)
-
-    # =========================================================================
-    # LAYER 1 -- THE WORLD
-    # One container, one camera. At rest msbf_cam_rest is the identity, so
-    # swapping in the punch on an impact costs nothing when nothing is hitting.
-    # =========================================================================
-    python:
-        if battle.final_victory_active:
-            _cam_at = msbf_cam_victory
-        elif battle.defeat_sequence_active:
-            _cam_at = msbf_cam_defeat
-        elif cam_token is not None:
-            _cam_at = msbf_cam_punch(cam_strength, cam_token)
-        else:
-            _cam_at = msbf_cam_rest
-
-    fixed:
-        xysize (1280, 720)
-        at _cam_at
-
-        if _world_on:
-            use msbf_arena(battle, (cam_token is not None) or ambient_wave, (cam_strength if cam_token is not None else 0.8))
-
-        # THE CINEMATIC OWNS HER DURING A PHASE TRANSITION. msbf_phase_reveal_seq
-        # draws its own descending copy of the boss, so leaving the resting one
-        # here put two of her on screen at once -- one arriving from above and
-        # one already standing where she was about to land.
-        $ _world_boss = _world_on and not battle.shmup_segment_active and not battle.phase_transition_active
-
-        if _world_boss:
-            use msbf_ground_reflection(battle.boss_art, _stage["cx"], _stage["foot"], _stage["w"], _stage["h"])
-            use msbf_ground_shadow(_stage["cx"], _stage["foot"], _stage["shadow_w"], _stage["shadow_a"], _stage["airborne"])
-
-        # --- THE BOSS ------------------------------------------------------
-        # ONE sprite draw in every state. The old screen drew the full 735px
-        # sprite two to four times per frame (a base plus afterimages plus, in
-        # phase 3, a chromatic ghost) purely for the trailing look; msbf.smear
-        # does the trail and the channel split in a single pass, so the boss
-        # costs a quarter of what she used to and looks like more.
-        if _world_boss:
-            $ _smear = msbf_boss_smear_for(battle)
-            add battle.boss_art:
-                at _smear
-                xcenter _boss_x
-                ycenter _boss_y
-                xysize (_stage["w"], _stage["h"])
-                fit "contain"
-
-        # --- THE PARTY, IN THE ROOM ----------------------------------------
-        if _world_on and not battle.shmup_segment_active:
-            for _pi, _pm in enumerate(battle.party):
-                use msbf_party_silhouette(_pm, _pi, _party_n, _key_rgb, (_actor is not None and _pm.id == _actor.id), (not _pm.alive), (_hit_w if _pi in _hit_set else 0.0), _hit_tok)
-
-    # =========================================================================
-    # LAYER 2 -- THE HUD
-    # =========================================================================
-
-    # --- Boss readout: name, bar, and the last three lines of the log -------
-    # No frame, no box. The scrim behind it is a gradient that actually reaches
-    # zero, so this reads as text lying on the room rather than a panel over it.
-    if _hud_on and not battle.shmup_segment_active:
-        $ _bn_danger = battle.boss.hp_ratio < 0.25
-        use msbf_hud_scrim(0, 0, 760, 260, 1.0, 0.62, 1.0)
-
-        text battle.boss.name style "msbf_boss_name":
-            xpos 48
-            ypos 34
-            xmaximum 600
-
-        fixed:
-            xpos 48
-            ypos 74
-            use msbf_energy_bar(battle.boss.hp, battle.boss.max_hp, 470, 11, "#ff3868", "#131722", danger=_bn_danger)
-
-        if battle.analyzed:
-            $ _bn_weak = msbf_affinity_label(battle.boss.weaknesses)
-            $ _bn_resist = msbf_affinity_label(battle.boss.resists)
-            text "WEAK  [_bn_weak]" style "msbf_affinity_weak":
-                xpos 48
-                ypos 92
-                xmaximum 470
-            text "RESIST  [_bn_resist]" style "msbf_affinity_resist":
-                xpos 48
-                ypos 108
-                xmaximum 470
-        else:
-            text "AFFINITIES UNKNOWN" style "msbf_affinity_unknown":
-                xpos 48
-                ypos 93
-
-        # The log, as three fading lines. Oldest at the top and nearly gone;
-        # the newest is the only one at full strength, which is the whole point
-        # -- a combat log is read for its last line and skimmed for the rest.
-        $ _log_tail = list(battle.log)[-3:]
-        $ _log_n = len(_log_tail)
-        for _li, _line in enumerate(_log_tail):
-            $ _log_age = (_log_n - 1) - _li
-            text _line style MSBF_LOG_LINE_STYLE[min(_log_age, 2)]:
-                xpos 48
-                ypos 138 + (_li * 22)
-                xmaximum 610
-
-    # --- Tempo: the press-turn track, top-right, unframed -------------------
-    if _hud_on and not battle.shmup_segment_active:
-        use msbf_hud_scrim(840, 0, 440, 170, 1.0, 0.7, -1.0)
-
-        text battle.press_turn_label style "msbf_tempo_kicker":
-            xanchor 1.0
-            xpos 1232
-            ypos 36
-        text "[battle.active_actions_this_phase]/[battle.active_action_cap]" style "msbf_tempo_count":
-            xanchor 1.0
-            xpos 1232
-            ypos 54
-
-        # The pip row is RIGHT-ALIGNED as a block but LEFT-ALIGNED inside it.
-        # msbf_press_turn_fx_icon positions itself absolutely from the slot
-        # index (battle_logic's press_turn_slot_x), so the row's own origin has
-        # to be slot 0 -- right-aligning the hbox itself instead left the spend/
-        # gain flashes stranded to the right of the pips they belonged to.
-        $ _pt_n = len(battle.active_press_turn_icons)
-        $ _pt_w = MSBF_PRESS_TURN_ROW_X + max(1, _pt_n) * (MSBF_PRESS_TURN_SLOT_WIDTH + MSBF_PRESS_TURN_SLOT_SPACING)
-        fixed:
-            xpos 1232 - _pt_w
-            ypos 82
-            xysize (_pt_w, 20)
-
-            if battle.active_press_turn_icons:
-                hbox:
-                    xpos MSBF_PRESS_TURN_ROW_X
-                    spacing MSBF_PRESS_TURN_SLOT_SPACING
-                    for _idx, icon in enumerate(battle.active_press_turn_icons):
-                        use msbf_press_turn_icon(icon, _idx)
-
-            $ _turn_fx_side = "enemy" if battle.enemy_phase_active else "player"
-            $ _turn_fx_events = getattr(battle, "press_turn_fx_events", [])
-            if _turn_fx_events:
-                for _turn_fx in _turn_fx_events:
-                    if _turn_fx.get("side") == _turn_fx_side:
-                        use msbf_press_turn_fx_icon(_turn_fx)
-                timer 0.58 action Function(battle.clear_press_turn_fx)
-
-    # --- Party tags, floating over their heads ------------------------------
-    if _hud_on and not battle.shmup_segment_active:
-        for _pi, _pm in enumerate(battle.party):
-            $ _tg_active = _actor is not None and _pm.id == _actor.id
-            $ _tg_targeting = pending_skill is not None
-            $ _tg_targetable = _tg_targeting and battle.can_target(pending_skill, _pm)
-            $ _tg_x, _tg_y = msbf_stage_tag_origin(_pi, _party_n)
-            if _tg_targeting:
-                button:
-                    style "msbf_party_target_button"
-                    xpos _tg_x
-                    ypos _tg_y
-                    xsize _tag_w
-                    ysize _tag_h
-                    sensitive _tg_targetable and committing is None
-                    hover_sound MSBF_UI_SFX["hover"]
-                    activate_sound MSBF_UI_SFX["accept"]
-                    hovered SetScreenVariable("kb_active", False)
-                    action [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), SetScreenVariable("committing", {"skill": pending_skill, "target": _pm, "actor_index": _actor_idx, "element": pending_skill.element, "ally": True})]
-
-                    use msbf_party_tag(_pm, _party_n, _tg_active, _tg_targetable, (_pm is _kb_focus_member))
-            else:
-                fixed:
-                    xpos _tg_x
-                    ypos _tg_y
-                    xysize (_tag_w, _tag_h)
-                    if _pi in _hit_set:
-                        at msbf_tag_shake(_hit_w, _hit_tok)
-                    use msbf_party_tag(_pm, _party_n, _tg_active, False, False)
-
-    # The blow, on the person it happened to. Tinted by severity: a weakness or
-    # a crit against you comes in gold-white rather than the ordinary red, so
-    # the thing that just cost you a press turn is legible at a glance.
-    if _hit_set and not _cinematic:
-        $ _hit_col = (1.0, 0.86, 0.42) if battle.fx_event in ("enemy_weak", "enemy_crit") else (1.0, 0.30, 0.42)
-        for _hi in _hit_set:
-            if _hi < _party_n:
-                $ _hx, _hy = msbf_stage_anchor(_hi, _party_n)
-                use msbf_party_hit_burst(_hx, _hy + 18, _hit_w, _hit_col)
-
-    use msbf_fx_layer(battle)
-
-    if battle.shmup_segment_active:
-        use msbf_shmup_overlay(battle)
-
-    # =========================================================================
-    # THE COMMAND DECK -- present only while you can act
-    # =========================================================================
-    if _deck_on:
-        use msbf_hud_scrim(0, 500, 1280, 220, 0.0, 1.5)
-
-        text "ACT" style "msbf_command_kicker":
-            xpos 48
-            ypos 572
-        text _actor.name style "msbf_command_actor":
-            xpos 48
-            ypos 588
-            xmaximum 210
-        text "HP [_actor.hp]/[_actor.max_hp]" style "msbf_command_stats":
-            xpos 48
-            ypos 622
-        text "MP [_actor.mp]/[_actor.max_mp]" style "msbf_command_stats":
-            xpos 48
-            ypos 640
-
-        # The eight skills, as unframed chips. The element rail down the left of
-        # each is the only colour on them, so the grid reads as a palette of
-        # options rather than eight competing buttons.
-        grid 4 2:
-            xpos 286
-            ypos 570
-            spacing 8
-
-            for _skill_idx, skill in enumerate(_actor.skills):
-                $ _enabled = battle.can_use(skill)
-                $ _skill_color = msbf_element_color(skill.element) if _enabled else "#3a4654"
-                $ _kb_focused = _kb_on and pending_skill is None and _skill_idx == _kb_cur
-                $ _skill_pending = pending_skill is skill
-
-                button:
-                    style "msbf_skill_button"
-                    xsize 176
-                    ysize 42
-                    sensitive _enabled and committing is None
-                    hover_sound MSBF_UI_SFX["hover"]
-                    activate_sound MSBF_UI_SFX["accept"]
-                    hovered [SetScreenVariable("hovered_skill", skill), SetScreenVariable("kb_active", False)]
-                    unhovered SetScreenVariable("hovered_skill", None)
-                    # While the keyboard owns the highlight the mouse stops
-                    # painting: hover_background is pinned to the resting one so
-                    # a parked pointer cannot light a second chip.
-                    if kb_active:
-                        hover_background Solid("#0a172699")
-                    if _skill_pending:
-                        background Solid("#155f88e8")
-                        if kb_active:
-                            hover_background Solid("#155f88e8")
-                    elif _kb_focused:
-                        background Solid("#0e3c58d8")
-                        if kb_active:
-                            hover_background Solid("#0e3c58d8")
-                    if battle.skill_needs_ally_target(skill):
-                        action [SetScreenVariable("hovered_skill", skill), SetScreenVariable("pending_skill", skill)]
-                    else:
-                        action [SetScreenVariable("hovered_skill", None), SetScreenVariable("pending_skill", None), SetScreenVariable("committing", {"skill": skill, "actor_index": _actor_idx, "element": skill.element})]
-                    at msbf_button_focus
-
-                    fixed:
-                        xysize (176, 42)
-                        add Solid(_skill_color) xysize (3, 26):
-                            ypos 8
-                        text skill.name style ("msbf_skill_name" if _enabled else "msbf_skill_name_disabled"):
-                            xpos 14
-                            yalign 0.5
-                            xmaximum 108
-                        text "[skill.cost]MP" style ("msbf_skill_cost" if _enabled else "msbf_skill_cost_disabled"):
-                            xanchor 1.0
-                            xpos 168
-                            yalign 0.5
-
-            for _i in range(max(0, 8 - len(_actor.skills))):
-                null xsize 176 ysize 42
-
-        if pending_skill:
-            button:
-                style "msbf_pass_button"
-                xpos 1030
-                ypos 572
-                sensitive committing is None
-                hover_sound MSBF_UI_SFX["hover"]
-                activate_sound MSBF_UI_SFX["denied"]
-                action [SetScreenVariable("pending_skill", None), SetScreenVariable("hovered_skill", None)]
-                at msbf_button_focus
-
-                text "CANCEL" style "msbf_pass_button_text"
-        else:
-            button:
-                style "msbf_pass_button"
-                xpos 1030
-                ypos 572
-                sensitive committing is None
-                hover_sound MSBF_UI_SFX["hover"]
-                action [SetScreenVariable("hovered_skill", None), Function(battle.player_pass)]
-                at msbf_button_focus
-
-                text "PASS" style "msbf_pass_button_text"
-
-        # The tooltip follows whichever device owns the highlight, for the same
-        # reason the backgrounds do: a parked pointer should not keep describing
-        # a chip the keyboard cursor has already left.
-        $ _kb_tip_skill = _kb_items[_kb_cur] if (_kb_on and not _kb_targeting and _kb_count) else None
-        $ _tip_hover = None if kb_active else hovered_skill
-        if pending_skill and not battle.result:
-            text "Choose a target for [pending_skill.name]." style "msbf_tooltip":
-                xpos 286
-                ypos 670
-                xmaximum 720
-        elif _tip_hover and not battle.result:
-            text _tip_hover.description style "msbf_tooltip":
-                xpos 286
-                ypos 670
-                xmaximum 720
-        elif _kb_tip_skill is not None and not battle.result:
-            text _kb_tip_skill.description style "msbf_tooltip":
-                xpos 286
-                ypos 670
-                xmaximum 720
-        else:
-            text "Pass spends half a turn. Haste can steal one half-turn before Matsuda changes rhythm." style "msbf_hint":
-                xpos 286
-                ypos 670
-                xmaximum 720
-
-    # --- Floating combat numbers, anchored to the boss or to a silhouette ----
-    if battle.float_events and not _cinematic:
-        for _fe in battle.float_events:
-            $ _fkind = _fe.get("kind", "dmg")
-            $ _fstyle = MSBF_FLOAT_STYLE.get(_fkind, "msbf_float_dmg")
-            $ _flabel = msbf_float_label(_fe.get("amount", ""), _fkind)
-            $ _fserial = _fe.get("serial", 0)
-            $ _fdx = ((_fserial % 5) - 2) * 16
-            $ _fcrit = (_fkind == "crit")
-            $ _fanchor = _fe.get("anchor", "boss")
-            if isinstance(_fanchor, int):
-                # Lifted clear of the tag: anchored dead centre the number
-                # printed straight across the member's own name.
-                $ _fxp, _fyp = msbf_stage_anchor(_fanchor, _party_n)
-                $ _fyp = _fyp - 20
-            else:
-                $ _fxp = _boss_x
-                $ _fyp = _boss_y - 40
-            use msbf_float_number(_flabel, _fstyle, _fxp, _fyp, _fdx, _fcrit)
-
-    # --- HP-bar damage/heal trail: a draining chip per bar change ------------
-    # Polls battle.bar_events (fed by MSBFBattleState._sync_bars). The fill and
-    # the numbers already snap to the true value; this bright slice over the
-    # changed region drains/fades so the bar reads as animating, not snapping.
-    if battle.bar_events and not _cinematic and not battle.microgame_active:
-        if bar_seen_serial != battle.bar_serial:
-            timer 0.6 action [Function(battle.clear_bar_events), SetScreenVariable("bar_seen_serial", battle.bar_serial)]
-        for _be in battle.bar_events:
-            $ _ba = _be.get("anchor", "boss")
-            $ _bfrm = _be.get("frm", 0.0)
-            $ _bto = _be.get("to", 0.0)
-            $ _bgain = _be.get("gain", False)
-            $ _cbx = None
-            if _ba == "boss":
-                $ _cbx = 48
-                $ _cby = 74
-                $ _cbw = 470
-                $ _cbh = 11
-            elif isinstance(_ba, int) and _ba < len(battle.party):
-                # These MUST match the bar msbf_party_tag actually draws
-                # (xpos 10, ypos = the bar offset from msbf_stage_tag_metrics,
-                # width TAG_W-20, 5 tall). They used to be hand-copied literals
-                # and the y drifted 10px low, which put every heal's bright fill
-                # slice UNDERNEATH the bar instead of on it. Both now read the
-                # same metrics function the tag itself does.
-                $ _tag_ox, _tag_oy = msbf_stage_tag_origin(_ba, _party_n)
-                $ _cbx = _tag_ox + 10
-                $ _cby = _tag_oy + _tag_bar_y
-                $ _cbw = _tag_w - 20
-                $ _cbh = 5
-            if _cbx is not None:
-                $ _clo = min(_bfrm, _bto)
-                $ _chi = max(_bfrm, _bto)
-                $ _chip_x = int(_cbx + _cbw * _clo)
-                $ _chip_w = max(2, int(_cbw * (_chi - _clo)))
-                if _bgain:
-                    add Solid("#bfffd6") xysize (_chip_w, _cbh) at msbf_bar_flash(0.5):
-                        subpixel True
-                        xpos _chip_x
-                        ypos _cby
-                else:
-                    add Solid("#ffffff") xysize (_chip_w, _cbh) at msbf_bar_chip(0.5):
-                        subpixel True
-                        xpos _chip_x
-                        ypos _cby
-
-    # --- Player action wind-up: cast -> projectile -> impact ----------------
-    # The resolve is deferred a beat so a move reads as an authored cast (charge
-    # under the caster, an element-tinted bolt to the target) that LANDS on the
-    # boss, instead of damage appearing on the same frame as the click.
-    if committing is not None and not battle.result:
-        $ _cw = 0.26
-        timer _cw action [Function(battle.player_use_skill, committing["skill"], committing.get("target")), SetScreenVariable("committing", None)]
-
-        $ _ci = committing.get("actor_index", None)
-        if _ci is not None:
-            $ _ccx, _ccy = msbf_stage_anchor(_ci, _party_n)
-        else:
-            $ _ccx = 640
-            $ _ccy = 600
-
-        $ _cel = committing.get("element", "slash")
-        $ _ccolor = msbf_element_color(_cel)
-        $ _crgb = msbf_hex_rgb(_ccolor)
-
-        # Where the cast READS as going, decided by the skill's behaviour:
-        #   ally -> one wounded/downed ally (single-target heal/revive)
-        #   boss -> offence, debuffs, and scan (all cast AT Matsuda)
-        #   self -> self/party support (buffs, guard, focus, party heals): a
-        #           flare radiating from the caster, never a bolt at the boss.
-        $ _ckind = committing["skill"].kind
-        if _ckind in ("heal", "revive") and committing.get("target") is not None:
-            $ _cdest = "ally"
-        elif _ckind in ("damage", "true_damage", "fixed_damage", "dev_cleave", "debuff_defense", "debuff_attack", "blue_debuff", "analyze"):
-            $ _cdest = "boss"
-        else:
-            $ _cdest = "self"
-
-        use msbf_glow_pop(_ccx, _ccy, 220, 140, _crgb, 0.9, 1.7, _cw)
-
-        if _cdest == "self":
-            # Support flare radiating from the caster -- no projectile.
-            use msbf_shock_ring(_ccx, _ccy, 280, _crgb, 0.12, 0.9, _cw)
-        else:
-            if _cdest == "ally":
-                $ _ctgt = committing.get("target")
-                $ _cti = battle.party.index(_ctgt) if (_ctgt is not None and _ctgt in battle.party) else None
-                if _cti is not None:
-                    $ _ctx, _cty = msbf_stage_anchor(_cti, _party_n)
-                else:
-                    $ _ctx = _ccx
-                    $ _cty = _ccy
-            else:
-                $ _ctx = _boss_x
-                $ _cty = _boss_y
-
-            if MSBF_FX_SHADERS:
-                add Solid("#00000000") xysize (104, 104) at msbf_fx_glow_t(_crgb, 0.6, 1.9), msbf_cast_projectile(_ccx, _ccy, _ctx, _cty, _cw)
-                add Solid("#00000000") xysize (60, 60) at msbf_fx_glow_t(_crgb, 1.0, 1.5), msbf_cast_projectile(_ccx, _ccy, _ctx, _cty, _cw)
-                add Solid("#00000000") xysize (26, 26) at msbf_fx_glow_t((1.0, 1.0, 1.0), 1.0, 2.0), msbf_cast_projectile(_ccx, _ccy, _ctx, _cty, _cw)
-            else:
-                add Solid(_ccolor) xysize (18, 18) at msbf_cast_projectile(_ccx, _ccy, _ctx, _cty, _cw)
-
-    # --- THE HANDOVER BEAT ---------------------------------------------------
-    # ONE screen, ONE lifetime. The directional sweep and the tempo card used to
-    # be separate things on separate clocks -- the card was a screen variable
-    # cleared by its own 1.30s timer while the sweep lived on handover_active --
-    # so they drifted apart and the card was still up after the next side had
-    # started acting.
-    #
-    # It is also gated on fx_event being CLEAR. handover_active goes true the
-    # instant the phase's last action resolves, which is while that action is
-    # still playing; drawing the sweep then put the turnover straight on top of
-    # the hit that caused it. Now the impact finishes, THEN the tempo changes
-    # hands, and only then does finish_handover start counting.
-    if battle.handover_active and not battle.fx_event:
-        use msbf_turnover_sweep(battle.handover_to or "enemy", battle.phase, battle.round_number, battle.boss.name, battle.handover_serial, getattr(battle, "handover_mp_restored", False))
-
-    # --- KO bursts: one-shot per death, polled by serial --------------------
-    if battle.death_events and not _cinematic:
-        if death_seen_serial != battle.death_serial:
-            timer 1.40 action [Function(battle.clear_death_events), SetScreenVariable("death_seen_serial", battle.death_serial)]
-        for _de in battle.death_events:
-            $ _da = _de.get("anchor", 0)
-            if isinstance(_da, int):
-                $ _dxp, _dyp = msbf_stage_anchor(_da, _party_n)
-                use msbf_death_burst(_dxp, _dyp, "#ff3868", False)
-
-    # Typing / quiz genre-shift QTEs render on top of the whole fight (the boss
-    # scene stays visible behind their panels, unlike the bullet-hell stage).
-    if battle.typing_segment_active:
-        use msbf_typing_overlay(battle)
-    elif battle.quiz_segment_active:
-        use msbf_quiz_overlay(battle)
-
-    # --- The two things kept behind a click ---------------------------------
-    # The full log and the control reference are both reference material, not
-    # live information, so neither gets to occupy the frame by default. This is
-    # the whole declutter in miniature: nothing is gone, it is just not shouting.
-    if _hud_on:
-        if show_log:
-            frame:
-                xpos 48
-                ypos 200
-                xsize 560
-                ysize 300
-                background Solid("#03080ff2")
-                padding (18, 14)
-                viewport:
-                    id "msbf_log_viewport"
-                    yadjustment log_yadj
-                    mousewheel True
-                    draggable True
-                    yinitial 1.0
-                    vbox:
-                        spacing 6
-                        for _line in battle.log:
-                            text _line style "msbf_log_line":
-                                xmaximum 508
-
-        textbutton ("HIDE LOG" if show_log else "LOG"):
-            xpos 48
-            ypos 712
-            yanchor 1.0
-            background None
-            padding (0, 4)
-            text_style "msbf_corner_chip"
-            hover_sound MSBF_UI_SFX["hover"]
-            action ToggleScreenVariable("show_log")
-
-        if show_controls:
-            frame:
-                xpos 1232
-                ypos 674
-                xanchor 1.0
-                yanchor 1.0
-                background Solid("#03080ff2")
-                padding (16, 12)
-                vbox:
-                    spacing 5
-                    text "CONTROLS" size 15 color _accent outlines [(1, "#000000cc", 0, 0)]
-                    text "Mouse: click any skill, target, or button." size 14 color "#c9d4df"
-                    text "Z / Enter — confirm    X / L-Shift — back / pass" size 14 color "#c9d4df"
-                    text "Arrows / WASD — move the command cursor" size 14 color "#c9d4df"
-
-        textbutton ("HIDE CONTROLS" if show_controls else "CONTROLS"):
-            xpos 1232
-            ypos 712
-            xanchor 1.0
-            yanchor 1.0
-            background None
-            padding (0, 4)
-            text_style "msbf_corner_chip"
-            hover_sound MSBF_UI_SFX["hover"]
-            action ToggleScreenVariable("show_controls")
-
-    use msbf_phase_transition_overlay(battle)
-
+# These emblems retain the battle's 40px slot and 4px spacing. A half turn is
+# one dark facet inside the same bezel, rather than a resized rectangular bar.
+transform msbf_press_turn_luster(delay=0.0):
+    alpha 0.88
+    pause delay
+    block:
+        ease 1.1 alpha 1.0
+        ease 1.3 alpha 0.88
+        repeat
 
 screen msbf_press_turn_icon(icon, slot=0):
-    $ _icon_width = 36 if icon == "full" else 18
-    $ _slot_width = MSBF_PRESS_TURN_SLOT_WIDTH
-    $ _icon_x = 2 if icon == "full" else int((MSBF_PRESS_TURN_SLOT_WIDTH - _icon_width) / 2)
-    $ _icon_color = "#55ddff" if icon == "full" else "#55ddff99"
-    $ _shimmer_travel = max(0, _icon_width - 4)
+    $ _turn_asset = "turn_full.png" if icon == "full" else "turn_half.png"
     fixed:
-        xysize (_slot_width, 20)
-
-        add Solid("#081624") xysize (_slot_width, 20)
-        add Solid("#55ddff30") xysize (_slot_width, 1)
-        add Solid("#ffffff10") xysize (_slot_width, 1):
-            ypos 19
-
-        if MSBF_FX_SHADERS:
-            add Solid("#00000000") at msbf_fx_glow_t((0.33, 0.87, 1.0), 0.55 if icon == "full" else 0.4, 1.9):
-                xcenter (_icon_x + _icon_width // 2)
-                ycenter 10
-                xysize (_icon_width + 18, 30)
-
-        add Solid(_icon_color) xysize (_icon_width, 16):
-            xpos _icon_x
-            ypos 2
-        add Solid("#ffffff24") xysize (_icon_width, 16) at msbf_press_turn_pulse(slot * 0.07):
-            xpos _icon_x
-            ypos 2
-        add Solid("#f5fbff8a") xysize (4, 16) at msbf_press_turn_shimmer(slot * 0.10, _shimmer_travel):
-            xpos _icon_x
-            ypos 2
-        add Solid("#ffffff70") xysize (_icon_width, 2):
-            xpos _icon_x
-            ypos 3
-        add Solid("#ffcf6670") xysize (_icon_width, 1) at msbf_press_turn_edge(slot * 0.06):
-            xpos _icon_x
-            ypos 17
+        xysize (MSBF_PRESS_TURN_SLOT_WIDTH, 32)
+        add (MSBF_SEER_ART + _turn_asset) at msbf_t(msbf_press_turn_luster, slot * 0.07):
+            xpos 2
+            ypos 0
+            xysize (36, 32)
 
 screen msbf_press_turn_fx_icon(event):
     $ _kind = event.get("kind", "spend")
-    $ _icon_width = event.get("width", 36)
-    $ _icon_x = event.get("icon_x", 2)
     $ _x = event.get("x", MSBF_PRESS_TURN_ROW_X)
-    $ _base_color = "#55ddff" if event.get("icon") == "full" else "#55ddff99"
-
     fixed:
         xpos _x
         ypos 0
-        xysize (MSBF_PRESS_TURN_SLOT_WIDTH, 20)
-
+        xysize (MSBF_PRESS_TURN_SLOT_WIDTH, 32)
+        # Event slot coordinates and the original one-shot lifetimes remain
+        # authoritative. Only their pictures change; no new game-state timer.
         if _kind == "convert":
-            add Solid("#ffcf66cc") xysize (36, 16) at msbf_press_turn_convert_fx():
+            add (MSBF_SEER_ART + "turn_full.png") at msbf_t(msbf_press_turn_convert_fx):
                 xpos 2
-                ypos 2
-            add Solid("#f5fbffb0") xysize (18, 16) at msbf_press_turn_gain_fx(0.08):
-                xpos int((MSBF_PRESS_TURN_SLOT_WIDTH - 18) / 2)
-                ypos 2
+                xysize (36, 32)
+            add (MSBF_SEER_ART + "turn_half.png") at msbf_t(msbf_press_turn_gain_fx, 0.08):
+                xpos 2
+                xysize (36, 32)
         elif _kind == "gain":
-            add Solid("#ffcf66aa") xysize (_icon_width, 16) at msbf_press_turn_gain_fx():
-                xpos _icon_x
-                ypos 2
-            add Solid("#f5fbff90") xysize (MSBF_PRESS_TURN_SLOT_WIDTH, 2) at msbf_press_turn_gain_fx(0.04):
-                xpos 0
-                ypos 9
+            add (MSBF_SEER_ART + "turn_gain.png") at msbf_t(msbf_press_turn_gain_fx):
+                xpos 2
+                xysize (36, 32)
         else:
-            add Solid(_base_color) xysize (_icon_width, 16) at msbf_press_turn_spend_fx():
-                xpos _icon_x
-                ypos 2
-            add Solid("#ff3868b0") xysize (_icon_width, 2) at msbf_press_turn_spend_fx(0.02):
-                xpos _icon_x
-                ypos 9
-
+            add (MSBF_SEER_ART + "turn_spent.png") at msbf_t(msbf_press_turn_spend_fx):
+                xpos 2
+                xysize (36, 32)
 
 
 # =============================================================================
@@ -2820,527 +1539,9 @@ screen msbf_press_turn_fx_icon(event):
 # The fight's visual theme (panels, command buttons, bars, labels). Cyan/red on
 # near-black, matching the rest of the mod's UI.
 # =============================================================================
-style msbf_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 32
-    color "#f5fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#55ddff88", 1, 1)]
 
-style msbf_subtitle:
-    size 14
-    color "#b7d8e8"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_count_label:
-    size 10
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_count:
-    size 28
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_button is button:
-    xsize 384
-    ysize 96
-    padding (10, 8)
-    insensitive_background Solid("#050910d8")
-
-style msbf_roster_name:
-    size 18
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_role:
-    size 12
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_summary:
-    size 11
-    color "#c5d8e4"
-    line_spacing 1
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_select_panel_label:
-    size 13
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_select_panel_count:
-    size 12
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_select_footnote:
-    size 11
-    color "#6f8796"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_order_num:
-    size 18
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_order_empty_num:
-    size 18
-    color "#3f5060"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_order_name:
-    size 16
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_order_role:
-    size 10
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_order_empty:
-    size 12
-    color "#5c6c7a"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_row_button is button:
-    xsize 58
-    ysize 28
-    background Solid("#102338")
-    hover_background Solid("#1d5c82")
-    insensitive_background Solid("#101923")
-    padding (5, 3)
-
-style msbf_row_button_text:
-    size 10
-    color "#55ddff"
-    insensitive_color "#596674"
-    bold True
-    xalign 0.5
-    yalign 0.5
-
-style msbf_remove_button is button:
-    xsize 30
-    ysize 28
-    background Solid("#30141e")
-    hover_background Solid("#75304b")
-    padding (4, 3)
-
-style msbf_remove_button_text:
-    size 12
-    color "#ffd7e2"
-    bold True
-    xalign 0.5
-    yalign 0.5
-
-style msbf_roster_order_badge:
-    size 11
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_row_tag:
-    size 10
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_selected:
-    size 9
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_available:
-    size 9
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_roster_locked:
-    size 9
-    color "#65727c"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_select_stat_label:
-    size 8
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_hint:
-    size 12
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_begin_button is button:
-    xsize 190
-    ysize 48
-    background Solid("#1d5c82")
-    hover_background Solid("#2c7fac")
-    insensitive_background Solid("#1a2630")
-    padding (12, 8)
-
-style msbf_begin_button_text:
-    size 18
-    color "#f5fbff"
-    bold True
-    xalign 0.5
-    yalign 0.5
-
-# The boss's name carries the top-left corner on its own now that there is no
-# banner frame around it, so it is bigger and spaced out -- with a heavier
-# outline, because it is sitting on a live environment rather than on a panel.
-style msbf_boss_name:
-    size 31
-    color "#f5fbff"
-    bold True
-    kerning 1.6
-    outlines [(2, "#02040bcc", 0, 0)]
-
-# --- The unframed HUD -------------------------------------------------------
-# Everything below draws directly onto the arena, so every one of these carries
-# its own outline. That outline is not decoration: it is the only thing keeping
-# the readout legible when the room behind it goes white on a phase break.
-
-# The log's three lines, newest first. The fade is baked into the styles rather
-# than applied as an alpha: `text` takes no alpha property, and three named
-# styles say what is going on more plainly than a transform would.
-style msbf_log_line_new:
-    size 13
-    color "#f5fbff"
-    bold True
-    line_spacing 2
-    outlines [(2, "#02040bdd", 0, 0)]
-
-style msbf_log_line:
-    size 13
-    color "#8fa6b4"
-    line_spacing 2
-    outlines [(2, "#02040bbb", 0, 0)]
-
-style msbf_log_line_old:
-    size 13
-    color "#5b6f7d"
-    line_spacing 2
-    outlines [(2, "#02040b99", 0, 0)]
-
-style msbf_tempo_kicker:
-    size 13
-    color "#9fb4c4"
-    bold True
-    kerning 1.4
-    outlines [(2, "#02040bdd", 0, 0)]
-
-style msbf_tempo_count:
-    size 19
-    color "#f5fbff"
-    bold True
-    outlines [(2, "#02040bdd", 0, 0)]
-
-style msbf_command_kicker:
-    size 11
-    color "#7fa6b7"
-    bold True
-    kerning 1.8
-    outlines [(2, "#02040bdd", 0, 0)]
-
-# The two corner chips (LOG / CONTROLS). Deliberately the quietest text on
-# screen: they are the handle on reference material, not information.
-style msbf_corner_chip:
-    size 12
-    color "#5f7688"
-    bold True
-    kerning 1.2
-    hover_color "#9fb4c4"
-    outlines [(2, "#02040bdd", 0, 0)]
-
-style msbf_round_badge:
-    size 12
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_boss_phase:
-    size 13
-    color "#ff6b8e"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_stage_phase:
-    size 13
-    color "#ff6b8e"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_turn_actor:
-    size 12
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_turn_cap:
-    size 12
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_turn_empty:
-    size 11
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_meter_text:
-    size 12
-    color "#c5d8e4"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_affinity_weak:
-    size 12
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_affinity_resist:
-    size 12
-    color "#82a6ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_affinity_unknown:
-    size 12
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_panel_label:
-    size 12
-    color "#55ddff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_deck_count:
-    size 9
-    color "#8fb1c0"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_log_hint:
-    size 9
-    color "#7fa6b7"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_log_text:
-    size 11
-    color "#c7dbe6"
-    line_spacing 3
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_log_text_latest:
-    size 11
-    color "#f5fbff"
-    bold True
-    line_spacing 3
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_name:
-    size 14
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_name_down:
-    size 14
-    color "#6b727a"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_name_compact:
-    size 13
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_name_down_compact:
-    size 13
-    color "#6b727a"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_role:
-    size 9
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_role_compact:
-    size 8
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_row_tag:
-    size 9
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_row_tag_compact:
-    size 8
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_stat:
-    size 8
-    color "#c5d8e4"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_stat_compact:
-    size 8
-    color "#c5d8e4"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_note:
-    size 10
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_affinity:
-    size 10
-    color "#8fb1c0"
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_party_target_button is button:
-    xsize 215
-    ysize 61
-    background Solid("#00000000")
-    hover_background Solid("#55ddff22")
-    insensitive_background Solid("#00000000")
-    padding (0, 0)
-
-style msbf_guard_tag:
-    size 9
-    color "#66e08a"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_guard_tag_compact:
-    size 8
-    color "#66e08a"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_focus_tag:
-    size 9
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_focus_tag_compact:
-    size 8
-    color "#ffcf66"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_down_text:
-    size 9
-    color "#ff3868"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_down_text_compact:
-    size 8
-    color "#ff3868"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_command_actor:
-    size 20
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_command_stats:
-    size 12
-    color "#c5d8e4"
-    outlines [(1, "#02040b", 0, 0)]
-
-# The skill chips lost their bracketed frames. On the old boxed deck the frame
-# was what separated a button from the panel behind it; on the arena the scrim
-# already does that, so a border here just adds a second edge for the eye to
-# trip over. A flat wash, a brighter wash on hover, and the element rail the
-# screen draws down the left are the whole of it.
-style msbf_skill_button is button:
-    xsize 176
-    ysize 42
-    background Solid("#0a172699")
-    hover_background Solid("#164a6ce6")
-    insensitive_background Solid("#06090f77")
-    padding (8, 5)
-
-style msbf_skill_button_text:
-    size 11
-    color "#f5fbff"
-    insensitive_color "#596674"
-    bold True
-    xalign 0.5
-    yalign 0.5
-
-style msbf_skill_name:
-    size 11
-    color "#f5fbff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_skill_cost:
-    size 10
-    color "#d9ecf5"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_skill_name_disabled:
-    size 11
-    color "#596674"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_skill_cost_disabled:
-    size 10
-    color "#46515d"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style msbf_pass_button is button:
-    xsize 108
-    ysize 42
-    background Solid("#12354e99")
-    hover_background Solid("#1e6690e6")
-    padding (10, 4)
-
-style msbf_pass_button_text:
-    size 13
-    color "#f5fbff"
-    bold True
-    xalign 0.5
-    yalign 0.5
-
-style msbf_tooltip:
-    size 12
-    color "#d9ecf5"
-    outlines [(1, "#02040b", 0, 0)]
+# --- HUD readouts -----------------------------------------------------------
+# Modest outlines retain legibility where tags and action FX cross the world.
 
 style msbf_fx_weak:
     font "assets/fonts/SF Automaton Extended.ttf"
@@ -3397,32 +1598,6 @@ style msbf_phase_transition_subtitle:
     color "#f5fbff"
     bold True
     outlines [(3, "#02040b", 0, 0), (1, "#55ddffaa", 0, 0)]
-
-# ---- Phase-1 entrance cinematic ----------------------------------------------
-# Title uses the default (narrower) font on purpose: the full name
-# "Matsuda, Crimson-Azure" overflows in the wide Extended face.
-style msbf_intro_kicker:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 20
-    color "#ffcf66"
-    bold True
-    kerning 6.0
-    outlines [(3, "#02040b", 0, 0), (1, "#ff3868aa", 0, 0)]
-
-style msbf_intro_title_text:
-    size 52
-    color "#ffffff"
-    bold True
-    kerning 1.0
-    outlines [(5, "#02040b", 0, 0), (2, "#ff3868cc", 0, 0), (1, "#ffcf66aa", 0, 0)]
-
-style msbf_intro_skip_hint:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 13
-    color "#7c93ad"
-    bold True
-    kerning 2.0
-    outlines [(2, "#02040b", 0, 0)]
 
 # ---- Floating combat numbers -------------------------------------------------
 style msbf_float_dmg:

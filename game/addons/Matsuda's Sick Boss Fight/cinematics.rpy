@@ -135,65 +135,12 @@ transform msbf_crack_t(delay=0.0, dur=0.9, cx=0.5, cy=0.44, color=(1.0, 1.0, 1.0
     linear dur u_ck_progress 1.0
 
 # --- PHASE 1 ENTRANCE --------------------------------------------------------
-# She comes DOWN, hard, and the frame takes it. The old version drifted her up
-# out of the dark on a slow fade, which is a ghost's entrance, not a fighter's.
-transform msbf_intro_fall:
-    subpixel True
-    alpha 0.0
-    yoffset -520
-    zoom 1.22
-    rotate -4.0
-    pause 0.55
-    alpha 1.0
-    easein 0.42 yoffset 0 zoom 1.0 rotate 0.0
-    # the landing: she compresses, then sets
-    easeout 0.09 zoom 0.955 yoffset 14
-    easeout 0.16 zoom 1.012 yoffset -4
-    easeout 0.22 zoom 1.0 yoffset 0
-
-# Two hard trails that only exist during the fall itself.
-transform msbf_intro_fall_trail(delay=0.0, drop=180):
-    subpixel True
-    alpha 0.0
-    yoffset -520 - drop
-    zoom 1.30
-    pause 0.55 + delay
-    alpha 0.34
-    easein 0.42 yoffset -drop zoom 1.04
-    linear 0.10 alpha 0.0
-
-# The deck answering the landing: a hard bloom that snaps and decays.
-transform msbf_intro_landing_flash(delay=0.97):
-    alpha 0.0
-    pause delay
-    alpha 0.92
-    easeout 0.10 alpha 0.30
-    easeout 0.46 alpha 0.0
 
 transform msbf_intro_letterbox_in(h=96, delay=0.0):
     subpixel True
     ysize 0
     pause delay
     easeout 0.34 ysize h
-
-transform msbf_intro_name_slam(delay=0.0):
-    subpixel True
-    alpha 0.0
-    zoom 1.85
-    pause delay
-    alpha 1.0
-    easein 0.11 zoom 1.0
-    pause 2.2
-    linear 0.30 alpha 0.0
-
-transform msbf_intro_kicker_wipe(delay=0.0):
-    subpixel True
-    alpha 0.0
-    xoffset -40
-    pause delay
-    easeout 0.30 alpha 1.0 xoffset 0
-    pause 1.9
-    linear 0.28 alpha 0.0 xoffset 26
 
 # --- PHASE 2 ENTRANCE (the descent) ------------------------------------------
 # Everything slow. Nothing snaps. The only fast thing in the whole beat is the
@@ -211,15 +158,6 @@ transform msbf_desc_shaft(delay=0.0):
     pause 1.6
     linear 1.5 alpha 0.0
 
-transform msbf_desc_boss(delay=0.5):
-    subpixel True
-    alpha 0.0
-    yoffset -430
-    zoom 0.72
-    pause delay
-    linear 0.5 alpha 1.0
-    easeout 2.6 yoffset 0 zoom 1.0
-
 transform msbf_desc_halo(delay=0.0, size=1.0):
     subpixel True
     alpha 0.0
@@ -236,10 +174,10 @@ transform msbf_desc_touchdown(delay=3.1):
     easeout 0.30 alpha 0.32
     easein 1.10 alpha 0.0
 
-transform msbf_desc_ring(delay=3.1):
+transform msbf_desc_ring(delay=3.1, color=(1.0, 0.85, 0.48)):
     mesh True
     shader "msbf.ring"
-    u_color (1.0, 0.85, 0.48)
+    u_color color
     u_thickness 0.035
     u_intensity 2.2
     u_progress 0.02
@@ -251,64 +189,7 @@ transform msbf_desc_ring(delay=3.1):
     alpha 1.0
     linear 1.30 u_progress 0.98
 
-transform msbf_desc_title(delay=0.0):
-    subpixel True
-    alpha 0.0
-    yoffset 18
-    pause delay
-    easeout 0.85 alpha 1.0 yoffset 0
-    pause 1.5
-    linear 0.6 alpha 0.0
-
 # --- ID MODE ENTRANCE (the failure to be anything else) ----------------------
-# No easing anywhere. Every value is a cut. The screen behaves like a file that
-# will not decode: it holds, tears, holds a different way, and one of the holds
-# happens to have her in it.
-transform msbf_id_seek(delay=0.0):
-    subpixel True
-    alpha 0.0
-    pause delay
-    alpha 1.0
-    pause 0.06
-    alpha 0.0
-    pause 0.11
-    alpha 1.0
-    pause 0.03
-    alpha 0.0
-    pause 0.22
-    alpha 1.0
-    pause 0.09
-    alpha 0.0
-    pause 0.07
-    alpha 1.0
-
-transform msbf_id_boss(delay=0.0):
-    mesh True
-    shader "msbf.smear"
-    u_sm_dir (1.0, 0.0)
-    u_sm_ghost 0.6
-    u_sm_amount 0.0
-    u_sm_split 26.0
-    subpixel True
-    alpha 0.0
-    zoom 1.16
-    pause delay
-    # it does not fade in. it is simply there, wrong, and then less wrong.
-    alpha 1.0
-    zoom 1.0
-    pause 0.10
-    u_sm_split 3.0
-    pause 0.05
-    u_sm_split 20.0
-    xoffset 22
-    pause 0.07
-    u_sm_split 1.5
-    xoffset -14
-    pause 0.13
-    xoffset 0
-    u_sm_split 12.0
-    pause 0.05
-    u_sm_split 0.8
 
 transform msbf_id_bar(y=0, h=26, delay=0.0, life=0.09):
     subpixel True
@@ -324,25 +205,6 @@ transform msbf_id_bar(y=0, h=26, delay=0.0, life=0.09):
     pause life
     alpha 0.0
 
-transform msbf_id_title(delay=0.0):
-    subpixel True
-    alpha 0.0
-    pause delay
-    alpha 1.0
-    xoffset 0
-    pause 0.05
-    xoffset 9
-    pause 0.04
-    xoffset -6
-    pause 0.05
-    xoffset 0
-    pause 1.9
-    alpha 0.0
-    pause 0.05
-    alpha 1.0
-    pause 0.5
-    linear 0.35 alpha 0.0
-
 # --- THE BAR BREAK -----------------------------------------------------------
 # ABRUPT. The old break spent 3.4 seconds on black with a slow charge in it,
 # which is the pacing of a summoning, not of something being broken off a boss.
@@ -352,23 +214,6 @@ transform msbf_brk_blowout:
     pause 0.05
     linear 0.06 alpha 0.0
 
-transform msbf_brk_afterimage:
-    # her shape burned into the frame for a beat after the light goes
-    subpixel True
-    alpha 0.0
-    pause 0.06
-    alpha 0.55
-    linear 0.55 alpha 0.0
-
-transform msbf_brk_slam:
-    subpixel True
-    zoom 1.14
-    xoffset 0
-    easeout 0.05 zoom 1.09 xoffset 22
-    easeout 0.05 zoom 1.06 xoffset -16
-    easeout 0.07 zoom 1.03 xoffset 9
-    easeout 0.34 zoom 1.0 xoffset 0
-
 transform msbf_brk_hold:
     # the silence after: pure black, held just long enough to be felt
     alpha 0.0
@@ -376,188 +221,401 @@ transform msbf_brk_hold:
     linear 0.18 alpha 1.0
 
 
+transform msbf_cine_rule(delay=0.0):
+    subpixel True
+    alpha 0.0
+    xzoom 0.08
+    pause delay
+    easeout 0.55 alpha 0.85 xzoom 1.0
+
+transform msbf_cine_seal(delay=0.0, reverse=False):
+    subpixel True
+    alpha 0.0
+    zoom 0.92
+    rotate (10 if reverse else -10)
+    pause delay
+    parallel:
+        easeout 1.0 alpha 0.22
+        pause 1.6
+        easein 1.0 alpha 0.0
+    parallel:
+        linear 4.0 rotate (-8 if reverse else 8) zoom 1.06
+
+transform msbf_cine_reveal_blackout:
+    alpha 1.0
+    pause 0.20
+    easeout 1.30 alpha 0.0
+
+
 # -----------------------------------------------------------------------------
 # 3. SCREENS
 # -----------------------------------------------------------------------------
 
+
+screen msbf_cine_border(delay=0.0):
+    add Solid("#030811") xysize (1280, 56) at msbf_t(msbf_intro_letterbox_in, 56, delay):
+        ypos 0
+    add Solid("#030811") xysize (1280, 28) at msbf_t(msbf_intro_letterbox_in, 28, delay):
+        ypos 720
+        yanchor 1.0
+    add (MSBF_SEER_ART + "title_rule.png") at msbf_t(msbf_cine_rule, delay + 0.15):
+        xcenter 640
+        ycenter 55
+        xysize (720, 20)
+
 # -----------------------------------------------------------------------------
-# msbf_battle_intro: PHASE 1. Played BEFORE the battle UI and before the phase-1
-# music by cs_matsuda_02_battle via `call screen`, over the already-scened
-# arena. The heartbeat + wind LOOPS are owned by the calling label, so the music
-# only starts after this returns. Skippable by click or key.
+# THE ENTRANCES (rebuilt Sep 30 2026 on the pixel stage)
 #
-# The shape: wind and pressure in the dark -> she DROPS into frame and lands ->
-# the deck answers -> the name hits on the boom. The old version faded her up
-# out of the floor over two seconds, which gave the biggest entrance in the
-# game the body language of a cutscene transition.
+# The figures are the fight's own pixel sprites, choreographed by
+# MSBFPixelStage in its "intro" / "id_intro" modes (pixel_stage.rpy) on the
+# running orders MSBF_PX_INTRO / MSBF_PX_ID_INTRO. This file adds what is not
+# a figure: the camera, the light, the letterbox, the eye cut-in, the name
+# card and the stingers -- all keyed to those same numbers, so retiming a beat
+# is one edit.
+#
+# NORMAL (phase 1, Nahobino) -- an ARRIVAL with weight:
+#   the deck in the dark -> the party runs in and plants -> a glint high in the
+#   sky -> she FALLS and slams the deck (shockwave, the party is shoved back a
+#   step) -> she rises -> her eyes, cut in from her official art -> the glaive
+#   sweep cuts the frame -> the name card slams down.
+# ID MODE (phase 2, Tohu Imago) -- NO arrival:
+#   the room and the party decode into place in torn frames -> she is simply
+#   there, enormous -> her wings open tier by tier anyway -> the light comes ->
+#   the card arrives already wrong.
+# -----------------------------------------------------------------------------
+
+transform msbf_ix_cam(look=60, land=2.5):
+    # Starts tilted up at the sky she falls out of, comes down with her.
+    subpixel True
+    xanchor 0.5
+    yanchor 0.5
+    xpos 640
+    ypos 360
+    zoom 1.10
+    yoffset look
+    pause max(0.0, land - 1.15)
+    easein 1.10 yoffset 0 zoom 1.06
+    # the landing hits the camera
+    linear 0.03 xoffset -14 yoffset 10
+    linear 0.03 xoffset 12 yoffset -8
+    linear 0.04 xoffset -9 yoffset 6
+    linear 0.05 xoffset 6 yoffset -4
+    linear 0.06 xoffset -3 yoffset 2
+    easeout 0.40 xoffset 0 yoffset 0 zoom 1.03
+    ease 2.6 zoom 1.0
+
+transform msbf_ix_dim(lift=0.4, land=2.5):
+    # The deck starts in darkness; the party's arrival brings it up a little,
+    # the landing blows it open.
+    alpha 0.88
+    linear lift alpha 0.62
+    pause max(0.0, land - lift - 0.02)
+    alpha 0.0
+    pause 0.10
+    linear 0.45 alpha 0.30
+
+transform msbf_ix_flash(at_=2.5, peak=0.95):
+    alpha 0.0
+    pause at_
+    alpha peak
+    easeout 0.42 alpha 0.0
+
+transform msbf_ix_glint(at_=1.6, dur=0.5):
+    alpha 0.0
+    zoom 0.4
+    pause at_
+    easeout 0.12 alpha 1.0 zoom 1.0
+    linear (dur - 0.12) alpha 0.0 zoom 1.6
+
+transform msbf_ix_bars(h=78, at_=0.0):
+    subpixel True
+    ysize 0
+    pause at_
+    easeout 0.40 ysize h
+
+transform msbf_ix_cutin(at_=2.95, dur=0.38):
+    # A slit opens across the frame with her eyes in it, then shuts.
+    subpixel True
+    alpha 0.0
+    yzoom 0.0
+    pause at_
+    alpha 1.0
+    easeout 0.07 yzoom 1.0
+    pause dur
+    easein 0.06 yzoom 0.0
+
+transform msbf_ix_cutin_slide(at_=2.95, dur=0.5):
+    subpixel True
+    xoffset 70
+    pause at_
+    linear dur xoffset -30
+
+transform msbf_ix_split(at_=3.42):
+    # The sweep cuts the frame: a white line drawn across it at speed.
+    subpixel True
+    alpha 0.0
+    xzoom 0.0
+    pause at_
+    alpha 1.0
+    easeout 0.10 xzoom 1.0
+    pause 0.06
+    easein 0.22 alpha 0.0
+
+transform msbf_ix_card_plate(at_=3.62):
+    subpixel True
+    alpha 0.0
+    xoffset -260
+    pause at_
+    easeout 0.18 alpha 1.0 xoffset 0
+    pause 2.15
+    easein 0.28 alpha 0.0 xoffset 160
+
+transform msbf_ix_card_name(at_=3.62, corrupted=False):
+    subpixel True
+    alpha 0.0
+    zoom 1.55
+    pause at_ + 0.04
+    alpha 1.0
+    easein 0.10 zoom 1.0
+    # the slam
+    linear 0.03 xoffset 6
+    linear 0.03 xoffset -4
+    linear 0.04 xoffset 0
+    pause (0.14 if corrupted else 1.90)
+    xoffset (14 if corrupted else 0)
+    pause (0.05 if corrupted else 0.0)
+    xoffset 0
+    pause (1.70 if corrupted else 0.0)
+    linear 0.24 alpha 0.0
+
+transform msbf_ix_card_line(at_=3.62, life=2.2):
+    subpixel True
+    alpha 0.0
+    xoffset -40
+    pause at_
+    easeout 0.30 alpha 1.0 xoffset 0
+    pause life
+    linear 0.24 alpha 0.0
+
+transform msbf_ix_card_rule(at_=3.62):
+    subpixel True
+    xzoom 0.0
+    pause at_ + 0.08
+    easeout 0.45 xzoom 1.0
+    pause 1.95
+    linear 0.24 alpha 0.0
+
+transform msbf_ix_room_seek(at_=0.10):
+    # Id: the room decodes in torn holds; nothing eases.
+    alpha 0.0
+    pause at_
+    alpha 1.0
+    pause 0.05
+    alpha 0.0
+    pause 0.09
+    alpha 1.0
+    pause 0.03
+    alpha 0.0
+    pause 0.16
+    alpha 1.0
+
+
+# The SMT-style boss card: a slanted band across the lower third, the name in
+# huge serif caps, the form in a tag, the epithet above. One screen for the
+# entrances and the phase reveals, so every manifestation is announced alike.
+screen msbf_px_name_card(name_main, name_sub, kicker, form, accent="#8fe6ff", at_=3.62, corrupted=False, life=2.2):
+    $ _acc = _pl_rgba(accent, 1.0)
+    fixed:
+        xysize (1280, 720)
+        add msbf_plate(1460, 168, 46, (0.02, 0.03, 0.07, 0.92), (0.0, 0.01, 0.03, 0.96), _pl_rgba(accent, 0.75), _acc) at msbf_t(msbf_ix_card_plate, at_):
+            xpos -90
+            ypos 438
+        add Solid(accent) xysize (1180, 2) at msbf_t(msbf_ix_card_rule, at_):
+            xpos 96
+            ypos 562
+        text kicker style "msbf_ix_kicker" color accent at msbf_t(msbf_ix_card_line, at_ + 0.10, life):
+            xpos 104
+            ypos 450
+        text name_main style "msbf_ix_name" at msbf_t(msbf_ix_card_name, at_, corrupted):
+            xpos 96
+            ypos 464
+        text name_sub style "msbf_ix_sub" color accent at msbf_t(msbf_ix_card_line, at_ + 0.18, life):
+            xpos 104
+            ypos 570
+        if form:
+            fixed:
+                xpos 1180
+                xanchor 1.0
+                ypos 450
+                xysize (260, 30)
+                at msbf_t(msbf_ix_card_line, at_ + 0.22, life)
+                add msbf_plate(260, 30, 10, (0.02, 0.03, 0.06, 0.0), (0.02, 0.03, 0.06, 0.0), _pl_rgba(accent, 0.9))
+                text form style "msbf_ix_form" color accent:
+                    xalign 0.5
+                    yalign 0.5
+
+
+screen msbf_ix_skip(end_t):
+    timer end_t action Return(True)
+    button:
+        xysize (1280, 720)
+        background Solid("#00000000")
+        action Return(True)
+    key "K_RETURN" action Return(True)
+    key "K_SPACE" action Return(True)
+    key "K_z" action Return(True)
+    key "game_menu" action Return(True)
+    key "dismiss" action Return(True)
+    text "CLICK / ENTER TO SKIP" style "msbf_cine_skip" at msbf_t(msbf_intro_caption, 1.6, 4, 12.0):
+        xpos 1264
+        xanchor 1.0
+        ypos 700
+
+
+# -----------------------------------------------------------------------------
+# msbf_battle_intro: PHASE 1. Called by cs_matsuda_02_battle (and the Arcade)
+# BEFORE the HUD and before the phase-1 music; the heartbeat + wind loops are
+# owned by that label. The live battle (msbf_battle_state) is already built,
+# so the party that runs in is the party the player picked.
 # -----------------------------------------------------------------------------
 screen msbf_battle_intro():
     modal True
     use enter_m_input_lock()
 
-    $ _intro_name = "MATSUDA, CRIMSON-AZURE"
-    $ _intro_stage = msbf_boss_stage(1)
+    $ _ib = getattr(store, "msbf_battle_state", None)
+    $ _T = MSBF_PX_INTRO
+    $ _bx, _by = msbf_px_boss_point(1, "head")
 
-    # One-shot stingers, cued to the landing rather than to the name card.
-    timer 0.95 action Function(renpy.sound.play, MSBF_INTRO_BOOM, channel="sound")
-    timer 1.02 action Function(renpy.sound.play, MSBF_INTRO_THUNDER, channel="sfxtrack1")
-    timer 4.30 action Return(True)
+    timer _T["fall"] - 0.05 action Function(msbf_play_pooled_sfx, MSBF_SFX["phase"], _update_screens=False)
+    timer _T["land"] - 0.02 action Function(renpy.sound.play, MSBF_INTRO_BOOM, channel="sound")
+    timer _T["land"] + 0.06 action Function(renpy.sound.play, MSBF_INTRO_THUNDER, channel="sfxtrack1")
+    timer _T["sweep"] + 0.10 action Function(msbf_play_pooled_sfx, MSBF_SFX["crit"], _update_screens=False)
+    timer _T["card"] + 0.04 action Function(msbf_play_pooled_sfx, MSBF_SFX["weak"], _update_screens=False)
 
-    # The room, pre-lit and dark, taking the impact with the rest of the frame.
+    add Solid("#000000")
     fixed:
         xysize (1280, 720)
-        at msbf_brk_slam
+        at msbf_t(msbf_ix_cam, 64, _T["land"])
+        use msbf_seer_environment(phase=1, charge=0.55)
+        add Solid("#02040b") at msbf_t(msbf_ix_dim, _T["run"] + 0.5, _T["land"])
+        if _ib is not None:
+            add msbf_px_stage(_ib, "intro")
 
-        add "bg battle_setpiece" at msbf_arena_t(1, 0.55, 0.0, 0.0, 0.0):
-            xysize (1280, 720)
-        add Solid("#02040bd8") xysize (1280, 720) at msbf_intro_dim(0.62)
+    # A glint high in the sky, exactly where she falls from.
+    if MSBF_PX_SHADERS:
+        add Transform(Solid("#00000000"), xysize=(120, 120), mesh=True, shader="msbf.pxfx", u_fx_kind=0.0, u_fx_p=0.15, u_fx_cell=3.0, u_fx_c1=(1.0, 1.0, 1.0), u_fx_c2=(0.6, 0.95, 1.0), u_fx_c3=(0.2, 0.5, 0.9), u_fx_seed=3.0, u_fx_angle=0.0, u_fx_solid=0.9) at msbf_t(msbf_ix_glint, _T["fall"] - 0.55, 0.6):
+            xcenter _bx
+            ycenter 70
+    add Solid("#e8fbff") at msbf_t(msbf_ix_flash, _T["land"], 0.95)
 
-        use msbf_ground_shadow(_intro_stage["cx"], _intro_stage["foot"], _intro_stage["shadow_w"], _intro_stage["shadow_a"], True)
+    # Her eyes, from her official art, in a slit across the frame.
+    fixed:
+        xysize (1280, 210)
+        ycenter 318
+        at msbf_t(msbf_ix_cutin, _T["land"] + 0.42, 0.30)
+        add Solid("#050a14") xysize (1280, 210)
+        add Transform("addons/Matsuda's Sick Boss Fight/phase1.png", crop=(250, 200, 520, 104)) at msbf_t(msbf_ix_cutin_slide, _T["land"] + 0.42, 0.45):
+            xysize (1060, 212)
+            xcenter 640
+            yalign 0.5
+        add Solid("#8fe6ff") xysize (1280, 2)
+        add Solid("#8fe6ff") xysize (1280, 2) yalign 1.0
 
-        # Two hard trails, then her. All three only exist during the fall.
-        add "msbf_matsuda_phase1" at msbf_intro_fall_trail(0.05, 210):
-            xcenter _intro_stage["cx"]
-            ycenter _intro_stage["cy"]
-            xysize (_intro_stage["w"], _intro_stage["h"])
-            fit "contain"
-        add "msbf_matsuda_phase1" at msbf_intro_fall_trail(0.10, 110):
-            xcenter _intro_stage["cx"]
-            ycenter _intro_stage["cy"]
-            xysize (_intro_stage["w"], _intro_stage["h"])
-            fit "contain"
-        add "msbf_matsuda_phase1" at msbf_intro_fall:
-            xcenter _intro_stage["cx"]
-            ycenter _intro_stage["cy"]
-            xysize (_intro_stage["w"], _intro_stage["h"])
-            fit "contain"
+    # The sweep cuts the frame.
+    add Solid("#ffffff") xysize (1500, 5) at msbf_t(msbf_ix_split, _T["sweep"] + 0.10):
+        xcenter 640
+        ycenter 352
+        rotate -8
+    add Solid("#dff8ff") at msbf_t(msbf_ix_flash, _T["sweep"] + 0.12, 0.45)
 
-    # The deck answering: bloom at her feet + a ring travelling out along it.
-    if MSBF_FX_SHADERS:
-        add Solid("#00000000") xysize (900, 320) at msbf_fx_glow_t((0.42, 0.86, 1.0), 1.0, 1.7), msbf_intro_landing_flash(0.97):
-            xcenter _intro_stage["cx"]
-            ycenter _intro_stage["foot"]
-        add Solid("#00000000") xysize (1900, 1900) at msbf_big_shock_r(0.98, (0.55, 0.92, 1.0), 0.85):
-            xcenter _intro_stage["cx"]
-            ycenter _intro_stage["foot"]
-    add Solid("#dff4ff") at msbf_intro_landing_flash(0.96)
-
-    # Letterbox opens on the landing, not before it.
-    add Solid("#000000") xysize (1280, 96) at msbf_intro_letterbox_in(84, 0.98):
-        ypos 0
-    add Solid("#000000") xysize (1280, 118) at msbf_intro_letterbox_in(112, 0.98):
+    add Solid("#000000") xysize (1280, 78) at msbf_t(msbf_ix_bars, 78, 0.0)
+    add Solid("#000000") xysize (1280, 78) at msbf_t(msbf_ix_bars, 78, 0.0):
         ypos 720
         yanchor 1.0
 
-    # The card sits BELOW her feet (she lands with her lowest pixel around
-    # y 513), so the title never crosses her legs.
-    text "THE STAGE PRESENTS" style "msbf_intro_kicker" at msbf_intro_kicker_wipe(1.16):
-        xalign 0.5
-        ypos 528
-        yanchor 0.5
-    text _intro_name style "msbf_intro_title_text" at msbf_intro_name_slam(1.30):
-        xalign 0.5
-        ypos 578
-        yanchor 0.5
-    text "THE CURTAIN RISES" style "msbf_phase_transition_subtitle" at msbf_intro_kicker_wipe(1.72):
-        xalign 0.5
-        ypos 634
-        yanchor 0.5
-
-    button:
-        xysize (1280, 720)
-        background Solid("#00000000")
-        action Return(True)
-    key "K_RETURN" action Return(True)
-    key "K_SPACE" action Return(True)
-    key "game_menu" action Return(True)
-    key "dismiss" action Return(True)
-
-    text "CLICK TO SKIP" style "msbf_intro_skip_hint" at msbf_intro_caption(1.6, 4, 12.0):
-        xpos 1264
-        xanchor 1.0
-        ypos 690
+    use msbf_px_name_card("MATSUDA", "CRIMSON-AZURE", "THE ONTOLOGICAL SEER  ·  PHASE I", "NAHOBINO", "#8fe6ff", _T["card"])
+    use msbf_ix_skip(_T["end"])
 
 
 # -----------------------------------------------------------------------------
-# msbf_idmode_intro: ID MODE'S OPENING. Id Mode starts on the second bar, so it
-# never had an entrance at all -- the fight simply began. It gets one now, and
-# it is the deliberate opposite of the phase-2 descent the normal route earns.
-#
-# Normal phase 2 is an ARRIVAL: the roof opens, light pours in, she comes down
-# through it on a four-second ease, and the title settles. Every one of those is
-# a promise that this is a performance with a running order.
-#
-# Id Mode makes none of those promises. There is no descent because there is no
-# above; the image just fails to be anything else, several times, and one of the
-# failures has her standing in it. Nothing eases. The title mis-renders. The
-# only thing the two entrances share is the boss.
+# msbf_idmode_intro: ID MODE. Starts on the second bar, so there is no fall and
+# no build: the image fails to be anything else until it contains her.
 # -----------------------------------------------------------------------------
 screen msbf_idmode_intro():
     modal True
     use enter_m_input_lock()
 
-    $ _id_stage = msbf_boss_stage(2)
+    $ _ib = getattr(store, "msbf_battle_state", None)
+    $ _T = MSBF_PX_ID_INTRO
 
-    timer 0.30 action Function(renpy.sound.play, MSBF_SFX["explode"], channel="sound")
-    timer 1.05 action Function(renpy.sound.play, MSBF_INTRO_THUNDER, channel="sfxtrack1")
-    timer 3.90 action Return(True)
+    timer _T["boss"] action Function(renpy.sound.play, MSBF_SFX["explode"], channel="sound")
+    timer _T["light"] action Function(renpy.sound.play, MSBF_INTRO_THUNDER, channel="sfxtrack1")
+    timer _T["card"] + 0.04 action Function(msbf_play_pooled_sfx, MSBF_SFX["phase"], _update_screens=False)
 
     add Solid("#000000")
-
-    # The room, seeking. It appears in the wrong order, several times, before it
-    # holds -- and it is the phase-3 room, not phase 2's, because whatever this
-    # is has already been what it is going to be.
     fixed:
         xysize (1280, 720)
-        at msbf_id_seek(0.18)
-        add "msbf_rupture_sky" at msbf_arena_t(3, 0.0, 0.0, 0.0, 0.85):
-            xysize (1280, 720)
+        at msbf_t(msbf_ix_room_seek, 0.10)
+        use msbf_seer_environment(phase=2, id_mode=True, danger=0.35)
+        if _ib is not None:
+            add msbf_px_stage(_ib, "id_intro")
 
-    # Tear bars: whole rows of the frame arriving displaced.
-    add Solid("#ff2f55") xysize (1280, 34) at msbf_id_bar(196, 34, 0.22, 0.06)
-    add Solid("#e8e8ee") xysize (1280, 18) at msbf_id_bar(388, 18, 0.31, 0.05)
-    add Solid("#ff2f55") xysize (1280, 46) at msbf_id_bar(120, 46, 0.44, 0.07)
-    add Solid("#0a0a0e") xysize (1280, 90) at msbf_id_bar(470, 90, 0.52, 0.09)
-    add Solid("#e8e8ee") xysize (1280, 12) at msbf_id_bar(300, 12, 0.71, 0.04)
-    add Solid("#ff2f55") xysize (1280, 28) at msbf_id_bar(556, 28, 0.88, 0.06)
+    # Whole rows of the frame arriving displaced.
+    add Solid("#ff2f55") xysize (1280, 30) at msbf_t(msbf_id_bar, 196, 30, 0.22, 0.06)
+    add Solid("#e8e8ee") xysize (1280, 16) at msbf_t(msbf_id_bar, 388, 16, 0.33, 0.05)
+    add Solid("#ff2f55") xysize (1280, 44) at msbf_t(msbf_id_bar, 120, 44, 0.80, 0.07)
+    add Solid("#0a0a0e") xysize (1280, 80) at msbf_t(msbf_id_bar, 470, 80, 0.86, 0.09)
+    add Solid("#e8e8ee") xysize (1280, 12) at msbf_t(msbf_id_bar, 300, 12, 1.12, 0.04)
 
-    # She is in one of the holds. Not descending, not rising -- present.
-    add "msbf_matsuda_phase2" at msbf_id_boss(0.40):
-        xcenter _id_stage["cx"]
-        ycenter _id_stage["cy"]
-        xysize (_id_stage["w"], _id_stage["h"])
-        fit "contain"
+    # Her eyes -- the halo's gaze -- for one torn hold.
+    fixed:
+        xysize (1280, 190)
+        ycenter 330
+        at msbf_t(msbf_ix_cutin, _T["light"] - 0.30, 0.20)
+        add Solid("#120208") xysize (1280, 190)
+        add Transform("addons/Matsuda's Sick Boss Fight/phase2.png", crop=(588, 270, 304, 64)) at msbf_t(msbf_ix_cutin_slide, _T["light"] - 0.30, 0.30):
+            xysize (900, 190)
+            xcenter 640
+            yalign 0.5
+        add Solid("#ff5a7a") xysize (1280, 2)
+        add Solid("#ff5a7a") xysize (1280, 2) yalign 1.0
 
-    # NO fracture here, deliberately. Glass breaking is the bar-break's
-    # metaphor -- something solid taking a hit -- and Id Mode's whole premise is
-    # that there was never anything solid to break. It tears like a signal
-    # instead, which is what the bars above are doing.
-    add Solid("#ffffff") at msbf_brk_blowout
-    add Solid("#12000a") at msbf_id_seek(1.02)
+    add Solid("#fff6e0") at msbf_t(msbf_ix_flash, _T["light"], 0.75)
 
-    text "NO SUCH BAR" style "msbf_intro_kicker" at msbf_id_title(1.35):
-        xalign 0.5
-        yalign 0.635
-    text "TOHU IMAGO" style "msbf_intro_title_text" at msbf_id_title(1.42):
-        xalign 0.5
-        yalign 0.715
-    text "IT WAS ALWAYS AWAKE" style "msbf_phase_transition_subtitle" at msbf_id_title(1.86):
-        xalign 0.5
-        yalign 0.80
+    add Solid("#000000") xysize (1280, 78) at msbf_t(msbf_ix_bars, 78, 0.0)
+    add Solid("#000000") xysize (1280, 78) at msbf_t(msbf_ix_bars, 78, 0.0):
+        ypos 720
+        yanchor 1.0
 
-    button:
-        xysize (1280, 720)
-        background Solid("#00000000")
-        action Return(True)
-    key "K_RETURN" action Return(True)
-    key "K_SPACE" action Return(True)
-    key "game_menu" action Return(True)
-    key "dismiss" action Return(True)
+    use msbf_px_name_card("TOHU IMAGO", "IT WAS ALWAYS AWAKE", "NO SUCH BAR  ·  PHASE II", "FORMLESS IMAGE", "#ffd98a", _T["card"], True)
+    use msbf_ix_skip(_T["end"])
 
-    text "CLICK TO SKIP" style "msbf_intro_skip_hint" at msbf_intro_caption(1.6, 4, 12.0):
-        xpos 1264
-        xanchor 1.0
-        ypos 690
+
+style msbf_ix_name:
+    font MSBF_HUD_FONT_NAME
+    size 88
+    color "#fffaf0"
+    kerning 6.0
+    outlines [(3, "#02040acc", 0, 2)]
+
+style msbf_ix_sub:
+    font MSBF_HUD_FONT_NAME
+    size 26
+    kerning 5.0
+    outlines [(2, "#02040acc", 0, 1)]
+
+style msbf_ix_kicker:
+    font MSBF_HUD_FONT_TECH
+    size 14
+    kerning 3.6
+    outlines [(2, "#02040ae6", 0, 0)]
+
+style msbf_ix_form:
+    font MSBF_HUD_FONT_TECH
+    size 15
+    kerning 3.0
+    outlines [(2, "#02040ae6", 0, 0)]
+
 
 
 # -----------------------------------------------------------------------------
@@ -582,12 +640,12 @@ screen msbf_phase_break_seq(battle):
 
     # 2. FRACTURE -- the frame is a pane and it just took the hit.
     if MSBF_CINE_SHADERS:
-        add Solid("#00000000") xysize (1280, 720) at msbf_crack_t(0.02, 0.72, _bk_cx, _bk_cy, _bk_col, 15.0)
+        add Solid("#00000000") xysize (1280, 720) at msbf_t(msbf_crack_t, 0.02, 0.72, _bk_cx, _bk_cy, _bk_col, 15.0)
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") xysize (2200, 2200) at msbf_big_shock_r(0.03, _bk_col, 1.0):
+        add Solid("#00000000") xysize (2200, 2200) at msbf_t(msbf_big_shock_r, 0.03, _bk_col, 1.0):
             xcenter _bk_x
             ycenter _bk_y
-        add Solid("#00000000") xysize (760, 760) at msbf_fx_glow_pop(_bk_col, 1.0, 1.5, 0.55):
+        add Solid("#00000000") xysize (760, 760) at msbf_t(msbf_fx_glow_pop, _bk_col, 1.0, 1.5, 0.55):
             xcenter _bk_x
             ycenter _bk_y
 
@@ -604,11 +662,10 @@ screen msbf_phase_break_seq(battle):
 # touches down, the deck answers with one soft ring, and the card settles. The
 # restraint is the characterisation: she is not trying to frighten anyone.
 #
-# PHASE 3 keeps the same skeleton and corrupts every joint of it -- the shaft
-# is red and stutters, the descent is a series of cuts, and the card arrives
-# already wrong.
+# PHASE 3 corrupts that grammar: the shaft is red, the boss tears into place
+# through channel splits and abrupt cuts, and the card arrives already wrong.
 # -----------------------------------------------------------------------------
-screen msbf_phase_reveal_seq(battle):
+screen msbf_phase_reveal_world(battle):
     $ _rv_p3 = battle.phase >= 3
     $ _rv_stage = msbf_boss_stage(battle.phase)
     $ _rv_title = getattr(battle, "phase_transition_title", "THE STAGE BEGINS ANEW")
@@ -616,65 +673,76 @@ screen msbf_phase_reveal_seq(battle):
     $ _rv_key = (1.0, 0.30, 0.40) if _rv_p3 else (1.0, 0.85, 0.48)
     $ _rv_hex = "#ff3b52" if _rv_p3 else "#ffd98a"
 
-    add Solid("#000000") at msbf_phase_transition_blackout
+    add Solid("#000000") at (msbf_phase_transition_blackout if _rv_p3 else msbf_cine_reveal_blackout)
+
+    add (MSBF_SEER_ART + "seal.png") at msbf_t(msbf_cine_seal, 0.45, _rv_p3):
+        xcenter _rv_stage["cx"]
+        ycenter _rv_stage["cy"]
+        xysize (550, 550)
 
     # THE SHAFT. One tall soft column that opens from a slit. Everything else in
     # the beat hangs off it, which is why it is the first thing to move.
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") xysize (400, 980) at msbf_fx_glow_t(_rv_key, 0.95, 1.05), msbf_desc_shaft(0.10):
+        add Solid("#00000000") xysize (400, 980) at msbf_t(msbf_fx_glow_t, _rv_key, 0.95, 1.05), msbf_t(msbf_desc_shaft, 0.10):
             xalign 0.5
             ypos 0
     else:
-        add Solid(_rv_hex) xysize (400, 980) at msbf_desc_shaft(0.10):
+        add Solid(_rv_hex) xysize (400, 980) at msbf_t(msbf_desc_shaft, 0.10):
             xalign 0.5
             ypos 0
 
     # Halo rings lying around the shaft, opening as she comes down through it.
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") xysize (1100, 1100) at msbf_fx_ring_t(_rv_key, 0.05, 1.4, 2.6), msbf_desc_halo(0.55, 1.0):
+        add Solid("#00000000") xysize (1100, 1100) at msbf_t(msbf_fx_ring_t, _rv_key, 0.05, 1.4, 2.6), msbf_t(msbf_desc_halo, 0.55, 1.0):
             xcenter 640
             ycenter _rv_stage["cy"]
-        add Solid("#00000000") xysize (760, 760) at msbf_fx_ring_t((1.0, 1.0, 1.0), 0.04, 1.1, 2.6), msbf_desc_halo(0.95, 1.0):
+        add Solid("#00000000") xysize (760, 760) at msbf_t(msbf_fx_ring_t, (1.0, 1.0, 1.0), 0.04, 1.1, 2.6), msbf_t(msbf_desc_halo, 0.95, 1.0):
             xcenter 640
             ycenter _rv_stage["cy"]
 
-    # HER. In phase 2 this is one long ease and nothing else; in phase 3 the
-    # same descent is run through the datamosh so it arrives in pieces.
-    if _rv_p3 and MSBF_FX_SHADERS:
-        add battle.boss_art at msbf_fx_glitch_pulse(0.35, 0.95, 30.0), msbf_desc_boss(0.45):
-            xcenter _rv_stage["cx"]
-            ycenter _rv_stage["cy"]
-            xysize (_rv_stage["w"], _rv_stage["h"])
-            fit "contain"
-    else:
-        add battle.boss_art at msbf_desc_boss(0.55):
-            xcenter _rv_stage["cx"]
-            ycenter _rv_stage["cy"]
-            xysize (_rv_stage["w"], _rv_stage["h"])
-            fit "contain"
+    # The arriving form herself is drawn by the pixel stage (pixel_stage.rpy,
+    # MSBFPixelStage._boss_pose's reveal branch), in front of this light and
+    # behind the party: the descent for Tohu Imago, the genre failing into
+    # place for Imago Rupta.
+
+
+screen msbf_phase_reveal_seq(battle):
+    # Only light and the title sit above the party. The world screen owns the
+    # actual arrival, so Imago Rupta cannot cover the nearer cast portraits.
+    $ _rv_p3 = battle.phase >= 3
+    $ _rv_stage = msbf_boss_stage(battle.phase)
+    $ _rv_title = getattr(battle, "phase_transition_title", "THE STAGE BEGINS ANEW")
+    $ _rv_sub = getattr(battle, "phase_transition_subtitle", "A WINGED ANGEL REWRITES THE SCRIPT")
+    $ _rv_key = (1.0, 0.30, 0.40) if _rv_p3 else (1.0, 0.85, 0.48)
+    $ _rv_hex = "#ff3b52" if _rv_p3 else "#ffd98a"
 
     # TOUCHDOWN. One soft bloom and one ring along the deck. Not an explosion.
-    add Solid(_rv_hex) at msbf_desc_touchdown(3.05)
+    add Solid(_rv_hex) at msbf_t(msbf_desc_touchdown, 3.05)
     if MSBF_FX_SHADERS:
-        add Solid("#00000000") xysize (2000, 2000) at msbf_desc_ring(3.05):
+        add Solid("#00000000") xysize (2000, 2000) at msbf_t(msbf_desc_ring, 3.05, _rv_key):
             xcenter _rv_stage["cx"]
             ycenter _rv_stage["foot"]
 
     # Phase 3 only: the frame refusing to hold the new form.
     if _rv_p3:
-        add Solid("#ff2f55") xysize (1280, 26) at msbf_id_bar(210, 26, 3.20, 0.06)
-        add Solid("#e8e8ee") xysize (1280, 14) at msbf_id_bar(432, 14, 3.34, 0.05)
-        add Solid("#ff2f55") xysize (1280, 38) at msbf_id_bar(148, 38, 3.52, 0.06)
+        add Solid("#ff2f55") xysize (1280, 26) at msbf_t(msbf_id_bar, 210, 26, 3.20, 0.06)
+        add Solid("#e8e8ee") xysize (1280, 14) at msbf_t(msbf_id_bar, 432, 14, 3.34, 0.05)
+        add Solid("#ff2f55") xysize (1280, 38) at msbf_t(msbf_id_bar, 148, 38, 3.52, 0.06)
 
     # The card sits in the DARK lower third. Centred on the frame it landed
     # squarely on the phase-2 sprite -- white text with a white outline over
     # a wall of white wings, which is nearly invisible in the one shot the
     # whole beat is building to.
-    text _rv_title style "msbf_phase_transition_title" at (msbf_id_title(3.35) if _rv_p3 else msbf_desc_title(3.30)):
-        xalign 0.5
-        ypos 598
-        yanchor 0.5
-    text _rv_sub style "msbf_phase_transition_subtitle" at (msbf_id_title(3.55) if _rv_p3 else msbf_desc_title(3.62)):
-        xalign 0.5
-        ypos 654
-        yanchor 0.5
+    use msbf_cine_border(2.70)
+    if _rv_p3:
+        use msbf_px_name_card("IMAGO RUPTA", _rv_sub, "THE GENRE FAILS  ·  PHASE III", "RUPTURED IMAGE", _rv_hex, 3.10, True)
+    else:
+        use msbf_px_name_card("TOHU IMAGO", _rv_sub, _rv_title + "  ·  PHASE II", "FORMLESS IMAGE", _rv_hex, 3.10, False)
+
+
+style msbf_cine_skip:
+    font gui.default_font
+    size 12
+    color "#bdc5d2"
+    kerning 1.2
+    outlines [(1, "#050b14", 0, 1)]

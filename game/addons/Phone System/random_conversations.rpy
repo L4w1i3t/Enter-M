@@ -1,48 +1,14 @@
-# =============================================================================
-# Random Phone Conversations  --  IDLE CHATTER THE PLAYER STARTS
-# =============================================================================
+# Optional conversations selected from PHONE_RANDOM_CONVERSATIONS by contact/kind.
+# Each permanent id plays once per save (phone_random_seen); texts append to saved
+# threads. Unlocks use met/contact-channel/date gates and remain independent of
+# other optional conversations. Story events supply progression requirements.
 #
-# WHAT THIS FILE IS
-#   The small, casual, day-to-day conversations MC can have with a contact
-#   whenever he feels like it, instead of only when the story hands him a phone
-#   scene. They are deliberately low-stakes and often nonsense -- leftovers,
-#   spiders, a hat -- because the point is that the world keeps going and the
-#   phone is a place people live in, not a cutscene delivery mechanism.
-#
-#   This file holds BOTH the data (PHONE_RANDOM_CONVERSATIONS) and the small
-#   engine around it. The UI lives in text.rpy: opening a contact gives you a
-#   live compose bar, a call key and a video key, each lit only when that
-#   contact actually has something of that kind waiting.
-#
-# WRITING A NEW ONE
-#   Append a dict to PHONE_RANDOM_CONVERSATIONS:
-#     id       unique and permanent -- it is what gets written to the save when
-#              the conversation has been used, so renaming one makes it replay.
-#     contact  any name/alias the phone knows ("Asa", "Matsuda Akai", "Mom").
-#     kind     "text" | "call" | "facetime".
-#     unlock   see phone_random_unlocked below. Defaults to "met", but prefer an
-#              ("open", channel) and/or date gate so the chatter arrives after
-#              the story has earned it. Runtime entries stay independent: never
-#              gate one on another random conversation's seen state.
-#     body     for kind "text": a list of phone_msg/phone_thumb.
-#              for "call"/"facetime": a list of phone_call_line/phone_call_note.
-#     sprite   "facetime" only, and optional -- defaults to the contact's own
-#              sprite from PHONE_CONTACT_CATALOG.
-#
-#   Use %NAME% anywhere the player's name should appear. It is substituted at
-#   play time, NOT with "[player]": a "me" message is typed out character by
-#   character by the compose animation, and a half-typed "[play" is a Matsu'Py
-#   parse error rather than a typo on screen.
-#
-# ONE-SHOT AND INDEPENDENT BY DESIGN
-#   Each conversation plays once per save (phone_random_seen) and text ones are
-#   appended to the real thread, so the history the player scrolls back through
-#   is the history they actually made. Catalog entries may wait for a story beat
-#   or date, but none depends on another random conversation being played first.
-# =============================================================================
+# Entries supply id, contact, kind, unlock and body; facetime may override sprite.
+# Kinds are text/call/facetime. Bodies use message or call-line builders accordingly.
+# Use %NAME% for the player's name: playback substitutes it before incremental
+# typing, so incomplete interpolation syntax never reaches the text renderer.
+# Phone-only art uses the normalized 640x960 feed canvas.
 
-# Phone-only art stays outside Matsuda's strict layered-image pose contract.
-# The video feed expects the same normalised 640x960 canvas as every cast sprite.
 image phone_matsuda_duck_hat = Transform("assets/characters/matsuda/facetime_duck_hat.png", fit="contain", xysize=(640, 960))
 
 # init 1: the catalog is built out of phone_msg / phone_call_line, which are
@@ -77,7 +43,7 @@ init 1 python:
         """
         Order a story date so it can be compared with >=.
 
-        The story year starts in May and runs into January, so a plain MMDD
+        The story year starts in May and runs into March, so a plain MMDD
         comparison puts New Year's Day (0101) BEFORE the first day of the story
         (0515) and every January unlock would read as already passed. Counting
         months from May instead keeps the year in the order it is played.
@@ -90,7 +56,18 @@ init 1 python:
             return None
         try:
             snapshot = calendar_obj.get_snapshot()
-            return _phone_random_story_key(snapshot["month"], snapshot["day"])
+            today = _phone_random_story_key(snapshot["month"], snapshot["day"])
+
+            # CalendarSystem's clean-store placeholder is April 7. April is
+            # outside the May 15 -> March 7 story, but cyclic ordering places it
+            # after every real story date. Treat all out-of-story dates as no
+            # date at all so a fresh standalone run cannot satisfy fallbacks.
+            story_start = _phone_random_story_key(5, 15)
+            story_end = _phone_random_story_key(3, 7)
+            if today < story_start or today > story_end:
+                return None
+
+            return today
         except Exception:
             return None
 
@@ -170,6 +147,12 @@ init 1 python:
             if bool(getattr(store, "phone_open_" + channel, False)):
                 return True
 
+            # Compatibility is still derived from THIS save. A bare calendar
+            # date is not enough: clean side content starts on April 7 and used
+            # to invent contacts and eleven ready conversations from nothing.
+            if contact_id not in phone_state_list("phone_met_contacts"):
+                return False
+
             fallback = PHONE_OPEN_FALLBACK_DATES.get(channel)
             today = _phone_random_today_key()
             if fallback is None or today is None:
@@ -207,6 +190,9 @@ init 1 python:
 
     def phone_random_available(contact_id=None, kind=None):
         """Every unlocked, unplayed conversation, optionally narrowed."""
+        if not enter_m_main_story_active():
+            return []
+
         seen = phone_state_list("phone_random_seen")
         wanted = phone_contact_id_from_name(contact_id) if contact_id else None
         out = []
@@ -229,37 +215,8 @@ init 1 python:
         entries = phone_random_available(contact_id, kind)
         return entries[0]["id"] if entries else None
 
-    def phone_random_has(contact_id, kind=None):
-        return bool(phone_random_available(contact_id, kind))
-
     def phone_random_count(contact_id=None, kind=None):
         return len(phone_random_available(contact_id, kind))
-
-    def phone_random_hint(contact_name, has_text, has_call, has_video):
-        """
-        The line printed above the compose bar telling the player, in words,
-        what to press.
-
-        A badge that cannot be explained is worse than no badge: a first-time
-        player reads an unread dot as something they have failed to clear and
-        has no way to learn that the dead-looking grey bar at the bottom is now
-        a button. So the thread says it outright, and names the contact so it
-        reads as a prompt rather than as UI furniture.
-        """
-        if not (has_text or has_call or has_video):
-            return None
-
-        first_name = str(contact_name or "").split()[0] if contact_name else "them"
-
-        if has_text and (has_call or has_video):
-            return "Tap the bar to text %s, or a key to call" % first_name
-        if has_text:
-            return "Tap the bar to text %s" % first_name
-        if has_call and has_video:
-            return "Tap a key to call %s" % first_name
-        if has_video:
-            return "Tap the camera key to video-call %s" % first_name
-        return "Tap the phone key to call %s" % first_name
 
     def phone_random_mark_seen(entry_id):
         seen = phone_state_list("phone_random_seen")
@@ -290,7 +247,7 @@ init 1 python:
 
     # --- launching from the phone UI -----------------------------------------
 
-    def phone_random_launch(contact_id, kind):
+    def phone_random_launch(contact_id, kind, return_to_home=False):
         """
         Screen action: play the next conversation of `kind` with this contact.
 
@@ -302,17 +259,49 @@ init 1 python:
         control straight back. (It must only ever `return`; jumping out of a
         new context unwinds to the main menu.)
         """
+        if not enter_m_main_story_active():
+            return None
+
+        # A second launch over a live phone interaction would overwrite its
+        # temporary playback state. Check the active playback screens rather
+        # than context depth: a blocking inbox can be called in a new context,
+        # and returning from a menu must not leave its ready buttons inert.
+        if any(renpy.get_screen(name) for name in (
+            "phone_text_screen", "phone_thread_static", "phone_call_screen",
+            "phone_active_call_screen", "phone_video_call_screen",
+        )):
+            return None
+
         entry_id = phone_random_next_id(contact_id, kind)
         if entry_id is None:
-            return
+            return None
 
         renpy.hide_screen("phone_thread_history_screen")
         renpy.hide_screen("phone_contacts_screen")
-        renpy.call_in_new_context("phone_random_play", entry_id)
-        renpy.show_screen(
-            "phone_thread_history_screen",
-            contact_id=phone_contact_id_from_name(contact_id),
-        )
+        renpy.hide_screen("phone_home_screen")
+        renpy.hide_screen("phone_notification_alert")
+        # Contexts isolate the script stack and screens, but these window
+        # variables live in the shared store. A child `call screen` hides the
+        # window; leaking that flag makes the parent's next say dissolve in.
+        # Restore the exact caller state even if playback is interrupted. The
+        # conversation's saved history/seen flags deliberately remain shared.
+        window_state = {
+            name: getattr(store, name)
+            for name in ("_window", "_window_auto", "_window_next", "_after_scene_show_hide")
+            if hasattr(store, name)
+        }
+        try:
+            renpy.call_in_new_context("phone_random_play", entry_id)
+        finally:
+            for name, value in window_state.items():
+                setattr(store, name, value)
+        if enter_m_main_story_active():
+            renpy.show_screen(
+                "phone_thread_history_screen",
+                contact_id=phone_contact_id_from_name(contact_id),
+                return_to_home=return_to_home,
+            )
+        return None
 
 
     # =========================================================================
@@ -334,34 +323,6 @@ init 1 python:
     # answering, then establish why he rang. Date gates keep follow-ups from all
     # piling into the first evening their channel opens.
     # =========================================================================
-    # Old saves may still contain these strings in phone_random_seen. Keeping
-    # only the IDs documents that harmless state without constructing retired
-    # message bodies or calling phone_msg helpers during init.
-    PHONE_RANDOM_RETIRED_IDS = (
-        "asa_leftovers",
-        "asa_spider",
-        "asa_wrong_chat",
-        "asa_controller",
-        "asa_poster_rescue",
-        "mom_discoverable",
-        "mom_laundry_receipt",
-        "mom_mug_inquiry",
-        "monika_waypoint",
-        "monika_asterisk",
-        "monika_four_bars",
-        "monika_bookmark_number",
-        "matsuda_omen",
-        "matsuda_patch_notes",
-        "matsuda_dice_test",
-        "matsuda_hat_setup",
-        "asa_tier_argument",
-        "mom_big_pot",
-        "mom_house_rule",
-        "monika_paragraph",
-        "monika_two_versions",
-        "matsuda_boss_name",
-        "matsuda_hat",
-    )
 
     # The 2026-08-30 rebuild. These twelve entries are the only runtime random
     # conversations. Their fresh IDs ensure existing saves can see the rewritten
@@ -378,11 +339,18 @@ init 1 python:
             "body": [
                 phone_msg("me", "How's Ashen Vow going?"),
                 phone_msg("them", "bell widow killed me again"),
-                phone_msg("them", "her grab hitbox is actual fraud"),
-                phone_msg("me", "Git gud."),
-                phone_msg("them", "i asked for SUPPORT"),
-                phone_msg("me", "That was support."),
-                phone_msg("them", "i hope ur next boss has 4 phases"),
+                phone_msg("them", "her grab hitbox is actual jank"),
+                phone_msg("me", "Sounds like a major skill issue to me."),
+                phone_msg("them", "stfu ive gone deathless in this run so far"),
+                phone_msg("them", "this is just the worst designed boss in the game"),
+                phone_msg("them", "like y does she dodge more often when u hit her weaknesses"),
+                phone_msg("me", "I think I know how you can cheese the fight, actually."),
+                phone_msg("them", "how"),
+                phone_msg("me", "Just listen to this one piece of advice, I swear it's important:"),
+                phone_msg("me", "Git gud scrub."),
+                phone_msg("them", "UR SUCH A SHITHEAD"),
+                phone_msg("them", "I DIED AGAIN THANKS TO U"),
+                phone_msg("me", "Damn you suck lmaoooooooooo"),
             ],
         },
 
@@ -395,7 +363,7 @@ init 1 python:
                 phone_msg("me", "Did you find Mr. Toast?"),
                 phone_msg("them", "NO"),
                 phone_msg("them", "and dont act innocent"),
-                phone_msg("me", "I haven't touched your stuffed rabbit."),
+                phone_msg("me", "I haven't touched your stuffed rabbit, dingus."),
                 phone_msg("them", "he was on my pillow and now hes GONE"),
                 phone_msg("me", "Check under the blanket."),
                 phone_msg("them", "checked"),
@@ -409,7 +377,7 @@ init 1 python:
                 phone_msg("me", "The kidnapping case collapses."),
                 phone_msg("them", "he was scared and alone asshole"),
                 phone_msg("me", "Tell him I'm sorry gravity did that."),
-                phone_msg("them", "tell him urself"),
+                phone_msg("them", "tell him urself damn"),
             ],
         },
 
@@ -425,20 +393,21 @@ init 1 python:
                 phone_call_line("them", "The store."),
                 phone_call_line("me", "Which part of the store?"),
                 phone_call_line("them", "Clothes."),
-                phone_call_line("me", "Why do I hear cans?"),
-                phone_call_note("Metal clatters somewhere on her end."),
-                phone_call_line("them", "Because I'm by the soup."),
+                phone_call_line("me", "...And why do I hear cans?"),
+                phone_call_line("them", "Because I'm by a lot of cans. Of soup. Duh."),
                 phone_call_line("me", "Why are you shopping for clothes in the soup aisle?"),
-                phone_call_line("them", "I'm not! I thought the sign said apparel!"),
+                phone_call_line("them", "I'm noooooot-ah! I thought the sign said apparel!"),
                 phone_call_line("me", "The sign led you to soup?"),
                 phone_call_line("them", "That's why I followed the arrow!"),
-                phone_call_line("me", "Read it again."),
-                phone_call_note("A long silence. A cart squeaks past."),
+                phone_call_line("me", "May wanna read it again."),
+                phone_call_line("them", "..."),
+                phone_call_line("them", "...Uh."),
+                phone_call_line("me", "Didn't say apparel, did it?"),
                 phone_call_line("them", "...It says appetizers."),
-                phone_call_line("me", "Come home."),
+                phone_call_line("me", "Case closed. Come home."),
                 phone_call_line("them", "I still need detergent!"),
-                phone_call_line("me", "Then stop buying imaginary clothes next to the soup!"),
-                phone_call_line("them", "I'M LOOKING FOR THE EXIT!"),
+                phone_call_line("me", "THEN STOP TRYING TO BUY SOUP ONESIES!"),
+                phone_call_line("them", "I'M LOOKING FOR THE EXIT! GOD!"),
             ],
         },
 
@@ -451,14 +420,14 @@ init 1 python:
             "unlock": [("open", "matsuda"), ("date", "0521")],
             "body": [
                 phone_msg("me", "Final verdict on the game?"),
-                phone_msg("them", "Combat sings. Story has teeth. Soundtrack could resurrect a mall."),
+                phone_msg("them", "Combat sings. Story has teeth. Soundtrack absolutely SLAPS."),
                 phone_msg("me", "That's positive."),
                 phone_msg("them", "HOWEVER"),
                 phone_msg("them", "the inventory sort resets every time you equip something"),
                 phone_msg("them", "the map cursor snaps back to the shrine whenever i breathe"),
-                phone_msg("them", "and it asks me to confirm closing the menu"),
+                phone_msg("them", "and it asks me to confirm closing the menu every time without a way to disable it"),
                 phone_msg("me", "That last one sounds considerate."),
-                phone_msg("them", "No. The UI can eat my fat ass."),
+                phone_msg("them", "No. The UI can eat my whole fat ass."),
                 phone_msg("me", "Score?"),
                 phone_msg("them", "Nine out of ten"),
                 phone_msg("me", "Despite the jank?"),
@@ -466,6 +435,10 @@ init 1 python:
                 phone_msg("me", "You...just said it could eat your ass though?"),
                 phone_msg("them", "Not the same thing, don't make it weird"),
                 phone_msg("me", "???????????????"),
+                phone_msg("them", "Also why can't it just be easier to wall climb whilst mounted and doing backwards jumps on frame-perfect intervals"),
+                phone_msg("them", "The devs must really hate the speedrunning community"),
+                phone_msg("me", "You're already trying to discover speedrun tech? The hell kinda gamer are you?"),
+                phone_msg("them", "ye"),
             ],
         },
 
@@ -475,22 +448,24 @@ init 1 python:
             "kind": "text",
             "unlock": [("open", "matsuda"), ("date", "0525")],
             "body": [
-                phone_msg("them", "if he calls the game fine again put me out of my misery"),
-                phone_msg("me", "Do I want to know who that was meant for?"),
-                phone_msg("them", "What was meant for whom"),
+                phone_msg("them", "if he calls the OP cringe again hold me back cause imma commit a hate crime"),
+                phone_msg("me", "...Do I want to know who that was meant for?"),
+                phone_msg("them", "What was meant for whom?"),
                 phone_msg("me", "The message directly above this one."),
-                phone_msg("them", "..."),
+                phone_msg("them", "Uh"),
                 phone_msg("them", "Kareda."),
-                phone_msg("me", "Thought so."),
+                phone_msg("me", "Yeah, that tracks."),
                 phone_msg("them", "Why were you in her contact slot?"),
-                phone_msg("me", "I wasn't. You selected me."),
+                phone_msg("me", "I wasn't? You selected me."),
                 phone_msg("them", "Your names occupy adjacent spiritual territory."),
-                phone_msg("me", "They aren't alphabetically adjacent either."),
+                phone_msg("me", "They aren't alphabetically adjacent either, stop trying to sound like an astrology nut."),
                 phone_msg("them", "Then your phone number was standing suspiciously close to hers."),
-                phone_msg("me", "On your phone."),
+                phone_msg("me", "On YOUR phone."),
                 phone_msg("them", "At last, we locate the crime scene."),
-                phone_msg("me", "You texted the wrong person and somehow I'm at fault."),
-                phone_msg("them", "I'm glad you understand."),
+                phone_msg("me", "Okay, but how come I'm the one somehow at fault for your misinput?"),
+                phone_msg("them", "bc you are"),
+                phone_msg("me", "I'm going to strangle you when I find you."),
+                phone_msg("them", "Naughty~~~"),
             ],
         },
 
@@ -501,26 +476,23 @@ init 1 python:
             "unlock": ("open", "matsuda_video"),
             "sprite": "phone_matsuda_duck_hat",
             "body": [
-                phone_call_line("them", "Can you see the whole thing?"),
-                phone_call_line("me", "I can see one enormous duck eye."),
-                phone_call_note("The feed jerks back. A yellow beak, two soft wings, and Matsuda's grin come into frame."),
-                phone_call_line("them", "Behold. The apex of modern headwear."),
-                phone_call_line("me", "You called me to show off a duck hat."),
-                phone_call_line("them", "I called because text cannot carry its majesty."),
-                phone_call_line("me", "Did you buy it?"),
-                phone_call_line("them", "Tsubaki said I lacked the courage to wear it in public."),
+                phone_call_line("them", "Alrighty, can you see the whole thing?"),
+                phone_call_line("me", "I can see a duck hat eating your head."),
+                phone_call_line("them", "Behold! The apex of modern headwear!"),
+                phone_call_line("me", "...Is this what you wanted to call me about, with you texting me \"URGENT\" in all caps?"),
+                phone_call_line("them", "I called because text cannot carry its majesty, nor does a photo that's compressed to hell."),
+                phone_call_line("me", "So I'm guessing you bought that thing, but... why?"),
+                phone_call_line("them", "Kareda said I lacked the courage to wear it in public."),
                 phone_call_line("me", "So you bought it out of spite."),
-                phone_call_line("them", "No. I bought it because doubt demands rebuttal."),
+                phone_call_line("them", "No. I bought it because doubt demands rebuttal. And because I'm indeed not some pansy."),
                 phone_call_line("me", "Are you actually wearing it outside?"),
-                phone_call_line("them", "...That depends."),
+                phone_call_line("them", "That depends."),
                 phone_call_line("me", "On what?"),
                 phone_call_line("them", "Whether it looks good."),
-                phone_call_line("me", "It looks good."),
-                phone_call_note("Her grin goes still for half a beat."),
-                phone_call_line("them", "Correct answer."),
-                phone_call_note("She reaches for the end-call button, misses, and fills the camera with one yellow wing."),
-                phone_call_line("them", "How do I--"),
-                phone_call_note("The feed cuts out."),
+                phone_call_line("me", "I mean... you somehow pull it off. It does look surprisingly adorable."),
+                phone_call_line("them", "An even more correct answer than I bargained for!"),
+                phone_call_line("me", "...Okay, now are you punching your phone trying to hit a button?"),
+                phone_call_line("them", "Yes, now why is this not--"),
             ],
         },
 
@@ -532,17 +504,22 @@ init 1 python:
             "kind": "text",
             "unlock": ("open", "mom"),
             "body": [
-                phone_msg("me", "Why did you ask if dinner was mid?"),
+                phone_msg("me", "Why did you ask what \"mid\" meant after dinner yesterday?"),
                 phone_msg("them", "Asahina used the word. I am establishing what she meant before I respond."),
-                phone_msg("me", "It means average. Mediocre."),
+                phone_msg("me", "It means average. Mediocre. Subpar. It's honestly really stupid slang."),
                 phone_msg("them", "I see."),
-                phone_msg("them", "She had seconds."),
+                phone_msg("them", "She had seconds after calling the carrots \"mid\" though."),
                 phone_msg("me", "Then her testimony conflicts with the physical evidence."),
-                phone_msg("them", "Precisely."),
+                phone_msg("them", "Now you get it."),
                 phone_msg("me", "Are you going to confront her?"),
                 phone_msg("them", "No. I am making the same dinner Thursday."),
                 phone_msg("me", "Cold."),
                 phone_msg("them", "Apparently only mid."),
+                phone_msg("me", "So lukewarm?"),
+                phone_msg("them", "Microwaved after getting cold."),
+                phone_msg("me", "I guess this is what it means for revenge to be served mid."),
+                phone_msg("them", "Righty-o, home skillet."),
+                phone_msg("me", "...I think you're just as bad as her."),
             ],
         },
 
@@ -552,18 +529,21 @@ init 1 python:
             "kind": "text",
             "unlock": [("open", "mom"), ("date", "0526")],
             "body": [
-                phone_msg("me", "Did you mean to ask me to 'defrost the witness'?"),
+                phone_msg("me", "Did you mean to ask me to 'defrost the chickpea'?"),
                 phone_msg("them", "Chicken. I typed chicken."),
-                phone_msg("me", "Your keyboard has been at work too long."),
+                phone_msg("me", "Your keyboard has been at work too long, methinks."),
                 phone_msg("them", "Please take the client breasts out of the freezer."),
                 phone_msg("them", "CHICKEN BREASTS."),
                 phone_msg("me", "I was going to give context a chance."),
                 phone_msg("them", "Put them in the sink. Do not cook the children."),
-                phone_msg("them", "CHICKEN."),
-                phone_msg("me", "This is becoming discoverable."),
-                phone_msg("them", "Please disregard every sentence my phone has offered into evidence."),
-                phone_msg("me", "I'll defrost the chicken."),
-                phone_msg("them", "Thank you. I am turning autocorrect off before it ends my career."),
+                phone_msg("them", "CHILDREN*"),
+                phone_msg("them", "Let's see if speech does the trick. Please though the chick Ken."),
+                phone_msg("them", "C H A C K E N"),
+                phone_msg("them", "I give upstairs."),
+                phone_msg("me", "At this rate, you may just need a new phone."),
+                phone_msg("them", "Please disregard every text from the past two minutes."),
+                phone_msg("them", "You know what to do. Heading into a meeting now."),
+                phone_msg("me", "No worries. I'll go defrost Asa and her stuffed bunny."),
             ],
         },
 
@@ -580,15 +560,16 @@ init 1 python:
                 phone_call_line("them", "'Residential Tenancy Rights and Obligations,' or 'Know Your Lease Before You Sign'?"),
                 phone_call_line("me", "The second one, easily."),
                 phone_call_line("them", "Why?"),
-                phone_call_line("me", "The first sounds like homework assigned by a building."),
-                phone_call_note("A pen scratches across paper on her end."),
-                phone_call_line("them", "Good. That is almost exactly what I told my partner."),
-                phone_call_line("me", "So I'm not giving an opinion. I'm supplying ammunition."),
-                phone_call_line("them", "Independent corroboration."),
-                phone_call_line("me", "Do I get credit?"),
+                phone_call_line("me", "The first sounds like some sort of research paper or outline for eye-grating documents."),
+                phone_call_line("them", "Okay, okay... That is almost exactly what I told my partner."),
+                phone_call_line("me", "So I'm just a rubber duck here?"),
+                phone_call_line("them", "I'd say more like independent corroboration."),
+                phone_call_line("me", "Do I get credit for helping in this creative process?"),
                 phone_call_line("them", "You get dinner and the satisfaction of improving public outreach."),
-                phone_call_line("me", "Dinner was already in the contract."),
+                phone_call_line("me", "Dinner's already something we do normally."),
                 phone_call_line("them", "Then I raised you to negotiate. I'm very proud."),
+                phone_call_line("me", "How does that even...?"),
+                phone_call_line("me", "{i}*sigh*{/i} ...Just go with the second one."),
             ],
         },
 
@@ -613,8 +594,8 @@ init 1 python:
                 phone_msg("me", "Have I read a single word of this?"),
                 phone_msg("them", "Not yet! It's not ready."),
                 phone_msg("me", "Then my official opinion is that it certainly exists."),
-                phone_msg("them", "I knew you'd understand."),
-                phone_msg("me", "I understand nothing."),
+                phone_msg("them", "I knew you'd understand!"),
+                phone_msg("me", "I understand that you have given me literally nothing to work with."),
                 phone_msg("them", "Perfect. Fresh eyes~"),
             ],
         },
@@ -625,20 +606,24 @@ init 1 python:
             "kind": "text",
             "unlock": [("open", "monika"), ("date", "0524")],
             "body": [
-                phone_msg("me", "Why did the horror committee send me a verdict?"),
+                phone_msg("me", "Why did the horror committee send me a verdict in the form of a handwritten note in my locker?"),
                 phone_msg("them", "Because you were tried in absentia."),
                 phone_msg("me", "For what?"),
                 phone_msg("them", "You said practical effects don't automatically make a movie good."),
-                phone_msg("me", "They don't."),
+                phone_msg("me", "They don't though."),
                 phone_msg("them", "Count one: aggravated bad taste."),
                 phone_msg("them", "Count two: reckless indifference to texture."),
-                phone_msg("them", "Count three: disrespecting a model train that took six weeks to build."),
-                phone_msg("me", "The model train was excellent. The movie wasn't."),
+                phone_msg("them", "Count three: disrespecting a model train that took six weeks to build because it \"looked like shit.\""),
+                phone_msg("me", "Hey, I'm just saying I could probably cobble together a 3D model of that same train in less time."),
+                phone_msg("me", "Not like it'd make the movie any better."),
                 phone_msg("them", "The court recognizes no distinction."),
-                phone_msg("me", "Sentence?"),
+                phone_msg("me", "So what's my sentence?"),
                 phone_msg("them", "You have to watch the director's cut with me."),
-                phone_msg("me", "This committee is corrupt."),
-                phone_msg("them", "Objection overruled~"),
+                phone_msg("me", "Absolutely not, that version has an even worse rating."),
+                phone_msg("me", "You can't just take something that's objectively bad and call it slept on."),
+                phone_msg("them", "Overruled~"),
+                phone_msg("them", "I'll see you at 5."),
+                phone_msg("me", "You and that movie can kiss my ass."),
             ],
         },
 
@@ -652,24 +637,24 @@ init 1 python:
                 phone_call_line("me", "I thought this was a normal video call."),
                 phone_call_line("them", "It was, until the vice president sent me meeting minutes with no minutes in them."),
                 phone_call_line("me", "An empty file?"),
-                phone_call_line("them", "Worse. A title page, three decorative lines, and 'Monika will fill in the details.'"),
-                phone_call_note("She lifts a printed page to the camera. Most of it is, indeed, blank."),
-                phone_call_line("them", "He also approved the basketball club and drama club for the gym at the same time."),
+                phone_call_line("them", "Worse. A title page, three colored margins, and 'Monika will fill in the details.'"),
+                phone_call_line("them", "He also approved the basketball club and drama club for the gym at the same time! Can you believe this?!"),
                 phone_call_line("me", "Joint production?"),
                 phone_call_line("them", "Don't give him ideas! He'll call it interdisciplinary and leave me to schedule it."),
                 phone_call_line("me", "Have you told him any of this?"),
-                phone_call_line("them", "I used calm words. He said we'd circle back."),
-                phone_call_line("them", "If he says circle back one more time, I'm making him physically circle the building."),
-                phone_call_line("me", "Very presidential."),
-                phone_call_line("them", "I am off the clock and he is bad at his job."),
-                phone_call_note("Her eyes narrow at something below the camera."),
-                phone_call_line("them", "Are you reaching for the end-call button?"),
-                phone_call_line("me", "No."),
-                phone_call_line("them", "Your thumb is in frame."),
+                phone_call_line("them", "I used calm words, and aaaaaaaaaaaaaaaaall he said in his stupid-ass nasally voice was that we'd circle back."),
+                phone_call_line("them", "If he says circle back one more time, hoooooooheheh... I'm making him physically circle the building until he finally sheds some of that flab. Friggin' fatass."),
+                phone_call_line("me", "Normally I'd call that cruel and unusual punishment, but..."),
+                phone_call_line("them", "I am off the clock and he is bad at his job, I can complain however-much-the-hell I want."),
+                phone_call_line("them", "...Are you reaching for the end-call button? How dare you!"),
+                phone_call_line("me", "Nah, gnat on my screen."),
+                phone_call_line("them", "Your thumb is LITERALLY in frame!"),
                 phone_call_line("me", "I was adjusting morale."),
                 phone_call_line("them", "Great. Morale can stay for the budget story."),
-                phone_call_line("me", "There's a budget story?"),
-                phone_call_line("them", "There are three."),
+                phone_call_line("me", "Oh, there's a budget story?~"),
+                phone_call_line("them", "There are three, ALL from today."),
+                phone_call_line("me", "Ah, I see. You'll have to tell me about them when I'm not trying to end the call."),
+                phone_call_line("them", "YOU ARE {i}NOT{/i} HANGING UP ON ME, DON'T YOU FU--"),
             ],
         },
     ]
@@ -697,9 +682,12 @@ default phone_open_matsuda_video = False
 # phone_random_launch, so it must end by returning and nothing else.
 # =============================================================================
 label phone_random_play(entry_id):
+    if not enter_m_main_story_active():
+        return
+
     $ _prc_entry = phone_random_entry(entry_id)
 
-    if _prc_entry is None:
+    if _prc_entry is None or entry_id in phone_random_seen or not phone_random_unlocked(_prc_entry):
         return
 
     $ _prc_kind = _prc_entry.get("kind", "text")

@@ -1,51 +1,9 @@
-# =============================================================================
-# ENTER-M :: SPRITE SLOT TABLE
-# -----------------------------------------------------------------------------
-# Vanilla DDLC's sprite placement vocabulary and NOTHING ELSE. The generators
-# (tcommon / tinstant / focus / sink / hop / hopfocus / leftin / leftfocus /
-# thide) and the numbered slots built from them:
-#
-#     txx   arrive / move to slot          ixx   snap to slot, no animation
-#     fxx   arrive, focused (nearer)       sxx   sink back
-#     hxx   hop in place                   hfxx  hop, focused
-#     lxx   slide in from the left         lfxx  slide in from the left, focused
-#     thide leave
-#
-# The digits are <how many on stage><which position>: t42 is slot 2 of a
-# four-person stage. Stages of ONE THROUGH SIX are defined. Retuned for this
-# project (easing, timing, subpixel), but the names, the slot maths and the
-# roles are vanilla.
-#
-# THE SLOT X *IS* THE PANEL CENTRE.
-# game/stage_panels.rpy cuts the background into one panel per on-stage
-# character, and these two tables are one piece of geometry read twice: an
-# N-person stage divides the 1280px screen into N equal panels, and slot i
-# stands in the middle of panel i --
-#
-#     x = (i - 0.5) / N * 1280
-#
-# -- so a character is never crowded against a gutter nor marooned at a screen
-# edge, whichever way the room is split. (The 2-up slots used to sit at 400/880,
-# 80px INSIDE their panel centres, which stood both characters shoulder to
-# shoulder against the middle cut with the whole outer half of each panel
-# empty.) The values are mirrored in ENTER_M_PANEL_SLOT_X over there because an
-# ATL block's call arguments are not readable from Python. MOVE A SLOT HERE AND
-# YOU MUST MOVE IT THERE TOO -- a stale entry does not crash, it just puts the
-# cut in the wrong place.
-#
-# z FALLS AS THE STAGE FILLS. One panel is a whole screen; six panels are 213px
-# apiece, and this cast's sprites are 300-440px wide. So past four people the
-# staging scales down to keep each sprite inside its own frame -- a wider shot
-# holds smaller subjects, which is what a camera would do anyway. Stages of 1-3
-# keep the established z=0.80 and are pixel-identical to what they always were
-# except for the x.
-#
-# EVERYTHING ELSE MOVED TO fx.rpy. Screen shakes, flashes, breathing idles,
-# camera pushes, flinches, the scene transitions, and the inherited vanilla
-# odds and ends (noise / vignette / yuripupils) all live there now, so that this
-# file stays a table you can read at a glance. Add new sprite slots here; add
-# effects there.
-# =============================================================================
+# Sprite slot vocabulary adapted from DDLC for ENTER M's framing.
+# t: move, i: instant, f: focused, s: sink, h/hf: hop, l/lf: enter from left;
+# thide exits. Digits mean stage size and slot: t42 is slot 2 of four.
+# One- through six-person stages use x = (slot - 0.5) / count * 1280.
+# Keep positions synchronized with stage_panels.rpy's ENTER_M_PANEL_SLOT_X.
+# Crowd stages reduce scale. fx.rpy owns shared effects and scene transitions.
 
 transform tcommon(x=640, z=0.80):
     subpixel True transform_anchor True
@@ -488,7 +446,3 @@ transform lf22:
     leftfocus(960)
 transform lf11:
     leftfocus(640)
-
-# Everything that used to follow this line -- the dissolve/wipe scene
-# transitions, `image noise` / `noise_alpha`, `image vignette`, and
-# `yuripupils_move` -- now lives in fx.rpy. Nothing was dropped or duplicated.

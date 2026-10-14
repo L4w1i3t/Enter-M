@@ -1040,8 +1040,8 @@ transform enter_m_op_phase_after(delay=0.0, hold=1.0):
     pause max(hold, 0.01)
     alpha 0.0
 
-# Aspect-preserving scale for a Crop displayable. fit "cover" is available in
-# Matsu'Py 8.1.1; the crop tuple itself stays in absolute source-image pixels.
+# Scale a Crop displayable to fill the target while preserving aspect ratio.
+# Crop rectangles use absolute source-image pixels; fit "cover" scales the result.
 transform enter_m_op_crop_cover(w=1280, h=720):
     xysize (w, h)
     fit "cover"
@@ -1053,14 +1053,6 @@ transform enter_m_op_image_fit(w=640, h=360):
 
 transform enter_m_op_fixed_alpha(value=1.0):
     alpha value
-
-transform enter_m_op_editorial_in(delay=0.0, xoff=0, yoff=0, settle=0.16):
-    alpha 0.0
-    xoffset xoff
-    yoffset yoff
-    pause max(delay, 0.0)
-    alpha 1.0
-    easeout_quad max(settle, 0.01) xoffset 0 yoffset 0
 
 transform enter_m_op_pilot_face(side=1, crop_shift=120, duration=1.2):
     subpixel True

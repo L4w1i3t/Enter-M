@@ -23,30 +23,8 @@ define gui.hover_muted_color = '#245366'              # Hover color for backgrou
 define gui.text_color = '#eef7f4'                     # Default text color
 define gui.interface_text_color = '#eaf8ff'           # Color for interface text
 
-# Fonts used throughout the game
-# -----------------------------------------------------------------------------
-# GLYPH COVERAGE -- READ THIS BEFORE TYPING A NON-ASCII CHARACTER INTO A `text`
-#
-# These three fonts are display faces, not text faces. Measured from their cmap
-# tables (2026-08-05): Myanmar has 197 codepoints, SF Automaton 224, NovaSquare
-# 418. Matsu'Py does NOT fall back to another font -- a missing glyph is drawn as
-# an empty rectangle, on screen, in the shipped game.
-#
-#   SAFE EVERYWHERE  ASCII, and the prose punctuation the writing actually uses:
-#                    em dash (which config.replace_text generates from every
-#                    "--" in dialogue -- see options.rpy), curly quotes, bullet.
-#   INTERFACE ONLY   the advance/choice arrow is U+2023 TRIANGULAR BULLET and it
-#                    only draws in gui.interface_font. Every U+25Bx arrow
-#                    (25B6 25B8 25BA 25B7) is a box in ALL THREE fonts, as is
-#                    the ellipsis U+2026 outside the interface font.
-#   NOT IN ANY OF    geometric shapes, stars, hearts, technical symbols. If a
-#   THEM             screen needs those it must name a font that has them --
-#                    "DejaVuSans.ttf" (~5900 codepoints, and what Hina's World
-#                    already uses via hw_font). Even DejaVu lacks U+23FB.
-#
-# When in doubt draw the icon out of rects the way the phone's hang-up handset
-# is drawn (addons/Phone System/call.rpy), or fall back to ASCII.
-# -----------------------------------------------------------------------------
+# Display fonts have limited symbol coverage. Check the actual font cmap before
+# adding non-ASCII UI icons; use a suitable explicit font or drawn icon if absent.
 define gui.default_font = "assets/fonts/Myanmar.otf"     # Default dialogue font
 define gui.name_font = "assets/fonts/SF Automaton Extended.ttf" # Font for character names
 define gui.interface_font = "assets/fonts/NovaSquare-Regular.ttf"   # Font for UI elements
@@ -61,7 +39,7 @@ define gui.notify_text_size = 16                      # Size of notification tex
 define gui.title_text_size = 42                       # Size of title text
 
 # Background images for menus
-define gui.main_menu_background = "enter_m_main_menu_bg"  # Interactive title-screen background
+define gui.main_menu_background = "enter_m_title_scene"  # Interactive title-screen background
 define gui.game_menu_background = "enter_m_game_menu_bg"  # Interactive pause/submenu background
 
 # Show game title in main menu

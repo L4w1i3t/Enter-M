@@ -1,35 +1,45 @@
 # =============================================================================
 # ag_intake.rpy  --  INTAKE   (Arcade Original #3)
 # =============================================================================
-# Falling blocks, played as a night shift. Samples arrive from the chute, you
-# rack them in cold storage, and a full shelf gets processed and taken away.
-# Matsuda does not stop sending samples because you are behind.
+# Falling racks, played as a night shift. Samples come down the chute in racks
+# of three, four or five vials; you set them into cold storage, and a full
+# shelf gets processed and taken away. Matsuda does not stop sending samples
+# because you are behind.
 #
-# THE TWIST: CONTAMINATION
-#   Every so often the intake pushes a row up from the BOTTOM -- a batch that
-#   arrived unsorted, with a single gap in it. It is telegraphed by a hazard
-#   stripe two seconds ahead, so it is a problem to solve rather than a hand
-#   slapping the board. It does three things at once that ordinary garbage in
-#   this genre does: it raises the stack (pressure), it puts a hole somewhere
-#   you did not choose (planning), and it arrives FASTER as the level climbs, so
-#   the late game is about keeping a low, clean stack you can afford to lose the
-#   bottom of. The stack you build for a long game is a different shape from the
-#   one you would build without it, which is the whole reason the twist is here.
+# WHAT IS KEPT, AND WHAT IS THIS CABINET'S OWN
+#   The skeleton is the oldest one the falling-block genre has -- a shape falls,
+#   you slide and turn it, a filled row clears, the stack must not reach the
+#   top -- and that part is deliberately untouched. Almost everything hung on
+#   the skeleton is Intake's own, chosen so that the game plays and LOOKS like
+#   itself rather than like the genre's best-known entry:
 #
-# WHAT IS STANDARD (deliberately -- muscle memory should transfer)
-#   7-bag randomiser, SRS rotation states with the standard wall/floor kick
-#   tables, hold (once per piece), ghost piece, DAS/ARR horizontal repeat, lock
-#   delay with a reset cap, soft and hard drop, and the usual 100/300/500/800
-#   line values scaled by level plus a combo bonus. Anyone who has played the
-#   genre can sit down and play this immediately; the contamination is the only
-#   thing they have to learn.
+#   THE RACKS     nine FREE polyominoes of 3, 4 and 5 cells. Mirror images are
+#                 not separate pieces, because of the next rule.
+#   FLIP          C / Shift mirrors the rack in place. There is no hold. A
+#                 player who wants the other hand of an L or an S MAKES it
+#                 rather than waiting for it, which changes how a stack gets
+#                 planned more than any other rule here.
+#   THE WELL      12 wide and 18 deep, so a five-long rack stood on end can
+#                 process up to five shelves at once (a FULL RACK).
+#   THE MANIFEST  racks arrive in crates of twelve -- every shape once, plus
+#                 three extra small ones -- so five-vial racks stay an event.
+#   THE MOLD      contamination does not rise from the floor. It SEEDS on the
+#                 surface of the stack, in a column the chute flags one rack
+#                 ahead, and then it GROWS: every few racks, each mold cell with
+#                 open air above it grows a cell upward. Process its shelf to
+#                 purge it for a bonus, or CAP it -- set a rack on top and it
+#                 cannot grow -- and deal with it later. Mold fills a shelf like
+#                 any vial, so a colony in the right place can finish a row for
+#                 you; in the wrong place it builds a tower.
+#   THE READOUTS  landing is a beam down the rack's own columns, not an outline;
+#                 a rack about to set FROSTS over from its edges; the next three
+#                 racks ride a conveyor above the chute; and colour means SIZE
+#                 (3 / 4 / 5 vials), not shape.
 #
 # THE HIDDEN ROWS
 #   The grid is AGI_H rows tall and only the bottom AGI_VIS are drawn. The two
-#   hidden rows at the top are the spawn box: a piece materialises there and
-#   only enters the visible field as it falls. Topping out is defined as a piece
-#   that cannot fit in that box -- the standard rule, and the reason a stack can
-#   touch the ceiling without ending the run instantly.
+#   hidden rows at the top are the spawn box: a rack that cannot fit there ends
+#   the run, which is why a stack can touch the ceiling without ending it.
 # =============================================================================
 
 init python:
@@ -37,124 +47,140 @@ init python:
     import random
 
     # --- board ---------------------------------------------------------------
-    AGI_W = 10                  # columns
-    AGI_H = 22                  # rows including the hidden spawn box
-    AGI_VIS = 20                # rows actually drawn
-    AGI_CELL = 28
+    AGI_W = 12                  # columns
+    AGI_H = 20                  # rows, including the hidden spawn box
+    AGI_VIS = 18                # rows actually drawn
+    AGI_HIDDEN = AGI_H - AGI_VIS
+    AGI_CELL = 27
     AGI_BX = (AG_W - AGI_W * AGI_CELL) // 2
-    # Under the header band (which ends near 80) and clear of the control
-    # legend at 696: 100 + 20 rows * 28 = 660.
-    AGI_BY = 100
+    # The conveyor rides between the header band (which ends near 84) and the
+    # top of the well; 164 + 18 rows * 27 = 650, clear of the legend at 696.
+    AGI_BY = 164
     AGI_ACCENT = "#5ec8e0"
 
     # --- feel ----------------------------------------------------------------
-    AGI_DAS = 14                # ticks held before a direction auto-repeats
+    AGI_DAS = 13                # ticks held before a direction auto-repeats
     AGI_ARR = 3                 # ticks between auto-repeats
     AGI_SOFT = 2                # ticks per cell while soft dropping
-    AGI_LOCK = 30               # lock delay
-    AGI_LOCK_RESETS = 15        # how many times movement may refresh it
-    AGI_CLEAR_TIME = 22         # line-clear flash before the rows are removed
-    AGI_LINES_PER_LEVEL = 10
-    AGI_GARBAGE_WARN = 120      # 2s of hazard stripe before a row rises
+    AGI_LOCK = 32               # ticks a resting rack waits before it sets
+    AGI_LOCK_RESETS = 12        # how many times movement may refresh that wait
+    AGI_CLEAR_TIME = 20         # shelf flash before the rows are removed
+    AGI_ROWS_PER_SHIFT = 12
 
-    # --- pieces --------------------------------------------------------------
-    # Cells are (x, y) inside the piece's box, y DOWN, in the four SRS rotation
-    # states (spawn, right, two, left). Written out in full rather than rotated
-    # at runtime: the tables are the specification, and a rotation function that
-    # is subtly wrong is much harder to see than a wrong coordinate.
-    AGI_SHAPES = {
-        "I": [
-            [(0, 1), (1, 1), (2, 1), (3, 1)],
-            [(2, 0), (2, 1), (2, 2), (2, 3)],
-            [(0, 2), (1, 2), (2, 2), (3, 2)],
-            [(1, 0), (1, 1), (1, 2), (1, 3)],
-        ],
-        "J": [
-            [(0, 0), (0, 1), (1, 1), (2, 1)],
-            [(1, 0), (2, 0), (1, 1), (1, 2)],
-            [(0, 1), (1, 1), (2, 1), (2, 2)],
-            [(1, 0), (1, 1), (0, 2), (1, 2)],
-        ],
-        "L": [
-            [(2, 0), (0, 1), (1, 1), (2, 1)],
-            [(1, 0), (1, 1), (1, 2), (2, 2)],
-            [(0, 1), (1, 1), (2, 1), (0, 2)],
-            [(0, 0), (1, 0), (1, 1), (1, 2)],
-        ],
-        "O": [
-            [(1, 0), (2, 0), (1, 1), (2, 1)],
-            [(1, 0), (2, 0), (1, 1), (2, 1)],
-            [(1, 0), (2, 0), (1, 1), (2, 1)],
-            [(1, 0), (2, 0), (1, 1), (2, 1)],
-        ],
-        "S": [
-            [(1, 0), (2, 0), (0, 1), (1, 1)],
-            [(1, 0), (1, 1), (2, 1), (2, 2)],
-            [(1, 1), (2, 1), (0, 2), (1, 2)],
-            [(0, 0), (0, 1), (1, 1), (1, 2)],
-        ],
-        "T": [
-            [(1, 0), (0, 1), (1, 1), (2, 1)],
-            [(1, 0), (1, 1), (2, 1), (1, 2)],
-            [(0, 1), (1, 1), (2, 1), (1, 2)],
-            [(1, 0), (0, 1), (1, 1), (1, 2)],
-        ],
-        "Z": [
-            [(0, 0), (1, 0), (1, 1), (2, 1)],
-            [(2, 0), (1, 1), (2, 1), (1, 2)],
-            [(0, 1), (1, 1), (1, 2), (2, 2)],
-            [(1, 0), (0, 1), (1, 1), (0, 2)],
-        ],
+    # --- racks ---------------------------------------------------------------
+    # id -> (cells in the spawn orientation, box size N). Every orientation is
+    # generated by turning the cells inside their N x N box, and every mirror by
+    # flipping across it, so a rack turns about the middle of its own box and
+    # never walks sideways as it spins.
+    AGI_RACKS = {
+        "I3": ([(0, 1), (1, 1), (2, 1)], 3),
+        "V3": ([(0, 0), (0, 1), (1, 1)], 2),
+        "I4": ([(0, 1), (1, 1), (2, 1), (3, 1)], 4),
+        "O4": ([(0, 0), (1, 0), (0, 1), (1, 1)], 2),
+        "T4": ([(1, 0), (0, 1), (1, 1), (2, 1)], 3),
+        "L4": ([(2, 0), (0, 1), (1, 1), (2, 1)], 3),
+        "S4": ([(1, 0), (2, 0), (0, 1), (1, 1)], 3),
+        "P5": ([(0, 0), (1, 0), (0, 1), (1, 1), (0, 2)], 3),
+        "I5": ([(0, 2), (1, 2), (2, 2), (3, 2), (4, 2)], 5),
     }
+    AGI_RACK_ORDER = ["I3", "V3", "I4", "O4", "T4", "L4", "S4", "P5", "I5"]
+    # Each crate's three extra racks come from the small end of the set.
+    AGI_EXTRA_POOL = ["I3", "V3", "V3", "O4", "T4", "L4", "S4"]
+    AGI_CRATE_EXTRA = 3
 
+    def _agi_build_states():
+        """(kind, flip) -> the four turned cell sets, each sorted.
+
+        Turning is (x, y) -> (N-1-y, x) inside the box, which is clockwise on a
+        y-down grid; mirroring is (x, y) -> (N-1-x, y). The two obey
+        M.R = R^-1.M, which is what _flip() leans on to make a flip look like
+        a mirror of the rack AS IT IS ON SCREEN."""
+        states = {}
+        for kind, (cells, n) in AGI_RACKS.items():
+            for flip in (0, 1):
+                cur = [((n - 1 - x) if flip else x, y) for x, y in cells]
+                rots = []
+                for _r in range(4):
+                    rots.append(tuple(sorted(cur)))
+                    cur = [(n - 1 - y, x) for x, y in cur]
+                states[(kind, flip)] = rots
+        return states
+
+    AGI_STATES = _agi_build_states()
+
+    # Tried in order after a turn or flip that does not fit where it is: plain
+    # nudges -- over one, up one, both, over two, up two -- rather than a table
+    # per transition. With nine racks of three sizes a table would run to dozens
+    # of entries nobody could hold in their head, and a rack that simply slides
+    # over and fits is what a player expects to happen.
+    AGI_NUDGES = [(0, 0), (-1, 0), (1, 0), (0, -1), (-1, -1), (1, -1),
+                  (-2, 0), (2, 0), (0, -2)]
+
+    # --- colour --------------------------------------------------------------
+    # Colour is SIZE, not shape: a glance at the conveyor says how big the next
+    # three racks are, which is the question a mixed set actually raises. Each
+    # rack is its own shade of its family.
+    AGI_FAMILY = {3: "#6fe0b0", 4: "#f0b45a", 5: "#ef6f9a"}
+    AGI_MOLD = "#"
+    AGI_MOLD_HOT = "#c9d65a"
     AGI_COLORS = {
-        "I": "#5ec8e0", "J": "#5a6fd6", "L": "#e08a4f", "O": "#e0c05e",
-        "S": "#4fbf7a", "T": "#b57ae0", "Z": "#e0455e", "#": "#6a6284",
+        "I3": "#6fe0b0", "V3": "#9cebc8",
+        "I4": "#f0b45a", "O4": "#f6cd8e", "T4": "#d69a44", "L4": "#fadcae",
+        "S4": "#c48532",
+        "P5": "#ef6f9a", "I5": "#f7a2bf",
+        AGI_MOLD: "#8d9a33",
     }
 
-    # Standard SRS kick tables, keyed (from_state, to_state). Offsets are in SRS
-    # convention (y UP); the rotation code negates y for this board's downward
-    # axis. The first entry of every list is the no-kick attempt.
-    AGI_KICKS_JLSTZ = {
-        (0, 1): [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
-        (1, 0): [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],
-        (1, 2): [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],
-        (2, 1): [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
-        (2, 3): [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
-        (3, 2): [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
-        (3, 0): [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
-        (0, 3): [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
-    }
-    AGI_KICKS_I = {
-        (0, 1): [(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)],
-        (1, 0): [(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)],
-        (1, 2): [(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)],
-        (2, 1): [(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)],
-        (2, 3): [(0, 0), (2, 0), (-1, 0), (2, 1), (-1, -2)],
-        (3, 2): [(0, 0), (-2, 0), (1, 0), (-2, -1), (1, 2)],
-        (3, 0): [(0, 0), (1, 0), (-2, 0), (1, -2), (-2, 1)],
-        (0, 3): [(0, 0), (-1, 0), (2, 0), (-1, 2), (2, -1)],
-    }
+    _AGI_VIAL = {}
 
-    AGI_LINE_SCORE = {1: 100, 2: 300, 3: 500, 4: 800}
-    AGI_LINE_NAME = {1: "PROCESSED", 2: "DOUBLE BATCH", 3: "TRIPLE BATCH",
-                    4: "FULL INTAKE"}
+    def agi_vial_colors(col):
+        """(seat, body top, body bottom, cap) for a vial of colour `col`,
+        mixed once and kept: a full well draws ~200 vials a frame, and mixing
+        four colours for each of them every frame is real Python time."""
+        out = _AGI_VIAL.get(col)
+        if out is None:
+            out = (ag_mix(col, "#0b0720", 0.62), ag_mix(col, "#ffffff", 0.12),
+                   ag_mix(col, "#0b0720", 0.28), ag_mix(col, "#ffffff", 0.55))
+            _AGI_VIAL[col] = out
+        return out
+
+    # --- scoring -------------------------------------------------------------
+    AGI_BATCH = {1: 60, 2: 180, 3: 400, 4: 720, 5: 1200}
+    AGI_BATCH_NAME = {1: "1 ROW", 2: "2 ROWS", 3: "3 ROWS", 4: "4 ROWS",
+                      5: "FULL RACK"}
+    AGI_STREAK = 40             # x (streak - 1) x shift, for back-to-back clears
+    # Small on purpose. Measured with a placement bot: a colony grows ~7 cells
+    # before its shelf goes, so at 150 a cell the purge out-earned every shelf
+    # processed and mold became something to farm rather than to fear.
+    AGI_PURGE = 25              # x shift, per mold cell on a processed shelf
+
+    # --- the mold ------------------------------------------------------------
+    AGI_GROW_CAP = 3            # most colonies that grow on one tick
+
+    def agi_seed_interval(shift):
+        """Racks between one seed and the next flag."""
+        return max(6, 15 - shift)
+
+    def agi_grow_every(shift):
+        """Racks between growth ticks: 4 early, 2 from shift 6 on."""
+        return max(2, 4 - shift // 3)
 
 
     class AGIntake(AGGame):
-        """Intake: a stacker where the backlog pushes back."""
+        """Intake: free-polyomino racks, a flip instead of a hold, and a mold
+        that grows up out of the stack."""
 
         KIND = "intake"
         TITLE = "INTAKE"
         ACCENT = AGI_ACCENT
         MOUSE = False
         CONTROLS = [
-            ("LEFT / RIGHT", "shift the sample"),
-            ("UP  or  X", "rotate clockwise"),
-            ("Z", "rotate counter-clockwise"),
+            ("LEFT / RIGHT", "move the rack"),
+            ("UP  or  X", "turn clockwise"),
+            ("Z", "turn counter-clockwise"),
+            ("C  or  SHIFT", "flip -- mirror the rack"),
             ("DOWN", "soft drop"),
             ("SPACE", "hard drop"),
-            ("C  or  SHIFT", "hold"),
             ("ESC", "pause  //  Q while paused gives up"),
         ]
 
@@ -162,17 +188,17 @@ init python:
             super(AGIntake, self).__init__(variant)
 
             self.grid = [[None] * AGI_W for _row in range(AGI_H)]
-            self.bag = []
+            self.crate = []
             self.queue = [self._next_kind() for _i in range(3)]
             self.piece = None
-            self.hold = None
-            self.hold_used = False
 
             self.level = 1
             self.lines = 0
-            self.combo = -1
-            self.b2b = False
+            self.streak = 0
+            self.best_streak = 0
+            self.full_racks = 0
             self.pieces_placed = 0
+            self.flips = 0
 
             self.grav_acc = 0
             self.lock_timer = 0
@@ -183,55 +209,71 @@ init python:
 
             self.clear_rows = []
             self.clear_timer = 0
-            self.garbage_at = self._garbage_interval()
-            self.garbage_warn = 0
-            self.garbage_taken = 0
+
+            self.seed_at = agi_seed_interval(1)
+            self.seed_col = None        # column flagged for the next seed
+            self.grow_in = agi_grow_every(1)
+            self.mold_seeded = 0
+            self.mold_grown = 0
+            self.mold_purged = 0
+
             self.note = None
             self.shake = 0
             self.over = 0
 
             self._spawn()
 
-        # ---- randomiser -----------------------------------------------------
+        # ---- the manifest ---------------------------------------------------
 
         def _next_kind(self):
-            """7-bag: every seven pieces contains each shape exactly once, which
-            is what stops the long droughts a pure random source produces."""
-            if not self.bag:
-                self.bag = list("IJLOSTZ")
-                random.shuffle(self.bag)
-            return self.bag.pop()
-
-        def _garbage_interval(self):
-            # Pieces between contamination rows. Tightens with the level and
-            # bottoms out at 12 -- roughly one row every 45 seconds at speed.
-            return max(12, 26 - self.level)
+            """Crates of twelve: every rack once plus three extra small ones,
+            shuffled. A shape is never more than two crates away, and the
+            five-vial racks stay rare enough to plan around."""
+            if not self.crate:
+                crate = list(AGI_RACK_ORDER)
+                crate += [random.choice(AGI_EXTRA_POOL)
+                          for _i in range(AGI_CRATE_EXTRA)]
+                random.shuffle(crate)
+                self.crate = crate
+            return self.crate.pop()
 
         # ---- board ----------------------------------------------------------
 
-        def _cells(self, kind, rot, px, py):
-            return [(px + cx, py + cy) for cx, cy in AGI_SHAPES[kind][rot]]
+        def _cells(self, kind, flip, rot, px, py):
+            return [(px + cx, py + cy)
+                    for cx, cy in AGI_STATES[(kind, flip)][rot]]
 
-        def _fits(self, kind, rot, px, py):
-            for x, y in self._cells(kind, rot, px, py):
+        def _fits(self, kind, flip, rot, px, py):
+            for x, y in self._cells(kind, flip, rot, px, py):
                 if x < 0 or x >= AGI_W or y >= AGI_H:
                     return False
                 if y >= 0 and self.grid[y][x] is not None:
                     return False
             return True
 
+        def _fits_piece(self, p, dx=0, dy=0):
+            return self._fits(p["kind"], p["flip"], p["rot"],
+                              p["x"] + dx, p["y"] + dy)
+
+        def _surface(self, x):
+            """Topmost occupied row of column x, or None for an empty one."""
+            for y in range(AGI_H):
+                if self.grid[y][x] is not None:
+                    return y
+            return None
+
         def _spawn(self):
             kind = self.queue.pop(0)
             self.queue.append(self._next_kind())
-            self._spawn_kind(kind)
-
-        def _spawn_kind(self, kind):
-            self.piece = {"kind": kind, "rot": 0, "x": 3, "y": 0}
+            n = AGI_RACKS[kind][1]
+            top = min(y for _x, y in AGI_STATES[(kind, 0)][0])
+            # Top vial in the first hidden row, centred on the chute.
+            self.piece = {"kind": kind, "flip": 0, "rot": 0,
+                          "x": (AGI_W - n) // 2, "y": -top}
             self.grav_acc = 0
             self.lock_timer = 0
             self.lock_resets = 0
-            self.hold_used = False
-            if not self._fits(kind, 0, 3, 0):
+            if not self._fits_piece(self.piece):
                 self._top_out()
 
         def _top_out(self):
@@ -240,10 +282,10 @@ init python:
             self.shake = 26
             ag_se("over")
 
-        def _ghost_y(self):
+        def _landing_y(self):
             p = self.piece
             y = p["y"]
-            while self._fits(p["kind"], p["rot"], p["x"], y + 1):
+            while self._fits(p["kind"], p["flip"], p["rot"], p["x"], y + 1):
                 y += 1
             return y
 
@@ -254,9 +296,8 @@ init python:
                 self.das_dir = 0
                 return
 
-            # Horizontal: DAS/ARR. Tapping moves once; holding waits AGI_DAS
-            # then repeats every AGI_ARR, which is the standard feel and the
-            # reason a long slide across the board is one held key.
+            # Horizontal auto-repeat: a tap moves once; holding waits AGI_DAS
+            # and then repeats every AGI_ARR, so a long slide is one held key.
             left = self.held(keys, AGI_K_LEFT)
             right = self.held(keys, AGI_K_RIGHT)
             direction = (-1 if left else 0) + (1 if right else 0)
@@ -269,84 +310,81 @@ init python:
                 self._shift(direction)
             else:
                 self.das_timer += 1
-                if self.das_timer >= AGI_DAS:
-                    if (self.das_timer - AGI_DAS) % AGI_ARR == 0:
-                        self._shift(direction)
+                if (self.das_timer >= AGI_DAS
+                        and (self.das_timer - AGI_DAS) % AGI_ARR == 0):
+                    self._shift(direction)
 
             if self.tapped(keys, "cw", AGI_K_CW1, AGI_K_CW2):
-                self._rotate(1)
+                self._turn(1)
             if self.tapped(keys, "ccw", AGI_K_CCW):
-                self._rotate(-1)
+                self._turn(-1)
+            if self.tapped(keys, "flip", AGI_K_FLIP1, AGI_K_FLIP2, AGI_K_FLIP3):
+                self._flip()
             if self.tapped(keys, "hard", AGI_K_HARD):
                 self._hard_drop()
-            if self.tapped(keys, "hold", AGI_K_HOLD1, AGI_K_HOLD2, AGI_K_HOLD3):
-                self._do_hold()
 
             if self.held(keys, AGI_K_DOWN):
                 self.soft_timer += 1
                 if self.soft_timer >= AGI_SOFT:
                     self.soft_timer = 0
-                    if self._drop_one():
-                        self.score += 1
+                    self._drop_one()
             else:
-                self.soft_timer = AGI_SOFT      # first press drops immediately
+                self.soft_timer = AGI_SOFT      # first press drops at once
 
         def _shift(self, dx):
             p = self.piece
             if p is None:
                 return
-            if self._fits(p["kind"], p["rot"], p["x"] + dx, p["y"]):
+            if self._fits_piece(p, dx=dx):
                 p["x"] += dx
                 self._touch()
                 ag_se("ui_move", 0.35)
 
-        def _rotate(self, dr):
+        def _reorient(self, rot, flip):
+            """Try a new orientation in place, then each nudge in order."""
             p = self.piece
             if p is None:
-                return
-            frm = p["rot"]
-            to = (frm + dr) % 4
-            table = AGI_KICKS_I if p["kind"] == "I" else AGI_KICKS_JLSTZ
-            for kx, ky in table.get((frm, to), [(0, 0)]):
-                # SRS kick offsets are written with y pointing UP.
-                nx = p["x"] + kx
-                ny = p["y"] - ky
-                if self._fits(p["kind"], to, nx, ny):
-                    p["rot"] = to
-                    p["x"] = nx
-                    p["y"] = ny
+                return False
+            for nx, ny in AGI_NUDGES:
+                if self._fits(p["kind"], flip, rot, p["x"] + nx, p["y"] + ny):
+                    p["rot"] = rot
+                    p["flip"] = flip
+                    p["x"] += nx
+                    p["y"] += ny
                     self._touch()
                     ag_se("rotate")
-                    return
+                    return True
             ag_se("deny", 0.4)
+            return False
+
+        def _turn(self, dr):
+            p = self.piece
+            if p is not None:
+                self._reorient((p["rot"] + dr) % 4, p["flip"])
+
+        def _flip(self):
+            """FLIP: mirror the rack left-to-right as it looks right now.
+
+            Mirroring the stored spawn shape and keeping the turn index would
+            mirror a DIFFERENT turn of the rack whenever it is on its side
+            (M.R^r = R^-r.M). So the turn index is negated as well, and the
+            result is always the reflection of what is on screen."""
+            p = self.piece
+            if p is not None and self._reorient((-p["rot"]) % 4, 1 - p["flip"]):
+                self.flips += 1
 
         def _touch(self):
-            """A successful move refreshes the lock delay -- but only so many
-            times, or a piece could be spun on top of the stack forever."""
+            """A successful move refreshes the lock wait -- but only so many
+            times, or a rack could be spun on top of the stack forever."""
             if self.lock_timer and self.lock_resets < AGI_LOCK_RESETS:
                 self.lock_timer = 0
                 self.lock_resets += 1
-
-        def _do_hold(self):
-            if self.piece is None or self.hold_used:
-                if self.hold_used:
-                    ag_se("deny", 0.4)
-                return
-            kind = self.piece["kind"]
-            swap = self.hold
-            self.hold = kind
-            if swap is None:
-                self._spawn()
-            else:
-                self._spawn_kind(swap)
-            self.hold_used = True
-            ag_se("ui_ok", 0.5)
 
         def _drop_one(self):
             p = self.piece
             if p is None:
                 return False
-            if self._fits(p["kind"], p["rot"], p["x"], p["y"] + 1):
+            if self._fits_piece(p, dy=1):
                 p["y"] += 1
                 self.lock_timer = 0
                 return True
@@ -356,10 +394,10 @@ init python:
             p = self.piece
             if p is None:
                 return
-            target = self._ghost_y()
-            self.score += 2 * (target - p["y"])
+            target = self._landing_y()
+            self.score += target - p["y"]
             p["y"] = target
-            self.shake = 5
+            self.shake = 4
             self._lock()
 
         # ---- simulation -----------------------------------------------------
@@ -383,7 +421,7 @@ init python:
                     self.finish("over")
                 return
 
-            # Line-clear pause: the board is frozen while the rows flash.
+            # Processing pause: the board is frozen while the shelves flash.
             if self.clear_timer:
                 self.clear_timer -= 1
                 if self.clear_timer == 0:
@@ -394,120 +432,162 @@ init python:
             if self.piece is None:
                 return
 
-            # Gravity. _drop_one clears the lock timer whenever it actually
-            # moves, so a piece sliding along the floor keeps its full delay.
             self.grav_acc += 1
             if self.grav_acc >= self._gravity():
                 self.grav_acc = 0
                 self._drop_one()
 
-            # Resting on the stack: count down to lock.
-            if not self._fits(self.piece["kind"], self.piece["rot"],
-                                self.piece["x"], self.piece["y"] + 1):
+            if not self._fits_piece(self.piece, dy=1):
                 self.lock_timer += 1
                 if self.lock_timer >= AGI_LOCK:
                     self._lock()
             else:
                 self.lock_timer = 0
 
-            # Contamination warning / arrival.
-            if self.garbage_warn:
-                self.garbage_warn -= 1
-                if self.garbage_warn == 0:
-                    self._push_garbage()
-
         def _gravity(self):
-            """Ticks per cell of natural fall. Geometric per level, floored at
-            two ticks -- past that the piece is faster than a human reaction and
-            the game is decided by the queue rather than the player."""
-            return max(2, int(round(48.0 * (0.79 ** (self.level - 1)))))
+            """Ticks per cell of natural fall: geometric per shift, floored at
+            two ticks, past which a rack outruns human reaction."""
+            return max(2, int(round(52.0 * (0.8 ** (self.level - 1)))))
 
         def _lock(self):
             p = self.piece
             if p is None:
                 return
-            for x, y in self._cells(p["kind"], p["rot"], p["x"], p["y"]):
+            for x, y in self._cells(p["kind"], p["flip"], p["rot"],
+                                    p["x"], p["y"]):
                 if 0 <= y < AGI_H and 0 <= x < AGI_W:
                     self.grid[y][x] = p["kind"]
             self.piece = None
             self.pieces_placed += 1
             ag_se("lock")
 
-            full = [y for y in range(AGI_H) if all(self.grid[y])]
+            full = [y for y in range(AGI_H)
+                    if all(cell is not None for cell in self.grid[y])]
             if full:
                 self.clear_rows = full
                 self.clear_timer = AGI_CLEAR_TIME
                 ag_se("quad" if len(full) >= 4 else "line")
                 return
 
-            self.combo = -1
+            self.streak = 0
             self._after_piece()
 
         def _collapse(self):
             n = len(self.clear_rows)
+            mold = 0
+            for y in self.clear_rows:
+                mold += sum(1 for cell in self.grid[y] if cell == AGI_MOLD)
             for y in sorted(self.clear_rows):
                 del self.grid[y]
                 self.grid.insert(0, [None] * AGI_W)
             self.clear_rows = []
             self.lines += n
+            self.streak += 1
+            self.best_streak = max(self.best_streak, self.streak)
+            if n >= 5:
+                self.full_racks += 1
 
-            self.combo += 1
-            gain = AGI_LINE_SCORE.get(n, 0) * self.level
-            if n == 4 and self.b2b:
-                # Back-to-back full intakes are worth half again -- the standard
-                # reward for holding out for the big clear.
-                gain = int(gain * 1.5)
-            if self.combo > 0:
-                gain += 50 * self.combo * self.level
+            # A mold cell that completed a shelf between locks can, rarely, make
+            # a clear larger than five; it is paid as a full rack.
+            gain = AGI_BATCH.get(n, AGI_BATCH[5]) * self.level
+            if self.streak > 1:
+                gain += AGI_STREAK * (self.streak - 1) * self.level
+            if mold:
+                gain += AGI_PURGE * mold * self.level
+                self.mold_purged += mold
             self.score += gain
-            self.b2b = (n == 4)
 
-            label = AGI_LINE_NAME.get(n, "PROCESSED")
-            if self.combo > 0:
-                label += "   x%d CHAIN" % (self.combo + 1)
-            self._say(label, AGI_ACCENT)
+            label = AGI_BATCH_NAME.get(n, AGI_BATCH_NAME[5])
+            if mold:
+                label += "   MOLD x%d" % mold
+                self._say(label, AGI_MOLD_HOT)
+            elif self.streak > 1:
+                self._say(label + "   STREAK x%d" % self.streak, AGI_ACCENT)
+            else:
+                self._say(label, AGI_ACCENT)
 
-            level = 1 + self.lines // AGI_LINES_PER_LEVEL
+            level = 1 + self.lines // AGI_ROWS_PER_SHIFT
             if level > self.level:
                 self.level = level
-                self._say("SHIFT %d" % self.level, "#ffd45e")
+                self._say("LEVEL %d" % self.level, "#ffd45e")
                 ag_se("level")
 
             self._after_piece()
 
+        # ---- the mold -------------------------------------------------------
+
         def _after_piece(self):
-            """Between pieces: schedule contamination, then bring the next one
-            in. Sequencing matters -- the warning has to be able to start before
-            the player commits the next piece."""
-            if (self.pieces_placed >= self.garbage_at
-                    and not self.garbage_warn):
-                self.garbage_warn = AGI_GARBAGE_WARN
-                self.garbage_at = self.pieces_placed + self._garbage_interval()
+            """Between racks, in this order: a flagged seed lands, the mold
+            grows, the next seed is flagged, and the next rack comes down. A
+            seed is always flagged one rack AHEAD, so the player has seen the
+            column before anything lands in it."""
+            if self.seed_col is not None:
+                self._seed(self.seed_col)
+                self.seed_col = None
+
+            self.grow_in -= 1
+            if self.grow_in <= 0:
+                self.grow_in = agi_grow_every(self.level)
+                self._grow()
+
+            if self.pieces_placed >= self.seed_at:
+                self.seed_at = self.pieces_placed + agi_seed_interval(self.level)
+                self.seed_col = self._pick_seed_col()
                 ag_se("rise", 0.6)
-                self._say("INTAKE INBOUND", "#e0455e", 110)
+                self._say("MOLD INCOMING", AGI_MOLD_HOT, 100)
+
             self._spawn()
 
-        def _push_garbage(self):
-            hole = random.randrange(AGI_W)
-            row = ["#"] * AGI_W
-            row[hole] = None
-            # Everything shifts up one; anything already in the top hidden row
-            # has nowhere to go, which is a top-out.
-            top = self.grid.pop(0)
-            self.grid.append(row)
-            if any(cell is not None for cell in top):
-                self._top_out()
+        def _pick_seed_col(self):
+            """Any column whose surface is not already mold. Seeding only the
+            LOW columns was tried first and measured badly: a colony in the
+            lowest column grows straight up the well the player was keeping
+            open, filling it for them. Uniform means a seed is as likely to
+            land on a tower as in a gap, so it is a threat to plan around."""
+            options = [x for x in range(AGI_W)
+                       if self._surface(x) is None
+                       or self.grid[self._surface(x)][x] != AGI_MOLD]
+            return random.choice(options) if options else random.randrange(AGI_W)
+
+        def _seed(self, x):
+            """Contaminate the top vial of column x -- or, on an empty column,
+            set a mold cell on the floor of it."""
+            top = self._surface(x)
+            if top is None:
+                y = AGI_H - 1
+            elif self.grid[top][x] == AGI_MOLD:
                 return
-            self.garbage_taken += 1
-            self.shake = 12
-            ag_se("boom", 0.5)
-            # The live piece may now be inside the stack; lift it if it can go.
-            p = self.piece
-            if p is not None and not self._fits(p["kind"], p["rot"], p["x"], p["y"]):
-                if self._fits(p["kind"], p["rot"], p["x"], p["y"] - 1):
-                    p["y"] -= 1
-                else:
-                    self._top_out()
+            else:
+                y = top
+            self.grid[y][x] = AGI_MOLD
+            self.mold_seeded += 1
+            self.shake = 8
+            ag_se("spoil", 0.7)
+
+        def _grow(self):
+            """Every mold cell with open air directly above grows one cell up.
+            Fronts are gathered before anything grows, so a cell grown this
+            tick does not grow again, and at most AGI_GROW_CAP of them grow at
+            once -- the lowest first, since those are the ones a player has
+            stopped watching."""
+            fronts = []
+            for y in range(1, AGI_H):
+                row = self.grid[y]
+                above = self.grid[y - 1]
+                for x in range(AGI_W):
+                    if row[x] == AGI_MOLD and above[x] is None:
+                        fronts.append((y, x))
+            if not fronts:
+                return
+            fronts.sort(reverse=True)
+            for y, x in fronts[:AGI_GROW_CAP]:
+                self.grid[y - 1][x] = AGI_MOLD
+                self.mold_grown += 1
+            self.shake = max(self.shake, 5)
+            ag_se("rise", 0.45)
+
+        def mold_cells(self):
+            return sum(1 for row in self.grid for cell in row if cell == AGI_MOLD)
 
         def _say(self, text, color=None, ticks=90):
             self.note = [text, ticks, color or AGI_ACCENT]
@@ -515,18 +595,17 @@ init python:
         # ---- drawing --------------------------------------------------------
 
         def _cell_xy(self, x, y):
-            # Row AGI_H - AGI_VIS is the first visible one.
-            return (AGI_BX + x * AGI_CELL,
-                    AGI_BY + (y - (AGI_H - AGI_VIS)) * AGI_CELL)
+            return (AGI_BX + x * AGI_CELL, AGI_BY + (y - AGI_HIDDEN) * AGI_CELL)
 
         def draw(self, c):
             shake = 0
             if self.shake:
-                shake = int(math.sin(self.tick * 1.7) * min(6, self.shake))
+                shake = int(math.sin(self.tick * 1.7) * min(5, self.shake))
 
             self._draw_well(c, shake)
             self._draw_stack(c, shake)
             self._draw_piece(c, shake)
+            self._draw_conveyor(c)
             self._draw_side(c)
             self._draw_hud(c)
 
@@ -536,8 +615,6 @@ init python:
                 c.text("STORAGE FULL", AG_W / 2, AG_H / 2 - 16, size=50,
                         color="#e0455e", font=AG_FONT, bold=True,
                         anchor=(0.5, 0.5), alpha=a)
-                c.text("the samples kept coming", AG_W / 2, AG_H / 2 + 30,
-                        size=16, color=AG_DIM, anchor=(0.5, 0.5), alpha=a)
 
         def _draw_well(self, c, shake):
             x = AGI_BX + shake
@@ -547,140 +624,231 @@ init python:
                     bottom="#0b0720f2", radius=14, border=1.5,
                     bcolor=(AGI_ACCENT + "55"))
             c.rect("#00000055", x, AGI_BY, w, h)
-            for col in range(1, AGI_W):
-                c.rect("#ffffff0a", x + col * AGI_CELL, AGI_BY, 1, h)
+            # Shelf rules run across; only every fourth column is ruled, so the
+            # well reads as shelving rather than as a sheet of graph paper.
             for row in range(1, AGI_VIS):
-                c.rect("#ffffff0a", x, AGI_BY + row * AGI_CELL, w, 1)
+                c.rect("#ffffff09", x, AGI_BY + row * AGI_CELL, w, 1)
+            for col in range(4, AGI_W, 4):
+                c.rect("#ffffff07", x + col * AGI_CELL, AGI_BY, 1, h)
 
-            # Contamination warning: a hazard stripe under the well.
-            if self.garbage_warn:
-                pulse = 0.4 + 0.6 * abs(math.sin(self.tick * 0.2))
-                c.rect("#e0455e%02x" % int(150 * pulse), x, AGI_BY + h + 2,
-                        w, 5)
+            # The flagged seed column: a tinted lane and a tab on the rim.
+            if self.seed_col is not None:
+                pulse = 0.35 + 0.65 * abs(math.sin(self.tick * 0.12))
+                cx = x + self.seed_col * AGI_CELL
+                c.rect("%s%02x" % (AGI_MOLD_HOT, int(34 * pulse)), cx, AGI_BY,
+                       AGI_CELL, h)
+                c.rect("%s%02x" % (AGI_MOLD_HOT, int(230 * pulse)), cx + 3,
+                       AGI_BY - 9, AGI_CELL - 6, 5)
 
         def _draw_stack(self, c, shake):
             flash = bool(self.clear_timer and (self.clear_timer // 3) % 2)
-            for y in range(AGI_H - AGI_VIS, AGI_H):
+            # Fronts that grow on the next rack throb, so growth is never a
+            # surprise.
+            warn = self.grow_in <= 1 and abs(math.sin(self.tick * 0.2)) > 0.5
+            for y in range(AGI_HIDDEN, AGI_H):
+                row = self.grid[y]
                 row_clearing = y in self.clear_rows
                 for x in range(AGI_W):
-                    kind = self.grid[y][x]
+                    kind = row[x]
                     if kind is None:
                         continue
                     cx, cy = self._cell_xy(x, y)
-                    col = AGI_COLORS.get(kind, "#8f86a8")
                     if row_clearing:
-                        col = "#ffffff" if flash else ag_mix(col, "#ffffff", 0.6)
-                    self._block(c, cx + shake, cy, col)
+                        col = ("#ffffff" if flash
+                               else ag_mix(AGI_COLORS.get(kind, "#8f86a8"),
+                                           "#ffffff", 0.6))
+                        self._vial(c, cx + shake, cy, col)
+                    elif kind == AGI_MOLD:
+                        hot = warn and self.grid[y - 1][x] is None
+                        self._mold(c, cx + shake, cy, x, y, hot)
+                    else:
+                        self._vial(c, cx + shake, cy,
+                                   AGI_COLORS.get(kind, "#8f86a8"))
+
+        def _vial(self, c, x, y, col):
+            """One vial seen from above: a dark seat, a rounded body, and a
+            bright cap along its top edge. Every rack is drawn out of these."""
+            s = AGI_CELL
+            seat, top, bottom, cap = agi_vial_colors(col)
+            c.rect(seat, x, y, s, s)
+            c.panel(x + 2, y + 2, s - 4, s - 4, top=top, bottom=bottom,
+                    radius=7)
+            c.panel(x + 7, y + 5, s - 14, 6, top=cap, radius=3)
+
+        def _mold(self, c, x, y, gx, gy, hot):
+            s = AGI_CELL
+            seat, top, bottom, _cap = agi_vial_colors(
+                "#e2f07a" if hot else AGI_COLORS[AGI_MOLD])
+            c.rect(seat, x, y, s, s)
+            c.panel(x + 2, y + 2, s - 4, s - 4, top=top, bottom=bottom,
+                    radius=3)
+            # Spores, placed from the cell's own coordinates so a colony keeps
+            # its pattern instead of crawling every frame.
+            h = (gx * 7 + gy * 13) % 5
+            c.rect("#262a08cc", x + 6 + h, y + 7, 4, 4)
+            c.rect("#262a08cc", x + 16 - h, y + 13, 3, 3)
+            c.rect("#262a08cc", x + 9, y + 18 - h // 2, 3, 3)
 
         def _draw_piece(self, c, shake):
             p = self.piece
             if p is None:
                 return
             col = AGI_COLORS[p["kind"]]
+            cells = self._cells(p["kind"], p["flip"], p["rot"], p["x"], p["y"])
 
-            # Ghost first, so the real piece draws over it.
-            gy = self._ghost_y()
-            if gy != p["y"]:
-                for x, y in self._cells(p["kind"], p["rot"], p["x"], gy):
-                    if y < AGI_H - AGI_VIS:
+            # THE DROP BEAM: every column the rack occupies is lit from its
+            # lowest vial down to where that vial will land, with a bright edge
+            # under the landing cell.
+            drop = self._landing_y() - p["y"]
+            if drop > 0:
+                lowest = {}
+                for x, y in cells:
+                    if y > lowest.get(x, -99):
+                        lowest[x] = y
+                beam = col + "1a"
+                edge = col + "cc"
+                for x, y in lowest.items():
+                    land = y + drop
+                    if land < AGI_HIDDEN:
                         continue
-                    cx, cy = self._cell_xy(x, y)
-                    c.frame(col + "55", cx + shake + 2, cy + 2,
-                            AGI_CELL - 4, AGI_CELL - 4, 2)
+                    top = max(y + 1, AGI_HIDDEN)
+                    bx, by = self._cell_xy(x, top)
+                    c.rect(beam, bx + shake + 5, by, AGI_CELL - 10,
+                           (land - top + 1) * AGI_CELL)
+                    ex, ey = self._cell_xy(x, land)
+                    c.rect(edge, ex + shake + 3, ey + AGI_CELL - 3,
+                           AGI_CELL - 6, 3)
 
-            # A piece about to lock brightens, so "it is going to set NOW" is
-            # visible rather than something you learn by losing.
+            # THE FROST: a rack about to set ices over from its edges, in four
+            # steps, so "it sets NOW" is something you see coming.
             settle = ag_clamp(self.lock_timer / float(AGI_LOCK), 0.0, 1.0)
-            face = ag_mix(col, "#ffffff", 0.45 * settle)
-            for x, y in self._cells(p["kind"], p["rot"], p["x"], p["y"]):
-                if y < AGI_H - AGI_VIS:
+            frost = int(settle * 4 + 0.5)
+            for x, y in cells:
+                if y < AGI_HIDDEN:
                     continue
                 cx, cy = self._cell_xy(x, y)
-                self._block(c, cx + shake, cy, face)
+                self._vial(c, cx + shake, cy, col)
+                if frost:
+                    c.frame("#e8fbff%02x" % (40 + 44 * frost), cx + shake + 2,
+                            cy + 2, AGI_CELL - 4, AGI_CELL - 4, 1 + frost)
 
-        def _block(self, c, x, y, col):
-            c.rect(ag_mix(col, "#0b0720", 0.45), x, y, AGI_CELL, AGI_CELL)
-            c.rect(col, x + 2, y + 2, AGI_CELL - 4, AGI_CELL - 4)
-            c.rect(ag_mix(col, "#ffffff", 0.45), x + 2, y + 2, AGI_CELL - 4, 3)
-
-        def _draw_side(self, c):
-            # HOLD, left of the well.
-            hx = AGI_BX - 168
-            c.panel(hx, AGI_BY, 140, 120, top="#1b1440e0", bottom="#0f0a26ee",
+        def _draw_conveyor(self, c):
+            """THE CONVEYOR: the next three racks ride a belt over the chute,
+            nearest first."""
+            w = 420
+            x0 = AG_W / 2 - w / 2
+            y0 = 96
+            h = 56
+            c.panel(x0, y0, w, h, top="#1b1440e0", bottom="#0f0a26ee",
                     radius=12, border=1.0, bcolor="#ffffff18")
-            c.text("HOLD", hx + 14, AGI_BY + 12, size=12, color=AG_FAINT,
-                    bold=True, kerning=2.0)
-            if self.hold:
-                self._draw_mini(c, self.hold, hx + 70, AGI_BY + 74,
-                                dim=self.hold_used)
-
-            # NEXT, right of the well.
-            nx = AGI_BX + AGI_W * AGI_CELL + 28
-            c.panel(nx, AGI_BY, 140, 300, top="#1b1440e0", bottom="#0f0a26ee",
-                    radius=12, border=1.0, bcolor="#ffffff18")
-            c.text("NEXT", nx + 14, AGI_BY + 12, size=12, color=AG_FAINT,
-                    bold=True, kerning=2.0)
+            c.text("NEXT", x0 + 16, y0 + h / 2.0, size=11, color=AG_FAINT,
+                   bold=True, kerning=2.0, anchor=(0.0, 0.5))
+            # Belt treads crawl with the clock so the belt reads as moving.
+            span = w - 40
+            off = (self.tick // 2) % 16
+            for k in range(0, span, 16):
+                c.rect("#ffffff12", x0 + 20 + (k + off) % span, y0 + h - 7, 7, 2)
             for i, kind in enumerate(self.queue[:3]):
-                self._draw_mini(c, kind, nx + 70, AGI_BY + 74 + i * 84,
-                                scale=(1.0 if i == 0 else 0.78))
+                self._draw_mini(c, kind, x0 + 150 + i * 104, y0 + h / 2.0 - 2,
+                                scale=(1.0 if i == 0 else 0.76))
 
-        def _draw_mini(self, c, kind, cx, cy, scale=1.0, dim=False):
-            """Draw a piece centred on (cx, cy) at a smaller cell size."""
-            size = int(AGI_CELL * 0.62 * scale)
-            cells = AGI_SHAPES[kind][0]
+        def _draw_mini(self, c, kind, cx, cy, scale=1.0):
+            """A rack centred on (cx, cy) at a smaller vial size."""
+            size = max(6, int(AGI_CELL * 0.5 * scale))
+            cells = AGI_STATES[(kind, 0)][0]
             xs = [p[0] for p in cells]
             ys = [p[1] for p in cells]
             w = (max(xs) - min(xs) + 1) * size
             h = (max(ys) - min(ys) + 1) * size
             ox = cx - w / 2.0 - min(xs) * size
             oy = cy - h / 2.0 - min(ys) * size
-            col = AGI_COLORS[kind]
-            if dim:
-                col = ag_mix(col, "#3a3350", 0.62)
+            seat, top, _bottom, cap = agi_vial_colors(AGI_COLORS[kind])
             for px, py in cells:
                 x = ox + px * size
                 y = oy + py * size
-                c.rect(ag_mix(col, "#0b0720", 0.45), x, y, size, size)
-                c.rect(col, x + 2, y + 2, size - 4, size - 4)
+                c.rect(seat, x, y, size, size)
+                c.rect(top, x + 1, y + 1, size - 2, size - 2)
+                c.rect(cap, x + 3, y + 2, size - 6, 2)
+
+        def _draw_side(self, c):
+            ink = AGI_MOLD_HOT
+            # MOLD, left of the well -- beside the stack it lives in.
+            lx = AGI_BX - 196
+            ly = AGI_BY
+            c.panel(lx, ly, 168, 196, top="#1b1440e0", bottom="#0f0a26ee",
+                    radius=12, border=1.0, bcolor="#ffffff18")
+            mold = self.mold_cells()
+            c.text("MOLD", lx + 16, ly + 14, size=12,
+                   color=(ink if mold else AG_FAINT), bold=True, kerning=2.0)
+            c.text(str(mold), lx + 16, ly + 32, size=34,
+                   color=(ink if mold else AG_DIM), bold=True)
+            c.text("cells on the board", lx + 16, ly + 76, size=12, color=AG_FAINT)
+            if not mold:
+                grow, grow_col = "nothing growing", AG_FAINT
+            elif self.grow_in <= 1:
+                grow, grow_col = "grows next rack", "#e2f07a"
+            else:
+                grow, grow_col = "grows in %d racks" % self.grow_in, AG_DIM
+            c.text(grow, lx + 16, ly + 106, size=13, color=grow_col)
+            if self.seed_col is not None:
+                seed, seed_col = "new mold next rack", ink
+            else:
+                due = max(0, self.seed_at - self.pieces_placed)
+                seed = "new mold in %d rack%s" % (due, "" if due == 1 else "s")
+                seed_col = AG_DIM
+            c.text(seed, lx + 16, ly + 128, size=13, color=seed_col)
+            c.text("%d cleared" % self.mold_purged, lx + 16, ly + 164, size=12,
+                   color=AG_FAINT)
+
+            # STREAK, right of the well.
+            rx = AGI_BX + AGI_W * AGI_CELL + 28
+            c.panel(rx, ly, 168, 196, top="#1b1440e0", bottom="#0f0a26ee",
+                    radius=12, border=1.0, bcolor="#ffffff18")
+            c.text("STREAK", rx + 16, ly + 14, size=12, color=AG_FAINT,
+                   bold=True, kerning=2.0)
+            c.text("x%d" % self.streak, rx + 16, ly + 32, size=34,
+                   color=(AGI_ACCENT if self.streak > 1 else AG_DIM), bold=True)
+            c.text("best x%d" % self.best_streak, rx + 16, ly + 76, size=12,
+                   color=AG_FAINT)
+            into = self.lines % AGI_ROWS_PER_SHIFT
+            c.text("next level in %d rows" % (AGI_ROWS_PER_SHIFT - into), rx + 16,
+                   ly + 106, size=13, color=AG_DIM)
+            c.bar(rx + 16, ly + 130, 136, 4, into / float(AGI_ROWS_PER_SHIFT),
+                  AGI_ACCENT)
+            c.text("%d full rack%s" % (self.full_racks,
+                                       "" if self.full_racks == 1 else "s"),
+                   rx + 16, ly + 164,
+                   size=12, color=AG_FAINT)
+
+            # What the colours mean, under the streak plate.
+            y = ly + 222
+            for n in (3, 4, 5):
+                c.rect(AGI_FAMILY[n], rx + 16, y + 2, 10, 10)
+                c.text("%d-cell racks" % n, rx + 34, y, size=12, color=AG_DIM)
+                y += 22
+            c.rect(AGI_COLORS[AGI_MOLD], rx + 16, y + 2, 10, 10)
+            c.text("mold", rx + 34, y, size=12, color=AG_DIM)
 
         def _draw_hud(self, c):
-            c.header("INTAKE", "MATSUCOM  //  COLD STORAGE", AGI_ACCENT)
+            c.header("INTAKE", "MATSUCOM", AGI_ACCENT)
             c.stat_row([
-                ("SHELVES", str(self.lines), AG_DIM),
-                ("SHIFT", str(self.level), AG_INK),
+                ("ROWS", str(self.lines), AG_DIM),
+                ("LEVEL", str(self.level), AG_INK),
                 ("BEST", ag_num(max(self.score, ag_best("intake_score"))),
                     AG_DIM),
                 ("SCORE", ag_num(self.score), AG_INK),
             ])
 
-            # Contamination status sits under the HOLD plate -- beside the
-            # board it is about to change, not stranded in a column of its own
-            # halfway across the screen.
-            hx = AGI_BX - 168
-            y = AGI_BY + 140
-            nxt = max(0, self.garbage_at - self.pieces_placed)
-            warn = bool(self.garbage_warn)
-            c.text("CONTAMINATION", hx, y, size=12,
-                    color=("#e0455e" if warn else AG_FAINT), bold=True,
-                    kerning=2.0)
-            c.text("%d absorbed" % self.garbage_taken, hx, y + 20, size=14,
-                    color=AG_DIM)
-            c.text(("inbound now" if warn else "next batch in %d" % nxt),
-                    hx, y + 40, size=14,
-                    color=("#e0455e" if warn else AG_FAINT))
-
-            # Line-clear callouts land INSIDE the well, over the rows that just
-            # went. At the foot of the screen they were competing with the
-            # control legend for the same twenty pixels.
+            # Callouts land INSIDE the well, over the shelves that just went.
             if self.note is not None:
                 text, left, col = self.note
                 c.text(text, AGI_BX + AGI_W * AGI_CELL / 2, AGI_BY + 40,
-                        size=20, color=col, bold=True, kerning=2.0,
+                        size=18, color=col, bold=True, kerning=2.0,
                         anchor=(0.5, 0.5),
                         alpha=ag_clamp(left / 40.0, 0.0, 1.0))
 
-            c.legend("ARROWS MOVE  //  X / Z ROTATE  //  SPACE DROP  //  "
-                    "C HOLD  //  ESC PAUSE")
+            c.legend("ARROWS MOVE  //  X / Z TURN  //  C FLIP  //  "
+                     "SPACE DROP  //  ESC PAUSE")
 
         # ---- results --------------------------------------------------------
 
@@ -698,9 +866,12 @@ init python:
             return [
                 ("SCORE", ag_num(self.score)),
                 ("BEST", ag_num(max(self.score, ag_best("intake_score")))),
-                ("SHELVES PROCESSED", str(self.lines)),
-                ("SHIFT REACHED", str(self.level)),
-                ("CONTAMINATION ABSORBED", str(self.garbage_taken)),
+                ("ROWS  (FULL RACKS)", "%d  (%d)" % (self.lines,
+                                                        self.full_racks)),
+                ("LEVEL REACHED", str(self.level)),
+                ("LONGEST STREAK", "x%d" % self.best_streak),
+                ("MOLD SPAWNED / CLEARED", "%d / %d" % (self.mold_seeded,
+                                                      self.mold_purged)),
             ]
 
 
@@ -712,31 +883,35 @@ init python:
         AGI_K_CW1, AGI_K_CW2 = _agi_pg.K_UP, _agi_pg.K_x
         AGI_K_CCW = _agi_pg.K_z
         AGI_K_HARD = _agi_pg.K_SPACE
-        AGI_K_HOLD1, AGI_K_HOLD2, AGI_K_HOLD3 = (
+        AGI_K_FLIP1, AGI_K_FLIP2, AGI_K_FLIP3 = (
             _agi_pg.K_c, _agi_pg.K_LSHIFT, _agi_pg.K_RSHIFT)
     except Exception:
         AGI_K_LEFT = AGI_K_RIGHT = AGI_K_DOWN = -1
         AGI_K_CW1 = AGI_K_CW2 = AGI_K_CCW = AGI_K_HARD = -1
-        AGI_K_HOLD1 = AGI_K_HOLD2 = AGI_K_HOLD3 = -1
+        AGI_K_FLIP1 = AGI_K_FLIP2 = AGI_K_FLIP3 = -1
 
 
     def ag_intake_cover():
-        """Box art: a shelf mid-stack, one row about to be processed."""
+        """Box art: a five-vial rack coming down onto a stack that has a mold
+        colony climbing out of it."""
         parts = ag_cover_base(AGI_ACCENT)
         stack = [
-            (0, 3, "J"), (1, 3, "J"), (2, 3, "T"), (3, 3, "T"), (4, 3, "L"),
-            (0, 4, "S"), (1, 4, "S"), (2, 4, "O"), (3, 4, "O"), (4, 4, "L"),
-            (2, 1, "I"), (2, 2, "I"),
+            (0, 4, "S4"), (1, 4, "S4"), (2, 4, "#"), (3, 4, "P5"), (4, 4, "P5"),
+            (5, 4, "I3"), (0, 3, "V3"), (1, 3, "L4"), (2, 3, "#"), (3, 3, "P5"),
+            (4, 3, "P5"), (0, 2, "V3"), (2, 2, "#"),
+            (4, 0, "I5"), (5, 0, "I5"), (4, 1, "I5"),
         ]
         for cx, cy, kind in stack:
             col = AGI_COLORS[kind]
-            x = 48 + cx * 46
-            y = 34 + cy * 40
-            parts.append(Transform(Solid(ag_mix(col, "#0b0720", 0.45),
-                                        xysize=(42, 36)), pos=(x, y)))
-            parts.append(Transform(Solid(col, xysize=(36, 30)),
-                                    pos=(x + 3, y + 3)))
-        parts += ag_cover_title("COLD STORAGE", "INTAKE", AGI_ACCENT)
+            seat, top, _bottom, cap = agi_vial_colors(col)
+            x = 58 + cx * 34
+            y = 42 + cy * 36
+            parts.append(Transform(Solid(seat, xysize=(32, 34)), pos=(x, y)))
+            parts.append(Transform(Solid(top, xysize=(26, 28)),
+                                   pos=(x + 3, y + 3)))
+            parts.append(Transform(Solid(cap, xysize=(16, 5)),
+                                   pos=(x + 8, y + 6)))
+        parts += ag_cover_title("FALLING BLOCKS", "INTAKE", AGI_ACCENT)
         return Fixed(*parts, xysize=(AG_COVER_SIZE, AG_COVER_SIZE))
 
 
@@ -744,9 +919,9 @@ init python:
         "intake", AGIntake,
         title="Intake",
         accent=AGI_ACCENT,
-        blurb="Rack the samples, fill a shelf, get it processed. Standard "
-                "controls, standard rotation, except the backlog pushes a "
-                "contaminated row up from the bottom on its own schedule.",
+        blurb="Stack racks of three, four and five cells and fill rows to "
+              "clear them. Flip a rack instead of holding one, and don't let "
+              "the mold on your stack grow.",
         controls=AGIntake.CONTROLS,
         music=audio.tetris,
         cover=ag_intake_cover,

@@ -1,45 +1,9 @@
-# =============================================================================
-# DEV HUB
-# The single front door for every developer-only feature in ENTER M.
-#
-# WHY THIS EXISTS
-#   Dev affordances had grown into the game's own screens -- a DEV SHOP pill
-#   welded to the Archive's achievement list, a DEV pill on the prize machine,
-#   a route picker that only existed because New Game happened to pass through
-#   it. Each one was a hole cut in a shipping feature for a reason that has
-#   nothing to do with shipping. This module closes those holes and puts every
-#   one of them behind a single door instead.
-#
-# WHAT IT IS
-#   ONE mount point (a pill in the main menu's top-right corner, plus F9) and
-#   ONE hub screen with six pages. Nothing else in the game has to know it is
-#   here: the mount is guarded by `renpy.has_screen`, so deleting this folder
-#   removes the whole feature without leaving a broken reference anywhere.
-#
-# WHAT IT OWNS vs. WHAT IT CALLS
-#   It OWNS the hub, the mount and the sprite viewer. Everything else it CALLS:
-#   the achievement shop still lives in Achievements/, the coin bench in
-#   Matsucoin.../, the date router in Developer Date Jump/. A dev feature stays
-#   in the module it belongs to; the hub is only the place you reach it from.
-#   Adding a feature here is a row in DEV_HUB_PAGES plus a page screen.
-#
-# EVERY CONTROL IS GUARDED
-#   `dev_hub_has()` checks a name is in the store before a button offers it, so
-#   the hub survives any addon being pulled out from under it and says which
-#   ones are missing rather than crashing.
-#
-# STYLE
-#   The terminal chrome of the pause menu and main menu, but RED-led rather
-#   than cyan-led: a dev surface must never be mistakable for a player one at a
-#   glance. Everything is Solid/Text/ATL, no shaders -- this has to be reliable
-#   on a cold main menu, not pretty.
-#
-# BUILD
-#   options.rpy excludes this whole folder from a release build. The mount and
-#   every entry point is also gated on config.developer at runtime, so a build
-#   that somehow shipped it would still show nothing.
-# =============================================================================
-
+# Developer tools hub, reached through F9 or the main-menu developer control.
+# DEV_HUB_PAGES defines the available pages. The hub owns the sprite viewer;
+# achievement, currency, routing and writing tools remain in their own modules.
+# dev_hub_has() guards optional tool references. Entry points require
+# config.developer; options.rpy excludes this folder from release builds.
+# Solid/Text/ATL terminal controls remain readable before shader warmup.
 
 init python:
 
@@ -51,9 +15,11 @@ init python:
     DEV_HUB_PAGES = (
         ("routing",  "ROUTING",  "Where a session starts."),
         ("unlocks",  "UNLOCKS",  "Side content and achievements."),
+        ("firsts",   "FLAGS",   "One-time moments, re-armed."),
         ("economy",  "ECONOMY",  "Matsucoins and the binder."),
         ("combat",   "COMBAT",   "Fights, invasions, godmode."),
         ("sprites",  "SPRITES",  "Cast viewer -- poses and faces."),
+        ("writing",  "WRITING",  "Prose, staging and music cues."),
         ("system",   "SYSTEM",   "Build, engine, Ren'Py tools."),
     )
 
@@ -88,6 +54,16 @@ init python:
         renpy.restart_interaction()
         return None
 
+    def dev_hub_open_rhythm_editor():
+        """Keep the title's menu identity out of the chart editor context."""
+        if not config.developer:
+            return None
+        if not renpy.has_label("asahina_rhythm_chart_editor"):
+            renpy.notify("DEV HUB: Asahina's chart editor is not installed.")
+            return None
+        renpy.call_in_new_context("dev_hub_rhythm_editor_context")
+        return None
+
     def dev_hub_flag(value):
         """(text, colour) for a live on/off/partial readout."""
         if value is True or value == "ENABLED":
@@ -108,6 +84,21 @@ init python:
             return None
         try:
             return len(dev_date_jump_available_codes())
+        except Exception:
+            return None
+
+    def dev_hub_chapter_counts():
+        """(open, total) read off Chapter Select's own table, or None if gone.
+
+        Chapter Select decides what is playable by asking the script which
+        entry labels exist, so this readout cannot drift from what New Game
+        will actually offer -- there is no second list to disagree with.
+        """
+        if not dev_hub_has("chapter_select_rows"):
+            return None
+        try:
+            rows = chapter_select_rows()
+            return (sum(1 for row in rows if row[4]), len(rows))
         except Exception:
             return None
 
@@ -163,6 +154,112 @@ init python:
             return dev_date_jump_side_content_state()
         except Exception:
             return None
+
+    # -------------------------------------------------------------------------
+    # FIRST-TIME FLAGS
+    # Every persistent flag that stands between the player and a moment the
+    # game plays exactly ONCE. The hub owns this table and nothing else: each
+    # row names the file that owns the flag plus a label, screen or store name
+    # from that file, and a row whose owner is missing reports NOT INSTALLED
+    # rather than offering to write a flag that nothing reads.
+    #
+    # `armed` is the value the owner reads as "not seen yet" -- the flag's own
+    # declared default -- so re-arming puts a profile back exactly where a new
+    # install starts. Every write goes through renpy.save_persistent(): a
+    # boot-time moment can only be re-tested by quitting and relaunching, and a
+    # persistent write that was never flushed does not survive that.
+    #
+    # DELIBERATELY NOT OFFERED, and listed read-only on the page instead:
+    #   one-time MIGRATIONS, which fire on a profile rather than in front of a
+    #   player, and flags that share their key with PROGRESS. Re-arming those is
+    #   a side effect, not a replay. Per-SAVE one-time flags are not in the
+    #   table at all -- the hub runs from the title with no save loaded, and a
+    #   new game re-arms them anyway.
+    # -------------------------------------------------------------------------
+    DEV_HUB_FLAGS = (
+        dict(
+            key="vault_greeted", label="VAULT GREETING",
+            owner="addons/Vault/vault.rpy",
+            guard=("label", "vault_greeting"), armed=False,
+            replays="Kotonoha waiting in the Vault, the next time it is opened from the Archive."),
+        dict(
+            key="first_run", label="FIRST-BOOT NOTICE",
+            owner="splash.rpy + first_boot_notice.rpy",
+            guard=("screen", "enter_m_first_boot_notice"), armed=None,
+            replays="The PLEASE READ notice. It lives in the splashscreen, so it plays on the next LAUNCH -- quit and relaunch to see it."),
+        dict(
+            key="first_poem", label="FIRST POEM HINT",
+            owner="addons/poem_display.rpy",
+            guard=("label", "enter_m_showpoem"), armed=None,
+            replays="The click-to-dismiss hint drawn over the next poem shown."),
+        dict(
+            key="first_load", label="FIRST LOAD HINT",
+            owner="splash.rpy (after_load)",
+            guard=("label", "after_load"), armed=None,
+            replays="The Skip-button hint after the next load. splash.rpy never shows it while config.developer is True, so it is only testable in a non-developer run."),
+    )
+
+    DEV_HUB_ONE_TIME_OTHER = (
+        dict(
+            key="archive_open_shell_migrated", label="ARCHIVE SHELL MIGRATION",
+            owner="archive.rpy", guard=("screen", "archive"), kind="MIGRATION",
+            why="Forces five Archive panels open on a profile from before they shipped open. Re-running it only re-opens panels that already ship open."),
+        dict(
+            key="ach_chapter05_migration_done", label="CHAPTER 0.5 TROPHY MIGRATION",
+            owner="Achievements/achievements.rpy", guard=("name", "ACHIEVEMENTS"), kind="MIGRATION",
+            why="Copies a pre-rebuild Music Room unlock into chapter05_completed once. The sentinel is what stops ALL SIDE CONTENT's Music Room from counting as finishing Chapter 0.5."),
+        dict(
+            key="cs_df_tactics_release_seen", label="DEAD FANTASY RELEASE GRANT",
+            owner="Character Stories/cs_matsuda_01.rpy", guard=("name", "cs_df_field_dispatch"), kind="MIGRATION",
+            why="Grants the side story at init 950 to readers who finished Chapter 0.5 before it shipped -- a boot-time grant, not a scene."),
+        dict(
+            key="autofocus_dim_mode_chosen", label="SPEAKER FOCUS DEFAULT",
+            owner="Autofocus/autofocus.rpy", guard=("name", "autofocus_set_dim_mode"), kind="MIGRATION",
+            why="Moves an untouched profile from Opaque to Darken, and is also set when the player picks a mode -- clearing it would second-guess a real choice."),
+        dict(
+            key="asahina_rhythm_speed_rescaled", label="ASARHYTHM SCROLL SPEED RESCALE",
+            owner="Asahina Rhythm/asahina_rhythm.rpy", guard=("name", "ar_scroll_factor"), kind="MIGRATION",
+            why="Halves a stored scroll speed once, because 1.0x now means what 2.0x used to. An untouched old 1.0x becomes the new 1.0x instead. Clearing it halves the speed again at the next boot."),
+        dict(
+            key="kotomode_cleared", label="KOTONOHA MODE CLEAR",
+            owner="kotonohamode/kototouhou.rpy", guard=("label", "kototouhou"), kind="PROGRESS",
+            why="Picks her first-visit intro over the 'Welcome back' one, but it IS the clear flag -- clearing it re-locks progress rather than replaying a moment."),
+    )
+
+    def dev_hub_first_owner_live(entry):
+        """Is the file that reads this flag actually installed?"""
+        kind, name = entry["guard"]
+        if kind == "label":
+            return renpy.has_label(name)
+        if kind == "screen":
+            return renpy.has_screen(name)
+        return dev_hub_has(name)
+
+    def dev_hub_first_state(entry):
+        """(text, colour): ARMED plays next time, SPENT has already played."""
+        if not dev_hub_first_owner_live(entry):
+            return ("NOT INSTALLED", "#5d7886")
+        if getattr(persistent, entry["key"], None):
+            return ("SPENT", "#7f95a3")
+        return ("ARMED", "#37e08a")
+
+    def dev_hub_first_set(key, value):
+        """Write one first-time flag, flushed so it survives a relaunch."""
+        setattr(persistent, key, value)
+        renpy.save_persistent()
+        renpy.notify("DEV HUB: persistent.%s = %r" % (key, value))
+        renpy.restart_interaction()
+        return None
+
+    def dev_hub_first_rearm_all():
+        """Re-arm every installed first-time moment in one flush."""
+        for entry in DEV_HUB_FLAGS:
+            if dev_hub_first_owner_live(entry):
+                setattr(persistent, entry["key"], entry["armed"])
+        renpy.save_persistent()
+        renpy.notify("DEV HUB: every installed first-time moment re-armed.")
+        renpy.restart_interaction()
+        return None
 
 
 # =============================================================================
@@ -852,6 +949,25 @@ transform dev_hub_pill_lamp:
 # under the build stamp -- clear of the title block, the stage monitor, the
 # telemetry stack and the channel rail, so it costs the desk nothing.
 # =============================================================================
+label dev_hub_rhythm_editor_context:
+    if not config.developer or not renpy.has_label("asahina_rhythm_chart_editor"):
+        return
+    python:
+        renpy.context_dynamic("main_menu", "_menu", "_game_menu_screen",
+            "quick_menu", "arcade_active")
+        main_menu = False
+        _menu = False
+        _game_menu_screen = None
+        quick_menu = False
+        arcade_active = False
+        renpy.context()._menu = False
+        renpy.context()._main_menu = False
+    hide screen dev_hub
+    scene black
+    call asahina_rhythm_chart_editor from _call_dev_hub_rhythm_editor
+    return
+
+
 screen dev_hub_mount():
 
     if config.developer:
@@ -923,31 +1039,33 @@ screen dev_hub():
         action Return()
 
     # --- the rail -------------------------------------------------------------
+    # Eight 46px pages with 6px gaps end at y 510, above MODULES at 528.
     vbox:
         xpos 44
         ypos 100
-        spacing 8
+        spacing 6
 
         for dh_i, (dh_key, dh_label, dh_strap) in enumerate(DEV_HUB_PAGES):
 
             button:
                 style "dh_rail_button"
-                xysize (238, 60)
+                id ("dh_page_" + dh_key)
+                xysize (238, 46)
                 action SetScreenVariable("dh_page", dh_key)
                 selected (dh_page == dh_key)
                 at dev_hub_slide_in(0.03 + 0.03 * dh_i)
 
                 fixed:
-                    xysize (238, 60)
-                    add Solid("#ff315b" if dh_page == dh_key else "#2a3a47") xysize (4, 60)
+                    xysize (238, 46)
+                    add Solid("#ff315b" if dh_page == dh_key else "#2a3a47") xysize (4, 46)
                     text dh_label:
                         style ("dh_rail_label_on" if dh_page == dh_key else "dh_rail_label")
                         xpos 18
-                        ypos 9
+                        ypos 7
                     text dh_strap:
                         style "dh_rail_strap"
                         xpos 18
-                        ypos 33
+                        ypos 30
                         xmaximum 206
 
     # --- rail footer: what the hub is fronting, live -------------------------
@@ -998,12 +1116,16 @@ screen dev_hub():
                     use dev_hub_page_routing
                 elif dh_page == "unlocks":
                     use dev_hub_page_unlocks
+                elif dh_page == "firsts":
+                    use dev_hub_page_firsts
                 elif dh_page == "economy":
                     use dev_hub_page_economy
                 elif dh_page == "combat":
                     use dev_hub_page_combat
                 elif dh_page == "sprites":
                     use dev_hub_page_sprites
+                elif dh_page == "writing":
+                    use dev_hub_page_writing
                 else:
                     use dev_hub_page_system
 
@@ -1068,11 +1190,15 @@ screen dh_missing(what):
 
 # =============================================================================
 # PAGE // ROUTING
-# The date router is NOT reimplemented here. It is already the New Game path in
-# a dev build (script.rpy jumps to it), it already discovers its own routes,
-# and it already hosts the out-of-context catalog and the invasion launcher.
-# Duplicating its grid here would mean two route pickers to keep in step, so
-# this page reports on it and opens it.
+# THIS PAGE IS THE DATE ROUTER'S ONLY DOOR. It used to be a second one: New
+# Game in a developer build jumped straight to the router, so the hub merely
+# reported on a screen you were going to hit anyway. That fork is gone --
+# script.rpy sends every build to Chapter Select now, because the route players
+# take should be the route development walks. The router is unchanged and is
+# still not reimplemented here; it discovers its own routes and hosts the
+# out-of-context catalog and the invasion launcher. This page counts what it
+# holds and opens it, via `dev_date_jump_start`, which lays down the same fresh
+# session state `start` does.
 # =============================================================================
 screen dev_hub_page_routing():
 
@@ -1080,15 +1206,23 @@ screen dev_hub_page_routing():
         _dh_routes = dev_hub_route_count()
         _dh_ooc = dev_hub_ooc_count()
         _dh_inv = dev_hub_invasion_counts()
+        _dh_router = (
+            dev_hub_has("dev_date_jump_available_codes")
+            and renpy.has_label("dev_date_jump_start"))
+        _dh_chapters = dev_hub_chapter_counts()
 
     use dh_block(
         "STORY ROUTING",
-        "In a developer build New Game does not open the story -- it opens the date router, "
-        "which starts a clean session at any day that has a label. This is the same door.",
+        "Two doors out of the title, and they are not the same door. New Game opens Chapter "
+        "Select in every build. The date router is dev-only and starts a clean session at any "
+        "day that has a label -- it is reached from here and nowhere else.",
     ):
 
         use dh_stat("ROUTES ONLINE", ("%d" % _dh_routes) if _dh_routes is not None else "--",
                     "#37e08a" if _dh_routes else "#ff6680")
+        use dh_stat("CHAPTERS OPEN",
+                    ("%d of %d" % _dh_chapters) if _dh_chapters else "--",
+                    "#37e08a" if (_dh_chapters and _dh_chapters[0]) else "#ff6680")
         use dh_stat("OUT OF CONTEXT SCENES", ("%d" % _dh_ooc) if _dh_ooc is not None else "--")
         use dh_stat("ARCHIVIST INVASIONS BUILT",
                     ("%d of %d" % (_dh_inv[0], _dh_inv[2])) if _dh_inv else "--")
@@ -1099,8 +1233,12 @@ screen dev_hub_page_routing():
             spacing 12
             textbutton "OPEN DATE ROUTER":
                 style "dh_button_wide"
+                action Start("dev_date_jump_start")
+                sensitive _dh_router
+            textbutton "OPEN CHAPTER SELECT":
+                style "dh_button_wide"
                 action Start()
-                sensitive dev_hub_has("dev_date_jump_available_codes")
+                sensitive renpy.has_label("chapter_select_open")
 
     use dh_block(
         "WHAT THE ROUTER HOLDS",
@@ -1189,6 +1327,112 @@ screen dev_hub_page_unlocks():
                     action Function(dev_hub_call, "ach_dev_clear")
                     sensitive dev_hub_has("ach_dev_clear")
 
+
+# =============================================================================
+# PAGE // FLAGS
+# Every moment the game plays exactly once, and the flag that remembers it has
+# played. The table is DEV_HUB_FLAGS in the init block; this page only draws
+# it. RE-ARM writes the flag's own declared default back, so the moment plays
+# again as it would on a new install; MARK SPENT does the reverse, for checking
+# what a returning player sees. The second card lists the one-time flags that
+# are NOT offered here and why, so their absence reads as a decision.
+# =============================================================================
+screen dev_hub_page_firsts():
+
+    use dh_block(
+        "FIRST-TIME MOMENTS",
+        "ARMED plays the next time its trigger is reached; SPENT has already played on this "
+        "profile. Every write is flushed to disk at once, so a boot-time moment survives the "
+        "relaunch it needs.",
+    ):
+
+        for dh_first in DEV_HUB_FLAGS:
+
+            $ dh_first_live = dev_hub_first_owner_live(dh_first)
+            $ dh_first_text, dh_first_col = dev_hub_first_state(dh_first)
+
+            frame:
+                style "dh_card"
+
+                vbox:
+                    spacing 6
+
+                    fixed:
+                        xsize 812
+                        yfit True
+
+                        text dh_first["label"] style "dh_card_title"
+                        text dh_first_text:
+                            style "dh_card_key"
+                            color dh_first_col
+                            xalign 1.0
+
+                    text ("persistent.%s  //  %s" % (dh_first["key"], dh_first["owner"])):
+                        style "dh_micro"
+
+                    text dh_first["replays"] style "dh_card_note" xmaximum 812
+
+                    hbox:
+                        spacing 10
+
+                        textbutton "RE-ARM":
+                            style "dh_button_row"
+                            action Function(dev_hub_first_set, dh_first["key"], dh_first["armed"])
+                            sensitive dh_first_live
+
+                        textbutton "MARK SPENT":
+                            style "dh_button_row"
+                            action Function(dev_hub_first_set, dh_first["key"], True)
+                            sensitive dh_first_live
+
+        null height 2
+
+        hbox:
+            spacing 12
+            textbutton "RE-ARM ALL":
+                style "dh_button_wide"
+                action Function(dev_hub_first_rearm_all)
+
+    use dh_block(
+        "ONE-TIME, BUT NOT A MOMENT",
+        "These fire once too. A MIGRATION runs on a profile rather than in front of a player; "
+        "PROGRESS shares its key with something the player earned. Re-arming either is a side "
+        "effect, not a replay -- use the console if that is genuinely what you mean.",
+    ):
+
+        for dh_other in DEV_HUB_ONE_TIME_OTHER:
+
+            $ dh_other_live = dev_hub_first_owner_live(dh_other)
+            $ dh_other_val = getattr(persistent, dh_other["key"], None)
+
+            frame:
+                style "dh_card"
+
+                vbox:
+                    spacing 6
+
+                    fixed:
+                        xsize 812
+                        yfit True
+
+                        text dh_other["label"] style "dh_card_title"
+                        text (("%s  //  %s" % (dh_other["kind"], "SET" if dh_other_val else "UNSET")) if dh_other_live else "NOT INSTALLED"):
+                            style "dh_card_key"
+                            color ("#ffd166" if dh_other_live else "#5d7886")
+                            xalign 1.0
+
+                    text ("persistent.%s  //  %s" % (dh_other["key"], dh_other["owner"])):
+                        style "dh_micro"
+
+                    text dh_other["why"] style "dh_card_note" xmaximum 812
+
+    use dh_block(
+        "ONE-TIME PER SAVE",
+        "Not persistent, so not on this page: Hina's World's hinas_world_seen_* flags and "
+        "hw_browser_opened_once, and the phone's phone_random_seen. They live inside a save; the "
+        "hub runs from the title with none loaded, and a new game re-arms them.",
+    ):
+        null height 0
 
 # =============================================================================
 # PAGE // ECONOMY
@@ -1298,6 +1542,8 @@ screen dev_hub_page_combat():
              "Read any single wave, your pick, from a grid."),
             ("Tsubaki (soul fight)", "Menu: Open the door (DEV)",
              "Fast routes -- skips to the branch ends."),
+            ("Asarhythm", "Setup: Chart Editor (DEV)",
+             "Chart notes and sustains against the song, then playtest from the editor."),
             ("Matsuda (main fight)", "Party: Seeker",
              "Scan is swapped for a move that always deals 50% of Matsuda's max HP."),
         )
@@ -1331,6 +1577,17 @@ screen dev_hub_page_combat():
                     action Function(dev_hub_call, "inv_clear_record")
                     sensitive dev_hub_has("inv_clear_record")
 
+    if config.developer:
+        use dh_block(
+            "ASARHYTHM",
+            "Build and edit song charts, preview the music, and playtest the note timing.",
+        ):
+            textbutton "OPEN CHART EDITOR":
+                id "dh_rhythm_editor"
+                style "dh_button_wide"
+                action Function(dev_hub_open_rhythm_editor)
+                sensitive renpy.has_label("asahina_rhythm_chart_editor")
+
     use dh_block(
         "IN-FIGHT AFFORDANCES",
         "These live inside a running fight and cannot be thrown from here. This is the "
@@ -1361,6 +1618,21 @@ screen dev_hub_page_combat():
 # =============================================================================
 # PAGE // SPRITES
 # =============================================================================
+screen dev_hub_page_writing():
+    use dh_block("STORY WRITER", "Write prose with the scene beside it. Arrange backgrounds, sprites and ATL; place music cues; then read the unsaved scene in the game."):
+        if config.developer and dev_hub_has("story_writer_open"):
+            textbutton "OPEN STORY WRITER":
+                style "dh_button_wide"
+                action Function(dev_hub_call, "story_writer_open")
+        else:
+            use dh_missing("Story Writer")
+    use dh_block("YOUR STORY FILES", "Open existing chapters or create a scene. Custom Python and poem logic remain preserved source. Draft recovery and source backups live outside the game's loaded scripts."):
+        use dh_stat("WRITE", "Textboxes, speakers, expressions and Nier prose", "#8fb4c4")
+        use dh_stat("STAGE", "Images, slots, transitions and animation preview", "#8fb4c4")
+        use dh_stat("MUSIC", "Track audition, play / queue / stop, fades and looping", "#8fb4c4")
+        use dh_stat("SAVE", "Ordinary .rpy source, validated before replacement", "#8fb4c4")
+
+
 screen dev_hub_page_sprites():
 
     python:
@@ -1431,6 +1703,65 @@ screen dev_hub_page_system():
                     "#37e08a" if renpy.get_autoreload() else "#7f95a3")
         use dh_stat("MEASURED FRAME RATE",
                     ("%s fps" % _dh_fps) if _dh_fps is not None else "--", "#8fb4c4")
+
+    # The throttle itself lives in spec_emulator.rpy; this is only its door.
+    if dev_hub_has("DEV_SPEC", "DEV_SPEC_PRESETS"):
+        use dh_block(
+            "SPEC EMULATOR",
+            "Plays the game as a slower machine would. Each frame's real CPU and GPU time is "
+            "measured, and the frame is held until it has cost what it would there, presented "
+            "on a 60Hz panel. Pick a machine, then go play the mode you are worried about -- the "
+            "readout sits bottom-left. The factors are estimates from published benchmarks; "
+            "spec_emulator.rpy lists what this does not model.",
+        ):
+            $ _dh_spec_state = (DEV_SPEC.label if DEV_SPEC.active else
+                                ("ARMING" if DEV_SPEC.pending is not None else "OFF"))
+            use dh_stat("EMULATING", _dh_spec_state,
+                        "#37e08a" if DEV_SPEC.active else "#7f95a3")
+            use dh_stat("GPU TIMER", DEV_SPEC.gl_note or "starts with the first emulated frame",
+                        "#8fb4c4")
+
+            null height 2
+
+            hbox:
+                spacing 10
+                textbutton "OFF":
+                    style "dh_button_row"
+                    action Function(dev_spec_select, None)
+                    selected (not DEV_SPEC.active and DEV_SPEC.pending is None)
+                for _dh_sp in DEV_SPEC_PRESETS[:3]:
+                    textbutton _dh_sp[1]:
+                        style "dh_button_row"
+                        action Function(dev_spec_select, _dh_sp[0])
+                        selected (DEV_SPEC.key == _dh_sp[0])
+            hbox:
+                spacing 10
+                for _dh_sp in DEV_SPEC_PRESETS[3:]:
+                    textbutton _dh_sp[1]:
+                        style "dh_button_row"
+                        action Function(dev_spec_select, _dh_sp[0])
+                        selected (DEV_SPEC.key == _dh_sp[0])
+
+            hbox:
+                spacing 12
+                textbutton ("PIN GPU CLOCKS: ON" if DEV_SPEC.pin else "PIN GPU CLOCKS: OFF"):
+                    style "dh_button_wide"
+                    action ToggleField(DEV_SPEC, "pin")
+                textbutton ("READOUT: ON" if DEV_SPEC.overlay else "READOUT: OFF"):
+                    style "dh_button_wide"
+                    action Function(dev_spec_toggle_overlay)
+
+            text ("PIN GPU CLOCKS keeps this graphics card at full clocks while measuring. At this "
+                    "game's load it otherwise idles at a fraction of them, which inflates every GPU "
+                    "reading (by up to 11x, measured) and so throttles GPU-heavy modes far harder "
+                    "than the named machine would. It costs power and fan noise while it is on."):
+                style "dh_body"
+                xmaximum 840
+
+            for _dh_sp in DEV_SPEC_PRESETS:
+                use dh_stat(_dh_sp[1],
+                            "CPU x%.1f  GPU x%.0f  %s" % (_dh_sp[2], _dh_sp[3], _dh_sp[6]),
+                            "#8fb4c4")
 
     use dh_block(
         "REN'PY DEVELOPER TOOLS",
@@ -1956,6 +2287,14 @@ style dh_button_warn is dh_button:
 style dh_button_warn_text is dh_button_text:
     color "#ff9db1"
     hover_color "#ffffff"
+
+style dh_button_row is dh_button:
+    xsize 150
+    ysize 34
+    padding (10, 6)
+
+style dh_button_row_text is dh_button_text:
+    size 13
 
 # --- the rail ---------------------------------------------------------------
 

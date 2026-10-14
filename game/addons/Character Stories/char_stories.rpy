@@ -6,7 +6,7 @@
 #   The "Side Stories" browser: a sidebar of characters on the left, and on the
 #   right a panel listing that character's standalone short stories. Each story
 #   is its own Matsu'Py label living in a sibling cs_<name>_NN.rpy file; selecting
-#   an unlocked story Starts that label (leaving the menu entirely).
+#   one starts that label in a clean game store (leaving the menu entirely).
 #
 # HOW IT IS REACHED
 #   - Archive "Side Stories" card -> Show("character_stories")  (see game/archive.rpy;
@@ -15,7 +15,7 @@
 # THE DATA MODEL (character_story_catalog, built in init python below)
 #   character_story_catalog = [ CharacterStoryCatalog(...) , ... ]
 #   - CharacterStoryEntry(title, description, label_name, persistent_key)
-#       label_name     : the Matsu'Py label to Start() (defined in a cs_*.rpy file).
+#       label_name     : the Matsu'Py label to launch (defined in a cs_*.rpy file).
 #       persistent_key : name of the persistent bool gating this story.
 #       .unlocked      : getattr(persistent, persistent_key) -> is it playable?
 #   - CharacterStoryCatalog(name, sprite_image, [entries], fit_mode)
@@ -62,7 +62,7 @@ init python:
         def __init__(self, title, description, label_name, persistent_key):
             self.title = title
             self.description = description
-            self.label_name = label_name        # label to Start() when picked
+            self.label_name = label_name        # standalone label to launch
             self.persistent_key = persistent_key # persistent bool gating it
 
         # Live lock state, read straight off persistent each render.
@@ -158,7 +158,7 @@ init python:
             "Matsuda",
             "matsuda neut",
             [
-                CharacterStoryEntry("Dead Fantasy", "Two armies meet at Greywake Field.", "cs_matsuda_01", "cs_matsuda_01_unlocked"),  # not ready yet
+                CharacterStoryEntry("Dead Fantasy", "Choose an army. Fight Greywake. Decide who comes home.", "cs_matsuda_01", "cs_matsuda_01_unlocked"),
                 CharacterStoryEntry("Ontological Seer", "You guys like RPGs, right?", "cs_matsuda_02", "cs_matsuda_02_unlocked"),
             ],
         ),
@@ -329,12 +329,12 @@ default persistent.cs_kotonoha_02_completed = False
 # =============================================================================
 # TRANSFORMS
 # =============================================================================
-# THE METAPHOR: this screen is a FILE DRAWER, not a menu. The left rail is the
-# drawer itself, holding one hanging tab per subject; the right pane is the sheet
-# you have pulled out of it. Every animation below exists to sell that -- tabs
-# ride sideways in their runners, the sheet lifts up out of the drawer when you
-# change subject, and the individual file slips slide further out under the
-# pointer. Nothing here fades in place, because paper does not fade.
+# THE METAPHOR: this screen is a READING ROOM, not a menu. The left rail is a
+# shelf holding one cloth-bound volume per subject (the "tabs" below); the right
+# pane is that volume lying open. Every animation below exists to sell that --
+# volumes slide out of the shelf, the book is laid open afresh when you change
+# subject, and the contents lines slide out under the pointer. Nothing here
+# fades in place, because paper does not fade.
 # =============================================================================
 
 # Whole-shell entrance / exit.
@@ -417,16 +417,15 @@ transform cs_slip(delay=0.0):
     on hover:
         easeout_quad 0.14 xoffset 16
 
-# Pulsing accent rail marking the selected tab / sheet spine.
-# The status stamp: a rubber stamp thumped onto the sheet, slightly off-square.
+# The bookplate: pasted onto the frontispiece, slightly off-square. `key` is
+# unused in the body; passing the volume restarts it on every subject change
+# (an ATL with different arguments does not inherit the old timeline).
 #
 # rotate_pad TRUE, deliberately. With it False the rotated render keeps the
 # child's UNROTATED size, so anything the rotation swings outside that box is
 # cropped -- and a wide, shallow box turned 11 degrees swings a long way: a
-# 215x40 stamp needs 219x80 to land in, so the corners were being sliced off. The
-# stamp is centred in a fixed holder, so padding it out costs nothing but the
-# transparent margin.
-transform cs_stamp(ang=-11):
+# 215x40 stamp needs 219x80 to land in, so the corners were being sliced off.
+transform cs_stamp(ang=-11, key=None):
     subpixel True
     rotate ang
     rotate_pad True
@@ -438,10 +437,21 @@ transform cs_stamp(ang=-11):
     parallel:
         linear 0.10 alpha 1.0
 
-# ----- Main Screen (subject roster + dossier) -----
-# selected_idx (screen-local) picks which character's "case file" shows on the
-# right. The layout reads as a recovered-files dossier: a roster of subjects on
-# the left; a portrait + progress header and a stack of FILE cards on the right.
+# ----- Main Screen (the shelf + the open book) -----
+# selected_idx (screen-local) picks which volume lies open on the right: a
+# shelf of cloth-bound volumes on the left, one per subject, and the chosen
+# one open across two pages -- frontispiece and bookplate on the left, the
+# contents on the right.
+
+# One cloth per volume, in shelf order, so the shelf reads as a run of real
+# books. An unopened volume is bound in plain grey board instead.
+define CS_VOLUME_CLOTH = ("#5b2f3c", "#2c5b59", "#4a3a5c", "#3a4f6b", "#5c4a2e", "#3e5a45", "#6b3f2e", "#2f3e4f")
+define CS_ROMAN = ("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X")
+
+init python:
+    def cs_roman(n):
+        return CS_ROMAN[n - 1] if 0 < n <= len(CS_ROMAN) else str(n)
+
 screen character_stories():
     modal True
 
@@ -450,8 +460,8 @@ screen character_stories():
 
     use archive_backdrop
 
-    key "game_menu" action Hide("character_stories")
-    key "K_ESCAPE" action Hide("character_stories")
+    key "game_menu" action Hide("character_stories", transition=enter_m_menu_doorway)
+    key "K_ESCAPE" action Hide("character_stories", transition=enter_m_menu_doorway)
 
     # Live census for the readout strip.
     $ _cs_subject_total = len(character_story_catalog)
@@ -468,44 +478,35 @@ screen character_stories():
         vbox:
             spacing 12
 
-            use archive_header("SIDE STORIES", Hide("character_stories"))
+            use archive_header("SIDE STORIES", Hide("character_stories", transition=enter_m_menu_doorway))
 
-            # Subsystem readout strip (mirrors the archive hub meta line).
-            # `fixed` + xanchor, not an hbox with a greedy `null xfill`: a box given
-            # an explicit xsize stops packing its children left and spreads them
-            # instead, so the right-hand readout never reached the right edge.
-            # The shared archive readout strip, kept in the dossier typeface.
             # The right-hand readout answers the question the player actually
             # opened this screen with -- "is there anything in here I have not
-            # read" -- and falls back to the subject census once there is not.
+            # read" -- and falls back to the volume census once there is not.
             if _cs_files_unread:
                 $ _cs_right_readout = "{} UNREAD".format(_cs_files_unread)
             else:
-                $ _cs_right_readout = "SUBJECTS {}/{}".format(_cs_subjects_seen, _cs_subject_total)
+                $ _cs_right_readout = "{} OF {} VOLUMES OPEN".format(_cs_subjects_seen, _cs_subject_total)
 
             use archive_readout(
-                "SIDE-STORY ARCHIVE // {}/{} FILES RECOVERED".format(_cs_files_found, _cs_files_total),
-                _cs_right_readout,
-                text_style="cs_meta_text")
+                "THE READING ROOM / {} OF {} STORIES RECOVERED".format(_cs_files_found, _cs_files_total),
+                _cs_right_readout)
 
             # THE CONTENT ROW IS 1150 WIDE AND CENTRED, because that is the width
             # of the readout rail above it (archive_readout's default, and the
-            # house grid every archive sub-screen is built on). The rail centres
-            # itself in the shell's 1152px inner width; this row used to total
-            # 1148 and pack left, so the rail overhung the panels by 3px on the
-            # right and sat 1px inside them on the left. 320 + 10 + 820 = 1150,
-            # and the xalign makes it land on the rail exactly.
+            # house grid every archive sub-screen is built on). 320 + 10 + 820 =
+            # 1150, and the xalign makes it land on the rail exactly.
             hbox:
                 spacing 0
                 xalign 0.5
 
                 # =========================================================
-                # LEFT: THE DRAWER
-                # A stack of hanging tabs, one per subject. The runner is 312 wide
-                # (306 of it usable, 6 for the scrollbar) and a tab is 286, so the
-                # selected tab -- drawn 14px out toward the sheet by cs_tab() --
-                # ends exactly on the drawer label's right edge at 300, while the
-                # ones still stowed sit flush on its left edge at 0. See cs_tab
+                # LEFT: THE SHELF
+                # One volume per subject. The runner is 312 wide (306 of it
+                # usable, 6 for the scrollbar) and a volume is 286, so the
+                # selected one -- drawn 14px out toward the open book by
+                # cs_tab() -- ends exactly on the shelf label's right edge at
+                # 300, while the ones still shelved sit flush at 0. See cs_tab
                 # for why the pull may not run the other way.
                 # =========================================================
                 frame:
@@ -517,16 +518,13 @@ screen character_stories():
                     vbox:
                         spacing 8
 
-                        # Drawer label, stencilled on the front of the drawer. Its
-                        # two ends are the two ends of a tab's travel: 0 is where a
-                        # stowed tab starts, 300 is where a pulled one finishes.
                         fixed:
                             xsize 300
                             ysize 18
-                            text "DRAWER 01" style "cs_drawer_label" xpos 0 yalign 0.5
-                            text "SUBJECTS" style "cs_drawer_label" xanchor 1.0 xpos 300 yalign 0.5
+                            text "SHELF A" style "cs_drawer_label" xpos 0 yalign 0.5
+                            text "VOLUMES" style "cs_drawer_label" xanchor 1.0 xpos 300 yalign 0.5
 
-                        add Solid("#56d7ff2e") xysize (300, 1)
+                        add Solid("#d9cdb633") xysize (300, 1)
 
                         viewport:
                             style_prefix "archive_sv"
@@ -542,6 +540,8 @@ screen character_stories():
                                 for idx, catalog in enumerate(character_story_catalog):
                                     $ _sb_delay = idx * 0.04
                                     $ _sb_sel = (idx == selected_idx)
+                                    $ _vol_live = catalog.any_unlocked
+                                    $ _vol_cloth = CS_VOLUME_CLOTH[idx % len(CS_VOLUME_CLOTH)] if _vol_live else "#34373b"
 
                                     button:
                                         xsize 286
@@ -555,624 +555,382 @@ screen character_stories():
                                         # the selection through selected_idle /
                                         # selected_hover instead of being rebuilt.
                                         selected _sb_sel
-
-                                        # A pulled tab catches the light; the ones
-                                        # still in the drawer sit in its shadow.
-                                        # Set unconditionally and let the button's
-                                        # own state pick, so a selection change
-                                        # never rebuilds this subtree.
-                                        background Solid("#060d16d8")
-                                        hover_background Solid("#0d1c2bee")
-                                        selected_background Solid("#12314af2")
-                                        selected_hover_background Solid("#17415fee")
+                                        # Unprefixed, so it holds in every state:
+                                        # a volume does not change cloth when
+                                        # touched, it moves (cs_tab).
+                                        background Solid(_vol_cloth)
 
                                         fixed:
                                             xysize (286, 74)
 
-                                            # The tab's spine, and the notch that
-                                            # makes it read as a folder tab rather
-                                            # than a list row: the spine is inset
-                                            # top and bottom so the corners cut in.
-                                            if _sb_sel:
-                                                add Solid("#56d7ff") xysize (5, 54) xpos 0 yalign 0.5 at enter_m_pip_pulse
-                                                add Solid("#56d7ff") xysize (18, 2) xpos 5 ypos 10
-                                                add Solid("#56d7ff") xysize (18, 2) xpos 5 ypos 62
-                                            else:
-                                                add Solid("#16303f") xysize (5, 54) xpos 0 yalign 0.5
+                                            # Cloth shading, weave, gilt bands. An
+                                            # unopened volume's foil is half gone.
+                                            add "assets/gui/menu/illustrated/archive/volume_cloth.svg" alpha (1.0 if _vol_live else 0.5)
 
-                                            # Subject thumbnail -- the same stateless
-                                            # clipper the roster uses, so a tall
-                                            # sprite cannot bleed out of the chip.
+                                            # The cameo on the cover, in a gilt rim --
+                                            # the same stateless clipper the roster
+                                            # uses, so a tall sprite cannot bleed.
                                             fixed:
-                                                xysize (52, 52)
-                                                xpos 18
+                                                xysize (54, 54)
+                                                xpos 16
                                                 yalign 0.5
-                                                add Solid("#07101add") xysize (52, 52)
-                                                add ArchivePortraitCrop(catalog.sprite_image, 52, 52, catalog.portrait_focus, catalog.portrait_scale, catalog.portrait_aspect):
-                                                    if not catalog.any_unlocked:
+                                                add Solid("#d9b77b" if _vol_live else "#6f6a63") xysize (54, 54)
+                                                add Solid("#1a1418") xpos 1 ypos 1 xysize (52, 52)
+                                                add ArchivePortraitCrop(catalog.sprite_image, 50, 50, catalog.portrait_focus, catalog.portrait_scale, catalog.portrait_aspect):
+                                                    xpos 2
+                                                    ypos 2
+                                                    if not _vol_live:
                                                         matrixcolor SaturationMatrix(0.0) * BrightnessMatrix(-0.18)
-                                                add Solid("#56d7ff44") xysize (52, 1) ypos 51
 
-                                            vbox:
-                                                spacing 5
-                                                xpos 82
-                                                yalign 0.5
+                                            if _vol_live:
+                                                text catalog.name style "cs_sidebar_name" xpos 92 ypos 12
 
-                                                if catalog.any_unlocked:
-                                                    text catalog.name style "cs_sidebar_name"
-
-                                                    # Progress as FILE NOTCHES -- one
-                                                    # notch per file in the folder.
-                                                    # A drawer does not have a
-                                                    # percentage bar. THREE states,
-                                                    # not two, because "I have it" and
-                                                    # "I have read it" are different
-                                                    # questions and the player is
-                                                    # trying to answer the second one:
-                                                    #   amber  recovered, not read yet
-                                                    #   cyan   read
-                                                    #   dark   still sealed
-                                                    # Amber is the archive's existing
-                                                    # attention colour (the dev menu's
-                                                    # PARTIAL state), and it is the
-                                                    # unread one because unread is the
-                                                    # state the player is looking for.
-                                                    hbox:
-                                                        spacing 4
+                                                # Progress as one pip per story,
+                                                # THREE states, because "I have it"
+                                                # and "I have read it" are different
+                                                # questions and the player is
+                                                # trying to answer the second:
+                                                #   paper     read
+                                                #   ribbon    recovered, not read yet
+                                                #   recessed  still sealed
+                                                hbox:
+                                                    spacing 4
+                                                    xpos 92
+                                                    ypos 47
+                                                    for _p in range(catalog.total):
+                                                        if _p < catalog.completed_count:
+                                                            add Solid("#f0e6d2") xysize (12, 4) yalign 0.5
+                                                        elif _p < catalog.unlocked_count:
+                                                            add Solid("#d0603f") xysize (12, 4) yalign 0.5
+                                                        else:
+                                                            add Solid("#00000066") xysize (12, 4) yalign 0.5
+                                                    text "{}/{}".format(catalog.unlocked_count, catalog.total):
+                                                        style "cs_sidebar_count"
                                                         yalign 0.5
-                                                        for _p in range(catalog.total):
-                                                            if _p < catalog.completed_count:
-                                                                add Solid("#56d7ff") xysize (14, 5) yalign 0.5
-                                                            elif _p < catalog.unlocked_count:
-                                                                add Solid("#ffd166") xysize (14, 5) yalign 0.5
-                                                            else:
-                                                                add Solid("#22303c") xysize (14, 5) yalign 0.5
-                                                        text "{}/{}".format(catalog.unlocked_count, catalog.total):
-                                                            style "cs_sidebar_count"
-                                                            yalign 0.5
-                                                            xoffset 6
-                                                elif catalog.has_real_stories:
-                                                    text catalog.name style "cs_sidebar_name_locked"
-                                                    text "SEALED" style "cs_sidebar_count_locked"
-                                                else:
-                                                    text catalog.name style "cs_sidebar_name_locked"
-                                                    text "EMPTY FOLDER" style "cs_sidebar_count_locked"
+                                                        xoffset 6
+                                            elif catalog.has_real_stories:
+                                                text catalog.name style "cs_sidebar_name_locked" xpos 92 ypos 12
+                                                text "SEALED" style "cs_sidebar_count_locked" xpos 92 ypos 47
+                                            else:
+                                                text catalog.name style "cs_sidebar_name_locked" xpos 92 ypos 12
+                                                text "UNWRITTEN" style "cs_sidebar_count_locked" xpos 92 ypos 47
 
-                                            # UNREAD FLAG on the tab itself, so the
-                                            # player can see which folders still owe
-                                            # them something without opening each one.
-                                            # Pinned to the tab's right edge; it
-                                            # breathes, because a static dot in a
-                                            # screen this busy just reads as trim.
+                                            # A ribbon left in a volume that still
+                                            # owes the player a story they have not
+                                            # read, so it shows without opening it.
                                             if catalog.unread_count:
-                                                fixed:
-                                                    xysize (26, 26)
-                                                    xpos 252
-                                                    ypos 8
-                                                    add Solid("#ffd166") xysize (9, 9) align (0.5, 0.5) at enter_m_pip_pulse
+                                                add "assets/gui/menu/illustrated/archive/bookmark_ribbon.svg" xpos 240 ypos 40
 
-                # The drawer's inner wall: a hard edge plus a soft shadow falling
-                # onto the sheet, so the sheet reads as being IN FRONT of the rail.
+                # The shelf's inner wall: a soft shadow falling onto the book, so
+                # the book reads as lying in front of the shelf.
                 fixed:
                     xysize (10, 520)
-                    add Solid("#56d7ff55") xysize (2, 520) xpos 0
-                    add Solid("#02050a66") xysize (8, 520) xpos 2
+                    add Solid("#02050a66") xysize (8, 520) xpos 1
 
                 # =========================================================
-                # RIGHT: THE SHEET YOU PULLED OUT
-                # A folder cover (tab, binder margin, punch marks, stamp) with the
-                # subject's file slips fanned inside it. Keyed on selected_idx so
-                # the whole thing re-plays cs_sheet_pull -- the sheet lifts out of
-                # the drawer every time you change tab.
+                # RIGHT: THE OPEN BOOK
+                # Keyed on selected_idx so the whole spread re-plays
+                # cs_sheet_pull -- the chosen volume is laid open every time.
+                # Page geometry matches open_book.svg: left page x 18..406,
+                # right page x 408..796, gutter at 407.
                 # =========================================================
                 $ _sel_catalog = character_story_catalog[selected_idx]
                 $ _sel_seen = _sel_catalog.any_unlocked
                 $ _sel_real = _sel_catalog.has_real_stories
-                # THREE stamp states now, because the folder can be complete in
+                # THREE bookplate states, because the volume can be complete in
                 # two different senses and the player cares about the stricter
-                # one. RECOVERED = you hold every file but have not read them
+                # one. RECOVERED = you hold every story but have not read them
                 # all; READ = you have been through the lot. Everything else is
-                # INCOMPLETE, i.e. there are still files you do not have.
+                # INCOMPLETE, i.e. there are still stories you do not have.
                 $ _sel_has_all = _sel_real and _sel_catalog.unlocked_count >= _sel_catalog.total
                 $ _sel_done = _sel_real and _sel_catalog.completed_count >= _sel_catalog.total
-                $ _sel_unread = _sel_catalog.unread_count
-
-                # Stamp ink. The fills are the OPAQUE equivalents of the washes
-                # they replace (#56d7ff26 / #ff6a8a1c over the panel) -- the box
-                # is now a border frame wrapping a fill frame, so a translucent
-                # fill would let the border colour flood the whole interior. The
-                # amber middle state matches the unread notches and the drawer
-                # tab dot, so one colour means one thing everywhere on the screen.
                 if _sel_done:
-                    $ _cs_stamp_label = "READ"
-                    $ _cs_stamp_edge = "#56d7ffcc"
-                    $ _cs_stamp_fill = "#122c3a"
-                    $ _cs_stamp_style = "cs_stamp_text"
+                    $ _cs_plate_word = "Read"
+                    $ _cs_plate_style = "cs_plate_word"
                 elif _sel_has_all:
-                    $ _cs_stamp_label = "RECOVERED"
-                    $ _cs_stamp_edge = "#ffd166cc"
-                    $ _cs_stamp_fill = "#2a2313"
-                    $ _cs_stamp_style = "cs_stamp_text_new"
+                    $ _cs_plate_word = "Recovered"
+                    $ _cs_plate_style = "cs_plate_word_new"
                 else:
-                    $ _cs_stamp_label = "INCOMPLETE"
-                    $ _cs_stamp_edge = "#ff6a8aaa"
-                    $ _cs_stamp_fill = "#211824"
-                    $ _cs_stamp_style = "cs_stamp_text_warn"
+                    $ _cs_plate_word = "Incomplete"
+                    $ _cs_plate_style = "cs_plate_word_warn"
 
-                fixed:
-                    xysize (820, 520)
+                frame:
+                    xsize 820
+                    ysize 520
+                    padding (0, 0)
+                    background "assets/gui/menu/illustrated/archive/open_book.svg"
+                    at cs_sheet_pull(selected_idx)
 
-                    frame:
-                        xsize 820
-                        ysize 520
-                        style "archive_panel"
-                        padding (0, 0)
-                        at cs_sheet_pull(selected_idx)
+                    fixed:
+                        xysize (820, 520)
 
+                        # --- LEFT PAGE: the frontispiece ------------------
+                        text ("VOLUME " + cs_roman(selected_idx + 1)) style "cs_page_kicker" xpos 212 xanchor 0.5 ypos 30
+
+                        # The portrait, ruled round like a plate in an old book.
+                        # ArchivePortraitCrop under archive_portrait, not a
+                        # viewport -- a viewport keeps the PREVIOUS subject's
+                        # pan when the screen is re-shown, which is exactly
+                        # what changing volumes does.
+                        add Solid("#71496699") xpos 121 ypos 52 xysize (182, 1)
+                        add Solid("#71496699") xpos 121 ypos 265 xysize (182, 1)
+                        add Solid("#71496699") xpos 121 ypos 52 xysize (1, 214)
+                        add Solid("#71496699") xpos 302 ypos 52 xysize (1, 214)
                         fixed:
-                            xysize (820, 520)
+                            xpos 127
+                            ypos 58
+                            xysize (170, 202)
+                            use archive_portrait(_sel_catalog.sprite_image, 170, 202, "cover", not _sel_seen, _sel_catalog.portrait_focus, _sel_catalog.portrait_scale, _sel_catalog.portrait_aspect)
 
-                            # --- the folder's own edges -------------------
-                            # A lit top edge and a dark bottom edge give the sheet
-                            # thickness; the binder margin down the left, with its
-                            # punch marks, is what makes it a sheet of paper rather
-                            # than another panel.
-                            add Solid("#7fe6ff3a") xysize (820, 1) ypos 0
-                            add Solid("#000308aa") xysize (820, 2) ypos 518
+                        text _sel_catalog.name style "cs_panel_charname" xpos 212 xanchor 0.5 ypos 276
 
-                            # The binder margin. It has to be a shade LIGHTER than
-                            # the sheet, not darker: drawn dark it vanished into the
-                            # gutter beside the drawer wall and the punch marks were
-                            # left reading as three loose squares floating in the
-                            # divider. Lighter, with its own rule, it reads as the
-                            # strip of card the holes are punched through.
-                            add Solid("#122636") xysize (46, 520) xpos 0
-                            add Solid("#56d7ff3a") xysize (1, 520) xpos 46
-                            add Solid("#7fe6ff1c") xysize (46, 1) ypos 0
+                        if _sel_seen:
+                            text "{} OF {} STORIES RECOVERED".format(_sel_catalog.unlocked_count, _sel_catalog.total):
+                                style "cs_panel_subtitle"
+                                xpos 212
+                                xanchor 0.5
+                                ypos 320
+                        elif _sel_real:
+                            text "SUBJECT NOT YET ENCOUNTERED" style "cs_panel_subtitle_locked" xpos 212 xanchor 0.5 ypos 320
+                        else:
+                            text "NO STORIES ON RECORD" style "cs_panel_subtitle_locked" xpos 212 xanchor 0.5 ypos 320
 
-                            # Punch holes: a dark bore with a lit top lip and a
-                            # shadowed bottom one, so each reads as a hole in the
-                            # card rather than a printed square.
-                            for _hy in (96, 252, 408):
-                                add Solid("#01030799") xysize (16, 16) xpos 15 ypos (_hy + 1)
-                                add Solid("#02050a") xysize (14, 14) xpos 16 ypos _hy
-                                add Solid("#8fe4ff4a") xysize (14, 1) xpos 16 ypos _hy
-                                add Solid("#00040a88") xysize (14, 1) xpos 16 ypos (_hy + 13)
+                        # The bookplate, pasted in at a slight tilt. Keyed on the
+                        # volume so it settles afresh each time one is opened.
+                        if _sel_real:
+                            frame:
+                                style "cs_bookplate"
+                                xpos 212
+                                ypos 410
+                                anchor (0.5, 0.5)
+                                at cs_stamp(-3, selected_idx)
 
-                            # --- the tab this sheet came out of -----------
-                            # Same cyan as the selected drawer tab, sitting on the
-                            # sheet's top-left, so the eye connects the two.
-                            fixed:
-                                xysize (170, 26)
-                                xpos 62
-                                ypos 0
-                                add Solid("#56d7ff") xysize (170, 3) ypos 0
-                                add Solid("#0e2233") xysize (170, 23) ypos 3
-                                text _sel_catalog.name.upper() style "cs_sheet_tab" xpos 8 ypos 8
+                                vbox:
+                                    spacing 2
+                                    text "EX LIBRIS" style "cs_plate_kicker" xalign 0.5
+                                    text _cs_plate_word style _cs_plate_style xalign 0.5
 
-                            # THE SHEET'S TYPE COLUMN: 684px wide, starting 62px in
-                            # (16px clear of the binder rule at 46). EVERYTHING in
-                            # here is measured against those two numbers -- the
-                            # header row, the divider, and the file slips all start
-                            # at 62 and end at 746. They used to be three different
-                            # widths (674 / 700 / 654 + a per-row fan), which is
-                            # what made the stack look like it had slipped.
-                            #   header hbox : 150 + 22 + 300 + 22 + 190 = 684
-                            #   divider     : 684
-                            #   file slips  : 684, in a 706 viewport (684 + the
-                            #                 16px hover pull + 6px scrollbar)
+                        text str(selected_idx * 2 + 1) style "cs_folio" xpos 212 xanchor 0.5 ypos 482
+
+                        # --- RIGHT PAGE: the contents ---------------------
+                        add Solid("#714966") xysize (6, 6) rotate 45 xpos 540 ypos 33
+                        text "CONTENTS" style "cs_toc_head" xpos 602 xanchor 0.5 ypos 30
+                        add Solid("#714966") xysize (6, 6) rotate 45 xpos 658 ypos 33
+                        add Solid("#9b816766") xpos 452 ypos 56 xysize (300, 1)
+
+                        # The column is 330 wide starting at x 440; the viewport
+                        # adds 16px for the hover pull to travel into and 6 for
+                        # the scrollbar, so a pulled line is never clipped.
+                        viewport:
+                            style_prefix "archive_sv"
+                            scrollbars "vertical"
+                            mousewheel True
+                            draggable True
+                            xpos 440
+                            ypos 70
+                            xsize 352
+                            ysize 400
+
                             vbox:
-                                xpos 62
-                                ypos 30
-                                spacing 14
+                                spacing 6
 
-                                # Header: portrait + nameplate + notch progress.
-                                hbox:
-                                    spacing 22
+                                if _sel_real:
+                                    # KEYED ON THE VOLUME, NOT ON THE LINE'S
+                                    # POSITION. SL2 caches a loop's children by
+                                    # LOOP COUNTER unless told otherwise, so
+                                    # switching volumes handed the new book the
+                                    # old one's displayables wherever the
+                                    # positions lined up -- transform and all,
+                                    # already settled at the end of its entrance.
+                                    # The catalog's name rather than the story's
+                                    # own key, so a re-enabled "???" placeholder
+                                    # -- which carries no key at all -- cannot
+                                    # collide with another one.
+                                    for sidx, story index (_sel_catalog.name, sidx) in enumerate(_sel_catalog.stories):
+                                        # Skip empty placeholder entries entirely.
+                                        if story.persistent_key:
+                                            button:
+                                                style "cs_toc_button"
+                                                at cs_slip(sidx * 0.07)
 
-                                    # Portrait window. ArchivePortraitCrop, not a
-                                    # viewport -- a viewport keeps the PREVIOUS
-                                    # subject's pan when the screen is re-shown,
-                                    # which is exactly what changing tabs does.
-                                    use archive_portrait(_sel_catalog.sprite_image, 150, 158, "cover", not _sel_seen, _sel_catalog.portrait_focus, _sel_catalog.portrait_scale, _sel_catalog.portrait_aspect)
+                                                # Unlocked -> leave both menu screens and
+                                                # start with clean per-game state. Locked -> dialog.
+                                                if story.unlocked:
+                                                    action Function(archive_start_isolated_content, story.label_name)
+                                                else:
+                                                    action Show("dialog", message="This story is still locked.", ok_action=Hide("dialog"))
 
-                                    vbox:
-                                        yalign 0.5
-                                        spacing 9
+                                                fixed:
+                                                    xysize (330, 100)
 
-                                        fixed:
-                                            xsize 300
-                                            ysize 40
-                                            add Solid("#56d7ff") xysize (9, 9) xpos 0 yalign 0.5 at console_blink
-                                            text _sel_catalog.name style "cs_panel_charname" xpos 19 yalign 0.5
+                                                    text (cs_roman(sidx + 1) + "."):
+                                                        style ("cs_story_num" if story.unlocked else "cs_story_num_locked")
+                                                        xpos 0
+                                                        ypos 9
 
-                                        if _sel_seen:
-                                            text "{} of {} files recovered".format(_sel_catalog.unlocked_count, _sel_catalog.total):
-                                                style "cs_panel_subtitle"
-                                        elif _sel_real:
-                                            text "Subject not yet encountered":
-                                                style "cs_panel_subtitle_locked"
-                                        else:
-                                            text "No side stories on record":
-                                                style "cs_panel_subtitle_locked"
-
-                                        # Progress as file notches, matching the
-                                        # drawer tabs -- a row of card edges, one
-                                        # per file, rather than a percentage bar.
-                                        if _sel_real:
-                                            hbox:
-                                                spacing 5
-                                                for _p in range(_sel_catalog.total):
-                                                    if _p < _sel_catalog.completed_count:
-                                                        fixed:
-                                                            xysize (34, 16)
-                                                            add Solid("#56d7ff") xysize (34, 13) ypos 3
-                                                            add Solid("#9fe9ff") xysize (34, 3) ypos 0
-                                                    elif _p < _sel_catalog.unlocked_count:
-                                                        fixed:
-                                                            xysize (34, 16)
-                                                            add Solid("#ffd166") xysize (34, 13) ypos 3
-                                                            add Solid("#ffe9ab") xysize (34, 3) ypos 0
-                                                    else:
-                                                        fixed:
-                                                            xysize (34, 16)
-                                                            add Solid("#16222c") xysize (34, 13) ypos 3
-                                                            add Solid("#22303c") xysize (34, 3) ypos 0
-
-                                    # The status stamp, thumped on at an angle.
-                                    #
-                                    # THE BOX IS DRAWN BY THE TEXT, NOT AROUND IT.
-                                    # It used to be a hand-sized 130x34 fixed with
-                                    # the four edges laid in as Solids and the
-                                    # caption floated on top -- and a `fixed` does
-                                    # not clip, so "COMPLETE" (~150px in this
-                                    # extended face) already hung out of both ends
-                                    # and "INCOMPLETE" (~185px) hung further. Two
-                                    # nested frames instead: the outer one's 2px
-                                    # padding IS the border, the inner one's is the
-                                    # margin, and both shrink-wrap the caption, so
-                                    # any label of any length is boxed exactly.
-                                    # The holder stays a fixed 190 so the header
-                                    # row keeps one width for every subject; the
-                                    # stamp centres in it and may overhang.
-                                    if _sel_real:
-                                        fixed:
-                                            xysize (190, 158)
-                                            yalign 0.5
-                                            frame:
-                                                align (0.5, 0.5)
-                                                background Solid(_cs_stamp_edge)
-                                                padding (2, 2)
-                                                at cs_stamp(-11)
-
-                                                frame:
-                                                    background Solid(_cs_stamp_fill)
-                                                    padding (16, 7)
-                                                    text _cs_stamp_label style _cs_stamp_style
-
-                                add Solid("#56d7ff22"):
-                                    xsize 684
-                                    ysize 1
-
-                                # =================================================
-                                # THE FILE SLIPS
-                                # Individual sheets sticking out of the folder. They
-                                # deal themselves out on entry and the pointer pulls
-                                # one clear of its neighbours; at rest the stack is
-                                # square (see cs_slip). The index sits on a tab
-                                # hanging off the slip's left edge rather than in a
-                                # boxed column, which is what makes a row read as
-                                # paper instead of a table cell.
-                                #
-                                # The viewport is 22px wider than a slip on purpose:
-                                # 16 for the hover pull to travel into and 6 for the
-                                # scrollbar, so a hovered slip is never clipped.
-                                # =================================================
-                                viewport:
-                                    style_prefix "archive_sv"
-                                    scrollbars "vertical"
-                                    mousewheel True
-                                    draggable True
-                                    xsize 706
-                                    ysize 268
-
-                                    vbox:
-                                        spacing 9
-
-                                        if _sel_real:
-                                            # KEYED ON THE CHARACTER, NOT ON THE
-                                            # SLIP'S POSITION. SL2 caches a loop's
-                                            # children by LOOP COUNTER unless told
-                                            # otherwise, so switching characters
-                                            # handed the new folder the old one's
-                                            # displayables wherever the positions
-                                            # lined up -- transform and all,
-                                            # already settled at the end of its
-                                            # entrance. Only the surplus slips
-                                            # animated, and two characters with
-                                            # the same number of stories animated
-                                            # nothing at all.
-                                            #
-                                            # The catalog's name rather than the
-                                            # story's own key, so a re-enabled
-                                            # "???" placeholder -- which carries
-                                            # no key at all -- cannot collide with
-                                            # another one.
-                                            for sidx, story index (_sel_catalog.name, sidx) in enumerate(_sel_catalog.stories):
-                                                # Skip empty placeholder entries entirely.
-                                                if story.persistent_key:
-                                                    $ _sr_delay = sidx * 0.07
-                                                    $ _story_num = "{:02d}".format(sidx + 1)
-                                                    # The slip's spine takes the unread
-                                                    # amber, so a folder full of files
-                                                    # you have not opened is legible as
-                                                    # a column of amber edges at a
-                                                    # glance -- the same read as looking
-                                                    # at real tabs in a real drawer.
-                                                    if story.unread:
-                                                        $ _sr_ink = "#ffd166"
-                                                    elif story.unlocked:
-                                                        $ _sr_ink = "#56d7ff"
-                                                    else:
-                                                        $ _sr_ink = "#3b4b58"
-
-                                                    button:
-                                                        xsize 684
-                                                        ysize 88
-                                                        padding (0, 0)
-                                                        hover_sound gui.hover_sound
-                                                        activate_sound gui.activate_sound
-                                                        at cs_slip(_sr_delay)
-
-                                                        # Unlocked -> tear down BOTH menu screens
-                                                        # then Start the label. Locked -> dialog.
+                                                    vbox:
+                                                        xpos 42
+                                                        ypos 9
+                                                        spacing 4
+                                                        xmaximum 238
                                                         if story.unlocked:
-                                                            background Solid("#0a1622ee")
-                                                            hover_background Solid("#12314af2")
-                                                            action [Hide("character_stories"), Hide("archive"), Start(story.label_name)]
+                                                            text story.title style "cs_story_title"
+                                                            if story.description:
+                                                                text story.description style "cs_story_desc"
                                                         else:
-                                                            background Solid("#050b12dd")
-                                                            hover_background Solid("#08131fee")
-                                                            action Show("dialog", message="This story is still locked.", ok_action=Hide("dialog"))
+                                                            text "Sealed" style "cs_story_title_locked"
+                                                            text "Encounter this character in the story to recover it." style "cs_story_locked_label"
 
-                                                        fixed:
-                                                            xysize (684, 88)
+                                                    # An unread story keeps its
+                                                    # ribbon; a read one just says
+                                                    # so, quietly.
+                                                    if story.unread:
+                                                        text "NEW" style "cs_story_state_new" xanchor 1.0 xpos 312 ypos 12
+                                                        add "assets/gui/menu/illustrated/archive/bookmark_ribbon.svg" xpos 318 ypos 0
+                                                    elif story.unlocked:
+                                                        text "READ" style "cs_story_state" xanchor 1.0 xpos 330 ypos 12
+                                                    else:
+                                                        text "SEALED" style "cs_story_state_locked" xanchor 1.0 xpos 330 ypos 12
 
-                                                            # Paper edges: lit top, shadowed bottom.
-                                                            add Solid("#7fe6ff26") xysize (684, 1) ypos 0
-                                                            add Solid("#00040aaa") xysize (684, 2) ypos 86
+                                                    add Solid("#9b816744") xysize (330, 1) ypos 99
+                                else:
+                                    # Empty state -- a volume with nothing in it yet.
+                                    fixed:
+                                        xysize (330, 300)
+                                        text "This volume has not been written yet." style "cs_story_locked_label" xalign 0.5 ypos 140
 
-                                                            # The slip's index tab, hanging off its
-                                                            # left edge like a stuck-on label.
-                                                            add Solid(_sr_ink) xysize (4, 88) xpos 0
-                                                            fixed:
-                                                                xysize (58, 58)
-                                                                xpos 4
-                                                                yalign 0.5
-                                                                add Solid("#56d7ff14" if story.unlocked else "#02060b99") xysize (58, 58)
-                                                                text "FILE":
-                                                                    style ("cs_file_tag" if story.unlocked else "cs_file_tag_locked")
-                                                                    xalign 0.5
-                                                                    ypos 9
-                                                                text _story_num:
-                                                                    style ("cs_story_num" if story.unlocked else "cs_story_num_locked")
-                                                                    xalign 0.5
-                                                                    ypos 24
+                        text str(selected_idx * 2 + 2) style "cs_folio" xpos 602 xanchor 0.5 ypos 482
 
-                                                            # Title + description.
-                                                            vbox:
-                                                                xpos 82
-                                                                yalign 0.5
-                                                                spacing 5
-                                                                if story.unlocked:
-                                                                    text story.title style "cs_story_title"
-                                                                    if story.description:
-                                                                        text story.description style "cs_story_desc"
-                                                                else:
-                                                                    text "SEALED FILE" style "cs_story_title_locked"
-                                                                    text "Encounter this character in the story to recover it." style "cs_story_locked_label"
-
-                                                            # Pull affordance, pinned right.
-                                                            # An unread file gets the
-                                                            # amber chip and says so; a
-                                                            # read one keeps the ordinary
-                                                            # cyan PULL, because "you have
-                                                            # been here" should be the
-                                                            # quiet state, not a second
-                                                            # thing shouting for attention.
-                                                            if story.unread:
-                                                                frame:
-                                                                    xanchor 1.0
-                                                                    xpos 668
-                                                                    yalign 0.5
-                                                                    background Solid("#ffd166")
-                                                                    padding (14, 6)
-                                                                    text "UNREAD  >" style "archive_chip_on_text"
-                                                            elif story.unlocked:
-                                                                frame:
-                                                                    xanchor 1.0
-                                                                    xpos 668
-                                                                    yalign 0.5
-                                                                    background Solid("#56d7ff")
-                                                                    padding (14, 6)
-                                                                    text "RE-READ  >" style "archive_chip_on_text"
-                                                            else:
-                                                                frame:
-                                                                    xanchor 1.0
-                                                                    xpos 668
-                                                                    yalign 0.5
-                                                                    background Solid("#1b2832")
-                                                                    padding (14, 6)
-                                                                    text "SEALED" style "archive_chip_off_text"
-                                        else:
-                                            # Empty state -- an empty folder, drawn as
-                                            # one blank slip with nothing written on it.
-                                            fixed:
-                                                xysize (684, 150)
-                                                add Solid("#050b12cc") xysize (684, 150)
-                                                add Solid("#7fe6ff1a") xysize (684, 1) ypos 0
-                                                add Solid("#22303c") xysize (4, 150) xpos 0
-                                                vbox:
-                                                    align (0.5, 0.5)
-                                                    spacing 10
-                                                    text "EMPTY FOLDER":
-                                                        xalign 0.5
-                                                        style "cs_story_title_locked"
-                                                    text "No side stories have been filed under this subject yet.":
-                                                        xalign 0.5
-                                                        style "cs_story_desc"
-
-    # Console brackets framing the shell (cohesion with the archive hub).
+    # Engraved corners framing the shell (cohesion with the archive hub).
     use archive_shell_brackets()
 
-# ----- Styles ----- (cyan-on-near-black, matching the archive theme)
+# ----- Styles -----
+# Cloth, gilt and printer's ink: gilt lettering on the shelf, ink on the pages.
 
-style cs_title:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 36
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-# Sidebar styles
-style cs_sidebar_name:
-    size 20
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_sidebar_name_locked:
-    size 20
-    color "#687787"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_sidebar_count:
-    size 14
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_sidebar_count_locked:
-    size 14
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
-
-# Right panel styles
-style cs_panel_charname:
-    size 32
-    color "#f4fbff"
-    bold True
-    outlines [(2, "#02040b", 0, 0), (1, "#56d7ff88", 1, 1)]
-
-style cs_panel_subtitle:
-    size 16
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_panel_subtitle_locked:
-    size 16
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
-
-# Story row styles
-style cs_story_title:
-    size 21
-    color "#dff8ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_desc:
-    size 14
-    color "#9fc9d6"
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_title_locked:
-    size 21
-    color "#4f5b67"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_locked_label:
-    size 13
-    color "#4f5b67"
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_num:
-    size 22
-    color "#56d7ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_num_locked:
-    size 22
-    color "#374654"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_status:
-    size 13
-    color "#56d7ff"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_story_status_locked:
-    size 12
-    color "#4f5b67"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-# --- New chrome styles (readout strip, FILE tag, status chips) ---------------
-style cs_meta_text:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 13
-    color "#5fbcd6"
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_file_tag:
+# The shelf
+style cs_drawer_label is archive_meta_text:
     size 10
-    color "#56d7ffaa"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-style cs_file_tag_locked:
-    size 10
-    color "#3a4753"
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
-
-# --- Drawer / sheet chrome ---------------------------------------------------
-# Stencilled label on the front of the drawer.
-style cs_drawer_label:
-    font gui.interface_font
-    size 10
-    color "#4f8fa5"
     kerning 3.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
 
-# The tab printed on the pulled sheet, matching the drawer tab it came from.
-style cs_sheet_tab:
+style cs_sidebar_name is gui_text:
+    font gui.default_font
+    size 20
+    color "#ead6a8"
+    outlines [(1, "#00000066", 0, 1)]
+
+style cs_sidebar_name_locked is cs_sidebar_name:
+    color "#8c8478"
+    outlines []
+
+style cs_sidebar_count is gui_text:
     font gui.interface_font
-    size 11
-    color "#9fe9ff"
-    kerning 2.0
-    bold True
-    outlines [(1, "#02040b", 0, 0)]
+    size 10
+    kerning 1.2
+    color "#e3d3b0"
+    outlines []
 
-# The rubber stamp across the header.
-style cs_stamp_text:
-    font "assets/fonts/SF Automaton Extended.ttf"
-    size 17
-    color "#9fe9ff"
-    bold True
-    kerning 2.0
-    outlines [(1, "#02040b", 0, 0)]
+style cs_sidebar_count_locked is cs_sidebar_count:
+    color "#77716a"
 
-style cs_stamp_text_warn is cs_stamp_text:
-    color "#ffa8bc"
+# The frontispiece page
+style cs_page_kicker is gui_text:
+    font gui.interface_font
+    size 10
+    kerning 2.4
+    color "#714966"
+    outlines []
 
-# "RECOVERED" -- every file is in the folder but not all of them have been read.
-# Amber is the unread colour everywhere on this screen: the drawer tab dots, the
-# file notches, the slip spines and the UNREAD chip all use it.
-style cs_stamp_text_new is cs_stamp_text:
-    color "#ffe9ab"
+style cs_panel_charname is gui_text:
+    font gui.default_font
+    size 30
+    color IM_INK
+    outlines []
+
+style cs_panel_subtitle is cs_page_kicker:
+    kerning 1.4
+    color "#6c5f66"
+
+style cs_panel_subtitle_locked is cs_panel_subtitle:
+    color "#988d88"
+
+style cs_folio is gui_text:
+    font gui.default_font
+    size 13
+    color "#8a7d72"
+    outlines []
+
+# The bookplate: plum ink on a pasted label, the word coloured by state.
+style cs_bookplate is frame:
+    background Frame("assets/gui/menu/illustrated/archive/bookplate.svg", 14, 14)
+    padding (26, 10, 26, 12)
+
+style cs_plate_kicker is cs_page_kicker:
+    size 9
+
+style cs_plate_word is gui_text:
+    font gui.default_font
+    size 21
+    color "#2c5b59"
+    outlines []
+
+style cs_plate_word_new is cs_plate_word:
+    color "#714966"
+
+style cs_plate_word_warn is cs_plate_word:
+    color "#8a3b3b"
+
+# The contents page
+style cs_toc_head is cs_page_kicker:
+    size 12
+    kerning 3.0
+
+style cs_toc_button:
+    xysize (330, 100)
+    padding (0, 0)
+    background None
+    hover_background Solid("#71496612")
+    hover_sound gui.hover_sound
+    activate_sound gui.activate_sound
+
+style cs_story_num is gui_text:
+    font gui.default_font
+    size 21
+    color "#714966"
+    outlines []
+
+style cs_story_num_locked is cs_story_num:
+    color "#a39a92"
+
+style cs_story_title is gui_text:
+    font gui.default_font
+    size 20
+    color IM_INK
+    hover_color "#246c60"
+    outlines []
+
+style cs_story_title_locked is cs_story_title:
+    color "#958b84"
+    hover_color "#7d736d"
+
+style cs_story_desc is gui_text:
+    font gui.default_font
+    size 15
+    color "#5e5558"
+    outlines []
+
+style cs_story_locked_label is cs_story_desc:
+    size 14
+    color "#958b84"
+
+style cs_story_state is gui_text:
+    font gui.interface_font
+    size 10
+    kerning 1.4
+    color "#2c5b59"
+    outlines []
+
+style cs_story_state_new is cs_story_state:
+    color "#b8492f"
+
+style cs_story_state_locked is cs_story_state:
+    color "#a39a92"

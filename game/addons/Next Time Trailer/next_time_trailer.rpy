@@ -1,91 +1,14 @@
-# =============================================================================
-# REPETITION AUDIT NOTES -- next_time_trailer.rpy
-# Applied 2026-07-26 as an annotation-only pass. No prose, dialogue, menu,
-# label, state update, or Matsu'Py/Python logic was changed by this pass.
+# Chapter 0.5 closing trailer, called from season1/0531.rpy after the month turn.
+# enter_m_prologue_trailer plays it; enter_m_prologue_trailer_skip and
+# enter_m_tr_cleanup() restore the presentation after playback or skipping.
+# Borrowed OP effects stage a decaying broadcast around cryptic story fragments.
+# Preserve the cool, hollow palette and withheld explanations.
 #
-# Sources (docs/):
-#   docs/story/audits/repetition/MAIN_STORY_REPETITION_AUDIT.md                  <AUDIT>
-#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0515_0519.md      <D0515-0519>
-#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0520_0524.md      <D0520-0524>
-#   docs/story/audits/repetition/MAIN_STORY_REPETITION_DETAILS_0525_0528_EXAM.md <D0525-0528>
-#
-# Inline notes start with '# REPETITION ['. Find them with:
-#   rg -n "^\s*# REPETITION \[" game/story/season1
-# Each note sits immediately above the passage it evaluates and lists the
-# audit line numbers as they stood before this pass was inserted.
-#
-# Reading order when notes conflict: fix continuity first, protect the
-# concrete action/object/line that already carries the subtext, then remove
-# the sentence that translates it. P1 > P2 > P3; KEEP protects the
-# recurrence itself, not the captions around it.
-#
-# -----------------------------------------------------------------------------
-# CORPUS-WIDE AND CROSS-FILE PATTERNS THAT LAND IN THIS FILE
-# -----------------------------------------------------------------------------
-# REPETITION [G12 | KEEP | CORPUS-WIDE] next_time_trailer.rpy:472,480,497,506,536  (also
-#     0529.rpy:247,315; 0531.rpy:528,551,952-954; 0530.rpy:609-610)  <AUDIT>
-#   Intentional repetition to protect
-#   Not all recurrence is excess:
-#   - Coach's "Pending external review" at 0529.rpy:247 and 0529.rpy:315 is a clean callback.
-#   - "History rounds upward" at 0531.rpy:528 and 0531.rpy:551 reverses the earlier joke after MC
-#     wins.
-#   - "Bookstore first" at 0530.rpy:609-610 demonstrates that Matsuda heard Tsubaki.
-#   - "We can figure it out" at 0531.rpy:952-954 lets Matsuda mirror MC's flexibility.
-#   - The trailer's still progression (next_time_trailer.rpy:472, :480, :506), its look-away echo
-#     (:497, :536), and its stop/could/remember reversals are architectural. They accumulate
-#     accusation and reframe the preceding ordinary days; do not "vary" them.
-# =============================================================================
-# =============================================================================
-# next_time_trailer.rpy  --  "NEXT TIME, ON ENTER M..." (end-of-Chapter-0.5 trailer)
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   A beat-locked, atmospheric "next season preview" that plays at the very end
-#   of Chapter 0.5 (the demo). It is framed as a degrading TV broadcast --
-#   channel static, a CRT power-on, scanlines, signal dropout, a corner channel
-#   "bug" -- because Matsuda was a child-TV actor (0531.rpy, the bookstore
-#   magazine) AND has Monika-style meta-awareness. So the "host" is HER: the only
-#   character who knows the show exists, addressing the audience through a screen
-#   that can barely hold the signal.
-#
-#   This is deliberately NOT a rehash of the OP. The OP is a bright, fast,
-#   character-CG montage. This is the inverse: slow and liminal, built from
-#   cryptic on-screen messages, out-of-context VN fragments (a background + one
-#   stray line, no setup), slow background pans, and signal distortion. No OP CGs,
-#   no sprite choreography, no idol flair, no spark bursts. It only borrows the
-#   OP's GENERIC fx engine (shaders, pan transforms, grain/scanline, glitch
-#   impacts) -- infrastructure, not content.
-#
-#   Tone (locked with the author): mystique, not angelic. Ethereal, not cosmic.
-#   Cool hollow teal-greens, broadcast decay, things slightly wrong. And still:
-#   TEASE, DON'T REVEAL -- the dark threads (illness / a disappearance / the
-#   president fading / the falling-out) are cryptic fragments only. Nothing is
-#   spelled out.
-#
-# ENTRY POINTS
-#   label enter_m_prologue_trailer       -> plays the whole trailer.
-#   label enter_m_prologue_trailer_skip  -> SKIP target.
-#   enter_m_tr_cleanup()                 -> hides every trailer + borrowed OP screen.
-#
-# WHO PLAYS IT
-#   game/story/season1/0531.rpy, immediately after the "CHAPTER 0.5 // END" card.
-#
-# DEPENDENCIES (same addon family, always loaded)
-#   - addons/Sick Ass Anime OP/op.rpy / op_fx.rpy : generic fx only -- cut_fx,
-#       bg pan transforms (push/sweep/breathe/oblique/snap_pan), scanline,
-#       post_fx, impact, psyche_break, ambient dust, ENTER_M_OP_SHADERS, cleanup.
-#   - assets/audio/bgm/scamall.ogg (define audio.scamall in def_audio.rpy).
-#
-# >>> TEMPO / SYNC (confirmed by the author) <<<
-#   scamall: 75 BPM, F# minor (11A). beat = 0.8s, bar = 3.2s.
-#   First buildup peak ~25.5s  -> the FIRST stark hit lands here (bar 8).
-#   Drop to 2nd buildup ~50.75s -> the meta-crack DROP lands here (~bar 16).
-#   The two ramp pauses (marked SYNC) are shaved so the hits land exactly on
-#   25.5 / 50.75; if you ever change the BPM, re-tune those two and the rest
-#   re-locks from enter_m_tr_bar.
-# =============================================================================
+# Timing uses scamall at 75 BPM: 0.8s beats and 3.2s bars. The two SYNC pauses
+# place authored hits near 25.5s and 50.75s; changing timing requires listening.
+# Deliberate echoes (still / stop / look away / read / remember) build accusation
+# and transfer agency across cards. Preserve those recurrences when editing prose.
 
-# --- TIMING -----------------------------------------------------------------
 define enter_m_tr_bpm = 75.0
 define enter_m_tr_beat = 60.0 / enter_m_tr_bpm      # 0.80s
 define enter_m_tr_bar = enter_m_tr_beat * 4.0       # 3.20s
@@ -482,10 +405,10 @@ label enter_m_prologue_trailer:
 
     # --- PHASE 0 :: CHANNEL ON  (0.0 -> 6.4s) ----------------------------
     play music scamall noloop
-    # The last warm frame of Chapter 0.5, already wrong: held, drifting, decayed.
-    scene bg bedroom at enter_m_op_bg_breathe(enter_m_tr_bar, 0.49, 0.51, 0.52, 0.47)
+    # The last lamplit frame of Chapter 0.5, already wrong: held, drifting, decayed.
+    scene bg bedroom_night at enter_m_op_bg_breathe(enter_m_tr_bar, 0.49, 0.51, 0.52, 0.47)
     if ENTER_M_OP_SHADERS:
-        show screen enter_m_op_impact("bg bedroom", "rgb", enter_m_tr_quarter, amount=14.0, z=1.02)
+        show screen enter_m_op_impact("bg bedroom_night", "rgb", enter_m_tr_quarter, amount=14.0, z=1.02)
     show screen enter_m_tr_static(0.10)
     $ renpy.pause(enter_m_tr_quarter, hard=True)
 
@@ -506,21 +429,12 @@ label enter_m_prologue_trailer:
     # --- PHASE 1 :: THE BUILD  (6.4 -> 25.5s) ----------------------------
     # Cryptic cards + out-of-context VN fragments, slowly accumulating wrongness.
     scene bg hollow at enter_m_op_bg_breathe(enter_m_tr_bar, 0.47, 0.53, 0.50, 0.46) with Dissolve(0.5)
-    # REPETITION [D-13 | KEEP] next_time_trailer.rpy:472,480,506  <AUDIT>
-    #   [next_time_trailer.rpy]
-    #   "still smiling" -> "still here" -> "still happy here" is deliberate escalation.
-    # REPETITION [D-17 | P3 / KEEP] next_time_trailer.rpy:472-536  <AUDIT>
-    #   [next_time_trailer.rpy]
-    #   "Everyone" and "here" recur, but the framing is short, beat-locked, and accumulative. Do not
-    #   apply a thesaurus pass to it.
+    # "Still smiling" -> "still here" -> "still happy here" deliberately escalates.
     show screen enter_m_tr_cryptic("Everyone is still smiling.", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
     scene bg cafe at enter_m_op_bg_oblique(enter_m_tr_bar, 0.46, 0.54, 0.52, 0.47, -0.18) with Dissolve(0.5)
-    # REPETITION [D-14 | KEEP] next_time_trailer.rpy:476,545  <AUDIT>
-    #   [next_time_trailer.rpy]
-    #   "You can stop" becomes "I couldn't stop it either." The repeated verb transfers agency and
-    #   guilt.
+    # "You can stop" returns as "I couldn't stop it either," transferring agency.
     show screen enter_m_tr_vn("???", "You can stop whenever you want, you know.", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
@@ -532,7 +446,7 @@ label enter_m_prologue_trailer:
     show screen enter_m_tr_vn("???", "What do you even have to gain from it?!", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
-    scene bg ether at enter_m_op_bg_push(enter_m_tr_bar, 1.04, 1.13, 0.50, 0.52, 0.50, 0.47) with Dissolve(0.6)
+    scene bg matsudavr at enter_m_op_bg_push(enter_m_tr_bar, 1.04, 1.13, 0.50, 0.52, 0.50, 0.47) with Dissolve(0.6)
     show screen enter_m_tr_cryptic("None of it had to happen like this.", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
@@ -542,9 +456,7 @@ label enter_m_prologue_trailer:
     show screen enter_m_tr_static(0.18, enter_m_tr_bar)
     if ENTER_M_OP_SHADERS:
         show screen enter_m_op_impact("bg glitch", "glitch", enter_m_tr_half, z=1.04)
-    # REPETITION [D-15 | KEEP] next_time_trailer.rpy:497,536  <AUDIT>
-    #   [next_time_trailer.rpy]
-    #   Permission to "look away" returns as the accusation that everyone did.
+    # Permission to "look away" returns as an accusation.
     show screen enter_m_tr_cryptic("You're allowed to look away here.", enter_m_tr_bar - 0.5)
     $ renpy.pause(enter_m_tr_bar - 0.1, hard=True)
 
@@ -589,7 +501,7 @@ label enter_m_prologue_trailer:
 
     # Bar 16 :: rising distortion into the drop. SYNC: shaved so the DROP below
     # lands at ~50.75s.
-    scene bg ether at enter_m_op_bg_push(enter_m_tr_bar, 1.06, 1.18, 0.50, 0.50, 0.50, 0.46)
+    scene bg matsudavr at enter_m_op_bg_push(enter_m_tr_bar, 1.06, 1.18, 0.50, 0.50, 0.50, 0.46)
     show screen enter_m_tr_static(0.25, enter_m_tr_bar)
     if ENTER_M_OP_SHADERS:
         show screen enter_m_op_impact("bg ether", "glitch", enter_m_tr_half, z=1.05)
@@ -609,10 +521,7 @@ label enter_m_prologue_trailer:
     scene bg hollow at enter_m_op_bg_push(enter_m_tr_bar * 1.5, 1.14, 1.04, 0.50, 0.50, 0.46, 0.50)
     if ENTER_M_OP_SHADERS:
         show screen enter_m_op_psyche_break("bg hollow", enter_m_tr_bar)
-    # REPETITION [D-16 | KEEP] next_time_trailer.rpy:561,567,573  <AUDIT>
-    #   [next_time_trailer.rpy]
-    #   "can read" -> "always could" -> "remember" is the meta-contract. The lexical echo is the
-    #   structure, not filler.
+    # "Can read" -> "always could" -> "remember" deliberately develops the same claim.
     show screen enter_m_tr_meta_caption("You can read every one of these, can't you?", enter_m_tr_bar)
     $ renpy.pause(enter_m_tr_bar, hard=True)
 
@@ -630,8 +539,8 @@ label enter_m_prologue_trailer:
     hide screen enter_m_tr_static
 
     # --- PHASE 5 :: TITLE LOGO / SIGN-OFF --------------------------------
-    # The titledropalt logo IS the "ENTER M" reveal; the sign-off tags follow on
-    # a clean black so they never sit on top of the title art.
+    # The titledropalt logo is both the ENTER M reveal and the sign-off; it clears
+    # to clean black before the broadcast powers down.
     scene black
     show screen enter_m_op_cut_fx("white", 0.4)
     scene enter_m_tr_titledrop at enter_m_tr_titledrop_in(enter_m_tr_bar * 1.5)
@@ -642,14 +551,11 @@ label enter_m_prologue_trailer:
     $ renpy.pause(enter_m_tr_bar * 1.5, hard=True)
     hide screen enter_m_op_signal_burst
 
-    # EDIT THESE TWO TAG CARDS TO TASTE -- the demo sign-off + the hook.
+    # The NEXT TIME bumper already promised continuation. Let the logo sign off
+    # without explaining the chapter boundary a second time.
     hide screen enter_m_tr_title_drop
     scene black
     with Dissolve(0.6)
-    show screen enter_m_tr_tag("", "chapter 0.5 ends here", enter_m_tr_bar)
-    $ renpy.pause(enter_m_tr_bar, hard=True)
-    show screen enter_m_tr_tag("season one", "continues", enter_m_tr_bar)
-    $ renpy.pause(enter_m_tr_bar, hard=True)
 
     # Power off.
     show enter_m_tr_dark at enter_m_tr_crt_off(0.5)

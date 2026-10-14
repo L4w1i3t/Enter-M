@@ -1,86 +1,13 @@
-# =============================================================================
-# ENTER-M :: THEATER HOUSE LIGHTS  --  the cinema-only lighting shader
-# -----------------------------------------------------------------------------
-# Public story API (see the worked example at the bottom of this header):
+# Auditorium lighting over the cinematic layer at zorder -10. The shader
+# dims the room around ENTER_M_THEATER_SCREEN_RECT and adds projector spill.
+# theater_lights(level, secs) ramps from the last requested level: 0 means
+# house lights up, 1 means dark. Call theater_clear() on leaving; scene changes
+# on master do not clear this overlay.
 #
-#     $ theater_lights(0.55)             # house lights down to half
-#     $ theater_lights(1.00, secs=2.4)   # ...and out; the film is running
-#     $ theater_lights(0.00, secs=1.6)   # house lights up for the credits
-#     $ theater_clear()                  # take the whole thing off
-#
-# WHAT IT DOES, AND WHY IT IS NOT IN atmosphere.rpy
-#   atmosphere.rpy grades a scene: one preset, one look, held. This is the
-#   opposite kind of effect -- it is a single location doing a single thing,
-#   over time, once. The room goes dark AND the screen becomes the only light
-#   source in it, which means the darkness has a hole in it that has to sit
-#   exactly where the screen is drawn in assets/backgrounds/theater_inside.png. A
-#   preset table cannot express "dark everywhere except this rectangle", and
-#   nothing outside a movie theater would ever want it to.
-#
-#   It is not in fx.rpy for the reason stated in that file's header: fx.rpy is
-#   deliberately shader-free, and a shader belongs to whatever owns it. Here
-#   that owner is a place rather than a game mode, which is the only difference
-#   from the per-addon fx layers.
-#
-# HOW THE LOOK IS BUILT  (one fragment pass, three terms)
-#   room   A dark premultiplied layer over everything. Its alpha is highest far
-#          from the screen and drops to nothing on the screen itself, so the
-#          seats, walls and sconces go out while the plate stays lit.
-#   spill  The same falloff, much wider and much softer: light from the screen
-#          landing on the first rows, the aisle, and the people in them.
-#   beat   The film's OWN brightness, which is the thing that actually sells it.
-#          A cinema is never at a constant light level -- it swings a stop and a
-#          half every time the movie cuts -- so `beat` rides on top of both
-#          terms above and keeps the room breathing without ever flickering.
-#
-# WHY THE ANIMATION IS ATL AND NOT u_time
-#   Because we already learned this one the expensive way (see the note in the
-#   OP/menu work): a shader whose motion is keyed to ambient u_time only moves
-#   while something ELSE is asking for redraws, so it stutters and then freezes
-#   on any screen that goes quiet -- which a dialogue scene does, between every
-#   single click. Animating the uniforms from ATL instead makes the transform
-#   itself the thing requesting frames, so the beat is continuous by
-#   construction. `u_time` appears nowhere below.
-#
-# WHERE IT SITS
-#   Its own tag on the "cinematic" layer at zorder -10, above every sprite, so
-#   Monika in the next seat goes dark with the room. The negative zorder keeps
-#   room for anything that should sit OVER the dim on the same layer -- there
-#   is nothing there today, but letterbox bars used to be at zorder 0 and a
-#   rebuild will likely want them back. Dialogue, the calendar and the quick
-#   menu are all
-#   on "screens", which is above "cinematic", so none of them are touched.
-#   `scene` clears "master" only, so this survives the cuts between beats of
-#   the movie -- which is wanted; the film does not stop for the narration.
-#   That also means it MUST be turned off on the way out. theater_clear() is
-#   not optional politeness, it is how the lobby stops being dark.
-#
-# QUALITY
-#   Honours persistent.enter_m_atmos_quality, evaluated when a call is made:
-#     full  -> shader, with the beat animating
-#     light -> shader, held at one brightness (no per-frame redraw)
-#     off   -> no shader at all; a plain dark Solid ramps in its place
-#   A quality change made mid-scene applies from the next call rather than
-#   retroactively, which for a five-minute sequence is a trade worth taking
-#   over rebuilding this as a ConditionSwitch.
-#
-# WORKED EXAMPLE  (May 18, and the shape any theater scene should follow)
-#     scene bg theater_inside
-#     $ theater_lights(0.55)              # ads; the room is already low
-#     ...
-#     $ theater_lights(1.00, secs=2.6)    # trailers end, the feature starts
-#     ...
-#     $ theater_lights(0.00, secs=1.8)    # credits, house lights up
-#     $ theater_clear()
-# =============================================================================
+# Atmosphere quality is sampled per call: Full animates projector brightness,
+# Light holds it, Off (or unavailable shaders) uses a plain dimming overlay.
+# ATL uniforms request redraws; the shader does not rely on ambient u_time.
 
-
-# -----------------------------------------------------------------------------
-# 1. SHADER
-# -----------------------------------------------------------------------------
-# GLSL ES 1.00 only, matching atmosphere.rpy: no derivatives, no dynamic loops,
-# every smoothstep with edge0 strictly below edge1, and every identifier
-# prefixed because Matsu'Py 8.1.1 combines shader-part source into one scope.
 init -10 python:
 
     def _enter_m_theater_register_shader():
@@ -297,10 +224,9 @@ init python:
         """Ramp the auditorium to `level` over `secs`.
 
         0.0 is house lights up and 1.0 is the feature running in the dark;
-        anything between is a real state a cinema sits in, and the one that
-        matters is the half-light during the ads. The ramp always starts from
-        wherever the room actually is, so calls chain without a jump and a
-        change of mind mid-fade is a legal thing to write.
+        intermediate values dim the room partway. The ramp starts from the
+        previous requested target, not a sampled in-progress brightness.
+        Wait for a ramp to finish before chaining another if continuity matters.
         """
         level = max(0.0, min(1.0, float(level)))
         secs = max(0.0, float(secs))

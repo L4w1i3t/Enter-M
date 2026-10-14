@@ -29,8 +29,9 @@
 #       person holding the mouse played, and nothing here measures that.
 #   Speakers: _purg_girl (the in-game "Girl") and _purg_entity (nameless, red text).
 #
-#   SHARED EFFECTS used: the `tear` glitch screen, `glitch_color`, `noise`,
-#   `vignette` (see game/effects.rpy).
+#   SHARED EFFECTS used: the `tear` glitch screen (game/effects.rpy), and
+#   `glitch_color` / `glitch_color2` / `noise` / `vignette` (game/fx.rpy,
+#   section 1 -- all four are vanilla DDLC leftovers, not local to this file).
 #
 #   STRUCTURE: hell CG cold-open -> 7 in-game "Days" of a bootleg dating sim,
 #   interleaved with Sam's-room interludes, escalating corruption each day ->

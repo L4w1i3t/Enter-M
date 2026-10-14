@@ -1,47 +1,6 @@
-# =============================================================================
-# ENTER-M :: FRAME RATE
-# -----------------------------------------------------------------------------
-# THE GAME RUNS AT THE DISPLAY'S REFRESH RATE. There is no cap setting and no
-# VSync setting; both were removed on Aug 27 2026 because they were costing more
-# than they bought. What is left is one forced preference and a dev-only meter.
-#
-# WHY THE CAP HAD TO GO. Matsu'Py does not pace frames in software. It picks a
-# GL swap interval and lets vsync do the limiting:
-#
-#     sync_frames = int(round(refresh_rate) / gl_framerate)      # min 1
-#
-# so "60fps" on a 240Hz panel is not a 60fps pacer -- it is **swap interval 4**,
-# and every consequence of that is bad for a game with real-time modes:
-#
-#   * INPUT LATENCY QUADRUPLES. Input is sampled once per presented frame, so a
-#     keypress waits up to 16.7ms to reach the screen instead of up to 4.2ms.
-#     That is what made the boss fights feel mushy on the keyboard.
-#   * A LATE FRAME COSTS FOUR REFRESHES, NOT ONE. Overrun a 16.7ms budget by a
-#     hair and the swap blocks until the next 4-interval boundary: 33ms. The
-#     same overrun at interval 1 costs 4ms. Small hitches became big ones.
-#   * IT BEAT AGAINST THE SIMULATION. The danmaku stages deliberately tick and
-#     draw at a fixed 60Hz (`KT_TICK`, and the same governor in tsubaki_soul and
-#     the Archivist Invasions stages), scheduling their next frame with
-#     `renpy.redraw(self, KT_TICK - acc)`. A 60Hz sim against a 60Hz present
-#     that share no phase drop and double frames in a slow cycle -- motion that
-#     is technically at rate and visibly not smooth. At interval 1 each tick
-#     lands cleanly on every fourth refresh instead.
-#
-# The draw-rate governors are what make the high-refresh case affordable, and
-# they are unaffected by any of this: the stages still simulate and draw 60
-# times a second on a 240Hz panel, they just get presented promptly.
-#
-# WHAT THIS COSTS. Uncapped high-refresh rendering is more GPU work than a cap
-# was, and a 240Hz source still does not resample cleanly into a 60fps capture
-# encoder -- if streaming judder comes back, that is where it comes from, and
-# the answer is a capture-side frame limiter or a driver-level per-exe vsync
-# profile, not a setting in here. See [[enter-m-framerate-cap]] for the full
-# measurement history, including why the engine can only ever offer divisors.
-# =============================================================================
+# Display preferences are applied before the renderer starts.
+# No engine frame-rate divisor; Low-Resource Mode controls idle redraws.
 
-# init 50: still init code, so still ahead of Interface.set_mode() -- which is
-# the only place the swap interval is ever applied (GL2Draw.init() runs exactly
-# once, from set_mode(), at startup). Anything written here lands on this boot.
 init 50 python:
 
     # None is the engine's "no divisor" -- swap interval 1, i.e. the panel's own
@@ -60,32 +19,56 @@ init 50 python:
     persistent.enter_m_fps_cap_migrated = None
 
 
+# The player choice is persistent; gl_powersave is derived from it each launch.
+# False requests continuous presentation; True permits the renderer to idle.
+default persistent.enter_m_low_resource = False
+
+
+init 50 python:
+
+    # Ahead of set_mode, alongside the other forced display preferences. The
+    # flag is also read live by can_block() on every pass of the interact loop,
+    # so the in-game toggle applies immediately with no display reset.
+    renpy.game.preferences.gl_powersave = bool(persistent.enter_m_low_resource)
+
+
+init python:
+
+    def enter_m_low_resource():
+        """True when the engine is allowed to idle instead of presenting."""
+
+        return bool(persistent.enter_m_low_resource)
+
+    def enter_m_set_low_resource(enabled):
+        """Hand the idle cadence back to the engine, or take it away."""
+
+        persistent.enter_m_low_resource = bool(enabled)
+        renpy.game.preferences.gl_powersave = bool(enabled)
+        renpy.restart_interaction()
+
+
 init python:
 
     def enter_m_fps_sample():
-        """
-        Sample the real presented frame rate from config.frames.
+        """Sample presented frames over monotonic elapsed time.
 
-        Driven by a repeating timer on the Dev Hub and the developer-only line
-        in Settings. The timer forces a redraw every tick, which is what makes
-        this measure the *ceiling* rather than Matsu'Py's idle floor -- an idle
-        screen presents about 5fps by design (gl_powersave + redraw_period),
-        and reading that as "the frame rate" would be meaningless.
+        The developer-screen timer requests redraws, so this samples an active
+        screen rather than measuring an untouched idle screen.
         """
 
         import time
 
-        now = time.time()
-        frames = config.frames
-        prev = getattr(enter_m_fps_sample, "prev", None)
-        enter_m_fps_sample.prev = (now, frames)
+        sample_time = time.perf_counter()
+        frame_count = config.frames
+        previous_sample = getattr(enter_m_fps_sample, "prev", None)
+        enter_m_fps_sample.prev = (sample_time, frame_count)
 
-        if prev is None:
+        if previous_sample is None:
             return
 
-        dt = now - prev[0]
-        if dt > 0:
-            enter_m_fps_sample.value = (frames - prev[1]) / dt
+        elapsed_seconds = sample_time - previous_sample[0]
+        if elapsed_seconds > 0:
+            enter_m_fps_sample.value = (frame_count - previous_sample[1]) / elapsed_seconds
             renpy.restart_interaction()
 
     def enter_m_fps_measured():

@@ -5,8 +5,8 @@
 # WHAT THIS FILE IS
 #   One catalogue of every sprite cut out of the two ripped Touhou sheets in
 #   assets/bullets/, exposed as cached crop displayables that ANY game mode
-#   can draw: Kotonoha's danmaku stage, Tsubaki's soul mode, the Archivist
-#   Invasions, Matsuda's fight, the Arcade cabinets. Bullets, yes, but also the
+#   can draw: Tsubaki's soul mode, the Archivist Invasions, Matsuda's fight,
+#   the Arcade cabinets. Bullets, yes, but also the
 #   art that replaces flat Solids -- laser bodies, lightning arcs, summoning
 #   seals, bloom discs.
 #
@@ -16,12 +16,18 @@
 #
 #     bulletsheet_th11.png   584x828  ripped sheet (etama block + seals + booms)
 #     bulletsheet_th15.png   521x818  ripped sheet (hearts, lasers, lightning)
-#     bulletsheet.png        256x256  the older 32px sheet kototouhou.rpy uses
+#     bulletsheet.png        256x256  the older 32px sheet (nothing loads it
+#                                    since Kotonoha's mode got its own art)
 #     bullet.png pellet.png dagger.png pellet_player.png
 #                                    the four shipped 16px pixel sprites, moved
 #                                    here out of kotonohamode/ so Kotonoha's and
 #                                    Tsubaki's modes stop reaching into each
 #                                    other's folders for them
+#
+#     kotonoha/              Kotonoha's danmaku stage's OWN, original art --
+#                            bullets, lasers, FX, soul, seals, frame -- mapped
+#                            by kotonoha/kt_atlas.json. It is not catalogued
+#                            here and borrows nothing from the sheets above.
 #
 #   Mode-specific art (ships, boss sprites, backdrops, bomb icons) stays with
 #   its mode -- this folder is bullets and bullet-adjacent FX only.
@@ -35,9 +41,9 @@
 #       tint from.
 #     * th11 (278,274) is a third copy of th15's hearts. Dropped; use "heart".
 #     * th15's 32px block (y=257+) is the same rip as bulletsheet.png
-#       (star / sphere / ring / knife / oval / spark / eyes). That file is
-#       still wired into kototouhou.rpy and stays authoritative for those six
-#       shapes -- they are deliberately NOT redefined here.
+#       (star / sphere / ring / knife / oval / spark / eyes). Those six were
+#       left out of this catalogue on purpose while kototouhou.rpy drew them
+#       from that file; it no longer does.
 #   So: nothing in this catalogue duplicates anything else in this catalogue.
 #
 # HOW COLOUR WORKS  (the important bit)
@@ -60,8 +66,8 @@
 #   early, not too late.
 #
 # RELATED FILES
-#   Matsuda's Sick Boss Fight/kotonohamode/kototouhou.rpy -- biggest consumer
-#   tsubakimode/tsubaki_soul.rpy, Archivist Invasions/*   -- also draw from here
+#   tsubakimode/tsubaki_soul.rpy, Archivist Invasions/*   -- draw from here
+#   kotonohamode/kototouhou.rpy -- does NOT (see kotonoha/ above)
 #   def_images.rpy / def_audio.rpy / def_characters.rpy   -- the sibling tables
 # =============================================================================
 
@@ -148,11 +154,6 @@ init -20 python:
         "arc3":        ("th15",   5, 741, 243,  30, 0, 0, 1, 1, 0, True),
     }
 
-    EMB_ARCS = ("arc0", "arc1", "arc2", "arc3")
-    EMB_SEALS = (
-        "seal_orange", "seal_blue", "seal_yellow", "seal_green",
-        "seal_spike", "seal_hex",
-    )
 
     # -------------------------------------------------------------------------
     # ACCESS
@@ -171,19 +172,10 @@ init -20 python:
                 "def_bullets: no atlas entry %r. Known names: %s"
                 % (name, ", ".join(sorted(EMB_ATLAS_RAW))))
 
-    def emb_size(name):
-        # (w, h) of one cell, in sheet pixels.
-        s = emb_spec(name)
-        return (s[3], s[4])
-
     def emb_count(name):
         # How many colourways / frames this family has.
         s = emb_spec(name)
         return s[7] * s[8]
-
-    def emb_neutral(name):
-        # Index of the cell a TintMatrix wants.
-        return emb_spec(name)[9]
 
     def emb_tintable(name):
         return emb_spec(name)[10]
@@ -209,10 +201,6 @@ init -20 python:
             d = Crop((cx, cy, w, h), EMB_SHEET[sheet])
             _emb_cell_cache[key] = d
         return d
-
-    def emb_frames(name):
-        # Every colourway / animation frame, in sheet order.
-        return [emb_cell(name, i) for i in range(emb_count(name))]
 
     def emb_tint(name, color, index=None, **kwargs):
         # The neutral cell recoloured. Extra kwargs go straight to Transform

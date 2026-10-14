@@ -1,24 +1,9 @@
-# =============================================================================
-# DEV DATE JUMP
-# Development-only New Game router for starting directly at a dated story label.
-#
-# Date labels follow the project's `aMMDD` convention (for example, `a0523`).
-# The router discovers those labels at runtime, so newly added days become
-# available without maintaining a second list here. `DISC` preserves the normal
-# disclaimer -> May 15 opening.
-#
-# The menu validates live while you type (dev_date_jump_preview drives the
-# readout + border colour + BEGIN sensitivity), and every discovered route is
-# also a clickable chip that launches it directly.
-#
-# ALL SIDE CONTENT is this project's "unlock everything" switch, and since the
-# Archive gained per-item gating it is the ONLY one -- there is no longer an
-# init-time hook anywhere that force-unlocks a catalog behind your back (the old
-# one in char_stories.rpy is retired; read the note there). It covers the Archive
-# module flags, every side story, every CG, every outfit, every soundtrack entry
-# and every roster slot, all read live from their owning catalogs, and it toggles
-# both ways so a locked-state pass is one click away.
-# =============================================================================
+# Developer router launched through the Dev Hub's ROUTING page.
+# dev_date_jump_start creates fresh session state before entering a dated label.
+# Routes discover the aMMDD naming convention at runtime; DISC follows the normal
+# disclaimer opening. New Game continues through the normal Chapter Select path.
+# ALL SIDE CONTENT reads live Archive/story/CG/outfit/music/roster catalogs and
+# toggles their persistent unlocks both ways for available/locked UI inspection.
 
 init python:
     import datetime as _dev_date_jump_datetime
@@ -29,8 +14,7 @@ init python:
     #
     # Scenes listed here live in game/story/out_of_context/ and are written to
     # shipping quality, so an entry can be moved into its real day file
-    # unchanged once the timeline reaches it. The rough, unplaced scratch scenes
-    # in story/dev_scene_manager.rpy stay in their original, separate manager.
+    # unchanged once the timeline reaches it.
     dev_out_of_context_scene_catalog = (
         (
             "1030",
@@ -297,6 +281,24 @@ init python:
             return ("bad", error_message.upper())
 
         return ("ok", "{}  ->  {}".format(story_date.strftime("%A // %B %d %Y").upper(), label_name))
+
+
+# The Dev Hub's door into the router, and the only way in from the title.
+#
+# `start` is no longer on the way here, so the session state it lays down has
+# to be laid down here instead: a day file in the middle of the story inherits
+# `chapter`, the placeholder names and the skipping flags from the days before
+# it, and a direct launch has no days before it.
+label dev_date_jump_start:
+
+    # A release build has no business in the router. Send it where New Game
+    # goes instead of dropping it into a half-built session.
+    if not config.developer:
+        jump start
+
+    call enter_m_new_game_state from _call_enter_m_new_game_state_dev_jump
+
+    jump dev_date_jump
 
 
 label dev_date_jump:

@@ -1,51 +1,9 @@
-# =============================================================================
-# mc_reveal_fx.rpy  --  THE PULL CINEMATIC
-# =============================================================================
-#
-# WHAT THIS FILE IS
-#   The spectacle between paying and seeing what you got. mc_gacha.rpy owns the
-#   machine, the odds and the results wall; this file owns the twenty to thirty
-#   frames in the middle that make a pull feel like an event instead of a
-#   transaction.
-#
-# THE SHAPE OF A PULL  (this is the genre's structure, not an invention)
-#   DROP     the capsule falls out of the chute and settles.
-#   CHARGE   it winds up, ringed by light. The COLOUR of that light is the tell.
-#   ESCALATE the tell can UPGRADE mid-charge -- steel to violet to gold. An SSR
-#            climbs all three rungs, so the moment the light changes is the
-#            moment the player already knows, and that anticipation is the
-#            single most valuable beat a gacha reveal has. An R never climbs, so
-#            the ladder means something.
-#   BURST    god rays, a shockwave, a screen flash and a shake, keyed to tier.
-#   WALL     mc_gacha.rpy's reveal, where the cards flip face-up one by one.
-#
-# RARITY GRADES THE WHOLE THING
-#   An R pull is one short rung and a modest pop (about 1.2s). An SSR climbs
-#   three rungs and detonates (about 3.0s). Nothing about the sequence is
-#   uniform, because a reveal that costs the same time whatever it produced
-#   trains the player to skip all of them.
-#
-# AND IT IS ALWAYS SKIPPABLE
-#   Click, Enter or Escape at ANY point jumps straight to the finished wall with
-#   every card already face-up. There is also a speed control on the machine
-#   (FULL / FAST / OFF) written to persistent.mc_fx_speed -- this is a screen
-#   somebody will see several hundred times, and a spectacle you cannot turn
-#   down stops being one.
-#
-# SHADERS  (namespace: mcg.*)
-#   mcg.orb   : the charge aura -- core glow plus rings converging inward.
-#   mcg.burst : the blowout -- angular god rays, an expanding shockwave, a
-#               central flash.
-#   Both follow the house rules: registered at init -10, driven by an OPAQUE
-#   Solid base at a known xysize so the mesh is not culled, every animated
-#   uniform ATL-interpolated rather than keyed to u_time (a settled screen asks
-#   for no frames, so a u_time effect freezes and snaps), and both output
-#   PREMULTIPLIED alpha -- `min(col, vec3(a))` -- or the plate rectangle shows
-#   up as a glowing box over everything behind it.
-#   register_shader runs in `init python`, which does NOT re-run on hot reload:
-#   editing the GLSL below needs a full restart, not a Shift+R.
-# =============================================================================
-
+# Prize-pull presentation: drop -> charge/escalate -> burst -> results wall.
+# Rarity selects reveal length and light progression. Input can skip to the
+# completed wall; persistent.mc_fx_speed selects full/fast/off presentation.
+# mc_gacha owns the transaction and results, so skipping affects presentation only.
+# mcg.orb and mcg.burst use opaque mesh bases, ATL-driven uniforms and premultiplied
+# alpha. Keep the transparent plate edge free of additive rectangular glow.
 
 init -10 python:
     def _mc_fx_register_shaders():
@@ -92,6 +50,8 @@ init -10 python:
             uniform float u_progress;
             uniform float u_rays;
             uniform float u_flash;
+            uniform float u_ring;
+            uniform float u_reach;
             varying vec2 v_tex_coord;
         """, fragment_300="""
             vec2 uv = v_tex_coord * u_model_size;
@@ -108,12 +68,15 @@ init -10 python:
             float comb_wide = sin(ang * 7.0 - p * 1.3);
             float rays = pow(max(comb_fine, 0.0), 6.0) * 0.72
                     + pow(max(comb_wide, 0.0), 10.0) * 0.60;
-            rays *= smoothstep(0.02, 0.30, r) * smoothstep(2.0, 0.40, r);
+            // u_reach is where the rays have died out, in half-heights: 2.0
+            // for the full-screen burst; under 1.0 on a small plate, so they
+            // are gone before its square edge can clip them.
+            rays *= smoothstep(0.02, 0.30, r) * smoothstep(u_reach, u_reach * 0.20, r);
             rays *= u_rays * (1.0 - p * 0.85);
 
             float rr = p * 2.1;
             float ring = smoothstep(0.15 * (1.0 - p) + 0.015, 0.0, abs(r - rr));
-            ring *= (1.0 - p) * 1.25;
+            ring *= (1.0 - p) * 1.25 * u_ring;
 
             float flash = exp(-r * r * 2.6) * u_flash;
 
@@ -162,6 +125,15 @@ init -3 python:
     # the whole point of an upgrade is that it gets to be looked at.
     MC_FX_RUNG_HOLD = (0.62, 0.66, 0.92)
     MC_FX_BURST_HOLD = {"r": 0.46, "sr": 0.62, "ssr": 0.86}
+
+    # THE CRANK, before the first rung: the machine you just paid is pushed in
+    # on, rumbles, and lets the capsule out of its chute at MC_FX_CRANK_POP of
+    # the way through. Speed-scaled like everything else.
+    MC_FX_CRANK_HOLD = 1.0
+    MC_FX_CRANK_POP = 0.63
+
+    def mc_fx_crank_hold():
+        return max(0.05, MC_FX_CRANK_HOLD * mc_fx_scale())
 
     def mc_fx_speed():
         """The stored speed key, defended against a stale persistent value."""
@@ -261,7 +233,13 @@ init -3 python:
         rather than read off u_time (which does not, so it freezes on a settled
         screen and then snaps). Same split as the card's mc_card_fx_holo.
         """
-        return Transform(Solid("#000000"), xysize=(int(w), int(h)))
+        key = (int(w), int(h))
+        hit = _MC_PLATE_CACHE.get(key)
+        if hit is None:
+            hit = _MC_PLATE_CACHE[key] = Transform(Solid("#000000"), xysize=key)
+        return hit
+
+    _MC_PLATE_CACHE = {}
 
     MC_CARD_BACK_PATH = "assets/gui/cards/card_back_archive.png"
     _MC_CARD_BACK_CACHE = {}
@@ -298,40 +276,21 @@ init -3 python:
             _MC_CARD_BACK_CACHE[key] = hit
         return hit
 
+    # The capsule, pixel art to match the machine it comes out of: a milky
+    # clear shell, then the tier light (McCapsuleCore), then the brass band and
+    # its hinge over both -- so the light glows THROUGH the plastic and the band
+    # stays on top. 20x20, whole-number scale like the cabinet. Tier-NEUTRAL,
+    # like the card back: the LIGHT is the tell, the capsule is just a capsule.
+    MC_FX_CAPSULE_SHELL = "addons/Matsucoin Currency and Gacha/capsule_px_shell.png"
+    MC_FX_CAPSULE_BAND = "addons/Matsucoin Currency and Gacha/capsule_px_band.png"
+
+    @renpy.pure
     def McGachaCapsule(size):
-        """
-        The capsule, as a plastic object rather than a coloured disc.
+        return Transform(MC_FX_CAPSULE_SHELL, zoom=max(1, int(round(size / 20.0))), nearest=True)
 
-        A true two-hemisphere capsule needs clipping Ren'Py will not give a
-        rounded rect, so this sells it the way the shape actually reads: a
-        vertical gradient body (lit from above), a SEAM across the middle, and
-        one specular highlight. Tier-NEUTRAL, like the card back -- the LIGHT is
-        the tell, the plastic is just plastic.
-        """
-        s = int(size)
-        seam_h = max(3, int(s * 0.045))
-        hi_w, hi_h = int(s * 0.34), int(s * 0.22)
-
-        return Fixed(
-            ArcadePanel(s, s, top="#9c92dc", bottom="#2a2250", radius=s / 2.0,
-                        border=1.5, border_color="#d8d0ff55"),
-            # Short of the full width on purpose: the shell's edge is
-            # antialiased and carries a border, so a seam drawn to the true
-            # diameter reads as overhanging the silhouette rather than lying
-            # on it.
-            Transform(
-                ArcadePanel(int(s * 0.92), seam_h, top="#171036dd",
-                            bottom="#0d0824dd", radius=seam_h / 2.0),
-                align=(0.5, 0.5),
-            ),
-            Transform(
-                ArcadePanel(hi_w, hi_h, top="#ffffff", bottom="#ffffff00",
-                            radius=hi_h / 2.0),
-                align=(0.30, 0.22),
-                alpha=0.40,
-            ),
-            xysize=(s, s),
-        )
+    @renpy.pure
+    def McCapsuleBand(size):
+        return Transform(MC_FX_CAPSULE_BAND, zoom=max(1, int(round(size / 20.0))), nearest=True)
 
     def McCapsuleCore(size, color):
         """The light building up INSIDE the capsule.
@@ -403,6 +362,8 @@ transform mc_fx_burst(col, dur):
     shader "mcg.burst"
     u_color col
     u_rays 1.0
+    u_ring 1.0
+    u_reach 2.0
     u_progress 0.0
     u_flash 0.0
     parallel:
@@ -411,22 +372,57 @@ transform mc_fx_burst(col, dur):
         linear (dur * 0.16) u_flash 1.0
         easeout (dur * 0.84) u_flash 0.0
 
-# The capsule falling out of the chute, bouncing once, then breathing. Its
-# argument is the pull's speed scale and nothing else, so it survives every
-# rung change and keeps running instead of re-dropping.
-transform mc_fx_capsule(dur):
+# THE CRANK. The cabinet starts exactly where the prize screen draws it -- left
+# panel, McMachine(452), centred on (296, 373) -- so the cut into the cinematic is a
+# camera move rather than a new picture. Pushed in on (Ren'Py's easein_* is the
+# one that settles), rumbled while its dome lights up, then left behind as the
+# capsule leaves the chute.
+transform mc_fx_machine_push(dur):
     subpixel True
+    nearest True
+    anchor (0.5, 0.5)
+    pos (296, 373)
+    zoom 1.0
+    alpha 1.0
+    xoffset 0
+    matrixcolor BrightnessMatrix(0.0)
+    easein_cubic (dur * 0.34) pos (640, 352) zoom 1.22
+    parallel:
+        linear (dur * 0.05) xoffset 7
+        linear (dur * 0.05) xoffset -7
+        linear (dur * 0.05) xoffset 5
+        linear (dur * 0.05) xoffset -4
+        linear (dur * 0.05) xoffset 2
+        linear (dur * 0.04) xoffset 0
+    parallel:
+        easeout_quad (dur * 0.16) matrixcolor BrightnessMatrix(0.24)
+        easein_quad (dur * 0.13) matrixcolor BrightnessMatrix(0.0)
+    easeout_cubic (dur * 0.37) zoom 1.6 alpha 0.0
+
+# The dark comes down as the camera moves in, so the prize screen is still
+# there at the first frame and the cut never happens.
+transform mc_fx_dim_in(dur):
     alpha 0.0
-    yoffset -280
-    zoom 0.80
+    linear 0.08 alpha 0.78
+    linear (dur * 0.30) alpha 1.0
+
+# The capsule out of the chute: it starts on the pushed-in cabinet's chute
+# (the chute is 28 art pixels below the sprite's centre: x6 x1.22, from a
+# cabinet centred 8px above the frame's, is 197px below centre), flies up to
+# centre frame, overshoots and settles, then breathes. Constant arguments for
+# the whole pull, so it survives every rung rebuild instead of re-launching.
+transform mc_fx_capsule_emerge(delay, dur):
+    subpixel True
+    nearest True
+    alpha 0.0
+    xoffset 0
+    yoffset 197
+    zoom 0.28
+    pause delay
     parallel:
-        easeout (dur * 0.45) alpha 1.0
+        linear 0.08 alpha 1.0
     parallel:
-        easein_quad (dur * 0.70) yoffset 22
-        easeout_quad (dur * 0.16) yoffset -13
-        easein_quad (dur * 0.14) yoffset 0
-    parallel:
-        easeout (dur * 0.70) zoom 1.0
+        easein_back dur xoffset 0 yoffset 0 zoom 1.0
         block:
             ease 0.55 zoom 1.05
             ease 0.55 zoom 1.0
@@ -435,12 +431,63 @@ transform mc_fx_capsule(dur):
 # ... and going up with the burst.
 transform mc_fx_capsule_pop(dur):
     subpixel True
+    nearest True
     zoom 1.0
     alpha 1.0
     parallel:
         easein_quad (dur * 0.32) zoom 1.60
     parallel:
         linear (dur * 0.32) alpha 0.0
+
+# An UPGRADE lands: a white flash and a punch-in on the whole frame, restarted
+# per rung by `key`. The first rung gets neither -- nothing has happened yet.
+transform mc_fx_rung_flash(key=0):
+    alpha 0.42
+    easein_quad 0.30 alpha 0.0
+
+transform mc_fx_rung_kick(key=0):
+    subpixel True
+    zoom 1.05
+    easein_back 0.32 zoom 1.0
+
+# Light rays behind the capsule once the ladder has climbed past its first
+# rung: the burst shader with its ring off, slowly turning as it winds up.
+transform mc_fx_rays(col, dur):
+    subpixel True
+    mesh True
+    shader "mcg.burst"
+    u_color col
+    u_ring 0.0
+    u_reach 2.0
+    u_flash 0.0
+    u_rays 0.0
+    u_progress 0.0
+    parallel:
+        easein_quad (dur * 0.5) u_rays 0.75
+    parallel:
+        linear dur u_progress 0.32
+
+# The burst's white-out, scaled by how much there is to celebrate.
+transform mc_fx_white(dur, strength=0.8):
+    alpha strength
+    easein_cubic (dur * 0.55) alpha 0.0
+
+# Sparks thrown outward from the burst. easeout_* accelerates in Ren'Py, so a
+# spark holds its light and then goes out at the end of its flight.
+transform mc_fx_spark(dx, dy, delay, dur):
+    subpixel True
+    alpha 0.0
+    xoffset 0
+    yoffset 0
+    zoom 1.3
+    pause delay
+    alpha 1.0
+    parallel:
+        easein_quad dur xoffset dx yoffset dy
+    parallel:
+        linear dur zoom 0.35
+    parallel:
+        easeout_quad dur alpha 0.0
 
 # Impact shake. Hand-stepped rather than random so it reads the same every time
 # and can be tuned by eye.
@@ -522,6 +569,61 @@ transform mc_fx_flip_face(delay=0.0, dur=0.26):
     alpha 1.0
     easeout_quad (dur * 0.5) xzoom 1.0
 
+# The wall is dealt face-down before anything turns over.
+transform mc_fx_deal(delay=0.0):
+    subpixel True
+    alpha 0.0
+    yoffset -36
+    zoom 0.86
+    pause delay
+    parallel:
+        linear 0.10 alpha 1.0
+    parallel:
+        easein_back 0.30 yoffset 0 zoom 1.0
+
+# Rays behind an SR/SSR as it turns over: the burst shader on a square plate,
+# reach under 1.0 so the rays are gone before the plate's edge.
+transform mc_fx_card_rays(col, delay=0.0, dur=0.9):
+    subpixel True
+    mesh True
+    shader "mcg.burst"
+    u_color col
+    u_ring 0.0
+    u_reach 0.95
+    u_rays 1.0
+    u_flash 0.0
+    u_progress 0.0
+    alpha 0.0
+    pause delay
+    alpha 1.0
+    parallel:
+        linear dur u_progress 1.0
+    parallel:
+        linear (dur * 0.15) u_flash 0.8
+        easein_quad (dur * 0.85) u_flash 0.0
+
+# An SSR keeps a slow halo turning behind it for as long as the wall is up.
+# `rotate 0` after 360 is the same orientation, so the loop has no seam.
+transform mc_fx_card_halo(col, delay=0.0):
+    subpixel True
+    mesh True
+    shader "mcg.burst"
+    u_color col
+    u_ring 0.0
+    u_reach 0.95
+    u_flash 0.0
+    u_progress 0.12
+    u_rays 0.0
+    rotate 0
+    pause delay
+    parallel:
+        easein_quad 0.6 u_rays 0.55
+    parallel:
+        block:
+            linear 18.0 rotate 360
+            rotate 0
+            repeat
+
 # The rarity pop behind a card as it turns over.
 transform mc_fx_card_pop(delay=0.0, dur=0.50):
     subpixel True
@@ -563,27 +665,31 @@ screen mc_pull_cinematic():
     modal True
     zorder 72
 
-    default phase = 0
+    # -1 is THE CRANK; 0 .. n-1 are the rungs; n is the burst.
+    default phase = -1
 
     python:
         _mcc_best = _mc_pull_rt.best
         _mcc_rungs = mc_fx_rungs(_mcc_best)
         _mcc_n = len(_mcc_rungs)
+        _mcc_cranking = (phase < 0)
         _mcc_bursting = (phase >= _mcc_n)
 
-        _mcc_key = _mcc_rungs[min(phase, _mcc_n - 1)]
+        _mcc_key = _mcc_rungs[min(max(phase, 0), _mcc_n - 1)]
         _mcc_tier = MC_RARITY[_mcc_key]
         _mcc_glow = _mcc_tier["glow"]
         _mcc_col = _mcc_tier["color"]
 
         _mcc_scale = mc_fx_scale()
+        _mcc_crank = mc_fx_crank_hold()
         _mcc_burst_len = mc_fx_burst_hold(_mcc_best)
 
         # Every way out lands on the same place: the finished wall, every card
         # already face-up. A skip should never cost the player the result.
         _mcc_skip = [Hide("mc_pull_cinematic"), Show("mc_reveal", instant=True)]
 
-    on "show" action Function(mc_se, "fx_drop", 0.8)
+    # The coin going in; the capsule's own drop cue lands as it leaves the chute.
+    on "show" action Function(mc_se, "coin", 0.8)
 
     dismiss action _mcc_skip
     key "K_ESCAPE" action _mcc_skip
@@ -591,9 +697,14 @@ screen mc_pull_cinematic():
     key "K_RETURN" action _mcc_skip
     key "K_KP_ENTER" action _mcc_skip
 
-    for _mcc_i in range(_mcc_n + 1):
+    for _mcc_i in range(-1, _mcc_n + 1):
         if phase == _mcc_i:
-            if _mcc_i < _mcc_n:
+            if _mcc_i < 0:
+                timer _mcc_crank action [
+                    SetScreenVariable("phase", 0),
+                    Function(mc_fx_advance_sound, 0, _mcc_n, _mcc_best),
+                ]
+            elif _mcc_i < _mcc_n:
                 timer mc_fx_hold(_mcc_i) action [
                     SetScreenVariable("phase", _mcc_i + 1),
                     Function(mc_fx_advance_sound, _mcc_i + 1, _mcc_n, _mcc_best),
@@ -604,40 +715,60 @@ screen mc_pull_cinematic():
                     Show("mc_reveal"),
                 ]
 
+    if _mcc_cranking:
+        timer (_mcc_crank * MC_FX_CRANK_POP) action Function(mc_se, "fx_drop", 0.8)
+
     # --- the field ------------------------------------------------------------
-    add Solid("#04030bf4")
-    add ArcadePanel(1280, 720, top=(_mcc_col + "22"), bottom="#00000000", radius=0)
+    fixed:
+        at mc_fx_dim_in(_mcc_crank)
+        add Solid("#04030bf4")
+        add ArcadePanel(1280, 720, top=(_mcc_col + ("33" if phase > 0 else "22")), bottom="#00000000", radius=0)
+
+    # The cabinet, for the crank only. It is gone (faded out) by the time the
+    # first rung removes it.
+    if _mcc_cranking:
+        add McMachine(452) at mc_fx_machine_push(_mcc_crank)
 
     # --- everything that takes the hit ---------------------------------------
     fixed:
         xysize (1280, 720)
-        at (mc_fx_shake(18.0 if _mcc_best == "ssr" else 11.0, _mcc_burst_len)
-            if _mcc_bursting else mc_fx_still)
+        align (0.5, 0.5)
+        at (mc_fx_shake(18.0 if _mcc_best == "ssr" else 11.0, _mcc_burst_len) if _mcc_bursting
+            else (mc_fx_rung_kick(phase) if phase > 0 else mc_fx_still))
 
-        # THE CAPSULE, and the light inside it.
+        # Rays behind the capsule once the ladder has climbed: an R never
+        # climbs, so it never gets them, and that is what makes them mean
+        # something.
+        if 0 < phase < _mcc_n:
+            add McPlate(1280, 720):
+                align (0.5, 0.5)
+                at mc_fx_rays(enter_m_rgba(_mcc_glow), mc_fx_hold(phase))
+
+        # THE CAPSULE: glass, the light inside it, the band over both.
         #
-        # The shell is tier-NEUTRAL and its transform takes only the speed
-        # scale, so it survives every rung rebuild and keeps sitting there
-        # bouncing. Its CHILDREN are free to change with the tier -- swapping a
-        # child does not touch the parent's own ATL state, which is the whole
-        # reason the light is a separate displayable from the plastic.
+        # The holder's transform takes only per-pull constants, so it survives
+        # every rung rebuild and keeps breathing. Its CHILDREN are free to
+        # change with the tier -- swapping a child does not touch the parent's
+        # ATL state, which is the whole reason the light is a separate layer.
         fixed:
             xysize (170, 170)
             align (0.5, 0.5)
             at (mc_fx_capsule_pop(_mcc_burst_len) if _mcc_bursting
-                else mc_fx_capsule(max(0.05, 0.48 * _mcc_scale)))
+                else mc_fx_capsule_emerge(_mcc_crank * MC_FX_CRANK_POP, max(0.05, 0.42 * _mcc_scale)))
 
             add McGachaCapsule(150) align (0.5, 0.5)
 
-            if not _mcc_bursting:
-                add McCapsuleCore(86, _mcc_glow):
+            if 0 <= phase < _mcc_n:
+                add McCapsuleCore(122, _mcc_glow):
                     align (0.5, 0.5)
                     at mc_fx_core(mc_fx_hold(phase))
+
+            add McCapsuleBand(150) align (0.5, 0.5)
 
         # The aura sits OVER the capsule, not under it: light spilling out
         # around a shell, rather than a shell punched out of a glow. It is
         # rebuilt every rung, and that rebuild IS the wind-up.
-        if not _mcc_bursting:
+        if 0 <= phase < _mcc_n:
             add McPlate(660, 660):
                 align (0.5, 0.5)
                 at mc_fx_orb(enter_m_rgba(_mcc_glow), mc_fx_hold(phase))
@@ -654,6 +785,13 @@ screen mc_pull_cinematic():
             add McPlate(1280, 720):
                 align (0.5, 0.5)
                 at mc_fx_burst(enter_m_rgba(_mcc_glow), _mcc_burst_len)
+
+            # Sparks thrown out of the capsule as it goes.
+            for _mcc_k, (_mcc_dx, _mcc_dy) in enumerate(MC_FX_MOTES):
+                add McCapsuleCore(12, _mcc_glow):
+                    align (0.5, 0.5)
+                    at mc_fx_spark(int(_mcc_dx * 1.7), int(_mcc_dy * 1.7),
+                                   _mcc_k * 0.012, max(0.1, _mcc_burst_len * 0.75))
 
             # The wordmark only exists for something worth naming. An R burst
             # is a pop of light and then the wall -- calling it out by name
@@ -672,6 +810,12 @@ screen mc_pull_cinematic():
                         style "mc_fx_banner_sub"
                         color _mcc_col
                         xalign 0.5
+
+    # An upgrade flashes the frame; the burst whites it out, harder the rarer.
+    if 0 < phase < _mcc_n:
+        add Solid("#ffffff") at mc_fx_rung_flash(phase)
+    if _mcc_bursting:
+        add Solid("#ffffff") at mc_fx_white(_mcc_burst_len, {"r": 0.35, "sr": 0.55}.get(_mcc_best, 0.72))
 
     if not _mcc_bursting:
         text "CLICK TO SKIP":

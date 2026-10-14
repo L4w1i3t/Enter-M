@@ -1,41 +1,10 @@
-# =============================================================================
-# card.rpy  --  ID CARD :: PLAYER NAME + BIRTHDAY ENTRY
-# =============================================================================
-#
-# WHAT THIS FILE PROVIDES
-#   An in-world "student ID card" screen (id_card_info_entry) where the player
-#   types their name + birthday. It validates the input, then commits it to the
-#   player variable + persistent storage. This is how the protagonist is named.
-#
-# HOW THE STORY USES IT (see docs/addons/ADDON_CHEATSHEET.md)
-#   scene bg ether with wipeleft_scene
-#   call screen id_card_info_entry        # blocks until a valid card is issued
-#   scene bg club_day
-#
-# WHAT IT SAVES (on a valid "ISSUE CARD")
-#   store.player                   = the chosen name (used in dialogue as [player]).
-#   persistent.playername          = same (survives across saves).
-#   persistent.player_birthday     = "MM/DD".
-#   persistent.player_birth_month  = "MM"   persistent.player_birth_day = "DD".
-#
-# SCREEN-LOCAL STATE (the `default`s below)
-#   id_card_name_input / id_card_birth_month / id_card_birth_day : the live fields.
-#   id_card_active_field : which field has focus ("name"/"month"/"day"/"").
-#   id_card_prev_quick_menu : saved quick_menu flag (the screen hides it; restored on hide).
-#
-# VALIDATION & ANTI-CHEESE (the heart of this file)
-#   Names are rejected if empty, <3 or >24 chars, made only of separators, use
-#   characters outside letters/space/hyphen/apostrophe, are "unoriginal" (mc,
-#   player, ...), or match a reserved/blocked name in `illegal_names`.
-#   id_card_name_lookup_key() normalizes a name so those checks can't be bypassed
-#   by case, spacing, separators, Unicode look-alikes, accents, or basic leetspeak
-#   (via ID_CARD_NAME_LOOKALIKE_CHARS). Birthdays must parse as a real month/day.
-#
-# DIRECT COMMIT (debug only): commit_id_card_info("Alex", "05", "15") validates
-#   and saves the same values without the screen.
-# =============================================================================
+# Student ID entry: call screen id_card_info_entry to collect a name/birthday.
+# Valid issuance stores player, persistent.playername and the birthday/date parts.
+# commit_id_card_info() uses the same validation without opening the screen.
+# Names use letters/spaces/hyphens/apostrophes, within the configured length limits;
+# normalized lookup rejects reserved names and look-alike variants. Birthdays must
+# form a real month/day. Screen-local fields own focus and restore the quick menu.
 
-# --- Live field state (per the header) ---
 default id_card_name_input = ""
 default id_card_birth_month = ""
 default id_card_birth_day = ""
@@ -720,13 +689,6 @@ style id_card_header:
     font gui.interface_font
     size 16
     color "#a8adb7"
-    outlines []
-
-style id_card_photo_text:
-    font gui.interface_font
-    size 16
-    color "#5f6368"
-    bold True
     outlines []
 
 style id_card_field_label:

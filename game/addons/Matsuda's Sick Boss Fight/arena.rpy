@@ -12,7 +12,13 @@
 #   Nothing here knows the battle rules. It takes a phase, a handful of 0..1
 #   intensities polled off MSBFBattleState, and draws a room.
 #
-# THE PROJECTION (the whole trick, in three lines)
+# CURRENT ROOM
+#   msbf_seer_environment owns the three illustrated arenas and their moving
+#   light, wind and debris. This file supplies phase data and world staging.
+#   The procedural shader below is retained for compatibility; its projection
+#   notes describe that shader, not the active painted environment.
+#
+# THE RETAINED PROCEDURAL PROJECTION
 #   The floor is the classic inverse-y pseudo-3D plane. For a pixel below the
 #   horizon at `below = uv.y - h`:
 #       z  = K / below                  -- depth; -> infinity at the horizon
@@ -25,10 +31,9 @@
 #   which is nearly free and is the single biggest reason the space reads as an
 #   interior rather than a backdrop.
 #
-#   Above the horizon the shader samples tex0 -- the phase's sky plate (the
-#   cosmic void of bg battle_setpiece, or the rupture plate in phase 3) -- and
-#   parallaxes it against the camera. So the art is still doing work; it is
-#   just doing it as a SKY instead of as a wall behind a cutout.
+#   Above the horizon the retained shader samples the phase's configured sky
+#   plate and parallaxes it against the camera. These compatibility aliases
+#   now point to the same cyan, gold and rupture paintings as the active room.
 #
 # WHAT MAKES THE BOSS STAND IN IT (rather than float over it)
 #   msbf_ground_shadow   : a soft ellipse on the floor at her feet, squashed by
@@ -467,27 +472,6 @@ init -10 python:
 # -----------------------------------------------------------------------------
 init -1 python:
 
-    # --- The one set of numbers the room and everything standing in it share.
-    #     Change the horizon here and the floor, ceiling, sigil, shadows and
-    #     reflections all move together, because they are all derived from it.
-    MSBF_ARENA_HORIZON = 0.5611          # uv y of the vanishing point (~404px)
-    MSBF_ARENA_HORIZON_PX = int(720 * MSBF_ARENA_HORIZON)
-    MSBF_ARENA_KF = 0.32                 # must match AR_KF in the shader
-    MSBF_ARENA_SPREAD = 2.2              # must match AR_SPREAD in the shader
-
-    def msbf_arena_depth_at(y_px):
-        """Screen y (px) -> floor depth z. Above the horizon returns None."""
-        below = (float(y_px) / 720.0) - MSBF_ARENA_HORIZON
-        if below <= 0.0008:
-            return None
-        return MSBF_ARENA_KF / below
-
-    def msbf_arena_floor_y(z):
-        """Floor depth z -> screen y (px). The inverse of the above."""
-        if z <= 0.0:
-            return 720
-        return int(720.0 * (MSBF_ARENA_HORIZON + (MSBF_ARENA_KF / float(z))))
-
     # --- WHERE THE BOSS STANDS ------------------------------------------------
     # Per phase: (sprite w, sprite h, centre x, centre y, floor-contact y,
     # shadow width, shadow strength). ALL THREE PHASES ARE AIRBORNE -- the
@@ -512,14 +496,6 @@ init -1 python:
             phase = 1
         return MSBF_BOSS_STAGE.get(min(3, max(1, phase)), MSBF_BOSS_STAGE[1])
 
-    def msbf_arena_bossz(phase):
-        """Floor depth of the boss's contact point -- where the sigil centres.
-
-        Derived from her stage placement rather than stated twice, so moving
-        her on screen moves the seal she is standing in without a second edit.
-        """
-        return msbf_arena_depth_at(msbf_boss_stage(phase)["foot"]) or 2.04
-
     # --- PER-PHASE ROOM -------------------------------------------------------
     # key  : the arena's light. Everything the room emits is this colour.
     # fog  : what distance turns into -- also the horizon and the far deck.
@@ -532,7 +508,7 @@ init -1 python:
             "key":  (0.30, 0.78, 1.00),
             "fog":  (0.045, 0.085, 0.150),
             "deck": (0.030, 0.052, 0.082),
-            "sky":  "bg battle_setpiece",
+            "sky":  MSBF_SEER_PLATES[1],
             "flow": 0.85,
         },
         # Phase 2: the deck turns to gold and the roof opens. Same room, lit
@@ -541,7 +517,7 @@ init -1 python:
             "key":  (1.00, 0.80, 0.38),
             "fog":  (0.100, 0.085, 0.075),
             "deck": (0.062, 0.052, 0.038),
-            "sky":  "bg battle_setpiece",
+            "sky":  MSBF_SEER_PLATES[2],
             "flow": 1.15,
         },
         # Phase 3: the room stops agreeing with itself. Red, white and black
@@ -550,7 +526,7 @@ init -1 python:
             "key":  (1.00, 0.24, 0.34),
             "fog":  (0.085, 0.030, 0.045),
             "deck": (0.055, 0.030, 0.038),
-            "sky":  "msbf_rupture_sky",
+            "sky":  MSBF_SEER_PLATES[3],
             "flow": 1.85,
         },
     }
@@ -562,132 +538,51 @@ init -1 python:
             phase = 1
         return MSBF_ARENA_PHASE.get(min(3, max(1, phase)), MSBF_ARENA_PHASE[1])
 
-    # --- WHERE THE PARTY STANDS ----------------------------------------------
-    # Placed BY EYE, not by msbf_arena_floor_y. Run honestly, the projection
-    # puts a human standing this close at three screen-heights tall; the
-    # Persona read wants them cropped at the chest instead. So depth here is
-    # sold the way it actually reads -- nearer means bigger, darker and lower --
-    # and the formula is left to govern the things the eye can actually check
-    # against the grid (the boss, her shadow, the sigil).
-    #
-    # (x centre, head-top y, height px, alpha, blur) for slots 0..5. The two
-    # outer slots are nearest; the inner pair sit back and smaller so the
-    # centre of the deck stays clear for the boss and her seal. Heads sit low
-    # enough that only head-and-shoulders clear the frame -- any higher and the
-    # front-facing source sprites start reading as faces watching the camera
-    # instead of as backs watching her.
-    # The command deck lands at y 530 and runs to the bottom edge, so a head
-    # top much below ~470 leaves nothing of that member on screen at all -- the
-    # first pass put the inner pair at 512 and they vanished entirely behind
-    # the skill grid. Heads sit high enough that head-and-shoulders always
-    # clears the deck, and the pair is spread wide enough to stay out of the
-    # boss's silhouette.
-    #
-    # THE LAYOUT IS A FUNCTION OF PARTY SIZE, not a fixed table. Phase 3 calls
-    # _summon_full_roster_for_phase_three and the party becomes all SEVEN
-    # members; a six-entry table indexed with `i % len(...)` therefore stacked
-    # the seventh member exactly on top of the first. Every count from 1 to 7
-    # now has its own row of x centres, and the depth is arced off those.
-
-    def _msbf_arc_slots(xs):
-        """x centres -> full slot tuples, with depth arced across the row.
-
-        NEARER = BIGGER AND HIGHER-HEADED. That reads backwards until you
-        remember every one of these figures has their feet well below the
-        bottom of the frame, so growing them pushes the head UP, not down.
-        """
-        n = len(xs)
-        half = max(1.0, (n - 1) / 2.0)
-        out = []
-        for i, x in enumerate(xs):
-            t = abs(i - (n - 1) / 2.0) / half        # 0 at the centre, 1 at the ends
-            out.append((int(x),
-                        int(504 - 54 * t),           # head top
-                        int(552 + 148 * t),          # height
-                        round(0.82 + 0.14 * t, 3),   # alpha
-                        round(3.4 - 1.4 * t, 2)))    # blur
-        return out
-
-    # Counts 4 and 7 are the ones that actually occur (a chosen deck, and the
-    # full roster phase 3 summons). The rest are here so nothing can index off
-    # the end. Wherever possible the centre of the deck is left EMPTY so the
-    # boss and her seal are never stood in front of; at 5 and 7 there are too
-    # many bodies for that and the middle slot takes the hit.
-    MSBF_STAGE_LAYOUT = {
-        1: _msbf_arc_slots([640]),
-        2: _msbf_arc_slots([340, 940]),
-        3: _msbf_arc_slots([180, 640, 1100]),
-        4: _msbf_arc_slots([120, 372, 908, 1160]),
-        5: _msbf_arc_slots([104, 336, 640, 944, 1176]),
-        6: _msbf_arc_slots([92, 288, 484, 796, 992, 1188]),
-        7: _msbf_arc_slots([82, 268, 454, 640, 826, 1012, 1198]),
-    }
-
-    def msbf_stage_layout(n):
-        try:
-            n = int(n)
-        except (TypeError, ValueError):
-            n = 4
-        return MSBF_STAGE_LAYOUT.get(max(1, min(7, n)), MSBF_STAGE_LAYOUT[4])
-
-    def msbf_stage_slot(i, n=4):
-        slots = msbf_stage_layout(n)
-        return slots[i % len(slots)]
-
-    # The tag that floats over a member's head, and the point damage lands on.
-    # Everything aimed at a party member -- floating numbers, HP-bar chips, KO
-    # bursts, a healing bolt -- reads its position from here, so moving a
-    # silhouette moves everything attached to them.
-    #
-    # Five or more members and the tag goes COMPACT: at seven across, a 186px
-    # tag is wider than the 186px of room each member has, so they would sit
-    # edge to edge in a solid band of readout. The compact tag drops the MP
-    # line and the max-HP denominator -- the acting member's full numbers are
-    # in the command deck's ACT block anyway, and that is the only member whose
-    # exact MP you can spend this turn.
-    MSBF_STAGE_TAG_W = 186          # the roomy (<=4 members) tag
-    MSBF_STAGE_TAG_H = 46
-
-    def msbf_stage_tag_metrics(n):
-        """-> (width, height, bar y-offset) for a party of n."""
-        try:
-            n = int(n)
-        except (TypeError, ValueError):
-            n = 4
-        if n >= 5:
-            return (170, 34, 18)
-        return (MSBF_STAGE_TAG_W, MSBF_STAGE_TAG_H, 20)
-
-    def msbf_stage_tag_origin(i, n=4):
-        """Top-left of member i's floating tag, in screen px.
-
-        The tags sit on ONE BASELINE even though the silhouettes under them are
-        arced in depth. Hanging each tag off its own member's head instead put
-        the seven-member row in a chevron -- correct as perspective, and
-        genuinely hard to read as a rank of health bars, which is the only job
-        the row has. Depth stays in the figures where the eye enjoys it.
-
-        The x is clamped into the frame as well: the outermost slot at a party
-        of seven sits close enough to the edge that a centred tag hangs off it.
-        """
-        slots = msbf_stage_layout(n)
-        sx = slots[i % len(slots)][0]
-        tw, th, _bar = msbf_stage_tag_metrics(n)
-        baseline = min(s[1] for s in slots) - th - 16
-        x = int(sx - tw // 2)
-        x = max(6, min(x, 1280 - tw - 6))
-        return (x, int(baseline))
-
     def msbf_stage_anchor(i, n=4):
-        """Where FX aimed at member i should land -- the centre of their tag."""
-        x, y = msbf_stage_tag_origin(i, n)
-        tw, th, _bar = msbf_stage_tag_metrics(n)
-        return (int(x + tw // 2), int(y + th // 2))
+        """Where FX aimed at member i should land -- their pixel sprite's chest.
+
+        Since the Sep 30 2026 facelift the party stands in the room as pixel
+        sprites (pixel_stage.rpy), so everything aimed at a member -- floating
+        numbers, KO bursts, a heal -- lands on the FIGURE, read from the same
+        formation function the stage draws them with. The live battle supplies
+        the member's id and row; the acting member stands a step forward.
+        """
+        b = getattr(store, "msbf_battle_state", None)
+        try:
+            party = b.party if b is not None else None
+            if party and 0 <= i < len(party):
+                m = party[i]
+                act = (b.turn_phase == "player" and m.alive and party[b.actor_index % len(party)] is m)
+                return msbf_px_member_point(m.id, i, len(party), getattr(m, "row", "front"), "chest", act)
+        except Exception:
+            pass
+        x, y = msbf_px_slot(i, n)
+        return (int(x), int(y - 110))
 
     def msbf_boss_anchor(phase):
-        """Where FX aimed at the boss should land -- her sprite's centre."""
-        st = msbf_boss_stage(phase)
-        return (int(st["cx"]), int(st["cy"]))
+        """Where FX aimed at the boss should land -- her pixel sprite's core."""
+        return msbf_px_boss_point(phase, "core")
+
+    # Her staging box, re-derived from the pixel sprite so the cinematics and
+    # anything else that reads msbf_boss_stage agree with what is on screen.
+    def _msbf_px_stage_box(phase):
+        meta = msbf_px_boss_meta(phase)
+        if not meta:
+            return None
+        sc = meta["scale"]
+        bx0, by0, bx1, by1 = meta["bbox"]
+        cx, cy = msbf_px_boss_point(phase, "core")
+        fx, fy = msbf_px_boss_point(phase, "foot")
+        w = int((bx1 - bx0 + 1) * sc)
+        return {"w": w, "h": int((by1 - by0 + 1) * sc), "cx": cx, "cy": cy,
+                "foot": fy + MSBF_PX_BOSS_HOVER.get(phase, 30),
+                "shadow_w": int(w * (0.45 if phase == 1 else 0.55)),
+                "shadow_a": 0.55, "airborne": True}
+
+    for _msbf_ph in (1, 2, 3):
+        _msbf_box = _msbf_px_stage_box(_msbf_ph)
+        if _msbf_box:
+            MSBF_BOSS_STAGE[_msbf_ph] = _msbf_box
 
     # --- THE ARCHETYPES ------------------------------------------------------
     # The fight has its own cast art now: seven full-body pieces in battle
@@ -702,10 +597,18 @@ init -1 python:
     # the greatsword, the halberd, the witch's hat, the staff -- which is the
     # whole reason to put the party in the world in the first place.
     #
-    # All seven are 1023x1537, so ONE aspect and one set of framing numbers
-    # covers the roster; the per-character variance that the VN sprites forced
-    # is gone. MSBF_ARCH_ASPECT is that shared ratio.
-    MSBF_ARCH_ASPECT = 1023.0 / 1537.0
+    # Native dimensions are individual. Weapons and action poses determine
+    # each canvas; neither stage rendering nor portrait crops distort them.
+    MSBF_ARCH_SIZES = {
+        "seeker": (1060, 1484), "monika": (1375, 1144),
+        "kotonoha": (1024, 1536), "asahina": (1024, 1536),
+        "sam": (1024, 1536), "tsubaki": (1024, 1536),
+        "himeko": (1024, 1536),
+    }
+
+    def msbf_arch_aspect(member_id):
+        w, h = MSBF_ARCH_SIZES.get(member_id, (1024, 1536))
+        return float(w) / h
 
     MSBF_SIL_SPRITE = {
         "seeker":   "msbf_arch_seeker",
@@ -720,7 +623,7 @@ init -1 python:
     # The same seven, uncrushed, for the party-select dossier.
     # (image, source aspect, subject scale, vertical focus).
     MSBF_ROSTER_PORTRAIT = dict(
-        (member_id, (image_name, MSBF_ARCH_ASPECT, 1.0, 0.0))
+        (member_id, (image_name, msbf_arch_aspect(member_id), 1.0, 0.0))
         for member_id, image_name in MSBF_SIL_SPRITE.items()
     )
 
@@ -743,15 +646,22 @@ init -1 python:
     # and band_w/band_h are what the crop shows (0.417 x 0.277 at scale 2.4).
     # A zero yfocus means the head already sits above the band's centre with the
     # crop pinned to the top of the frame, which is true for most of the cast.
-    MSBF_ROSTER_MUG = {
-        "seeker":   (2.40, 0.000, 0.578),
-        "monika":   (2.40, 0.045, 0.420),
-        "kotonoha": (2.40, 0.000, 0.491),
-        "asahina":  (2.40, 0.000, 0.491),
-        "sam":      (2.70, 0.067, 0.454),
-        "tsubaki":  (2.40, 0.000, 0.445),
-        "himeko":   (2.40, 0.000, 0.479),
+    MSBF_ROSTER_HEADS = {
+        "seeker": (0.622, 0.150, 3.00), "monika": (0.378, 0.195, 2.75),
+        "kotonoha": (0.474, 0.180, 3.00), "asahina": (0.537, 0.157, 3.00),
+        "sam": (0.455, 0.153, 3.00), "tsubaki": (0.574, 0.221, 3.00),
+        "himeko": (0.532, 0.104, 3.00),
     }
+
+    def msbf_arch_mug_frame(member_id):
+        hx, hy, scale = MSBF_ROSTER_HEADS[member_id]
+        band_h = 1.0 / (1.5 * scale)
+        band_w = band_h / msbf_arch_aspect(member_id)
+        clamp = lambda value: min(1.0, max(0.0, value))
+        return (scale, clamp((hy - band_h * 0.5) / (1.0 - band_h)),
+                clamp((hx - band_w * 0.5) / (1.0 - band_w)))
+
+    MSBF_ROSTER_MUG = {member_id: msbf_arch_mug_frame(member_id) for member_id in MSBF_ROSTER_HEADS}
 
     def msbf_roster_portrait(member_id):
         """-> (image, aspect, scale, focus) or None if we have no art."""
@@ -790,16 +700,6 @@ init -1 python:
         except Exception:
             return None
         return name
-
-    # Crushing the sprite to a silhouette. Not a plain black fill: a little of
-    # the arena's key light is left on them so they catch the room, which is
-    # the difference between "party member lit from behind" and "hole".
-    def msbf_sil_matrix(key, lift=0.16):
-        r, g, b = key
-        return (TintMatrix(Color((int(r * 255 * lift), int(g * 255 * lift),
-                                    int(b * 255 * lift), 255)))
-                * BrightnessMatrix(-0.55)
-                * SaturationMatrix(0.0))
 
     # --- Poll the battle for the room's intensities ---------------------------
     # The arena takes five 0..1 numbers and nothing else. Keeping the mapping
@@ -900,78 +800,18 @@ init -1 python:
 # One per roster archetype. Declared as images (rather than referenced as raw
 # paths) so renpy.has_image can gate on them the way msbf_sil_image expects,
 # and so lint accounts for them.
-image msbf_arch_seeker = "addons/Matsuda's Sick Boss Fight/archetypes/mcspellblade.png"
-image msbf_arch_monika = "addons/Matsuda's Sick Boss Fight/archetypes/monikamage.png"
-image msbf_arch_kotonoha = "addons/Matsuda's Sick Boss Fight/archetypes/kotomage.png"
-image msbf_arch_asahina = "addons/Matsuda's Sick Boss Fight/archetypes/asahalberdier.png"
-image msbf_arch_sam = "addons/Matsuda's Sick Boss Fight/archetypes/samberserker.png"
-image msbf_arch_tsubaki = "addons/Matsuda's Sick Boss Fight/archetypes/tsubakimage.png"
-image msbf_arch_himeko = "addons/Matsuda's Sick Boss Fight/archetypes/himekotrickster.png"
-
-# The phase-3 sky. The rupture plate was previously stretched to fill a 786px
-# window; out here it is the void itself, so it is fitted to the full frame.
-image msbf_rupture_sky = Transform(
-    "addons/Matsuda's Sick Boss Fight/idmode/rupture.png",
-    fit="cover", xysize=(1280, 720))
+image msbf_arch_seeker = "addons/Matsuda's Sick Boss Fight/archetypes/v2/seeker.png"
+image msbf_arch_monika = "addons/Matsuda's Sick Boss Fight/archetypes/v2/monika.png"
+image msbf_arch_kotonoha = "addons/Matsuda's Sick Boss Fight/archetypes/v2/kotonoha.png"
+image msbf_arch_asahina = "addons/Matsuda's Sick Boss Fight/archetypes/v2/asahina.png"
+image msbf_arch_sam = "addons/Matsuda's Sick Boss Fight/archetypes/v2/sam.png"
+image msbf_arch_tsubaki = "addons/Matsuda's Sick Boss Fight/archetypes/v2/tsubaki.png"
+image msbf_arch_himeko = "addons/Matsuda's Sick Boss Fight/archetypes/v2/himeko.png"
 
 
 # -----------------------------------------------------------------------------
 # 3. TRANSFORMS
 # -----------------------------------------------------------------------------
-
-# The arena itself.
-#
-# The palette is looked up from the phase INSIDE the transform rather than
-# passed in. ATL property expressions are evaluated in a scope that can see the
-# transform's own parameters, so `msbf_arena_cfg(phase)["key"]` resolves once
-# when the transform is built -- which means the room's colour and the room's
-# geometry can never be handed different phases by two different call sites.
-#
-# Note what is NOT animated here: the floor scroll, the sigil rotation and the
-# sky drift all run off u_time inside the shader, so the room never rebuilds the
-# screen tree to move. Only the state-driven uniforms are passed in, and they
-# only change when the fight itself changes.
-transform msbf_arena_t(phase=1, charge=0.0, danger=0.0, break_=0.0, glitch=0.0, amp=1.0):
-    mesh True
-    shader "msbf.arena"
-    u_ar_shock_amp amp
-    u_ar_phase float(phase)
-    u_ar_horizon MSBF_ARENA_HORIZON
-    u_ar_camx 0.0
-    u_ar_camy 0.0
-    u_ar_shock 0.0
-    u_ar_charge charge
-    u_ar_danger danger
-    u_ar_break break_
-    u_ar_glitch glitch
-    u_ar_flow msbf_arena_cfg(phase)["flow"]
-    u_ar_bossz msbf_arena_bossz(phase)
-    u_ar_key msbf_arena_cfg(phase)["key"]
-    u_ar_fog msbf_arena_cfg(phase)["fog"]
-    u_ar_deck msbf_arena_cfg(phase)["deck"]
-
-# The same room, plus one shockwave rolling out from under her. Split from the
-# resting transform so the wave restarts cleanly on each impact instead of
-# inheriting a half-spent progress from the previous one.
-transform msbf_arena_shock_t(phase=1, charge=0.0, danger=0.0, break_=0.0, glitch=0.0, amp=1.0):
-    mesh True
-    shader "msbf.arena"
-    u_ar_shock_amp amp
-    u_ar_phase float(phase)
-    u_ar_horizon MSBF_ARENA_HORIZON
-    u_ar_camx 0.0
-    u_ar_camy 0.0
-    u_ar_charge charge
-    u_ar_danger danger
-    u_ar_break break_
-    u_ar_glitch glitch
-    u_ar_flow msbf_arena_cfg(phase)["flow"]
-    u_ar_bossz msbf_arena_bossz(phase)
-    u_ar_key msbf_arena_cfg(phase)["key"]
-    u_ar_fog msbf_arena_cfg(phase)["fog"]
-    u_ar_deck msbf_arena_cfg(phase)["deck"]
-    u_ar_shock 0.0
-    linear 0.62 u_ar_shock 1.0
 
 transform msbf_shadow_t(strength=0.7, soft=1.5):
     mesh True
@@ -1007,37 +847,15 @@ transform msbf_scrim_t(col=(0.01, 0.02, 0.04), alpha=0.9, dirn=0.0, bias=2.0, xd
 
 # The room. One draw, full frame, behind everything.
 screen msbf_arena(battle, shock=False, amp=1.0):
-    $ _ar_cfg = msbf_arena_cfg(battle.phase)
     $ _ar_ph, _ar_chg, _ar_dgr, _ar_brk, _ar_glt = msbf_arena_uniforms(battle)
+    use msbf_seer_environment(_ar_ph, getattr(battle, "id_mode", False), _ar_chg, _ar_dgr, shock, amp)
 
-    if MSBF_ARENA_SHADERS:
-        # msbf_fx_scaled owns the sizing (see perf.rpy) -- do NOT add an xysize
-        # here, or the graphics budget loses the one lever it has on the most
-        # expensive pass in the fight. At the default `ultra` stop this is
-        # exactly the transform it always was, wrapped in a sizing Transform.
-        if shock:
-            add msbf_fx_scaled(At(_ar_cfg["sky"], msbf_arena_shock_t(_ar_ph, _ar_chg, _ar_dgr, _ar_brk, _ar_glt, amp)), 1280, 720, True)
-        else:
-            add msbf_fx_scaled(At(_ar_cfg["sky"], msbf_arena_t(_ar_ph, _ar_chg, _ar_dgr, _ar_brk, _ar_glt, amp)), 1280, 720, True)
-    else:
-        # No shaders: the plate alone, dimmed, with a flat deck under it. The
-        # fight is entirely playable; it just happens somewhere less specific.
-        add _ar_cfg["sky"] xysize (1280, 720)
-        add Solid("#02060cc0") xysize (1280, 720)
-        add Solid("#04080f") xysize (1280, 720 - MSBF_ARENA_HORIZON_PX):
-            ypos MSBF_ARENA_HORIZON_PX
 
-# The room with no fight in it, for screens that happen before or beside the
-# battle (party select). Takes a phase instead of an MSBFBattleState so it does
-# not need a fight to exist yet.
-screen msbf_arena_static(phase=1, dim=0.55):
-    $ _as_cfg = msbf_arena_cfg(phase)
-    if MSBF_ARENA_SHADERS:
-        add msbf_fx_scaled(At(_as_cfg["sky"], msbf_arena_t(phase, 0.0, 0.0, 0.0, 0.0)), 1280, 720, True)
-    else:
-        add _as_cfg["sky"] xysize (1280, 720)
+screen msbf_arena_static(phase=1, dim=0.40):
+    use msbf_seer_environment(phase, getattr(store, "_msbf_id_mode", False))
     add Solid("#02060c") xysize (1280, 720):
         alpha dim
+
 
 # A soft ellipse of shadow on the deck. w is the ellipse's screen width; the
 # height comes from the floor angle, so it is always the same squash as the
@@ -1046,64 +864,15 @@ screen msbf_ground_shadow(cx, foot_y, w, strength=0.7, hover=False):
     $ _sh_h = max(10, int(w * 0.26))
     if MSBF_ARENA_SHADERS:
         if hover:
-            add Solid("#00000000") at msbf_shadow_hover(strength, 2.1):
+            add Solid("#00000000") at msbf_t(msbf_shadow_hover, strength, 2.1):
                 xcenter int(cx)
                 ycenter int(foot_y)
                 xysize (int(w), _sh_h)
         else:
-            add Solid("#00000000") at msbf_shadow_t(strength, 1.5):
+            add Solid("#00000000") at msbf_t(msbf_shadow_t, strength, 1.5):
                 xcenter int(cx)
                 ycenter int(foot_y)
                 xysize (int(w), _sh_h)
-
-# A flipped, squashed, dimmed copy of a sprite, standing in for a reflection in
-# the deck. Cheap and completely convincing at this opacity -- the eye only
-# wants the colours to be in the right place, not the geometry to be correct.
-screen msbf_ground_reflection(img, cx, foot_y, w, h, alpha=0.16, squash=0.42):
-    add img:
-        xcenter int(cx)
-        ypos int(foot_y)
-        yanchor 0.0
-        xysize (int(w), int(h * squash))
-        yzoom -1.0
-        alpha alpha
-        blur 3.0
-
-# --- THE PARTY, STANDING IN THE ROOM ----------------------------------------
-# Silhouettes only. The acting member lifts, brightens and catches a rim of the
-# arena's key light; a downed one slumps and desaturates out. Everything else
-# about them (name, HP, MP) lives in the floating tag drawn by the battle
-# screen, so this stays purely a picture.
-screen msbf_party_silhouette(member, slot, count, key, active=False, downed=False, hit=0.0, hit_token=0):
-    $ _sx, _sy, _sh, _sa, _sb = msbf_stage_slot(slot, count)
-    $ _img = msbf_sil_image(getattr(member, "id", None))
-
-    if _img is not None:
-        # Being struck lifts them out of the crush for the length of the
-        # flinch. A figure that recoils without also brightening reads as
-        # drifting; the two together read as taking a hit.
-        $ _lift = 0.30 if active else (0.06 if downed else 0.16)
-        $ _lift = _lift + (0.14 if hit > 0.0 else 0.0)
-        $ _amat = msbf_sil_matrix(key, _lift)
-        add _img:
-            if hit > 0.0:
-                at msbf_sil_flinch(hit, hit_token)
-            matrixcolor _amat
-            xcenter _sx
-            ypos (_sy + (18 if downed else (-10 if active else 0)))
-            yanchor 0.0
-            xysize (int(_sh * MSBF_ARCH_ASPECT), _sh)
-            fit "contain"
-            alpha (_sa * (0.55 if downed else 1.0))
-            blur (_sb + (1.4 if downed else 0.0))
-    else:
-        # No sprite for this member: a plain plinth of shadow, so the slot is
-        # still occupied and the deck does not read as short-handed.
-        add Solid("#00000000") at msbf_shadow_t(0.55, 1.2):
-            xcenter _sx
-            ypos _sy
-            yanchor 0.0
-            xysize (int(_sh * 0.42), _sh)
 
 
 # -----------------------------------------------------------------------------
@@ -1534,9 +1303,6 @@ init 1 python:
         ("loom", 3):     msbf_boss_loom,
     }
 
-    # Log line styles by age: 0 = newest.
-    MSBF_LOG_LINE_STYLE = ("msbf_log_line_new", "msbf_log_line", "msbf_log_line_old")
-
     MSBF_BOSS_RECOIL_EVENTS = ("hit", "weak", "crit")
     MSBF_BOSS_CAST_EVENTS = ("enemy", "enemy_hit", "enemy_aoe", "enemy_buff", "enemy_guard", "enemy_weak", "enemy_crit", "enemy_resist", "shuffle", "resist")
     MSBF_BOSS_BREAK_EVENTS = ("phase",)
@@ -1572,7 +1338,8 @@ init 1 python:
 # art; this reaches zero, so text lies ON the room instead of on a plate over it.
 screen msbf_hud_scrim(x, y, w, h, dirn=0.0, bias=1.5, xdir=0.0, alpha=0.86):
     if MSBF_ARENA_SHADERS:
-        add Solid("#00000000") at msbf_scrim_t((0.006, 0.013, 0.026), alpha, dirn, bias, xdir):
+        # msbf_t: reused across executions instead of rebuilt (seer_battle.rpy).
+        add Solid("#00000000") at msbf_t(msbf_scrim_t, (0.006, 0.013, 0.026), alpha, dirn, bias, xdir):
             xpos int(x)
             ypos int(y)
             xysize (int(w), int(h))
@@ -1581,77 +1348,6 @@ screen msbf_hud_scrim(x, y, w, h, dirn=0.0, bias=1.5, xdir=0.0, alpha=0.86):
             xpos int(x)
             ypos int(y)
             xysize (int(w), int(h))
-
-# The tag that floats over a party member's head. This is all that is left of
-# the old 215x61 party card: name, the bar, the two numbers, and one status
-# word. Everything the card used to say about them that was NOT changing turn
-# to turn (role, row, portrait chrome) was reference, and reference does not
-# get to occupy the frame -- it lives in the party-select roster instead.
-screen msbf_party_tag(member, count=4, active=False, targetable=False, kb_focus=False):
-    $ _tw, _th, _bar_y = msbf_stage_tag_metrics(count)
-    $ _tight = count >= 5
-    $ _rail = "#66e08a" if targetable else ("#55ddff" if active else ("#ffcf66" if member.row == "front" else "#4d6f85"))
-
-    fixed:
-        xysize (_tw, _th)
-
-        if active:
-            add Solid("#55ddff14") xysize (_tw, _th)
-            if MSBF_FX_SHADERS:
-                add Solid("#00000000") xysize (_tw, _th) at msbf_fx_glow_pulse((0.33, 0.87, 1.0), 0.10, 0.24, 2.4)
-        elif targetable:
-            add Solid("#66e08a1c") xysize (_tw, _th)
-
-        add Solid(_rail) xysize (3, _th)
-
-        if kb_focus:
-            add Solid("#9becff") xysize (_tw, 2)
-            add Solid("#9becff") xysize (_tw, 2):
-                ypos _th - 2
-
-        text member.name style ("msbf_party_name_compact" if member.alive else "msbf_party_name_down_compact"):
-            xpos 11
-            ypos -1
-            xmaximum _tw - (66 if _tight else 58)
-
-        # Top-right corner: the status word if there is one, otherwise (tight
-        # only) the HP number, which the roomy tag has space to put on its own
-        # line underneath instead.
-        if not member.alive:
-            text "DOWN" style "msbf_down_text_compact":
-                xanchor 1.0
-                xpos _tw - 4
-                ypos 1
-        elif member.guard:
-            text "GUARD" style "msbf_guard_tag_compact":
-                xanchor 1.0
-                xpos _tw - 4
-                ypos 1
-        elif member.focus:
-            text "FOCUS" style "msbf_focus_tag_compact":
-                xanchor 1.0
-                xpos _tw - 4
-                ypos 1
-        elif _tight:
-            text "[member.hp]" style "msbf_party_stat_compact":
-                xanchor 1.0
-                xpos _tw - 4
-                ypos 2
-
-        fixed:
-            xpos 10
-            ypos _bar_y
-            xysize (_tw - 20, 5)
-            use msbf_energy_bar(member.hp, member.max_hp, _tw - 20, 5, "#66e08a", "#131722")
-
-        if not _tight:
-            text "[member.hp]/[member.max_hp]" style "msbf_party_stat_compact":
-                xpos 11
-                ypos _bar_y + 8
-            text "MP [member.mp]" style "msbf_party_stat_compact":
-                xanchor 1.0
-                xpos _tw - 4
-                ypos _bar_y + 8
 
 
 # -----------------------------------------------------------------------------
@@ -1668,17 +1364,14 @@ screen msbf_party_tag(member, count=4, active=False, targetable=False, kb_focus=
 # it. Direction is the whole idea: a symmetrical flash would say "something
 # changed", and the one thing worth saying here is WHO IT WENT TO.
 
-transform msbf_turnover_band(up=True, delay=0.0, thick=90, col="#ff3868"):
+transform msbf_turnover_hband(to_right=True, delay=0.0):
     subpixel True
-    xsize 1600
-    ysize thick
-    xcenter 640
-    ycenter (820 if up else -100)
+    ycenter 360
+    xcenter (-500 if to_right else 1780)
     alpha 0.0
-    rotate (-7.0 if up else 7.0)
     pause delay
-    alpha 0.75
-    easeout 0.42 ycenter (-120 if up else 840)
+    alpha 1.0
+    easeout 0.46 xcenter (1780 if to_right else -500)
     alpha 0.0
 
 transform msbf_turnover_wash(col="#ff3868"):
@@ -1721,27 +1414,30 @@ screen msbf_turnover_sweep(to_side="enemy", phase=1, round_number=1, boss_name="
     $ _tv_col = "#ff3868" if _to_boss else msbf_phase_accent(phase)[0]
     $ _tv_rgb = msbf_hex_rgb(_tv_col)
 
-    add Solid(_tv_col) at msbf_turnover_wash(_tv_col)
+    add Solid(_tv_col) at msbf_t(msbf_turnover_wash, _tv_col)
 
     # Kept translucent on purpose: the handover is a beat, not a curtain, and
-    # the fight underneath has to stay legible through it.
-    add Solid(_tv_col + "9e") xysize (1600, 72) at msbf_turnover_band(_to_boss, 0.00, 72, _tv_col)
-    add Solid("#ffffff6a") xysize (1600, 20) at msbf_turnover_band(_to_boss, 0.07, 20, "#ffffff")
-    add Solid(_tv_col + "4e") xysize (1600, 120) at msbf_turnover_band(_to_boss, 0.13, 120, _tv_col)
+    # the fight underneath has to stay legible through it. Since the Sep 30
+    # facelift the two sides face each other across the frame, so the beat
+    # travels SIDEWAYS: rightward toward her when she seizes the tempo,
+    # leftward back to the party when they take it.
+    add msbf_plate(520, 760, 160, _pl_rgba(_tv_col, 0.42), _pl_rgba(_tv_col, 0.18), _pl_rgba("#ffffff", 0.0)) at msbf_t(msbf_turnover_hband, _to_boss, 0.00)
+    add msbf_plate(120, 760, 160, (1.0, 1.0, 1.0, 0.30), (1.0, 1.0, 1.0, 0.10), _pl_rgba("#ffffff", 0.0)) at msbf_t(msbf_turnover_hband, _to_boss, 0.07)
+    add msbf_plate(760, 760, 160, _pl_rgba(_tv_col, 0.20), _pl_rgba(_tv_col, 0.06), _pl_rgba("#ffffff", 0.0)) at msbf_t(msbf_turnover_hband, _to_boss, 0.13)
 
-    add Solid("#ffffff") xysize (1400, 3) at msbf_turnover_rule(_to_boss)
+    add Solid("#ffffff") xysize (1400, 3) at msbf_t(msbf_turnover_rule, _to_boss)
 
     # The side receiving the tempo gets lit from the direction it is arriving.
     if MSBF_FX_SHADERS:
         if _to_boss:
             $ _tv_x, _tv_y = msbf_boss_anchor(phase)
-            add Solid("#00000000") xysize (900, 700) at msbf_fx_glow_pop(_tv_rgb, 0.75, 1.5, 0.72):
+            add Solid("#00000000") xysize (900, 700) at msbf_t(msbf_fx_glow_pop, _tv_rgb, 0.75, 1.5, 0.72):
                 xcenter _tv_x
                 ycenter _tv_y
         else:
-            add Solid("#00000000") xysize (1280, 460) at msbf_fx_glow_pop(_tv_rgb, 0.62, 1.7, 0.72):
-                xcenter 640
-                ycenter 620
+            add Solid("#00000000") xysize (760, 600) at msbf_t(msbf_fx_glow_pop, _tv_rgb, 0.62, 1.7, 0.72):
+                xcenter 310
+                ycenter 430
 
     # THE TEMPO CARD, drawn HERE rather than by the battle screen. It is part of
     # the same beat as the sweep, so it has to share the beat's lifetime -- kept
@@ -1759,45 +1455,3 @@ screen msbf_turnover_sweep(to_side="enemy", phase=1, round_number=1, boss_name="
         $ _tv_accent2 = "#a66bff" if phase == 3 else "#ff3868"
         $ _tv_sub = "ROUND %d" % (round_number + 1)
         use msbf_turn_banner("H%d" % serial, "PARTY TURN", msbf_phase_accent(phase)[0], _tv_accent2, _tv_sub, "YOUR MOVE")
-
-
-# -----------------------------------------------------------------------------
-# 7. GETTING HIT
-# -----------------------------------------------------------------------------
-# The boss landing a blow on a party member had no reaction at all. She had a
-# recoil, the room had a shockwave, the number floated up -- and the person it
-# happened to did not move. All the weight was on the side dealing damage,
-# which is exactly backwards for the half of the fight you are supposed to be
-# afraid of.
-#
-# Everything here scales off the SAME MSBF_IMPACT_WEIGHT the camera and the
-# deck wave read, so a weakness hit on you lands as hard as a weakness hit on
-# her -- which it did not before: the boss's side of the table was pinned at
-# 1.0 while the player's crits and weaknesses got 1.6.
-
-# The struck figure snaps back and returns. Hard out, soft in: a flinch that
-# eases both ways reads as swaying, not as being hit.
-transform msbf_sil_flinch(strength=1.0, token=0):
-    subpixel True
-    xoffset 0
-    yoffset 0
-    easeout 0.045 xoffset int(-13 * strength) * (1 if (token % 2) else -1) yoffset int(5 * strength)
-    easein 0.26 xoffset 0 yoffset 0
-
-# The tag over their head takes the same hit, a beat tighter.
-transform msbf_tag_shake(strength=1.0, token=0):
-    subpixel True
-    xoffset 0
-    easeout 0.04 xoffset int(-8 * strength) * (1 if (token % 2) else -1)
-    easeout 0.06 xoffset int(5 * strength) * (1 if (token % 2) else -1)
-    easein 0.16 xoffset 0
-
-# The blow itself, at the point of contact.
-screen msbf_party_hit_burst(x, y, strength=1.0, color=(1.0, 0.30, 0.42)):
-    if MSBF_FX_SHADERS:
-        $ _hb_s = max(0.3, min(2.0, strength))
-        add Solid("#00000000") at msbf_fx_glow_pop(color, 0.55 + 0.45 * _hb_s, 1.5, 0.34):
-            xcenter int(x)
-            ycenter int(y)
-            xysize (int(150 * _hb_s), int(150 * _hb_s))
-        use msbf_shock_ring(int(x), int(y), int(200 * _hb_s), color, 0.14, 0.7 + 0.6 * _hb_s, 0.40)

@@ -1,5 +1,10 @@
 # Archive Panel CG Prompts
 
+> Provenance record. Retained September 25, 2026 for its original authoring
+> prompts, processing notes, or historical QA. Installed source/art governs
+> current behavior; old dimensions, paths, approval wording, and test counts
+> describe that production pass. Verify referenced inputs before replaying it.
+
 These are the production prompts used for the seven Archive hub panels. They
 were generated with the built-in image-generation tool on 2026-08-27. Native
 sources were normalized into 1280x720 CG Gallery masters, then downsampled to

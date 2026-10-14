@@ -1,93 +1,45 @@
 label a0517:
     # --- Day 3: 2025-05-17 ---
     pause 2.0
-    scene bg home_entry_day
-    $ show_calendar()
-    $ atmos("home")
-    with dissolve_scene_full
-    play music dailyleisure
-    "Saturday morning doesn't happen at the table. It happens by the door, one shoe half-tied and one hand searching my bag for a pen I am reasonably sure I never owned."
-    show mom neut at t22
-    show asahina uniform frustrated at t21
-    "Asahina crouches near the shoe rack, working on the heel of her loafer like it's emergency surgery."
-    mom "Lunch is in your bag. Eat the toast before you get to school, not during first period."
-    mc "Bold to assume first period doesn't deserve toast."
-    show asahina uniform unamused
-    ah "Saturday doesn't owe you squat."
-    "Her tone could press wrinkles out of a shirt."
-    show mom unamused
-    mom "How many times have we started school again? Put your big boy pants and your big girl pants on."
-    mc "Survival isn't consent, you know..."
-    "Mom gives me the look she reserves for sentences she chooses not to dignify."
-    mom neut "The two G's, glue and game. You wrote it down?"
-    mc "On my phone and in the homework folder in my brain."
-    show asahina uniform teasing
-    ah "Totally a healthy thing, by the way."
-    "My sister props herself back on her feet and catches my sleeve on the way past, one finger already up."
-    show asahina uniform pose_pointing
-    ah "The glue isn't optional, and don't cheap out and get the tiny bottle! They gave me a bigger poster board than I thought."
-    mc "Oh, so you started it?"
-    show asahina uniform smug
-    ah "It's called recon, thank you muchas sumimasen!"
-    mc "...Do you even know what you said?"
-    show mom teasing
-    "Mom smiles into her coffee, and Asahina sees it and immediately looks away."
-    show asahina uniform embarrassed
-    mc "...Medium bottle, then."
-    ah neut "Large if it's cheap."
-    mc "Your supply demands know no bounds..."
-    # SFX SUGGESTION: One crisp finger snap, close and dry.
-    show mom determined
-    "Mom snaps her fingers and gestures out the door."
-    mom "Go. Both of you."
-    $ hide_calendar()
-    scene black with wipeleft_scene
-    nier "Asahina and I take our time leaving, despite Mom's best efforts. I follow behind her with toast in one hand and my bag over one shoulder."
-    play sound moddoorclose
-    call nier_clear from _call_nier_clear_0517_1
-    stop music fadeout 1.0
-    pause 2.0
     scene bg class_day
     $ show_calendar()
     $ atmos("afternoon", particles="motes")
     with dissolve_scene_full
     play music quiz
-    "Civics always feels easy. Familiarity can pass for safety if you stop looking."
-    "The teacher has drawn a triangle across the board, each point labeled in clean block letters: {i}INDIVIDUAL{/i}, {i}INSTITUTION{/i}, {i}PUBLIC TRUST{/i}."
-    "{i}Society of laws and all that...{/i}"
+    "Civics comes easily until I have to keep an opinion to myself. Today, the board has a triangle labeled {i}INDIVIDUAL{/i}, {i}INSTITUTION{/i}, and {i}PUBLIC TRUST{/i}."
+    "Beside it, the teacher has written a case about a park closed for repairs that never seem to begin."
+    "{i}I've seen that fence. Several fences, actually.{/i}"
     show civics_teacher neut at t11
-    civics_teacher "A rule is not automatically legitimate because someone wrote it down."
-    civics_teacher "Legitimacy depends on whether people believe the institution has earned the authority it exercises."
-    "I write that down, then underline {i}earned{/i} because it sounds like it warrants a short response on the exam."
-    civics_teacher "So when someone says, rules are rules, what question should follow?"
-    "A few hands rise. Mine does not, because I am capable of growth."
-    "My mouth, unfortunately, is still on a separate development schedule, and my eyes roll on their own."
-    mc "Whether the rule is doing anything useful, or whether someone just came up with a bad idea."
+    civics_teacher "The city has authority to close this park for repairs. That tells us who can make the decision, but it doesn't settle every objection."
+    civics_teacher "Residents have been asking for an update for six months. The city keeps sending them a copy of the closure notice."
+    civics_teacher "So the question is now: what should the residents ask for next?"
+    "A few hands rise while I'm still looking at the handout."
+    "The answer seems obvious enough that I forget to put mine up."
+    mc "A repair schedule, for a start. Presumably somebody made one before they bought the fence."
     civics_teacher "Interesting..."
     "That word has no business being that dangerous."
     civics_teacher "[player]."
     mc "...Yeah?"
     civics_teacher "Come here for a moment."
     show civics_teacher neut
-    "I stand beside the board while the class performs the sacred ritual of pretending not to enjoy this."
-    civics_teacher "Everyone, [player] is going to help us model the relationship between civic authority and public compliance."
-    mc "Do I get qualified immunity?"
+    "I stand beside the board while the girl at the next desk covers a smile with her hand."
+    civics_teacher "[player] can represent the city. Let's give him the information the residents haven't been sent."
+    mc "Do I... get a budget?"
     "A laugh breaks somewhere near the back row and dies immediately under the teacher's stare."
-    civics_teacher "You get accountability. Hold it carefully."
-    "The teacher hands me a textbook and points to the center of the triangle. I hold the unexpectedly heavy book to my chest."
-    civics_teacher "Institutional authority here. Individual rights here. Public trust here."
-    civics_teacher "A society can tolerate imperfect rules for a while, but tolerated is not the same as trusted."
-    "She draws one more arrow, slower than the others."
-    civics_teacher "If authority relies only on compliance, it becomes brittle. If it earns trust, it becomes durable."
-    "A couple of pencils start moving again. Mine, abandoned on my desk, does not."
+    civics_teacher "Page eighty-four. Your budget's been delayed."
+    civics_teacher "Answer from what you have there. What can you reopen, and what would you need to check first?"
+    mc "The paths can reopen. The playground still needs an inspection, and I don't have a date for that."
+    "She draws an arrow from the city to the residents while I read the next paragraph."
+    civics_teacher "Good. That's information they can use, even though the repair itself hasn't happened. Now they can ask about the missing inspection."
+    "A couple of pencils start moving again. Mine is still on my desk, where I would also like to be."
     show civics_teacher neut at t11
     civics_teacher "Thank you. You can sit down now."
-    mc "...Why did I have to do that again?"
-    civics_teacher "Answering disrespectfully has consequences."
-    "{i}At least I wasn't wrong.{/i}"
+    mc "Can I take the budget with me?"
+    civics_teacher "You can raise your hand next time."
+    "{i}That would have been cheaper.{/i}"
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "The school day thins out without improving."
+    nier "The school day thins out."
     call nier_clear from _call_nier_clear_0517_2
     stop music fadeout 1.0
     pause 2.0
@@ -97,42 +49,43 @@ label a0517:
     with wipeleft_scene
     # Busier than the usual operator float: this is the post-bell crush, and a
     # crowd jostles the frame rather than breathing with it.
-    play music schooldays
+    play music school_day_a
     # SFX SUGGESTION: The last bell giving way to layered shoe squeaks and a swelling hallway crowd.
     "The corridor fills fast after the last bell. Bags swing and shoes squeak, and the whole school seems to tilt toward the exit at once."
-    "I step aside near the windows to check my errands before the crowd can carry me past my own plans."
+    "I step aside near the windows to check my errands."
     show monika forward uniform happ cm oe nobl rdown ldown at t11
     m forward uniform happ om oe nobl rhip ldown "Escaping already, eh?"
     mc "Attempting to. The building keeps putting people in the way."
-    m forward uniform happ cm oe nobl rhip ldown "I won't detain you long, then. No club today, as promised."
-    mc "A president who honors a day off. Rare discipline, gotta give you credit for that."
-    m forward uniform sedu cm oe nobl rdown ldown "Careful. Compliments like that might get you invited somewhere."
-    "She says it lightly, then leaves the silence sitting between us."
+    m forward uniform happ cm oe nobl rhip ldown "I won't detain you long, then. No club today, as promised!"
+    mc "I'm holding you to that if somebody turns up with a literature review."
+    m forward uniform sedu cm oe nobl rdown ldown "Keep that up and I might invite you out again~"
+    "She stays beside the window while the crowd works its way around us."
     menu:
         "(Step into it.)":
             $ s1_pick("monika_silence", "into")
             mc "Invited where?"
             m forward uniform lsur cm oe awkw rdown ldown "..."
-            m forward uniform nerv cm oe awkw rdown ldown "Nowhere yet. I just like having the option on the table."
-            mc "That's a terrifying amount of forward planning."
-            m forward uniform happ cm ce nobl rdown ldown "It's the only kind I do."
+            m forward uniform nerv cm oe awkw rdown ldown "I haven't got that far. Let me get you to the movie first."
+            mc "Planning the sequel already?"
+            m forward uniform happ cm ce nobl rdown ldown "Depends on the reviews."
             mc "Uh-huh. Anyway, gotta bounce."
         "(Step around it.)":
             $ s1_pick("monika_silence", "around")
             "I look at my phone instead. The list hasn't changed, but it gives me somewhere else to put my eyes."
             m forward uniform neut om oe nobl rdown ldown "Busy man, I see."
             "She lets the silence close on its own."
+            mc "Uh huh."
     show monika forward uniform happ cm oe nobl rdown ldown
-    mc "Store for a game before it sells out, then glue for Asa's poster. My household is governed by...specific grievances."
-    m forward uniform nerv om oe blus rdown ldown "Then I won't interfere with domestic diplomacy. Text me tomorrow morning about the movie?"
-    mc "Yeah. Morning...provided I wake up on time."
+    mc "Game first, before they sell my preorder. Then glue for Asa's poster, or I won't hear the end of it."
+    m forward uniform nerv om oe blus rdown ldown "Ahhh, yeah, that'll do it. Get going, then. Text me tomorrow morning about the movie?"
+    mc "Yeah. I've even set a reminder. Proud of me yet?"
     m forward uniform happ cm ce nobl rdown ldown "Mhm. Go buy your stuff, [player]."
     show monika at thide
     hide monika
     "She steps back into the flow of students, clipboard against her chest."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "I leave school among the Saturday survivors. The crowd thins by the station, then again by the shopping street, until the day finally feels like it belongs to people who chose to be outside."
+    nier "I leave school among the Saturday survivors. The crowd thins by the station, then again by the shopping street."
     call nier_clear from _call_nier_clear_0517_3
     pause 2.0
     scene bg store_techsection
@@ -140,9 +93,9 @@ label a0517:
     $ atmos("afternoon")
     with wipeleft_scene
     "The supermarket is holding a release-day crowd together through sheer queue discipline."
-    "There's a line at the counter, a line near the case, and a third line made of people pretending they are browsing accessories while clearly watching the stock behind the glass."
+    "There's a line at the counter, a line near the case, and a third line pretending to browse accessories."
     "I get my copy in ten minutes, somehow. Only one argument breaks out over whether a preorder receipt counts without the email confirmation."
-    "The craft aisle is quieter. I grab a larger bottle of glue than Asahina asked for because it's shockingly cheap."
+    "The craft aisle is quiet enough to hear its ceiling speaker. I get the larger glue bottle, which costs barely more than the one beside it."
     $ hide_calendar()
     scene black with wipeleft_scene
     pause 2.0
@@ -156,14 +109,14 @@ label a0517:
     ko "Good afternoon."
     "She scans the game, turns the case over to check the security sticker, then sets it into a separate bag before the glue gets anywhere near it."
     ko "Your receipt will be in this first bag, if that's alright."
-    mc "Appreciated."
-    "She points and wiggles her finger at the glue bottle."
-    ko work worried "The cap is loose on that brand sometimes."
-    "She tightens it the same way someone else might straighten a crooked picture frame."
-    mc "Oh, uh...good catch."
+    mc "Yeah, that's fine. Appreciated."
+    "She tests the glue bottle's cap before bagging it."
+    ko work neut "The cap is loose on that brand sometimes."
+    "It turns another half rotation under her fingers."
+    mc "Oh, uh... good catch."
     ko work neut "It happens."
     show kotonoha work pose_exact_fold
-    "The register prints the receipt. She folds it once, exactly down the middle."
+    "She folds the receipt exactly down the middle as it comes out of the register."
     show kotonoha work neut
     ko "Have a good day."
     mc "You too."
@@ -177,31 +130,29 @@ label a0517:
     play sound moddooropen
     show asahina neut at l11
     "Asahina meets me at the door with a strip of masking tape stuck to her sleeve."
-    mc "You started without me."
-    show asahina annoyed
-    ah "I started without the most important part. That's not the same thing."
+    mc "You started without me, I see."
+    ah annoyed "Yeah, I'm not letting you anywhere near my precious poster."
     show asahina happy at t11
-    "I hand over the larger bottle. She checks the label twice, and one corner of her mouth gives her away."
+    "I hand over the bottle, which she turns around to check the label before holding it against the light."
     ah "...Yeah, this works."
     mc "Glowing praise."
     show asahina embarrassed
     ah "Shush."
-    "She turns the bottle over once, then tucks it beside the poster board among her supplies."
-    mc "And before you ask, no, I didn't restock my own chips for you."
+    mc "Oh, and before you ask, no, I didn't restock my own snacks for you."
     show asahina unamused
-    ah "I said I'd handle it, didn't I?"
+    ah "Oh my God, I said I'd handle it, didn't I?"
     ah "Go play your RPG slop or whatever."
     mc "After homework. Still got responsibilities, ya know?"
     show asahina teasing
-    ah "Wow...Mom really has brainwashed you."
-    mc "...You do realize you were also raised by her, right?"
+    ah "Wow... Mom really has brainwashed you."
+    mc "...You realize she raised you too, right?"
     show asahina at thide
     hide asahina
-    "Asahina snorts, then retreats toward the living room. The poster remains classified."
+    "Asahina snorts and takes the glue back to the living room, where the floor beneath the couch is almost entirely paper and sequins."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "I take the game upstairs and set it beside the console, still sealed."
-    nier "The afternoon goes to chores and notes. Downstairs, Asahina's arts-and-crafts feud rustles on."
+    nier "I take my things upstairs and set my new glorified collector's item beside the console, still sealed."
+    nier "Once the laundry's out of the dryer and folded in the laundry room basket, I get out my notes while Asahina's cutting and muttering carry up from downstairs."
     call nier_clear from _call_nier_clear_0517_5
     pause 2.0
     scene bg bedroom
@@ -214,20 +165,20 @@ label a0517:
     python:
         _phone_messages = [
             phone_msg("them", "Oh hey, meant to tell you, they finished renovation at the library downtown!"),
-            phone_msg("them", "We're totally hanging out or studying there sometime. I'll hold you to it!"),
+            phone_msg("them", "We should go sometime! I want to see if they kept the window seats."),
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0517_1
-    "I leave it unanswered for a minute, mostly because I can hear her smug little smile through the punctuation."
+    "I check the opening hours before answering. Next Sunday looks possible, assuming exam preparation leaves us any time."
     python:
         _phone_messages = [
-            phone_msg("me", "Roger wilco."),
+            phone_msg("me", "I'm in. I want to know where they moved the old movies."),
         ]
     call phone_text_conversation("Monika", _phone_messages, append=True) from _call_phone_text_conversation_0517_2
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "By evening, the house has cooled into its usual rhythm."
-    nier "Mom checks the laundry. Asahina measures the same corner of poster board three times and mutters something that sounds like a personal grudge against rulers."
-    nier "I step outside with every household argument still unresolved."
+    nier "While Mom brings the laundry by our bedroom doors, Asahina measures the same corner of poster board three times and starts blaming the ruler."
+    nier "After dinner, I leave her to it and step outside to stretch my legs."
     call nier_clear from _call_nier_clear_0517_6
     stop music fadeout 1.0
     pause 2.0
@@ -235,10 +186,11 @@ label a0517:
     $ show_calendar()
     $ atmos("night", particles="nightdrift")
     with wipeleft_scene
-    play music fantasypassion
-    "I sit on the step with my elbows on my knees, listening to the loose click of a bicycle wheel somewhere across the street and the faint clatter of dishes through our kitchen window."
-    "I stand and work the stiffness out of my shoulders, then take the sidewalk with no plan beyond moving until boredom loses interest."
+    play music night_a
+    "I sit on the step with my elbows on my knees while dishes clatter through our kitchen window. Across the street, someone wheels a bicycle through a gate."
+    "Once the stiffness eases out of my shoulders, I take the sidewalk and decide to go as far as the next corner."
     $ hide_calendar()
+    scene black with wipeleft_scene
     pause 2.0
     scene bg residential_night
     $ show_calendar()
@@ -252,133 +204,143 @@ label a0517:
     # TODO: Insert sidewalk collision CG here when the dedicated asset is available.
     # SFX SUGGESTION: A blunt shoulder impact with a brief phone-and-clothing fumble.
     play sound fall2
+    $ fx_shake_screen(14.0, 0.6)
     $ ma_name = "Red Girl"
     $ ts_name = "Meek Girl"
-    "My shoulder hits someone else's. Both of us stagger in the opposite direction and my phone nearly leaves my hand."
-    ts "Omigosh, we're sorry--"
-    ma "Woah! Sorry there, pal--"
-    mc "Ah! Sorry, I wasn't--"
+    "My shoulder catches the red-haired girl's chin before we knock into each other properly. We stagger apart, and I trap my phone against my chest."
+    ts "Omigosh, we're sorry--{w=1.0}{nw}"
+    ma "Woah! Sorry there, pal--{w=1.0}{nw}"
+    mc "Ah! Sorry, I wasn't--{w=1.0}{nw}"
     show matsuda casual worried at t21
     show tsubaki shocked at t22
     "The girl in front of me catches herself with one white-gloved hand against a fence post."
-    "For a moment, she only winces. One hand presses the shoulder that took the hit while her eyes sweep down the arm and back up."
+    "She winces and rubs the side of her jaw while I check that my phone screen survived."
     show matsuda smug
-    "Then she straightens and throws her shoulders back, turning the recovery into something suspiciously rehearsed."
-    "Red hair in a high ponytail, braided down one side. Her earrings are still swinging from the impact."
-    play music enterm
-    # The bounce is Matsuda's PERFORMANCE idle, and it is load-bearing all the
-    # way to May 19: the bard is on while it runs, and the moment she drops the
-    # act she goes to fx_still. Nothing else in the cast bounces.
+    "By the time I look up, she has straightened and thrown her shoulders back."
+    "{i}Hold up. The girl at the vending machine?{/i}"
+    "Her red ponytail has a braid down one side, and her die earring keeps swinging even after she holds still."
+    play music theme_matsuda_a
+    # May 17: courtly, chivalric traveler. Her ceremonial posture and language
+    # turn the collision into a parley; May 19's bard is a different performance.
+    # The performance idle remains active, with ordinary teenage breaks beneath it.
     show matsuda casual pose_laughing
-    ma "Ahahaha! Fate introduces itself with blunt force! Crude, but effective."
-    "The other girl's chestnut hair is nearly the same shade as mine, which buys it a second look. She almost tosses her paper bag aside to catch whichever of us falls first."
+    ma "Ahahaha! A bold challenge, traveler! Yet let us have peace, for the road is narrow and I have no wish to meet that fence a second time!"
+    "The other girl brings her paper bag back against her chest now that we're both standing. Her chestnut hair flows back and forth."
+    "Her hand pats the shoulder of her companion, as if she's considerately padding off nonexistent dirt from her blue jacket."
+    "The chestnut-haired girl then faces me."
     show tsubaki panicked
-    ts "A-Are you hurt?! Do you need ice?!"
-    mc "No, no... I'm fine... Hoo boy, okay, that does kinda smart... Why do chins leave such a mark...?"
-    mc "Is your sister okay, though?"
-    "The temperature changes immediately."
+    ts "A-Are you hurt? There's a shop right here if you need ice!"
+    mc "I'm fine, thanks. Ow... mostly fine. Caught a chin with my shoulder..."
+    mc "Is, uh, is your sister okay, though?"
+    "The red-haired girl stops rubbing her jaw."
     show matsuda casual curious
     ma "...Her what?"
     show tsubaki nervous
-    ts "Oh, uh, she's not--"
+    ts "Oh, uh... Haha, she's not--"
     "{i}Here we go...{/i}"
     show matsuda annoyed
-    ma "Sister?! Do I look like I travel with understudies?!"
+    ma "Sister?! Nay, sir! You have joined two households on remarkably little evidence!"
     $ ts_name = "Tsubaki"
     show matsuda determined
-    ma "With all due respect--and I am generously inventing the respect as we speak--this is Tsubaki Kareda: confidante, witness, occasional conscience, and chronic apologizer!"
+    "She puts a gloved hand over her heart and presents the other girl with a sweep that sends one earring against her cheek."
+    ma "This is Tsubaki Kareda, my sworn companion: keeper of our provisions, counsel against my enemies, and counsel against me when no enemies are available!"
     show tsubaki unamused
-    ts "...Friend is shorter."
+    ts "You can just say friend."
     show matsuda smug
-    ma "Shorter, yes, albeit far less accurate."
+    ma "And strip you of your titles? My comrade, I would not treat a faithful companion so poorly!"
     show tsubaki embarrassed
     "Tsubaki gives me a small, mortified bow."
-    ts "I'm so sorry about her. She gets worse sometimes..."
-    mc "...That's worse?"
-    ma "'Twas restraint, my good chap."
-    "She says it with such total conviction that I almost apologize to the concept of restraint."
-    "The red-haired girl clears her throat into one fist and presents Tsubaki with the other hand."
+    ts "I am {i}so{/i} sorry... I tried to get her to turn around before we hit you."
+    mc "Hey, don't fret, I wasn't looking either. I think we both earned that one."
+    ma "Spoken honorably! Half the blame to each of us, and let no feud nor plague o' both our houses!"
+    "The red-haired girl rubs her chin again, then plants one foot ahead of the other and bows, keeping her sore chin high throughout."
     $ ma_name = "Matsuda"
-    show matsuda unamused
+    show matsuda smug
     show tsubaki neut
-    ma "Fine. I, Matsuda Akai, forgive the collision on grounds of mutual negligence and...somewhat decent reflexes."
-    mc "...[player]. And for the record, my reflexes were mostly panic, okay? It was...what's that term again...a robin response, or whatever it's called."
+    ma "I am Matsuda Akai. You have my word that no vengeance shall follow you home, provided you grant me what and wherefore art thou called."
+    mc "...[player]. You have my word, mainly because I don't think I'd survive a rematch... probably."
     show matsuda thinking
     ma "[player]..."
     show matsuda curious
-    ma "Literature club, right?"
+    ma "OOOOOOOOOHHHHHH! Literature club, right?!"
     mc "Yeah...?"
     show matsuda happy
-    ma "I knew it! You don the posture of someone who has been told against his will to expunge his deepest, darkest feelings with four movable desks."
-    mc "You got all that from...being shoulder-checked?"
+    ma "Aha! An envoy from Lady Monika's court, where even the least defensible feelings receive a hearing! I knew I had seen your face from mine scholarly realm."
+    mc "You got all that from... being shoulder-checked?"
     show matsuda smug
-    ma "I am observant under pressure, lad. Mine eyes never forego glimpses into the myriad realities of my peers!"
+    ma "A roaring knight must know the neighboring courts, lad. No banner passes these eyes unmarked, no stranger crosses my path unremembered!"
     show tsubaki teasing
-    ts "Translation: she saw you with Monika after school."
+    ts "Translation: she saw you talking to Monika after school. We were by the stairs or something like that."
     show matsuda annoyed
-    ma "Tsubaki, please. Let the mystique breathe and, uh...don't be a freaking buzzkill."
-    mc "Well, again, and hopefully for the last time, sorry. I was checking my phone and thinking about how long I could not play a game I bought today."
+    ma "Tsubaki, I beseech you, let me keep {i}one{/i} secret from the neighboring court. You're killing me here."
+    mc "Sorry. Again. I was on my phone, thinking about a game I haven't opened."
     show matsuda shocked
     ma "You bought a new game and left the house without opening it...?"
-    "Her eyes narrow as if I just slid evidence across a table."
-    mc "It seemed healthier than giving in to insomnia."
-    show matsuda determined at h21
-    ma "My good sir! Healthy choices are where stories go to die!"
-    show tsubaki unamused
-    ts "You...{i}literally{/i} told me to stop you from buying an extra large pizza for dinner."
-    show matsuda smug
-    ma "'Twas nutritional compromise! Let us not mince semantics!"
-    show tsubaki happy
-    "Tsubaki's mouth twitches and loses the fight. The laugh comes out through her nose."
-    ma casual curious "Wait. Which game did you buy?"
-    mc "The new release everyone was fighting over. I haven't opened it, so my review begins and ends at 'the case is rectangular.'"
-    ma casual shocked "You found a copy?! Mine sold out while I was in class."
-    ma casual determined "Then I require your verdict before I waste tomorrow hunting one down!"
-    mc "You trust sidewalk-collision reviews?"
-    ma casual smug "You bought it and left it sealed. I respect restraint in a critic!"
-    mc "The restraint mostly produced bruising."
-    "Keeping up stopped being an option ten seconds ago. The conversation is now a parade moving past me."
-    show tsubaki embarrassed
-    ts embarrassed "...Please don't encourage her."
-    "Matsuda has already pulled out her phone."
-    show matsuda determined
-    "She plants her feet and points at me as if she's offering a duel."
-    ma "[player]! I not-so-humbly request your contact information."
-    show tsubaki worried
-    ts "She means, if you're okay with it. You {i}don't{/i} have to."
     show matsuda unamused
-    ma "Yes, yes, manners and civilization. I was {i}approaching{/i} the polite version, with more grand pacing."
+    "Her eyes narrow as if I just slid evidence across a table."
+    mc "I wanted some air before I lost the evening to it."
+    show matsuda determined at h21
+    "She takes a quick step back and raises one hand as though I'm about to confess to something worse."
+    ma "Good sir! A kingdom awaits your aid, its gates stand open, and you have left its people to fend for themselves while you take the evening air?"
+    show tsubaki unamused
+    ts "Hey, {i}you{/i} asked me to drag you outside because you'd been on your computer all afternoon."
+    show matsuda smug
+    ma "For provisions! An army must be fed before it marches, and the army was me, and I was really friggin' hungry!"
+    show tsubaki neut
+    "Tsubaki presses her lips together into a thin smile, but a laugh escapes through her nose while Matsuda tries to look offended."
+    ma casual curious "Wait. Which game is it?"
+    mc "The new RPG, the one with the press-turn combat. So far I can confirm that the case is rectangular."
+    ma casual shocked "Hoooooly shit, you found a copy?! The damn thing sold out online while I was in class!"
+    ma casual determined "Then ride ahead and send word! Tell me whether the kingdom is worth the toll before I spend tomorrow hunting down a copy."
+    mc "You trust sidewalk-collision reviews, I take it?"
+    ma casual smug "You held your ground after a grievous blow. I shall trust your account of a tutorial."
+    mc "I mostly staggered backward. Your standards are generous."
+    mc "Look, I should probably--"
+    show matsuda casual happy
+    ma "Stay, traveler! Our truce lacks a means of sending messages, and I refuse to hunt you down by coat of arms!"
+    mc "..."
+    "I had meant to go home, but she has her phone out before I can get to that part."
+    show tsubaki embarrassed
+    ts embarrassed "He was trying to say something..."
+    "Matsuda looks back at me with her thumb still on the screen."
+    show matsuda determined
+    "She presents the phone flat on one gloved palm, using the other hand to flourish over the screen."
+    ma "[player]! Will you give me leave to send a messenger? No horse required, no herald waking the household, merely this humble device and perhaps a review or three."
+    show tsubaki worried
+    ts "She means--if you're okay with it. You don't have to."
+    show matsuda unamused
+    ma "I asked his leave! With witnesses and an open hand, as courtesy demands!"
     mc "You ask everyone you crash into for their number?"
     show matsuda teasing
-    ma teasing "Only the ones who recover well and owe me a game review. The lineage insult is a bonus."
-    mc "What the hell are you even...huh...?"
-    "She tips her chin toward the phone and wiggles it beside her cheek, beckoning me like a dog."
+    ma teasing "Only those who survive the encounter and possess knowledge of distant lands. Your rectangular case qualifies."
+    mc "...You're getting a text, not a scroll. I want that understood."
+    "She holds up the contact screen, shaking it in her palm as if beckoning me like a dog."
     menu:
         "(Grudgingly.)":
             $ s1_pick("matsuda_contact", "brisk")
             mc "...Fine. But if this becomes a group chat called 'Depresso Espressos,' I'm out."
-            ma "Noted and promptly ignored."
+            ma "Your objection shall be entered in the treaty, beside my objection to that name!"
         "(Play along.)":
             $ s1_pick("matsuda_contact", "wry")
             mc "I accept, provided fate covers my medical expenses."
             show matsuda happy
-            ma "Fate is uninsured, but spiritually generous!"
+            ma "Alas, fate's treasury is empty! I can offer you safe passage to the corner and the goodwill of this noble company."
             show tsubaki unamused
-            ts "It really isn't."
+            ts "Maybe let him get to the corner by himself."
         "(Just hand it over.)":
             $ s1_pick("matsuda_contact", "warm")
-            "I hand her my phone without arguing. Matsuda blinks once."
+            "When I hand her my phone, she has to transfer her own to her other hand before she can take it."
             show matsuda thinking
             ma "...Hm."
             show matsuda smug
-            ma "No resistance whatsoever. I'll allow it."
+            ma "So readily offered! You place great faith in my honor, traveler."
             show tsubaki smug
-            ts "She had a whole speech ready."
+            ts "She had a speech ready. A long, LONG one."
             show matsuda unamused
-            ma "I had a whole speech ready."
+            ma "'Twas more like an oath. I already practiced the hand thing."
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "We exchange numbers. Tsubaki studies the vending machine like it deserves her full attention."
+    nier "While we exchange numbers, Tsubaki rests her bag on the low wall and flexes the hand that's been carrying it."
     call nier_clear from _call_nier_clear_0517_6half
     pause 2.0
     scene bg residential_night
@@ -393,29 +355,30 @@ label a0517:
             phone_msg("them", "For the record, I survived."),
         ]
     call phone_text_conversation("Matsuda Akai", _phone_messages, status="New Contact", append=True) from _call_phone_text_conversation_0517_3
-    "I look up. Matsuda is already smiling like she has signed a treaty in her own favor."
-    mc "Congratulations."
+    "Matsuda is watching over the top of her phone when I look up, smiling before I've even answered."
+    mc "...Congratulations."
     show matsuda teasing
-    ma "Oh, thank you, my good chum! Your concern is moving."
+    ma "Your kind words shall sustain me through the long journey home!"
     show tsubaki worried
-    ts "Umm...we should let him go home. It's already getting late, you know."
+    ts "Matsuda, we should really get going. I'm supposed to be home by nine."
     show tsubaki embarrassed
-    ts "Don't either of you have a curfew? ...Or is that just me?"
+    ts "And I'm the one carrying dinner."
     show matsuda unamused
-    ma "Fine, fine..."
+    ma "Very well. Even a sworn companion must answer to her household."
     show matsuda happy
-    ma "[player]! We may have been cut short now, but 'tis not the end of our long-standing partnership!"
+    "She draws herself upright and offers me a final, solemn inclination of the head."
+    ma "Fare thee well, [player]! Our truce holds beyond this meeting, and I shall await news of your campaign!"
     show matsuda teasing
-    ma "We should let fate finish speaking another time."
+    ma "Should fate trouble you again, you know where to send the complaint."
     mc "...Fate can text, apparently."
     show matsuda happy
-    ma "Exactly, yes! Adapt or be left behind, I say!"
+    ma "Indeed! The royal messengers have modernized, and the horses are delighted!"
     # SFX SUGGESTION: A sharp paper-bag crinkle punctuating Matsuda's sudden turn.
     show matsuda at t31
     show tsubaki embarrassed at t33
-    "She turns with a sweep that makes the paper bag under Tsubaki's arm crinkle in alarm. Tsubaki bows once more, smaller this time."
-    ts "Sorry about earlier. And about the sister thing. I mean, not your fault, just..."
-    mc "No, that one was definitely mine. Nice meeting you, Tsubaki."
+    "Matsuda's sleeve catches the paper bag when she turns. Tsubaki shifts it to her other arm before giving me a smaller bow."
+    ts "I can't apologize enough for the run-in... Please just ice your shoulder."
+    mc "Will do. Nice meeting you, Tsubaki."
     show tsubaki happy
     ts "You as well!"
     show matsuda at thide
@@ -437,7 +400,7 @@ label a0517:
     $ mark_character_met("tsubaki")
     $ hide_calendar()
     scene black with wipeleft_scene
-    nier "My lap around the block ends earlier than planned. I go home with a sore shoulder and an almost dead phone after forgetting to charge it."
+    nier "I turn home at the next corner with a sore shoulder and nine percent left on my phone. That should get me as far as the charger."
     call nier_clear from _call_nier_clear_0517_7
     stop music fadeout 1.0
     pause 2.0
@@ -445,77 +408,74 @@ label a0517:
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
-    play music fantasypassion
+    play music night_a
     play sound moddooropen
     "Asahina is on the living room floor amid poster board and paper cutouts. A glued corner has curled up while she wasn't looking."
     show asahina frustrated at t11
-    "My phone buzzes at four percent on my way past her. Her eyes go from the phone to my face."
+    "As I pass her, my phone lights up with its low-battery warning. She follows it with her eyes, then looks at my face."
     show asahina curious
     ah "You look weird."
     mc "Hello to you too, farthead."
     show asahina smug
     ah "No, seriously. That's your trying-not-to-smile face."
     "I put the phone facedown against my thigh."
-    mc "I collided with someone while getting fresh air."
+    mc "I may or may not have bumped into someone while getting fresh air."
     ah "Name?"
     mc "Matsuda."
-    "Asahina repeats the name under her breath, testing it against whatever rumor index she keeps in her head."
+    "Asahina repeats the name under her breath."
     ah "Red hair? Obnoxious as heck?"
     mc "Oh, you know her?"
     show asahina disgusted
     ah disgusted "{i}E-VER-Y-ONE{/i} knows of her! She's a dingus who performs everything at max volume and somehow sucks at half of it."
     show asahina nervous
     ah "...Or, at least, that's what my friends say. I dunno her personally."
-    "That's fair. I let it pass."
+    "She goes back to pressing the corner of the cutout down while I wait for the rest. There isn't any."
     mc "...Uh-huh."
     show asahina teasing
-    ah "So did she give you her number?"
-    mc "Correction: contact info. Different implications."
-    mc "I don't know, okay? I didn't wanna be rude."
-    ah "Whatever helps you sleep, bro."
-    "She presses a cutout onto the poster, then smooths it flat under her palm."
+    ah "Soooo did she give you her number, her address, her exact IP, all that good stuff?"
+    mc "She wanted to know about the game, weirdly enough. It's not exactly a proposal, but it is what it is."
+    ah "Pfft, whatever helps you sleep, bro."
+    "She presses another cutout onto the poster, then smooths it flat under her palm."
     show asahina thinking
-    "The lettering is annoyingly good. Tape still clings to her sleeve, and a ruler balances across her knee."
+    "The lettering is annoyingly good, especially the curve she has worked around the ball. She catches me looking and covers it with her hand."
     mc "It's coming along, I see."
     show asahina smug
     ah "Don't change the subject just because I'm the most talented person in the world."
     mc "...I'm going upstairs."
     show asahina unamused
-    ah "You always do this, by the way. You're such a freaking doormat."
-    mc "I'm not even gonna respond to that, so ha."
+    ah "Just say if you don't want her texting you. You know you're allowed, right?"
+    mc "I can manage a conversation, Asa."
     show asahina teasing
-    ah "You just did~"
+    ah "You can barely manage this one!"
     show asahina neut at thide
     hide asahina neut
-    "I take the stairs and leave the argument where it is. Her laugh follows me halfway up."
+    "I take the stairs and leave the argument where it is, as her laugh follows me halfway up."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Mom checks in twice. On the second pass she praises the poster, and Asahina realigns the same letter for the next five minutes."
-    nier "A fresh bag of chips appears outside my door afterward, wearing a strip of leftover masking tape that reads {i}DEBT SETTLED. DO NOT GET EMOTIONAL.{/i}"
-    nier "The seal is intact. She resisted charging a handling fee."
+    nier "A fresh bag of chips appears outside my door afterward, wearing a strip of leftover masking tape that reads {i}\"DEBT SETTLED. DO NOT GET EMOTIONAL\".{/i}"
     call nier_clear from _call_nier_clear_0517_8
     pause 2.0
     scene bg bedroom_night
     $ show_calendar()
     $ atmos("home_night")
     with wipeleft_scene
-    "The game waits by the console, still sealed."
-    "On my charging phone, Monika's movie reminder sits beneath a contact I saved less than an hour ago."
-    "{i}I can just...pretend that one doesn't exist, yeah?{/i}"
-    "I leave both threads unopened and watch the screen dim around their names."
-    "I roll my shoulder. The ache is faint and easy to ignore."
-    "My eyes are heavy. I set tomorrow's alarm, denying Monika the right to say she warned me."
-    "I lower the phone, and something in the back of my head coughs."
+    "The game waits by the console, still sealed, and me honestly too lazy and too tired to do anything about it."
+    "On my phone, Monika's movie reminder sits beneath a contact I saved less than an hour ago."
+    "{i}I can just... pretend that one doesn't exist, yeah?{/i}"
+    "I leave both threads unopened and let the screen dim."
+    "My shoulder aches when I reach for the charger, so I move the phone closer and set tomorrow's alarm."
+    "The reminder list opens behind it, with Saturday's last item still unchecked."
     "{i}School. Game. Glue. Tomorrow, Monika.{/i}"
-    "{i}That was everything...right?{/i}"
-    "The planner from last night flashes through my head, still open to Saturday."
+    "{i}That was everything... right?{/i}"
+    "I pull the planner out to see what I've missed."
     "{i}MAYBE: Look at that school with Mom.{/i}"
     mc "..."
-    mc "...AH, SHIT."
+    mc "Ah, SHIT!"
     mom "[player]?! Everything okay up there?!"
     mc "YEAH! JUST A MINOTAUR KICKING MY BUTT!"
     $ update_character_thought("matsuda", "Matsuda Akai transferred in this year, and everyone seems to know of her without actually knowing her. She took my contact info after a sidewalk collision and texted before I reached the corner.")
-    $ update_character_thought("tsubaki", "Tsubaki Kareda carries the bag and apologizes for whatever Matsuda just did. She noticed the chin thing before I said anything.")
+    $ update_character_thought("tsubaki", "Tsubaki Kareda offered to get ice after the collision, then explained where Matsuda had actually seen me. She's quieter than her friend, but she got us out of the introductions before dinner went cold.")
     $ hide_calendar()
     stop music fadeout 2.0
     scene black with dissolve_scene_full
