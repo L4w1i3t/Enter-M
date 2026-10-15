@@ -467,7 +467,7 @@ label a0531:
     ah "Oh, firetruck, it's {i}warm{/i} in here! Did you guys pick the corner that smells the worst on purpose?"
     ma "The perfume of competition!"
     show asahina smug
-    ah "Your perfume smells like ass."
+    ah "Your perfume smells like unfettered ass."
     "Matsuda draws herself up to her full height on the building's behalf."
     ma "Lady Asahina graces us with her presence and {i}immediately{/i} insults our generous host!"
     show asahina unamused
@@ -556,7 +556,7 @@ label a0531:
     "The claw closes around the bird's middle and carries it almost to the chute before one prong slips. The bird bounces once and lands farther from the opening than it started."
     show matsuda uniform pose_facepalm
     "Nobody says a word until it stops rolling. Matsuda lets go of the joystick and puts her whole hand over her face."
-    ma "I have been betrayed by geometry."
+    ma "Son of a--I have been betrayed by geometry."
     show matsuda uniform unamused
     show tsubaki uniform happy
     "Tsubaki laughs first, and only covers it once Matsuda presses close to the glass to ask the bird to remember who tried. Then Matsuda straightens up and puts the card away."
@@ -604,6 +604,7 @@ label a0531:
     hide tsubaki
     hide matsuda
     "Tsubaki takes the front corner with Matsuda beside her, and Asahina and I wedge in behind them wherever we fit. The booth was designed for four people who don't need to breathe."
+    "Matsuda's ponytail gets in my mouth twice before the flash."
     ma "Frame two: Fellowship Redeemed!"
     ah "I will leave."
     ma "Frame two: {i}Saturday{/i}."
@@ -956,7 +957,7 @@ label a0531:
     "She carries the mug off to the kitchen and leaves the word where she put it."
     show mom at thide
     hide mom
-    mc "Go shower."
+    mc "Go shower. You smell like the dance machine."
     ah "Already did at school."
     mc "Then go be smug upstairs."
     ah "I can multitask."
@@ -1020,7 +1021,7 @@ label a0531:
             phone_msg("them", "Matsuda: Final accounting! Two racing victories, one tactical loss, one helicopter destroyed, and zero birds liberated."),
             phone_msg("them", "Tsubaki: You lost air hockey too."),
             phone_msg("them", "Matsuda: The table was uneven."),
-            phone_msg("them", "Asahina: and the dance game"),
+            phone_msg("them", "Asahina: and the dance game lmao"),
             phone_msg("them", "Matsuda: This chat has become hostile to accurate history!"),
             phone_msg("me", "Sounds like a good day to me."),
             phone_msg("them", "Tsubaki: It was."),
@@ -1106,28 +1107,30 @@ label a0531:
     #     # This stays here even when the Music Room gate eventually moves: it is
     #     # the permanent signal for finishing the currently playable Chapter 0.5.
         persistent.chapter05_completed = True
-    #     for _key in (
-    #         #"cs_matsuda_01_unlocked", not ready yet
-    #         "cs_matsuda_02_unlocked",
-    #         "cs_tsubaki_01_unlocked",
-    #         "cs_tsubaki_02_unlocked",
-    #         "cs_asahina_01_unlocked",
-    #         "cs_sam_01_unlocked",
-    #         "cs_kotonoha_01_unlocked",
-    #         "cs_kotonoha_02_unlocked",
-    #     ):
-    #         setattr(persistent, _key, True)
+        # Exactly the stories the end card below announces. Ontological Seer
+        # stays sealed while its announcement line is commented out.
+        for _key in (
+            #"cs_matsuda_01_unlocked", not ready yet
+            #"cs_matsuda_02_unlocked",
+            "cs_tsubaki_01_unlocked",
+            "cs_tsubaki_02_unlocked",
+            "cs_asahina_01_unlocked",
+            "cs_sam_01_unlocked",
+            "cs_kotonoha_01_unlocked",
+            "cs_kotonoha_02_unlocked",
+        ):
+            setattr(persistent, _key, True)
     #     # Exact event hook for Curtain Call (For Now). The achievement also has
     #     # a derived chapter05_completed fallback for old saves and reconciliation.
     #     ach_grant("music_on")
         renpy.save_persistent()
     call nier_enter from _call_nier_enter_0531_unlocks
     nier "The Music Room is open."
-    # nier "Character stories unlocked:"
+    nier "Side stories unlocked:"
     # nier "Matsuda: {i}Ontological Seer{/i}"
-    # nier "Tsubaki: {i}Heads{/i}, {i}Tails{/i}"
-    # nier "Asahina: {i}Hina's World{/i}"
-    # nier "Sam: {i}Purgatorium{/i}"
-    # nier "Kotonoha: {i}The Girl with Every Face{/i}, {i}The Void Hunter{/i}"
+    nier "Tsubaki: {i}Heads{/i}, {i}Tails{/i}"
+    nier "Asahina: {i}Hina's World{/i}"
+    nier "Sam: {i}Purgatorium{/i}"
+    nier "Kotonoha: {i}The Girl with Every Face{/i}, {i}The Void Hunter{/i}"
     call nier_exit from _call_nier_exit_0531_unlocks
     return

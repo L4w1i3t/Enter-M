@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 7.54,
+  "shared_unchanged": true,
+  "shared_file_count": 38,
+  "run_directory": "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\docs\\engineering\\evidence\\update-check-2026-10-14\\run_20261014_011437",
+  "command": [
+    "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\RenPy 8\\matsupy-sdk-860\\lib\\py3-windows-x86_64\\python.exe",
+    "-B",
+    "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\update-check-2026-10-14\\update_probe.py",
+    "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\tmp\\update-check-2026-10-14\\fixture",
+    "run",
+    "--savedir",
+    "C:\\Users\\Admin\\Desktop\\SYNC-FOLDER\\Programming\\GAMING\\ENGINES\\RenPy\\Project Directory\\ENTER M\\docs\\engineering\\evidence\\update-check-2026-10-14\\run_20261014_011437\\private\\saves"
+  ],
+  "fresh_run": true
+}

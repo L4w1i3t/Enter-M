@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENTER-M</title>
+  <meta name="description" content="A visual novel about one school year, told a day at a time. The Chapter 0.5 demo is free for Windows, macOS, and Linux.">
+  <meta name="theme-color" content="#132029">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ENTER-M">
+  <meta property="og:description" content="A visual novel about one school year, told a day at a time.">
+  <!-- Link previews need absolute URLs; these assume the default Pages address. -->
+  <meta property="og:url" content="https://l4w1i3t.github.io/Enter-M/">
+  <meta property="og:image" content="https://l4w1i3t.github.io/Enter-M/art/card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="art/icon.png">
+  <link rel="apple-touch-icon" href="art/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=Nova+Square&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="sky" aria-hidden="true">
+      <div class="stage">
+        <img class="field" src="art/field.svg" alt="">
+        <img class="ring months" src="art/ring_months.svg" alt="">
+        <img class="ring days" src="art/ring_days.svg" alt="">
+        <img class="ring orbits" src="art/ring_orbits.svg" alt="">
+      </div>
+    </div>
+    <div class="hero-copy">
+      <h1 class="wordmark">
+        <span class="visually-hidden">ENTER-M</span>
+        <span aria-hidden="true"><span class="prompt">&gt;</span>ENTER_<span class="m">M</span>.</span>
+      </h1>
+      <p class="tagline">A visual novel about one school year, told a day at a time.</p>
+      <p><a class="button" href="https://github.com/L4w1i3t/Enter-M/releases/latest">Download the demo</a></p>
+      <p class="aside">Chapter 0.5 is free, for Windows, macOS, and Linux.<span id="release"></span></p>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="column premise" aria-label="About the game">
+      <p>ENTER-M follows a graduating senior through his last school year, from the middle of May to the first week of March. He keeps his head low with his expectations, which his younger sister has opinions about. A friend from his club reads his poems with a pen in hand.</p>
+      <p>It follows a usual day-by-day routine, but how long exactly can that be maintained?</p>
+    </section>
+
+    <section class="snapshots" aria-labelledby="snapshots-title">
+      <h2 id="snapshots-title">Snapshots</h2>
+      <div class="viewer">
+        <figure class="print">
+          <div class="photo"><div class="mount">
+            <img id="view-img" src="shots/evening.webp" width="1600" height="900" alt="Matsuda and Tsubaki on a residential street at night. Matsuda: “Good sir! A kingdom awaits your aid…”">
+          </div></div>
+          <figcaption class="placard">
+            <span id="view-count">1 / 9</span>
+          </figcaption>
+        </figure>
+        <button class="step prev" type="button" aria-label="Previous snapshot" hidden></button>
+        <button class="step next" type="button" aria-label="Next snapshot" hidden></button>
+      </div>
+      <ul class="strip">
+        <li><a href="shots/evening.webp"><img src="shots/thumbs/evening.webp" width="400" height="225" loading="lazy" alt="Matsuda and Tsubaki on a residential street at night. Matsuda: “Good sir! A kingdom awaits your aid…”"></a></li>
+        <li><a href="shots/club.webp"><img src="shots/thumbs/club.webp" width="400" height="225" loading="lazy" alt="Monika in the empty club room. Monika: “Looks like this has your name on it. Face-down by the stairs, very dramatic, no note or anything.”"></a></li>
+        <li><a href="shots/living-room.webp"><img src="shots/thumbs/living-room.webp" width="400" height="225" loading="lazy" alt="Asahina and Sam in the living room. Sam: “She’s mentioned you a few times, so I had some idea what I was walking into.”"></a></li>
+        <li><a href="shots/roof.webp"><img src="shots/thumbs/roof.webp" width="400" height="225" loading="lazy" alt="Asahina and Tsubaki on the school roof. Tsubaki: “I liked how the motion lines led into the lettering.”"></a></li>
+        <li><a href="shots/phone.webp"><img src="shots/thumbs/phone.webp" width="400" height="225" loading="lazy" alt="A text thread with Monika about the library downtown reopening."></a></li>
+        <li><a href="shots/exam.webp"><img src="shots/thumbs/exam.webp" width="400" height="225" loading="lazy" alt="An exam question in an empty classroom, with three answers to choose from."></a></li>
+        <li><a href="shots/title.webp"><img src="shots/thumbs/title.webp" width="400" height="225" loading="lazy" alt="The title screen: a numbered menu beside an engraved orrery."></a></li>
+        <li><a href="shots/arcade.webp"><img src="shots/thumbs/arcade.webp" width="400" height="225" loading="lazy" alt="The arcade: a featured cartridge above a shelf of games and a prize machine."></a></li>
+        <li><a href="shots/chapter-select.webp"><img src="shots/thumbs/chapter-select.webp" width="400" height="225" loading="lazy" alt="Chapter Select: six chapter folios, with Chapter 0.5 open."></a></li>
+      </ul>
+    </section>
+
+    <section class="column" aria-labelledby="demo-title">
+      <h2 id="demo-title">In the demo</h2>
+      <p>Chapter 0.5 covers May 15 to May 31. When it ends, the Music Room opens, along with six side stories: <i>Heads</i>, <i>Tails</i>, <i>Hina’s World</i>, <i>Purgatorium</i>, <i>The Girl with Every Face</i>, and <i>The Void Hunter</i>. The arcade is open from the start.</p>
+    </section>
+
+    <section class="column" aria-labelledby="start-title">
+      <h2 id="start-title">Getting started</h2>
+      <ol class="steps">
+        <li>Download the zip from the <a href="https://github.com/L4w1i3t/Enter-M/releases/latest">latest release</a>.</li>
+        <li>Unzip it wherever you like.</li>
+        <li>Open <code>ENTER-M.exe</code> on Windows, <code>ENTER-M.app</code> on macOS, or <code>ENTER-M.sh</code> on Linux.</li>
+      </ol>
+      <p class="note">Some antivirus programs flag <code>ENTER-M.exe</code>. It’s a false positive: the launcher isn’t code-signed, which is common for independent games, and security tools treat new, unsigned programs with suspicion. If Windows shows “Windows protected your PC,” choose “More info,” then “Run anyway.” If your antivirus quarantines a file, restore it and add the game folder as an exception. Only download the game from the releases page above, so you know the warning is about this build.</p>
+      <h3>Content advisory</h3>
+      <p>Some of what waits inside is heavier than it first appears. Reader discretion is advised.</p>
+    </section>
+
+    <section class="column" aria-labelledby="feedback-title">
+      <h2 id="feedback-title">Feedback</h2>
+      <p>Played the demo? Tell me what worked and what didn’t.</p>
+      <!-- Paste the Google Form link into this href. -->
+      <p><a class="button quiet" href="https://docs.google.com/forms/d/e/1FAIpQLSe8lSaFp1oBJCxfunYw-htC_esCUgykFqlKZvGflrhTDE6EYw/viewform?usp=publish-editor">Leave feedback</a></p>
+    </section>
+
+    <section class="close">
+      <p class="entry">Make the most of your time here.</p>
+    </section>
+  </main>
+
+  <footer class="column">
+    <p>ENTER-M is an unofficial fan work. It is not affiliated with or endorsed by any third parties.</p>
+    <p>Created, written, designed, and built by Lawliet. It runs on Matsu’Py, a fork of Ren’Py.</p>
+    <p>Some placeholder artwork in this demo was drafted using Stable Diffusion, with the creator’s own trained models and pipelines.</p>
+    <p class="links"><a href="https://github.com/L4w1i3t/Enter-M">Source on GitHub</a> <a href="https://ko-fi.com/l4w1i3t">Leave something in the tip jar</a></p>
+  </footer>
+</body>
+</html>

@@ -1986,6 +1986,8 @@ init -1 python:
                 renpy.music.set_volume(0.0, delay=0.0, channel=MSBF_IDMODE_PHASE3_VOCAL_CHANNEL)
                 renpy.music.set_volume(1.0, delay=MSBF_IDMODE_PHASE3_VOCAL_FADEIN, channel=MSBF_IDMODE_PHASE3_VOCAL_CHANNEL)
                 renpy.music.set_volume(MSBF_IDMODE_PHASE3_INST_BED, delay=MSBF_IDMODE_PHASE3_CROSSFADE, channel=MSBF_IDMODE_PHASE3_INST_CHANNEL)
+                # Heard from here on; the Music Room's scan skips a stem at volume 0.
+                music_unlock(MSBF_IDMODE_PHASE3_MUSIC_VOCAL, save=False)
             except Exception:
                 pass
 

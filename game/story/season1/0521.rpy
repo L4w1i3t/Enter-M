@@ -448,15 +448,15 @@ label a0521:
     mc "Pfft, debatable."
     show asahina annoyed
     ah "Keep talking and you're wearing the rest of the spaghetti!"
-    mc "Okay, okay, I'm sorry! Put the fork down."
+    mc "Okay, okay, I'm sorry, geez! Put the fork down. The last thing we need is spilled spaghetti."
     show asahina smug
-    ah "Relax, it's spaghetti. Worst case, you catch a wet noodle to the face."
-    mc "Anyway, she's Matsuda's friend. The quiet one from Saturday."
+    ah "Relax, man. Worst case, you catch a wet noodle to the face."
+    mc "...Anyway, she's Matsuda's friend. The quiet one from Saturday."
     show asahina thinking
     ah "Yeah, no, I got that part. Must be exhausting, honestly."
     "Matsuda's three-part review of that game's menu screen from last night drifts back to me, and I end up grinning at my plate."
-    mc "Eh, Matsuda's fun. Who else is gonna trash a game's menu design with me at eleven at night?"
-    mc "Besides, Tsubaki's been her friend since April. She can't hate it that much."
+    mc "Eh, Matsuda's fun. Who else is gonna text me 'this menu design is so ass' right when I'm about to sleep?"
+    mc "Besides, Tsubaki's been her friend since April. I'm sure she can't hate it that much."
     show asahina neut
     ah "Liking somebody and wanting to eat lunch with them every single day are two different things."
     "I open my mouth, and nothing smart comes out of it."
@@ -471,7 +471,7 @@ label a0521:
     mc "...This government is corrupt."
     show asahina smug
     ah "Sounds like a you problem~"
-    "She hooks an ankle around the chair leg and takes her sweet time twirling the stolen noodle."
+    "She hooks an ankle around the chair leg and slurps the stolen noodle at me. Loudly."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "I wash and Asahina dries, though mostly she argues about which cabinet everything lives in. Mom's plate goes into the fridge with a note on the lid, and we head upstairs."

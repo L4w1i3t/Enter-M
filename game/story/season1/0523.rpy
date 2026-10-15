@@ -205,6 +205,7 @@ label a0523:
     show asahina uniform shocked
     show tsubaki uniform shocked
     "Then the rooftop door bangs open, and all three of us jump."
+    ah "Jesus!"
     show asahina uniform shocked at t31
     show tsubaki uniform shocked at t32
     show matsuda uniform happy at t33
@@ -414,6 +415,7 @@ label a0523:
     ts "Wait. Hold on. Did you eat?"
     show matsuda smug
     ma "One melon bread, consumed in transit. Its power still burns within me!"
+    "{i}That's called heartburn.{/i}"
     show tsubaki uniform annoyed
     ts "That is NOT lunch! You said you'd get something after the form!"
     show matsuda annoyed
@@ -522,7 +524,7 @@ label a0523:
     track_coach "Your shoulders creep when you get impatient, and you overstride when you think about pace instead of feel."
     mc "So... it's mental again, right?"
     track_coach "Your brain is useful when it stays in its lane. Same as your feet."
-    "One of the distance guys coughs into his fist over by the cooler. I'm filing that under allergies, not betrayal."
+    "One of the distance guys coughs 'nerd' into his fist over by the cooler. I'm filing that under allergies, not betrayal."
     track_coach "Stretch, hydrate, and get out of here. Do not turn tonight or tomorrow night into extra training because you feel behind."
     mc "The invitational's in three weeks, though. If I want both races--"
     track_coach "I'd rather have you slow in June than gone in July."

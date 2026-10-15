@@ -287,7 +287,7 @@ label a0529:
     "She holds a small, hopeful, extremely rehearsed smile while I try to finish chewing."
     mc "Okay. Can the shy transfer student give me one second to swallow?"
     show matsuda smug
-    "She sits up straight and takes a huge, completely untroubled bite of melon bread. The voice is gone like it was never there."
+    "She sits up straight and takes a huge, completely untroubled bite of melon bread. The shy voice is gone like it was never there, and the real one doesn't wait for her to swallow."
     ma "Admit it. The range was impeccable."
     mc "You almost got me with the gate."
     show matsuda unamused
@@ -588,7 +588,8 @@ label a0529:
     ah "Three."
     mc "Two, and I get first pick of the next good card."
     ah "Deal."
-    "We shake on it over the discard pile. The agreement is about thirty seconds old when Mom comes back."
+    "Asahina spits in her palm before we shake on it over the discard pile. I shake anyway, since the alternative is losing to Mom."
+    "The agreement is about thirty seconds old when Mom comes back."
     show mom thinking at t22
     "She sits, turns her facedown card over, and studies the two of us until Asahina shifts on the rug."
     mom "What did you agree to?"

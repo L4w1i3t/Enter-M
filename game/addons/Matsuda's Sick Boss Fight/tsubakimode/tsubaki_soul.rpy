@@ -993,6 +993,8 @@ init python:
         try:
             renpy.music.set_volume(1.0, delay=TSB_VOCAL_FADEIN, channel=TSB_VOCAL_CH)
             renpy.music.set_volume(TSB_INST_BED, delay=TSB_INST_DUCK_AT, channel=TSB_INST_CH)
+            # Heard from here on; the Music Room's scan skips a stem at volume 0.
+            music_unlock(audio.tsb_vocal, save=False)
         except Exception:
             pass
 

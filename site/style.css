@@ -1,0 +1,305 @@
+/* ENTER-M landing page. The palette, the orrery, the tabs and the photo
+   corners all come from the game: the title screen's art in
+   assets/gui/menu/illustrated/title/ and the Archive's illustrated kit. */
+
+:root {
+  --night: #132029;
+  --brass: #d9b77b;
+  --plum: #c5a0bd;
+  --paper: #f0e6d2;
+  --ash: #b9b5aa;
+  --ink: #263238;
+  --prompt: #737474;
+  --signal-red: #d30000;
+  --signal-cyan: #00b7b8;
+  --display: "Nova Square", "Segoe UI", system-ui, sans-serif;
+  --text: "Literata", Georgia, serif;
+  --gutter: clamp(1rem, 7vw, 8rem);
+  --measure: 36rem;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--paper);
+  font: 400 1.125rem/1.65 var(--text);
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: var(--brass); text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { color: var(--paper); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+
+h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.2; }
+h2 { font-size: 1.5rem; margin: 0 0 1.25rem; }
+h3 { font-size: 1.125rem; color: var(--plum); margin: 2.5rem 0 0.5rem; }
+code { font: inherit; color: var(--brass); }  /* Nova Square's M reads as "m"; filenames must not */
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+
+/* --- Hero: the title screen, still turning ------------------------------ */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  padding: 4rem var(--gutter);
+}
+
+.sky { position: absolute; inset: 0; z-index: -1; overflow: hidden; container-type: size; }
+.sky::before, .sky::after { content: ""; position: absolute; inset: 0; }
+.sky::before { background: linear-gradient(90deg, rgb(19 32 41 / 0.9), rgb(19 32 41 / 0.55) 40%, transparent 64%); z-index: 1; }
+.sky::after { top: auto; height: 35%; background: linear-gradient(transparent, var(--night)); z-index: 1; }
+
+/* The field and the rings share the title's 1280x720 frame, where the orrery's
+   centre sits at (855, 360): 66.797% across. The stage covers the hero and
+   pins that centre at --x. */
+.stage {
+  --x: 66.797%;
+  position: absolute;
+  top: 50%;
+  left: var(--x);
+  width: max(100cqw, 177.78cqh);
+  aspect-ratio: 16 / 9;
+  translate: -66.797% -50%;
+}
+.stage::after {
+  content: "";
+  position: absolute;
+  left: 66.797%;
+  top: 50%;
+  width: 24%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(closest-side, rgb(233 190 120 / 0.3), transparent);
+}
+.field { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+.ring { position: absolute; left: 41.797%; top: 5.556%; width: 50%; max-width: none; }
+
+/* The title screen's own periods (main_menu_fx.rpy, mmfx_orrery_spin). The
+   delays start the beads away from the wordmark: at 0 the day ring's bead
+   sits right after the period and reads as a colon. */
+.months { animation: turn 360s linear infinite; }
+.days { animation: turn 240s linear -120s infinite reverse; }
+.orbits { animation: turn 150s linear -75s infinite; }
+@keyframes turn { to { rotate: 360deg; } }
+
+.hero-copy { max-width: 34rem; }
+.hero-copy p { margin: 0; }
+
+.wordmark {
+  margin: 0 0 1.5rem;
+  font: 400 clamp(2.75rem, 1.4rem + 6vw, 6.5rem)/1 var(--display);
+  white-space: nowrap;
+}
+.prompt { color: var(--prompt); margin-right: 0.14em; }
+
+/* The logo's broken M: red and cyan copies behind it, and a signal that
+   slips for a fifth of a second every nine. */
+.m { position: relative; display: inline-block; }
+.m::before, .m::after { content: "M"; position: absolute; inset: 0; z-index: -1; mix-blend-mode: screen; }
+.m::before { color: var(--signal-red); translate: -0.05em 0.015em; animation: slip-red 9s steps(1, end) infinite; }
+.m::after { color: var(--signal-cyan); translate: 0.05em -0.01em; animation: slip-cyan 9s steps(1, end) infinite; }
+@keyframes slip-red {
+  96% { translate: -0.15em 0; clip-path: inset(20% 0 46% 0); }
+  98% { translate: -0.05em 0.015em; clip-path: none; }
+}
+@keyframes slip-cyan {
+  96% { translate: 0.12em 0; clip-path: inset(58% 0 10% 0); }
+  98% { translate: 0.05em -0.01em; clip-path: none; }
+}
+
+.hero-copy .tagline {
+  margin-bottom: 2rem;
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.625rem);
+  line-height: 1.4;
+}
+.hero-copy .aside { margin-top: 1rem; font-size: 0.9375rem; color: var(--ash); }
+
+@media (max-aspect-ratio: 1 / 1) {
+  .hero { align-items: end; padding-bottom: 3rem; }
+  .stage { --x: 50%; }
+  .sky::before { background: none; }
+  .sky::after { height: 65%; background: linear-gradient(transparent, rgb(19 32 41 / 0.88) 35%, var(--night)); }
+}
+
+
+/* --- Buttons: the menu's own engraved tabs ------------------------------ */
+
+.button {
+  display: inline-block;
+  padding: 0.25rem 1.5rem;
+  border-style: solid;
+  border-width: 16px 20px;
+  border-image: url(art/tab_selected.svg) 16 20 fill / 16px 20px;
+  font: 400 1.125rem/1.2 var(--display);
+  color: var(--ink);
+  text-decoration: none;
+}
+.button:hover { color: var(--ink); filter: brightness(1.08); }
+
+.button.quiet { border-image-source: url(art/tab_idle.svg); color: var(--paper); }
+.button.quiet:hover { border-image-source: url(art/tab_hover.svg); filter: none; }
+
+
+/* --- Reading column ------------------------------------------------------ */
+
+main > section { margin-block: clamp(4.5rem, 9vw, 8rem); }
+
+.column {
+  width: min(var(--measure), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.date {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  font-size: 1.25rem;
+  color: var(--brass);
+}
+/* The month marker from the orrery's ring. */
+.date::before { content: ""; width: 0.5rem; height: 0.5rem; background: var(--plum); rotate: 45deg; }
+
+.prose { font-size: 1.1875rem; }
+.prose p { margin: 0 0 1em; }
+.premise p:last-child { color: var(--ash); }
+
+.steps { margin: 0 0 1rem; padding: 0; list-style: none; counter-reset: step; }
+.steps li { counter-increment: step; position: relative; padding-left: 2rem; margin-bottom: 0.6rem; }
+.steps li::before { content: counter(step); position: absolute; left: 0; font-family: var(--display); color: var(--brass); }
+.note { font-size: 0.9375rem; color: var(--ash); }
+
+
+/* --- Snapshots: the CG gallery's matted print ---------------------------- */
+
+.snapshots {
+  width: min(68rem, 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.viewer { position: relative; }
+
+.print {
+  margin: 0;
+  padding: 10px 10px 0;
+  background: linear-gradient(160deg, #f4ead7, #e6d8c0 55%, #cfbea5);
+  box-shadow: 0 1.75rem 3rem -1.5rem rgb(4 8 12 / 0.75);
+}
+
+.photo, .mount { position: relative; background: #4d4851; }
+.photo img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: opacity 0.15s; }
+.photo img.loading { opacity: 0.4; }
+
+/* Four gold photo corners, as on the Archive's prints. */
+.photo::before, .photo::after, .mount::before, .mount::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  background: url(art/photo_corner.svg) no-repeat;
+}
+.photo::before { top: -4px; left: -4px; }
+.photo::after { top: -4px; right: -4px; scale: -1 1; }
+.mount::before { bottom: -4px; left: -4px; scale: 1 -1; }
+.mount::after { bottom: -4px; right: -4px; scale: -1 -1; }
+
+.placard {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.6rem 0.25rem 0.7rem;
+  font: 400 0.9375rem/1.3 var(--display);
+  color: var(--ink);
+}
+#view-count { color: #6b5a48; white-space: nowrap; }
+
+.step {
+  position: absolute;
+  top: calc(50% - 1.5rem);
+  translate: 0 -50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(217 183 123 / 0.55);
+  background: rgb(19 32 41 / 0.78);
+  cursor: pointer;
+}
+.step[hidden] { display: none; }
+.step:hover { border-color: var(--brass); }
+.step::before { content: ""; width: 0.6rem; height: 0.6rem; border: solid var(--paper); border-width: 0 0 2px 2px; }
+.prev { left: 1.25rem; }
+.prev::before { rotate: 45deg; translate: 0.15rem 0; }
+.next { right: 1.25rem; }
+.next::before { rotate: -135deg; translate: -0.15rem 0; }
+
+.strip {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  margin: 1.25rem 0 0;
+  padding: 0.25rem 0.25rem 0.75rem;
+  list-style: none;
+  scrollbar-color: rgb(217 183 123 / 0.4) transparent;
+}
+.strip li { flex: 0 0 auto; }
+.strip a { display: block; width: clamp(7.5rem, 14vw, 10rem); border: 1px solid rgb(217 183 123 / 0.25); }
+.strip img { opacity: 0.55; transition: opacity 0.2s; }
+.strip a:hover img, .strip a[aria-current="true"] img { opacity: 1; }
+.strip a[aria-current="true"] { border-color: var(--brass); }
+
+
+/* --- Closing: the title drop -------------------------------------------- */
+
+main > .close { margin-bottom: 0; }
+
+.close {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-content: center;
+  min-height: 80svh;
+  padding: 6rem var(--gutter);
+  text-align: center;
+}
+.close::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(var(--night), rgb(19 32 41 / 0.4) 30%, rgb(19 32 41 / 0.4) 70%, var(--night)),
+    url(art/keyart.webp) center / cover no-repeat;
+}
+.close p { margin: 0; }
+.close .entry {
+  margin-bottom: 2rem;
+  font: italic 400 clamp(1.5rem, 1.1rem + 1.8vw, 2.5rem)/1.3 var(--text);
+  text-shadow: 0 1px 14px rgb(4 8 12 / 0.9);
+}
+
+
+/* --- Footer ------------------------------------------------------------- */
+
+footer { padding: 3rem 0 4rem; font-size: 0.875rem; color: var(--ash); }
+footer p { margin: 0 0 0.6rem; }
+.links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-top: 1.25rem; }
+
+
+@media (prefers-reduced-motion: reduce) {
+  .ring, .m::before, .m::after { animation: none; }
+  .photo img, .strip img { transition: none; }
+}

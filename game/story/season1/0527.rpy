@@ -122,7 +122,7 @@ label a0527_after_biology:
         "{i}If Monika asks, I'll have to stand there and watch her understand.{/i}"
     else:
         "By the windows, a guy from two seats down asks me whether the testcross distance was twenty-four or seventy-six. I tell him biology and I aren't speaking right now."
-        "Undeterred, he adds up the columns on the back of his hand, stares at the total, and has the decency to keep it to himself."
+        "Undeterred, he adds up the columns on the back of his hand. Then he stares at the total and whispers 'shit' to his own knuckles."
     $ hide_calendar()
     scene black with wipeleft_scene
     if persistent.did_save_scum_biology:
@@ -337,7 +337,7 @@ label a0527_after_chemistry:
         hide track_coach
         # SFX SUGGESTION: Shoe strikes on rubber track settling into a steady jogging rhythm.
         "I start out stiff in the outside lane, but by the second lap my shoulders have come down and my breathing has started running itself."
-        "Down the straightaway, a few sprinters are practicing starts, cleats biting and letting go, until somebody jumps the gun and laughter chases him across the infield."
+        "Down the straightaway, a few sprinters are practicing starts, cleats biting and letting go, until somebody jumps the gun and the rest of them chase him across the infield, laughing and trying to pants him."
         "The laughing carries all the way to the curve, where a headwind grabs my shirt. I lean into it and hold the pace."
         "I could happily go another few laps by the time Coach's whistle goes at twenty minutes."
         show track_coach neut at t11

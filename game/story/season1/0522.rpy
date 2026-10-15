@@ -68,7 +68,7 @@ label a0522:
     "The silence that follows is so sudden that the room seems to be holding its breath."
     "Then I see the time: 7:47."
     mc "...SHIT."
-    "I sit up too fast and regret the entire maneuver."
+    "I sit up too fast and regret the entire maneuver, head rush and drool spot included."
     "My alarm clock sits on the desk under last night's chemistry notes, set for absolutely nothing."
     "I remember meaning to set it. Then the phone offered one more video, and I let it."
     "Across the hall, Asahina's door hangs open with an empty uniform hanger still swinging from the handle. Nobody knocked."
@@ -96,7 +96,7 @@ label a0522:
     $ atmos("afternoon")
     with wipeleft_scene
     play music school_day_a
-    "The school corridor is doing that pre-homeroom thing where everyone moves in straight lines until someone stops in the worst possible place."
+    "The school corridor is doing that pre-homeroom thing where everyone moves in straight lines until some idiot stops in the worst possible place."
     "I round the last corner and spend my final scrap of dignity pretending this was a brisk walk."
     show monika forward uniform curi om oe nobl rdown ldown at t11
     m "[player]?"
@@ -224,7 +224,7 @@ label a0522:
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "We stop at the vending machine on the way out because I want something cold, and Monika buys the grape soda she keeps telling me is disgusting."
-    nier "She pulls a face at the first sip and then keeps going. By the time we split at the station, the can is empty."
+    nier "She pulls a face at the first sip and then keeps going. By the time we split at the station, the can is empty, and she tries to blame the burp on me."
     nier "At home, Asahina hears about the toaster and confiscates my phone to set three alarms."
     nier "She names them {i}WAKE UP{/i}, {i}STILL WAKE UP{/i}, and {i}MOM WILL KNOW{/i}. I leave all three enabled."
     call nier_clear from _call_nier_clear_0522_4

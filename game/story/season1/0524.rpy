@@ -121,7 +121,7 @@ label a0524:
     "I lean back, keeping my voice under the principal's."
     mc "Fix mine while you're there?"
     show asahina uniform annoyed
-    ah "Fix it yourself, shitass."
+    ah "Fix it yourself, damn!"
     show sam uniform teasing
     sa "You missed a button too, bud."
     show asahina uniform unamused
@@ -156,7 +156,7 @@ label a0524:
     "Eventually a student council rep steps up to thank everyone for their attention."
     "The room has offered very little proof of any."
     # SFX SUGGESTION: A microphone cutoff pop, followed by the gym crowd swelling back in.
-    "The microphone clicks off, and the gym exhales in one enormous, adolescent wave."
+    "The microphone clicks off, and the gym exhales in one enormous wave of adolescent morning breath."
     "Nobody's been dismissed yet, but every row is already leaning toward the doors, daring the others to start the traffic jam."
     "Our class is the last to leave, because of course it is."
     "By the time we're released, the first-years are long gone and the last of the second-years are filing past the end of our row."
@@ -310,7 +310,7 @@ label a0524:
     ah "Do you think Tsubaki was okay earlier? After she met Sam, I mean."
     mc "In the gym?"
     show asahina uniform pose_eyeroll
-    ah "Yes, in the gym. Were you asleep?"
+    ah "No, in the middle of the ocean. Yes, in the gym, dumbass."
     mc "She nearly dropped a page. I was watching that."
     show asahina uniform unamused
     ah "Yeah. She acted like Sam handed her an award, and it was {i}one{/i} compliment."

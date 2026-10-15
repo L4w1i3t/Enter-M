@@ -12,8 +12,9 @@ init python:
     # library counts as the player having encountered that track -- def_audio.rpy
     # registers track1..track4 as extra music channels for the fights and the
     # arcade modes, so watching "music" alone would leave half the soundtrack
-    # permanently unrecoverable.
-    MUSIC_ROOM_LISTEN_CHANNELS = ("music", "track1", "track2", "track3", "track4")
+    # permanently unrecoverable. Asarhythm's song select has a channel of its own.
+    MUSIC_ROOM_LISTEN_CHANNELS = ("music", "track1", "track2", "track3", "track4",
+                                  "asahina_rhythm_menu")
 
     def music_key_from_path(file_path):
         """Map assets/audio/bgm/13am.ogg to music_heard_assets_audio_bgm_13am.
@@ -207,7 +208,7 @@ init python:
             ),
             MusicTrack(
                 "Scheduled Programming",
-                "L4w1i3t",
+                "Lawliet",
                 audio.holdmusic,
                 "assets/audio/bgm/holdmusic.ogg"
             ),
@@ -261,12 +262,14 @@ init python:
                 audio.scamall,
                 "assets/audio/bgm/scamall.ogg"
             ),
-            MusicTrack(
+            # The OP's track ships only with the OP (ENTER_M_SHIP_OP, options.rpy);
+            # audio.enter_m_op is defined in the OP's own folder.
+            *([MusicTrack(
                 "Montagem Toma",
                 "MXZI, sk3tch01, X972",
                 audio.enter_m_op,
                 "assets/audio/bgm/opsong.ogg"
-            ),
+            )] if ENTER_M_SHIP_OP else []),
             MusicTrack(
                 "Sound of Justice",
                 "Toby Fox",
@@ -298,8 +301,8 @@ init python:
                 "assets/audio/bgm/kotoendlessmode.ogg"
             ),
             MusicTrack(
-                "Dusk",
-                "Team Salvato",
+                "Dark blue night",
+                "Kamaboko Sachiko",
                 audio.hearttoheart,
                 "assets/audio/bgm/hearttoheart.ogg"
             ),
@@ -436,8 +439,12 @@ init python:
             text = text.rsplit(">", 1)[1]
         return text.strip().lower().replace("\\", "/")
 
-    def music_unlock(*file_paths):
-        """Mark tracks heard, by file path. The scan below is the usual caller."""
+    def music_unlock(*file_paths, save=True):
+        """Mark tracks heard, by file path. The scan below is the usual caller.
+
+        save=False skips the persistent write (~95 ms) for mid-action callers;
+        the next write or quit keeps the flag.
+        """
         changed = False
 
         for file_path in file_paths:
@@ -447,8 +454,16 @@ init python:
             setattr(persistent, track.persistent_key, True)
             changed = True
 
-        if changed:
+        if changed and save:
             renpy.save_persistent()
+
+    def _music_channel_silent(channel):
+        # Layered fights start a vocal stem at volume 0 and fade it in mid-fight
+        # (that moment calls music_unlock itself). Silence is not hearing it.
+        try:
+            return renpy.audio.audio.get_channel(channel).get_context().secondary_volume <= 0
+        except Exception:
+            return False
 
     def music_scan_now_playing():
         for channel in MUSIC_ROOM_LISTEN_CHANNELS:
@@ -456,7 +471,7 @@ init python:
                 playing = renpy.music.get_playing(channel=channel)
             except Exception:
                 continue
-            if playing:
+            if playing and not _music_channel_silent(channel):
                 music_unlock(playing)
 
     def music_unlocked_tracks():

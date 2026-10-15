@@ -137,7 +137,7 @@ label a0530:
     mc "Why?"
     show asahina uniform embarrassed
     ah "Because I'd go too, dumbass! You're allowed to bring your sister."
-    "She takes her bowl to the sink and clears out of the room at a speed that doesn't invite follow-up questions."
+    "She takes her bowl to the sink and clears out of the room at a speed that doesn't invite follow-up questions. Her middle finger stays up until she's out of sight."
     show asahina at thide
     hide asahina
     "I wash up, since Mom isn't here to beat me to it, and slide her note back under the sugar bowl."
@@ -159,7 +159,7 @@ label a0530:
     # Saturday's half-day is practical rather than ceremonial: the main
     # academic wing must be empty before a ventilation replacement and power cut.
     "Then the intercom clicks on to repeat tomorrow's half-day in its careful bad-news voice. The academic wing loses power at noon so maintenance can crane a new ventilation unit onto the roof."
-    "The gym and track run on their own circuit, so they stay open. The announcement calls that convenient, and everybody in the room with practice tomorrow has a less flattering word for it."
+    "The gym and track stay open on their own circuit, and the announcement calls that convenient. Somebody in the back row with practice tomorrow calls it bullshit, and the teacher pretends not to hear."
     $ hide_calendar()
     scene black with wipeleft_scene
     nier "Volleyball business claims Asahina for lunch, and a student-council handoff claims Monika. I take my food up to the roof alone."
@@ -540,7 +540,7 @@ label a0530:
     play sound moddooropen
     "Asahina gets in not long after, shouldering the door open with her gym bag while she finishes reading something on her phone."
     show asahina uniform unamused at t11
-    ah "Okay, why does the Azure Eye text like a trumpet's supposed to play after every message?"
+    ah "Okay, why does the Azure Eye text like a damn trumpet's supposed to play after every message?"
     mc "You came in swinging."
     ah "She asked if I wanted to meet you guys at the arcade after volleyball. Full sentences, actual order of operations, and no weird group name. Yet."
     mc "Give her time."

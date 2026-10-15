@@ -13,7 +13,16 @@ init -999 python:
 # Displayed project name and release version.
 define config.name = "ENTER-M"
 
+# Keep this SemVer value in step with the published GitHub tag (v0.17.0).
+# The title-screen update indicator compares newer stable releases against it.
 define config.version = "0.17.0"
+
+# RELEASE TOGGLES: features this build ships with. dev/release_toggles.py flips
+# them (run it with no arguments to see where each one stands).
+#   ENTER_M_SHIP_OP  the boot OP, Replay OP in the Archive and the OP's Music
+#                    Room track. Off also drops "Sick Ass Anime OP/" and the OP
+#                    song from the package (see the build excludes below).
+define -100 ENTER_M_SHIP_OP = False
 
 # Optional About-screen description.
 define gui.about = _("")
@@ -73,7 +82,7 @@ init python:
 
 # Default text speed and auto-forward mode timing
 # NUDGE DECIDE 10.5: default is 50 cps but the "Normal" preset is 60. Pick one (plan suggests 60); screens.rpy's reset-to-defaults also writes 50.
-default preferences.text_cps = 50          # Characters per second (bigger number = faster text)
+default preferences.text_cps = 60          # Characters per second (bigger number = faster text)
 default preferences.afm_time = 15          # Auto-forward mode wait time
 
 # Default volume settings
@@ -154,6 +163,7 @@ init python:
     # --- Excludes ---
     build.classify("**.rpy", None)              # ship compiled .rpyc, never source
     build.classify("/docs/**", None)            # developer docs, including .txt guides
+    build.classify("/graphify-out/**", None)    # generated developer code graph
     build.classify("game/**.md", None)          # READMEs, cheatsheets, critiques
     build.classify("/**.md", None)
     build.classify("game/assets/**.txt", None) # asset READMEs and vendor notes
@@ -161,6 +171,7 @@ init python:
     build.classify("/.agents/**", None)
     build.classify("/dev/**", None)             # authoring drafts, rollback archives, maintenance evidence
     build.classify("/tmp/**", None)             # isolated QA runs and SDK copies
+    build.classify("/site/**", None)            # GitHub Pages landing page
     build.classify("**sync-conflict**", None)   # Syncthing conflict copies
     # Dev tools (gated by config.developer, never run in release). Do NOT exclude
     # dev.rpy -- it also defines runtime state (player name, singleton, defaults).
@@ -173,6 +184,10 @@ init python:
     build.classify("/game/python-packages/asahina_rhythm_editor.py", None)
     build.classify("/game/python-packages/asahina_rhythm_editor.pyc", None)
     build.classify("/game/story/out_of_context/**", None)       # dated dev-only preview scenes
+    # Release toggles (top of this file): a feature switched off leaves no files.
+    if not ENTER_M_SHIP_OP:
+        build.classify("/game/addons/Sick Ass Anime OP/**", None)
+        build.classify("/game/assets/audio/bgm/opsong.ogg", None)
     # Backups / editor / OS junk (can appear in any subdir).
     build.classify("**~", None)
     build.classify("**.bak", None)
@@ -206,6 +221,7 @@ init python:
     # protected build converts this source to the corresponding protected .pyc.
     # The chart editor module remains developer-only.
     build.classify("game/python-packages/asahina_rhythm_core.py", "mod")
+    build.classify("game/python-packages/enter_m_updates.py", "mod")
     build.classify("game/**.jpg", "mod")
     build.classify("game/**.png", "mod")
     build.classify("game/**.webp", "mod")

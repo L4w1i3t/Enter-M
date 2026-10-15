@@ -109,9 +109,14 @@ Read the actual closing May scenes and
 the Copper Crown rematch, returned grades, another arcade invitation, Saturday
 chat, photo strip, poem, valedictorian competition, Matsuda's television past,
 Asahina's unresolved food/body strain, Sam's practical management, Kotonoha's
-attention, and Himeko's “Walk instead if you need to.” Assign the trailer's
-unattributed fragments to scenes without treating an old proposed assignment as
-canon. A chapter's quiet routines must have changed meaning when they return.
+attention, and Himeko's “Walk instead if you need to.” The trailer (remade
+October 14) speaks only lines already in Chapter 0.5, so it adds none to place;
+its promises are on screen: the traveler's one line, due Monday, under Monika's
+green-ink question; all six at one table and together on the roof; Tsubaki
+invited to sit; Matsuda's misspelled name; another race between MC and Matsuda;
+a beach with an inflatable sword; three umbrellas by a window; and a paper cup
+left on a bench. A chapter's quiet routines must have changed meaning when
+they return.
 
 The six-person group should be established by June's end. Preserve unequal
 starting familiarity: siblings, MC/Monika's year of friendship, Asahina/Sam's

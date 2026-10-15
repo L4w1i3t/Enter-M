@@ -1,0 +1,22 @@
+
+Full traceback:
+  File "game/probe.rpy", line 64, in script
+    python:
+  File "renpy/ast.py", line 1187, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/python.py", line 1273, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "game/probe.rpy", line 120, in <module>
+    assert qa_widget.style.xsize == 374 and qa_widget.style.ysize == 32
+           ^^^^^^^^^^^^^^^^^^^^^                                       
+AttributeError: 'renpy.styledata.styleclass.Style' object has no attribute 'xsize'. Did you mean: 'size'?
+
+While running game code:
+  File "game/probe.rpy", line 64, in script
+    python:
+  File "game/probe.rpy", line 120, in <module>
+    assert qa_widget.style.xsize == 374 and qa_widget.style.ysize == 32
+           ^^^^^^^^^^^^^^^^^^^^^                                       
+AttributeError: 'renpy.styledata.styleclass.Style' object has no attribute 'xsize'. Did you mean: 'size'?

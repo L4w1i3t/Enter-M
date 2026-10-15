@@ -48,6 +48,11 @@ init 50 python:
 # -----------------------------------------------------------------------------
 # Data-driven archive item definitions
 init python:
+    # Where a full restart should land, carried across it: the store reset is
+    # shallow (renpy.python.StoreBackup), so an init-time class keeps its attributes.
+    class _ArchiveIsolatedTarget(object):
+        label = None
+
     def archive_start_isolated_content(label_name):
         """Start standalone Archive content with a clean per-game store."""
         if not label_name or not renpy.has_label(label_name):
@@ -59,7 +64,8 @@ init python:
         # Archive that lands in the loaded save and exposes all of its per-save
         # state to the standalone story. A full restart restores Ren'Py's clean
         # stores first, then jumps directly to the requested content label.
-        renpy.full_restart(label=label_name, save=False)
+        _ArchiveIsolatedTarget.label = label_name
+        renpy.full_restart(label="archive_isolated_content", save=False)
 
     # Each entry: (label, unlock_persistent_key, unlocked_action, icon)
     # unlock_persistent_key of None means always locked (placeholder)
@@ -232,6 +238,17 @@ init python:
             crop=(crop_x, crop_y, frac_w, frac_h),
             crop_relative=True,
         )
+
+# -----------------------------------------------------------------------------
+# STANDALONE CONTENT LANDING
+# archive_start_isolated_content() restarts into here. Side stories and lost
+# records never run the main story's new-game setup, so they get its clickable
+# pauses here: a release build starts _dismiss_pause False (dev.rpy), which only
+# the cold open and the menus are meant to keep.
+# -----------------------------------------------------------------------------
+label archive_isolated_content:
+    $ _dismiss_pause = True
+    $ renpy.jump(_ArchiveIsolatedTarget.label)
 
 # -----------------------------------------------------------------------------
 # "REPLAY OP" ENTRY POINT
@@ -682,19 +699,21 @@ screen archive():
 
     # Floating corner button: relaunch the opening movie. Uses call_in_new_context
     # so the OP plays in its own context and returns here cleanly (see the
-    # enter_m_archive_replay_op label above).
-    textbutton _("Replay OP"):
-        id "archive_replay_op"
-        style "archive_corner_button"
-        xalign 0.985
-        yalign 0.025
-        action Function(renpy.call_in_new_context, "enter_m_archive_replay_op")
-        at transform:
-            on show:
-                alpha 0.0
-                xoffset 14
-                pause 0.22
-                easeout 0.22 alpha 1.0 xoffset 0
+    # enter_m_archive_replay_op label above). Only when the OP ships
+    # (ENTER_M_SHIP_OP, options.rpy).
+    if ENTER_M_SHIP_OP:
+        textbutton _("Replay OP"):
+            id "archive_replay_op"
+            style "archive_corner_button"
+            xalign 0.985
+            yalign 0.025
+            action Function(renpy.call_in_new_context, "enter_m_archive_replay_op")
+            at transform:
+                on show:
+                    alpha 0.0
+                    xoffset 14
+                    pause 0.22
+                    easeout 0.22 alpha 1.0 xoffset 0
 
     # The Vault: the one room in here that isn't finished. Bottom-right,
     # mirroring Replay OP in the top-right and in the same corner style,

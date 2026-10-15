@@ -110,14 +110,13 @@ init -4 python:
     # and legal in a double-quoted Python string, but is worth keeping in one
     # place rather than retyping per card.
     MC_MSBF   = "addons/Matsuda's Sick Boss Fight/"
-    MC_ARCH   = MC_MSBF + "archetypes/"
     MC_KOTO   = MC_MSBF + "kotonohamode/"
     MC_TSUBA  = MC_MSBF + "tsubakimode/"
     MC_IDMODE = MC_MSBF + "idmode/"
     MC_INV    = "addons/Archivist Invasions/"
 
-    # The archetype plates and the two boss stills are 1023x1537 -- 2:3, same as
-    # a normalised character sprite, so they need no aspect override.
+    # Original tall encounter plates use a 1023x1537 canvas. The current Seer
+    # archetypes below use their own native dimensions.
     MC_A_TALL = 1023.0 / 1537.0
 
     # -------------------------------------------------------------------------
@@ -205,31 +204,29 @@ init -4 python:
             "civics_teacher neut", focus=0.02),
 
         # ===== SR -- the cast as something else ==============================
+        # Share Ontological Seer's live image names so its portrait refreshes
+        # reach the cards too. Aspects match MSBF_ARCH_SIZES in arena.rpy.
         McCard("sr_arch_mc", "sr", "The Spellblade", "mc",
             "Somebody handed him a sword and he did the reading on it.",
-            MC_ARCH + "mcspellblade.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_seeker", focus=0.03, aspect=1060.0 / 1484.0),
         McCard("sr_arch_monika", "sr", "The Mage", "monika",
             "She has read the manual. She helped write the manual.",
-            MC_ARCH + "monikamage.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_monika", focus=0.03, aspect=1375.0 / 1144.0),
         McCard("sr_arch_kotonoha", "sr", "The Ink Mage", "kotonoha",
             "Casting in a language the party agreed not to ask about.",
-            MC_ARCH + "kotomage.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_kotonoha", focus=0.03),
         McCard("sr_arch_asahina", "sr", "The Halberdier", "asahina",
             "The shortest reach on the field and the longest weapon.",
-            MC_ARCH + "asahalberdier.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_asahina", focus=0.03),
         McCard("sr_arch_sam", "sr", "The Berserker", "sam",
             "The pleasant one, with the safety off.",
-            MC_ARCH + "samberserker.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_sam", focus=0.03),
         McCard("sr_arch_tsubaki", "sr", "The Quiet Mage", "tsubaki",
             "Overlooked right up until the casting finishes.",
-            MC_ARCH + "tsubakimage.png", focus=0.03, aspect=MC_A_TALL),
+            "msbf_arch_tsubaki", focus=0.03),
         McCard("sr_arch_mom", "sr", "The Trickster", "mom",
             "She plays cards. You did not know she plays cards like this.",
-            MC_ARCH + "himekotrickster.png", focus=0.03, aspect=MC_A_TALL),
-
-        # The two superseded archetype plates. They are in the build, they are
-        # real art, and they are no longer what those two look like -- which is
-        # exactly the kind of thing this Archive keeps.
+            "msbf_arch_himeko", focus=0.03),
 
         McCard("sr_koto_16bit", "sr", "Sixteen Bits", "kotonoha",
             "Sixty pixels tall and the hardest read in the building.",

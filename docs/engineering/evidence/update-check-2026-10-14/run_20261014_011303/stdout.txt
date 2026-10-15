@@ -1,0 +1,22 @@
+
+Full traceback:
+  File "game/probe.rpy", line 64, in script
+    python:
+  File "renpy/ast.py", line 1187, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "renpy/python.py", line 1273, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "game/probe.rpy", line 122, in <module>
+    assert qa_http_errors == [{"type": "HTTPError", "status": 404}], qa_http_errors
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                
+AssertionError: [{'type': 'URLError', 'status': None}]
+
+While running game code:
+  File "game/probe.rpy", line 64, in script
+    python:
+  File "game/probe.rpy", line 122, in <module>
+    assert qa_http_errors == [{"type": "HTTPError", "status": 404}], qa_http_errors
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                
+AssertionError: [{'type': 'URLError', 'status': None}]

@@ -560,9 +560,11 @@ label splashscreen:
     $ splash_hold(3.25)             # plate has collapsed and gone by ~3.15
     hide screen enter_m_splash_intro
 
-    $ splash_hold(3.40)             # one black beat before the OP hits
-    scene black
-    call enter_m_sick_ass_anime_op from _call_enter_m_sick_ass_anime_op_1
+    # The OP ships only when ENTER_M_SHIP_OP is on (options.rpy).
+    if ENTER_M_SHIP_OP:
+        $ splash_hold(3.40)             # one black beat before the OP hits
+        scene black
+        call enter_m_sick_ass_anime_op from _call_enter_m_sick_ass_anime_op_1
     $ config.allow_skipping = True
     return
 

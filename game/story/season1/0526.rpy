@@ -38,7 +38,7 @@ label a0526:
     ah "You were {i}winding up{/i}. I could hear it from here."
     mc "Did the shoe apologize?"
     show asahina uniform frustrated
-    ah "Okay, your card's sleeping in that shoe tonight. We'll see who's laughing in the morning."
+    ah "Okay, your card's sleeping in my sweatiest shoe tonight. We'll see who's laughing in the morning."
     "The light changes, and she lets everybody else at the curb go first."
     mc "For somebody who beat me out the door, you're in no hurry."
     show asahina uniform neut
@@ -511,7 +511,7 @@ label a0526_after_la:
         $ update_character_thought("monika", "Monika remembered my complaints about the dragon-restaurant show and dug up all four messages. I owe her the episode.")
         $ hide_calendar()
         scene black with wipeleft_scene
-        nier "Biology gets the table after dinner, and tomorrow's alarm gets a name that's insulting on purpose."
+        nier "Biology gets the table after dinner, and I rename tomorrow's alarm {i}BIOLOGY, DIPSHIT{/i}."
         nier "On my way up to bed, I pass Asahina's bag slumped at the foot of the stairs, its front pocket hanging open."
         nier "The tangerine is still in there, unpeeled."
         call nier_clear from _call_nier_clear_0526_5

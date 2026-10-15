@@ -124,7 +124,7 @@ label a0528_after_algebra:
         "Every ending I supply puts Mom back across the table from me."
         "I shut the notes and leave the sentence where it is."
     else:
-        "Somebody by the vending machines announces that foreign language is going to be easy and gets told to shut up by three people at once."
+        "Somebody by the vending machines announces that foreign language is going to be easy and gets told to shut the hell up by three people at once."
         "I swear off my foreign language notes until five minutes before the bell, then cave with six to go. Close enough."
     $ hide_calendar()
     scene black with wipeleft_scene
@@ -474,7 +474,7 @@ label a0528_after_english:
         "Asahina and I inspect both bowls from three angles and swap twice. We end up with the ones we started with."
         show mom happy
         "Mom eats from hers through the whole thing, watching over the rim of her spoon, and does not help."
-        "When my eyes drift toward Asahina's bowl, she drags it closer."
+        "When my eyes drift toward Asahina's bowl, she licks her spoon and plants it in the ice cream like a flag."
         "The first bite makes my teeth complain. I take another one anyway."
         "The dishes wait in the sink, and nobody reaches for a textbook."
         $ update_character_thought("asahina", "Asahina and I fist-bumped over surviving exams, then spent dessert trading the same two bowls of ice cream.")

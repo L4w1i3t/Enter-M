@@ -5,8 +5,8 @@
 define FIRST_BOOT_LEAVES = (
     ("THE DEMO", "Before you enter.", (
         "This is an early demo build of ENTER M.",
-        "This build contains placeholder art, temporary audio, unfinished systems, proofs of concept, and experimental scenes.",
-        "Some presentation, story flow, and archive features may change before a later release.",
+        "This build contains placeholder art, temporary audio, unfinished systems, proofs of concepts, and experimental scenes.",
+        "Some presentation, story flow, and features are subject to change before a later release.",
     )),
     ("FROM THE CREATOR", "A personal note.", (
         "{b}Personal note: some placeholder artwork in this demo was created using Stable Diffusion (with my own trained generation models and pipelines).{/b}",

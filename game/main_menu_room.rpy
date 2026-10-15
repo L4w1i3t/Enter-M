@@ -63,8 +63,8 @@ transform mm_room_detail_swap(key=0):
 screen main_menu():
 
     tag menu
-    on "show" action Function(illustrated_menu_predict)
-    on "replace" action Function(illustrated_menu_predict)
+    on "show" action [Function(illustrated_menu_predict), Function(enter_m_check_updates)]
+    on "replace" action [Function(illustrated_menu_predict), Function(enter_m_check_updates)]
     on "hide" action Function(illustrated_menu_stop_predict)
     on "replaced" action Function(illustrated_menu_stop_predict)
 
@@ -223,6 +223,15 @@ screen main_menu():
                 xpos 10
                 ypos 61
 
+    if enter_m_updates.checker.available_version:
+        textbutton _("New build available - view release"):
+            id "main_menu_update_available"
+            style "mm_room_update_button"
+            xpos 29
+            ypos 642
+            xysize (374, 32)
+            action OpenURL(enter_m_updates.RELEASES_URL)
+
     text "UP / DOWN   ENTER / CHOOSE":
         style "mm_room_footer"
         xpos 29
@@ -305,4 +314,19 @@ style mm_room_footer is gui_text:
     font gui.interface_font
     size 10
     color "#7f918f"
+    outlines [(1, "#05090d99", 0, 1)]
+
+
+style mm_room_update_button is mm_room_option_button:
+    background ROOM_MENU_SELECTOR_IDLE
+    hover_background ROOM_MENU_SELECTOR_HOVER
+    padding (10, 0)
+
+style mm_room_update_button_text is gui_button_text:
+    font gui.interface_font
+    size 15
+    color MM_ROOM_TEAL
+    hover_color ROOM_MENU_INK
+    xalign 0.0
+    yalign 0.5
     outlines [(1, "#05090d99", 0, 1)]

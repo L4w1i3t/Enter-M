@@ -177,8 +177,13 @@ init -1 python:
 
     def ar_catalog():
         songs, errors = [], []
+        # A protected build lists its private-bundle members LOWERCASED
+        # ("addons/asahina rhythm/charts/home.json"), so match without case.
+        # Loading by the listed name still works: file lookups ignore case.
+        root = (AR_ROOT + "charts/").lower()
         for path in sorted(renpy.list_files()):
-            if path.startswith(AR_ROOT + "charts/") and path.endswith(".json") and "/" not in path[len(AR_ROOT + "charts/"):]:
+            name = path.lower()
+            if name.startswith(root) and name.endswith(".json") and "/" not in name[len(root):]:
                 try:
                     songs.append(ar_load_chart(path))
                 except (ValueError, TypeError, OSError) as exc:
