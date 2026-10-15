@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="64" viewBox="0 0 320 64">
-<defs><linearGradient id="tab" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0.000" stop-color="#fff0cf"/><stop offset="1.000" stop-color="#efd9ae"/></linearGradient></defs>
-<path d="M0 6L6 0H314L320 6V58L314 64H6L0 58Z" fill="url(#tab)" opacity="1"/>
-<path d="M5 9L9 5H311L315 9V55L311 59H9L5 55Z" fill="none" opacity="0.9" stroke="#a58a58" stroke-width="1"/>
-<path d="M10 18V46 M14 23V41 M306 23V41 M310 18V46" fill="none" opacity="0.75" stroke="#8b775d" stroke-width="1"/>
-</svg>

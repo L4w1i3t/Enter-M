@@ -1,1 +1,0 @@
-# deleted because i'm gonna rewrite this one by hand

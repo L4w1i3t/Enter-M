@@ -1,7 +1,0 @@
-# Generated evidence, SDK snapshots, and temporary QA artifacts.
-# Search these explicitly when an audit or rollback task requires them.
-/docs/sprite_audit/
-/docs/archive/
-/tmp/
-/DDLC copy for reference/
-/dev/maintenance/
