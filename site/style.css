@@ -1,17 +1,26 @@
-/* ENTER-M landing page. The palette, the orrery, the tabs and the photo
-   corners all come from the game: the title screen's art in
-   assets/gui/menu/illustrated/title/ and the Archive's illustrated kit. */
+/* ENTER-M landing page. Everything comes from the game: the title screen's
+   orrery (assets/gui/menu/illustrated/title/), the crest, and the menu kit's
+   paper, plates and colours (game/paper_ui.rpy). Paper in front, console at
+   the edges; red under the cursor, teal for what's chosen. */
 
 :root {
   --night: #132029;
-  --brass: #d9b77b;
-  --plum: #c5a0bd;
-  --paper: #f0e6d2;
-  --ash: #b9b5aa;
+  --paper: #f5eddd;
+  --rule: #8e7858;
+  --engrave: 110 88 60;        /* the plates' engraving brown, as rgb channels */
   --ink: #263238;
-  --prompt: #737474;
-  --signal-red: #d30000;
-  --signal-cyan: #00b7b8;
+  --ink-label: #2b3a41;
+  --ink-muted: #9a8566;
+  --ash: #b9b5aa;
+  --red: #9c2826;
+  --red-dark-ground: #c04028;
+  --teal: #169ab5;
+  --teal-light: #38b4bc;
+  --teal-ink: #0b6f80;
+  --teal-kicker: #156a76;
+  --teal-pale: #a9e0e3;
+  --foil: #4fc3c9;
+  --cyan: #6fd3ea;
   --display: "Nova Square", "Segoe UI", system-ui, sans-serif;
   --text: "Literata", Georgia, serif;
   --gutter: clamp(1rem, 7vw, 8rem);
@@ -30,14 +39,18 @@ body {
 
 img { display: block; max-width: 100%; height: auto; }
 
-a { color: var(--brass); text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
-a:hover { color: var(--paper); }
-:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+/* Links are teal print on the dark ground; red comes under the cursor. */
+a { color: var(--foil); text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { color: var(--paper); text-decoration-color: var(--red-dark-ground); }
+:focus-visible { outline: 2px solid var(--teal-light); outline-offset: 3px; }
 
 h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.2; }
 h2 { font-size: 1.5rem; margin: 0 0 1.25rem; }
-h3 { font-size: 1.125rem; color: var(--plum); margin: 2.5rem 0 0.5rem; }
-code { font: inherit; color: var(--brass); }  /* Nova Square's M reads as "m"; filenames must not */
+h3 { font-size: 1.125rem; color: var(--teal-light); margin: 2.5rem 0 0.5rem; }
+code { font: inherit; color: var(--foil); }  /* Nova Square's M reads as "m"; filenames must not */
+
+/* A section's key, matching its plate on the card. */
+.key { margin: 0 0 0.5rem; font: 400 11px/1.5 var(--display); letter-spacing: 2px; color: var(--foil); }
 
 .visually-hidden {
   position: absolute; width: 1px; height: 1px;
@@ -45,7 +58,7 @@ code { font: inherit; color: var(--brass); }  /* Nova Square's M reads as "m"; f
 }
 
 
-/* --- Hero: the title screen, still turning ------------------------------ */
+/* --- Hero: the title screen ---------------------------------------------- */
 
 .hero {
   position: relative;
@@ -53,28 +66,52 @@ code { font: inherit; color: var(--brass); }  /* Nova Square's M reads as "m"; f
   min-height: 100svh;
   display: grid;
   align-items: center;
-  padding: 4rem var(--gutter);
+  padding: 2.75rem var(--gutter);
 }
 
 .sky { position: absolute; inset: 0; z-index: -1; overflow: hidden; container-type: size; }
-.sky::before, .sky::after { content: ""; position: absolute; inset: 0; }
-.sky::before { background: linear-gradient(90deg, rgb(19 32 41 / 0.9), rgb(19 32 41 / 0.55) 40%, transparent 64%); z-index: 1; }
-.sky::after { top: auto; height: 35%; background: linear-gradient(transparent, var(--night)); z-index: 1; }
+.sky::after { content: ""; position: absolute; inset: auto 0 0; z-index: 1; height: 30%; background: linear-gradient(transparent, var(--night)); }
 
 /* The field and the rings share the title's 1280x720 frame, where the orrery's
    centre sits at (855, 360): 66.797% across. The stage covers the hero and
-   pins that centre at --x. */
+   pins that centre at --x. In squarer windows the stage grows with the
+   height, so the centre gives way to the right until the crest (half of it is
+   22.5% of the stage) clears the card. */
 .stage {
   --x: 66.797%;
   position: absolute;
   top: 50%;
-  left: var(--x);
+  left: max(var(--x), calc(var(--gutter) + var(--card-w) + 1.5rem + max(22.5cqw, 40cqh)));
   width: max(100cqw, 177.78cqh);
   aspect-ratio: 16 / 9;
   translate: -66.797% -50%;
 }
-.stage::after {
-  content: "";
+.field { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+.ring { position: absolute; left: 41.797%; top: 5.556%; width: 50%; max-width: none; }
+
+/* The crest is the orrery's heart and never turns (main_menu_fx.rpy,
+   mmfx_title_crest: 576 px at (567, 83)). */
+.crest { position: absolute; left: 44.297%; top: 11.528%; width: 45%; max-width: none; }
+
+/* The title screen's own periods (mmfx_orrery_spin). */
+.months { animation: turn 360s linear infinite; }
+.days { animation: turn 240s linear infinite reverse; }
+.orbits { animation: turn 150s linear infinite; }
+@keyframes turn { to { rotate: 360deg; } }
+
+/* The rings answer the row under the cursor: the month ring 15 degrees a row,
+   the day ring -6 (mmfx_orrery_answer). script.js sets --months and --days. */
+.answer {
+  position: absolute;
+  inset: 0;
+  transform-origin: 66.797% 50%;
+  transition: rotate 0.7s ease-out;
+}
+.answer-months { rotate: var(--months, 0deg); }
+.answer-days { rotate: var(--days, 0deg); }
+
+/* The warm core breathes, and flares once when the row changes. */
+.core {
   position: absolute;
   left: 66.797%;
   top: 50%;
@@ -82,74 +119,136 @@ code { font: inherit; color: var(--brass); }  /* Nova Square's M reads as "m"; f
   aspect-ratio: 1;
   translate: -50% -50%;
   background: radial-gradient(closest-side, rgb(233 190 120 / 0.3), transparent);
+  animation: breathe 6s ease-in-out infinite alternate;
 }
-.field { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
-.ring { position: absolute; left: 41.797%; top: 5.556%; width: 50%; max-width: none; }
+.core::after { content: ""; position: absolute; inset: 0; background: inherit; opacity: 0; }
+.core.pulse::after { animation: flare 0.7s ease-out; }
+@keyframes breathe { from { opacity: 0.6; } }
+@keyframes flare { 28.6% { opacity: 0.9; } }
 
-/* The title screen's own periods (main_menu_fx.rpy, mmfx_orrery_spin). The
-   delays start the beads away from the wordmark: at 0 the day ring's bead
-   sits right after the period and reads as a colon. */
-.months { animation: turn 360s linear infinite; }
-.days { animation: turn 240s linear -120s infinite reverse; }
-.orbits { animation: turn 150s linear -75s infinite; }
-@keyframes turn { to { rotate: 360deg; } }
+/* The card: a sheet of the menu's paper, an edge line and a rule 8 px in
+   (sheet_frame), with the sheet's shadow under it. */
+.card {
+  position: relative;
+  width: min(368px, 100%);
+  padding: 30px 24px 22px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px #c7b591, 0 24px 44px -18px rgb(4 8 12 / 0.75), 0 2px 8px rgb(4 8 12 / 0.35);
+}
+.card::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgb(142 120 88 / 0.38); pointer-events: none; }
+.card p { margin: 0; }
+.card-title { margin: 0; font: 400 30px/1.2 var(--text); letter-spacing: 0.02em; }
+.kicker { margin-top: 6px !important; font: 400 11px/1.5 var(--display); letter-spacing: 2px; color: var(--teal-kicker); }
+.edition { margin-top: 12px !important; font: 400 12px/1.5 var(--display); letter-spacing: 1.2px; color: var(--red); }
+.rows { display: grid; gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
 
-.hero-copy { max-width: 34rem; }
-.hero-copy p { margin: 0; }
+/* The note for the row under the cursor, under a hairline. */
+/* Tall enough for the longest note (Download with its release line, three
+   lines), so no row resizes the card. */
+.card-note { margin-top: 22px; padding-top: 14px; border-top: 1px solid rgb(142 120 88 / 0.5); min-height: 110px; }
+#note-text { font: 400 17px/1.45 var(--text); color: #34444b; }
+#note-key { min-height: 1em; margin-top: 10px; font: 400 11px/1 var(--display); letter-spacing: 1.8px; color: var(--red); }
 
-.wordmark {
-  margin: 0 0 1.5rem;
-  font: 400 clamp(2.75rem, 1.4rem + 6vw, 6.5rem)/1 var(--display);
+/* The console at the edges: readouts outside the paper, never on it. */
+.edge {
+  position: absolute;
+  margin: 0;
+  font: 400 11px/1 var(--display);
+  letter-spacing: 1.6px;
+  color: rgb(111 211 234 / 0.8);
   white-space: nowrap;
 }
-.prompt { color: var(--prompt); margin-right: 0.14em; }
+.edge-top { top: 0.875rem; left: calc(var(--gutter) + 2px); }
+.edge-bottom { bottom: 0.875rem; left: calc(var(--gutter) + 2px); }
+.tick { display: flex; align-items: center; gap: 6px; translate: 0 -50%; opacity: 0; transition: opacity 0.15s; }
+.tick::before { content: ""; width: 18px; height: 1px; background: rgb(111 211 234 / 0.53); }
+.tick.on { opacity: 1; }
 
-/* The logo's broken M: red and cyan copies behind it, and a signal that
-   slips for a fifth of a second every nine. */
-.m { position: relative; display: inline-block; }
-.m::before, .m::after { content: "M"; position: absolute; inset: 0; z-index: -1; mix-blend-mode: screen; }
-.m::before { color: var(--signal-red); translate: -0.05em 0.015em; animation: slip-red 9s steps(1, end) infinite; }
-.m::after { color: var(--signal-cyan); translate: 0.05em -0.01em; animation: slip-cyan 9s steps(1, end) infinite; }
-@keyframes slip-red {
-  96% { translate: -0.15em 0; clip-path: inset(20% 0 46% 0); }
-  98% { translate: -0.05em 0.015em; clip-path: none; }
-}
-@keyframes slip-cyan {
-  96% { translate: 0.12em 0; clip-path: inset(58% 0 10% 0); }
-  98% { translate: 0.05em -0.01em; clip-path: none; }
-}
+/* The game draws its UI 1.25x and 1.5x on bigger windows while the orrery
+   grows with the screen; the card and the readouts keep pace. */
+.hero { --card-w: 368px; }    /* the card's drawn width, for the stage */
+@media (min-width: 1400px) and (min-height: 880px) { .card, .edge { zoom: 1.25; } .hero { --card-w: 460px; } }
+@media (min-width: 1800px) and (min-height: 1040px) { .card, .edge { zoom: 1.5; } .hero { --card-w: 552px; } }
 
-.hero-copy .tagline {
-  margin-bottom: 2rem;
-  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.625rem);
-  line-height: 1.4;
-}
-.hero-copy .aside { margin-top: 1rem; font-size: 0.9375rem; color: var(--ash); }
-
-@media (max-aspect-ratio: 1 / 1) {
-  .hero { align-items: end; padding-bottom: 3rem; }
-  .stage { --x: 50%; }
-  .sky::before { background: none; }
-  .sky::after { height: 65%; background: linear-gradient(transparent, rgb(19 32 41 / 0.88) 35%, var(--night)); }
+/* Portrait, near-square and short landscape windows (phones turned
+   sideways): the orrery first, the card under it. The sky is tall enough to
+   hold the whole crest (45% of the stage, which is at least as wide as the
+   sky). */
+@media (max-aspect-ratio: 6 / 5), (max-height: 500px) {
+  .hero { display: block; min-height: 0; padding: 0 1rem 3.5rem; }
+  .sky { position: relative; height: max(min(100vw, 70svh), 48vw); margin-inline: -1rem; }
+  .edge-top, .edge-bottom { left: calc(1rem + 2px); }
+  /* Centred, unless the field (the orrery sits 66.797% across it) would stop
+     short of the right edge; then right of centre, as on the title. */
+  .stage { --x: 50%; left: max(var(--x), calc(100cqw - 0.33203 * max(100cqw, 177.78cqh))); }
+  .card { width: 100%; max-width: 34rem; margin: -1rem auto 0; }
+  .tick { display: none; }
 }
 
 
-/* --- Buttons: the menu's own engraved tabs ------------------------------ */
+/* --- Plates: the menu kit's letterpress buttons -------------------------- */
 
-.button {
-  display: inline-block;
-  padding: 0.25rem 1.5rem;
-  border-style: solid;
-  border-width: 16px 20px;
-  border-image: url(art/tab_selected.svg) 16 20 fill / 16px 20px;
-  font: 400 1.125rem/1.2 var(--display);
-  color: var(--ink);
+/* Drawn as dev/build_ui_art.py plate() draws them: a faint outer rule, the
+   main rule 3 px in, a diamond on each end of it. Under the cursor (or the
+   keyboard) red floods the main rule's interior from the left, the type goes
+   paper, the main rule red, the outer rule and diamonds teal: the crest's red
+   banner in its teal laurel. Nothing moves. */
+.plate {
+  --faint: rgb(var(--engrave) / 0.22);
+  --main: rgb(var(--engrave) / 0.55);
+  --orn: rgb(var(--engrave) / 0.6);
+  --type: var(--ink-label);
+  --small: var(--ink-muted);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 42px;
+  padding: 0 1.125rem;
+  border: 1px solid var(--faint);
+  color: var(--type);
   text-decoration: none;
 }
-.button:hover { color: var(--ink); filter: brightness(1.08); }
+.plate::before, .plate::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+.plate::before {
+  inset: 2px;
+  border: 1px solid var(--main);
+  background: linear-gradient(var(--red), var(--red)) no-repeat 0 0 / 0% 100%;
+  transition: background-size 0.18s ease-out;
+}
+/* The two diamonds sit on the main rule's ends: 8 px, centred 3.5 px in. */
+.plate::after {
+  inset: 0 -1px;
+  background: var(--orn);
+  --diamond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M4 0 8 4 4 8 0 4z'/%3E%3C/svg%3E");
+  mask: var(--diamond) 0 50% / 8px 8px no-repeat, var(--diamond) 100% 50% / 8px 8px no-repeat;
+}
+.plate:hover, .plate:focus-visible {
+  --faint: rgb(56 180 188 / 0.8);
+  --main: var(--red);
+  --orn: var(--teal-light);
+  --type: var(--paper);
+  --small: var(--teal-pale);
+  color: var(--type);
+}
+.plate:hover::before, .plate:focus-visible::before { background-size: 100% 100%; transition-duration: 0.26s; }
+.plate:focus-visible { outline: 2px solid var(--teal-light); outline-offset: 3px; }
 
-.button.quiet { border-image-source: url(art/tab_idle.svg); color: var(--paper); }
-.button.quiet:hover { border-image-source: url(art/tab_hover.svg); filter: none; }
+.plate .num, .plate .tag { font: 400 12px/1 var(--display); letter-spacing: 1px; color: var(--small); }
+.plate .label { font: 400 1.375rem/1.2 var(--text); color: var(--type); }
+.plate .tag { margin-left: auto; font-size: 11px; letter-spacing: 1.8px; }
+
+/* On a dark ground: teal rules, paper type, the same red flood. */
+.plate.foil {
+  --faint: rgb(56 180 188 / 0.25);
+  --main: rgb(56 180 188 / 0.55);
+  --orn: rgb(56 180 188 / 0.6);
+  --type: var(--paper);
+  --small: var(--teal-pale);
+}
+.plate.foil:hover, .plate.foil:focus-visible { --faint: rgb(56 180 188 / 0.7); --main: var(--red); --orn: var(--teal-light); }
 
 
 /* --- Reading column ------------------------------------------------------ */
@@ -161,25 +260,15 @@ main > section { margin-block: clamp(4.5rem, 9vw, 8rem); }
   margin-inline: auto;
 }
 
-.date {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  font-size: 1.25rem;
-  color: var(--brass);
-}
-/* The month marker from the orrery's ring. */
-.date::before { content: ""; width: 0.5rem; height: 0.5rem; background: var(--plum); rotate: 45deg; }
-
-.prose { font-size: 1.1875rem; }
-.prose p { margin: 0 0 1em; }
 .premise p:last-child { color: var(--ash); }
 
 .steps { margin: 0 0 1rem; padding: 0; list-style: none; counter-reset: step; }
 .steps li { counter-increment: step; position: relative; padding-left: 2rem; margin-bottom: 0.6rem; }
-.steps li::before { content: counter(step); position: absolute; left: 0; font-family: var(--display); color: var(--brass); }
+.steps li::before { content: counter(step); position: absolute; left: 0; font-family: var(--display); color: var(--foil); }
 .note { font-size: 0.9375rem; color: var(--ash); }
+
+/* A plate in the reading column sizes to its words. */
+.column .plate { display: inline-flex; min-width: 16rem; }
 
 
 /* --- Snapshots: the CG gallery's matted print ---------------------------- */
@@ -225,25 +314,26 @@ main > section { margin-block: clamp(4.5rem, 9vw, 8rem); }
 }
 #view-count { color: #6b5a48; white-space: nowrap; }
 
+/* The arrows are foil plates: square, on a dark glass, the same red flood. */
 .step {
   position: absolute;
   top: calc(50% - 1.5rem);
   translate: 0 -50%;
   width: 2.75rem;
+  min-height: 0;
   height: 2.75rem;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgb(217 183 123 / 0.55);
+  padding: 0;
+  justify-content: center;
   background: rgb(19 32 41 / 0.78);
+  font: inherit;
   cursor: pointer;
 }
 .step[hidden] { display: none; }
-.step:hover { border-color: var(--brass); }
-.step::before { content: ""; width: 0.6rem; height: 0.6rem; border: solid var(--paper); border-width: 0 0 2px 2px; }
+.chev { width: 0.6rem; height: 0.6rem; border: solid var(--type); border-width: 0 0 2px 2px; }
 .prev { left: 1.25rem; }
-.prev::before { rotate: 45deg; translate: 0.15rem 0; }
+.prev .chev { rotate: 45deg; translate: 0.15rem 0; }
 .next { right: 1.25rem; }
-.next::before { rotate: -135deg; translate: -0.15rem 0; }
+.next .chev { rotate: -135deg; translate: -0.15rem 0; }
 
 .strip {
   position: relative;
@@ -253,13 +343,15 @@ main > section { margin-block: clamp(4.5rem, 9vw, 8rem); }
   margin: 1.25rem 0 0;
   padding: 0.25rem 0.25rem 0.75rem;
   list-style: none;
-  scrollbar-color: rgb(217 183 123 / 0.4) transparent;
+  scrollbar-color: rgb(56 180 188 / 0.4) transparent;
 }
 .strip li { flex: 0 0 auto; }
-.strip a { display: block; width: clamp(7.5rem, 14vw, 10rem); border: 1px solid rgb(217 183 123 / 0.25); }
+.strip a { display: block; width: clamp(7.5rem, 14vw, 10rem); border: 1px solid rgb(56 180 188 / 0.25); }
 .strip img { opacity: 0.55; transition: opacity 0.2s; }
 .strip a:hover img, .strip a[aria-current="true"] img { opacity: 1; }
-.strip a[aria-current="true"] { border-color: var(--brass); }
+/* Red under the cursor, teal for the print on show. */
+.strip a:hover { border-color: var(--red-dark-ground); }
+.strip a[aria-current="true"] { border-color: var(--teal-light); }
 
 
 /* --- Closing: the title drop -------------------------------------------- */
@@ -300,6 +392,6 @@ footer p { margin: 0 0 0.6rem; }
 
 
 @media (prefers-reduced-motion: reduce) {
-  .ring, .m::before, .m::after { animation: none; }
-  .photo img, .strip img { transition: none; }
+  .ring, .core, .core.pulse::after { animation: none; }
+  .photo img, .strip img, .plate::before, .answer, .tick { transition: none; }
 }

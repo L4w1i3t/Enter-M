@@ -22,24 +22,42 @@
   <script src="script.js" defer></script>
 </head>
 <body>
+  <!-- The title screen: the paper card over the orrery, the console at the edges. -->
   <header class="hero">
     <div class="sky" aria-hidden="true">
       <div class="stage">
         <img class="field" src="art/field.svg" alt="">
-        <img class="ring months" src="art/ring_months.svg" alt="">
-        <img class="ring days" src="art/ring_days.svg" alt="">
+        <div class="answer answer-months"><img class="ring months" src="art/ring_months.svg" alt=""></div>
+        <div class="answer answer-days"><img class="ring days" src="art/ring_days.svg" alt=""></div>
         <img class="ring orbits" src="art/ring_orbits.svg" alt="">
+        <div class="core"></div>
+        <img class="crest" src="art/crest.webp" alt="">
       </div>
     </div>
-    <div class="hero-copy">
-      <h1 class="wordmark">
-        <span class="visually-hidden">ENTER-M</span>
-        <span aria-hidden="true"><span class="prompt">&gt;</span>ENTER_<span class="m">M</span>.</span>
-      </h1>
-      <p class="tagline">A visual novel about one school year, told a day at a time.</p>
-      <p><a class="button" href="https://github.com/L4w1i3t/Enter-M/releases/latest">Download the demo</a></p>
-      <p class="aside">Chapter 0.5 is free, for Windows, macOS, and Linux.<span id="release"></span></p>
-    </div>
+
+    <p class="edge edge-top" aria-hidden="true">TITLE.SYS // SIGNAL 0x4D</p>
+
+    <nav class="card" aria-label="Site">
+      <h1 class="card-title">ENTER-M</h1>
+      <p class="kicker">A QUIET PLACE BETWEEN STORIES</p>
+      <p class="edition">PROOF OF CONCEPT EDITION</p>
+      <ol class="rows">
+        <li><a class="plate" href="https://github.com/L4w1i3t/Enter-M/releases/latest" data-tag="BEGIN" data-note="Chapter 0.5 is free, for Windows, macOS, and Linux."><span class="num">01</span><span class="label">Download</span><span class="tag">BEGIN</span></a></li>
+        <li><a class="plate" href="#snapshots" data-tag="LOOK" data-note="A few moments from the first chapter."><span class="num">02</span><span class="label">Snapshots</span><span class="tag">LOOK</span></a></li>
+        <li><a class="plate" href="#demo" data-tag="CONTENTS" data-note="What Chapter 0.5 covers, and what it opens."><span class="num">03</span><span class="label">In the demo</span><span class="tag">CONTENTS</span></a></li>
+        <li><a class="plate" href="#start" data-tag="SETUP" data-note="Three steps, and a word about antivirus warnings."><span class="num">04</span><span class="label">Getting started</span><span class="tag">SETUP</span></a></li>
+        <li><a class="plate" href="https://docs.google.com/forms/d/e/1FAIpQLSe8lSaFp1oBJCxfunYw-htC_esCUgykFqlKZvGflrhTDE6EYw/viewform?usp=publish-editor" data-tag="TELL" data-note="Played the demo? Tell me what worked and what didn’t."><span class="num">05</span><span class="label">Feedback</span><span class="tag">TELL</span></a></li>
+        <li><a class="plate" href="https://ko-fi.com/l4w1i3t" data-tag="SUPPORT" data-note="Leave something in the tip jar."><span class="num">06</span><span class="label">Donate</span><span class="tag">SUPPORT</span></a></li>
+        <li><a class="plate" href="https://github.com/L4w1i3t/Enter-M" data-tag="READ" data-note="The whole game, source and all, on GitHub."><span class="num">07</span><span class="label">Source</span><span class="tag">READ</span></a></li>
+      </ol>
+      <div class="card-note">
+        <p id="note-text">A visual novel about one school year, told a day at a time.</p>
+        <p id="note-key"></p>
+      </div>
+    </nav>
+
+    <p class="edge tick" id="tick" aria-hidden="true"></p>
+    <p class="edge edge-bottom" id="readout">LINK STABLE</p>
   </header>
 
   <main>
@@ -49,7 +67,8 @@
       <p>It follows a usual day-by-day routine, but how long exactly can that be maintained?</p>
     </section>
 
-    <section class="snapshots" aria-labelledby="snapshots-title">
+    <section class="snapshots" id="snapshots" aria-labelledby="snapshots-title">
+      <p class="key">02 / SNAPSHOTS</p>
       <h2 id="snapshots-title">Snapshots</h2>
       <div class="viewer">
         <figure class="print">
@@ -60,8 +79,8 @@
             <span id="view-count">1 / 9</span>
           </figcaption>
         </figure>
-        <button class="step prev" type="button" aria-label="Previous snapshot" hidden></button>
-        <button class="step next" type="button" aria-label="Next snapshot" hidden></button>
+        <button class="step prev plate foil" type="button" aria-label="Previous snapshot" hidden><span class="chev"></span></button>
+        <button class="step next plate foil" type="button" aria-label="Next snapshot" hidden><span class="chev"></span></button>
       </div>
       <ul class="strip">
         <li><a href="shots/evening.webp"><img src="shots/thumbs/evening.webp" width="400" height="225" loading="lazy" alt="Matsuda and Tsubaki on a residential street at night. Matsuda: “Good sir! A kingdom awaits your aid…”"></a></li>
@@ -70,18 +89,20 @@
         <li><a href="shots/roof.webp"><img src="shots/thumbs/roof.webp" width="400" height="225" loading="lazy" alt="Asahina and Tsubaki on the school roof. Tsubaki: “I liked how the motion lines led into the lettering.”"></a></li>
         <li><a href="shots/phone.webp"><img src="shots/thumbs/phone.webp" width="400" height="225" loading="lazy" alt="A text thread with Monika about the library downtown reopening."></a></li>
         <li><a href="shots/exam.webp"><img src="shots/thumbs/exam.webp" width="400" height="225" loading="lazy" alt="An exam question in an empty classroom, with three answers to choose from."></a></li>
-        <li><a href="shots/title.webp"><img src="shots/thumbs/title.webp" width="400" height="225" loading="lazy" alt="The title screen: a numbered menu beside an engraved orrery."></a></li>
-        <li><a href="shots/arcade.webp"><img src="shots/thumbs/arcade.webp" width="400" height="225" loading="lazy" alt="The arcade: a featured cartridge above a shelf of games and a prize machine."></a></li>
-        <li><a href="shots/chapter-select.webp"><img src="shots/thumbs/chapter-select.webp" width="400" height="225" loading="lazy" alt="Chapter Select: six chapter folios, with Chapter 0.5 open."></a></li>
+        <li><a href="shots/title.webp"><img src="shots/thumbs/title.webp" width="400" height="225" loading="lazy" alt="The title screen: a paper menu card of numbered plates beside the crest and its orrery."></a></li>
+        <li><a href="shots/arcade.webp"><img src="shots/thumbs/arcade.webp" width="400" height="225" loading="lazy" alt="The arcade: the MATSUCOM console with Ontological Seer as the featured cartridge, the collection below and a prize machine."></a></li>
+        <li><a href="shots/chapter-select.webp"><img src="shots/thumbs/chapter-select.webp" width="400" height="225" loading="lazy" alt="Chapter Select: six chapter cards, with Chapter 0.5 open and the rest not yet written."></a></li>
       </ul>
     </section>
 
-    <section class="column" aria-labelledby="demo-title">
+    <section class="column" id="demo" aria-labelledby="demo-title">
+      <p class="key">03 / IN THE DEMO</p>
       <h2 id="demo-title">In the demo</h2>
       <p>Chapter 0.5 covers May 15 to May 31. When it ends, the Music Room opens, along with six side stories: <i>Heads</i>, <i>Tails</i>, <i>Hina’s World</i>, <i>Purgatorium</i>, <i>The Girl with Every Face</i>, and <i>The Void Hunter</i>. The arcade is open from the start.</p>
     </section>
 
-    <section class="column" aria-labelledby="start-title">
+    <section class="column" id="start" aria-labelledby="start-title">
+      <p class="key">04 / GETTING STARTED</p>
       <h2 id="start-title">Getting started</h2>
       <ol class="steps">
         <li>Download the zip from the <a href="https://github.com/L4w1i3t/Enter-M/releases/latest">latest release</a>.</li>
@@ -94,10 +115,11 @@
     </section>
 
     <section class="column" aria-labelledby="feedback-title">
+      <p class="key">05 / FEEDBACK</p>
       <h2 id="feedback-title">Feedback</h2>
       <p>Played the demo? Tell me what worked and what didn’t.</p>
       <!-- Paste the Google Form link into this href. -->
-      <p><a class="button quiet" href="https://docs.google.com/forms/d/e/1FAIpQLSe8lSaFp1oBJCxfunYw-htC_esCUgykFqlKZvGflrhTDE6EYw/viewform?usp=publish-editor">Leave feedback</a></p>
+      <p><a class="plate foil" href="https://docs.google.com/forms/d/e/1FAIpQLSe8lSaFp1oBJCxfunYw-htC_esCUgykFqlKZvGflrhTDE6EYw/viewform?usp=publish-editor"><span class="label">Leave feedback</span></a></p>
     </section>
 
     <section class="close">
